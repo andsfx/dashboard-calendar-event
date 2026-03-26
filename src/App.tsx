@@ -7,7 +7,7 @@ import { useDebouncedValue } from './hooks/useDebouncedValue';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { normalizeEventInput } from './utils/eventInput';
 import { STORAGE_KEYS, STATUS_ORDER, INPUT_LIMITS } from './constants';
-import { fetchEvents } from './utils/sheetsApi';
+import { fetchEvents, createEvent as createSheetsEvent, updateEvent as updateSheetsEvent, deleteEvent as deleteSheetsEvent } from './utils/sheetsApi';
 
 import Navbar from './components/Navbar';
 import StatCard from './components/StatCard';
@@ -22,6 +22,7 @@ import AnnualTimeline from './components/AnnualTimeline';
 import UpcomingNext from './components/UpcomingNext';
 
 const ADMIN_PASSWORD = (import.meta.env.VITE_ADMIN_PASSWORD ?? '').trim();
+const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ?? '';
 
 function resequenceRowIndex(list: EventItem[]): EventItem[] {
   return list.map((event, index) => ({
@@ -52,6 +53,8 @@ export default function App() {
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 250);
 
   // Load data from Google Sheets on mount
@@ -138,8 +141,10 @@ export default function App() {
   }, []);
 
   // CRUD handlers
-  const handleSaveEvent = useCallback((data: Partial<EventItem>) => {
+  const handleSaveEvent = useCallback(async (data: Partial<EventItem>) => {
     const normalizedData = normalizeEventInput(data);
+    
+    // Save to localStorage first (optimistic update)
     setEvents(prev => {
       if (normalizedData.id) {
         return recalculateStatuses(
@@ -165,13 +170,78 @@ export default function App() {
         return recalculateStatuses(resequenceRowIndex([...prev, newEvent]));
       }
     });
+
+    // Sync to Google Sheets if configured
+    if (APPS_SCRIPT_URL) {
+      setIsSyncing(true);
+      setSyncMessage(null);
+      try {
+        if (normalizedData.id) {
+          // Update existing event
+          const existingEvent = normalizedData;
+          await updateSheetsEvent({
+            sheetRow: existingEvent.sheetRow || 0,
+            dateStr: normalizedData.dateStr || '',
+            tanggal: normalizedData.tanggal || '',
+            day: normalizedData.day || '',
+            jam: normalizedData.jam || '',
+            acara: normalizedData.acara || '',
+            lokasi: normalizedData.lokasi || '',
+            eo: normalizedData.eo || '',
+            keterangan: normalizedData.keterangan || '',
+            month: normalizedData.month || '',
+          });
+          setSyncMessage({ type: 'success', text: 'Event berhasil diupdate di spreadsheet!' });
+        } else {
+          // Create new event
+          await createSheetsEvent({
+            dateStr: normalizedData.dateStr || '',
+            tanggal: normalizedData.tanggal || '',
+            day: normalizedData.day || '',
+            jam: normalizedData.jam || '',
+            acara: normalizedData.acara || '',
+            lokasi: normalizedData.lokasi || '',
+            eo: normalizedData.eo || '',
+            keterangan: normalizedData.keterangan || '',
+            month: normalizedData.month || '',
+          });
+          setSyncMessage({ type: 'success', text: 'Event berhasil ditambahkan ke spreadsheet!' });
+        }
+      } catch (err) {
+        console.error('Sync error:', err);
+        setSyncMessage({ type: 'error', text: 'Gagal sync ke spreadsheet. Data disimpan lokal.' });
+      } finally {
+        setIsSyncing(false);
+        // Clear message after 3 seconds
+        setTimeout(() => setSyncMessage(null), 3000);
+      }
+    }
   }, []);
 
-  const handleDeleteEvent = useCallback(() => {
-    if (deletingEvent) {
-      setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== deletingEvent.id)));
-      setDeletingEvent(null);
-      setShowDeleteModal(false);
+  const handleDeleteEvent = useCallback(async () => {
+    if (!deletingEvent) return;
+
+    const sheetRow = deletingEvent.sheetRow;
+    
+    // Delete from localStorage first (optimistic delete)
+    setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== deletingEvent.id)));
+    setDeletingEvent(null);
+    setShowDeleteModal(false);
+
+    // Sync to Google Sheets if configured
+    if (APPS_SCRIPT_URL && sheetRow) {
+      setIsSyncing(true);
+      setSyncMessage(null);
+      try {
+        await deleteSheetsEvent(sheetRow);
+        setSyncMessage({ type: 'success', text: 'Event berhasil dihapus dari spreadsheet!' });
+      } catch (err) {
+        console.error('Delete sync error:', err);
+        setSyncMessage({ type: 'error', text: 'Gagal hapus dari spreadsheet. Data dihapus lokal.' });
+      } finally {
+        setIsSyncing(false);
+        setTimeout(() => setSyncMessage(null), 3000);
+      }
     }
   }, [deletingEvent]);
 
@@ -271,6 +341,23 @@ export default function App() {
                   <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Mode Admin Aktif</p>
                   <p className="text-xs text-indigo-500 dark:text-indigo-400">Anda dapat menambah, mengedit, dan menghapus acara.</p>
                 </div>
+              </div>
+            )}
+
+            {/* Sync Status Message */}
+            {syncMessage && (
+              <div className={`rounded-2xl p-4 flex items-center gap-3 animate-fade-in-up ${
+                syncMessage.type === 'success' 
+                  ? 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800' 
+                  : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
+              }`}>
+                <span className={syncMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}>
+                  {syncMessage.type === 'success' ? '✓' : '⚠️'}
+                </span>
+                <p className={`text-sm ${syncMessage.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
+                  {syncMessage.text}
+                </p>
+                {isSyncing && <span className="ml-auto animate-spin text-indigo-500">⏳</span>}
               </div>
             )}
 
