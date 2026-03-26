@@ -4,7 +4,6 @@ export type Theme = 'light' | 'dark';
 
 export interface EventItem {
   id: string;
-  sheetRow?: number;
   rowIndex: number;
   tanggal: string;   // "12 Juni 2025"
   dateStr: string;   // "2025-06-12"

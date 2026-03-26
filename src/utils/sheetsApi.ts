@@ -32,9 +32,9 @@ class SheetsApiError extends Error {
 }
 
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[] }> {
-  if (!APPS_SCRIPT_URL) {
-    console.warn('VITE_APPS_SCRIPT_URL tidak dikonfigurasi.');
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
+    console.warn('VITE_APPS_SCRIPT_URL masih menggunakan placeholder atau belum dikonfigurasi di .env.');
+    throw new SheetsApiError('Apps Script URL belum dikonfigurasi (masih menggunakan teks REPLACE_WITH_YOUR_URL)');
   }
 
   try {
@@ -59,7 +59,9 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       eo: e.eo,
       keterangan: e.keterangan,
       month: e.month,
-      status: 'upcoming' as const,
+      status: 'upcoming' as const, // Will be recalculated
+      category: 'Umum',             // Default for now
+      priority: 'medium'            // Default for now
     }));
 
     return { events, themes: result.data.themes };

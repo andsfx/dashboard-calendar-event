@@ -18,7 +18,7 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
 import { useToast } from './hooks/useToast';
-import { annualThemes as mockThemes } from './data/mockEvents';
+import { annualThemes } from './data/mockEvents';
 import { EventItem, ViewMode } from './types';
 import { createId } from './utils/eventUtils';
 
@@ -49,7 +49,6 @@ export default function App() {
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     addEvent, updateEvent, deleteEvent,
-    annualThemes,
   } = useEvents();
 
   // Dark mode toggle
@@ -94,8 +93,8 @@ export default function App() {
   }, []);
 
   const handleSave = useCallback((data: Partial<EventItem>) => {
-    if (editingEvent) {
-      updateEvent({ ...editingEvent, ...data } as EventItem);
+    if (data.id) {
+      updateEvent(data as EventItem);
       showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
     } else {
       const newEv: EventItem = {
@@ -109,7 +108,7 @@ export default function App() {
     }
     setShowCrudModal(false);
     setEditingEvent(null);
-  }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
+  }, [events.length, addEvent, updateEvent, showToast]);
 
   const handleDeleteConfirm = useCallback(() => {
     if (!deletingEvent) return;

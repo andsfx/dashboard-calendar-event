@@ -26,7 +26,7 @@ export const STATUS_ORDER = {
 
 // Storage Keys
 export const STORAGE_KEYS = {
-  EVENTS: 'mmb-events',
+  EVENTS: 'mmb-events-v3',
   DARK_MODE: 'mmb-dark-mode',
 } as const;
 
