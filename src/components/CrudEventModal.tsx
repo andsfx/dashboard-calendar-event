@@ -78,7 +78,7 @@ export default function CrudEventModal({ isOpen, editingEvent, onClose, onSave }
     // Slight delay for feedback
     setTimeout(() => {
       onSave({
-        ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : {}),
+        ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex, sheetRow: editingEvent.sheetRow } : {}),
         tanggal: dateInfo.tanggal,
         dateStr: dateInfo.dateStr,
         day: dateInfo.day,
