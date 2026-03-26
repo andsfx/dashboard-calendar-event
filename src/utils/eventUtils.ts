@@ -87,6 +87,8 @@ export function createId() {
 }
 
 export function getStatus(dateStr: string, jam: string): EventStatus {
+  if (!dateStr) return 'upcoming';
+  
   const now = new Date();
   const eventDate = new Date(dateStr);
   
@@ -95,6 +97,9 @@ export function getStatus(dateStr: string, jam: string): EventStatus {
 
   if (target > today) return 'upcoming';
   if (target < today) return 'past';
+
+  // Same day - check time
+  if (!jam) return 'upcoming';
 
   try {
     const timeMatch = jam.match(/(\d{1,2})[:.](\d{2})/);
@@ -115,12 +120,16 @@ export function getStatus(dateStr: string, jam: string): EventStatus {
         if (now < startTime) return 'upcoming';
         return 'past';
       }
+      
+      // No end time - if now is after start, it's ongoing
+      if (now >= startTime) return 'ongoing';
+      return 'upcoming';
     }
   } catch (e) {
     console.error('Error parsing time for status:', e);
   }
 
-  return 'ongoing';
+  return 'upcoming';
 }
 
 export function recalculateStatuses(events: EventItem[]): EventItem[] {

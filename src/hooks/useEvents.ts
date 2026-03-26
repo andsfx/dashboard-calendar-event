@@ -76,38 +76,51 @@ export function useEvents() {
     return sortEvents(result);
   }, [events, activeFilter, activeCategory, activePriority, debouncedSearch]);
 
-  const addEvent = useCallback(async (ev: EventItem) => {
+  const addEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
+    const tempId = ev.id;
     setEvents(prev => [...prev, ev]);
     try {
       const { id, status, rowIndex, ...apiData } = ev;
       const row = await apiCreate(apiData);
-      setEvents(prev => prev.map(e => e.id === id ? { ...e, sheetRow: row } : e));
+      setEvents(prev => prev.map(e => e.id === tempId ? { ...e, sheetRow: row } : e));
+      return true;
     } catch (err) {
       console.error('Error adding event:', err);
+      setEvents(prev => prev.filter(e => e.id !== tempId));
+      return false;
     }
   }, []);
 
-  const updateEvent = useCallback(async (ev: EventItem) => {
+  const updateEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
+    const prevEvent = events.find(e => e.id === ev.id);
     setEvents(prev => prev.map(e => e.id === ev.id ? ev : e));
     if (ev.sheetRow) {
       try {
         await apiUpdate(ev as EventItem & { sheetRow: number });
+        return true;
       } catch (err) {
         console.error('Error updating event:', err);
+        if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
+        return false;
       }
     }
-  }, []);
+    return true;
+  }, [events]);
 
-  const deleteEvent = useCallback(async (id: string) => {
+  const deleteEvent = useCallback(async (id: string): Promise<boolean> => {
     const target = events.find(e => e.id === id);
     setEvents(prev => prev.filter(e => e.id !== id));
     if (target?.sheetRow) {
       try {
         await apiDelete(target.sheetRow);
+        return true;
       } catch (err) {
         console.error('Error deleting event:', err);
+        if (target) setEvents(prev => [...prev, target]);
+        return false;
       }
     }
+    return true;
   }, [events]);
 
   return {

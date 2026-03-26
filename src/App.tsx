@@ -71,9 +71,11 @@ export default function App() {
     });
   }, []);
 
-  // Admin login
+  // Admin login - use env variable for password
+  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+  
   const handleLogin = useCallback((pw: string) => {
-    if (pw === 'admin123') { setIsAdmin(true); return true; }
+    if (pw === ADMIN_PASSWORD) { setIsAdmin(true); return true; }
     return false;
   }, []);
 
@@ -103,28 +105,28 @@ export default function App() {
     setShowDetailModal(true);
   }, []);
 
-  const handleSave = useCallback((data: Partial<EventItem>) => {
+  const handleSave = useCallback(async (data: Partial<EventItem>) => {
     if (editingEvent) {
-      updateEvent({ ...editingEvent, ...data } as EventItem);
-      showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
+      const success = await updateEvent({ ...editingEvent, ...data } as EventItem);
+      if (success) showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
     } else {
       const newEv: EventItem = {
         ...data as EventItem,
         id: createId(),
         rowIndex: events.length + 1,
-        status: 'upcoming',
+        status: data.status || 'upcoming',
       };
-      addEvent(newEv);
-      showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
+      const success = await addEvent(newEv);
+      if (success) showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
     }
     setShowCrudModal(false);
     setEditingEvent(null);
   }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
 
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!deletingEvent) return;
-    deleteEvent(deletingEvent.id);
-    showToast('success', 'Acara dihapus!', `"${deletingEvent.acara}" telah dihapus.`);
+    const success = await deleteEvent(deletingEvent.id);
+    if (success) showToast('success', 'Acara dihapus!', `"${deletingEvent.acara}" telah dihapus.`);
     setDeletingEvent(null);
     setShowDeleteModal(false);
   }, [deletingEvent, deleteEvent, showToast]);
