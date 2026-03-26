@@ -140,47 +140,32 @@ export default function App() {
     setIsAdmin(false);
   }, []);
 
+  // Refresh data from Sheets
+  const refreshFromSheets = useCallback(async () => {
+    if (!APPS_SCRIPT_URL) return;
+    try {
+      const { events: sheetsEvents, themes } = await fetchEvents();
+      setEvents(recalculateStatuses(sheetsEvents));
+      setAnnualThemes(themes);
+    } catch (err) {
+      console.error('Refresh error:', err);
+    }
+  }, [setEvents]);
+
   // CRUD handlers
   const handleSaveEvent = useCallback(async (data: Partial<EventItem>) => {
     const normalizedData = normalizeEventInput(data);
-    
-    // Save to localStorage first (optimistic update)
-    setEvents(prev => {
-      if (normalizedData.id) {
-        return recalculateStatuses(
-          resequenceRowIndex(
-            prev.map(e => e.id === normalizedData.id ? { ...e, ...normalizedData } as EventItem : e)
-          )
-        );
-      } else {
-        const newEvent: EventItem = {
-          id: createEventId(),
-          rowIndex: prev.length + 2,
-          tanggal: normalizedData.tanggal || '',
-          dateStr: normalizedData.dateStr || '',
-          day: normalizedData.day || '',
-          jam: normalizedData.jam || '',
-          acara: normalizedData.acara || '',
-          lokasi: normalizedData.lokasi || '',
-          eo: normalizedData.eo || '',
-          keterangan: normalizedData.keterangan || '',
-          month: normalizedData.month || '',
-          status: 'upcoming',
-        };
-        return recalculateStatuses(resequenceRowIndex([...prev, newEvent]));
-      }
-    });
+    const isEditing = !!normalizedData.id;
 
-    // Sync to Google Sheets if configured
+    // Sync to Google Sheets FIRST
     if (APPS_SCRIPT_URL) {
       setIsSyncing(true);
       setSyncMessage(null);
       try {
-        if (normalizedData.id) {
-          // Update existing event
-          const existingEvent = normalizedData;
+        if (isEditing && normalizedData.sheetRow) {
+          // UPDATE existing event
           await updateSheetsEvent({
-            sheetRow: existingEvent.sheetRow || 0,
+            sheetRow: normalizedData.sheetRow,
             dateStr: normalizedData.dateStr || '',
             tanggal: normalizedData.tanggal || '',
             day: normalizedData.day || '',
@@ -193,8 +178,8 @@ export default function App() {
           });
           setSyncMessage({ type: 'success', text: 'Event berhasil diupdate di spreadsheet!' });
         } else {
-          // Create new event
-          await createSheetsEvent({
+          // CREATE new event
+          const newSheetRow = await createSheetsEvent({
             dateStr: normalizedData.dateStr || '',
             tanggal: normalizedData.tanggal || '',
             day: normalizedData.day || '',
@@ -205,45 +190,112 @@ export default function App() {
             keterangan: normalizedData.keterangan || '',
             month: normalizedData.month || '',
           });
+          normalizedData.sheetRow = newSheetRow;
           setSyncMessage({ type: 'success', text: 'Event berhasil ditambahkan ke spreadsheet!' });
         }
+
+        // Refresh all data from Sheets after sync
+        await refreshFromSheets();
       } catch (err) {
         console.error('Sync error:', err);
         setSyncMessage({ type: 'error', text: 'Gagal sync ke spreadsheet. Data disimpan lokal.' });
+
+        // Fallback: save to localStorage only
+        setEvents(prev => {
+          if (isEditing) {
+            return recalculateStatuses(
+              resequenceRowIndex(
+                prev.map(e => e.id === normalizedData.id ? { ...e, ...normalizedData } as EventItem : e)
+              )
+            );
+          } else {
+            const newEvent: EventItem = {
+              id: createEventId(),
+              sheetRow: normalizedData.sheetRow,
+              rowIndex: prev.length + 2,
+              tanggal: normalizedData.tanggal || '',
+              dateStr: normalizedData.dateStr || '',
+              day: normalizedData.day || '',
+              jam: normalizedData.jam || '',
+              acara: normalizedData.acara || '',
+              lokasi: normalizedData.lokasi || '',
+              eo: normalizedData.eo || '',
+              keterangan: normalizedData.keterangan || '',
+              month: normalizedData.month || '',
+              status: 'upcoming',
+            };
+            return recalculateStatuses(resequenceRowIndex([...prev, newEvent]));
+          }
+        });
       } finally {
         setIsSyncing(false);
-        // Clear message after 3 seconds
         setTimeout(() => setSyncMessage(null), 3000);
       }
+    } else {
+      // No Sheets URL: save to localStorage
+      setEvents(prev => {
+        if (isEditing) {
+          return recalculateStatuses(
+            resequenceRowIndex(
+              prev.map(e => e.id === normalizedData.id ? { ...e, ...normalizedData } as EventItem : e)
+            )
+          );
+        } else {
+          const newEvent: EventItem = {
+            id: createEventId(),
+            rowIndex: prev.length + 2,
+            tanggal: normalizedData.tanggal || '',
+            dateStr: normalizedData.dateStr || '',
+            day: normalizedData.day || '',
+            jam: normalizedData.jam || '',
+            acara: normalizedData.acara || '',
+            lokasi: normalizedData.lokasi || '',
+            eo: normalizedData.eo || '',
+            keterangan: normalizedData.keterangan || '',
+            month: normalizedData.month || '',
+            status: 'upcoming',
+          };
+          return recalculateStatuses(resequenceRowIndex([...prev, newEvent]));
+        }
+      });
     }
-  }, []);
+  }, [refreshFromSheets, setEvents]);
 
   const handleDeleteEvent = useCallback(async () => {
     if (!deletingEvent) return;
 
     const sheetRow = deletingEvent.sheetRow;
-    
-    // Delete from localStorage first (optimistic delete)
-    setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== deletingEvent.id)));
+    const eventId = deletingEvent.id;
+
+    // Close modal first
     setDeletingEvent(null);
     setShowDeleteModal(false);
 
-    // Sync to Google Sheets if configured
+    // Sync to Google Sheets
     if (APPS_SCRIPT_URL && sheetRow) {
       setIsSyncing(true);
       setSyncMessage(null);
       try {
         await deleteSheetsEvent(sheetRow);
         setSyncMessage({ type: 'success', text: 'Event berhasil dihapus dari spreadsheet!' });
+
+        // Refresh all data from Sheets
+        await refreshFromSheets();
       } catch (err) {
         console.error('Delete sync error:', err);
         setSyncMessage({ type: 'error', text: 'Gagal hapus dari spreadsheet. Data dihapus lokal.' });
+
+        // Fallback: remove from localStorage
+        setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== eventId)));
       } finally {
         setIsSyncing(false);
         setTimeout(() => setSyncMessage(null), 3000);
       }
+    } else {
+      // No Sheets URL: remove from localStorage
+      setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== eventId)));
     }
-  }, [deletingEvent]);
+  }, [deletingEvent, refreshFromSheets, setEvents]);
 
   const handleEditClick = useCallback((event: EventItem) => {
     setEditingEvent(event);
