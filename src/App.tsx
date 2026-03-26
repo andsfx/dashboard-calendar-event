@@ -30,7 +30,13 @@ const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> 
 ];
 
 export default function App() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = saved ? saved === 'dark' : prefersDark;
+    if (dark) document.documentElement.classList.add('dark');
+    return dark;
+  });
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -51,6 +57,8 @@ export default function App() {
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
     annualThemes,
+    isLoading,
+    error,
   } = useEvents();
 
   // Dark mode toggle
@@ -58,6 +66,7 @@ export default function App() {
     setIsDark(v => {
       const next = !v;
       document.documentElement.classList.toggle('dark', next);
+      localStorage.setItem('theme', next ? 'dark' : 'light');
       return next;
     });
   }, []);
@@ -236,43 +245,42 @@ export default function App() {
           <div className="lg:col-span-1">
             <CategoryChart events={events} />
           </div>
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            {/* Filter bar */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Filter & Tampilan</p>
-              <div className="flex flex-col gap-3">
-                <FilterBar
-                  activeFilter={activeFilter}
-                  onFilterChange={setActiveFilter}
-                  categories={categories}
-                  activeCategory={activeCategory}
-                  onCategoryChange={setActiveCategory}
-                  activePriority={activePriority}
-                  onPriorityChange={setActivePriority}
-                  months={months}
-                  activeMonth={activeMonth}
-                  onMonthChange={setActiveMonth}
-                />
-                {/* View Mode Toggle */}
-                <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 w-fit">
-                  {VIEW_TABS.map(tab => (
-                    <button
-                      key={tab.key}
-                      onClick={() => setViewMode(tab.key)}
-                      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                        viewMode === tab.key
-                          ? 'bg-white text-violet-700 shadow dark:bg-slate-600 dark:text-violet-300'
-                          : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-                      }`}
-                    >
-                      {tab.icon} {tab.label}
-                    </button>
-                  ))}
-                </div>
+          <div className="lg:col-span-2">
+        {/* ── Filter / View / Results ── */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div className="flex flex-col gap-3">
+            {/* Row 1: status tabs + view toggle */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <FilterBar
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+                categories={categories}
+                activeCategory={activeCategory}
+                onCategoryChange={setActiveCategory}
+                activePriority={activePriority}
+                onPriorityChange={setActivePriority}
+                months={months}
+                activeMonth={activeMonth}
+                onMonthChange={setActiveMonth}
+              />
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 shrink-0">
+                {VIEW_TABS.map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setViewMode(tab.key)}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                      viewMode === tab.key
+                        ? 'bg-white text-violet-700 shadow dark:bg-slate-600 dark:text-violet-300'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    {tab.icon} {tab.label}
+                  </button>
+                ))}
               </div>
             </div>
-
-            {/* Result summary */}
+            {/* Row 2: result summary */}
             <div className="flex items-center justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredEvents.length}</span> dari {events.length} acara
@@ -287,6 +295,38 @@ export default function App() {
             </div>
           </div>
         </div>
+
+        {/* Loading skeleton */}
+        {isLoading && (
+          <div className="space-y-3 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-14 rounded-xl bg-slate-200 dark:bg-slate-700" />
+            ))}
+          </div>
+        )}
+
+        {/* Error banner */}
+        {!isLoading && error && (
+          <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
+            <span className="text-lg">⚠️</span>
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!isLoading && !error && filteredEvents.length === 0 && events.length > 0 && (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
+            <span className="text-5xl">🔍</span>
+            <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
+            <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
+            <button
+              onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
+              className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+            >
+              Reset Filter
+            </button>
+          </div>
+        )}
 
         {/* Event Views */}
         {viewMode === 'table' && (
@@ -319,6 +359,8 @@ export default function App() {
             onDetail={handleDetailClick}
           />
         )}
+          </div>
+        </div>
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-6 pb-4 dark:border-slate-800">
