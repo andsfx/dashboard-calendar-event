@@ -1,6 +1,5 @@
 import { EventItem, AnnualTheme } from '../types';
 
-// URL dari Google Apps Script deployment (masukkan ke .env)
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 
 interface SheetsEvent {
@@ -25,12 +24,6 @@ interface SheetsApiResponse {
   error?: string;
 }
 
-interface ApiResponse {
-  success: boolean;
-  error?: string;
-  row?: number;
-}
-
 class SheetsApiError extends Error {
   constructor(message: string) {
     super(message);
@@ -40,27 +33,19 @@ class SheetsApiError extends Error {
 
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[] }> {
   if (!APPS_SCRIPT_URL) {
-    console.warn('VITE_APPS_SCRIPT_URL tidak dikonfigurasi. Menggunakan data lokal.');
+    console.warn('VITE_APPS_SCRIPT_URL tidak dikonfigurasi.');
     throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
   }
 
   try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=read`, {
-      method: 'GET',
-      mode: 'cors',
-    });
-
-    if (!response.ok) {
-      throw new SheetsApiError(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: SheetsApiResponse = await response.json();
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=read`);
+    const text = await response.text();
+    const result: SheetsApiResponse = JSON.parse(text);
 
     if (!result.success || !result.data) {
       throw new SheetsApiError(result.error || 'Unknown error');
     }
 
-    // Transform Sheets events ke EventItem format
     const events: EventItem[] = result.data.events.map((e, index) => ({
       id: `evt-${e.sheetRow}`,
       sheetRow: e.sheetRow,
@@ -74,7 +59,7 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       eo: e.eo,
       keterangan: e.keterangan,
       month: e.month,
-      status: 'upcoming' as const, // Akan dihitung ulang
+      status: 'upcoming' as const,
     }));
 
     return { events, themes: result.data.themes };
@@ -90,28 +75,15 @@ export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' |
   }
 
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'create',
-        data: eventData,
-      }),
+    const params = new URLSearchParams({
+      action: 'create',
+      data: JSON.stringify(eventData),
     });
-
-    if (!response.ok) {
-      throw new SheetsApiError(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: ApiResponse = await response.json();
-
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create failed');
     }
-
     return result.row || 0;
   } catch (error) {
     console.error('Error creating event:', error);
@@ -125,24 +97,12 @@ export async function updateEvent(eventData: Partial<EventItem> & { sheetRow: nu
   }
 
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'update',
-        data: eventData,
-      }),
+    const params = new URLSearchParams({
+      action: 'update',
+      data: JSON.stringify(eventData),
     });
-
-    if (!response.ok) {
-      throw new SheetsApiError(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: ApiResponse = await response.json();
-
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Update failed');
     }
@@ -158,24 +118,12 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
   }
 
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'delete',
-        sheetRow: sheetRow,
-      }),
+    const params = new URLSearchParams({
+      action: 'delete',
+      sheetRow: String(sheetRow),
     });
-
-    if (!response.ok) {
-      throw new SheetsApiError(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: ApiResponse = await response.json();
-
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete failed');
     }

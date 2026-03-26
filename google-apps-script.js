@@ -250,57 +250,61 @@ function deleteEvent(sheetRow) {
 
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || 'read';
+  var output = ContentService.createTextOutput().setMimeType(ContentService.MimeType.JSON);
 
   try {
+    // READ
     if (action === 'read') {
       var result = getAllEvents();
-      return ContentService
-        .createTextOutput(JSON.stringify({ success: true, data: result }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return output.setContent(JSON.stringify({ success: true, data: result }));
     }
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: 'Unknown action: ' + action }))
-      .setMimeType(ContentService.MimeType.JSON);
+    // CREATE via GET (to avoid CORS issues)
+    if (action === 'create') {
+      var createData = JSON.parse(e.parameter.data || '{}');
+      var createResult = addEvent(createData);
+      return output.setContent(JSON.stringify(createResult));
+    }
+
+    // UPDATE via GET
+    if (action === 'update') {
+      var updateData = JSON.parse(e.parameter.data || '{}');
+      var updateResult = updateEvent(updateData);
+      return output.setContent(JSON.stringify(updateResult));
+    }
+
+    // DELETE via GET
+    if (action === 'delete') {
+      var deleteRow = parseInt(e.parameter.sheetRow || '0', 10);
+      var deleteResult = deleteEvent(deleteRow);
+      return output.setContent(JSON.stringify(deleteResult));
+    }
+
+    return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return output.setContent(JSON.stringify({ success: false, error: err.message }));
   }
 }
 
 function doPost(e) {
+  // Redirect POST to GET logic for compatibility
   try {
     var body = JSON.parse(e.postData.contents);
     var action = body.action;
+    var output = ContentService.createTextOutput().setMimeType(ContentService.MimeType.JSON);
 
     if (action === 'create') {
-      var createResult = addEvent(body.data);
-      return ContentService
-        .createTextOutput(JSON.stringify(createResult))
-        .setMimeType(ContentService.MimeType.JSON);
+      return output.setContent(JSON.stringify(addEvent(body.data)));
     }
-
     if (action === 'update') {
-      var updateResult = updateEvent(body.data);
-      return ContentService
-        .createTextOutput(JSON.stringify(updateResult))
-        .setMimeType(ContentService.MimeType.JSON);
+      return output.setContent(JSON.stringify(updateEvent(body.data)));
     }
-
     if (action === 'delete') {
-      var deleteResult = deleteEvent(body.sheetRow);
-      return ContentService
-        .createTextOutput(JSON.stringify(deleteResult))
-        .setMimeType(ContentService.MimeType.JSON);
+      return output.setContent(JSON.stringify(deleteEvent(body.sheetRow)));
     }
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: 'Unknown action: ' + action }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message })).setMimeType(ContentService.MimeType.JSON);
   }
 }
