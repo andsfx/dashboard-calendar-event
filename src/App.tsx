@@ -43,11 +43,12 @@ export default function App() {
 
   const { toasts, showToast, removeToast } = useToast();
   const {
-    events, filteredEvents, stats, categories,
+    events, filteredEvents, stats, categories, months,
     searchQuery, setSearchQuery,
     activeFilter, setActiveFilter,
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
+    activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
     annualThemes,
   } = useEvents();
@@ -248,6 +249,9 @@ export default function App() {
                   onCategoryChange={setActiveCategory}
                   activePriority={activePriority}
                   onPriorityChange={setActivePriority}
+                  months={months}
+                  activeMonth={activeMonth}
+                  onMonthChange={setActiveMonth}
                 />
                 {/* View Mode Toggle */}
                 <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 w-fit">
@@ -275,7 +279,7 @@ export default function App() {
                 {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
               </p>
               <button
-                onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); }}
+                onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
                 className="flex items-center gap-1 text-xs text-violet-600 hover:underline dark:text-violet-400"
               >
                 <RefreshCw className="h-3 w-3" /> Reset

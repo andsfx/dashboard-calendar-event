@@ -13,6 +13,7 @@ export function useEvents() {
   const [activeFilter, setActiveFilter] = useState<EventStatus | 'Semua'>('Semua');
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [activePriority, setActivePriority] = useState('Semua');
+  const [activeMonth, setActiveMonth] = useState('Semua');
 
   // Load from Sheets
   useEffect(() => {
@@ -63,6 +64,7 @@ export function useEvents() {
     if (activeFilter !== 'Semua') result = result.filter(e => e.status === activeFilter);
     if (activeCategory !== 'Semua') result = result.filter(e => e.category === activeCategory);
     if (activePriority !== 'Semua') result = result.filter(e => e.priority === activePriority);
+    if (activeMonth !== 'Semua') result = result.filter(e => e.month === activeMonth);
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
       result = result.filter(e =>
@@ -123,6 +125,7 @@ export function useEvents() {
     activeFilter, setActiveFilter,
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
+    activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
   };
 }

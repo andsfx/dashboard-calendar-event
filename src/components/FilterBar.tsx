@@ -101,14 +101,19 @@ interface Props {
   onCategoryChange: (c: string) => void;
   activePriority: string;
   onPriorityChange: (p: string) => void;
+  months: string[];
+  activeMonth: string;
+  onMonthChange: (m: string) => void;
 }
 
 export function FilterBar({
   activeFilter, onFilterChange,
   categories, activeCategory, onCategoryChange,
   activePriority, onPriorityChange,
+  months, activeMonth, onMonthChange,
 }: Props) {
   const categoryOptions = categories.map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
+  const monthOptions = months.map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
 
   return (
     <div className="flex flex-col gap-3">
@@ -134,6 +139,12 @@ export function FilterBar({
 
       {/* Dropdowns row */}
       <div className="flex flex-wrap gap-2">
+        <CustomDropdown
+          value={activeMonth}
+          options={monthOptions}
+          onChange={onMonthChange}
+          label="Semua Bulan"
+        />
         <CustomDropdown
           value={activeCategory}
           options={categoryOptions}
