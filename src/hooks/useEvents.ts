@@ -21,7 +21,15 @@ export function useEvents() {
       setError(null);
       try {
         const { events: sheetsEvents, themes: sheetsThemes } = await fetchEvents();
-        setEvents(recalculateStatuses(sheetsEvents));
+        
+        // Restore draft status from localStorage
+        const savedDrafts = JSON.parse(localStorage.getItem('draftEvents') || '{}');
+        const restoredEvents = sheetsEvents.map(e => ({
+          ...e,
+          status: savedDrafts[e.id] || e.status,
+        }));
+        
+        setEvents(recalculateStatuses(restoredEvents));
         setThemes(sheetsThemes);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -32,6 +40,13 @@ export function useEvents() {
     };
     loadData();
   }, []);
+
+  // Save draft events to localStorage
+  useEffect(() => {
+    const drafts = events.filter(e => e.status === 'draft');
+    const draftsMap = Object.fromEntries(drafts.map(e => [e.id, e.status]));
+    localStorage.setItem('draftEvents', JSON.stringify(draftsMap));
+  }, [events]);
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState('');
