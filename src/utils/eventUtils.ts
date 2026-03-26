@@ -1,21 +1,24 @@
 import { EventItem, EventStatus } from '../types';
 
 export const STATUS_ORDER: Record<EventStatus, number> = {
-  ongoing: 0,
-  upcoming: 1,
-  past: 2,
+  draft:    0,
+  ongoing:  1,
+  upcoming: 2,
+  past:     3,
 };
 
 export const STATUS_LABEL: Record<EventStatus, string> = {
-  ongoing: 'Berlangsung',
+  draft:    'Draft',
+  ongoing:  'Berlangsung',
   upcoming: 'Mendatang',
-  past: 'Selesai',
+  past:     'Selesai',
 };
 
 export const STATUS_COLOR: Record<EventStatus, string> = {
-  ongoing: 'emerald',
+  draft:    'purple',
+  ongoing:  'emerald',
   upcoming: 'amber',
-  past: 'slate',
+  past:     'slate',
 };
 
 export const CATEGORY_COLORS: Record<string, string> = {
@@ -60,9 +63,10 @@ export function groupByDate(events: EventItem[]): Record<string, EventItem[]> {
 
 export function groupByStatus(events: EventItem[]): Record<EventStatus, EventItem[]> {
   return {
-    ongoing: events.filter(e => e.status === 'ongoing'),
+    draft:    events.filter(e => e.status === 'draft'),
+    ongoing:  events.filter(e => e.status === 'ongoing'),
     upcoming: events.filter(e => e.status === 'upcoming'),
-    past: events.filter(e => e.status === 'past'),
+    past:     events.filter(e => e.status === 'past'),
   };
 }
 
@@ -122,6 +126,7 @@ export function getStatus(dateStr: string, jam: string): EventStatus {
 export function recalculateStatuses(events: EventItem[]): EventItem[] {
   return events.map(e => ({
     ...e,
-    status: getStatus(e.dateStr, e.jam),
+    // Preserve 'draft' — only auto-calculate non-draft events
+    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam),
   }));
 }

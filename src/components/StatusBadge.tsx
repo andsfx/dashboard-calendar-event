@@ -1,6 +1,11 @@
 import { EventStatus } from '../types';
 
 const CONFIG: Record<EventStatus, { label: string; className: string; dot: string }> = {
+  draft: {
+    label: 'Draft',
+    className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 ring-1 ring-purple-300 dark:ring-purple-700',
+    dot: 'bg-purple-400',
+  },
   ongoing: {
     label: 'Berlangsung',
     className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 ring-1 ring-emerald-300 dark:ring-emerald-700',
@@ -17,6 +22,7 @@ const CONFIG: Record<EventStatus, { label: string; className: string; dot: strin
     dot: 'bg-slate-400',
   },
 };
+
 
 interface Props {
   status: EventStatus;

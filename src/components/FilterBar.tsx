@@ -4,10 +4,12 @@ import { EventStatus } from '../types';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
-  { key: 'ongoing',  label: 'Berlangsung', dot: 'bg-emerald-500' },
-  { key: 'upcoming', label: 'Mendatang',   dot: 'bg-amber-500' },
-  { key: 'past',     label: 'Selesai',     dot: 'bg-slate-400' },
+  { key: 'draft',    label: 'Draft',        dot: 'bg-purple-400' },
+  { key: 'ongoing',  label: 'Berlangsung',  dot: 'bg-emerald-500' },
+  { key: 'upcoming', label: 'Mendatang',    dot: 'bg-amber-500' },
+  { key: 'past',     label: 'Selesai',      dot: 'bg-slate-400' },
 ];
+
 
 const PRIORITY_OPTIONS = [
   { key: 'Semua',  label: 'Semua Prioritas' },

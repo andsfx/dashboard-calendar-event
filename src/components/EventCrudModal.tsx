@@ -34,6 +34,7 @@ const EMPTY: {
   keterangan: string;
   category: string;
   priority: 'high' | 'medium' | 'low';
+  isDraft: boolean;
 } = {
   dateStr: '',
   jam: '',
@@ -43,6 +44,7 @@ const EMPTY: {
   keterangan: '',
   category: 'Festival',
   priority: 'medium',
+  isDraft: false,
 };
 
 export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props) {
@@ -60,6 +62,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
         keterangan: editingEvent.keterangan,
         category: editingEvent.category,
         priority: editingEvent.priority,
+        isDraft: editingEvent.status === 'draft',
       });
     } else {
       setForm(EMPTY);
@@ -87,15 +90,17 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    const meta = form.dateStr ? dateToMeta(form.dateStr) : { day: '', tanggal: '', month: '' };
+    const { isDraft, ...formData } = form;
+    const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
     const now = new Date().toISOString().split('T')[0];
-    const autoStatus = form.dateStr < now ? 'past' : form.dateStr === now ? 'ongoing' : 'upcoming';
+    const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
+    const finalStatus = isDraft ? 'draft' : autoStatus;
 
     onSave({
       ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : { id: createId(), rowIndex: 0 }),
-      ...form,
+      ...formData,
       ...meta,
-      status: editingEvent?.status ?? autoStatus,
+      status: finalStatus,
     });
   };
 
@@ -241,6 +246,20 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
+
+          {/* Draft toggle */}
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 dark:border-purple-800/50 dark:bg-purple-900/20">
+            <input
+              type="checkbox"
+              checked={form.isDraft}
+              onChange={e => setForm(prev => ({ ...prev, isDraft: e.target.checked }))}
+              className="h-4 w-4 rounded accent-purple-600"
+            />
+            <div>
+              <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">Tandai sebagai Draft</p>
+              <p className="text-xs text-purple-500 dark:text-purple-400">Event direncanakan namun belum dikonfirmasi</p>
+            </div>
+          </label>
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">

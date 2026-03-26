@@ -1,4 +1,5 @@
-export type EventStatus = 'upcoming' | 'ongoing' | 'past';
+export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
+
 export type ViewMode = 'table' | 'calendar' | 'kanban' | 'timeline';
 export type Theme = 'light' | 'dark';
 

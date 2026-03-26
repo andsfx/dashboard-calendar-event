@@ -13,6 +13,14 @@ const COLUMNS: Array<{
   emptyMsg: string;
 }> = [
   {
+    status: 'draft',
+    label: 'Draft',
+    emoji: '📝',
+    gradient: 'from-purple-500 to-violet-500',
+    cardBorder: 'border-purple-100 dark:border-purple-800/40 hover:border-purple-300 dark:hover:border-purple-600/60',
+    emptyMsg: 'Tidak ada event draft',
+  },
+  {
     status: 'ongoing',
     label: 'Berlangsung',
     emoji: '🟢',
@@ -37,6 +45,7 @@ const COLUMNS: Array<{
     emptyMsg: 'Belum ada acara yang selesai',
   },
 ];
+
 
 interface Props {
   events: EventItem[];
