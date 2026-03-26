@@ -1,23 +1,18 @@
 // ============================================================
 // Google Apps Script — CRUD Proxy untuk Dashboard Calendar Event
 // Metropolitan Mall Bekasi
-//
-// CARA PAKAI:
-// 1. Buka Google Spreadsheet
-// 2. Menu: Extensions → Apps Script
-// 3. Hapus semua kode default, paste seluruh kode ini
-// 4. Klik Deploy → New deployment
-//    - Type: Web app
-//    - Execute as: Me
-//    - Who has access: Anyone
-// 5. Copy URL deployment, taruh di .env dashboard:
-//    VITE_APPS_SCRIPT_URL=https://script.google.com/macros/s/xxxxx/exec
+// PERBAIKAN: Handle Date object dari Google Sheets
 // ============================================================
 
-const SHEET_NAME = 'Schedule Event';
+const SHEET_NAME = 'SCHEDULE EVENT';
 const SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 
-// ---- Indonesian date helpers ----
+// ---- Helpers ----
+
+const BULAN_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 const BULAN_MAP = {
   'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04',
@@ -25,34 +20,25 @@ const BULAN_MAP = {
   'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
 };
 
-const BULAN_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-
-function parseIndonesianDate(raw) {
-  if (!raw || typeof raw !== 'string') return null;
-  var cleaned = raw.trim();
-  // Pattern: "Hari, DD Bulan YYYY" or "Hari DD Bulan YYYY"
-  var match = cleaned.match(/^([^,\d]+)[,\s]+(\d{1,2})\s+([^\d]+)\s+(\d{4})$/);
-  if (!match) return null;
-  var day = match[1].trim();
-  var dd = match[2];
-  var bulan = match[3].trim();
-  var yyyy = match[4];
-  var mm = BULAN_MAP[bulan];
-  if (!mm) return null;
-  var padDay = dd.length === 1 ? '0' + dd : dd;
+// Convert Date object to formatted string
+function formatDate(dateObj) {
+  if (!(dateObj instanceof Date)) return { dateStr: '', tanggal: '', day: '', monthName: '' };
+  var y = dateObj.getFullYear();
+  var m = dateObj.getMonth() + 1;
+  var d = dateObj.getDate();
+  var dayOfWeek = HARI_NAMES[dateObj.getDay()];
+  var monthName = BULAN_NAMES[m];
+  var padDay = d < 10 ? '0' + d : '' + d;
+  var padMonth = m < 10 ? '0' + m : '' + m;
   return {
-    dateStr: yyyy + '-' + mm + '-' + padDay,
-    tanggal: dd + ' ' + bulan + ' ' + yyyy,
-    day: day,
-    monthName: bulan
+    dateStr: y + '-' + padMonth + '-' + padDay,
+    tanggal: d + ' ' + monthName + ' ' + y,
+    day: dayOfWeek,
+    monthName: monthName
   };
 }
 
 function dateStrToIndonesian(dateStr) {
-  // "2026-01-08" → "Kamis, 08 Januari 2026"
   var parts = dateStr.split('-');
   var y = parseInt(parts[0], 10);
   var m = parseInt(parts[1], 10);
@@ -63,33 +49,13 @@ function dateStrToIndonesian(dateStr) {
   return dayName + ', ' + (d < 10 ? '0' + d : d) + ' ' + monthName + ' ' + y;
 }
 
-// ---- Helpers ----
-
 function getSheet() {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   return ss.getSheetByName(SHEET_NAME);
 }
 
-function isMonthHeader(row) {
-  // Month header rows like "Januari 2026" in column A, rest empty
-  var a = String(row[0] || '').trim();
-  return /^(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4}$/i.test(a);
-}
-
-function isColumnHeader(row) {
-  // Sub-header rows: column C = "Jam", column D = "Acara"
-  var c = String(row[2] || '').trim();
-  var d = String(row[3] || '').trim();
-  return c.toLowerCase() === 'jam' && d.toLowerCase() === 'acara';
-}
-
-function isThemeRow(row, rowIndex) {
-  // Theme rows are rows 2-9 (index 1-8) with Date Start, Date End, Event pattern
-  if (rowIndex < 1 || rowIndex > 8) return false;
-  var b = String(row[1] || '').trim();
-  var c = String(row[2] || '').trim();
-  var d = String(row[3] || '').trim();
-  return b !== '' && c !== '' && d !== '' && parseIndonesianDate(b) !== null && parseIndonesianDate(c) !== null;
+function isMonthHeader(text) {
+  return /^(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4}$/i.test(text);
 }
 
 // ---- READ: Get all events ----
@@ -100,67 +66,76 @@ function getAllEvents() {
   var events = [];
   var themes = [];
   var lastDate = '';
+  var lastDateStr = '';
+  var lastDay = '';
+  var currentMonth = '';
 
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
+    var colA = String(row[0] || '').trim();
+    var colB = row[1]; // Could be Date or String
+    var colC = String(row[2] || '').trim();
+    var colD = String(row[3] || '').trim();
+    var colE = String(row[4] || '').trim();
+    var colF = String(row[5] || '').trim();
+    var colG = String(row[6] || '').trim();
 
-    // Skip header row (row 0: No, Date Start, Date End, Event)
-    if (i === 0) continue;
+    // Skip title row
+    if (i === 0 && colA.toLowerCase().includes('schedule')) continue;
 
-    // Check if theme row
-    if (isThemeRow(row, i)) {
-      var startParsed = parseIndonesianDate(String(row[1] || ''));
-      var endParsed = parseIndonesianDate(String(row[2] || ''));
-      if (startParsed && endParsed) {
-        themes.push({
-          id: 'th-' + (themes.length + 1),
-          name: String(row[3] || '').trim(),
-          dateStart: startParsed.dateStr,
-          dateEnd: endParsed.dateStr
-        });
-      }
+    // Check for month header
+    if (isMonthHeader(colA)) {
+      currentMonth = colA.split(' ')[0];
       continue;
     }
 
-    // Skip month headers and column headers
-    if (isMonthHeader(row)) continue;
-    if (isColumnHeader(row)) continue;
+    // Check for column header row
+    if (String(colB || '').toLowerCase() === 'tanggal') continue;
+    if (colC.toLowerCase() === 'jam' && colD.toLowerCase() === 'acara') continue;
 
-    var tanggalRaw = String(row[1] || '').trim();
-    var jam = String(row[2] || '').trim();
-    var acara = String(row[3] || '').trim();
-    var lokasi = String(row[4] || '').trim();
-    var eo = String(row[5] || '').trim();
-    var keterangan = String(row[6] || '').trim();
-
-    // Skip empty rows
-    if (!acara && !tanggalRaw && !jam) continue;
-
-    // Handle merged date cells (empty date = same as previous)
-    if (tanggalRaw) {
-      var parsed = parseIndonesianDate(tanggalRaw);
-      if (parsed) {
-        lastDate = tanggalRaw;
+    // Check for theme rows (rows 1-9)
+    if (i >= 1 && i <= 9 && colB instanceof Date && row[2] instanceof Date) {
+      var startFormatted = formatDate(colB);
+      var endFormatted = formatDate(row[2]);
+      if (startFormatted.dateStr && endFormatted.dateStr && colD) {
+        themes.push({
+          id: 'th-' + (themes.length + 1),
+          name: colD,
+          dateStart: startFormatted.dateStr,
+          dateEnd: endFormatted.dateStr
+        });
+        continue;
       }
     }
 
-    // Skip rows without event name
-    if (!acara) continue;
+    // Handle date in column B
+    if (colB instanceof Date) {
+      var formatted = formatDate(colB);
+      lastDate = formatted.tanggal;
+      lastDateStr = formatted.dateStr;
+      lastDay = formatted.day;
+      // Always update currentMonth from the actual date
+      currentMonth = formatted.monthName;
+    }
 
-    var dateParsed = parseIndonesianDate(lastDate);
-    if (!dateParsed) continue;
+    // Skip if no valid date yet
+    if (!lastDateStr) continue;
 
+    // Skip if no event name in column D
+    if (!colD || colD.toLowerCase() === 'acara') continue;
+
+    // Add event
     events.push({
-      sheetRow: i + 1, // 1-based row number in sheet
-      tanggal: dateParsed.tanggal,
-      dateStr: dateParsed.dateStr,
-      day: dateParsed.day,
-      jam: jam,
-      acara: acara,
-      lokasi: lokasi,
-      eo: eo,
-      keterangan: keterangan,
-      month: dateParsed.monthName
+      sheetRow: i + 1,
+      tanggal: lastDate,
+      dateStr: lastDateStr,
+      day: lastDay,
+      jam: colC,
+      acara: colD,
+      lokasi: colE,
+      eo: colF,
+      keterangan: colG,
+      month: currentMonth
     });
   }
 
@@ -171,42 +146,25 @@ function getAllEvents() {
 
 function addEvent(eventData) {
   var sheet = getSheet();
-  var data = sheet.getDataRange().getValues();
+  var lastRow = sheet.getLastRow();
+  var insertRow = lastRow + 1;
+  
+  // Parse dateStr to Date object for Google Sheets
+  var parts = eventData.dateStr.split('-');
+  var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
 
-  // Find the correct month section to insert into
-  var targetMonth = eventData.month;
-  var insertRow = -1;
-  var inTargetMonth = false;
+  sheet.appendRow([
+    '',
+    dateObj,
+    eventData.jam || '',
+    eventData.acara || '',
+    eventData.lokasi || '',
+    eventData.eo || '',
+    eventData.keterangan || ''
+  ]);
 
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    if (isMonthHeader(row)) {
-      var headerMonth = String(row[0]).trim().split(' ')[0];
-      if (headerMonth === targetMonth) {
-        inTargetMonth = true;
-      } else if (inTargetMonth) {
-        // We've passed the target month, insert before this header
-        insertRow = i + 1;
-        break;
-      }
-    }
-  }
-
-  // If we're still in the target month at end of data, append
-  if (insertRow === -1) {
-    insertRow = data.length + 1;
-  }
-
-  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
-
-  sheet.insertRowBefore(insertRow);
-  sheet.getRange(insertRow, 1).setValue(''); // No
-  sheet.getRange(insertRow, 2).setValue(dateDisplay); // Tanggal
-  sheet.getRange(insertRow, 3).setValue(eventData.jam || ''); // Jam
-  sheet.getRange(insertRow, 4).setValue(eventData.acara || ''); // Acara
-  sheet.getRange(insertRow, 5).setValue(eventData.lokasi || ''); // Lokasi
-  sheet.getRange(insertRow, 6).setValue(eventData.eo || ''); // EO
-  sheet.getRange(insertRow, 7).setValue(eventData.keterangan || ''); // Keterangan
+  // Format the date cell
+  sheet.getRange(insertRow, 2).setNumberFormat('ddd MMM dd yyyy 00:00:00 "GMT+0700 (Waktu Indonesia Barat)"');
 
   return { success: true, row: insertRow };
 }
@@ -221,9 +179,12 @@ function updateEvent(eventData) {
     return { success: false, error: 'Invalid row number' };
   }
 
-  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
+  // Parse dateStr to Date object
+  var parts = eventData.dateStr.split('-');
+  var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
 
-  sheet.getRange(sheetRow, 2).setValue(dateDisplay);
+  sheet.getRange(sheetRow, 2).setValue(dateObj);
+  sheet.getRange(sheetRow, 2).setNumberFormat('ddd MMM dd yyyy 00:00:00 "GMT+0700 (Waktu Indonesia Barat)"');
   sheet.getRange(sheetRow, 3).setValue(eventData.jam || '');
   sheet.getRange(sheetRow, 4).setValue(eventData.acara || '');
   sheet.getRange(sheetRow, 5).setValue(eventData.lokasi || '');
@@ -253,31 +214,35 @@ function doGet(e) {
   var output = ContentService.createTextOutput().setMimeType(ContentService.MimeType.JSON);
 
   try {
-    // READ
     if (action === 'read') {
       var result = getAllEvents();
       return output.setContent(JSON.stringify({ success: true, data: result }));
     }
 
-    // CREATE via GET (to avoid CORS issues)
     if (action === 'create') {
       var createData = JSON.parse(e.parameter.data || '{}');
-      var createResult = addEvent(createData);
-      return output.setContent(JSON.stringify(createResult));
+      return output.setContent(JSON.stringify(addEvent(createData)));
     }
 
-    // UPDATE via GET
     if (action === 'update') {
       var updateData = JSON.parse(e.parameter.data || '{}');
-      var updateResult = updateEvent(updateData);
-      return output.setContent(JSON.stringify(updateResult));
+      return output.setContent(JSON.stringify(updateEvent(updateData)));
     }
 
-    // DELETE via GET
     if (action === 'delete') {
       var deleteRow = parseInt(e.parameter.sheetRow || '0', 10);
-      var deleteResult = deleteEvent(deleteRow);
-      return output.setContent(JSON.stringify(deleteResult));
+      return output.setContent(JSON.stringify(deleteEvent(deleteRow)));
+    }
+
+    if (action === 'debug') {
+      var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      var sheets = ss.getSheets().map(function(s) { return s.getName(); });
+      return output.setContent(JSON.stringify({
+        success: true,
+        spreadsheetTitle: ss.getName(),
+        sheets: sheets,
+        sheetName: SHEET_NAME
+      }));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));
@@ -287,7 +252,6 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  // Redirect POST to GET logic for compatibility
   try {
     var body = JSON.parse(e.postData.contents);
     var action = body.action;
