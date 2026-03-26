@@ -112,8 +112,8 @@ export function FilterBar({
   activePriority, onPriorityChange,
   months, activeMonth, onMonthChange,
 }: Props) {
-  const categoryOptions = categories.map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
-  const monthOptions = months.map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
+  const categoryOptions = (categories ?? []).map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
+  const monthOptions = (months ?? []).map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
 
   return (
     <div className="flex flex-col gap-3">

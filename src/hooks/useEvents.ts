@@ -1,13 +1,12 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme } from '../types';
-import { mockEvents, annualThemes as mockThemes } from '../data/mockEvents';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
 
 export function useEvents() {
-  const [events, setEvents] = useState<EventItem[]>(recalculateStatuses(mockEvents));
-  const [annualThemes, setThemes] = useState<AnnualTheme[]>(mockThemes);
-  const [isLoading, setIsLoading] = useState(false);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<EventStatus | 'Semua'>('Semua');
@@ -26,8 +25,7 @@ export function useEvents() {
         setThemes(sheetsThemes);
       } catch (err) {
         console.error('Fetch error:', err);
-        setError('Gagal memuat data dari spreadsheet. Menggunakan data lokal.');
-        setEvents(recalculateStatuses(mockEvents));
+        setError('Gagal memuat data dari spreadsheet. Periksa koneksi atau konfigurasi URL.');
       } finally {
         setIsLoading(false);
       }
