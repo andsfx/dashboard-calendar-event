@@ -240,10 +240,13 @@ export default function App() {
           </div>
         )}
 
-        {/* Category chart */}
-        <CategoryChart events={events} />
-
-        {/* Filter/View */}
+        {/* Category chart + Filter/View */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-1">
+            <CategoryChart events={events} />
+          </div>
+          <div className="lg:col-span-2">
+        {/* ── Filter / View / Results ── */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
             {/* Row 1: status tabs + view toggle */}
@@ -356,6 +359,8 @@ export default function App() {
             onDetail={handleDetailClick}
           />
         )}
+          </div>
+        </div>
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-6 pb-4 dark:border-slate-800">
