@@ -119,13 +119,13 @@ export function FilterBar({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Status pill tabs */}
-      <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80 w-fit flex-wrap">
+      {/* Status pill tabs - scrollable on mobile */}
+      <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80 w-fit overflow-x-auto">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.key}
             onClick={() => onFilterChange(tab.key)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
               activeFilter === tab.key
                 ? 'bg-white shadow text-slate-800 dark:bg-slate-700 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
@@ -139,7 +139,7 @@ export function FilterBar({
         ))}
       </div>
 
-      {/* Dropdowns row */}
+      {/* Dropdowns row - wrap on mobile */}
       <div className="flex flex-wrap gap-2">
         <CustomDropdown
           value={activeMonth}

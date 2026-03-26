@@ -36,7 +36,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={100}
-        className="h-10 w-full min-w-[200px] rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 dark:focus:ring-violet-900/30"
+        className="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 dark:focus:ring-violet-900/30"
       />
 
       {/* Right side: clear button OR keyboard shortcut hint */}
@@ -50,7 +50,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
             <X className="h-3.5 w-3.5" />
           </button>
         ) : (
-          <kbd className="hidden rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 sm:inline-block select-none">
+          <kbd className="hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 select-none">
             /
           </kbd>
         )}

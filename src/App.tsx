@@ -146,26 +146,26 @@ export default function App() {
         ongoingCount={events.filter(e => e.status === 'ongoing').length}
       />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+      <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
               Dashboard Event 🎪
             </h1>
             <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-              Pantau & kelola semua acara Metropolitan Mall Bekasi
+              Pantau & kelola semua acara
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
             {isAdmin && (
               <button
                 onClick={handleAddNew}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30 shrink-0"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30 shrink-0"
               >
-                <Plus className="h-4 w-4" /> Tambah
+                <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Tambah</span>
               </button>
             )}
           </div>
@@ -266,12 +266,12 @@ export default function App() {
                 onMonthChange={setActiveMonth}
               />
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 shrink-0">
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 shrink-0 overflow-x-auto">
                 {VIEW_TABS.map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setViewMode(tab.key)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
                       viewMode === tab.key
                         ? 'bg-white text-violet-700 shadow dark:bg-slate-600 dark:text-violet-300'
                         : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
@@ -365,18 +365,16 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-slate-200 pt-6 pb-4 dark:border-slate-800">
-          <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between text-xs text-slate-400">
-            <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi · Event Dashboard v2.0</p>
-            <div className="flex items-center gap-3">
+        <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+            <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
+            <div className="flex items-center gap-2 sm:gap-3">
               <span className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
-                {events.filter(e => e.status === 'ongoing').length} berlangsung
+                <span className="hidden xs:inline">{events.filter(e => e.status === 'ongoing').length} berlangsung</span>
               </span>
-              <span>·</span>
-              <span>{events.filter(e => e.status === 'upcoming').length} mendatang</span>
-              <span>·</span>
-              <span>Tekan <kbd className="rounded border border-slate-200 bg-slate-100 px-1 font-mono dark:border-slate-700 dark:bg-slate-800">/</kbd> untuk cari</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">{events.filter(e => e.status === 'upcoming').length} mendatang</span>
             </div>
           </div>
         </footer>

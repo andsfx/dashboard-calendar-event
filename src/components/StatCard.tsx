@@ -43,7 +43,7 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
 
   return (
     <div
-      className="fade-up relative overflow-hidden rounded-2xl p-5 text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-default group"
+      className="fade-up relative overflow-hidden rounded-2xl p-4 sm:p-5 text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-default group"
       style={{ background: gradient, animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       {/* Decorative blobs */}
