@@ -47,13 +47,13 @@ export function QuarterTimeline({ themes }: Props) {
                 isActive
                   ? 'ring-2 shadow-sm'
                   : isPast
-                  ? 'opacity-55'
-                  : 'opacity-80 hover:opacity-100'
+                  ? 'opacity-60'
+                  : 'opacity-85 hover:opacity-100'
               }`}
               style={{
-                backgroundColor: `${theme.color}15`,
+                backgroundColor: `${theme.color}18`,
                 borderLeft: `3px solid ${theme.color}`,
-                ...(isActive ? { ringColor: theme.color, boxShadow: `0 0 0 2px ${theme.color}55` } : {}),
+                ...(isActive ? { boxShadow: `0 0 0 2px ${theme.color}55` } : {}),
               }}
             >
               {/* Live pulse dot */}
@@ -64,7 +64,10 @@ export function QuarterTimeline({ themes }: Props) {
                 />
               )}
 
-              <p className="text-xs font-bold" style={{ color: theme.color }}>{theme.name}</p>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{theme.name}</p>
+              </div>
               <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
                 {formatDate(theme.dateStart)} – {formatDate(theme.dateEnd)}
               </p>
