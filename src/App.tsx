@@ -173,11 +173,11 @@ export default function App() {
 
         {/* Admin Banner */}
         {isAdmin && (
-          <div className="flex items-center gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-5 py-3 dark:border-violet-800/50 dark:bg-violet-900/20">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 dark:border-violet-800/50 dark:bg-violet-900/20">
             <span className="text-lg">🔓</span>
             <div className="flex-1">
               <p className="text-sm font-semibold text-violet-800 dark:text-violet-300">Mode Admin Aktif</p>
-              <p className="text-xs text-violet-600 dark:text-violet-400">Kamu dapat menambah, mengedit, dan menghapus acara.</p>
+              <p className="text-xs text-violet-600 dark:text-violet-400">Bisa tambah, edit, hapus acara</p>
             </div>
             <button
               onClick={handleLogout}
@@ -242,17 +242,16 @@ export default function App() {
           </div>
         )}
 
-        {/* Category chart + Filter/View */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <CategoryChart events={events} />
-          </div>
-          <div className="lg:col-span-2">
-        {/* ── Filter / View / Results ── */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        {/* Category chart */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <CategoryChart events={events} />
+        </div>
+
+        {/* Filter/View */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
-            {/* Row 1: status tabs + view toggle */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Row 1: status tabs - scrollable on mobile */}
+            <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
               <FilterBar
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
@@ -265,7 +264,9 @@ export default function App() {
                 activeMonth={activeMonth}
                 onMonthChange={setActiveMonth}
               />
-              {/* View Mode Toggle */}
+            </div>
+            {/* View Mode Toggle */}
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 shrink-0 overflow-x-auto">
                 {VIEW_TABS.map(tab => (
                   <button
@@ -361,8 +362,6 @@ export default function App() {
             onDetail={handleDetailClick}
           />
         )}
-          </div>
-        </div>
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
