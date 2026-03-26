@@ -31,6 +31,30 @@ class SheetsApiError extends Error {
   }
 }
 
+/** Auto-detect category from event name using keyword matching */
+function detectCategory(acara: string): string {
+  const name = acara.toLowerCase();
+  if (/bazaar|bazar|pasar|market|jualan|booth/.test(name))           return 'Bazaar';
+  if (/festival|fest|fair/.test(name))                               return 'Festival';
+  if (/workshop|pelatihan|training|kelas|belajar/.test(name))        return 'Workshop';
+  if (/lomba|kompetisi|competition|contest|turnamen/.test(name))     return 'Kompetisi';
+  if (/fashion|style|mode|catwalk|runway/.test(name))                return 'Fashion';
+  if (/seminar|talkshow|talk\s?show|diskusi|symposium/.test(name))   return 'Seminar';
+  if (/pameran|expo|exhibition|display/.test(name))                  return 'Pameran';
+  if (/konser|concert|musik|music|band|penyanyi/.test(name))         return 'Konser';
+  if (/sosial|bakti|donor|charity|peduli|amal/.test(name))           return 'Sosial';
+  if (/seni|art|crafts|kerajinan|lukis|drawing/.test(name))          return 'Seni';
+  if (/hiburan|entertainment|fun|carnival|party/.test(name))         return 'Hiburan';
+  if (/karir|career|job|rekrut|hiring|beasiswa/.test(name))          return 'Karir';
+  if (/produk|product|launch|launching|promo|brand/.test(name))      return 'Produk';
+  if (/kids|anak|children|baby|balita|pinguin/.test(name))           return 'Anak';
+  if (/food|kuliner|culinary|makanan|minuman|cafe|resto/.test(name)) return 'Kuliner';
+  if (/sport|olahraga|fitness|yoga|senam|futsal|run/.test(name))     return 'Olahraga';
+  if (/game|gaming|esport|tekno|tech/.test(name))                    return 'Teknologi';
+  if (/health|kesehatan|medis|dokter|farmasi/.test(name))            return 'Kesehatan';
+  return 'Umum';
+}
+
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[] }> {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
     console.warn('VITE_APPS_SCRIPT_URL masih menggunakan placeholder atau belum dikonfigurasi di .env.');
@@ -60,7 +84,7 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       keterangan: e.keterangan,
       month: e.month,
       status: 'upcoming' as const, // Will be recalculated
-      category: 'Umum',             // Default for now
+      category: detectCategory(e.acara),
       priority: 'medium'            // Default for now
     }));
 

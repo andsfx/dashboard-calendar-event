@@ -19,19 +19,25 @@ export const STATUS_COLOR: Record<EventStatus, string> = {
 };
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  Bazaar:    '#8b5cf6',
-  Festival:  '#f59e0b',
-  Workshop:  '#06b6d4',
-  Kompetisi: '#f43f5e',
-  Fashion:   '#ec4899',
-  Seminar:   '#3b82f6',
-  Pameran:   '#10b981',
-  Konser:    '#a855f7',
-  Sosial:    '#14b8a6',
-  Seni:      '#f97316',
-  Hiburan:   '#6366f1',
-  Karir:     '#84cc16',
-  Produk:    '#ef4444',
+  Bazaar:     '#8b5cf6',
+  Festival:   '#f59e0b',
+  Workshop:   '#06b6d4',
+  Kompetisi:  '#f43f5e',
+  Fashion:    '#ec4899',
+  Seminar:    '#3b82f6',
+  Pameran:    '#10b981',
+  Konser:     '#a855f7',
+  Sosial:     '#14b8a6',
+  Seni:       '#f97316',
+  Hiburan:    '#6366f1',
+  Karir:      '#84cc16',
+  Produk:     '#ef4444',
+  Anak:       '#fb923c',
+  Kuliner:    '#d97706',
+  Olahraga:   '#22c55e',
+  Teknologi:  '#0ea5e9',
+  Kesehatan:  '#e11d48',
+  Umum:       '#64748b',
 };
 
 export function sortEvents(events: EventItem[]): EventItem[] {
