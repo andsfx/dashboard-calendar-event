@@ -149,22 +149,18 @@ function addEvent(eventData) {
   var lastRow = sheet.getLastRow();
   var insertRow = lastRow + 1;
   
-  // Parse dateStr to Date object for Google Sheets
-  var parts = eventData.dateStr.split('-');
-  var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  // Format date as text: "Hari, DD Bulan YYYY"
+  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
 
   sheet.appendRow([
     '',
-    dateObj,
+    dateDisplay,
     eventData.jam || '',
     eventData.acara || '',
     eventData.lokasi || '',
     eventData.eo || '',
     eventData.keterangan || ''
   ]);
-
-  // Format the date cell
-  sheet.getRange(insertRow, 2).setNumberFormat('ddd MMM dd yyyy 00:00:00 "GMT+0700 (Waktu Indonesia Barat)"');
 
   return { success: true, row: insertRow };
 }
@@ -179,12 +175,10 @@ function updateEvent(eventData) {
     return { success: false, error: 'Invalid row number' };
   }
 
-  // Parse dateStr to Date object
-  var parts = eventData.dateStr.split('-');
-  var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  // Format date as text: "Hari, DD Bulan YYYY"
+  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
 
-  sheet.getRange(sheetRow, 2).setValue(dateObj);
-  sheet.getRange(sheetRow, 2).setNumberFormat('ddd MMM dd yyyy 00:00:00 "GMT+0700 (Waktu Indonesia Barat)"');
+  sheet.getRange(sheetRow, 2).setValue(dateDisplay);
   sheet.getRange(sheetRow, 3).setValue(eventData.jam || '');
   sheet.getRange(sheetRow, 4).setValue(eventData.acara || '');
   sheet.getRange(sheetRow, 5).setValue(eventData.lokasi || '');
