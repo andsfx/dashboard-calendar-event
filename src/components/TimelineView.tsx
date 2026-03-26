@@ -24,12 +24,14 @@ function groupByMonth(events: EventItem[]): Array<{ month: string; events: Event
 }
 
 const DOT_COLOR: Record<string, string> = {
+  draft:    'bg-purple-400 ring-purple-200 dark:ring-purple-800',
   ongoing:  'bg-emerald-500 ring-emerald-200 dark:ring-emerald-800',
   upcoming: 'bg-amber-500 ring-amber-200 dark:ring-amber-800',
   past:     'bg-slate-400 ring-slate-200 dark:ring-slate-700',
 };
 
 const CARD_ACCENT: Record<string, string> = {
+  draft:    'border-l-purple-500 bg-purple-50/50 dark:bg-purple-900/10',
   ongoing:  'border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10',
   upcoming: 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/10',
   past:     'border-l-slate-400 bg-slate-50/50 dark:bg-slate-800/20',
@@ -67,12 +69,12 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
               <div key={ev.id} className="relative">
                 {/* Timeline dot */}
                 <div
-                  className={`absolute -left-[30px] top-4 h-4 w-4 rounded-full ring-4 ${DOT_COLOR[ev.status]} ${ev.status === 'ongoing' ? 'animate-pulse' : ''}`}
+                  className={`absolute -left-[30px] top-4 h-4 w-4 rounded-full ring-4 ${DOT_COLOR[ev.status] ?? DOT_COLOR['past']} ${ev.status === 'ongoing' ? 'animate-pulse' : ''}`}
                 />
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ${CARD_ACCENT[ev.status]} ${ev.status === 'past' ? 'opacity-70' : ''}`}
+                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-70' : ''}`}
                   onClick={() => onDetail(ev)}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
