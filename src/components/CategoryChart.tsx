@@ -13,46 +13,52 @@ export function CategoryChart({ events }: Props) {
   events.forEach(e => { counts[e.category] = (counts[e.category] ?? 0) + 1; });
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   const total = events.length || 1;
-  const max = sorted[0]?.[1] ?? 1;
 
-  // Donut segments
-  const donutData = sorted.slice(0, 6);
+  const topCategories = sorted.slice(0, 5);
+  const otherCount = sorted.slice(5).reduce((sum, [, c]) => sum + c, 0);
+
+  const r = 36;
+  const circumference = 2 * Math.PI * r;
   let cumPercent = 0;
-  const segments = donutData.map(([cat, count]) => {
+  const segments = topCategories.map(([cat, count]) => {
     const pct = (count / total) * 100;
     const seg = { cat, count, pct, offset: cumPercent };
     cumPercent += pct;
     return seg;
   });
 
-  const r = 38;
-  const circumference = 2 * Math.PI * r;
+  if (otherCount > 0) {
+    segments.push({ cat: 'Lainnya', count: otherCount, pct: (otherCount / total) * 100, offset: cumPercent });
+  }
+
+  const displayData = otherCount > 0 
+    ? [...topCategories, ['Lainnya', otherCount] as [string, number]] 
+    : sorted;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 h-full">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-bold text-slate-700 dark:text-white">📊 Distribusi Kategori</p>
-        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
-          {sorted.length} kategori
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+          {sorted.length}
         </span>
       </div>
 
       {events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-          <div className="mb-2 text-3xl opacity-40">📭</div>
+        <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+          <div className="mb-2 text-2xl opacity-50">📭</div>
           <p className="text-xs">Belum ada data</p>
         </div>
       ) : (
-        <>
-          {/* SVG Donut chart */}
-          <div className="mb-5 flex items-center justify-center">
-            <svg width="110" height="110" viewBox="0 0 100 100" className="overflow-visible">
-              {/* Background circle */}
-              <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="14"
+        <div className="flex gap-4 items-start">
+          {/* Donut Chart */}
+          <div className="shrink-0">
+            <svg width="90" height="90" viewBox="0 0 100 100" className="overflow-visible">
+              <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="12"
                 className="text-slate-100 dark:text-slate-700" />
-
+              
               {segments.map((seg, i) => {
-                const color = CATEGORY_COLORS[seg.cat] ?? '#6366f1';
+                const color = seg.cat === 'Lainnya' ? '#94a3b8' : (CATEGORY_COLORS[seg.cat] ?? '#6366f1');
                 const dashArray = (seg.pct / 100) * circumference;
                 const dashOffset = circumference - (seg.offset / 100) * circumference;
                 const isHovered = hoveredCat === seg.cat;
@@ -62,11 +68,11 @@ export function CategoryChart({ events }: Props) {
                     cx="50" cy="50" r={r}
                     fill="none"
                     stroke={color}
-                    strokeWidth={isHovered ? 17 : 14}
+                    strokeWidth={isHovered ? 14 : 12}
                     strokeDasharray={`${dashArray} ${circumference - dashArray}`}
                     strokeDashoffset={dashOffset}
                     strokeLinecap="round"
-                    style={{ transition: 'stroke-width 0.2s ease, stroke-dasharray 0.5s ease' }}
+                    style={{ transition: 'stroke-width 0.2s ease' }}
                     transform="rotate(-90 50 50)"
                     onMouseEnter={() => setHoveredCat(seg.cat)}
                     onMouseLeave={() => setHoveredCat(null)}
@@ -75,65 +81,47 @@ export function CategoryChart({ events }: Props) {
                 );
               })}
 
-              {/* Center label */}
-              <text x="50" y="46" textAnchor="middle" fontSize="13" fontWeight="bold"
-                className="fill-slate-800 dark:fill-white select-none"
-                style={{ fill: 'currentColor' }}>
-                {hoveredCat
-                  ? counts[hoveredCat] ?? 0
-                  : total}
+              <text x="50" y="48" textAnchor="middle" fontSize="14" fontWeight="bold"
+                className="fill-slate-800 dark:fill-white">
+                {hoveredCat ? counts[hoveredCat] ?? 0 : total}
               </text>
-              <text x="50" y="58" textAnchor="middle" fontSize="7"
-                style={{ fill: '#94a3b8' }}
-                className="select-none">
-                {hoveredCat ? hoveredCat.slice(0, 8) : 'total'}
+              <text x="50" y="60" textAnchor="middle" fontSize="6"
+                className="fill-slate-400">
+                {hoveredCat ? 'event' : 'total'}
               </text>
             </svg>
           </div>
 
-          {/* Bar chart list */}
-          <div className="space-y-2.5">
-            {sorted.map(([cat, count]) => {
-              const color = CATEGORY_COLORS[cat] ?? '#6366f1';
-              const pct = Math.round((count / max) * 100);
+          {/* Legend */}
+          <div className="flex-1 space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
+            {displayData.slice(0, 6).map(([cat, count]) => {
+              const color = cat === 'Lainnya' ? '#94a3b8' : (CATEGORY_COLORS[cat] ?? '#6366f1');
+              const pct = Math.round((count / total) * 100);
               const isHov = hoveredCat === cat;
               return (
                 <div
                   key={cat}
                   onMouseEnter={() => setHoveredCat(cat)}
                   onMouseLeave={() => setHoveredCat(null)}
-                  className={`cursor-default rounded-lg px-1 py-0.5 transition-colors ${isHov ? 'bg-slate-50 dark:bg-slate-700/50' : ''}`}
+                  className={`cursor-default rounded px-1.5 py-1 transition-colors ${isHov ? 'bg-slate-50 dark:bg-slate-700/50' : ''}`}
                 >
-                  <div className="mb-1 flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span
-                        className="h-2 w-2 shrink-0 rounded-full transition-transform duration-150"
-                        style={{ backgroundColor: color, transform: isHov ? 'scale(1.4)' : 'scale(1)' }}
+                        className="h-2 w-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: color }}
                       />
-                      <span className={`truncate font-medium ${isHov ? 'text-slate-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+                      <span className={`truncate ${isHov ? 'text-slate-800 dark:text-white font-medium' : 'text-slate-600 dark:text-slate-300'}`}>
                         {cat}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <span className="text-slate-400">{Math.round((count / total) * 100)}%</span>
-                      <span className="w-4 text-right font-bold text-slate-800 dark:text-white">{count}</span>
-                    </div>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: color,
-                        opacity: isHov ? 1 : 0.75,
-                      }}
-                    />
+                    <span className="text-slate-400 font-medium">{count}</span>
                   </div>
                 </div>
               );
             })}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
