@@ -20,6 +20,7 @@ import CrudEventModal from './components/CrudEventModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import AnnualTimeline from './components/AnnualTimeline';
 import UpcomingNext from './components/UpcomingNext';
+import Toast, { toast, ToastMessage } from './components/Toast';
 
 const ADMIN_PASSWORD = (import.meta.env.VITE_ADMIN_PASSWORD ?? '').trim();
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ?? '';
@@ -53,9 +54,18 @@ export default function App() {
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 250);
+
+  // Toast helpers
+  const showToast = useCallback((type: ToastMessage['type'], title: string, message: string) => {
+    const t = toast({ type, title, message });
+    setToasts(prev => [...prev, t]);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
 
   // Load data from Google Sheets on mount
   useEffect(() => {
@@ -156,11 +166,10 @@ export default function App() {
   const handleSaveEvent = useCallback(async (data: Partial<EventItem>) => {
     const normalizedData = normalizeEventInput(data);
     const isEditing = !!normalizedData.id;
+    const eventName = normalizedData.acara || 'Event';
 
     // Sync to Google Sheets FIRST
     if (APPS_SCRIPT_URL) {
-      setIsSyncing(true);
-      setSyncMessage(null);
       try {
         if (isEditing && normalizedData.sheetRow) {
           // UPDATE existing event
@@ -176,7 +185,7 @@ export default function App() {
             keterangan: normalizedData.keterangan || '',
             month: normalizedData.month || '',
           });
-          setSyncMessage({ type: 'success', text: 'Event berhasil diupdate di spreadsheet!' });
+          showToast('success', 'Berhasil diupdate!', `"${eventName}" berhasil diupdate ke spreadsheet.`);
         } else {
           // CREATE new event
           const newSheetRow = await createSheetsEvent({
@@ -191,14 +200,14 @@ export default function App() {
             month: normalizedData.month || '',
           });
           normalizedData.sheetRow = newSheetRow;
-          setSyncMessage({ type: 'success', text: 'Event berhasil ditambahkan ke spreadsheet!' });
+          showToast('success', 'Berhasil ditambahkan!', `"${eventName}" berhasil ditambahkan ke spreadsheet.`);
         }
 
         // Refresh all data from Sheets after sync
         await refreshFromSheets();
       } catch (err) {
         console.error('Sync error:', err);
-        setSyncMessage({ type: 'error', text: 'Gagal sync ke spreadsheet. Data disimpan lokal.' });
+        showToast('error', 'Gagal sync!', 'Data tetap tersimpan lokal. Coba lagi nanti.');
 
         // Fallback: save to localStorage only
         setEvents(prev => {
@@ -227,20 +236,19 @@ export default function App() {
             return recalculateStatuses(resequenceRowIndex([...prev, newEvent]));
           }
         });
-      } finally {
-        setIsSyncing(false);
-        setTimeout(() => setSyncMessage(null), 3000);
       }
     } else {
       // No Sheets URL: save to localStorage
       setEvents(prev => {
         if (isEditing) {
+          showToast('success', 'Berhasil diupdate!', `"${eventName}" berhasil diupdate.`);
           return recalculateStatuses(
             resequenceRowIndex(
               prev.map(e => e.id === normalizedData.id ? { ...e, ...normalizedData } as EventItem : e)
             )
           );
         } else {
+          showToast('success', 'Berhasil ditambahkan!', `"${eventName}" berhasil ditambahkan.`);
           const newEvent: EventItem = {
             id: createEventId(),
             rowIndex: prev.length + 2,
@@ -259,13 +267,14 @@ export default function App() {
         }
       });
     }
-  }, [refreshFromSheets, setEvents]);
+  }, [refreshFromSheets, setEvents, showToast]);
 
   const handleDeleteEvent = useCallback(async () => {
     if (!deletingEvent) return;
 
     const sheetRow = deletingEvent.sheetRow;
     const eventId = deletingEvent.id;
+    const eventName = deletingEvent.acara || 'Event';
 
     // Close modal first
     setDeletingEvent(null);
@@ -273,29 +282,25 @@ export default function App() {
 
     // Sync to Google Sheets
     if (APPS_SCRIPT_URL && sheetRow) {
-      setIsSyncing(true);
-      setSyncMessage(null);
       try {
         await deleteSheetsEvent(sheetRow);
-        setSyncMessage({ type: 'success', text: 'Event berhasil dihapus dari spreadsheet!' });
+        showToast('success', 'Berhasil dihapus!', `"${eventName}" berhasil dihapus dari spreadsheet.`);
 
         // Refresh all data from Sheets
         await refreshFromSheets();
       } catch (err) {
         console.error('Delete sync error:', err);
-        setSyncMessage({ type: 'error', text: 'Gagal hapus dari spreadsheet. Data dihapus lokal.' });
+        showToast('error', 'Gagal hapus!', 'Data tetap dihapus lokal. Coba lagi nanti.');
 
         // Fallback: remove from localStorage
         setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== eventId)));
-      } finally {
-        setIsSyncing(false);
-        setTimeout(() => setSyncMessage(null), 3000);
       }
     } else {
       // No Sheets URL: remove from localStorage
+      showToast('success', 'Berhasil dihapus!', `"${eventName}" berhasil dihapus.`);
       setEvents(prev => resequenceRowIndex(prev.filter(e => e.id !== eventId)));
     }
-  }, [deletingEvent, refreshFromSheets, setEvents]);
+  }, [deletingEvent, refreshFromSheets, setEvents, showToast]);
 
   const handleEditClick = useCallback((event: EventItem) => {
     setEditingEvent(event);
@@ -393,23 +398,6 @@ export default function App() {
                   <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Mode Admin Aktif</p>
                   <p className="text-xs text-indigo-500 dark:text-indigo-400">Anda dapat menambah, mengedit, dan menghapus acara.</p>
                 </div>
-              </div>
-            )}
-
-            {/* Sync Status Message */}
-            {syncMessage && (
-              <div className={`rounded-2xl p-4 flex items-center gap-3 animate-fade-in-up ${
-                syncMessage.type === 'success' 
-                  ? 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800' 
-                  : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
-              }`}>
-                <span className={syncMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}>
-                  {syncMessage.type === 'success' ? '✓' : '⚠️'}
-                </span>
-                <p className={`text-sm ${syncMessage.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
-                  {syncMessage.text}
-                </p>
-                {isSyncing && <span className="ml-auto animate-spin text-indigo-500">⏳</span>}
               </div>
             )}
 
@@ -546,6 +534,9 @@ export default function App() {
         onClose={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
         onConfirm={handleDeleteEvent}
       />
+
+      {/* Toast Notifications */}
+      <Toast toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
