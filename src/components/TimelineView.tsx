@@ -1,4 +1,4 @@
-import { Clock, MapPin, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, ExternalLink, CalendarDays, FileText } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadge } from './CategoryBadge';
@@ -43,7 +43,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
-        <div className="mb-3 text-5xl">📅</div>
+        <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>
@@ -51,7 +51,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {grouped.map(({ month, events: monthEvs }) => (
         <div key={month}>
           {/* Month header */}
@@ -64,12 +64,12 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
           </div>
 
           {/* Events for this month */}
-          <div className="relative ml-4 border-l-2 border-slate-200 pl-6 space-y-4 dark:border-slate-700">
+          <div className="relative ml-2 space-y-4 border-l-2 border-slate-200 pl-4 dark:border-slate-700 sm:ml-4 sm:pl-6">
             {monthEvs.map((ev, idx) => (
               <div key={ev.id} className="relative">
                 {/* Timeline dot */}
                 <div
-                  className={`absolute -left-[30px] top-4 h-4 w-4 rounded-full ring-4 ${DOT_COLOR[ev.status] ?? DOT_COLOR['past']} ${ev.status === 'ongoing' ? 'animate-pulse' : ''}`}
+                  className={`absolute -left-[18px] top-4 h-3.5 w-3.5 rounded-full ring-4 sm:-left-[30px] sm:h-4 sm:w-4 ${DOT_COLOR[ev.status] ?? DOT_COLOR['past']} ${ev.status === 'ongoing' ? 'animate-pulse' : ''}`}
                 />
 
                 {/* Card */}
@@ -105,7 +105,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                       {/* Actions */}
                       <div
-                        className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                         onClick={e => e.stopPropagation()}
                       >
                         <button
@@ -135,14 +135,14 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                   </div>
 
                   {/* Bottom: location & EO */}
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-2">
-                    {ev.lokasi && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {ev.lokasi}
-                      </span>
-                    )}
-                    {ev.eo && <span>📋 {ev.eo}</span>}
-                  </div>
+                    <div className="mt-3 flex flex-wrap gap-3 border-t border-slate-100 pt-2 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      {ev.lokasi && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {ev.lokasi}
+                        </span>
+                      )}
+                      {ev.eo && <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> {ev.eo}</span>}
+                    </div>
                 </div>
               </div>
             ))}

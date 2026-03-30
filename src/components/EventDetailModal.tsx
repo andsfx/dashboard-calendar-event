@@ -33,11 +33,11 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
   const isOngoing = event.status === 'ongoing';
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden">
         {/* Color accent header */}
         <div
-          className="relative px-6 pt-6 pb-5"
+          className="relative px-4 pb-5 pt-6 sm:px-6"
           style={{
             background: `linear-gradient(135deg, ${color}22 0%, ${color}08 100%)`,
             borderBottom: `3px solid ${color}44`,
@@ -54,7 +54,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
             <X className="h-4 w-4" />
           </button>
 
-          <div className="mb-3 flex flex-wrap items-center gap-2">
+          <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
             <CategoryBadge category={event.category} />
             <PriorityBadge priority={event.priority} />
@@ -65,13 +65,13 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
             )}
           </div>
 
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-snug pr-8">
+          <h2 className="pr-8 text-lg font-bold leading-snug text-slate-900 dark:text-white sm:pr-10 sm:text-xl">
             {event.acara}
           </h2>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-3">
+        <div className="space-y-3 px-4 py-5 sm:px-6">
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <InfoRow
               icon={<Calendar className="h-4 w-4 text-violet-500" />}
@@ -107,7 +107,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
 
         {/* Footer actions */}
         {(onEdit || onDelete) && (
-          <div className="flex items-center gap-2 border-t border-slate-100 px-6 py-4 dark:border-slate-700">
+          <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6">
             <button
               onClick={onClose}
               className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"

@@ -1,4 +1,4 @@
-import { Clock, MapPin, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, ExternalLink, FileText, Radio, Clock3, CheckCircle2, PenSquare, Inbox } from 'lucide-react';
 import { EventItem, EventStatus } from '../types';
 import { CategoryBadge } from './CategoryBadge';
 import { PriorityBadge } from './PriorityBadge';
@@ -7,7 +7,7 @@ import { CATEGORY_COLORS } from '../utils/eventUtils';
 const COLUMNS: Array<{
   status: EventStatus;
   label: string;
-  emoji: string;
+  icon: React.ReactNode;
   gradient: string;
   cardBorder: string;
   emptyMsg: string;
@@ -15,7 +15,7 @@ const COLUMNS: Array<{
   {
     status: 'draft',
     label: 'Draft',
-    emoji: '📝',
+    icon: <PenSquare className="h-4 w-4" />,
     gradient: 'from-purple-500 to-violet-500',
     cardBorder: 'border-purple-100 dark:border-purple-800/40 hover:border-purple-300 dark:hover:border-purple-600/60',
     emptyMsg: 'Tidak ada event draft',
@@ -23,7 +23,7 @@ const COLUMNS: Array<{
   {
     status: 'ongoing',
     label: 'Berlangsung',
-    emoji: '🟢',
+    icon: <Radio className="h-4 w-4" />,
     gradient: 'from-emerald-500 to-teal-500',
     cardBorder: 'border-emerald-100 dark:border-emerald-800/40 hover:border-emerald-300 dark:hover:border-emerald-600/60',
     emptyMsg: 'Tidak ada acara yang sedang berlangsung',
@@ -31,7 +31,7 @@ const COLUMNS: Array<{
   {
     status: 'upcoming',
     label: 'Mendatang',
-    emoji: '🟡',
+    icon: <Clock3 className="h-4 w-4" />,
     gradient: 'from-amber-500 to-orange-500',
     cardBorder: 'border-amber-100 dark:border-amber-800/40 hover:border-amber-300 dark:hover:border-amber-600/60',
     emptyMsg: 'Tidak ada acara mendatang',
@@ -39,7 +39,7 @@ const COLUMNS: Array<{
   {
     status: 'past',
     label: 'Selesai',
-    emoji: '✅',
+    icon: <CheckCircle2 className="h-4 w-4" />,
     gradient: 'from-slate-400 to-slate-500',
     cardBorder: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500',
     emptyMsg: 'Belum ada acara yang selesai',
@@ -77,9 +77,9 @@ function EventCard({
       <div className="p-4">
         <div className="mb-2.5 flex items-start justify-between gap-2">
           <p className="text-sm font-semibold leading-snug text-slate-800 dark:text-white line-clamp-2 flex-1">{ev.acara}</p>
-          {/* Action buttons — show on hover */}
+          {/* Action buttons */}
           <div
-            className="flex shrink-0 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+            className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100"
             onClick={e => e.stopPropagation()}
           >
             <button
@@ -143,7 +143,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
-        <div className="mb-3 text-5xl opacity-60">📋</div>
+        <FileText className="mb-3 h-10 w-10 opacity-60" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>
@@ -151,14 +151,14 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
       {COLUMNS.map(col => {
         const colEvents = events.filter(e => e.status === col.status);
         return (
-          <div key={col.status} className="flex flex-col gap-3">
+          <div key={col.status} className="flex min-w-[280px] flex-col gap-3 lg:min-w-0">
             {/* Column header */}
             <div className={`flex items-center gap-2.5 rounded-xl bg-gradient-to-r px-4 py-2.5 text-white ${col.gradient}`}>
-              <span className="text-sm">{col.emoji}</span>
+              <span className="text-sm">{col.icon}</span>
               <span className="text-sm font-bold">{col.label}</span>
               <span className="ml-auto rounded-full bg-white/25 px-2 py-0.5 text-xs font-bold">
                 {colEvents.length}
@@ -169,7 +169,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             <div className="flex flex-col gap-2.5">
               {colEvents.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-                  <div className="mb-1.5 text-2xl opacity-40">📭</div>
+                  <Inbox className="mb-1.5 h-6 w-6 opacity-40" />
                   <p className="text-center text-xs px-3 leading-relaxed">{col.emptyMsg}</p>
                 </div>
               ) : (
