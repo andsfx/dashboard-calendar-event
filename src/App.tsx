@@ -159,22 +159,31 @@ export default function App() {
       past: source.filter(e => e.status === 'past').length,
     };
   }, [isAdmin, events, publicEvents]);
-  const availableViewTabs = useMemo(
-    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'table'),
-    [isAdmin]
-  );
-
-  useEffect(() => {
-    if (!isAdmin && viewMode === 'table') {
-      setViewMode('calendar');
-    }
-  }, [isAdmin, viewMode]);
+  const availableViewTabs = VIEW_TABS;
 
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
       setActiveFilter('Semua');
     }
   }, [isAdmin, activeFilter, setActiveFilter]);
+
+  useEffect(() => {
+    if (!isAdmin && activePriority !== 'Semua') {
+      setActivePriority('Semua');
+    }
+  }, [isAdmin, activePriority, setActivePriority]);
+
+  useEffect(() => {
+    if (!visibleCategories.includes(activeCategory)) {
+      setActiveCategory('Semua');
+    }
+  }, [visibleCategories, activeCategory, setActiveCategory]);
+
+  useEffect(() => {
+    if (!visibleMonths.includes(activeMonth)) {
+      setActiveMonth('Semua');
+    }
+  }, [visibleMonths, activeMonth, setActiveMonth]);
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
