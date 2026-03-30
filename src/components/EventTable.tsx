@@ -1,4 +1,4 @@
-import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadge } from './CategoryBadge';
@@ -31,7 +31,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
-        <div className="mb-3 text-5xl">📅</div>
+        <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>

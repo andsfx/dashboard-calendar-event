@@ -3,6 +3,10 @@ import { EventItem, EventStatus, AnnualTheme } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
 
+function normalizeEvent(ev: EventItem): EventItem {
+  return recalculateStatuses([ev])[0];
+}
+
 export function useEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
@@ -74,13 +78,14 @@ export function useEvents() {
       );
     }
     return sortEvents(result);
-  }, [events, activeFilter, activeCategory, activePriority, debouncedSearch]);
+  }, [events, activeFilter, activeCategory, activePriority, activeMonth, debouncedSearch]);
 
   const addEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
     const tempId = ev.id;
-    setEvents(prev => [...prev, ev]);
+    const normalizedEvent = normalizeEvent(ev);
+    setEvents(prev => [...prev, normalizedEvent]);
     try {
-      const { id, status, rowIndex, ...apiData } = ev;
+      const { id, status, rowIndex, ...apiData } = normalizedEvent;
       const row = await apiCreate(apiData);
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, sheetRow: row } : e));
       return true;
@@ -93,10 +98,11 @@ export function useEvents() {
 
   const updateEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
-    setEvents(prev => prev.map(e => e.id === ev.id ? ev : e));
+    const normalizedEvent = normalizeEvent(ev);
+    setEvents(prev => prev.map(e => e.id === ev.id ? normalizedEvent : e));
     if (ev.sheetRow) {
       try {
-        await apiUpdate(ev as EventItem & { sheetRow: number });
+        await apiUpdate(normalizedEvent as EventItem & { sheetRow: number });
         return true;
       } catch (err) {
         console.error('Error updating event:', err);

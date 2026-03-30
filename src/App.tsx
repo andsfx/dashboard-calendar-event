@@ -106,9 +106,12 @@ export default function App() {
   }, []);
 
   const handleSave = useCallback(async (data: Partial<EventItem>) => {
+    let success = false;
+
     if (editingEvent) {
-      const success = await updateEvent({ ...editingEvent, ...data } as EventItem);
+      success = await updateEvent({ ...editingEvent, ...data } as EventItem);
       if (success) showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
+      else showToast('error', 'Gagal memperbarui', 'Perubahan belum tersimpan. Silakan coba lagi.');
     } else {
       const newEv: EventItem = {
         ...data as EventItem,
@@ -116,11 +119,15 @@ export default function App() {
         rowIndex: events.length + 1,
         status: data.status || 'upcoming',
       };
-      const success = await addEvent(newEv);
+      success = await addEvent(newEv);
       if (success) showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
+      else showToast('error', 'Gagal menambahkan', 'Acara belum tersimpan. Silakan periksa koneksi lalu coba lagi.');
     }
-    setShowCrudModal(false);
-    setEditingEvent(null);
+
+    if (success) {
+      setShowCrudModal(false);
+      setEditingEvent(null);
+    }
   }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
 
   const handleDeleteConfirm = useCallback(async () => {
