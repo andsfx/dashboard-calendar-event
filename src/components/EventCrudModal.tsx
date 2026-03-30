@@ -12,7 +12,7 @@ interface Props {
   events: EventItem[];
 }
 
-function getTopSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo', limit = 8) {
+function getUniqueSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo') {
   const counts = new Map<string, number>();
 
   for (const event of events) {
@@ -23,8 +23,12 @@ function getTopSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo', li
 
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, limit)
     .map(([value]) => value);
+}
+
+function getPlaceholder(values: string[], fallback: string) {
+  if (values.length === 0) return fallback;
+  return values.slice(0, 3).join(' / ');
 }
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -67,13 +71,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const jamSuggestions = getTopSuggestions(events, 'jam');
-  const lokasiSuggestions = getTopSuggestions(events, 'lokasi');
-  const eoSuggestions = getTopSuggestions(events, 'eo');
+  const jamSuggestions = getUniqueSuggestions(events, 'jam');
+  const lokasiSuggestions = getUniqueSuggestions(events, 'lokasi');
+  const eoSuggestions = getUniqueSuggestions(events, 'eo');
 
-  const jamPlaceholder = jamSuggestions[0] || '09:00 - 17:00';
-  const lokasiPlaceholder = lokasiSuggestions[0] || 'Atrium Lt.1, Hall A, dll.';
-  const eoPlaceholder = eoSuggestions[0] || 'Nama penyelenggara acara';
+  const jamPlaceholder = getPlaceholder(jamSuggestions, '09:00 - 17:00');
+  const lokasiPlaceholder = getPlaceholder(lokasiSuggestions, 'Atrium Lt.1 / Hall A / Main Lobby');
+  const eoPlaceholder = getPlaceholder(eoSuggestions, 'Internal MMB / EO Partner / Organizer Event');
 
   useEffect(() => {
     if (editingEvent) {
