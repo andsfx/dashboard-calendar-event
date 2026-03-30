@@ -30,9 +30,9 @@ export function CategoryChart({ events }: Props) {
   const circumference = 2 * Math.PI * r;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 h-full">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 text-violet-500" />Distribusi Kategori</p>
+    <div className="h-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 shrink-0 text-violet-500" /><span className="truncate">Distribusi Kategori</span></p>
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
           {sorted.length} kategori
         </span>
@@ -47,7 +47,7 @@ export function CategoryChart({ events }: Props) {
         <>
           {/* SVG Donut chart */}
           <div className="mb-5 flex items-center justify-center">
-            <svg width="110" height="110" viewBox="0 0 100 100" className="overflow-visible">
+            <svg width="96" height="96" viewBox="0 0 100 100" className="overflow-visible sm:h-[110px] sm:w-[110px]">
               {/* Background circle */}
               <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="14"
                 className="text-slate-100 dark:text-slate-700" />

@@ -43,7 +43,7 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
 
   return (
     <div
-      className="fade-up relative overflow-hidden rounded-2xl p-4 sm:p-5 text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-default group"
+      className="fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-default sm:p-5"
       style={{ background: gradient, animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       {/* Decorative blobs */}
@@ -52,9 +52,9 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
 
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-white/75">{label}</p>
-          <p className="mt-1.5 text-4xl font-black tracking-tight tabular-nums">{displayed}</p>
-          {subtitle && <p className="mt-1 text-xs text-white/65">{subtitle}</p>}
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-white/75 sm:text-xs">{label}</p>
+          <p className="mt-1 text-3xl font-black tracking-tight tabular-nums sm:mt-1.5 sm:text-4xl">{displayed}</p>
+          {subtitle && <p className="mt-1 text-[11px] text-white/65 sm:text-xs">{subtitle}</p>}
           {trend && (
             <div className="mt-2 flex items-center gap-1">
               <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-white/90' : 'text-white/60'}`}>
@@ -64,7 +64,7 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
             </div>
           )}
         </div>
-        <div className={`rounded-xl bg-white/20 p-3 backdrop-blur-sm shadow-inner transition-transform duration-200 group-hover:scale-110 ${pulse ? 'live-dot' : ''}`}>
+        <div className={`rounded-xl bg-white/20 p-2.5 backdrop-blur-sm shadow-inner transition-transform duration-200 group-hover:scale-110 sm:p-3 ${pulse ? 'live-dot' : ''}`}>
           {icon}
         </div>
       </div>

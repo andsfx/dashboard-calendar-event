@@ -191,7 +191,7 @@ export default function App() {
         )}
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <StatCard
             icon={<CalendarDays className="h-5 w-5 text-white" />}
             label="Total Acara"
@@ -228,7 +228,7 @@ export default function App() {
 
         {/* Featured ongoing & upcoming */}
         {(ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             <FeaturedEvents
               events={ongoingEvents}
               title="Sedang Berlangsung"
@@ -368,15 +368,15 @@ export default function App() {
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+          <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
             <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
               <span className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
-                <span className="hidden xs:inline">{events.filter(e => e.status === 'ongoing').length} berlangsung</span>
+                <span>{events.filter(e => e.status === 'ongoing').length} berlangsung</span>
               </span>
               <span className="hidden sm:inline">·</span>
-              <span className="hidden sm:inline">{events.filter(e => e.status === 'upcoming').length} mendatang</span>
+              <span>{events.filter(e => e.status === 'upcoming').length} mendatang</span>
             </div>
           </div>
         </footer>

@@ -62,8 +62,8 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <span>{icon}</span>
-        <h2 className="font-bold text-slate-800 dark:text-white">{title}</h2>
+        <span className="shrink-0">{icon}</span>
+        <h2 className="min-w-0 truncate font-bold text-slate-800 dark:text-white">{title}</h2>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
           {events.length}
         </span>
@@ -74,7 +74,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
           return (
             <div
               key={ev.id}
-                className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 ${accentStyle.border}`}
+                className={`relative overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 sm:p-5 ${accentStyle.border}`}
               >
               {/* Glow bar */}
               <div
@@ -82,9 +82,9 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
                 style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
               />
 
-              <div className="mb-2.5 flex items-start justify-between">
+              <div className="mb-2.5 flex items-start justify-between gap-2">
                 <CategoryBadge category={ev.category} />
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center justify-end gap-1.5">
                   {ev.status === 'ongoing' && (
                     <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                       <Zap className="h-3 w-3 animate-pulse" /> Live
@@ -99,8 +99,8 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
               <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
-                  <span>{ev.tanggal}</span>
-                  {ev.jam && <span className="text-slate-400">· {ev.jam}</span>}
+                  <span className="line-clamp-1">{ev.tanggal}</span>
+                  {ev.jam && <span className="hidden text-slate-400 sm:inline">· {ev.jam}</span>}
                 </div>
                 {ev.lokasi && (
                   <div className="flex items-center gap-1.5">
