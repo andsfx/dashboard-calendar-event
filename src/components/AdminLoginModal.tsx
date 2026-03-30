@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, X, Eye, EyeOff, Shield } from 'lucide-react';
+import { Lock, X, Eye, EyeOff } from 'lucide-react';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -91,17 +91,6 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
                 </p>
               )}
             </div>
-
-            <div className="flex items-start gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-700/40">
-              <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-500" />
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Hint: gunakan{' '}
-                <code className="rounded bg-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-slate-700 dark:bg-slate-600 dark:text-slate-200">
-                  admin123
-                </code>
-              </p>
-            </div>
-
             <button
               type="submit"
               disabled={!pw.trim()}
