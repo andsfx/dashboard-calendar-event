@@ -316,7 +316,7 @@ export default function App() {
         <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
             {/* Row 1: status tabs - scrollable on mobile */}
-            <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div>
               <FilterBar
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}

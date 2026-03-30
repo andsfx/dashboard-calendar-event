@@ -3,11 +3,14 @@ import { EventItem, EventStatus, AnnualTheme } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
 
+const MONTH_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
 function normalizeEvent(ev: EventItem): EventItem {
   return recalculateStatuses([ev])[0];
 }
 
 export function useEvents() {
+  const currentMonth = MONTH_ID[new Date().getMonth()];
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +20,7 @@ export function useEvents() {
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
+  const [hasInitializedMonth, setHasInitializedMonth] = useState(false);
 
   // Load from Sheets
   useEffect(() => {
@@ -53,6 +57,13 @@ export function useEvents() {
     const unique = [...new Set(events.map(e => e.category))];
     return ['Semua', ...unique];
   }, [events]);
+
+  useEffect(() => {
+    if (hasInitializedMonth || events.length === 0) return;
+
+    setActiveMonth(events.some(e => e.month === currentMonth) ? currentMonth : 'Semua');
+    setHasInitializedMonth(true);
+  }, [events, currentMonth, hasInitializedMonth]);
 
   const stats = useMemo(() => ({
     total: events.length,
