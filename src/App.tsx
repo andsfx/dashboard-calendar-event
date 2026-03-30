@@ -37,7 +37,7 @@ export default function App() {
     if (dark) document.documentElement.classList.add('dark');
     return dark;
   });
-  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
@@ -458,6 +458,7 @@ export default function App() {
         onClose={() => { setShowCrudModal(false); setEditingEvent(null); }}
         onSave={handleSave}
         editingEvent={editingEvent}
+        events={events}
       />
       <DeleteConfirmModal
         isOpen={showDeleteModal}

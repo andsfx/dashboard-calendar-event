@@ -9,6 +9,22 @@ interface Props {
   onClose: () => void;
   onSave: (data: Partial<EventItem>) => void;
   editingEvent: EventItem | null;
+  events: EventItem[];
+}
+
+function getTopSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo', limit = 8) {
+  const counts = new Map<string, number>();
+
+  for (const event of events) {
+    const value = event[key]?.trim();
+    if (!value) continue;
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([value]) => value);
 }
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -47,9 +63,17 @@ const EMPTY: {
   isDraft: false,
 };
 
-export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props) {
+export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const jamSuggestions = getTopSuggestions(events, 'jam');
+  const lokasiSuggestions = getTopSuggestions(events, 'lokasi');
+  const eoSuggestions = getTopSuggestions(events, 'eo');
+
+  const jamPlaceholder = jamSuggestions[0] || '09:00 - 17:00';
+  const lokasiPlaceholder = lokasiSuggestions[0] || 'Atrium Lt.1, Hall A, dll.';
+  const eoPlaceholder = eoSuggestions[0] || 'Nama penyelenggara acara';
 
   useEffect(() => {
     if (editingEvent) {
@@ -174,9 +198,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
               <input
                 value={form.jam}
                 onChange={e => set('jam', e.target.value)}
-                placeholder="09:00 - 17:00"
+                placeholder={jamPlaceholder}
+                list="jam-suggestions"
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
+              <datalist id="jam-suggestions">
+                {jamSuggestions.map(item => <option key={item} value={item} />)}
+              </datalist>
             </div>
           </div>
 
@@ -188,13 +216,17 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
             <input
               value={form.lokasi}
               onChange={e => set('lokasi', e.target.value)}
-              placeholder="Atrium Lt.1, Hall A, dll."
+              placeholder={lokasiPlaceholder}
+              list="lokasi-suggestions"
               className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
                 errors.lokasi
                   ? 'border-red-400 focus:ring-red-100'
                   : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
               }`}
             />
+            <datalist id="lokasi-suggestions">
+              {lokasiSuggestions.map(item => <option key={item} value={item} />)}
+            </datalist>
             {errors.lokasi && <p className="mt-1 text-xs text-red-500">{errors.lokasi}</p>}
           </div>
 
@@ -204,9 +236,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
             <input
               value={form.eo}
               onChange={e => set('eo', e.target.value)}
-              placeholder="Nama penyelenggara acara"
+              placeholder={eoPlaceholder}
+              list="eo-suggestions"
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
+            <datalist id="eo-suggestions">
+              {eoSuggestions.map(item => <option key={item} value={item} />)}
+            </datalist>
           </div>
 
           {/* Kategori + Prioritas */}
