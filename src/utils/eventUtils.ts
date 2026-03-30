@@ -53,6 +53,24 @@ export function sortEvents(events: EventItem[]): EventItem[] {
   });
 }
 
+function getTimeSortValue(jam: string) {
+  const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
+  if (!match) return Number.MAX_SAFE_INTEGER;
+  return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+}
+
+export function sortTableEvents(events: EventItem[]): EventItem[] {
+  return [...events].sort((a, b) => {
+    const dateCompare = a.dateStr.localeCompare(b.dateStr);
+    if (dateCompare !== 0) return dateCompare;
+
+    const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
+    if (timeCompare !== 0) return timeCompare;
+
+    return a.acara.localeCompare(b.acara);
+  });
+}
+
 export function groupByDate(events: EventItem[]): Record<string, EventItem[]> {
   return events.reduce((acc, e) => {
     if (!acc[e.dateStr]) acc[e.dateStr] = [];
