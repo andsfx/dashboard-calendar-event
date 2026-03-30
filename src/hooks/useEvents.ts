@@ -3,24 +3,20 @@ import { EventItem, EventStatus, AnnualTheme } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
 
-const MONTH_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
 function normalizeEvent(ev: EventItem): EventItem {
   return recalculateStatuses([ev])[0];
 }
 
 export function useEvents() {
-  const currentMonth = MONTH_ID[new Date().getMonth()];
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<EventStatus | 'Semua'>('Semua');
+  const [activeFilter, setActiveFilter] = useState<EventStatus | 'Semua'>('upcoming');
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
-  const [hasInitializedMonth, setHasInitializedMonth] = useState(false);
 
   // Load from Sheets
   useEffect(() => {
@@ -57,24 +53,6 @@ export function useEvents() {
     const unique = [...new Set(events.map(e => e.category))];
     return ['Semua', ...unique];
   }, [events]);
-
-  useEffect(() => {
-    if (hasInitializedMonth || events.length === 0) return;
-
-    const hasCurrentMonthEvents = events.some(e => e.month === currentMonth);
-    if (hasCurrentMonthEvents) {
-      setActiveMonth(currentMonth);
-      setHasInitializedMonth(true);
-      return;
-    }
-
-    const nextUpcomingEvent = [...events]
-      .filter(e => e.status === 'upcoming')
-      .sort((a, b) => a.dateStr.localeCompare(b.dateStr))[0];
-
-    setActiveMonth(nextUpcomingEvent?.month || 'Semua');
-    setHasInitializedMonth(true);
-  }, [events, currentMonth, hasInitializedMonth]);
 
   const stats = useMemo(() => ({
     total: events.length,

@@ -358,7 +358,7 @@ export default function App() {
                 {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
               </p>
               <button
-                onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
+                onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
                 className="flex items-center gap-1 self-start text-xs text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
               >
                 <RefreshCw className="h-3 w-3" /> Reset
