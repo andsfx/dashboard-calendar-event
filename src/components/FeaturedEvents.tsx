@@ -4,6 +4,19 @@ import { EventItem } from '../types';
 import { CategoryBadge } from './CategoryBadge';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 
+const ACCENT_STYLES = {
+  emerald: {
+    count: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+    link: 'text-emerald-600 dark:text-emerald-400',
+    border: 'border-emerald-200 dark:border-emerald-700/40',
+  },
+  amber: {
+    count: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+    link: 'text-amber-600 dark:text-amber-400',
+    border: 'border-amber-200 dark:border-amber-700/40',
+  },
+} as const;
+
 interface Props {
   events: EventItem[];
   title: string;
@@ -44,13 +57,14 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
   if (events.length === 0) return null;
 
   const featured = events.slice(0, 3);
+  const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.amber;
 
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
         <span>{icon}</span>
         <h2 className="font-bold text-slate-800 dark:text-white">{title}</h2>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-bold bg-${accent}-100 text-${accent}-700 dark:bg-${accent}-900/30 dark:text-${accent}-300`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
           {events.length}
         </span>
       </div>
@@ -60,12 +74,8 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
           return (
             <div
               key={ev.id}
-              className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 ${
-                accent === 'emerald'
-                  ? 'border-emerald-200 dark:border-emerald-700/40'
-                  : 'border-amber-200 dark:border-amber-700/40'
-              }`}
-            >
+                className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 ${accentStyle.border}`}
+              >
               {/* Glow bar */}
               <div
                 className="absolute left-0 top-0 h-1 w-full"
@@ -98,7 +108,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
                     <span className="line-clamp-1">{ev.lokasi}</span>
                   </div>
                 )}
-                {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">📋 {ev.eo}</p>}
+                {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">EO: {ev.eo}</p>}
               </div>
 
               {ev.keterangan && (
@@ -109,7 +119,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
         })}
       </div>
       {events.length > 3 && (
-        <button className={`mt-3 flex items-center gap-1 text-xs font-medium text-${accent}-600 dark:text-${accent}-400 hover:underline`}>
+        <button className={`mt-3 flex items-center gap-1 text-xs font-medium hover:underline ${accentStyle.link}`}>
           Lihat {events.length - 3} acara lainnya <ArrowRight className="h-3 w-3" />
         </button>
       )}

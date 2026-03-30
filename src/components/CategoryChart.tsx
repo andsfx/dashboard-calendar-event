@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BarChart3, Inbox } from 'lucide-react';
 import { EventItem } from '../types';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 
@@ -31,7 +32,7 @@ export function CategoryChart({ events }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 h-full">
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm font-bold text-slate-700 dark:text-white">📊 Distribusi Kategori</p>
+        <p className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 text-violet-500" />Distribusi Kategori</p>
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
           {sorted.length} kategori
         </span>
@@ -39,7 +40,7 @@ export function CategoryChart({ events }: Props) {
 
       {events.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-slate-400">
-          <div className="mb-2 text-3xl opacity-40">📭</div>
+          <Inbox className="mb-2 h-8 w-8 opacity-40" />
           <p className="text-xs">Belum ada data</p>
         </div>
       ) : (

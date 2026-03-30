@@ -40,7 +40,71 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-slate-100 dark:divide-slate-700/50 md:hidden">
+        {events.map(ev => (
+          <div key={ev.id} className={`space-y-3 p-4 ${ev.status === 'past' ? 'opacity-70' : ''}`}>
+            <button
+              onClick={() => onDetail(ev)}
+              className="w-full cursor-pointer text-left"
+            >
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                  {ev.keterangan && (
+                    <p className="mt-0.5 line-clamp-2 text-xs text-slate-400">{ev.keterangan}</p>
+                  )}
+                </div>
+                <StatusBadge status={ev.status} />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <CategoryBadge category={ev.category} />
+                <PriorityBadge priority={ev.priority} />
+              </div>
+
+              <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span>{ev.day}, {ev.tanggal}</span>
+                  {ev.jam && <span className="text-slate-400">· {ev.jam}</span>}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="line-clamp-2">{ev.lokasi || '–'}</span>
+                </div>
+                {ev.eo && <p className="text-slate-600 dark:text-slate-300">EO: {ev.eo}</p>}
+              </div>
+            </button>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={() => onDetail(ev)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Detail
+              </button>
+              {isAdmin && (
+                <>
+                  <button
+                    onClick={() => onEdit(ev)}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(ev)}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Hapus
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[750px] text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
@@ -108,7 +172,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                 </td>
                 {/* Actions */}
                 <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
-                  <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
                     <button
                       onClick={() => onDetail(ev)}
                       title="Detail"

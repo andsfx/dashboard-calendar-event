@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox } from 'lucide-react';
 import { EventItem } from '../types';
 import { generateCalendarDays, groupByDate } from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
@@ -66,7 +66,7 @@ export function CalendarView({ events, onDetail }: Props) {
         </div>
 
         {/* Days */}
-        <div className="grid grid-cols-7 p-2 gap-1">
+        <div className="grid grid-cols-7 gap-1 p-1.5 sm:p-2">
           {days.map((d, i) => {
             if (!d) return <div key={`empty-${i}`} />;
             const dayEvents = byDate[d.dateStr] ?? [];
@@ -80,7 +80,7 @@ export function CalendarView({ events, onDetail }: Props) {
               <button
                 key={d.dateStr}
                 onClick={() => setSelectedDate(isSelected ? null : d.dateStr)}
-                className={`relative flex h-10 w-full flex-col items-center justify-center rounded-xl text-xs font-medium transition-all ${
+                className={`relative flex h-9 w-full flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
                     ? 'bg-violet-600 text-white shadow-md'
                     : isToday
@@ -102,7 +102,7 @@ export function CalendarView({ events, onDetail }: Props) {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-4 border-t border-slate-100 py-3 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-100 px-3 py-3 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400 sm:text-xs">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-400" />Selesai</span>
@@ -113,25 +113,25 @@ export function CalendarView({ events, onDetail }: Props) {
       <div className="flex-1">
         {selectedDate ? (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-700">
+            <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
-                📅 {selectedDate}
+                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> {selectedDate}</span>
               </p>
               <p className="text-xs text-slate-400">
                 {selectedEvents.length === 0 ? 'Tidak ada acara' : `${selectedEvents.length} acara terjadwal`}
               </p>
             </div>
             {selectedEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                <div className="mb-2 text-4xl">📭</div>
-                <p className="text-sm">Tidak ada acara di tanggal ini</p>
-              </div>
+                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                  <Inbox className="mb-2 h-10 w-10 opacity-50" />
+                  <p className="text-sm">Tidak ada acara di tanggal ini</p>
+                </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
                 {selectedEvents.map(ev => (
                   <div
                     key={ev.id}
-                    className="cursor-pointer px-5 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                    className="cursor-pointer px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-700/30 sm:px-5"
                     onClick={() => onDetail(ev)}
                   >
                     <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -150,7 +150,7 @@ export function CalendarView({ events, onDetail }: Props) {
                           <MapPin className="h-3 w-3" /> {ev.lokasi}
                         </div>
                       )}
-                      {ev.eo && <p>📋 {ev.eo}</p>}
+                      {ev.eo && <p>EO: {ev.eo}</p>}
                       {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
                     </div>
                   </div>
@@ -159,8 +159,8 @@ export function CalendarView({ events, onDetail }: Props) {
             )}
           </div>
         ) : (
-          <div className="flex h-full min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/50 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-            <div className="mb-3 text-5xl">📆</div>
+          <div className="flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/50 px-4 text-center text-slate-400 dark:border-slate-700 dark:bg-slate-800/30 sm:min-h-[300px]">
+            <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
             <p className="text-sm font-medium">Pilih tanggal</p>
             <p className="mt-1 text-xs">Klik tanggal di kalender untuk melihat acara</p>
           </div>
@@ -172,7 +172,7 @@ export function CalendarView({ events, onDetail }: Props) {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {(['ongoing', 'upcoming', 'past'] as const).map(s => {
                 const count = monthEvents.filter(e => e.status === s).length;
                 const label = s === 'ongoing' ? 'Berlangsung' : s === 'upcoming' ? 'Mendatang' : 'Selesai';

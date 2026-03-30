@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -152,20 +152,22 @@ export default function App() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Dashboard Event 🎪
+              Dashboard Event
             </h1>
             <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
               Pantau & kelola semua acara
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="w-full sm:w-[320px]">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            </div>
             {isAdmin && (
               <button
                 onClick={handleAddNew}
                 className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30 shrink-0"
               >
-                <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Tambah</span>
+                <Plus className="h-4 w-4" /> <span>Tambah</span>
               </button>
             )}
           </div>
@@ -198,7 +200,7 @@ export default function App() {
             gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           />
           <StatCard
-            icon={<span className="text-lg">🟢</span>}
+            icon={<Radio className="h-5 w-5 text-white" />}
             label="Berlangsung"
             value={stats.ongoing}
             subtitle="sedang aktif"
@@ -206,14 +208,14 @@ export default function App() {
             pulse
           />
           <StatCard
-            icon={<span className="text-lg">🟡</span>}
+            icon={<Clock3 className="h-5 w-5 text-white" />}
             label="Mendatang"
             value={stats.upcoming}
             subtitle="akan datang"
             gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
           />
           <StatCard
-            icon={<span className="text-lg">✅</span>}
+            icon={<CheckCircle2 className="h-5 w-5 text-white" />}
             label="Selesai"
             value={stats.past}
             subtitle="telah berlangsung"
@@ -231,13 +233,13 @@ export default function App() {
               events={ongoingEvents}
               title="Sedang Berlangsung"
               accent="emerald"
-              icon={<span className="animate-pulse text-emerald-500">🔴</span>}
+              icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
             />
             <FeaturedEvents
               events={upcomingEvents.slice(0, 3)}
               title="Segera Dimulai"
               accent="amber"
-              icon={<span>⏰</span>}
+              icon={<Clock3 className="h-4 w-4 text-amber-500" />}
             />
           </div>
         )}
@@ -266,16 +268,17 @@ export default function App() {
               />
             </div>
             {/* View Mode Toggle */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50 shrink-0 overflow-x-auto">
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
                 {VIEW_TABS.map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setViewMode(tab.key)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
-                        ? 'bg-white text-violet-700 shadow dark:bg-slate-600 dark:text-violet-300'
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        ? 'border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-800/50 dark:bg-slate-600 dark:text-violet-300'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
                     }`}
                   >
                     {tab.icon} {tab.label}
@@ -284,14 +287,14 @@ export default function App() {
               </div>
             </div>
             {/* Row 2: result summary */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredEvents.length}</span> dari {events.length} acara
                 {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
               </p>
               <button
                 onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
-                className="flex items-center gap-1 text-xs text-violet-600 hover:underline dark:text-violet-400"
+                className="flex items-center gap-1 self-start text-xs text-violet-600 hover:underline dark:text-violet-400"
               >
                 <RefreshCw className="h-3 w-3" /> Reset
               </button>
@@ -319,7 +322,7 @@ export default function App() {
         {/* Empty state */}
         {!isLoading && !error && filteredEvents.length === 0 && events.length > 0 && (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
-            <span className="text-5xl">🔍</span>
+            <SearchX className="h-10 w-10 text-slate-400" />
             <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
             <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
             <button

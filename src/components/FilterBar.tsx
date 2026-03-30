@@ -53,11 +53,11 @@ function CustomDropdown({
   }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative w-full">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`flex h-9 items-center gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${
+        className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${
           open
             ? 'border-violet-400 ring-2 ring-violet-100 dark:border-violet-600 dark:ring-violet-900/30'
             : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-600'
@@ -66,12 +66,12 @@ function CustomDropdown({
         aria-expanded={open}
         aria-label={label}
       >
-        <span className="max-w-[120px] truncate">{selected?.label ?? label}</span>
+        <span className="truncate text-left">{selected?.label ?? label}</span>
         <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1.5 min-w-[160px] overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+        <div className="absolute left-0 top-full z-30 mt-1.5 w-full min-w-[160px] overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
           {options.map(opt => (
             <button
               key={opt.key}
@@ -120,7 +120,7 @@ export function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
-      <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80 w-fit overflow-x-auto">
+      <div className="flex w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.key}
@@ -140,7 +140,7 @@ export function FilterBar({
       </div>
 
       {/* Dropdowns row - wrap on mobile */}
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <CustomDropdown
           value={activeMonth}
           options={monthOptions}

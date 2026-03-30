@@ -108,12 +108,12 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
   if (!isOpen) return null;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
       <div
-        className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 max-h-[90vh] overflow-y-auto"
+        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-slate-700">
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
               <Calendar className="h-4 w-4 text-white" />
@@ -132,7 +132,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:px-6">
           {/* Nama acara */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -152,7 +152,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
           </div>
 
           {/* Tanggal + Jam */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
                 Tanggal <span className="text-red-500">*</span>
@@ -210,7 +210,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
           </div>
 
           {/* Kategori + Prioritas */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Kategori</label>
               <select
@@ -262,7 +262,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent }: Props)
           </label>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
