@@ -140,6 +140,8 @@ function EventCard({
 }
 
 export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
+  const visibleColumns = isAdmin ? COLUMNS : COLUMNS.filter(col => col.status !== 'draft');
+
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
@@ -152,7 +154,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
-      {COLUMNS.map(col => {
+      {visibleColumns.map(col => {
         const colEvents = events.filter(e => e.status === col.status);
         return (
           <div key={col.status} className="flex min-w-[280px] flex-col gap-3 lg:min-w-0">

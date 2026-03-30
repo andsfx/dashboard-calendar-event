@@ -32,10 +32,10 @@ export function QuarterTimeline({ themes }: Props) {
   );
 
   useEffect(() => {
-    if (activeTheme && !selectedThemeId) {
+    if (activeTheme) {
       setSelectedThemeId(activeTheme.id);
     }
-  }, [activeTheme, selectedThemeId]);
+  }, [activeTheme]);
 
   const selectedTheme = themes.find(t => t.id === selectedThemeId) ?? activeTheme;
   const themeYear = themes[0]?.dateStart?.slice(0, 4) ?? new Date().getFullYear().toString();

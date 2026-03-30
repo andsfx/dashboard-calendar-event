@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
@@ -37,7 +37,7 @@ export default function App() {
     if (dark) document.documentElement.classList.add('dark');
     return dark;
   });
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
@@ -49,7 +49,7 @@ export default function App() {
 
   const { toasts, showToast, removeToast } = useToast();
   const {
-    events, filteredEvents, stats, categories, months,
+    events, filteredEvents,
     searchQuery, setSearchQuery,
     activeFilter, setActiveFilter,
     activeCategory, setActiveCategory,
@@ -138,8 +138,43 @@ export default function App() {
     setShowDeleteModal(false);
   }, [deletingEvent, deleteEvent, showToast]);
 
-  const ongoingEvents  = filteredEvents.filter(e => e.status === 'ongoing');
-  const upcomingEvents = filteredEvents.filter(e => e.status === 'upcoming');
+  const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
+  const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
+  const ongoingEvents  = visibleEvents.filter(e => e.status === 'ongoing');
+  const upcomingEvents = visibleEvents.filter(e => e.status === 'upcoming');
+  const visibleCategories = useMemo(() => {
+    const source = isAdmin ? events : publicEvents;
+    return ['Semua', ...new Set(source.map(e => e.category))];
+  }, [isAdmin, events, publicEvents]);
+  const visibleMonths = useMemo(() => {
+    const source = isAdmin ? events : publicEvents;
+    return ['Semua', ...new Set(source.map(e => e.month))];
+  }, [isAdmin, events, publicEvents]);
+  const visibleStats = useMemo(() => {
+    const source = isAdmin ? events : publicEvents;
+    return {
+      total: source.length,
+      ongoing: source.filter(e => e.status === 'ongoing').length,
+      upcoming: source.filter(e => e.status === 'upcoming').length,
+      past: source.filter(e => e.status === 'past').length,
+    };
+  }, [isAdmin, events, publicEvents]);
+  const availableViewTabs = useMemo(
+    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'table'),
+    [isAdmin]
+  );
+
+  useEffect(() => {
+    if (!isAdmin && viewMode === 'table') {
+      setViewMode('calendar');
+    }
+  }, [isAdmin, viewMode]);
+
+  useEffect(() => {
+    if (!isAdmin && activeFilter === 'draft') {
+      setActiveFilter('Semua');
+    }
+  }, [isAdmin, activeFilter, setActiveFilter]);
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
@@ -150,7 +185,7 @@ export default function App() {
         isAdmin={isAdmin}
         onLoginClick={() => setShowLoginModal(true)}
         onLogout={handleLogout}
-        ongoingCount={events.filter(e => e.status === 'ongoing').length}
+        ongoingCount={visibleStats.ongoing}
       />
 
       <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
@@ -201,31 +236,31 @@ export default function App() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <StatCard
             icon={<CalendarDays className="h-5 w-5 text-white" />}
-            label="Total Acara"
-            value={stats.total}
-            subtitle="keseluruhan"
+            label={isAdmin ? 'Total Acara' : 'Total Event'}
+            value={visibleStats.total}
+            subtitle={isAdmin ? 'keseluruhan' : 'semua event'}
             gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           />
           <StatCard
             icon={<Radio className="h-5 w-5 text-white" />}
-            label="Berlangsung"
-            value={stats.ongoing}
-            subtitle="sedang aktif"
+            label="Sedang Berlangsung"
+            value={visibleStats.ongoing}
+            subtitle={isAdmin ? 'sedang aktif' : 'bisa dikunjungi sekarang'}
             gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
             pulse
           />
           <StatCard
             icon={<Clock3 className="h-5 w-5 text-white" />}
-            label="Mendatang"
-            value={stats.upcoming}
-            subtitle="akan datang"
+            label="Akan Datang"
+            value={visibleStats.upcoming}
+            subtitle={isAdmin ? 'akan datang' : 'jadwal berikutnya'}
             gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
           />
           <StatCard
             icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-            label="Selesai"
-            value={stats.past}
-            subtitle="telah berlangsung"
+            label={isAdmin ? 'Selesai' : 'Event Selesai'}
+            value={visibleStats.past}
+            subtitle={isAdmin ? 'telah berlangsung' : 'arsip kegiatan'}
             gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
           />
         </div>
@@ -234,7 +269,7 @@ export default function App() {
         <QuarterTimeline themes={annualThemes} />
 
         {/* Featured ongoing & upcoming */}
-        {(ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
+        {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
           <div className="space-y-4 sm:space-y-5">
             <FeaturedEvents
               events={ongoingEvents}
@@ -251,10 +286,22 @@ export default function App() {
           </div>
         )}
 
+        {/* Featured upcoming for non-admin */}
+        {!isAdmin && upcomingEvents.length > 0 && (
+          <FeaturedEvents
+            events={upcomingEvents.slice(0, 3)}
+            title="Segera Dimulai"
+            accent="amber"
+            icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+          />
+        )}
+
         {/* Category chart */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <CategoryChart events={events} />
-        </div>
+        {isAdmin && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <CategoryChart events={events} />
+          </div>
+        )}
 
         {/* Filter/View */}
         <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -264,21 +311,23 @@ export default function App() {
               <FilterBar
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
-                categories={categories}
+                categories={visibleCategories}
                 activeCategory={activeCategory}
                 onCategoryChange={setActiveCategory}
                 activePriority={activePriority}
                 onPriorityChange={setActivePriority}
-                months={months}
+                months={visibleMonths}
                 activeMonth={activeMonth}
                 onMonthChange={setActiveMonth}
+                showDraft={isAdmin}
+                showPriority={isAdmin}
               />
             </div>
             {/* View Mode Toggle */}
             <div className="space-y-2">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
               <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
-                {VIEW_TABS.map(tab => (
+                {availableViewTabs.map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setViewMode(tab.key)}
@@ -296,7 +345,7 @@ export default function App() {
             {/* Row 2: result summary */}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredEvents.length}</span> dari {events.length} acara
+                Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
                 {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
               </p>
               <button
@@ -327,7 +376,7 @@ export default function App() {
         )}
 
         {/* Empty state */}
-        {!isLoading && !error && filteredEvents.length === 0 && events.length > 0 && (
+        {!isLoading && !error && visibleEvents.length === 0 && visibleStats.total > 0 && (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
             <SearchX className="h-10 w-10 text-slate-400" />
             <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
@@ -344,7 +393,7 @@ export default function App() {
         {/* Event Views */}
         {viewMode === 'table' && (
           <EventTable
-            events={filteredEvents}
+            events={visibleEvents}
             isAdmin={isAdmin}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
@@ -352,11 +401,11 @@ export default function App() {
           />
         )}
         {viewMode === 'calendar' && (
-          <CalendarView events={filteredEvents} onDetail={handleDetailClick} />
+          <CalendarView events={visibleEvents} onDetail={handleDetailClick} />
         )}
         {viewMode === 'kanban' && (
           <KanbanView
-            events={filteredEvents}
+            events={visibleEvents}
             isAdmin={isAdmin}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
@@ -365,7 +414,7 @@ export default function App() {
         )}
         {viewMode === 'timeline' && (
           <TimelineView
-            events={filteredEvents}
+            events={visibleEvents}
             isAdmin={isAdmin}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
@@ -380,10 +429,10 @@ export default function App() {
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
               <span className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
-                <span>{events.filter(e => e.status === 'ongoing').length} berlangsung</span>
+                <span>{visibleStats.ongoing} berlangsung</span>
               </span>
               <span className="hidden sm:inline">·</span>
-              <span>{events.filter(e => e.status === 'upcoming').length} mendatang</span>
+              <span>{visibleStats.upcoming} mendatang</span>
             </div>
           </div>
         </footer>

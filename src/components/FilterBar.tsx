@@ -106,6 +106,8 @@ interface Props {
   months: string[];
   activeMonth: string;
   onMonthChange: (m: string) => void;
+  showDraft?: boolean;
+  showPriority?: boolean;
 }
 
 export function FilterBar({
@@ -113,15 +115,19 @@ export function FilterBar({
   categories, activeCategory, onCategoryChange,
   activePriority, onPriorityChange,
   months, activeMonth, onMonthChange,
+  showDraft = true,
+  showPriority = true,
 }: Props) {
   const categoryOptions = (categories ?? []).map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
   const monthOptions = (months ?? []).map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
+  const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
+  const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
 
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
       <div className="flex w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80">
-        {STATUS_TABS.map(tab => (
+        {statusTabs.map(tab => (
           <button
             key={tab.key}
             onClick={() => onFilterChange(tab.key)}
@@ -140,7 +146,7 @@ export function FilterBar({
       </div>
 
       {/* Dropdowns row - wrap on mobile */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className={dropdownCols}>
         <CustomDropdown
           value={activeMonth}
           options={monthOptions}
@@ -153,12 +159,14 @@ export function FilterBar({
           onChange={onCategoryChange}
           label="Semua Kategori"
         />
-        <CustomDropdown
-          value={activePriority}
-          options={PRIORITY_OPTIONS}
-          onChange={onPriorityChange}
-          label="Semua Prioritas"
-        />
+        {showPriority && (
+          <CustomDropdown
+            value={activePriority}
+            options={PRIORITY_OPTIONS}
+            onChange={onPriorityChange}
+            label="Semua Prioritas"
+          />
+        )}
       </div>
     </div>
   );
