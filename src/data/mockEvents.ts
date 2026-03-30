@@ -76,31 +76,31 @@ export const mockEvents: EventItem[] = [
 
 export const annualThemes: AnnualTheme[] = [
   {
-    id: 'q1-2025',
+    id: 'q1-2026',
     name: 'Q1 – Awal Tahun & Perayaan',
-    dateStart: '2025-01-01',
-    dateEnd: '2025-03-31',
+    dateStart: '2026-01-01',
+    dateEnd: '2026-03-31',
     color: '#6366f1',
   },
   {
-    id: 'q2-2025',
+    id: 'q2-2026',
     name: 'Q2 – Ramadan & Lebaran',
-    dateStart: '2025-04-01',
-    dateEnd: '2025-06-30',
+    dateStart: '2026-04-01',
+    dateEnd: '2026-06-30',
     color: '#f59e0b',
   },
   {
-    id: 'q3-2025',
+    id: 'q3-2026',
     name: 'Q3 – Mid-Year Festival',
-    dateStart: '2025-07-01',
-    dateEnd: '2025-09-30',
+    dateStart: '2026-07-01',
+    dateEnd: '2026-09-30',
     color: '#10b981',
   },
   {
-    id: 'q4-2025',
+    id: 'q4-2026',
     name: 'Q4 – Akhir Tahun & Natal',
-    dateStart: '2025-10-01',
-    dateEnd: '2025-12-31',
+    dateStart: '2026-10-01',
+    dateEnd: '2026-12-31',
     color: '#ef4444',
   },
 ];
