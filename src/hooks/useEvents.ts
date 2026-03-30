@@ -61,7 +61,18 @@ export function useEvents() {
   useEffect(() => {
     if (hasInitializedMonth || events.length === 0) return;
 
-    setActiveMonth(events.some(e => e.month === currentMonth) ? currentMonth : 'Semua');
+    const hasCurrentMonthEvents = events.some(e => e.month === currentMonth);
+    if (hasCurrentMonthEvents) {
+      setActiveMonth(currentMonth);
+      setHasInitializedMonth(true);
+      return;
+    }
+
+    const nextUpcomingEvent = [...events]
+      .filter(e => e.status === 'upcoming')
+      .sort((a, b) => a.dateStr.localeCompare(b.dateStr))[0];
+
+    setActiveMonth(nextUpcomingEvent?.month || 'Semua');
     setHasInitializedMonth(true);
   }, [events, currentMonth, hasInitializedMonth]);
 
