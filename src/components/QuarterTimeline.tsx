@@ -42,9 +42,9 @@ export function QuarterTimeline({ themes }: Props) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 text-violet-500" />Tema Tahunan {themeYear}</p>
-        <span className="text-xs text-slate-400 dark:text-slate-500">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-violet-500" />Tema Tahunan {themeYear}</p>
+        <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
           {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
             ? '● Tema aktif'
             : 'Tidak ada tema aktif'}
@@ -77,9 +77,9 @@ export function QuarterTimeline({ themes }: Props) {
                   : {}),
               }}
             >
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 items-start gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: selectedTheme.color }} />
-                <p className="truncate text-sm font-bold text-slate-800 dark:text-slate-100">{selectedTheme.name}</p>
+                <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-slate-800 dark:text-slate-100">{selectedTheme.name}</p>
               </div>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 {formatDate(selectedTheme.dateStart)} - {formatDate(selectedTheme.dateEnd)}
@@ -98,7 +98,7 @@ export function QuarterTimeline({ themes }: Props) {
         )}
       </div>
 
-      <div className="hidden flex-col gap-2.5 sm:flex sm:flex-row sm:gap-3">
+      <div className="hidden gap-3 sm:grid sm:grid-cols-2 xl:grid-cols-4">
         {themes.map(theme => {
           const isActive = today >= theme.dateStart && today <= theme.dateEnd;
           const isPast   = today > theme.dateEnd;
@@ -107,7 +107,7 @@ export function QuarterTimeline({ themes }: Props) {
           return (
             <div
               key={theme.id}
-              className={`relative flex-1 rounded-xl p-4 transition-all duration-200 ${
+              className={`relative min-w-0 rounded-xl p-4 transition-all duration-200 ${
                 isActive
                   ? 'ring-2 shadow-sm'
                   : isPast
@@ -128,9 +128,9 @@ export function QuarterTimeline({ themes }: Props) {
                 />
               )}
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 items-start gap-1.5">
                 <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{theme.name}</p>
+                <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-slate-800 dark:text-slate-100">{theme.name}</p>
               </div>
               <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
                 {formatDate(theme.dateStart)} – {formatDate(theme.dateEnd)}
@@ -144,13 +144,13 @@ export function QuarterTimeline({ themes }: Props) {
                 />
               </div>
 
-              <div className="mt-1.5 flex items-center justify-between">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 {isActive && (
                   <span
                     className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
                     style={{ backgroundColor: theme.color }}
                   >
-                    ✦ Aktif
+                    Aktif
                   </span>
                 )}
                 {!isActive && !isPast && (
@@ -159,7 +159,7 @@ export function QuarterTimeline({ themes }: Props) {
                 {isPast && (
                   <span className="text-[10px] text-slate-400">Selesai</span>
                 )}
-                <span className="text-[10px] font-semibold" style={{ color: theme.color }}>
+                <span className="ml-auto text-[10px] font-semibold" style={{ color: theme.color }}>
                   {progress}%
                 </span>
               </div>
