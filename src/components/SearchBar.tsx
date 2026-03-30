@@ -44,7 +44,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         {value ? (
           <button
             onClick={() => { onChange(''); inputRef.current?.focus(); }}
-            className="rounded-lg p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
+            className="rounded-lg p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:hover:bg-slate-700 dark:hover:text-white"
             aria-label="Hapus pencarian"
           >
             <X className="h-3.5 w-3.5" />

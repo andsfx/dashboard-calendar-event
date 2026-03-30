@@ -1,5 +1,7 @@
 import { Moon, Sun, CalendarDays, LogOut, Shield } from 'lucide-react';
 
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
+
 interface Props {
   isDark: boolean;
   onToggleDark: () => void;
@@ -41,7 +43,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
               <button
                 onClick={onLogout}
                 title="Keluar dari mode admin"
-                className="flex h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 sm:px-3"
+                className={`flex h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 sm:px-3 ${focusRing}`}
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Keluar</span>
@@ -51,7 +53,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
             <button
               onClick={onLoginClick}
               title="Masuk sebagai admin"
-              className="flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 sm:px-3"
+              className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 sm:px-3 ${focusRing}`}
             >
               <Shield className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Admin</span>
@@ -65,7 +67,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
           <div className="tooltip-parent hidden sm:block">
             <button
               onClick={onToggleDark}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+               className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 ${focusRing}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark
@@ -77,7 +79,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
           </div>
           <button
             onClick={onToggleDark}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 sm:hidden"
+            className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
           >
             {isDark

@@ -27,7 +27,7 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 
   return (
     <div
-      className={`relative flex w-80 items-start gap-3 overflow-hidden rounded-xl border-l-4 bg-white p-4 shadow-lg dark:bg-slate-800 dark:shadow-slate-900/50 ${cfg.border} ${exiting ? 'toast-exit' : 'toast-enter'}`}
+      className={`relative flex w-full max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border-l-4 bg-white p-4 shadow-lg dark:bg-slate-800 dark:shadow-slate-900/50 sm:w-80 sm:max-w-sm ${cfg.border} ${exiting ? 'toast-exit' : 'toast-enter'}`}
     >
       {/* Tinted background */}
       <div className={`absolute inset-0 opacity-40 ${cfg.bg}`} />
@@ -49,7 +49,7 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 
       <button
         onClick={dismiss}
-        className="relative shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
+        className="relative shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:hover:bg-slate-700 dark:hover:text-white"
         aria-label="Tutup notifikasi"
       >
         <X className="h-3.5 w-3.5" />
@@ -66,7 +66,7 @@ interface Props {
 export function ToastContainer({ toasts, onRemove }: Props) {
   if (!toasts.length) return null;
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-2" role="region" aria-live="polite" aria-label="Notifikasi">
+    <div className="fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 sm:inset-x-auto sm:bottom-6 sm:right-6" role="region" aria-live="polite" aria-label="Notifikasi">
       {toasts.map(t => (
         <ToastItem key={t.id} t={t} onRemove={onRemove} />
       ))}

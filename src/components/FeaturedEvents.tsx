@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, MapPin, Zap, ArrowRight, Timer } from 'lucide-react';
+import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
 import { CategoryBadge } from './CategoryBadge';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
@@ -119,9 +119,9 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
         })}
       </div>
       {events.length > 3 && (
-        <button className={`mt-3 flex items-center gap-1 text-xs font-medium hover:underline ${accentStyle.link}`}>
-          Lihat {events.length - 3} acara lainnya <ArrowRight className="h-3 w-3" />
-        </button>
+        <p className={`mt-3 text-xs font-medium ${accentStyle.link}`}>
+          +{events.length - 3} acara lainnya tersedia di tampilan utama
+        </p>
       )}
     </div>
   );

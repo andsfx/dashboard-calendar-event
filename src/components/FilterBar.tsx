@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { EventStatus } from '../types';
 
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
+
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
   { key: 'draft',    label: 'Draft',        dot: 'bg-purple-400' },
@@ -57,7 +59,7 @@ function CustomDropdown({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${
+        className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${focusRing} ${
           open
             ? 'border-violet-400 ring-2 ring-violet-100 dark:border-violet-600 dark:ring-violet-900/30'
             : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-600'
@@ -79,7 +81,7 @@ function CustomDropdown({
               role="option"
               aria-selected={value === opt.key}
               onClick={() => { onChange(opt.key); setOpen(false); }}
-              className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-slate-50 dark:hover:bg-slate-700 ${
+              className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing} ${
                 value === opt.key
                   ? 'bg-violet-50 font-semibold text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                   : 'text-slate-700 dark:text-slate-300'
@@ -131,7 +133,7 @@ export function FilterBar({
           <button
             key={tab.key}
             onClick={() => onFilterChange(tab.key)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
               activeFilter === tab.key
                 ? 'bg-white shadow text-slate-800 dark:bg-slate-700 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
