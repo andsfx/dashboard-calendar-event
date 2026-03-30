@@ -61,7 +61,16 @@ function getTimeSortValue(jam: string) {
 
 export function sortTableEvents(events: EventItem[]): EventItem[] {
   return [...events].sort((a, b) => {
-    const dateCompare = a.dateStr.localeCompare(b.dateStr);
+    const aIsPast = a.status === 'past';
+    const bIsPast = b.status === 'past';
+
+    if (aIsPast !== bIsPast) {
+      return aIsPast ? 1 : -1;
+    }
+
+    const dateCompare = aIsPast
+      ? b.dateStr.localeCompare(a.dateStr)
+      : a.dateStr.localeCompare(b.dateStr);
     if (dateCompare !== 0) return dateCompare;
 
     const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
