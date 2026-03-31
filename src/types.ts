@@ -65,6 +65,21 @@ export interface HolidayItem {
   description: string;
 }
 
+export interface LetterRequestItem {
+  tanggalSurat: string;
+  nomorSurat: string;
+  namaEO: string;
+  penanggungJawab: string;
+  alamatEO: string;
+  namaEvent: string;
+  lokasi: string;
+  hariTanggalPelaksanaan: string;
+  waktuPelaksanaan: string;
+  nomorTelepon: string;
+  hariTanggalLoading: string;
+  waktuLoading: string;
+}
+
 export interface ToastMessage {
   id: string;
   type: 'success' | 'error' | 'info' | 'warning';

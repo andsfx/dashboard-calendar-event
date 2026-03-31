@@ -8,6 +8,8 @@ const SHEET_NAME = 'SCHEDULE EVENT';
 const DRAFT_SHEET_NAME = 'DRAFT EVENT';
 const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
 const SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
+const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
+const LETTER_SHEET_NAME = 'Form Responses 1';
 
 // ---- Helpers ----
 
@@ -97,6 +99,17 @@ function getHolidaySheet() {
     sheet.setFrozenRows(1);
   } else if (sheet.getLastColumn() < headers.length) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  return sheet;
+}
+
+function getLetterSheet() {
+  var ss = SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(LETTER_SHEET_NAME);
+
+  if (!sheet) {
+    throw new Error('Letter sheet not found: ' + LETTER_SHEET_NAME);
   }
 
   return sheet;
@@ -495,6 +508,33 @@ function restoreDraftEvent(sheetRow) {
   return { success: true };
 }
 
+function createLetterRequest(data) {
+  var sheet = getLetterSheet();
+  var timestamp = new Date();
+
+  sheet.appendRow([
+    timestamp,
+    data.tanggalSurat || '',
+    data.nomorSurat || '',
+    data.namaEO || '',
+    data.penanggungJawab || '',
+    data.alamatEO || '',
+    data.namaEvent || '',
+    data.lokasi || '',
+    data.hariTanggalPelaksanaan || '',
+    data.waktuPelaksanaan || '',
+    data.nomorTelepon || '',
+    data.hariTanggalLoading || '',
+    data.waktuLoading || '',
+    '',
+    '',
+    '',
+    ''
+  ]);
+
+  return { success: true, row: sheet.getLastRow() };
+}
+
 // ---- Web App Handlers ----
 
 function doGet(e) {
@@ -551,6 +591,11 @@ function doGet(e) {
       return output.setContent(JSON.stringify(restoreDraftEvent(restoreDraftRow)));
     }
 
+    if (action === 'createLetterRequest') {
+      var createLetterData = JSON.parse(e.parameter.data || '{}');
+      return output.setContent(JSON.stringify(createLetterRequest(createLetterData)));
+    }
+
     if (action === 'debug') {
       var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
       var sheets = ss.getSheets().map(function(s) { return s.getName(); });
@@ -598,6 +643,9 @@ function doPost(e) {
     }
     if (action === 'restoreDraft') {
       return output.setContent(JSON.stringify(restoreDraftEvent(body.sheetRow)));
+    }
+    if (action === 'createLetterRequest') {
+      return output.setContent(JSON.stringify(createLetterRequest(body.data)));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));

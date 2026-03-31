@@ -1,4 +1,4 @@
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 
@@ -348,6 +348,28 @@ export async function restoreDraftEvent(sheetRow: number): Promise<void> {
     }
   } catch (error) {
     console.error('Error restoring draft event:', error);
+    throw error;
+  }
+}
+
+export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'createLetterRequest',
+      data: JSON.stringify(data),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Create letter request failed');
+    }
+    return { row: result.row || 0 };
+  } catch (error) {
+    console.error('Error creating letter request:', error);
     throw error;
   }
 }

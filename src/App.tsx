@@ -16,6 +16,7 @@ import { EventCrudModal } from './components/EventCrudModal';
 import { EventDetailModal } from './components/EventDetailModal';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { DraftCrudModal } from './components/DraftCrudModal';
+import { DraftLetterModal } from './components/DraftLetterModal';
 import { DraftQueueTable } from './components/DraftQueueTable';
 import { DraftHistoryTable } from './components/DraftHistoryTable';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
@@ -25,8 +26,9 @@ import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { annualThemes as mockThemes } from './data/mockEvents';
-import { DraftEventItem, EventItem, ViewMode } from './types';
+import { DraftEventItem, EventItem, LetterRequestItem, ViewMode } from './types';
 import { createId } from './utils/eventUtils';
+import { createLetterRequest } from './utils/sheetsApi';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -48,11 +50,13 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showLetterModal, setShowLetterModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDraftHistory, setShowDraftHistory] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
+  const [letterDraft, setLetterDraft] = useState<DraftEventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
 
@@ -126,6 +130,11 @@ export default function App() {
   const handleEditDraft = useCallback((draft: DraftEventItem) => {
     setEditingDraft(draft);
     setShowDraftModal(true);
+  }, []);
+
+  const handleOpenLetter = useCallback((draft: DraftEventItem) => {
+    setLetterDraft(draft);
+    setShowLetterModal(true);
   }, []);
 
   const handleDeleteClick = useCallback((ev: EventItem) => {
@@ -246,6 +255,18 @@ export default function App() {
       showToast('error', 'Gagal memulihkan draft', 'Draft event belum berhasil dipulihkan.');
     }
   }, [restoreDraft, showToast]);
+
+  const handleSubmitLetter = useCallback(async (data: LetterRequestItem) => {
+    try {
+      await createLetterRequest(data);
+      showToast('success', 'Permintaan surat dikirim', 'Dokumen akan diproses oleh AutoCrat di spreadsheet surat.');
+      return true;
+    } catch (error) {
+      console.error('Letter request error:', error);
+      showToast('error', 'Gagal mengirim surat', 'Data surat belum berhasil dikirim ke spreadsheet.');
+      return false;
+    }
+  }, [showToast]);
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
@@ -412,6 +433,7 @@ export default function App() {
                 onEdit={handleEditDraft}
                 onDelete={handleDeleteDraft}
                 onPublish={handlePublishDraft}
+                onCreateLetter={handleOpenLetter}
                 onProgressChange={handleDraftProgressChange}
               />
             )}
@@ -686,6 +708,12 @@ export default function App() {
         editingDraft={editingDraft}
         events={events}
         draftEvents={draftEvents}
+      />
+      <DraftLetterModal
+        isOpen={showLetterModal}
+        onClose={() => { setShowLetterModal(false); setLetterDraft(null); }}
+        draft={letterDraft}
+        onSubmit={handleSubmitLetter}
       />
       <DeleteConfirmModal
         isOpen={showDeleteModal}
