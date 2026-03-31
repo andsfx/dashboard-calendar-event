@@ -20,10 +20,6 @@ interface Props {
   onDetail: (ev: EventItem) => void;
 }
 
-type AgendaCard =
-  | { kind: 'holiday'; dateStr: string; holiday: HolidayItem }
-  | { kind: 'event'; dateStr: string; event: EventItem };
-
 export function CalendarView({ events, holidays, onDetail }: Props) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -55,7 +51,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const monthEvents = events
     .filter(e => e.dateStr.startsWith(monthStr))
     .sort((a, b) => {
-      const dateCompare = b.dateStr.localeCompare(a.dateStr);
+      const dateCompare = a.dateStr.localeCompare(b.dateStr);
       if (dateCompare !== 0) return dateCompare;
       const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
       if (timeCompare !== 0) return timeCompare;
@@ -64,29 +60,11 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const monthHolidays = holidays
     .filter(h => h.dateStr.startsWith(monthStr))
     .sort((a, b) => {
-      const dateCompare = b.dateStr.localeCompare(a.dateStr);
+      const dateCompare = a.dateStr.localeCompare(b.dateStr);
       if (dateCompare !== 0) return dateCompare;
       if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
       return a.name.localeCompare(b.name);
     });
-  const monthAgenda: AgendaCard[] = [
-    ...monthHolidays.map(holiday => ({ kind: 'holiday' as const, dateStr: holiday.dateStr, holiday })),
-    ...monthEvents.map(event => ({ kind: 'event' as const, dateStr: event.dateStr, event })),
-  ].sort((a, b) => {
-    const dateCompare = b.dateStr.localeCompare(a.dateStr);
-    if (dateCompare !== 0) return dateCompare;
-    if (a.kind !== b.kind) return a.kind === 'holiday' ? -1 : 1;
-    if (a.kind === 'holiday' && b.kind === 'holiday') {
-      if (a.holiday.type !== b.holiday.type) return a.holiday.type === 'libur_nasional' ? -1 : 1;
-      return a.holiday.name.localeCompare(b.holiday.name);
-    }
-    if (a.kind === 'event' && b.kind === 'event') {
-      const timeCompare = getTimeSortValue(a.event.jam) - getTimeSortValue(b.event.jam);
-      if (timeCompare !== 0) return timeCompare;
-      return a.event.acara.localeCompare(b.event.acara);
-    }
-    return 0;
-  });
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -171,7 +149,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
       {/* Monthly event panel */}
       <div className="flex-1">
-        {monthAgenda.length > 0 ? (
+        {monthEvents.length > 0 || monthHolidays.length > 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
@@ -181,84 +159,117 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                 {monthEvents.length} acara dan {monthHolidays.length} hari libur di bulan ini
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
-              {monthAgenda.map(item => {
-                const isSelectedCard = selectedDate === item.dateStr;
+            <div className="space-y-6 p-4 sm:p-5">
+              <section className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
+                    <p className="text-xs text-slate-400">{monthEvents.length} event di bulan ini</p>
+                  </div>
+                </div>
 
-                if (item.kind === 'holiday') {
-                  const holiday = item.holiday;
-                  const badgeClass = holiday.type === 'libur_nasional'
-                    ? 'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:ring-rose-800/50'
-                    : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
+                {monthEvents.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {monthEvents.map(ev => {
+                      const isSelectedCard = selectedDate === ev.dateStr;
 
-                  return (
-                    <div
-                      key={`holiday-${holiday.id}`}
-                      className={`rounded-2xl border p-4 text-left shadow-sm ${
-                        isSelectedCard
-                          ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
-                          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
-                      }`}
-                    >
-                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                          {holiday.day}, {holiday.tanggal}
-                        </p>
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
-                          {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
-                        </span>
-                      </div>
-                      <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
-                      {holiday.description && (
-                        <p className="mt-3 line-clamp-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>
-                      )}
-                    </div>
-                  );
-                }
+                      return (
+                        <button
+                          key={ev.id}
+                          onClick={() => onDetail(ev)}
+                          className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
+                            isSelectedCard
+                              ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                          }`}
+                        >
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {ev.day}, {ev.tanggal}
+                            </p>
+                            <StatusBadge status={ev.status} size="sm" />
+                          </div>
 
-                const ev = item.event;
-                return (
-                  <button
-                    key={ev.id}
-                    onClick={() => onDetail(ev)}
-                    className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
-                      isSelectedCard
-                        ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
-                        : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
-                    }`}
-                  >
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                      <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                        {ev.day}, {ev.tanggal}
-                      </p>
-                      <StatusBadge status={ev.status} size="sm" />
-                    </div>
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <CategoryBadge category={ev.category} />
+                          </div>
 
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <CategoryBadge category={ev.category} />
-                    </div>
+                          <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
 
-                    <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                          <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                            {ev.jam && (
+                              <div className="flex items-center gap-1.5">
+                                <Clock className="h-3 w-3 shrink-0" />
+                                <span>{ev.jam}</span>
+                              </div>
+                            )}
+                            {ev.lokasi && (
+                              <div className="flex items-center gap-1.5">
+                                <MapPin className="h-3 w-3 shrink-0" />
+                                <span className="line-clamp-2">{ev.lokasi}</span>
+                              </div>
+                            )}
+                            {ev.eo && <p>EO: {ev.eo}</p>}
+                            {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                    Tidak ada event di bulan ini.
+                  </div>
+                )}
+              </section>
 
-                    <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                      {ev.jam && (
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3 w-3 shrink-0" />
-                          <span>{ev.jam}</span>
+              <section className="space-y-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
+                    <p className="text-xs text-slate-400">{monthHolidays.length} hari libur di bulan ini</p>
+                  </div>
+                </div>
+
+                {monthHolidays.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {monthHolidays.map(holiday => {
+                      const isSelectedCard = selectedDate === holiday.dateStr;
+                      const badgeClass = holiday.type === 'libur_nasional'
+                        ? 'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:ring-rose-800/50'
+                        : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
+
+                      return (
+                        <div
+                          key={`holiday-${holiday.id}`}
+                          className={`rounded-2xl border p-4 text-left shadow-sm ${
+                            isSelectedCard
+                              ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                          }`}
+                        >
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {holiday.day}, {holiday.tanggal}
+                            </p>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
+                              {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                            </span>
+                          </div>
+                          <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
+                          {holiday.description && (
+                            <p className="mt-3 line-clamp-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>
+                          )}
                         </div>
-                      )}
-                      {ev.lokasi && (
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          <span className="line-clamp-2">{ev.lokasi}</span>
-                        </div>
-                      )}
-                      {ev.eo && <p>EO: {ev.eo}</p>}
-                      {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
-                    </div>
-                  </button>
-                );
-              })}
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                    Tidak ada hari libur di bulan ini.
+                  </div>
+                )}
+              </section>
             </div>
           </div>
         ) : (
