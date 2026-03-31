@@ -8,6 +8,12 @@ import { CategoryBadge } from './CategoryBadge';
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 
+function getTimeSortValue(jam: string) {
+  const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
+  if (!match) return Number.MAX_SAFE_INTEGER;
+  return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+}
+
 interface Props {
   events: EventItem[];
   onDetail: (ev: EventItem) => void;
@@ -36,20 +42,15 @@ export function CalendarView({ events, onDetail }: Props) {
 
   // Count events in current month
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-  const monthEvents = events.filter(e => e.dateStr.startsWith(monthStr));
-  const monthEventsByDate = monthEvents.reduce<Array<{ dateStr: string; label: string; events: EventItem[] }>>((groups, event) => {
-    const last = groups[groups.length - 1];
-    if (!last || last.dateStr !== event.dateStr) {
-      groups.push({
-        dateStr: event.dateStr,
-        label: `${event.day}, ${event.tanggal}`,
-        events: [event],
-      });
-      return groups;
-    }
-    last.events.push(event);
-    return groups;
-  }, []);
+  const monthEvents = events
+    .filter(e => e.dateStr.startsWith(monthStr))
+    .sort((a, b) => {
+      const dateCompare = a.dateStr.localeCompare(b.dateStr);
+      if (dateCompare !== 0) return dateCompare;
+      const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
+      if (timeCompare !== 0) return timeCompare;
+      return a.acara.localeCompare(b.acara);
+    });
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -129,53 +130,53 @@ export function CalendarView({ events, onDetail }: Props) {
                 <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
               <p className="text-xs text-slate-400">
-                {monthEvents.length} acara terjadwal
+                {monthEvents.length} acara sepanjang bulan ini
               </p>
             </div>
-            <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
-              {monthEventsByDate.map(group => {
-                const isSelectedGroup = selectedDate === group.dateStr;
+            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
+              {monthEvents.map(ev => {
+                const isSelectedCard = selectedDate === ev.dateStr;
+
                 return (
-                  <div
-                    key={group.dateStr}
-                    className={`transition-colors ${isSelectedGroup ? 'bg-violet-50/40 dark:bg-violet-900/10' : ''}`}
+                  <button
+                    key={ev.id}
+                    onClick={() => onDetail(ev)}
+                    className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
+                      isSelectedCard
+                        ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                        : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                    }`}
                   >
-                    <div className={`border-b px-4 py-3 sm:px-5 ${isSelectedGroup ? 'border-violet-200 dark:border-violet-800/50' : 'border-slate-100 dark:border-slate-700'}`}>
-                      <p className={`text-sm font-semibold ${isSelectedGroup ? 'text-violet-700 dark:text-violet-300' : 'text-slate-700 dark:text-slate-200'}`}>
-                        {group.label}
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                      <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {ev.day}, {ev.tanggal}
                       </p>
-                      <p className="text-xs text-slate-400">{group.events.length} acara</p>
+                      <StatusBadge status={ev.status} size="sm" />
                     </div>
-                    <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                      {group.events.map(ev => (
-                        <div
-                          key={ev.id}
-                          className="cursor-pointer px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-700/30 sm:px-5"
-                          onClick={() => onDetail(ev)}
-                        >
-                          <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                            <StatusBadge status={ev.status} size="sm" />
-                            <CategoryBadge category={ev.category} />
-                          </div>
-                          <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                          <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
-                            {ev.jam && (
-                              <div className="flex items-center gap-1.5">
-                                <Clock className="h-3 w-3" /> {ev.jam}
-                              </div>
-                            )}
-                            {ev.lokasi && (
-                              <div className="flex items-center gap-1.5">
-                                <MapPin className="h-3 w-3" /> {ev.lokasi}
-                              </div>
-                            )}
-                            {ev.eo && <p>EO: {ev.eo}</p>}
-                            {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
-                          </div>
+
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <CategoryBadge category={ev.category} />
+                    </div>
+
+                    <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+
+                    <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                      {ev.jam && (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3 w-3 shrink-0" />
+                          <span>{ev.jam}</span>
                         </div>
-                      ))}
+                      )}
+                      {ev.lokasi && (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="line-clamp-2">{ev.lokasi}</span>
+                        </div>
+                      )}
+                      {ev.eo && <p>EO: {ev.eo}</p>}
+                      {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
