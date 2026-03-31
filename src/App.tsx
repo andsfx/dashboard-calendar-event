@@ -18,6 +18,7 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { DraftCrudModal } from './components/DraftCrudModal';
 import { DraftQueueTable } from './components/DraftQueueTable';
 import { DraftHistoryTable } from './components/DraftHistoryTable';
+import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
@@ -270,6 +271,16 @@ export default function App() {
     () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar'),
     [isAdmin]
   );
+  const publicSectionItems = useMemo(
+    () => [
+      { id: 'summary', label: 'Summary' },
+      ...(upcomingEvents.length > 0 ? [{ id: 'featured', label: 'Segera' }] : []),
+      { id: 'calendar', label: 'Kalender' },
+      { id: 'views', label: 'Tampilan' },
+      { id: 'themes', label: 'Tema' },
+    ],
+    [upcomingEvents.length]
+  );
 
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
@@ -312,6 +323,8 @@ export default function App() {
         onLogout={handleLogout}
         ongoingCount={visibleStats.ongoing}
       />
+
+      {!isAdmin && <SectionNav items={publicSectionItems} />}
 
       <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
@@ -429,7 +442,8 @@ export default function App() {
         )}
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <section id="summary" className="scroll-mt-32">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <StatCard
             icon={<CalendarDays className="h-5 w-5 text-white" />}
             label={isAdmin ? 'Total Acara' : 'Total Event'}
@@ -459,7 +473,8 @@ export default function App() {
             subtitle={isAdmin ? 'telah berlangsung' : 'arsip kegiatan'}
             gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
           />
-        </div>
+          </div>
+        </section>
 
         {/* Quarter Timeline */}
         {isAdmin && <QuarterTimeline themes={annualThemes} />}
@@ -484,17 +499,19 @@ export default function App() {
 
         {/* Featured upcoming for non-admin */}
         {!isAdmin && upcomingEvents.length > 0 && (
-          <FeaturedEvents
-            events={upcomingEvents.slice(0, 3)}
-            title="Segera Dimulai"
-            accent="amber"
-            icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-          />
+          <section id="featured" className="scroll-mt-32">
+            <FeaturedEvents
+              events={upcomingEvents.slice(0, 3)}
+              title="Segera Dimulai"
+              accent="amber"
+              icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+            />
+          </section>
         )}
 
         {/* Public Calendar */}
         {!isAdmin && (
-          <section className="space-y-3">
+          <section id="calendar" className="space-y-3 scroll-mt-32">
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
@@ -511,6 +528,7 @@ export default function App() {
         )}
 
         {/* Filter/View */}
+        <section id="views" className="scroll-mt-32">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
             {/* Row 1: status tabs - scrollable on mobile */}
@@ -564,6 +582,7 @@ export default function App() {
             </div>
           </div>
         </div>
+        </section>
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -629,7 +648,11 @@ export default function App() {
           />
         )}
 
-        {!isAdmin && <QuarterTimeline themes={annualThemes} />}
+        {!isAdmin && (
+          <section id="themes" className="scroll-mt-32">
+            <QuarterTimeline themes={annualThemes} />
+          </section>
+        )}
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
