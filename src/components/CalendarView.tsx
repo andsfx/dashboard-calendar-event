@@ -34,11 +34,22 @@ export function CalendarView({ events, onDetail }: Props) {
     setSelectedDate(null);
   };
 
-  const selectedEvents = selectedDate ? (byDate[selectedDate] ?? []) : [];
-
   // Count events in current month
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
   const monthEvents = events.filter(e => e.dateStr.startsWith(monthStr));
+  const monthEventsByDate = monthEvents.reduce<Array<{ dateStr: string; label: string; events: EventItem[] }>>((groups, event) => {
+    const last = groups[groups.length - 1];
+    if (!last || last.dateStr !== event.dateStr) {
+      groups.push({
+        dateStr: event.dateStr,
+        label: `${event.day}, ${event.tanggal}`,
+        events: [event],
+      });
+      return groups;
+    }
+    last.events.push(event);
+    return groups;
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -109,60 +120,71 @@ export function CalendarView({ events, onDetail }: Props) {
         </div>
       </div>
 
-      {/* Event detail panel */}
+      {/* Monthly event panel */}
       <div className="flex-1">
-        {selectedDate ? (
+        {monthEvents.length > 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
-                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> {selectedDate}</span>
+                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
               <p className="text-xs text-slate-400">
-                {selectedEvents.length === 0 ? 'Tidak ada acara' : `${selectedEvents.length} acara terjadwal`}
+                {monthEvents.length} acara terjadwal
               </p>
             </div>
-            {selectedEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                  <Inbox className="mb-2 h-10 w-10 opacity-50" />
-                  <p className="text-sm">Tidak ada acara di tanggal ini</p>
-                </div>
-            ) : (
-              <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                {selectedEvents.map(ev => (
+            <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              {monthEventsByDate.map(group => {
+                const isSelectedGroup = selectedDate === group.dateStr;
+                return (
                   <div
-                    key={ev.id}
-                    className="cursor-pointer px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-700/30 sm:px-5"
-                    onClick={() => onDetail(ev)}
+                    key={group.dateStr}
+                    className={`transition-colors ${isSelectedGroup ? 'bg-violet-50/40 dark:bg-violet-900/10' : ''}`}
                   >
-                    <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                      <StatusBadge status={ev.status} size="sm" />
-                      <CategoryBadge category={ev.category} />
+                    <div className={`border-b px-4 py-3 sm:px-5 ${isSelectedGroup ? 'border-violet-200 dark:border-violet-800/50' : 'border-slate-100 dark:border-slate-700'}`}>
+                      <p className={`text-sm font-semibold ${isSelectedGroup ? 'text-violet-700 dark:text-violet-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                        {group.label}
+                      </p>
+                      <p className="text-xs text-slate-400">{group.events.length} acara</p>
                     </div>
-                    <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                    <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
-                      {ev.jam && (
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3 w-3" /> {ev.jam}
+                    <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                      {group.events.map(ev => (
+                        <div
+                          key={ev.id}
+                          className="cursor-pointer px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-700/30 sm:px-5"
+                          onClick={() => onDetail(ev)}
+                        >
+                          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                            <StatusBadge status={ev.status} size="sm" />
+                            <CategoryBadge category={ev.category} />
+                          </div>
+                          <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                          <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                            {ev.jam && (
+                              <div className="flex items-center gap-1.5">
+                                <Clock className="h-3 w-3" /> {ev.jam}
+                              </div>
+                            )}
+                            {ev.lokasi && (
+                              <div className="flex items-center gap-1.5">
+                                <MapPin className="h-3 w-3" /> {ev.lokasi}
+                              </div>
+                            )}
+                            {ev.eo && <p>EO: {ev.eo}</p>}
+                            {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                          </div>
                         </div>
-                      )}
-                      {ev.lokasi && (
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3 w-3" /> {ev.lokasi}
-                        </div>
-                      )}
-                      {ev.eo && <p>EO: {ev.eo}</p>}
-                      {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div className="flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/50 px-4 text-center text-slate-400 dark:border-slate-700 dark:bg-slate-800/30 sm:min-h-[300px]">
             <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
-            <p className="text-sm font-medium">Pilih tanggal</p>
-            <p className="mt-1 text-xs">Klik tanggal di kalender untuk melihat acara</p>
+            <p className="text-sm font-medium">Belum ada event di {MONTH_ID[month]} {year}</p>
+            <p className="mt-1 text-xs">Coba pindah bulan untuk melihat agenda lainnya</p>
           </div>
         )}
 
