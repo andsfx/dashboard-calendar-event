@@ -308,3 +308,24 @@ export async function publishDraftEvent(sheetRow: number): Promise<void> {
     throw error;
   }
 }
+
+export async function restoreDraftEvent(sheetRow: number): Promise<void> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'restoreDraft',
+      sheetRow: String(sheetRow),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Restore draft failed');
+    }
+  } catch (error) {
+    console.error('Error restoring draft event:', error);
+    throw error;
+  }
+}

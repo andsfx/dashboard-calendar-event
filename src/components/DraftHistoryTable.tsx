@@ -1,9 +1,9 @@
-import { ExternalLink, MessageCircle } from 'lucide-react';
+import { ExternalLink, MessageCircle, RotateCcw } from 'lucide-react';
 import { DraftEventItem } from '../types';
 import { DraftProgressBadge } from './DraftProgressBadge';
 import { formatDraftPublishedAt, getWhatsAppUrl } from '../utils/draftUtils';
 
-export function DraftHistoryTable({ drafts }: { drafts: DraftEventItem[] }) {
+export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
@@ -56,14 +56,24 @@ export function DraftHistoryTable({ drafts }: { drafts: DraftEventItem[] }) {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {whatsappUrl ? (
-                      <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-green-200 px-2.5 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 dark:border-green-900/50 dark:text-green-300 dark:hover:bg-green-900/20">
-                        <MessageCircle className="h-3.5 w-3.5" />WhatsApp
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ) : (
-                      <span className="text-xs text-slate-400">Tidak ada nomor</span>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {whatsappUrl ? (
+                        <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-green-200 px-2.5 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 dark:border-green-900/50 dark:text-green-300 dark:hover:bg-green-900/20">
+                          <MessageCircle className="h-3.5 w-3.5" />WhatsApp
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-slate-400">Tidak ada nomor</span>
+                      )}
+                      {!draft.published && (draft.deleted || draft.progress === 'cancel') && (
+                        <button
+                          onClick={() => onRestore(draft)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-violet-200 px-2.5 py-1.5 text-xs font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900/20"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />Pulihkan
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

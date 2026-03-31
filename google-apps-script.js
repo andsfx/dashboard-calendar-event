@@ -418,6 +418,33 @@ function publishDraftEvent(sheetRow) {
   return { success: true, row: publishResult.row };
 }
 
+function restoreDraftEvent(sheetRow) {
+  var sheet = getDraftSheet();
+
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid draft row number' };
+  }
+
+  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
+  var published = row[9] === true || String(row[9]).toLowerCase() === 'true';
+
+  if (published) {
+    return { success: false, error: 'Draft yang sudah dipublish tidak bisa dipulihkan' };
+  }
+
+  var existingNote = String(row[7] || '').trim();
+  var restoredAt = new Date();
+  var restoredNote = 'Dipulihkan admin pada ' + Utilities.formatDate(restoredAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
+  var nextNote = existingNote ? existingNote + ' | ' + restoredNote : restoredNote;
+
+  sheet.getRange(sheetRow, 8).setValue(nextNote);
+  sheet.getRange(sheetRow, 9).setValue('draft');
+  sheet.getRange(sheetRow, 12).setValue(false);
+  sheet.getRange(sheetRow, 13).setValue('');
+
+  return { success: true };
+}
+
 // ---- Web App Handlers ----
 
 function doGet(e) {
@@ -469,6 +496,11 @@ function doGet(e) {
       return output.setContent(JSON.stringify(publishDraftEvent(publishDraftRow)));
     }
 
+    if (action === 'restoreDraft') {
+      var restoreDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
+      return output.setContent(JSON.stringify(restoreDraftEvent(restoreDraftRow)));
+    }
+
     if (action === 'debug') {
       var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
       var sheets = ss.getSheets().map(function(s) { return s.getName(); });
@@ -513,6 +545,9 @@ function doPost(e) {
     }
     if (action === 'publishDraft') {
       return output.setContent(JSON.stringify(publishDraftEvent(body.sheetRow)));
+    }
+    if (action === 'restoreDraft') {
+      return output.setContent(JSON.stringify(restoreDraftEvent(body.sheetRow)));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));

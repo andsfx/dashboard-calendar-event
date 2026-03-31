@@ -78,6 +78,7 @@ export default function App() {
     updateDraft,
     deleteDraft,
     publishDraft,
+    restoreDraft,
   } = useDraftEvents();
 
   // Dark mode toggle
@@ -227,6 +228,21 @@ export default function App() {
       showToast('error', 'Gagal memperbarui progress', 'Progress draft belum berubah.');
     }
   }, [updateDraft, showToast]);
+
+  const handleRestoreDraft = useCallback(async (draft: DraftEventItem) => {
+    if (draft.published) {
+      showToast('warning', 'Tidak bisa dipulihkan', 'Draft yang sudah dipublish tidak dapat dipulihkan.');
+      return;
+    }
+    if (!window.confirm(`Pulihkan draft event "${draft.acara}" ke queue aktif?`)) return;
+
+    const success = await restoreDraft(draft.id);
+    if (success) {
+      showToast('success', 'Draft dipulihkan', `"${draft.acara}" kembali ke queue aktif.`);
+    } else {
+      showToast('error', 'Gagal memulihkan draft', 'Draft event belum berhasil dipulihkan.');
+    }
+  }, [restoreDraft, showToast]);
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
@@ -395,7 +411,7 @@ export default function App() {
 
               {showDraftHistory && (
                 <div className="mt-4">
-                  <DraftHistoryTable drafts={draftHistory} />
+                  <DraftHistoryTable drafts={draftHistory} onRestore={handleRestoreDraft} />
                 </div>
               )}
             </div>

@@ -6,6 +6,7 @@ import {
   updateDraftEvent as apiUpdateDraft,
   deleteDraftEvent as apiDeleteDraft,
   publishDraftEvent as apiPublishDraft,
+  restoreDraftEvent as apiRestoreDraft,
 } from '../utils/sheetsApi';
 import { sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
@@ -127,6 +128,32 @@ export function useDraftEvents() {
     }
   }, [draftEvents]);
 
+  const restoreDraft = useCallback(async (id: string): Promise<boolean> => {
+    const target = draftEvents.find(item => item.id === id);
+    if (!target?.sheetRow || target.published) return false;
+
+    const restoredAt = new Date().toLocaleString('id-ID');
+    const restoredNote = `Dipulihkan admin pada ${restoredAt}`;
+    const restoredDraft: DraftEventItem = {
+      ...target,
+      progress: 'draft',
+      deleted: false,
+      deletedAt: '',
+      keterangan: target.keterangan ? `${target.keterangan} | ${restoredNote}` : restoredNote,
+    };
+
+    setDraftEvents(prev => prev.map(item => item.id === id ? restoredDraft : item));
+
+    try {
+      await apiRestoreDraft(target.sheetRow);
+      return true;
+    } catch (err) {
+      console.error('Error restoring draft:', err);
+      setDraftEvents(prev => prev.map(item => item.id === id ? target : item));
+      return false;
+    }
+  }, [draftEvents]);
+
   return {
     draftEvents,
     activeDrafts,
@@ -138,5 +165,6 @@ export function useDraftEvents() {
     updateDraft,
     deleteDraft,
     publishDraft,
+    restoreDraft,
   };
 }
