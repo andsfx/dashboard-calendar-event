@@ -18,6 +18,7 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { DraftCrudModal } from './components/DraftCrudModal';
 import { DraftQueueTable } from './components/DraftQueueTable';
 import { DraftHistoryTable } from './components/DraftHistoryTable';
+import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
@@ -273,11 +274,11 @@ export default function App() {
   );
   const publicSectionItems = useMemo(
     () => [
-      { id: 'summary', label: 'Summary' },
-      ...(upcomingEvents.length > 0 ? [{ id: 'featured', label: 'Segera' }] : []),
-      { id: 'calendar', label: 'Kalender' },
-      { id: 'views', label: 'Tampilan' },
-      { id: 'themes', label: 'Tema' },
+      { id: 'summary', label: 'Overview' },
+      ...(upcomingEvents.length > 0 ? [{ id: 'featured', label: 'Coming Soon' }] : []),
+      { id: 'calendar', label: 'Calendar' },
+      { id: 'views', label: 'Events' },
+      { id: 'themes', label: 'Annual Theme' },
     ],
     [upcomingEvents.length]
   );
@@ -324,8 +325,11 @@ export default function App() {
         ongoingCount={visibleStats.ongoing}
       />
 
-      {!isAdmin && <SectionNav items={publicSectionItems} />}
+      {!isAdmin && !isLoading && <SectionNav items={publicSectionItems} />}
 
+      {isLoading ? (
+        <DashboardSkeleton isAdmin={isAdmin} />
+      ) : (
       <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
@@ -584,17 +588,8 @@ export default function App() {
         </div>
         </section>
 
-        {/* Loading skeleton */}
-        {isLoading && (
-          <div className="space-y-3 animate-pulse">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-14 rounded-xl bg-slate-200 dark:bg-slate-700" />
-            ))}
-          </div>
-        )}
-
         {/* Error banner */}
-        {!isLoading && error && (
+        {error && (
           <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
             <span className="text-lg">⚠️</span>
             <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
@@ -602,7 +597,7 @@ export default function App() {
         )}
 
         {/* Empty state */}
-        {!isLoading && !error && visibleEvents.length === 0 && visibleStats.total > 0 && (
+        {!error && visibleEvents.length === 0 && visibleStats.total > 0 && (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
             <SearchX className="h-10 w-10 text-slate-400" />
             <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
@@ -669,6 +664,7 @@ export default function App() {
           </div>
         </footer>
       </main>
+      )}
 
       {/* Modals */}
       <AdminLoginModal
