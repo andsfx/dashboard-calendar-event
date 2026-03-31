@@ -464,17 +464,6 @@ export default function App() {
         {/* Quarter Timeline */}
         {isAdmin && <QuarterTimeline themes={annualThemes} />}
 
-        {/* Public Calendar */}
-        {!isAdmin && (
-          <section className="space-y-3">
-            <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
-            </div>
-            <CalendarView events={publicEvents} holidays={holidays} onDetail={handleDetailClick} />
-          </section>
-        )}
-
         {/* Featured ongoing & upcoming */}
         {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
           <div className="space-y-4 sm:space-y-5">
@@ -501,6 +490,17 @@ export default function App() {
             accent="amber"
             icon={<Clock3 className="h-4 w-4 text-amber-500" />}
           />
+        )}
+
+        {/* Public Calendar */}
+        {!isAdmin && (
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
+            </div>
+            <CalendarView events={publicEvents} holidays={holidays} onDetail={handleDetailClick} />
+          </section>
         )}
 
         {/* Category chart */}
