@@ -25,6 +25,45 @@ const EMPTY: LetterRequestItem = {
   waktuLoading: '',
 };
 
+const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+function parseIsoDate(value: string) {
+  const normalized = value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) return null;
+
+  const [yearStr, monthStr, dayStr] = normalized.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  const date = new Date(year, month - 1, day);
+
+  if (
+    Number.isNaN(date.getTime())
+    || date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return { date, yearStr, month, dayStr };
+}
+
+function formatIndonesianDate(value: string) {
+  const parsed = parseIsoDate(value);
+  if (!parsed) return value.trim();
+
+  return `${parsed.dayStr} ${BULAN_NAMES[parsed.month - 1]} ${parsed.yearStr}`;
+}
+
+function formatIndonesianLongDate(value: string) {
+  const parsed = parseIsoDate(value);
+  if (!parsed) return value.trim();
+
+  return `${HARI_NAMES[parsed.date.getDay()]}, ${parsed.dayStr} ${BULAN_NAMES[parsed.month - 1]} ${parsed.yearStr}`;
+}
+
 export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Props) {
   const [form, setForm] = useState<LetterRequestItem>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof LetterRequestItem, string>>>({});
@@ -48,6 +87,15 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const setField = (key: keyof LetterRequestItem, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
     setErrors(prev => ({ ...prev, [key]: '' }));
+  };
+
+  const normalizeDateField = (key: 'tanggalSurat' | 'hariTanggalLoading') => {
+    setForm(prev => ({
+      ...prev,
+      [key]: key === 'tanggalSurat'
+        ? formatIndonesianDate(prev[key])
+        : formatIndonesianLongDate(prev[key]),
+    }));
   };
 
   const validate = () => {
@@ -74,7 +122,13 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     }
 
     setIsSubmitting(true);
-    const success = await onSubmit(form);
+    const normalizedForm = {
+      ...form,
+      tanggalSurat: formatIndonesianDate(form.tanggalSurat),
+      hariTanggalLoading: formatIndonesianLongDate(form.hariTanggalLoading),
+    };
+    setForm(normalizedForm);
+    const success = await onSubmit(normalizedForm);
     setIsSubmitting(false);
     if (success) onClose();
   };
@@ -110,7 +164,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Surat <span className="text-red-500">*</span></label>
-                <input value={form.tanggalSurat} onChange={e => setField('tanggalSurat', e.target.value)} placeholder="23 Februari 2026" className={`${inputClass} ${errors.tanggalSurat ? errorClass : ''}`} />
+                <input value={form.tanggalSurat} onChange={e => setField('tanggalSurat', e.target.value)} onBlur={() => normalizeDateField('tanggalSurat')} placeholder="31 Maret 2026" className={`${inputClass} ${errors.tanggalSurat ? errorClass : ''}`} />
                 {errors.tanggalSurat && <p className="mt-1 text-xs text-red-500">{errors.tanggalSurat}</p>}
               </div>
               <div>
@@ -179,7 +233,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari/Tanggal Loading <span className="text-red-500">*</span></label>
-                <input value={form.hariTanggalLoading} onChange={e => setField('hariTanggalLoading', e.target.value)} placeholder="Sabtu, 25 April 2026" className={`${inputClass} ${errors.hariTanggalLoading ? errorClass : ''}`} />
+                <input value={form.hariTanggalLoading} onChange={e => setField('hariTanggalLoading', e.target.value)} onBlur={() => normalizeDateField('hariTanggalLoading')} placeholder="Sabtu, 25 April 2026" className={`${inputClass} ${errors.hariTanggalLoading ? errorClass : ''}`} />
                 {errors.hariTanggalLoading && <p className="mt-1 text-xs text-red-500">{errors.hariTanggalLoading}</p>}
               </div>
               <div>
