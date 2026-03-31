@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck, Archive, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck, Archive, ChevronDown, ChevronUp, ClipboardList, FileText } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -18,6 +18,7 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { DraftCrudModal } from './components/DraftCrudModal';
 import { DraftLetterModal } from './components/DraftLetterModal';
 import { DraftQueueTable } from './components/DraftQueueTable';
+import { EventLetterPickerModal } from './components/EventLetterPickerModal';
 import { DraftHistoryTable } from './components/DraftHistoryTable';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
@@ -50,13 +51,14 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showLetterPickerModal, setShowLetterPickerModal] = useState(false);
   const [showLetterModal, setShowLetterModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDraftHistory, setShowDraftHistory] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
-  const [letterDraft, setLetterDraft] = useState<DraftEventItem | null>(null);
+  const [letterInitialData, setLetterInitialData] = useState<Partial<LetterRequestItem> | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
 
@@ -132,10 +134,27 @@ export default function App() {
     setShowDraftModal(true);
   }, []);
 
-  const handleOpenLetter = useCallback((draft: DraftEventItem) => {
-    setLetterDraft(draft);
+  const handleOpenLetterPicker = useCallback(() => {
+    setShowLetterPickerModal(true);
+  }, []);
+
+  const handleOpenLetter = useCallback((initialData: Partial<LetterRequestItem>) => {
+    setLetterInitialData(initialData);
     setShowLetterModal(true);
   }, []);
+
+  const handleSelectLetterEvent = useCallback((event: EventItem) => {
+    setShowLetterPickerModal(false);
+    handleOpenLetter({
+      namaEO: event.eo || '',
+      penanggungJawab: '',
+      namaEvent: event.acara || '',
+      lokasi: event.lokasi || '',
+      hariTanggalPelaksanaan: `${event.day}, ${event.tanggal}`,
+      waktuPelaksanaan: event.jam || '',
+      nomorTelepon: '',
+    });
+  }, [handleOpenLetter]);
 
   const handleDeleteClick = useCallback((ev: EventItem) => {
     setDeletingEvent(ev);
@@ -368,12 +387,20 @@ export default function App() {
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
             {isAdmin && (
-              <button
-                onClick={handleAddNew}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
-              >
-                <Plus className="h-4 w-4" /> <span>Tambah</span>
-              </button>
+              <>
+                <button
+                  onClick={handleOpenLetterPicker}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+                >
+                  <FileText className="h-4 w-4" /> <span>Buat Surat</span>
+                </button>
+                <button
+                  onClick={handleAddNew}
+                  className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+                >
+                  <Plus className="h-4 w-4" /> <span>Tambah</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -433,7 +460,6 @@ export default function App() {
                 onEdit={handleEditDraft}
                 onDelete={handleDeleteDraft}
                 onPublish={handlePublishDraft}
-                onCreateLetter={handleOpenLetter}
                 onProgressChange={handleDraftProgressChange}
               />
             )}
@@ -709,10 +735,16 @@ export default function App() {
         events={events}
         draftEvents={draftEvents}
       />
+      <EventLetterPickerModal
+        isOpen={showLetterPickerModal}
+        onClose={() => setShowLetterPickerModal(false)}
+        events={visibleEvents}
+        onSelect={handleSelectLetterEvent}
+      />
       <DraftLetterModal
         isOpen={showLetterModal}
-        onClose={() => { setShowLetterModal(false); setLetterDraft(null); }}
-        draft={letterDraft}
+        onClose={() => { setShowLetterModal(false); setLetterInitialData(null); }}
+        initialData={letterInitialData}
         onSubmit={handleSubmitLetter}
       />
       <DeleteConfirmModal

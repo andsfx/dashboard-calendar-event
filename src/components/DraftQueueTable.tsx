@@ -1,4 +1,4 @@
-import { Edit2, ExternalLink, FileText, MessageCircle, Trash2, Upload } from 'lucide-react';
+import { Edit2, ExternalLink, MessageCircle, Trash2, Upload } from 'lucide-react';
 import { DraftEventItem, DraftProgress } from '../types';
 import { DraftProgressBadge } from './DraftProgressBadge';
 import { getWhatsAppUrl } from '../utils/draftUtils';
@@ -8,11 +8,10 @@ interface Props {
   onEdit: (draft: DraftEventItem) => void;
   onDelete: (draft: DraftEventItem) => void;
   onPublish: (draft: DraftEventItem) => void;
-  onCreateLetter: (draft: DraftEventItem) => void;
   onProgressChange: (draft: DraftEventItem, progress: DraftProgress) => void;
 }
 
-export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onCreateLetter, onProgressChange }: Props) {
+export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgressChange }: Props) {
   if (drafts.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
@@ -68,8 +67,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onCreateL
                     <div className="flex flex-wrap gap-2">
                       <button onClick={() => onEdit(draft)} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"><Edit2 className="h-3.5 w-3.5" />Edit</button>
                       <button onClick={() => onDelete(draft)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>
-                      <button onClick={() => onCreateLetter(draft)} className="inline-flex items-center gap-1 rounded-lg border border-violet-200 px-2.5 py-1.5 text-xs font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900/20"><FileText className="h-3.5 w-3.5" />Buat Surat</button>
-                      <button
+                       <button
                         onClick={() => onPublish(draft)}
                         disabled={draft.progress !== 'confirm'}
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-900/20"

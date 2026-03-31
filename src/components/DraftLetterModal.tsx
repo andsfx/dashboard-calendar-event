@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FileText, Save, X } from 'lucide-react';
-import { DraftEventItem, LetterRequestItem } from '../types';
+import { LetterRequestItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  draft: DraftEventItem | null;
+  initialData: Partial<LetterRequestItem> | null;
   onSubmit: (data: LetterRequestItem) => Promise<boolean>;
 }
 
@@ -25,25 +25,15 @@ const EMPTY: LetterRequestItem = {
   waktuLoading: '',
 };
 
-export function DraftLetterModal({ isOpen, onClose, draft, onSubmit }: Props) {
+export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Props) {
   const [form, setForm] = useState<LetterRequestItem>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof LetterRequestItem, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const defaultData = useMemo<LetterRequestItem>(() => ({
-    tanggalSurat: '',
-    nomorSurat: '',
-    namaEO: draft?.eo || '',
-    penanggungJawab: draft?.pic || '',
-    alamatEO: '',
-    namaEvent: draft?.acara || '',
-    lokasi: draft?.lokasi || '',
-    hariTanggalPelaksanaan: draft ? `${draft.day}, ${draft.tanggal}` : '',
-    waktuPelaksanaan: draft?.jam || '',
-    nomorTelepon: draft?.phone || '',
-    hariTanggalLoading: '',
-    waktuLoading: '',
-  }), [draft]);
+    ...EMPTY,
+    ...initialData,
+  }), [initialData]);
 
   useEffect(() => {
     if (isOpen) {
@@ -53,7 +43,7 @@ export function DraftLetterModal({ isOpen, onClose, draft, onSubmit }: Props) {
     }
   }, [isOpen, defaultData]);
 
-  if (!isOpen || !draft) return null;
+  if (!isOpen || !initialData) return null;
 
   const setField = (key: keyof LetterRequestItem, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
