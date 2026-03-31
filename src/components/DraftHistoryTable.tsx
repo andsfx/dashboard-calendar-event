@@ -41,7 +41,12 @@ export function DraftHistoryTable({ drafts }: { drafts: DraftEventItem[] }) {
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.phone}</td>
                   <td className="px-4 py-3"><DraftProgressBadge progress={draft.progress} /></td>
                   <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
-                    {draft.published ? (
+                    {draft.deleted ? (
+                      <div>
+                        <p className="font-semibold text-rose-600 dark:text-rose-300">Deleted</p>
+                        <p>{formatDraftPublishedAt(draft.deletedAt)}</p>
+                      </div>
+                    ) : draft.published ? (
                       <div>
                         <p className="font-semibold text-emerald-600 dark:text-emerald-300">Published</p>
                         <p>{formatDraftPublishedAt(draft.publishedAt)}</p>

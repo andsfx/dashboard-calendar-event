@@ -34,14 +34,14 @@ export function useDraftEvents() {
 
   const activeDrafts = useMemo(
     () => draftEvents
-      .filter(draft => !draft.published && (draft.progress === 'draft' || draft.progress === 'confirm'))
+      .filter(draft => !draft.published && !draft.deleted && (draft.progress === 'draft' || draft.progress === 'confirm'))
       .sort(sortDraftActive),
     [draftEvents]
   );
 
   const draftHistory = useMemo(
     () => draftEvents
-      .filter(draft => draft.published || draft.progress === 'cancel')
+      .filter(draft => draft.published || draft.deleted || draft.progress === 'cancel')
       .sort(sortDraftHistory),
     [draftEvents]
   );
@@ -50,7 +50,7 @@ export function useDraftEvents() {
     const tempId = draft.id;
     setDraftEvents(prev => [draft, ...prev]);
     try {
-      const { id, sheetRow, rowIndex, published, publishedAt, ...apiData } = draft;
+      const { id, sheetRow, rowIndex, published, publishedAt, deleted, deletedAt, ...apiData } = draft;
       const row = await apiCreateDraft(apiData);
       setDraftEvents(prev => prev.map(item => item.id === tempId ? { ...item, sheetRow: row } : item));
       return true;
@@ -80,7 +80,19 @@ export function useDraftEvents() {
 
   const deleteDraft = useCallback(async (id: string): Promise<boolean> => {
     const target = draftEvents.find(item => item.id === id);
-    setDraftEvents(prev => prev.filter(item => item.id !== id));
+    if (!target) return false;
+
+    const deletedAt = new Date().toISOString();
+    const deletedNote = `Dihapus admin pada ${new Date(deletedAt).toLocaleString('id-ID')}`;
+    const nextTarget: DraftEventItem = {
+      ...target,
+      progress: 'cancel',
+      deleted: true,
+      deletedAt,
+      keterangan: target.keterangan ? `${target.keterangan} | ${deletedNote}` : deletedNote,
+    };
+
+    setDraftEvents(prev => prev.map(item => item.id === id ? nextTarget : item));
     if (!target?.sheetRow) return true;
 
     try {
@@ -88,9 +100,7 @@ export function useDraftEvents() {
       return true;
     } catch (err) {
       console.error('Error deleting draft:', err);
-      if (target) {
-        setDraftEvents(prev => [target, ...prev]);
-      }
+      setDraftEvents(prev => prev.map(item => item.id === id ? target : item));
       return false;
     }
   }, [draftEvents]);
@@ -107,6 +117,8 @@ export function useDraftEvents() {
         progress: 'confirm',
         published: true,
         publishedAt,
+        deleted: false,
+        deletedAt: '',
       } : item));
       return true;
     } catch (err) {

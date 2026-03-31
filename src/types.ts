@@ -40,6 +40,8 @@ export interface DraftEventItem {
   progress: DraftProgress;
   published: boolean;
   publishedAt?: string;
+  deleted: boolean;
+  deletedAt?: string;
 }
 
 export interface AnnualTheme {

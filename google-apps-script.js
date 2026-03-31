@@ -58,23 +58,28 @@ function getSheet() {
 function getDraftSheet() {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName(DRAFT_SHEET_NAME);
+  var headers = [
+    'Tanggal',
+    'Jam',
+    'Acara',
+    'Lokasi',
+    'EO',
+    'Penanggung Jawab',
+    'Nomor Telepon',
+    'Keterangan',
+    'Progress',
+    'Published',
+    'Published At',
+    'Deleted',
+    'Deleted At'
+  ];
 
   if (!sheet) {
     sheet = ss.insertSheet(DRAFT_SHEET_NAME);
-    sheet.appendRow([
-      'Tanggal',
-      'Jam',
-      'Acara',
-      'Lokasi',
-      'EO',
-      'Penanggung Jawab',
-      'Nomor Telepon',
-      'Keterangan',
-      'Progress',
-      'Published',
-      'Published At'
-    ]);
+    sheet.appendRow(headers);
     sheet.setFrozenRows(1);
+  } else if (sheet.getLastColumn() < headers.length) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
 
   return sheet;
@@ -262,6 +267,9 @@ function getAllDraftEvents() {
     var publishedRaw = row[9];
     var published = publishedRaw === true || String(publishedRaw).toLowerCase() === 'true';
     var publishedAt = row[10] instanceof Date ? row[10].toISOString() : String(row[10] || '');
+    var deletedRaw = row[11];
+    var deleted = deletedRaw === true || String(deletedRaw).toLowerCase() === 'true';
+    var deletedAt = row[12] instanceof Date ? row[12].toISOString() : String(row[12] || '');
 
     drafts.push({
       sheetRow: i + 1,
@@ -278,7 +286,9 @@ function getAllDraftEvents() {
       month: formatted.monthName,
       progress: String(row[8] || 'draft').trim().toLowerCase() || 'draft',
       published: published,
-      publishedAt: publishedAt
+      publishedAt: publishedAt,
+      deleted: deleted,
+      deletedAt: deletedAt
     });
   }
 
@@ -303,6 +313,8 @@ function addDraftEvent(draftData) {
     draftData.keterangan || '',
     draftData.progress || 'draft',
     false,
+    '',
+    false,
     ''
   ]);
 
@@ -317,11 +329,11 @@ function updateDraftEvent(draftData) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var current = sheet.getRange(sheetRow, 1, 1, 11).getValues()[0];
+  var current = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
   var parts = String(draftData.dateStr || '').split('-');
   var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
 
-  sheet.getRange(sheetRow, 1, 1, 11).setValues([[
+  sheet.getRange(sheetRow, 1, 1, 13).setValues([[
     draftDate,
     draftData.jam || '',
     draftData.acara || '',
@@ -332,7 +344,9 @@ function updateDraftEvent(draftData) {
     draftData.keterangan || '',
     draftData.progress || current[8] || 'draft',
     typeof draftData.published === 'boolean' ? draftData.published : current[9],
-    draftData.publishedAt || current[10] || ''
+    draftData.publishedAt || current[10] || '',
+    typeof draftData.deleted === 'boolean' ? draftData.deleted : current[11],
+    draftData.deletedAt || current[12] || ''
   ]]);
 
   return { success: true };
@@ -345,7 +359,16 @@ function deleteDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  sheet.deleteRow(sheetRow);
+  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
+  var existingNote = String(row[7] || '').trim();
+  var deletedAt = new Date();
+  var deletedNote = 'Dihapus admin pada ' + Utilities.formatDate(deletedAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
+  var nextNote = existingNote ? existingNote + ' | ' + deletedNote : deletedNote;
+
+  sheet.getRange(sheetRow, 8).setValue(nextNote);
+  sheet.getRange(sheetRow, 9).setValue('cancel');
+  sheet.getRange(sheetRow, 12).setValue(true);
+  sheet.getRange(sheetRow, 13).setValue(deletedAt);
   return { success: true };
 }
 
@@ -356,10 +379,11 @@ function publishDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 11).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
   var formatted = parseLooseDate(row[0]);
   var progress = String(row[8] || 'draft').trim().toLowerCase();
   var published = row[9] === true || String(row[9]).toLowerCase() === 'true';
+  var deleted = row[11] === true || String(row[11]).toLowerCase() === 'true';
 
   if (!formatted.dateStr || !String(row[2] || '').trim()) {
     return { success: false, error: 'Draft event data is incomplete' };
@@ -369,6 +393,9 @@ function publishDraftEvent(sheetRow) {
   }
   if (published) {
     return { success: false, error: 'Draft ini sudah dipublish' };
+  }
+  if (deleted) {
+    return { success: false, error: 'Draft ini sudah dihapus dan masuk riwayat' };
   }
 
   var publishResult = addEvent({

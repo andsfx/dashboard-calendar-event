@@ -42,6 +42,8 @@ interface DraftSheetsApiResponse {
     progress: 'draft' | 'confirm' | 'cancel';
     published: boolean;
     publishedAt?: string;
+    deleted: boolean;
+    deletedAt?: string;
   }>;
   error?: string;
 }
@@ -213,6 +215,8 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
       progress: draft.progress,
       published: !!draft.published,
       publishedAt: draft.publishedAt || '',
+      deleted: !!draft.deleted,
+      deletedAt: draft.deletedAt || '',
     }));
   } catch (error) {
     console.error('Error fetching draft events:', error);
@@ -220,7 +224,7 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
   }
 }
 
-export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt'>): Promise<number> {
+export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>): Promise<number> {
   if (!APPS_SCRIPT_URL) {
     throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
   }

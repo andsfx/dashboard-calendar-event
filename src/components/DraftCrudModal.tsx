@@ -93,6 +93,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       ...meta,
       published: editingDraft?.published ?? false,
       publishedAt: editingDraft?.publishedAt || '',
+      deleted: editingDraft?.deleted ?? false,
+      deletedAt: editingDraft?.deletedAt || '',
     });
   };
 

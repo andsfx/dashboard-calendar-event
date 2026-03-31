@@ -182,6 +182,8 @@ export default function App() {
         progress: data.progress || 'draft',
         published: false,
         publishedAt: '',
+        deleted: false,
+        deletedAt: '',
       };
       success = await addDraft(newDraft);
       if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke queue aktif.`);
@@ -197,7 +199,7 @@ export default function App() {
   const handleDeleteDraft = useCallback(async (draft: DraftEventItem) => {
     if (!window.confirm(`Hapus draft event "${draft.acara}"?`)) return;
     const success = await deleteDraft(draft.id);
-    if (success) showToast('success', 'Draft dihapus', `"${draft.acara}" telah dihapus.`);
+    if (success) showToast('success', 'Draft dipindahkan ke riwayat', `"${draft.acara}" ditandai sebagai dihapus.`);
     else showToast('error', 'Gagal menghapus draft', 'Draft event belum terhapus.');
   }, [deleteDraft, showToast]);
 
