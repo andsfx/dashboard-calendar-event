@@ -361,7 +361,7 @@ export async function createLetterRequest(data: LetterRequestItem): Promise<{ ro
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'createLetterRequest',
