@@ -64,7 +64,12 @@ export function DraftLetterModal({ isOpen, onClose, draft, onSubmit }: Props) {
     const nextErrors: Partial<Record<keyof LetterRequestItem, string>> = {};
     if (!form.tanggalSurat.trim()) nextErrors.tanggalSurat = 'Tanggal surat wajib diisi';
     if (!form.nomorSurat.trim()) nextErrors.nomorSurat = 'Nomor surat wajib diisi';
+    if (!form.namaEO.trim()) nextErrors.namaEO = 'Nama EO wajib diisi';
+    if (!form.penanggungJawab.trim()) nextErrors.penanggungJawab = 'Penanggung jawab wajib diisi';
     if (!form.alamatEO.trim()) nextErrors.alamatEO = 'Alamat EO wajib diisi';
+    if (!form.namaEvent.trim()) nextErrors.namaEvent = 'Nama event wajib diisi';
+    if (!form.lokasi.trim()) nextErrors.lokasi = 'Lokasi wajib diisi';
+    if (!form.hariTanggalPelaksanaan.trim()) nextErrors.hariTanggalPelaksanaan = 'Hari/Tanggal pelaksanaan wajib diisi';
     if (!form.hariTanggalLoading.trim()) nextErrors.hariTanggalLoading = 'Hari/Tanggal loading wajib diisi';
     if (!form.waktuLoading.trim()) nextErrors.waktuLoading = 'Waktu loading wajib diisi';
     return nextErrors;
@@ -128,11 +133,13 @@ export function DraftLetterModal({ isOpen, onClose, draft, onSubmit }: Props) {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama EO</label>
-                <input value={form.namaEO} onChange={e => setField('namaEO', e.target.value)} className={inputClass} />
+                <input value={form.namaEO} onChange={e => setField('namaEO', e.target.value)} className={`${inputClass} ${errors.namaEO ? errorClass : ''}`} />
+                {errors.namaEO && <p className="mt-1 text-xs text-red-500">{errors.namaEO}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Penanggung Jawab</label>
-                <input value={form.penanggungJawab} onChange={e => setField('penanggungJawab', e.target.value)} className={inputClass} />
+                <input value={form.penanggungJawab} onChange={e => setField('penanggungJawab', e.target.value)} className={`${inputClass} ${errors.penanggungJawab ? errorClass : ''}`} />
+                {errors.penanggungJawab && <p className="mt-1 text-xs text-red-500">{errors.penanggungJawab}</p>}
               </div>
             </div>
 
@@ -145,18 +152,21 @@ export function DraftLetterModal({ isOpen, onClose, draft, onSubmit }: Props) {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event</label>
-                <input value={form.namaEvent} onChange={e => setField('namaEvent', e.target.value)} className={inputClass} />
+                <input value={form.namaEvent} onChange={e => setField('namaEvent', e.target.value)} className={`${inputClass} ${errors.namaEvent ? errorClass : ''}`} />
+                {errors.namaEvent && <p className="mt-1 text-xs text-red-500">{errors.namaEvent}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
-                <input value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} className={inputClass} />
+                <input value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} className={`${inputClass} ${errors.lokasi ? errorClass : ''}`} />
+                {errors.lokasi && <p className="mt-1 text-xs text-red-500">{errors.lokasi}</p>}
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari / Tanggal Pelaksanaan</label>
-                <input value={form.hariTanggalPelaksanaan} onChange={e => setField('hariTanggalPelaksanaan', e.target.value)} className={inputClass} />
+                <input value={form.hariTanggalPelaksanaan} onChange={e => setField('hariTanggalPelaksanaan', e.target.value)} className={`${inputClass} ${errors.hariTanggalPelaksanaan ? errorClass : ''}`} />
+                {errors.hariTanggalPelaksanaan && <p className="mt-1 text-xs text-red-500">{errors.hariTanggalPelaksanaan}</p>}
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Waktu Pelaksanaan</label>

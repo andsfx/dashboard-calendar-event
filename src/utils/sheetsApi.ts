@@ -358,11 +358,16 @@ export async function createLetterRequest(data: LetterRequestItem): Promise<{ ro
   }
 
   try {
-    const params = new URLSearchParams({
-      action: 'createLetterRequest',
-      data: JSON.stringify(data),
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'createLetterRequest',
+        data,
+      }),
     });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
     const result = await response.json();
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create letter request failed');
