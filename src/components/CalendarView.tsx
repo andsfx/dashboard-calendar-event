@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox } from 'lucide-react';
-import { EventItem } from '../types';
+import { EventItem, HolidayItem } from '../types';
 import { generateCalendarDays, groupByDate } from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadge } from './CategoryBadge';
@@ -16,10 +16,15 @@ function getTimeSortValue(jam: string) {
 
 interface Props {
   events: EventItem[];
+  holidays: HolidayItem[];
   onDetail: (ev: EventItem) => void;
 }
 
-export function CalendarView({ events, onDetail }: Props) {
+type AgendaCard =
+  | { kind: 'holiday'; dateStr: string; holiday: HolidayItem }
+  | { kind: 'event'; dateStr: string; event: EventItem };
+
+export function CalendarView({ events, holidays, onDetail }: Props) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -27,6 +32,11 @@ export function CalendarView({ events, onDetail }: Props) {
 
   const days = generateCalendarDays(year, month);
   const byDate = groupByDate(events);
+  const holidaysByDate = holidays.reduce((acc, holiday) => {
+    if (!acc[holiday.dateStr]) acc[holiday.dateStr] = [];
+    acc[holiday.dateStr].push(holiday);
+    return acc;
+  }, {} as Record<string, HolidayItem[]>);
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const prevMonth = () => {
@@ -45,12 +55,38 @@ export function CalendarView({ events, onDetail }: Props) {
   const monthEvents = events
     .filter(e => e.dateStr.startsWith(monthStr))
     .sort((a, b) => {
-      const dateCompare = a.dateStr.localeCompare(b.dateStr);
+      const dateCompare = b.dateStr.localeCompare(a.dateStr);
       if (dateCompare !== 0) return dateCompare;
       const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
       if (timeCompare !== 0) return timeCompare;
       return a.acara.localeCompare(b.acara);
     });
+  const monthHolidays = holidays
+    .filter(h => h.dateStr.startsWith(monthStr))
+    .sort((a, b) => {
+      const dateCompare = b.dateStr.localeCompare(a.dateStr);
+      if (dateCompare !== 0) return dateCompare;
+      if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  const monthAgenda: AgendaCard[] = [
+    ...monthHolidays.map(holiday => ({ kind: 'holiday' as const, dateStr: holiday.dateStr, holiday })),
+    ...monthEvents.map(event => ({ kind: 'event' as const, dateStr: event.dateStr, event })),
+  ].sort((a, b) => {
+    const dateCompare = b.dateStr.localeCompare(a.dateStr);
+    if (dateCompare !== 0) return dateCompare;
+    if (a.kind !== b.kind) return a.kind === 'holiday' ? -1 : 1;
+    if (a.kind === 'holiday' && b.kind === 'holiday') {
+      if (a.holiday.type !== b.holiday.type) return a.holiday.type === 'libur_nasional' ? -1 : 1;
+      return a.holiday.name.localeCompare(b.holiday.name);
+    }
+    if (a.kind === 'event' && b.kind === 'event') {
+      const timeCompare = getTimeSortValue(a.event.jam) - getTimeSortValue(b.event.jam);
+      if (timeCompare !== 0) return timeCompare;
+      return a.event.acara.localeCompare(b.event.acara);
+    }
+    return 0;
+  });
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -82,11 +118,15 @@ export function CalendarView({ events, onDetail }: Props) {
           {days.map((d, i) => {
             if (!d) return <div key={`empty-${i}`} />;
             const dayEvents = byDate[d.dateStr] ?? [];
+            const dayHolidays = holidaysByDate[d.dateStr] ?? [];
             const hasEvents = dayEvents.length > 0;
+            const hasHolidays = dayHolidays.length > 0;
             const isToday = d.dateStr === todayStr;
             const isSelected = d.dateStr === selectedDate;
             const hasOngoing = dayEvents.some(e => e.status === 'ongoing');
             const hasUpcoming = dayEvents.some(e => e.status === 'upcoming');
+            const hasNationalHoliday = dayHolidays.some(h => h.type === 'libur_nasional');
+            const hasCollectiveLeave = dayHolidays.some(h => h.type === 'cuti_bersama');
 
             return (
               <button
@@ -100,6 +140,12 @@ export function CalendarView({ events, onDetail }: Props) {
                     : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
+                {hasHolidays && (
+                  <div className="absolute right-1 top-1 flex gap-0.5">
+                    {hasNationalHoliday && <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />}
+                    {hasCollectiveLeave && <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />}
+                  </div>
+                )}
                 {d.day}
                 {hasEvents && (
                   <div className="absolute bottom-1 flex gap-0.5">
@@ -118,25 +164,59 @@ export function CalendarView({ events, onDetail }: Props) {
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-400" />Selesai</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur Nasional</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti Bersama</span>
         </div>
       </div>
 
       {/* Monthly event panel */}
       <div className="flex-1">
-        {monthEvents.length > 0 ? (
+        {monthAgenda.length > 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
                 <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
               <p className="text-xs text-slate-400">
-                {monthEvents.length} acara sepanjang bulan ini
+                {monthEvents.length} acara dan {monthHolidays.length} hari libur di bulan ini
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
-              {monthEvents.map(ev => {
-                const isSelectedCard = selectedDate === ev.dateStr;
+              {monthAgenda.map(item => {
+                const isSelectedCard = selectedDate === item.dateStr;
 
+                if (item.kind === 'holiday') {
+                  const holiday = item.holiday;
+                  const badgeClass = holiday.type === 'libur_nasional'
+                    ? 'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:ring-rose-800/50'
+                    : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
+
+                  return (
+                    <div
+                      key={`holiday-${holiday.id}`}
+                      className={`rounded-2xl border p-4 text-left shadow-sm ${
+                        isSelectedCard
+                          ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                      }`}
+                    >
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                          {holiday.day}, {holiday.tanggal}
+                        </p>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
+                          {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                        </span>
+                      </div>
+                      <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
+                      {holiday.description && (
+                        <p className="mt-3 line-clamp-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>
+                      )}
+                    </div>
+                  );
+                }
+
+                const ev = item.event;
                 return (
                   <button
                     key={ev.id}
@@ -184,8 +264,8 @@ export function CalendarView({ events, onDetail }: Props) {
         ) : (
           <div className="flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/50 px-4 text-center text-slate-400 dark:border-slate-700 dark:bg-slate-800/30 sm:min-h-[300px]">
             <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
-            <p className="text-sm font-medium">Belum ada event di {MONTH_ID[month]} {year}</p>
-            <p className="mt-1 text-xs">Coba pindah bulan untuk melihat agenda lainnya</p>
+            <p className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</p>
+            <p className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</p>
           </div>
         )}
 

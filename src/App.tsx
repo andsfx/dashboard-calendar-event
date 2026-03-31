@@ -64,6 +64,7 @@ export default function App() {
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
     annualThemes,
+    holidays,
     isLoading,
     error,
     refreshEvents,
@@ -470,7 +471,7 @@ export default function App() {
               <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
             </div>
-            <CalendarView events={publicEvents} onDetail={handleDetailClick} />
+            <CalendarView events={publicEvents} holidays={holidays} onDetail={handleDetailClick} />
           </section>
         )}
 
@@ -607,7 +608,7 @@ export default function App() {
           />
         )}
         {isAdmin && viewMode === 'calendar' && (
-          <CalendarView events={visibleEvents} onDetail={handleDetailClick} />
+          <CalendarView events={visibleEvents} holidays={holidays} onDetail={handleDetailClick} />
         )}
         {viewMode === 'kanban' && (
           <KanbanView

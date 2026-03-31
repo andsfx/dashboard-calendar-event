@@ -1,4 +1,4 @@
-import { EventItem, AnnualTheme, DraftEventItem } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 
@@ -20,6 +20,16 @@ interface SheetsApiResponse {
   data?: {
     events: SheetsEvent[];
     themes: AnnualTheme[];
+    holidays: Array<{
+      sheetRow: number;
+      tanggal: string;
+      dateStr: string;
+      day: string;
+      month: string;
+      name: string;
+      type: HolidayType;
+      description: string;
+    }>;
   };
   error?: string;
 }
@@ -79,7 +89,7 @@ function detectCategory(acara: string): string {
   return 'Umum';
 }
 
-export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[] }> {
+export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[]; holidays: HolidayItem[] }> {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
     console.warn('VITE_APPS_SCRIPT_URL masih menggunakan placeholder atau belum dikonfigurasi di .env.');
     throw new SheetsApiError('Apps Script URL belum dikonfigurasi (masih menggunakan teks REPLACE_WITH_YOUR_URL)');
@@ -112,7 +122,19 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       priority: 'medium'            // Default for now
     }));
 
-    return { events, themes: result.data.themes };
+    const holidays: HolidayItem[] = (result.data.holidays || []).map((holiday, index) => ({
+      id: `hol-${holiday.sheetRow || index + 1}`,
+      sheetRow: holiday.sheetRow,
+      tanggal: holiday.tanggal,
+      dateStr: holiday.dateStr,
+      day: holiday.day,
+      month: holiday.month,
+      name: holiday.name,
+      type: holiday.type,
+      description: holiday.description || '',
+    }));
+
+    return { events, themes: result.data.themes, holidays };
   } catch (error) {
     console.error('Error fetching from Sheets:', error);
     throw error;

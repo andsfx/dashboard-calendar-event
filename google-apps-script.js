@@ -6,6 +6,7 @@
 
 const SHEET_NAME = 'SCHEDULE EVENT';
 const DRAFT_SHEET_NAME = 'DRAFT EVENT';
+const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
 const SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 
 // ---- Helpers ----
@@ -85,6 +86,22 @@ function getDraftSheet() {
   return sheet;
 }
 
+function getHolidaySheet() {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(HOLIDAY_SHEET_NAME);
+  var headers = ['Tanggal', 'Nama Libur', 'Jenis', 'Keterangan'];
+
+  if (!sheet) {
+    sheet = ss.insertSheet(HOLIDAY_SHEET_NAME);
+    sheet.appendRow(headers);
+    sheet.setFrozenRows(1);
+  } else if (sheet.getLastColumn() < headers.length) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  return sheet;
+}
+
 function parseLooseDate(value) {
   if (!value) return { dateStr: '', tanggal: '', day: '', monthName: '' };
   if (value instanceof Date) return formatDate(value);
@@ -105,6 +122,39 @@ function parseLooseDate(value) {
 
 function isMonthHeader(text) {
   return /^(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4}$/i.test(text);
+}
+
+function getAllHolidays() {
+  var sheet = getHolidaySheet();
+  var data = sheet.getDataRange().getValues();
+  var holidays = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var formatted = parseLooseDate(row[0]);
+    var name = String(row[1] || '').trim();
+    var type = String(row[2] || '').trim().toLowerCase();
+    var description = String(row[3] || '').trim();
+
+    if (!formatted.dateStr || !name) continue;
+
+    if (type !== 'libur_nasional' && type !== 'cuti_bersama') {
+      type = 'libur_nasional';
+    }
+
+    holidays.push({
+      sheetRow: i + 1,
+      tanggal: formatted.tanggal,
+      dateStr: formatted.dateStr,
+      day: formatted.day,
+      month: formatted.monthName,
+      name: name,
+      type: type,
+      description: description,
+    });
+  }
+
+  return holidays;
 }
 
 // ---- READ: Get all events ----
@@ -188,7 +238,7 @@ function getAllEvents() {
     });
   }
 
-  return { events: events, themes: themes };
+  return { events: events, themes: themes, holidays: getAllHolidays() };
 }
 
 // ---- CREATE: Add new event ----

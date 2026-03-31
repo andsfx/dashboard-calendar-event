@@ -1,5 +1,6 @@
 export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
 export type DraftProgress = 'draft' | 'confirm' | 'cancel';
+export type HolidayType = 'libur_nasional' | 'cuti_bersama';
 
 export type ViewMode = 'table' | 'calendar' | 'kanban' | 'timeline';
 export type Theme = 'light' | 'dark';
@@ -50,6 +51,18 @@ export interface AnnualTheme {
   dateStart: string;
   dateEnd: string;
   color: string;
+}
+
+export interface HolidayItem {
+  id: string;
+  sheetRow?: number;
+  tanggal: string;
+  dateStr: string;
+  day: string;
+  month: string;
+  name: string;
+  type: HolidayType;
+  description: string;
 }
 
 export interface ToastMessage {

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { EventItem, EventStatus, AnnualTheme } from '../types';
+import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
 
@@ -10,6 +10,7 @@ function normalizeEvent(ev: EventItem): EventItem {
 export function useEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
+  const [holidays, setHolidays] = useState<HolidayItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,9 +23,10 @@ export function useEvents() {
     setIsLoading(true);
     setError(null);
     try {
-      const { events: sheetsEvents, themes: sheetsThemes } = await fetchEvents();
+      const { events: sheetsEvents, themes: sheetsThemes, holidays: sheetHolidays } = await fetchEvents();
       setEvents(recalculateStatuses(sheetsEvents));
       setThemes(sheetsThemes);
+      setHolidays(sheetHolidays);
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Gagal memuat data dari spreadsheet. Periksa koneksi atau konfigurasi URL.');
@@ -137,6 +139,7 @@ export function useEvents() {
     months,
     categories,
     annualThemes,
+    holidays,
     isLoading,
     error,
     searchQuery, setSearchQuery,
