@@ -189,14 +189,18 @@ export default function App() {
       setShowCrudModal(false);
       setEditingEvent(null);
     }
+
+    return success;
   }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
 
   const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingEvent) return;
+    if (!deletingEvent) return false;
     const success = await deleteEvent(deletingEvent.id);
     if (success) showToast('success', 'Acara dihapus!', `"${deletingEvent.acara}" telah dihapus.`);
     setDeletingEvent(null);
     setShowDeleteModal(false);
+    if (!success) showToast('error', 'Gagal menghapus', 'Acara belum berhasil dihapus.');
+    return success;
   }, [deletingEvent, deleteEvent, showToast]);
 
   const handleSaveDraft = useCallback(async (data: Partial<DraftEventItem>) => {
@@ -226,6 +230,8 @@ export default function App() {
       setShowDraftModal(false);
       setEditingDraft(null);
     }
+
+    return success;
   }, [editingDraft, draftEvents.length, addDraft, updateDraft, showToast]);
 
   const handleDeleteDraft = useCallback(async (draft: DraftEventItem) => {

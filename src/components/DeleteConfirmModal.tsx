@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { AlertTriangle, X, Trash2 } from 'lucide-react';
 import { EventItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
@@ -6,11 +7,22 @@ interface Props {
   isOpen: boolean;
   event: EventItem | null;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<boolean>;
 }
 
 export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  useEffect(() => {
+    if (isOpen) setIsSubmitting(false);
+  }, [isOpen, event]);
+
   if (!event) return null;
+
+  const handleConfirm = async () => {
+    setIsSubmitting(true);
+    const success = await onConfirm();
+    if (!success) setIsSubmitting(false);
+  };
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm">
@@ -25,7 +37,8 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700"
+              disabled={isSubmitting}
+              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
               aria-label="Tutup"
             >
               <X className="h-4 w-4" />
@@ -50,15 +63,17 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
         <div className="flex gap-3 border-t border-slate-100 px-6 py-4 dark:border-slate-700">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            disabled={isSubmitting}
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Batal
           </button>
           <button
-            onClick={onConfirm}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-red-700 hover:to-rose-700 active:scale-95"
+            onClick={handleConfirm}
+            disabled={isSubmitting}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-red-700 hover:to-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <Trash2 className="h-3.5 w-3.5" /> Hapus Sekarang
+            <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Menghapus...' : 'Hapus Sekarang'}
           </button>
         </div>
       </div>

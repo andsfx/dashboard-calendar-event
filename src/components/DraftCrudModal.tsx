@@ -8,7 +8,7 @@ import { ModalWrapper } from './ModalWrapper';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<DraftEventItem>) => void;
+  onSave: (data: Partial<DraftEventItem>) => Promise<boolean>;
   editingDraft: DraftEventItem | null;
   events: EventItem[];
   draftEvents: DraftEventItem[];
@@ -29,6 +29,7 @@ const EMPTY = {
 export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, draftEvents }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const suggestionSource = useMemo(
     () => [
@@ -59,6 +60,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       setForm(EMPTY);
     }
     setErrors({});
+    setIsSubmitting(false);
   }, [editingDraft, isOpen]);
 
   if (!isOpen) return null;
@@ -78,7 +80,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     return nextErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextErrors = validate();
     if (Object.keys(nextErrors).length > 0) {
@@ -87,7 +89,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     }
 
     const meta = getDraftDateMeta(form.dateStr);
-    onSave({
+    setIsSubmitting(true);
+    const success = await onSave({
       ...(editingDraft ? { id: editingDraft.id, rowIndex: editingDraft.rowIndex } : { id: createId(), rowIndex: 0 }),
       ...form,
       ...meta,
@@ -96,6 +99,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       deleted: editingDraft?.deleted ?? false,
       deletedAt: editingDraft?.deletedAt || '',
     });
+    if (!success) setIsSubmitting(false);
   };
 
   const isEdit = !!editingDraft;
@@ -113,7 +117,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               <p className="text-xs text-slate-400">{isEdit ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700">
+          <button onClick={onClose} disabled={isSubmitting} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -236,16 +240,18 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              disabled={isSubmitting}
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30"
+              disabled={isSubmitting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30"
             >
               <Save className="h-4 w-4" />
-              {isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
+              {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
             </button>
           </div>
         </form>

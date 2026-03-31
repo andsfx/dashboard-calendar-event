@@ -7,7 +7,7 @@ import { ModalWrapper } from './ModalWrapper';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<EventItem>) => void;
+  onSave: (data: Partial<EventItem>) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
 }
@@ -70,6 +70,7 @@ const EMPTY: {
 export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const jamSuggestions = getUniqueSuggestions(events, 'jam');
   const lokasiSuggestions = getUniqueSuggestions(events, 'lokasi');
@@ -96,6 +97,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
       setForm(EMPTY);
     }
     setErrors({});
+    setIsSubmitting(false);
   }, [editingEvent, isOpen]);
 
   if (!isOpen) return null;
@@ -113,7 +115,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
@@ -124,12 +126,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
     const finalStatus = isDraft ? 'draft' : autoStatus;
 
-    onSave({
+    setIsSubmitting(true);
+    const success = await onSave({
       ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : { id: createId(), rowIndex: 0 }),
       ...formData,
       ...meta,
       status: finalStatus,
     });
+    if (!success) setIsSubmitting(false);
   };
 
   const isEdit = !!editingEvent;
@@ -153,6 +157,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
           </div>
           <button
             onClick={onClose}
+            disabled={isSubmitting}
             className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
           >
             <X className="h-4 w-4" />
@@ -306,16 +311,18 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              disabled={isSubmitting}
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30"
+              disabled={isSubmitting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30"
             >
               <Save className="h-4 w-4" />
-              {isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
+              {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
             </button>
           </div>
         </form>
