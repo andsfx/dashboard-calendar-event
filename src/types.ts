@@ -1,4 +1,5 @@
 export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
+export type DraftProgress = 'draft' | 'confirm' | 'cancel';
 
 export type ViewMode = 'table' | 'calendar' | 'kanban' | 'timeline';
 export type Theme = 'light' | 'dark';
@@ -19,6 +20,26 @@ export interface EventItem {
   status: EventStatus;
   category: string;
   priority: 'high' | 'medium' | 'low';
+}
+
+export interface DraftEventItem {
+  id: string;
+  sheetRow?: number;
+  rowIndex: number;
+  tanggal: string;
+  dateStr: string;
+  day: string;
+  jam: string;
+  acara: string;
+  lokasi: string;
+  eo: string;
+  pic: string;
+  phone: string;
+  keterangan: string;
+  month: string;
+  progress: DraftProgress;
+  published: boolean;
+  publishedAt?: string;
 }
 
 export interface AnnualTheme {

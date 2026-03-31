@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck, Archive, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -15,11 +15,15 @@ import { AdminLoginModal } from './components/AdminLoginModal';
 import { EventCrudModal } from './components/EventCrudModal';
 import { EventDetailModal } from './components/EventDetailModal';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
+import { DraftCrudModal } from './components/DraftCrudModal';
+import { DraftQueueTable } from './components/DraftQueueTable';
+import { DraftHistoryTable } from './components/DraftHistoryTable';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
+import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { annualThemes as mockThemes } from './data/mockEvents';
-import { EventItem, ViewMode } from './types';
+import { DraftEventItem, EventItem, ViewMode } from './types';
 import { createId } from './utils/eventUtils';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
@@ -41,9 +45,12 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
+  const [showDraftModal, setShowDraftModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDraftHistory, setShowDraftHistory] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+  const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
 
@@ -59,7 +66,19 @@ export default function App() {
     annualThemes,
     isLoading,
     error,
+    refreshEvents,
   } = useEvents();
+  const {
+    draftEvents,
+    activeDrafts,
+    draftHistory,
+    isLoading: isDraftLoading,
+    error: draftError,
+    addDraft,
+    updateDraft,
+    deleteDraft,
+    publishDraft,
+  } = useDraftEvents();
 
   // Dark mode toggle
   const toggleDark = useCallback(() => {
@@ -93,6 +112,16 @@ export default function App() {
   const handleEdit = useCallback((ev: EventItem) => {
     setEditingEvent(ev);
     setShowCrudModal(true);
+  }, []);
+
+  const handleAddDraft = useCallback(() => {
+    setEditingDraft(null);
+    setShowDraftModal(true);
+  }, []);
+
+  const handleEditDraft = useCallback((draft: DraftEventItem) => {
+    setEditingDraft(draft);
+    setShowDraftModal(true);
   }, []);
 
   const handleDeleteClick = useCallback((ev: EventItem) => {
@@ -137,6 +166,65 @@ export default function App() {
     setDeletingEvent(null);
     setShowDeleteModal(false);
   }, [deletingEvent, deleteEvent, showToast]);
+
+  const handleSaveDraft = useCallback(async (data: Partial<DraftEventItem>) => {
+    let success = false;
+
+    if (editingDraft) {
+      success = await updateDraft({ ...editingDraft, ...data } as DraftEventItem);
+      if (success) showToast('success', 'Draft diperbarui', `"${data.acara}" berhasil diperbarui.`);
+      else showToast('error', 'Gagal memperbarui draft', 'Perubahan draft belum tersimpan.');
+    } else {
+      const newDraft: DraftEventItem = {
+        ...data as DraftEventItem,
+        id: createId(),
+        rowIndex: draftEvents.length + 1,
+        progress: data.progress || 'draft',
+        published: false,
+        publishedAt: '',
+      };
+      success = await addDraft(newDraft);
+      if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke queue aktif.`);
+      else showToast('error', 'Gagal menambahkan draft', 'Draft event belum tersimpan.');
+    }
+
+    if (success) {
+      setShowDraftModal(false);
+      setEditingDraft(null);
+    }
+  }, [editingDraft, draftEvents.length, addDraft, updateDraft, showToast]);
+
+  const handleDeleteDraft = useCallback(async (draft: DraftEventItem) => {
+    if (!window.confirm(`Hapus draft event "${draft.acara}"?`)) return;
+    const success = await deleteDraft(draft.id);
+    if (success) showToast('success', 'Draft dihapus', `"${draft.acara}" telah dihapus.`);
+    else showToast('error', 'Gagal menghapus draft', 'Draft event belum terhapus.');
+  }, [deleteDraft, showToast]);
+
+  const handlePublishDraft = useCallback(async (draft: DraftEventItem) => {
+    if (draft.progress !== 'confirm') {
+      showToast('warning', 'Belum bisa dipublish', 'Draft harus berstatus confirm sebelum dipublish.');
+      return;
+    }
+    if (!window.confirm(`Publish draft event "${draft.acara}" ke schedule utama?`)) return;
+
+    const success = await publishDraft(draft.id);
+    if (success) {
+      await refreshEvents();
+      showToast('success', 'Draft dipublish', `"${draft.acara}" sudah masuk ke schedule utama.`);
+    } else {
+      showToast('error', 'Gagal publish draft', 'Publish ke schedule utama belum berhasil.');
+    }
+  }, [publishDraft, refreshEvents, showToast]);
+
+  const handleDraftProgressChange = useCallback(async (draft: DraftEventItem, progress: DraftEventItem['progress']) => {
+    const success = await updateDraft({ ...draft, progress });
+    if (success) {
+      showToast('success', 'Progress diperbarui', `Draft "${draft.acara}" sekarang berstatus ${progress}.`);
+    } else {
+      showToast('error', 'Gagal memperbarui progress', 'Progress draft belum berubah.');
+    }
+  }, [updateDraft, showToast]);
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
@@ -239,6 +327,77 @@ export default function App() {
               Keluar
             </button>
           </div>
+        )}
+
+        {isAdmin && (
+          <section className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+                  <ClipboardList className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-800 dark:text-white">Queue Aktif Draft Event</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Antrian event yang masih diproses</p>
+                </div>
+              </div>
+              <button
+                onClick={handleAddDraft}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30"
+              >
+                <Plus className="h-4 w-4" /> Tambah Draft Event
+              </button>
+            </div>
+
+            {draftError && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
+                {draftError}
+              </div>
+            )}
+
+            {isDraftLoading ? (
+              <div className="space-y-3 animate-pulse">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-16 rounded-xl bg-slate-200 dark:bg-slate-700" />
+                ))}
+              </div>
+            ) : (
+              <DraftQueueTable
+                drafts={activeDrafts}
+                onEdit={handleEditDraft}
+                onDelete={handleDeleteDraft}
+                onPublish={handlePublishDraft}
+                onProgressChange={handleDraftProgressChange}
+              />
+            )}
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <button
+                onClick={() => setShowDraftHistory(v => !v)}
+                className="flex w-full items-center justify-between gap-3 text-left"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                    <Archive className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800 dark:text-white">Riwayat Draft Event</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Event yang dibatalkan atau sudah dipublikasikan</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <span>{draftHistory.length} item</span>
+                  {showDraftHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+              </button>
+
+              {showDraftHistory && (
+                <div className="mt-4">
+                  <DraftHistoryTable drafts={draftHistory} />
+                </div>
+              )}
+            </div>
+          </section>
         )}
 
         {/* Stat Cards */}
@@ -390,11 +549,11 @@ export default function App() {
             <SearchX className="h-10 w-10 text-slate-400" />
             <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
             <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
-            <button
-              onClick={() => { setSearchQuery(''); setActiveFilter('Semua'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
-              className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
-            >
-              Reset Filter
+              <button
+                onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
+                className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+              >
+                Reset Filter
             </button>
           </div>
         )}
@@ -459,6 +618,14 @@ export default function App() {
         onSave={handleSave}
         editingEvent={editingEvent}
         events={events}
+      />
+      <DraftCrudModal
+        isOpen={showDraftModal}
+        onClose={() => { setShowDraftModal(false); setEditingDraft(null); }}
+        onSave={handleSaveDraft}
+        editingDraft={editingDraft}
+        events={events}
+        draftEvents={draftEvents}
       />
       <DeleteConfirmModal
         isOpen={showDeleteModal}

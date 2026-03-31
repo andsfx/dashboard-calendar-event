@@ -18,24 +18,25 @@ export function useEvents() {
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
 
+  const refreshEvents = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { events: sheetsEvents, themes: sheetsThemes } = await fetchEvents();
+      setEvents(recalculateStatuses(sheetsEvents));
+      setThemes(sheetsThemes);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Gagal memuat data dari spreadsheet. Periksa koneksi atau konfigurasi URL.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Load from Sheets
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const { events: sheetsEvents, themes: sheetsThemes } = await fetchEvents();
-        setEvents(recalculateStatuses(sheetsEvents));
-        setThemes(sheetsThemes);
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Gagal memuat data dari spreadsheet. Periksa koneksi atau konfigurasi URL.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+    refreshEvents();
+  }, [refreshEvents]);
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -144,5 +145,6 @@ export function useEvents() {
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
+    refreshEvents,
   };
 }

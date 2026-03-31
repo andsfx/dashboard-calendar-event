@@ -1,4 +1,4 @@
-import { EventItem, AnnualTheme } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 
@@ -21,6 +21,28 @@ interface SheetsApiResponse {
     events: SheetsEvent[];
     themes: AnnualTheme[];
   };
+  error?: string;
+}
+
+interface DraftSheetsApiResponse {
+  success: boolean;
+  data?: Array<{
+    sheetRow: number;
+    tanggal: string;
+    dateStr: string;
+    day: string;
+    jam: string;
+    acara: string;
+    lokasi: string;
+    eo: string;
+    pic: string;
+    phone: string;
+    keterangan: string;
+    month: string;
+    progress: 'draft' | 'confirm' | 'cancel';
+    published: boolean;
+    publishedAt?: string;
+  }>;
   error?: string;
 }
 
@@ -155,6 +177,130 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
     }
   } catch (error) {
     console.error('Error deleting event:', error);
+    throw error;
+  }
+}
+
+export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
+    throw new SheetsApiError('Apps Script URL belum dikonfigurasi');
+  }
+
+  try {
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=readDrafts`);
+    const text = await response.text();
+    const result: DraftSheetsApiResponse = JSON.parse(text);
+
+    if (!result.success || !result.data) {
+      throw new SheetsApiError(result.error || 'Failed to read drafts');
+    }
+
+    return result.data.map((draft, index) => ({
+      id: `draft-${draft.sheetRow}`,
+      sheetRow: draft.sheetRow,
+      rowIndex: index + 2,
+      tanggal: draft.tanggal,
+      dateStr: draft.dateStr,
+      day: draft.day,
+      jam: draft.jam,
+      acara: draft.acara,
+      lokasi: draft.lokasi,
+      eo: draft.eo,
+      pic: draft.pic,
+      phone: draft.phone,
+      keterangan: draft.keterangan,
+      month: draft.month,
+      progress: draft.progress,
+      published: !!draft.published,
+      publishedAt: draft.publishedAt || '',
+    }));
+  } catch (error) {
+    console.error('Error fetching draft events:', error);
+    throw error;
+  }
+}
+
+export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt'>): Promise<number> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'createDraft',
+      data: JSON.stringify(draftData),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Create draft failed');
+    }
+    return result.row || 0;
+  } catch (error) {
+    console.error('Error creating draft event:', error);
+    throw error;
+  }
+}
+
+export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { sheetRow: number }): Promise<void> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'updateDraft',
+      data: JSON.stringify(draftData),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Update draft failed');
+    }
+  } catch (error) {
+    console.error('Error updating draft event:', error);
+    throw error;
+  }
+}
+
+export async function deleteDraftEvent(sheetRow: number): Promise<void> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'deleteDraft',
+      sheetRow: String(sheetRow),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Delete draft failed');
+    }
+  } catch (error) {
+    console.error('Error deleting draft event:', error);
+    throw error;
+  }
+}
+
+export async function publishDraftEvent(sheetRow: number): Promise<void> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  try {
+    const params = new URLSearchParams({
+      action: 'publishDraft',
+      sheetRow: String(sheetRow),
+    });
+    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
+    const result = await response.json();
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Publish draft failed');
+    }
+  } catch (error) {
+    console.error('Error publishing draft event:', error);
     throw error;
   }
 }

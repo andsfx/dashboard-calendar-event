@@ -5,6 +5,7 @@
 // ============================================================
 
 const SHEET_NAME = 'SCHEDULE EVENT';
+const DRAFT_SHEET_NAME = 'DRAFT EVENT';
 const SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 
 // ---- Helpers ----
@@ -52,6 +53,49 @@ function dateStrToIndonesian(dateStr) {
 function getSheet() {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   return ss.getSheetByName(SHEET_NAME);
+}
+
+function getDraftSheet() {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(DRAFT_SHEET_NAME);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(DRAFT_SHEET_NAME);
+    sheet.appendRow([
+      'Tanggal',
+      'Jam',
+      'Acara',
+      'Lokasi',
+      'EO',
+      'Penanggung Jawab',
+      'Nomor Telepon',
+      'Keterangan',
+      'Progress',
+      'Published',
+      'Published At'
+    ]);
+    sheet.setFrozenRows(1);
+  }
+
+  return sheet;
+}
+
+function parseLooseDate(value) {
+  if (!value) return { dateStr: '', tanggal: '', day: '', monthName: '' };
+  if (value instanceof Date) return formatDate(value);
+
+  var raw = String(value).trim();
+  var isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoMatch) {
+    return formatDate(new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10)));
+  }
+
+  var indoMatch = raw.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  if (indoMatch && BULAN_MAP[indoMatch[2]]) {
+    return formatDate(new Date(parseInt(indoMatch[3], 10), parseInt(BULAN_MAP[indoMatch[2]], 10) - 1, parseInt(indoMatch[1], 10)));
+  }
+
+  return { dateStr: '', tanggal: '', day: '', monthName: '' };
 }
 
 function isMonthHeader(text) {
@@ -201,6 +245,152 @@ function deleteEvent(sheetRow) {
   return { success: true };
 }
 
+// ---- DRAFT EVENT CRUD ----
+
+function getAllDraftEvents() {
+  var sheet = getDraftSheet();
+  var data = sheet.getDataRange().getValues();
+  var drafts = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var formatted = parseLooseDate(row[0]);
+    var acara = String(row[2] || '').trim();
+
+    if (!formatted.dateStr || !acara) continue;
+
+    var publishedRaw = row[9];
+    var published = publishedRaw === true || String(publishedRaw).toLowerCase() === 'true';
+    var publishedAt = row[10] instanceof Date ? row[10].toISOString() : String(row[10] || '');
+
+    drafts.push({
+      sheetRow: i + 1,
+      tanggal: formatted.tanggal,
+      dateStr: formatted.dateStr,
+      day: formatted.day,
+      jam: String(row[1] || '').trim(),
+      acara: acara,
+      lokasi: String(row[3] || '').trim(),
+      eo: String(row[4] || '').trim(),
+      pic: String(row[5] || '').trim(),
+      phone: String(row[6] || '').trim(),
+      keterangan: String(row[7] || '').trim(),
+      month: formatted.monthName,
+      progress: String(row[8] || 'draft').trim().toLowerCase() || 'draft',
+      published: published,
+      publishedAt: publishedAt
+    });
+  }
+
+  return drafts;
+}
+
+function addDraftEvent(draftData) {
+  var sheet = getDraftSheet();
+  var lastRow = sheet.getLastRow();
+  var insertRow = lastRow + 1;
+  var parts = String(draftData.dateStr || '').split('-');
+  var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+
+  sheet.appendRow([
+    draftDate,
+    draftData.jam || '',
+    draftData.acara || '',
+    draftData.lokasi || '',
+    draftData.eo || '',
+    draftData.pic || '',
+    draftData.phone || '',
+    draftData.keterangan || '',
+    draftData.progress || 'draft',
+    false,
+    ''
+  ]);
+
+  return { success: true, row: insertRow };
+}
+
+function updateDraftEvent(draftData) {
+  var sheet = getDraftSheet();
+  var sheetRow = draftData.sheetRow;
+
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid draft row number' };
+  }
+
+  var current = sheet.getRange(sheetRow, 1, 1, 11).getValues()[0];
+  var parts = String(draftData.dateStr || '').split('-');
+  var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+
+  sheet.getRange(sheetRow, 1, 1, 11).setValues([[
+    draftDate,
+    draftData.jam || '',
+    draftData.acara || '',
+    draftData.lokasi || '',
+    draftData.eo || '',
+    draftData.pic || '',
+    draftData.phone || '',
+    draftData.keterangan || '',
+    draftData.progress || current[8] || 'draft',
+    typeof draftData.published === 'boolean' ? draftData.published : current[9],
+    draftData.publishedAt || current[10] || ''
+  ]]);
+
+  return { success: true };
+}
+
+function deleteDraftEvent(sheetRow) {
+  var sheet = getDraftSheet();
+
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid draft row number' };
+  }
+
+  sheet.deleteRow(sheetRow);
+  return { success: true };
+}
+
+function publishDraftEvent(sheetRow) {
+  var sheet = getDraftSheet();
+
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid draft row number' };
+  }
+
+  var row = sheet.getRange(sheetRow, 1, 1, 11).getValues()[0];
+  var formatted = parseLooseDate(row[0]);
+  var progress = String(row[8] || 'draft').trim().toLowerCase();
+  var published = row[9] === true || String(row[9]).toLowerCase() === 'true';
+
+  if (!formatted.dateStr || !String(row[2] || '').trim()) {
+    return { success: false, error: 'Draft event data is incomplete' };
+  }
+  if (progress !== 'confirm') {
+    return { success: false, error: 'Draft harus berstatus confirm sebelum dipublish' };
+  }
+  if (published) {
+    return { success: false, error: 'Draft ini sudah dipublish' };
+  }
+
+  var publishResult = addEvent({
+    dateStr: formatted.dateStr,
+    jam: String(row[1] || '').trim(),
+    acara: String(row[2] || '').trim(),
+    lokasi: String(row[3] || '').trim(),
+    eo: String(row[4] || '').trim(),
+    keterangan: String(row[7] || '').trim()
+  });
+
+  if (!publishResult.success) {
+    return publishResult;
+  }
+
+  sheet.getRange(sheetRow, 9).setValue('confirm');
+  sheet.getRange(sheetRow, 10).setValue(true);
+  sheet.getRange(sheetRow, 11).setValue(new Date());
+
+  return { success: true, row: publishResult.row };
+}
+
 // ---- Web App Handlers ----
 
 function doGet(e) {
@@ -226,6 +416,30 @@ function doGet(e) {
     if (action === 'delete') {
       var deleteRow = parseInt(e.parameter.sheetRow || '0', 10);
       return output.setContent(JSON.stringify(deleteEvent(deleteRow)));
+    }
+
+    if (action === 'readDrafts') {
+      return output.setContent(JSON.stringify({ success: true, data: getAllDraftEvents() }));
+    }
+
+    if (action === 'createDraft') {
+      var createDraftData = JSON.parse(e.parameter.data || '{}');
+      return output.setContent(JSON.stringify(addDraftEvent(createDraftData)));
+    }
+
+    if (action === 'updateDraft') {
+      var updateDraftData = JSON.parse(e.parameter.data || '{}');
+      return output.setContent(JSON.stringify(updateDraftEvent(updateDraftData)));
+    }
+
+    if (action === 'deleteDraft') {
+      var deleteDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
+      return output.setContent(JSON.stringify(deleteDraftEvent(deleteDraftRow)));
+    }
+
+    if (action === 'publishDraft') {
+      var publishDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
+      return output.setContent(JSON.stringify(publishDraftEvent(publishDraftRow)));
     }
 
     if (action === 'debug') {
@@ -259,6 +473,19 @@ function doPost(e) {
     }
     if (action === 'delete') {
       return output.setContent(JSON.stringify(deleteEvent(body.sheetRow)));
+    }
+
+    if (action === 'createDraft') {
+      return output.setContent(JSON.stringify(addDraftEvent(body.data)));
+    }
+    if (action === 'updateDraft') {
+      return output.setContent(JSON.stringify(updateDraftEvent(body.data)));
+    }
+    if (action === 'deleteDraft') {
+      return output.setContent(JSON.stringify(deleteDraftEvent(body.sheetRow)));
+    }
+    if (action === 'publishDraft') {
+      return output.setContent(JSON.stringify(publishDraftEvent(body.sheetRow)));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));
