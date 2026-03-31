@@ -7,7 +7,7 @@
 const SHEET_NAME = 'SCHEDULE EVENT';
 const DRAFT_SHEET_NAME = 'DRAFT EVENT';
 const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
-const SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
+const EVENT_SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
 const LETTER_SHEET_NAME = 'Form Responses 1';
 
@@ -53,13 +53,20 @@ function dateStrToIndonesian(dateStr) {
   return dayName + ', ' + (d < 10 ? '0' + d : d) + ' ' + monthName + ' ' + y;
 }
 
+function getEventSpreadsheet() {
+  return SpreadsheetApp.openById(EVENT_SPREADSHEET_ID);
+}
+
+function getLetterSpreadsheet() {
+  return SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
+}
+
 function getSheet() {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  return ss.getSheetByName(SHEET_NAME);
+  return getEventSpreadsheet().getSheetByName(SHEET_NAME);
 }
 
 function getDraftSheet() {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ss = getEventSpreadsheet();
   var sheet = ss.getSheetByName(DRAFT_SHEET_NAME);
   var headers = [
     'Tanggal',
@@ -89,7 +96,7 @@ function getDraftSheet() {
 }
 
 function getHolidaySheet() {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ss = getEventSpreadsheet();
   var sheet = ss.getSheetByName(HOLIDAY_SHEET_NAME);
   var headers = ['Tanggal', 'Nama Libur', 'Jenis', 'Keterangan'];
 
@@ -105,7 +112,7 @@ function getHolidaySheet() {
 }
 
 function getLetterSheet() {
-  var ss = SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
+  var ss = getLetterSpreadsheet();
   var sheet = ss.getSheetByName(LETTER_SHEET_NAME);
 
   if (!sheet) {
@@ -597,13 +604,20 @@ function doGet(e) {
     }
 
     if (action === 'debug') {
-      var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-      var sheets = ss.getSheets().map(function(s) { return s.getName(); });
+      var eventSs = getEventSpreadsheet();
+      var eventSheets = eventSs.getSheets().map(function(s) { return s.getName(); });
+      var letterSs = getLetterSpreadsheet();
+      var letterSheets = letterSs.getSheets().map(function(s) { return s.getName(); });
       return output.setContent(JSON.stringify({
         success: true,
-        spreadsheetTitle: ss.getName(),
-        sheets: sheets,
-        sheetName: SHEET_NAME
+        eventSpreadsheetTitle: eventSs.getName(),
+        eventSheets: eventSheets,
+        eventSheetName: SHEET_NAME,
+        draftSheetName: DRAFT_SHEET_NAME,
+        holidaySheetName: HOLIDAY_SHEET_NAME,
+        letterSpreadsheetTitle: letterSs.getName(),
+        letterSheets: letterSheets,
+        letterSheetName: LETTER_SHEET_NAME
       }));
     }
 
