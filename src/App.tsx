@@ -265,13 +265,22 @@ export default function App() {
       past: source.filter(e => e.status === 'past').length,
     };
   }, [isAdmin, events, publicEvents]);
-  const availableViewTabs = VIEW_TABS;
+  const availableViewTabs = useMemo(
+    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar'),
+    [isAdmin]
+  );
 
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
       setActiveFilter('Semua');
     }
   }, [isAdmin, activeFilter, setActiveFilter]);
+
+  useEffect(() => {
+    if (!isAdmin && viewMode === 'calendar') {
+      setViewMode('table');
+    }
+  }, [isAdmin, viewMode]);
 
   useEffect(() => {
     if (!isAdmin && activePriority !== 'Semua') {
@@ -452,7 +461,18 @@ export default function App() {
         </div>
 
         {/* Quarter Timeline */}
-        <QuarterTimeline themes={annualThemes} />
+        {isAdmin && <QuarterTimeline themes={annualThemes} />}
+
+        {/* Public Calendar */}
+        {!isAdmin && (
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Lihat jadwal event yang sedang dan akan berlangsung.</p>
+            </div>
+            <CalendarView events={visibleEvents} onDetail={handleDetailClick} />
+          </section>
+        )}
 
         {/* Featured ongoing & upcoming */}
         {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
@@ -586,7 +606,7 @@ export default function App() {
             onDetail={handleDetailClick}
           />
         )}
-        {viewMode === 'calendar' && (
+        {isAdmin && viewMode === 'calendar' && (
           <CalendarView events={visibleEvents} onDetail={handleDetailClick} />
         )}
         {viewMode === 'kanban' && (
@@ -607,6 +627,8 @@ export default function App() {
             onDetail={handleDetailClick}
           />
         )}
+
+        {!isAdmin && <QuarterTimeline themes={annualThemes} />}
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
