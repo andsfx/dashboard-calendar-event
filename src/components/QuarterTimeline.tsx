@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, CalendarDays } from 'lucide-react';
+import { ChevronDown, CalendarDays, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AnnualTheme } from '../types';
 
 interface Props {
   themes: AnnualTheme[];
+  isAdmin?: boolean;
+  onAddTheme?: () => void;
+  onEditTheme?: (theme: AnnualTheme) => void;
+  onDeleteTheme?: (theme: AnnualTheme) => void;
 }
 
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -22,7 +26,7 @@ function calcProgress(start: string, end: string, today: string): number {
   return Math.round(((t - s) / (e - s)) * 100);
 }
 
-export function QuarterTimeline({ themes }: Props) {
+export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditTheme, onDeleteTheme }: Props) {
   const today = new Date().toISOString().split('T')[0];
   const [selectedThemeId, setSelectedThemeId] = useState('');
 
@@ -44,11 +48,18 @@ export function QuarterTimeline({ themes }: Props) {
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-violet-500" />Tema Tahunan {themeYear}</p>
-        <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
-          {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
-            ? '● Tema aktif'
-            : 'Tidak ada tema aktif'}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
+            {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
+              ? '● Tema aktif'
+              : 'Tidak ada tema aktif'}
+          </span>
+          {isAdmin && onAddTheme && (
+            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-violet-200 px-2.5 py-1.5 text-xs font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900/20">
+              <Plus className="h-3.5 w-3.5" />Tambah Tema
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="sm:hidden">
@@ -81,6 +92,12 @@ export function QuarterTimeline({ themes }: Props) {
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: selectedTheme.color }} />
                 <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-slate-800 dark:text-slate-100">{selectedTheme.name}</p>
               </div>
+              {isAdmin && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Edit</button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
+                </div>
+              )}
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 {formatDate(selectedTheme.dateStart)} - {formatDate(selectedTheme.dateEnd)}
               </p>
@@ -126,6 +143,12 @@ export function QuarterTimeline({ themes }: Props) {
                   className="absolute right-3 top-3 h-2 w-2 rounded-full live-dot"
                   style={{ backgroundColor: theme.color }}
                 />
+              )}
+              {isAdmin && (
+                <div className="absolute right-3 top-3 flex gap-1">
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-slate-200 bg-white/90 p-1 text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"><Pencil className="h-3.5 w-3.5" /></button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-rose-200 bg-white/90 p-1 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:bg-slate-800/80 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" /></button>}
+                </div>
               )}
 
               <div className="flex min-w-0 items-start gap-1.5">

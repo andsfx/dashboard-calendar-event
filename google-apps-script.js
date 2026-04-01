@@ -8,6 +8,7 @@ const SHEET_NAME = 'schedule_event_data';
 const LEGACY_EVENT_SHEET_NAME = 'SCHEDULE EVENT';
 const DRAFT_SHEET_NAME = 'DRAFT EVENT';
 const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
+const THEME_SHEET_NAME = 'ANNUAL THEMES';
 const EVENT_SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
 const LETTER_SHEET_NAME = 'Form Responses 1';
@@ -46,6 +47,17 @@ const EVENT_HEADERS = [
   'Keterangan Model Event',
   'Penanggung Jawab',
   'Nomor Handphone'
+];
+const ANNUAL_THEME_HEADERS = ['Date Start', 'Date End', 'Event', 'Color'];
+const ANNUAL_THEME_SEED = [
+  ['2026-01-17', '2026-02-17', 'Joyful January', '#6366f1'],
+  ['2026-02-20', '2026-03-29', 'Season Of Blessings', '#f59e0b'],
+  ['2026-04-01', '2026-05-17', 'Harmony Of Heritage', '#10b981'],
+  ['2026-05-01', '2026-07-19', 'Kick Off & School Vibes', '#0ea5e9'],
+  ['2026-08-01', '2026-08-01', 'Independence Blast', '#ef4444'],
+  ['2026-09-01', '2026-10-31', 'Culture Pop!', '#8b5cf6'],
+  ['2026-11-01', '2026-11-30', 'We Are Community', '#14b8a6'],
+  ['2026-12-01', '2027-01-10', 'Sparkling Holiday', '#f97316']
 ];
 
 // ---- Helpers ----
@@ -96,6 +108,105 @@ function getEventSpreadsheet() {
 
 function getLetterSpreadsheet() {
   return SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
+}
+
+function getAnnualThemeSheet() {
+  var ss = getEventSpreadsheet();
+  var sheet = ss.getSheetByName(THEME_SHEET_NAME);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(THEME_SHEET_NAME);
+  }
+
+  if (sheet.getMaxColumns() < ANNUAL_THEME_HEADERS.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), ANNUAL_THEME_HEADERS.length - sheet.getMaxColumns());
+  }
+
+  sheet.getRange(1, 1, 1, ANNUAL_THEME_HEADERS.length).setValues([ANNUAL_THEME_HEADERS]);
+  sheet.setFrozenRows(1);
+
+  if (sheet.getLastRow() <= 1) {
+    sheet.getRange(2, 1, ANNUAL_THEME_SEED.length, ANNUAL_THEME_HEADERS.length).setValues(ANNUAL_THEME_SEED);
+  }
+
+  return sheet;
+}
+
+function getAllAnnualThemes() {
+  var sheet = getAnnualThemeSheet();
+  var data = sheet.getDataRange().getValues();
+  var themes = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var start = parseLooseDate(row[0]);
+    var end = parseLooseDate(row[1]);
+    var name = String(row[2] || '').trim();
+    var color = String(row[3] || '').trim() || '#6366f1';
+
+    if (!start.dateStr || !end.dateStr || !name) continue;
+
+    themes.push({
+      sheetRow: i + 1,
+      id: 'theme-' + (i + 1),
+      name: name,
+      dateStart: start.dateStr,
+      dateEnd: end.dateStr,
+      color: color,
+    });
+  }
+
+  return themes;
+}
+
+function createAnnualTheme(themeData) {
+  var sheet = getAnnualThemeSheet();
+  var start = parseLooseDate(themeData.dateStart);
+  var end = parseLooseDate(themeData.dateEnd);
+  var name = String(themeData.name || '').trim();
+  var color = String(themeData.color || '').trim() || '#6366f1';
+
+  if (!start.dateStr || !end.dateStr || !name) {
+    return { success: false, error: 'Data tema tahunan tidak lengkap' };
+  }
+  if (end.dateStr < start.dateStr) {
+    return { success: false, error: 'Tanggal selesai tidak boleh sebelum tanggal mulai' };
+  }
+
+  sheet.appendRow([start.dateStr, end.dateStr, name, color]);
+  return { success: true, row: sheet.getLastRow() };
+}
+
+function updateAnnualTheme(themeData) {
+  var sheet = getAnnualThemeSheet();
+  var sheetRow = themeData.sheetRow;
+  var start = parseLooseDate(themeData.dateStart);
+  var end = parseLooseDate(themeData.dateEnd);
+  var name = String(themeData.name || '').trim();
+  var color = String(themeData.color || '').trim() || '#6366f1';
+
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid annual theme row number' };
+  }
+  if (!start.dateStr || !end.dateStr || !name) {
+    return { success: false, error: 'Data tema tahunan tidak lengkap' };
+  }
+  if (end.dateStr < start.dateStr) {
+    return { success: false, error: 'Tanggal selesai tidak boleh sebelum tanggal mulai' };
+  }
+
+  sheet.getRange(sheetRow, 1, 1, ANNUAL_THEME_HEADERS.length).setValues([[start.dateStr, end.dateStr, name, color]]);
+  return { success: true };
+}
+
+function deleteAnnualTheme(sheetRow) {
+  var sheet = getAnnualThemeSheet();
+  if (!sheetRow || sheetRow < 2) {
+    return { success: false, error: 'Invalid annual theme row number' };
+  }
+
+  sheet.deleteRow(sheetRow);
+  return { success: true };
 }
 
 function getLetterFormConfig() {
@@ -584,7 +695,7 @@ function getAllEvents() {
     });
   }
 
-  return { events: events, themes: [], holidays: getAllHolidays() };
+  return { events: events, themes: getAllAnnualThemes(), holidays: getAllHolidays() };
 }
 
 // ---- CREATE: Add new event ----
@@ -955,6 +1066,21 @@ function doGet(e) {
       return output.setContent(JSON.stringify(deleteEvent(deleteRow)));
     }
 
+    if (action === 'createTheme') {
+      var createThemeData = JSON.parse(e.parameter.data || '{}');
+      return output.setContent(JSON.stringify(createAnnualTheme(createThemeData)));
+    }
+
+    if (action === 'updateTheme') {
+      var updateThemeData = JSON.parse(e.parameter.data || '{}');
+      return output.setContent(JSON.stringify(updateAnnualTheme(updateThemeData)));
+    }
+
+    if (action === 'deleteTheme') {
+      var deleteThemeRow = parseInt(e.parameter.sheetRow || '0', 10);
+      return output.setContent(JSON.stringify(deleteAnnualTheme(deleteThemeRow)));
+    }
+
     if (action === 'readDrafts') {
       return output.setContent(JSON.stringify({ success: true, data: getAllDraftEvents() }));
     }
@@ -1012,6 +1138,7 @@ function doGet(e) {
         eventSheets: eventSheets,
         eventSheetName: SHEET_NAME,
         legacyEventSheetName: LEGACY_EVENT_SHEET_NAME,
+        annualThemeSheetName: THEME_SHEET_NAME,
         eventHeaders: EVENT_HEADERS,
         letterFormConfig: getLetterFormConfigSummary(),
         draftSheetName: DRAFT_SHEET_NAME,
@@ -1042,6 +1169,15 @@ function doPost(e) {
     }
     if (action === 'delete') {
       return output.setContent(JSON.stringify(deleteEvent(body.sheetRow)));
+    }
+    if (action === 'createTheme') {
+      return output.setContent(JSON.stringify(createAnnualTheme(body.data)));
+    }
+    if (action === 'updateTheme') {
+      return output.setContent(JSON.stringify(updateAnnualTheme(body.data)));
+    }
+    if (action === 'deleteTheme') {
+      return output.setContent(JSON.stringify(deleteAnnualTheme(body.sheetRow)));
     }
 
     if (action === 'createDraft') {

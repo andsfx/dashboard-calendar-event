@@ -191,7 +191,16 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       description: holiday.description || '',
     }));
 
-    return { events, themes: result.data.themes, holidays };
+    const themes: AnnualTheme[] = (result.data.themes || []).map((theme, index) => ({
+      id: theme.id || `theme-${theme.sheetRow || index + 1}`,
+      sheetRow: theme.sheetRow,
+      name: theme.name,
+      dateStart: theme.dateStart,
+      dateEnd: theme.dateEnd,
+      color: theme.color,
+    }));
+
+    return { events, themes, holidays };
   } catch (error) {
     console.error('Error fetching from Sheets:', error);
     throw error;
@@ -231,6 +240,43 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
     }
   } catch (error) {
     console.error('Error deleting event:', error);
+    throw error;
+  }
+}
+
+export async function createAnnualTheme(themeData: Omit<AnnualTheme, 'id' | 'sheetRow'>): Promise<number> {
+  try {
+    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createTheme', { data: themeData });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Create annual theme failed');
+    }
+    return result.row || 0;
+  } catch (error) {
+    console.error('Error creating annual theme:', error);
+    throw error;
+  }
+}
+
+export async function updateAnnualTheme(themeData: Partial<AnnualTheme> & { sheetRow: number }): Promise<void> {
+  try {
+    const result = await postAction<{ success: boolean; error?: string }>('updateTheme', { data: themeData });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Update annual theme failed');
+    }
+  } catch (error) {
+    console.error('Error updating annual theme:', error);
+    throw error;
+  }
+}
+
+export async function deleteAnnualTheme(sheetRow: number): Promise<void> {
+  try {
+    const result = await postAction<{ success: boolean; error?: string }>('deleteTheme', { sheetRow });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Delete annual theme failed');
+    }
+  } catch (error) {
+    console.error('Error deleting annual theme:', error);
     throw error;
   }
 }

@@ -20,14 +20,14 @@ import { DraftLetterModal } from './components/DraftLetterModal';
 import { DraftQueueTable } from './components/DraftQueueTable';
 import { EventLetterPickerModal } from './components/EventLetterPickerModal';
 import { DraftHistoryTable } from './components/DraftHistoryTable';
+import { AnnualThemeCrudModal } from './components/AnnualThemeCrudModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
-import { annualThemes as mockThemes } from './data/mockEvents';
-import { DraftEventItem, EventItem, LetterRequestItem, ViewMode } from './types';
+import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
 import { createLetterRequest } from './utils/sheetsApi';
 
@@ -56,8 +56,10 @@ export default function App() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDraftHistory, setShowDraftHistory] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
+  const [editingTheme, setEditingTheme] = useState<AnnualTheme | null>(null);
   const [letterInitialData, setLetterInitialData] = useState<Partial<LetterRequestItem> | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
@@ -71,6 +73,7 @@ export default function App() {
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
+    addTheme, updateTheme, deleteTheme,
     annualThemes,
     holidays,
     isLoading,
@@ -137,6 +140,45 @@ export default function App() {
   const handleOpenLetterPicker = useCallback(() => {
     setShowLetterPickerModal(true);
   }, []);
+
+  const handleAddTheme = useCallback(() => {
+    setEditingTheme(null);
+    setShowThemeModal(true);
+  }, []);
+
+  const handleEditTheme = useCallback((theme: AnnualTheme) => {
+    setEditingTheme(theme);
+    setShowThemeModal(true);
+  }, []);
+
+  const handleSaveTheme = useCallback(async (theme: AnnualTheme) => {
+    const success = theme.sheetRow
+      ? await updateTheme(theme)
+      : await addTheme(theme);
+
+    if (success) {
+      setShowThemeModal(false);
+      setEditingTheme(null);
+      showToast('success', theme.sheetRow ? 'Tema diperbarui' : 'Tema ditambahkan', 'Perubahan tema tahunan sudah tersimpan.');
+      return true;
+    }
+
+    showToast('error', 'Gagal menyimpan tema', 'Perubahan tema tahunan belum berhasil disimpan.');
+    return false;
+  }, [addTheme, updateTheme, showToast]);
+
+  const handleDeleteTheme = useCallback(async (theme: AnnualTheme) => {
+    if (!theme.sheetRow) return;
+    const confirmed = window.confirm(`Hapus tema tahunan "${theme.name}"?`);
+    if (!confirmed) return;
+
+    const success = await deleteTheme(theme.sheetRow);
+    if (success) {
+      showToast('success', 'Tema dihapus', `"${theme.name}" telah dihapus.`);
+    } else {
+      showToast('error', 'Gagal menghapus tema', 'Tema tahunan belum berhasil dihapus.');
+    }
+  }, [deleteTheme, showToast]);
 
   const handleOpenLetter = useCallback((initialData: Partial<LetterRequestItem>) => {
     setLetterInitialData(initialData);
@@ -535,7 +577,7 @@ export default function App() {
         </section>
 
         {/* Quarter Timeline */}
-        {isAdmin && <QuarterTimeline themes={annualThemes} />}
+        {isAdmin && <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />}
 
         {/* Featured ongoing & upcoming */}
         {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
@@ -752,6 +794,12 @@ export default function App() {
         onClose={() => { setShowLetterModal(false); setLetterInitialData(null); }}
         initialData={letterInitialData}
         onSubmit={handleSubmitLetter}
+      />
+      <AnnualThemeCrudModal
+        isOpen={showThemeModal}
+        onClose={() => { setShowThemeModal(false); setEditingTheme(null); }}
+        onSave={handleSaveTheme}
+        editingTheme={editingTheme}
       />
       <DeleteConfirmModal
         isOpen={showDeleteModal}

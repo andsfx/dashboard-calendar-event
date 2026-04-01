@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
-import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete } from '../utils/sheetsApi';
+import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme } from '../utils/sheetsApi';
 
 function normalizeEvent(ev: EventItem): EventItem {
   return recalculateStatuses([ev])[0];
@@ -133,6 +133,45 @@ export function useEvents() {
     return true;
   }, [events, refreshEvents]);
 
+  const addTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
+    try {
+      await apiCreateTheme({
+        name: theme.name,
+        dateStart: theme.dateStart,
+        dateEnd: theme.dateEnd,
+        color: theme.color,
+      });
+      await refreshEvents();
+      return true;
+    } catch (err) {
+      console.error('Error adding annual theme:', err);
+      return false;
+    }
+  }, [refreshEvents]);
+
+  const updateTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
+    if (!theme.sheetRow) return false;
+    try {
+      await apiUpdateTheme(theme as AnnualTheme & { sheetRow: number });
+      await refreshEvents();
+      return true;
+    } catch (err) {
+      console.error('Error updating annual theme:', err);
+      return false;
+    }
+  }, [refreshEvents]);
+
+  const deleteTheme = useCallback(async (sheetRow: number): Promise<boolean> => {
+    try {
+      await apiDeleteTheme(sheetRow);
+      await refreshEvents();
+      return true;
+    } catch (err) {
+      console.error('Error deleting annual theme:', err);
+      return false;
+    }
+  }, [refreshEvents]);
+
   return {
     events,
     filteredEvents,
@@ -149,6 +188,7 @@ export function useEvents() {
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
+    addTheme, updateTheme, deleteTheme,
     refreshEvents,
   };
 }

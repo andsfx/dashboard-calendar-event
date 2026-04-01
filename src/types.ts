@@ -61,6 +61,7 @@ export interface DraftEventItem {
 
 export interface AnnualTheme {
   id: string;
+  sheetRow?: number;
   name: string;
   dateStart: string;
   dateEnd: string;
