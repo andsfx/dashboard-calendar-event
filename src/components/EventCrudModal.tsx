@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Calendar } from 'lucide-react';
 import { EventItem, EventModel } from '../types';
-import { createId } from '../utils/eventUtils';
+import { createId, parseDateStrLocal } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -43,7 +43,7 @@ const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
 ];
 
 function dateToMeta(dateStr: string) {
-  const d = new Date(dateStr);
+  const d = parseDateStrLocal(dateStr) || new Date();
   return {
     day: DAY_ID[d.getDay()],
     tanggal: `${d.getDate()} ${MONTH_ID[d.getMonth()]} ${d.getFullYear()}`,
@@ -66,7 +66,6 @@ const EMPTY: {
   eventModel: EventModel;
   eventNominal: string;
   eventModelNotes: string;
-  isDraft: boolean;
 } = {
   dateStr: '',
   jam: '',
@@ -82,7 +81,6 @@ const EMPTY: {
   eventModel: '',
   eventNominal: '',
   eventModelNotes: '',
-  isDraft: false,
 };
 
 export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }: Props) {
@@ -119,7 +117,6 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
         eventModel: editingEvent.eventModel || '',
         eventNominal: editingEvent.eventNominal || '',
         eventModelNotes: editingEvent.eventModelNotes || '',
-        isDraft: editingEvent.status === 'draft',
       });
     } else {
       setForm(EMPTY);
@@ -178,7 +175,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    const { isDraft, ...formData } = form;
+    const formData = form;
     const normalizedFormData = {
       ...formData,
       categories: formData.categories,
@@ -187,7 +184,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
     const now = new Date().toISOString().split('T')[0];
     const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
-    const finalStatus = isDraft ? 'draft' : autoStatus;
+    const finalStatus = autoStatus;
 
     setIsSubmitting(true);
     const success = await onSave({
@@ -448,20 +445,6 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
-
-          {/* Draft toggle */}
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-purple-200 bg-purple-50 px-4 py-3 dark:border-purple-800/50 dark:bg-purple-900/20">
-            <input
-              type="checkbox"
-              checked={form.isDraft}
-              onChange={e => setForm(prev => ({ ...prev, isDraft: e.target.checked }))}
-              className="h-4 w-4 rounded accent-purple-600"
-            />
-            <div>
-              <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">Tandai sebagai Draft</p>
-              <p className="text-xs text-purple-500 dark:text-purple-400">Event direncanakan namun belum dikonfirmasi</p>
-            </div>
-          </label>
 
           {/* Actions */}
           <div className="flex flex-col gap-3 pt-2 sm:flex-row">

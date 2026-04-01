@@ -113,11 +113,33 @@ export function createId() {
   return `ev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+export function parseDateStrLocal(dateStr: string) {
+  if (!dateStr) return null;
+  const [yearStr, monthStr, dayStr] = dateStr.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (!year || !month || !day) return null;
+
+  const date = new Date(year, month - 1, day);
+  if (
+    Number.isNaN(date.getTime())
+    || date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
 export function getStatus(dateStr: string, jam: string): EventStatus {
   if (!dateStr) return 'upcoming';
   
   const now = new Date();
-  const eventDate = new Date(dateStr);
+  const eventDate = parseDateStrLocal(dateStr);
+  if (!eventDate) return 'upcoming';
   
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const target = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
@@ -126,7 +148,7 @@ export function getStatus(dateStr: string, jam: string): EventStatus {
   if (target < today) return 'past';
 
   // Same day - check time
-  if (!jam) return 'upcoming';
+  if (!jam) return 'ongoing';
 
   try {
     const timeMatch = jam.match(/(\d{1,2})[:.](\d{2})/);

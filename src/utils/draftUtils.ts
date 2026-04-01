@@ -1,4 +1,5 @@
 import { DraftEventItem } from '../types';
+import { parseDateStrLocal } from './eventUtils';
 
 export function normalizePhoneToWhatsApp(phone: string) {
   const digits = String(phone || '').replace(/\D/g, '');
@@ -49,7 +50,7 @@ export function formatDraftPublishedAt(value?: string) {
 }
 
 export function getDraftDateMeta(dateStr: string) {
-  const d = new Date(dateStr);
+  const d = parseDateStrLocal(dateStr) || new Date();
   const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 

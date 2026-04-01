@@ -11,6 +11,8 @@ const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
 const EVENT_SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
 const LETTER_SHEET_NAME = 'Form Responses 1';
+const LETTER_FORM_VIEW_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/viewform';
+const LETTER_FORM_RESPONSE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/formResponse';
 const EVENT_HEADERS = [
   'Date',
   'Day',
@@ -86,6 +88,16 @@ function getSheet() {
 
 function getLegacyEventSheet() {
   return getEventSpreadsheet().getSheetByName(LEGACY_EVENT_SHEET_NAME);
+}
+
+function maybeAutoMigrateLegacyEvents() {
+  var sheet = ensureEventSheet();
+  if (sheet.getLastRow() > 1) return;
+
+  var legacySheet = getLegacyEventSheet();
+  if (!legacySheet || legacySheet.getLastRow() < 2) return;
+
+  migrateLegacyEventsToNewSheet();
 }
 
 function ensureEventSheet() {
@@ -466,6 +478,7 @@ function getAllHolidays() {
 // ---- READ: Get all events ----
 
 function getAllEvents() {
+  maybeAutoMigrateLegacyEvents();
   var sheet = getSheet();
   var data = sheet.getDataRange().getValues();
   var events = [];
@@ -764,31 +777,75 @@ function restoreDraftEvent(sheetRow) {
   return { success: true };
 }
 
+function extractGoogleFormHiddenField(html, name) {
+  var regex = new RegExp('<input[^>]+name=["\']' + name + '["\'][^>]+value=["\']([^"\']*)["\']', 'i');
+  var match = html.match(regex);
+  return match ? match[1] : '';
+}
+
 function createLetterRequest(data) {
-  var sheet = getLetterSheet();
-  var timestamp = new Date();
+  var viewResponse = UrlFetchApp.fetch(LETTER_FORM_VIEW_URL, {
+    method: 'get',
+    muteHttpExceptions: true,
+    followRedirects: true,
+  });
+  var viewCode = viewResponse.getResponseCode();
+  if (viewCode < 200 || viewCode >= 400) {
+    return { success: false, error: 'Gagal membuka Google Form surat (' + viewCode + ')' };
+  }
 
-  sheet.appendRow([
-    timestamp,
-    data.tanggalSurat || '',
-    data.nomorSurat || '',
-    data.namaEO || '',
-    data.penanggungJawab || '',
-    data.alamatEO || '',
-    data.namaEvent || '',
-    data.lokasi || '',
-    data.hariTanggalPelaksanaan || '',
-    data.waktuPelaksanaan || '',
-    data.nomorTelepon || '',
-    data.hariTanggalLoading || '',
-    data.waktuLoading || '',
-    '',
-    '',
-    '',
-    ''
-  ]);
+  var html = viewResponse.getContentText();
+  var fbzx = extractGoogleFormHiddenField(html, 'fbzx');
+  var partialResponse = extractGoogleFormHiddenField(html, 'partialResponse');
 
-  return { success: true, row: sheet.getLastRow() };
+  if (!fbzx || !partialResponse) {
+    return { success: false, error: 'Hidden field Google Form tidak ditemukan' };
+  }
+
+  var payload = {
+    'entry.396954138': data.tanggalSurat || '',
+    'entry.998775376': data.nomorSurat || '',
+    'entry.1480637284': data.namaEO || '',
+    'entry.1748978808': data.penanggungJawab || '',
+    'entry.106428972': data.alamatEO || '',
+    'entry.1492656390': data.namaEvent || '',
+    'entry.602007555': data.lokasi || '',
+    'entry.1866343511': data.hariTanggalPelaksanaan || '',
+    'entry.711834080': data.waktuPelaksanaan || '',
+    'entry.278386304': data.nomorTelepon || '',
+    'entry.1067209676': data.hariTanggalLoading || '',
+    'entry.893311586': data.waktuLoading || '',
+    'fvv': extractGoogleFormHiddenField(html, 'fvv') || '1',
+    'pageHistory': extractGoogleFormHiddenField(html, 'pageHistory') || '0',
+    'partialResponse': partialResponse,
+    'fbzx': fbzx,
+    'submissionTimestamp': extractGoogleFormHiddenField(html, 'submissionTimestamp') || '-1'
+  };
+
+  var submitResponse = UrlFetchApp.fetch(LETTER_FORM_RESPONSE_URL, {
+    method: 'post',
+    payload: payload,
+    contentType: 'application/x-www-form-urlencoded',
+    muteHttpExceptions: true,
+    followRedirects: false,
+  });
+  var submitCode = submitResponse.getResponseCode();
+  if (submitCode >= 200 && submitCode < 400) {
+    return { success: true };
+  }
+
+  return {
+    success: false,
+    error: 'Google Form surat menolak request (' + submitCode + ')'
+  };
+}
+
+function authorizeUrlFetch() {
+  UrlFetchApp.fetch('https://www.google.com', {
+    method: 'get',
+    muteHttpExceptions: true,
+  });
+  return 'UrlFetchApp authorized';
 }
 
 // ---- Web App Handlers ----

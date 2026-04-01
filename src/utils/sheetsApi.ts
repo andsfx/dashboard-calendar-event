@@ -1,8 +1,6 @@
 import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
-const LETTER_FORM_VIEW_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/viewform';
-const LETTER_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/formResponse';
 
 interface SheetsEvent {
   sheetRow: number;
@@ -110,6 +108,21 @@ function normalizeCategories(value?: string[] | string, fallbackCategory?: strin
   return Array.from(new Set(normalized.filter(Boolean)));
 }
 
+async function postAction<T>(action: string, payload: Record<string, unknown>): Promise<T> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
+  const response = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8',
+    },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  return response.json() as Promise<T>;
+}
+
 function getComputedStatus(dateStr: string): EventItem['status'] {
   const today = new Date().toISOString().split('T')[0];
   if (dateStr < today) return 'past';
@@ -179,17 +192,8 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
 }
 
 export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<number> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'create',
-      data: JSON.stringify(eventData),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string; row?: number }>('create', { data: eventData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create failed');
     }
@@ -201,17 +205,8 @@ export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' |
 }
 
 export async function updateEvent(eventData: Partial<EventItem> & { sheetRow: number }): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'update',
-      data: JSON.stringify(eventData),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('update', { data: eventData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Update failed');
     }
@@ -222,17 +217,8 @@ export async function updateEvent(eventData: Partial<EventItem> & { sheetRow: nu
 }
 
 export async function deleteEvent(sheetRow: number): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'delete',
-      sheetRow: String(sheetRow),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('delete', { sheetRow });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete failed');
     }
@@ -240,37 +226,6 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
     console.error('Error deleting event:', error);
     throw error;
   }
-}
-
-interface GoogleFormHiddenFields {
-  fvv: string;
-  pageHistory: string;
-  partialResponse: string;
-  fbzx: string;
-  submissionTimestamp: string;
-}
-
-function extractGoogleFormHiddenFields(html: string): GoogleFormHiddenFields {
-  const extract = (name: string) => {
-    const pattern = new RegExp(`<input[^>]+name=["']${name}["'][^>]+value=["']([^"']*)["']`, 'i');
-    const match = html.match(pattern);
-    return match?.[1] ?? '';
-  };
-
-  const fbzx = extract('fbzx');
-  const partialResponse = extract('partialResponse');
-
-  if (!fbzx || !partialResponse) {
-    throw new SheetsApiError('Hidden fields Google Form tidak berhasil dibaca');
-  }
-
-  return {
-    fvv: extract('fvv') || '1',
-    pageHistory: extract('pageHistory') || '0',
-    partialResponse,
-    fbzx,
-    submissionTimestamp: extract('submissionTimestamp') || '-1',
-  };
 }
 
 export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
@@ -315,17 +270,8 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
 }
 
 export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>): Promise<number> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'createDraft',
-      data: JSON.stringify(draftData),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createDraft', { data: draftData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create draft failed');
     }
@@ -337,17 +283,8 @@ export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 's
 }
 
 export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { sheetRow: number }): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'updateDraft',
-      data: JSON.stringify(draftData),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('updateDraft', { data: draftData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Update draft failed');
     }
@@ -358,17 +295,8 @@ export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { sh
 }
 
 export async function deleteDraftEvent(sheetRow: number): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'deleteDraft',
-      sheetRow: String(sheetRow),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('deleteDraft', { sheetRow });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete draft failed');
     }
@@ -379,17 +307,8 @@ export async function deleteDraftEvent(sheetRow: number): Promise<void> {
 }
 
 export async function publishDraftEvent(sheetRow: number): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'publishDraft',
-      sheetRow: String(sheetRow),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('publishDraft', { sheetRow });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Publish draft failed');
     }
@@ -400,17 +319,8 @@ export async function publishDraftEvent(sheetRow: number): Promise<void> {
 }
 
 export async function restoreDraftEvent(sheetRow: number): Promise<void> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const params = new URLSearchParams({
-      action: 'restoreDraft',
-      sheetRow: String(sheetRow),
-    });
-    const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const result = await response.json();
+    const result = await postAction<{ success: boolean; error?: string }>('restoreDraft', { sheetRow });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Restore draft failed');
     }
@@ -421,46 +331,19 @@ export async function restoreDraftEvent(sheetRow: number): Promise<void> {
 }
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
+  if (!APPS_SCRIPT_URL) {
+    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
+  }
+
   try {
-    const viewResponse = await fetch(LETTER_FORM_VIEW_URL, {
-      method: 'GET',
-      cache: 'no-store',
-    });
-    const viewHtml = await viewResponse.text();
-    const hiddenFields = extractGoogleFormHiddenFields(viewHtml);
+    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createLetterRequest', { data });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Create letter request failed');
+    }
 
-    const formData = new URLSearchParams({
-      'entry.396954138': data.tanggalSurat,
-      'entry.998775376': data.nomorSurat,
-      'entry.1480637284': data.namaEO,
-      'entry.1748978808': data.penanggungJawab,
-      'entry.106428972': data.alamatEO,
-      'entry.1492656390': data.namaEvent,
-      'entry.602007555': data.lokasi,
-      'entry.1866343511': data.hariTanggalPelaksanaan,
-      'entry.711834080': data.waktuPelaksanaan,
-      'entry.278386304': data.nomorTelepon,
-      'entry.1067209676': data.hariTanggalLoading,
-      'entry.893311586': data.waktuLoading,
-      fvv: hiddenFields.fvv,
-      pageHistory: hiddenFields.pageHistory,
-      partialResponse: hiddenFields.partialResponse,
-      fbzx: hiddenFields.fbzx,
-      submissionTimestamp: hiddenFields.submissionTimestamp,
-    });
-
-    await fetch(LETTER_FORM_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-      mode: 'no-cors',
-      body: formData.toString(),
-    });
-
-    return { row: 0 };
+    return { row: result.row || 0 };
   } catch (error) {
-    console.error('Error submitting letter request to Google Form:', error);
+    console.error('Error submitting letter request:', error);
     throw error;
   }
 }

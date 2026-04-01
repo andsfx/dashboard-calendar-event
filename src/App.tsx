@@ -147,12 +147,12 @@ export default function App() {
     setShowLetterPickerModal(false);
     handleOpenLetter({
       namaEO: event.eo || '',
-      penanggungJawab: '',
+      penanggungJawab: event.pic || '',
       namaEvent: event.acara || '',
       lokasi: event.lokasi || '',
       hariTanggalPelaksanaan: `${event.day}, ${event.tanggal}`,
       waktuPelaksanaan: event.jam || '',
-      nomorTelepon: '',
+      nomorTelepon: event.phone || '',
     });
   }, [handleOpenLetter]);
 

@@ -122,6 +122,7 @@ export function useEvents() {
     if (target?.sheetRow) {
       try {
         await apiDelete(target.sheetRow);
+        await refreshEvents();
         return true;
       } catch (err) {
         console.error('Error deleting event:', err);
@@ -130,7 +131,7 @@ export function useEvents() {
       }
     }
     return true;
-  }, [events]);
+  }, [events, refreshEvents]);
 
   return {
     events,
