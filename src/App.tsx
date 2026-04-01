@@ -1,9 +1,8 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
-import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck, Archive, ChevronDown, ChevronUp, ClipboardList, FileText } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
-import { FilterBar } from './components/FilterBar';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
@@ -25,19 +24,16 @@ const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> 
 const FeaturedEvents = lazy(() => import('./components/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
 const QuarterTimeline = lazy(() => import('./components/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
 const CategoryChart = lazy(() => import('./components/CategoryChart').then(m => ({ default: m.CategoryChart })));
-const EventTable = lazy(() => import('./components/EventTable').then(m => ({ default: m.EventTable })));
 const CalendarView = lazy(() => import('./components/CalendarView').then(m => ({ default: m.CalendarView })));
-const KanbanView = lazy(() => import('./components/KanbanView').then(m => ({ default: m.KanbanView })));
-const TimelineView = lazy(() => import('./components/TimelineView').then(m => ({ default: m.TimelineView })));
 const EventCrudModal = lazy(() => import('./components/EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
 const DeleteConfirmModal = lazy(() => import('./components/DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
 const DraftCrudModal = lazy(() => import('./components/DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
 const DraftLetterModal = lazy(() => import('./components/DraftLetterModal').then(m => ({ default: m.DraftLetterModal })));
-const DraftQueueTable = lazy(() => import('./components/DraftQueueTable').then(m => ({ default: m.DraftQueueTable })));
 const EventLetterPickerModal = lazy(() => import('./components/EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
-const DraftHistoryTable = lazy(() => import('./components/DraftHistoryTable').then(m => ({ default: m.DraftHistoryTable })));
 const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
+const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
+const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
@@ -476,78 +472,22 @@ export default function App() {
         )}
 
         {isAdmin && (
-          <section className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
-                  <ClipboardList className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-800 dark:text-white">Queue Aktif Draft Event</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Antrian event yang masih diproses</p>
-                </div>
-              </div>
-              <button
-                onClick={handleAddDraft}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30"
-              >
-                <Plus className="h-4 w-4" /> Tambah Draft Event
-              </button>
-            </div>
-
-            {draftError && (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
-                {draftError}
-              </div>
-            )}
-
-            {isDraftLoading ? (
-              <div className="space-y-3 animate-pulse">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-16 rounded-xl bg-slate-200 dark:bg-slate-700" />
-                ))}
-              </div>
-            ) : (
-              <Suspense fallback={<SectionFallback height="h-48" />}>
-                <DraftQueueTable
-                  drafts={activeDrafts}
-                  onEdit={handleEditDraft}
-                  onDelete={handleDeleteDraft}
-                  onPublish={handlePublishDraft}
-                  onProgressChange={handleDraftProgressChange}
-                />
-              </Suspense>
-            )}
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <button
-                onClick={() => setShowDraftHistory(v => !v)}
-                className="flex w-full items-center justify-between gap-3 text-left"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                    <Archive className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 dark:text-white">Riwayat Draft Event</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Event yang dibatalkan atau sudah dipublikasikan</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  <span>{draftHistory.length} item</span>
-                  {showDraftHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </div>
-              </button>
-
-              {showDraftHistory && (
-                <div className="mt-4">
-                  <Suspense fallback={<SectionFallback height="h-40" />}>
-                    <DraftHistoryTable drafts={draftHistory} onRestore={handleRestoreDraft} />
-                  </Suspense>
-                </div>
-              )}
-            </div>
-          </section>
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <AdminDraftSection
+              activeDrafts={activeDrafts}
+              draftHistory={draftHistory}
+              draftError={draftError}
+              isDraftLoading={isDraftLoading}
+              showDraftHistory={showDraftHistory}
+              setShowDraftHistory={setShowDraftHistory}
+              onAddDraft={handleAddDraft}
+              onEditDraft={handleEditDraft}
+              onDeleteDraft={handleDeleteDraft}
+              onPublishDraft={handlePublishDraft}
+              onDraftProgressChange={handleDraftProgressChange}
+              onRestoreDraft={handleRestoreDraft}
+            />
+          </Suspense>
         )}
 
         {/* Stat Cards */}
@@ -650,125 +590,33 @@ export default function App() {
           </div>
         )}
 
-        {/* Filter/View */}
-        <section id="views" className="scroll-mt-32">
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <div className="flex flex-col gap-3">
-            {/* Row 1: status tabs - scrollable on mobile */}
-            <div>
-              <FilterBar
-                activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
-                categories={visibleCategories}
-                activeCategory={activeCategory}
-                onCategoryChange={setActiveCategory}
-                activePriority={activePriority}
-                onPriorityChange={setActivePriority}
-                months={visibleMonths}
-                activeMonth={activeMonth}
-                onMonthChange={setActiveMonth}
-                showDraft={isAdmin}
-                showPriority={isAdmin}
-              />
-            </div>
-            {/* View Mode Toggle */}
-            <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
-                {availableViewTabs.map(tab => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setViewMode(tab.key)}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
-                      viewMode === tab.key
-                        ? 'border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-800/50 dark:bg-slate-600 dark:text-violet-300'
-                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    {tab.icon} {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Row 2: result summary */}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
-                {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
-              </p>
-              <button
-                onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
-                className="flex items-center gap-1 self-start text-xs text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
-              >
-                <RefreshCw className="h-3 w-3" /> Reset
-              </button>
-            </div>
-          </div>
-        </div>
-        </section>
-
-        {/* Error banner */}
-        {error && (
-          <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
-            <span className="text-lg">⚠️</span>
-            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!error && visibleEvents.length === 0 && visibleStats.total > 0 && (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
-            <SearchX className="h-10 w-10 text-slate-400" />
-            <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
-            <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
-              <button
-                onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
-                className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
-              >
-                Reset Filter
-            </button>
-          </div>
-        )}
-
-        {/* Event Views */}
-        {viewMode === 'table' && (
-          <Suspense fallback={<SectionFallback height="h-64" />}>
-            <EventTable
-              events={visibleEvents}
-              isAdmin={isAdmin}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
-              onDetail={handleDetailClick}
-            />
-          </Suspense>
-        )}
-        {isAdmin && viewMode === 'calendar' && (
-          <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
-            <CalendarView events={visibleEvents} holidays={holidays} onDetail={handleDetailClick} />
-          </Suspense>
-        )}
-        {viewMode === 'kanban' && (
-          <Suspense fallback={<SectionFallback height="h-64" />}>
-            <KanbanView
-              events={visibleEvents}
-              isAdmin={isAdmin}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
-              onDetail={handleDetailClick}
-            />
-          </Suspense>
-        )}
-        {viewMode === 'timeline' && (
-          <Suspense fallback={<SectionFallback height="h-64" />}>
-            <TimelineView
-              events={visibleEvents}
-              isAdmin={isAdmin}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
-              onDetail={handleDetailClick}
-            />
-          </Suspense>
-        )}
+        <Suspense fallback={<SectionFallback height="h-80" />}>
+          <DashboardViewsSection
+            viewMode={viewMode}
+            availableViewTabs={availableViewTabs}
+            setViewMode={setViewMode}
+            isAdmin={isAdmin}
+            visibleEvents={visibleEvents}
+            visibleStats={{ total: visibleStats.total }}
+            holidays={holidays}
+            error={error}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+            activePriority={activePriority}
+            setActivePriority={setActivePriority}
+            activeMonth={activeMonth}
+            setActiveMonth={setActiveMonth}
+            visibleCategories={visibleCategories}
+            visibleMonths={visibleMonths}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onDetail={handleDetailClick}
+          />
+        </Suspense>
 
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
