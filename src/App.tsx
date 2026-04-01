@@ -284,11 +284,11 @@ export default function App() {
   const handleSubmitLetter = useCallback(async (data: LetterRequestItem) => {
     try {
       await createLetterRequest(data);
-      showToast('success', 'Permintaan surat dikirim', 'Dokumen akan diproses oleh AutoCrat di spreadsheet surat.');
+      showToast('success', 'Permintaan surat dikirim', 'Data berhasil masuk ke workflow Google Form dan AutoCrat akan membuat dokumennya otomatis.');
       return true;
     } catch (error) {
       console.error('Letter request error:', error);
-      showToast('error', 'Gagal mengirim surat', 'Data surat belum berhasil dikirim ke spreadsheet.');
+      showToast('error', 'Gagal mengirim surat', 'Data surat belum berhasil dikirim ke Google Form. Periksa koneksi lalu coba lagi.');
       return false;
     }
   }, [showToast]);

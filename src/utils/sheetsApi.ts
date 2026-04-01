@@ -1,6 +1,8 @@
 import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
+const LETTER_FORM_VIEW_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/viewform';
+const LETTER_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/formResponse';
 
 interface SheetsEvent {
   sheetRow: number;
@@ -205,6 +207,37 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
   }
 }
 
+interface GoogleFormHiddenFields {
+  fvv: string;
+  pageHistory: string;
+  partialResponse: string;
+  fbzx: string;
+  submissionTimestamp: string;
+}
+
+function extractGoogleFormHiddenFields(html: string): GoogleFormHiddenFields {
+  const extract = (name: string) => {
+    const pattern = new RegExp(`<input[^>]+name=["']${name}["'][^>]+value=["']([^"']*)["']`, 'i');
+    const match = html.match(pattern);
+    return match?.[1] ?? '';
+  };
+
+  const fbzx = extract('fbzx');
+  const partialResponse = extract('partialResponse');
+
+  if (!fbzx || !partialResponse) {
+    throw new SheetsApiError('Hidden fields Google Form tidak berhasil dibaca');
+  }
+
+  return {
+    fvv: extract('fvv') || '1',
+    pageHistory: extract('pageHistory') || '0',
+    partialResponse,
+    fbzx,
+    submissionTimestamp: extract('submissionTimestamp') || '-1',
+  };
+}
+
 export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
     throw new SheetsApiError('Apps Script URL belum dikonfigurasi');
@@ -353,28 +386,46 @@ export async function restoreDraftEvent(sheetRow: number): Promise<void> {
 }
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
+    const viewResponse = await fetch(LETTER_FORM_VIEW_URL, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+    const viewHtml = await viewResponse.text();
+    const hiddenFields = extractGoogleFormHiddenFields(viewHtml);
+
+    const formData = new URLSearchParams({
+      'entry.396954138': data.tanggalSurat,
+      'entry.998775376': data.nomorSurat,
+      'entry.1480637284': data.namaEO,
+      'entry.1748978808': data.penanggungJawab,
+      'entry.106428972': data.alamatEO,
+      'entry.1492656390': data.namaEvent,
+      'entry.602007555': data.lokasi,
+      'entry.1866343511': data.hariTanggalPelaksanaan,
+      'entry.711834080': data.waktuPelaksanaan,
+      'entry.278386304': data.nomorTelepon,
+      'entry.1067209676': data.hariTanggalLoading,
+      'entry.893311586': data.waktuLoading,
+      fvv: hiddenFields.fvv,
+      pageHistory: hiddenFields.pageHistory,
+      partialResponse: hiddenFields.partialResponse,
+      fbzx: hiddenFields.fbzx,
+      submissionTimestamp: hiddenFields.submissionTimestamp,
+    });
+
+    await fetch(LETTER_FORM_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain;charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
-      body: JSON.stringify({
-        action: 'createLetterRequest',
-        data,
-      }),
+      mode: 'no-cors',
+      body: formData.toString(),
     });
-    const result = await response.json();
-    if (!result.success) {
-      throw new SheetsApiError(result.error || 'Create letter request failed');
-    }
-    return { row: result.row || 0 };
+
+    return { row: 0 };
   } catch (error) {
-    console.error('Error creating letter request:', error);
+    console.error('Error submitting letter request to Google Form:', error);
     throw error;
   }
 }
