@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Calendar } from 'lucide-react';
-import { EventItem } from '../types';
+import { EventItem, EventModel } from '../types';
 import { createId } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -35,6 +35,12 @@ const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Lainnya'];
+const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
+  { value: '', label: 'Pilih model' },
+  { value: 'free', label: 'Free' },
+  { value: 'bayar', label: 'Bayar' },
+  { value: 'support', label: 'Support' },
+];
 
 function dateToMeta(dateStr: string) {
   const d = new Date(dateStr);
@@ -54,6 +60,9 @@ const EMPTY: {
   keterangan: string;
   category: string;
   priority: 'high' | 'medium' | 'low';
+  eventModel: EventModel;
+  eventNominal: string;
+  eventModelNotes: string;
   isDraft: boolean;
 } = {
   dateStr: '',
@@ -64,6 +73,9 @@ const EMPTY: {
   keterangan: '',
   category: 'Festival',
   priority: 'medium',
+  eventModel: '',
+  eventNominal: '',
+  eventModelNotes: '',
   isDraft: false,
 };
 
@@ -91,6 +103,9 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
         keterangan: editingEvent.keterangan,
         category: editingEvent.category,
         priority: editingEvent.priority,
+        eventModel: editingEvent.eventModel || '',
+        eventNominal: editingEvent.eventNominal || '',
+        eventModelNotes: editingEvent.eventModelNotes || '',
         isDraft: editingEvent.status === 'draft',
       });
     } else {
@@ -103,7 +118,16 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
   if (!isOpen) return null;
 
   const set = (key: string, val: string) => {
-    setForm(prev => ({ ...prev, [key]: val }));
+    setForm(prev => {
+      if (key === 'eventModel') {
+        const nextModel = val as EventModel;
+        if (nextModel === 'bayar' || nextModel === 'support') {
+          return { ...prev, eventModel: nextModel };
+        }
+        return { ...prev, eventModel: nextModel, eventNominal: '', eventModelNotes: '' };
+      }
+      return { ...prev, [key]: val };
+    });
     setErrors(prev => ({ ...prev, [key]: '' }));
   };
 
@@ -112,6 +136,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     if (!form.acara.trim()) errs.acara = 'Nama acara wajib diisi';
     if (!form.dateStr) errs.dateStr = 'Tanggal wajib diisi';
     if (!form.lokasi.trim()) errs.lokasi = 'Lokasi wajib diisi';
+    if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventNominal.trim()) errs.eventNominal = 'Nominal wajib diisi';
+    if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventModelNotes.trim()) errs.eventModelNotes = 'Keterangan model event wajib diisi';
     return errs;
   };
 
@@ -137,6 +163,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
   };
 
   const isEdit = !!editingEvent;
+  const showModelDetails = form.eventModel === 'bayar' || form.eventModel === 'support';
   if (!isOpen) return null;
 
   return (
@@ -254,10 +281,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
             </datalist>
           </div>
 
-          {/* Kategori + Prioritas */}
+          {/* Jenis Acara + Prioritas */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Kategori</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
               <select
                 value={form.category}
                 onChange={e => set('category', e.target.value)}
@@ -279,6 +306,50 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
               </select>
             </div>
           </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Model Event</label>
+            <select
+              value={form.eventModel}
+              onChange={e => set('eventModel', e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            >
+              {EVENT_MODELS.map(option => <option key={option.value || 'empty'} value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+
+          {showModelDetails && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nominal <span className="text-red-500">*</span></label>
+                <input
+                  value={form.eventNominal}
+                  onChange={e => set('eventNominal', e.target.value)}
+                  placeholder="Contoh: 5000000"
+                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
+                    errors.eventNominal
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                  }`}
+                />
+                {errors.eventNominal && <p className="mt-1 text-xs text-red-500">{errors.eventNominal}</p>}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan Model Event <span className="text-red-500">*</span></label>
+                <input
+                  value={form.eventModelNotes}
+                  onChange={e => set('eventModelNotes', e.target.value)}
+                  placeholder="Contoh: sharing revenue / disupport internal"
+                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
+                    errors.eventModelNotes
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                  }`}
+                />
+                {errors.eventModelNotes && <p className="mt-1 text-xs text-red-500">{errors.eventModelNotes}</p>}
+              </div>
+            </div>
+          )}
 
           {/* Keterangan */}
           <div>

@@ -1,4 +1,5 @@
 export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
+export type EventModel = '' | 'free' | 'bayar' | 'support';
 export type DraftProgress = 'draft' | 'confirm' | 'cancel';
 export type HolidayType = 'libur_nasional' | 'cuti_bersama';
 
@@ -21,6 +22,9 @@ export interface EventItem {
   status: EventStatus;
   category: string;
   priority: 'high' | 'medium' | 'low';
+  eventModel: EventModel;
+  eventNominal: string;
+  eventModelNotes: string;
 }
 
 export interface DraftEventItem {

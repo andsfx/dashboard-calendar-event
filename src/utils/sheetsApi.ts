@@ -15,6 +15,12 @@ interface SheetsEvent {
   eo: string;
   keterangan: string;
   month: string;
+  status?: EventItem['status'];
+  category?: string;
+  priority?: EventItem['priority'];
+  eventModel?: EventItem['eventModel'];
+  eventNominal?: string;
+  eventModelNotes?: string;
 }
 
 interface SheetsApiResponse {
@@ -91,6 +97,13 @@ function detectCategory(acara: string): string {
   return 'Umum';
 }
 
+function getComputedStatus(dateStr: string): EventItem['status'] {
+  const today = new Date().toISOString().split('T')[0];
+  if (dateStr < today) return 'past';
+  if (dateStr === today) return 'ongoing';
+  return 'upcoming';
+}
+
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[]; holidays: HolidayItem[] }> {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
     console.warn('VITE_APPS_SCRIPT_URL masih menggunakan placeholder atau belum dikonfigurasi di .env.');
@@ -119,9 +132,12 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       eo: e.eo,
       keterangan: e.keterangan,
       month: e.month,
-      status: 'upcoming' as const, // Will be recalculated
-      category: detectCategory(e.acara),
-      priority: 'medium'            // Default for now
+      status: e.status || getComputedStatus(e.dateStr),
+      category: e.category || detectCategory(e.acara),
+      priority: e.priority || 'medium',
+      eventModel: e.eventModel || '',
+      eventNominal: e.eventNominal || '',
+      eventModelNotes: e.eventModelNotes || '',
     }));
 
     const holidays: HolidayItem[] = (result.data.holidays || []).map((holiday, index) => ({

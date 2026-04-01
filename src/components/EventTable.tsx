@@ -16,6 +16,19 @@ interface Props {
 
 const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+function getEventModelBadge(eventModel: EventItem['eventModel']) {
+  if (eventModel === 'free') {
+    return { label: 'Free', className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-300' };
+  }
+  if (eventModel === 'bayar') {
+    return { label: 'Bayar', className: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300' };
+  }
+  if (eventModel === 'support') {
+    return { label: 'Support', className: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/50 dark:bg-sky-900/20 dark:text-sky-300' };
+  }
+  return null;
+}
+
 function getMonthLabel(dateStr: string, count: number) {
   const [year, month] = dateStr.split('-');
   const monthName = MONTH_NAMES[parseInt(month, 10) - 1] ?? month;
@@ -101,6 +114,14 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   <div className="flex flex-wrap items-center gap-2">
                     <CategoryBadge category={ev.category} />
                     <PriorityBadge priority={ev.priority} />
+                    {(() => {
+                      const modelBadge = getEventModelBadge(ev.eventModel);
+                      return modelBadge ? (
+                        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
+                          {modelBadge.label}
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
 
                   <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
@@ -161,6 +182,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Lokasi</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">EO</th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi</th>
             </tr>
@@ -169,7 +191,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             {groupedEvents.map(group => (
               <Fragment key={group.monthKey}>
                 <tr key={`${group.monthKey}-header`} className="border-y border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/70">
-                  <td colSpan={8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <td colSpan={9} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     {group.monthLabel}
                   </td>
                 </tr>
@@ -215,6 +237,16 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     {/* Category */}
                     <td className="whitespace-nowrap px-4 py-3">
                       <CategoryBadge category={ev.category} />
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">
+                      {(() => {
+                        const modelBadge = getEventModelBadge(ev.eventModel);
+                        return modelBadge ? (
+                          <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
+                            {modelBadge.label}
+                          </span>
+                        ) : <span className="text-xs text-slate-300 dark:text-slate-600">-</span>;
+                      })()}
                     </td>
                     {/* EO */}
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500 dark:text-slate-400">

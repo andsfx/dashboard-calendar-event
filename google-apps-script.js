@@ -4,12 +4,29 @@
 // PERBAIKAN: Handle Date object dari Google Sheets
 // ============================================================
 
-const SHEET_NAME = 'SCHEDULE EVENT';
+const SHEET_NAME = 'schedule_event_data';
+const LEGACY_EVENT_SHEET_NAME = 'SCHEDULE EVENT';
 const DRAFT_SHEET_NAME = 'DRAFT EVENT';
 const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
 const EVENT_SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
 const LETTER_SHEET_NAME = 'Form Responses 1';
+const EVENT_HEADERS = [
+  'Date',
+  'Day',
+  'Tanggal',
+  'Jam',
+  'Acara',
+  'Lokasi',
+  'EO',
+  'Keterangan',
+  'Status',
+  'Jenis Acara',
+  'Prioritas',
+  'Model Event',
+  'Nominal Event',
+  'Keterangan Model Event'
+];
 
 // ---- Helpers ----
 
@@ -62,7 +79,205 @@ function getLetterSpreadsheet() {
 }
 
 function getSheet() {
-  return getEventSpreadsheet().getSheetByName(SHEET_NAME);
+  return ensureEventSheet();
+}
+
+function getLegacyEventSheet() {
+  return getEventSpreadsheet().getSheetByName(LEGACY_EVENT_SHEET_NAME);
+}
+
+function ensureEventSheet() {
+  var ss = getEventSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+
+  if (sheet.getMaxColumns() < EVENT_HEADERS.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), EVENT_HEADERS.length - sheet.getMaxColumns());
+  }
+
+  sheet.getRange(1, 1, 1, EVENT_HEADERS.length).setValues([EVENT_HEADERS]);
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
+function getEventHeaderMap() {
+  var sheet = ensureEventSheet();
+  var headers = sheet.getRange(1, 1, 1, EVENT_HEADERS.length).getValues()[0];
+  var map = {};
+
+  for (var i = 0; i < headers.length; i++) {
+    map[String(headers[i] || '').trim()] = i;
+  }
+
+  return map;
+}
+
+function toDisplayTanggal(value, fallback) {
+  if (value instanceof Date) return formatDate(value).tanggal;
+  var raw = String(value || '').trim();
+  if (!raw) return fallback || '';
+  var parsed = parseLooseDate(raw);
+  return parsed.tanggal || raw;
+}
+
+function toDisplayDay(value, fallback) {
+  if (value instanceof Date) return formatDate(value).day;
+  var raw = String(value || '').trim();
+  if (!raw) return fallback || '';
+  return raw;
+}
+
+function getCanonicalEventRow(eventData) {
+  var formatted = parseLooseDate(eventData.dateStr);
+  var status = String(eventData.status || '').trim().toLowerCase();
+  var category = String(eventData.category || '').trim();
+  var priority = String(eventData.priority || '').trim().toLowerCase();
+  var eventModel = String(eventData.eventModel || '').trim().toLowerCase();
+
+  if (!formatted.dateStr) {
+    throw new Error('Tanggal event tidak valid');
+  }
+
+  if (status !== 'draft' && status !== 'upcoming' && status !== 'ongoing' && status !== 'past') {
+    status = getAutoEventStatus(formatted.dateStr);
+  }
+  if (priority !== 'high' && priority !== 'medium' && priority !== 'low') {
+    priority = 'medium';
+  }
+  if (eventModel !== 'free' && eventModel !== 'bayar' && eventModel !== 'support') {
+    eventModel = '';
+  }
+
+  return [
+    formatted.dateStr,
+    formatted.day,
+    formatted.tanggal,
+    eventData.jam || '',
+    eventData.acara || '',
+    eventData.lokasi || '',
+    eventData.eo || '',
+    eventData.keterangan || '',
+    status,
+    category || 'Umum',
+    priority,
+    eventModel,
+    eventData.eventNominal || '',
+    eventData.eventModelNotes || ''
+  ];
+}
+
+function getLegacyEvents() {
+  var sheet = getLegacyEventSheet();
+  if (!sheet) return [];
+
+  var data = sheet.getDataRange().getValues();
+  var events = [];
+  var lastDate = '';
+  var lastDateStr = '';
+  var lastDay = '';
+
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var colA = String(row[0] || '').trim();
+    var colB = row[1];
+    var colC = String(row[2] || '').trim();
+    var colD = String(row[3] || '').trim();
+    var colE = String(row[4] || '').trim();
+    var colF = String(row[5] || '').trim();
+    var colG = String(row[6] || '').trim();
+
+    if (i === 0 && colA.toLowerCase().includes('schedule')) continue;
+    if (isMonthHeader(colA)) continue;
+    if (String(colB || '').toLowerCase() === 'tanggal') continue;
+    if (colC.toLowerCase() === 'jam' && colD.toLowerCase() === 'acara') continue;
+    if (i >= 1 && i <= 9 && colB instanceof Date && row[2] instanceof Date) continue;
+
+    var formatted = parseLooseDate(colB);
+    if (formatted.dateStr) {
+      lastDate = formatted.tanggal;
+      lastDateStr = formatted.dateStr;
+      lastDay = formatted.day;
+    }
+
+    if (!lastDateStr) continue;
+    if (!colD || colD.toLowerCase() === 'acara') continue;
+
+    events.push({
+      dateStr: lastDateStr,
+      day: lastDay,
+      tanggal: lastDate,
+      jam: colC,
+      acara: colD,
+      lokasi: colE,
+      eo: colF,
+      keterangan: colG,
+      category: 'Umum',
+      priority: 'medium',
+      eventModel: '',
+      eventNominal: '',
+      eventModelNotes: ''
+    });
+  }
+
+  return events;
+}
+
+function bootstrapEventSheet() {
+  var sheet = ensureEventSheet();
+  return {
+    success: true,
+    spreadsheetId: EVENT_SPREADSHEET_ID,
+    sheetName: SHEET_NAME,
+    headers: EVENT_HEADERS,
+    totalColumns: EVENT_HEADERS.length,
+    totalRows: Math.max(sheet.getLastRow(), 1)
+  };
+}
+
+function debugEventSchema() {
+  var sheet = ensureEventSheet();
+  var headers = sheet.getRange(1, 1, 1, EVENT_HEADERS.length).getValues()[0];
+  var mapping = {};
+
+  for (var i = 0; i < headers.length; i++) {
+    mapping[String(headers[i] || '').trim()] = i + 1;
+  }
+
+  return {
+    success: true,
+    spreadsheetId: EVENT_SPREADSHEET_ID,
+    spreadsheetTitle: getEventSpreadsheet().getName(),
+    sheetName: SHEET_NAME,
+    headers: headers,
+    mapping: mapping,
+    totalRows: sheet.getLastRow(),
+    totalColumns: sheet.getLastColumn()
+  };
+}
+
+function migrateLegacyEventsToNewSheet() {
+  var sheet = ensureEventSheet();
+  var legacyEvents = getLegacyEvents();
+
+  if (sheet.getLastRow() > 1) {
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, EVENT_HEADERS.length).clearContent();
+  }
+
+  if (legacyEvents.length > 0) {
+    var rows = legacyEvents.map(getCanonicalEventRow);
+    sheet.getRange(2, 1, rows.length, EVENT_HEADERS.length).setValues(rows);
+  }
+
+  return {
+    success: true,
+    sourceSheet: LEGACY_EVENT_SHEET_NAME,
+    targetSheet: SHEET_NAME,
+    migratedRows: legacyEvents.length,
+    totalRows: sheet.getLastRow()
+  };
 }
 
 function getDraftSheet() {
@@ -144,6 +359,13 @@ function isMonthHeader(text) {
   return /^(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4}$/i.test(text);
 }
 
+function getAutoEventStatus(dateStr) {
+  var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  if (dateStr < today) return 'past';
+  if (dateStr === today) return 'ongoing';
+  return 'upcoming';
+}
+
 function getAllHolidays() {
   var sheet = getHolidaySheet();
   var data = sheet.getDataRange().getValues();
@@ -183,105 +405,66 @@ function getAllEvents() {
   var sheet = getSheet();
   var data = sheet.getDataRange().getValues();
   var events = [];
-  var themes = [];
-  var lastDate = '';
-  var lastDateStr = '';
-  var lastDay = '';
-  var currentMonth = '';
+  var headerMap = getEventHeaderMap();
 
-  for (var i = 0; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
     var row = data[i];
-    var colA = String(row[0] || '').trim();
-    var colB = row[1]; // Could be Date or String
-    var colC = String(row[2] || '').trim();
-    var colD = String(row[3] || '').trim();
-    var colE = String(row[4] || '').trim();
-    var colF = String(row[5] || '').trim();
-    var colG = String(row[6] || '').trim();
+    var acara = String(row[headerMap['Acara']] || '').trim();
+    if (!acara) continue;
 
-    // Skip title row
-    if (i === 0 && colA.toLowerCase().includes('schedule')) continue;
+    var dateValue = row[headerMap['Date']] || row[headerMap['Tanggal']];
+    var formatted = parseLooseDate(dateValue);
+    if (!formatted.dateStr) continue;
 
-    // Check for month header
-    if (isMonthHeader(colA)) {
-      currentMonth = colA.split(' ')[0];
-      continue;
+    var status = String(row[headerMap['Status']] || '').trim().toLowerCase();
+    if (status !== 'draft' && status !== 'upcoming' && status !== 'ongoing' && status !== 'past') {
+      status = getAutoEventStatus(formatted.dateStr);
     }
 
-    // Check for column header row
-    if (String(colB || '').toLowerCase() === 'tanggal') continue;
-    if (colC.toLowerCase() === 'jam' && colD.toLowerCase() === 'acara') continue;
-
-    // Check for theme rows (rows 1-9)
-    if (i >= 1 && i <= 9 && colB instanceof Date && row[2] instanceof Date) {
-      var startFormatted = formatDate(colB);
-      var endFormatted = formatDate(row[2]);
-      if (startFormatted.dateStr && endFormatted.dateStr && colD) {
-        themes.push({
-          id: 'th-' + (themes.length + 1),
-          name: colD,
-          dateStart: startFormatted.dateStr,
-          dateEnd: endFormatted.dateStr
-        });
-        continue;
-      }
+    var priority = String(row[headerMap['Prioritas']] || '').trim().toLowerCase();
+    if (priority !== 'high' && priority !== 'medium' && priority !== 'low') {
+      priority = 'medium';
     }
 
-    // Handle date in column B
-    if (colB instanceof Date) {
-      var formatted = formatDate(colB);
-      lastDate = formatted.tanggal;
-      lastDateStr = formatted.dateStr;
-      lastDay = formatted.day;
-      // Always update currentMonth from the actual date
-      currentMonth = formatted.monthName;
+    var eventModel = String(row[headerMap['Model Event']] || '').trim().toLowerCase();
+    if (eventModel !== 'free' && eventModel !== 'bayar' && eventModel !== 'support') {
+      eventModel = '';
     }
 
-    // Skip if no valid date yet
-    if (!lastDateStr) continue;
-
-    // Skip if no event name in column D
-    if (!colD || colD.toLowerCase() === 'acara') continue;
-
-    // Add event
     events.push({
       sheetRow: i + 1,
-      tanggal: lastDate,
-      dateStr: lastDateStr,
-      day: lastDay,
-      jam: colC,
-      acara: colD,
-      lokasi: colE,
-      eo: colF,
-      keterangan: colG,
-      month: currentMonth
+      tanggal: toDisplayTanggal(row[headerMap['Tanggal']], formatted.tanggal),
+      dateStr: formatted.dateStr,
+      day: toDisplayDay(row[headerMap['Day']], formatted.day),
+      jam: String(row[headerMap['Jam']] || '').trim(),
+      acara: acara,
+      lokasi: String(row[headerMap['Lokasi']] || '').trim(),
+      eo: String(row[headerMap['EO']] || '').trim(),
+      keterangan: String(row[headerMap['Keterangan']] || '').trim(),
+      month: formatted.monthName,
+      status: status,
+      category: String(row[headerMap['Jenis Acara']] || '').trim(),
+      priority: priority,
+      eventModel: eventModel,
+      eventNominal: String(row[headerMap['Nominal Event']] || '').trim(),
+      eventModelNotes: String(row[headerMap['Keterangan Model Event']] || '').trim()
     });
   }
 
-  return { events: events, themes: themes, holidays: getAllHolidays() };
+  return { events: events, themes: [], holidays: getAllHolidays() };
 }
 
 // ---- CREATE: Add new event ----
 
 function addEvent(eventData) {
   var sheet = getSheet();
-  var lastRow = sheet.getLastRow();
-  var insertRow = lastRow + 1;
-  
-  // Format date as text: "Hari, DD Bulan YYYY"
-  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
+  try {
+    sheet.appendRow(getCanonicalEventRow(eventData));
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 
-  sheet.appendRow([
-    '',
-    dateDisplay,
-    eventData.jam || '',
-    eventData.acara || '',
-    eventData.lokasi || '',
-    eventData.eo || '',
-    eventData.keterangan || ''
-  ]);
-
-  return { success: true, row: insertRow };
+  return { success: true, row: sheet.getLastRow() };
 }
 
 // ---- UPDATE: Edit existing event ----
@@ -294,15 +477,11 @@ function updateEvent(eventData) {
     return { success: false, error: 'Invalid row number' };
   }
 
-  // Format date as text: "Hari, DD Bulan YYYY"
-  var dateDisplay = dateStrToIndonesian(eventData.dateStr);
-
-  sheet.getRange(sheetRow, 2).setValue(dateDisplay);
-  sheet.getRange(sheetRow, 3).setValue(eventData.jam || '');
-  sheet.getRange(sheetRow, 4).setValue(eventData.acara || '');
-  sheet.getRange(sheetRow, 5).setValue(eventData.lokasi || '');
-  sheet.getRange(sheetRow, 6).setValue(eventData.eo || '');
-  sheet.getRange(sheetRow, 7).setValue(eventData.keterangan || '');
+  try {
+    sheet.getRange(sheetRow, 1, 1, EVENT_HEADERS.length).setValues([getCanonicalEventRow(eventData)]);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 
   return { success: true };
 }
@@ -603,6 +782,18 @@ function doGet(e) {
       return output.setContent(JSON.stringify(createLetterRequest(createLetterData)));
     }
 
+    if (action === 'bootstrapEventSheet') {
+      return output.setContent(JSON.stringify(bootstrapEventSheet()));
+    }
+
+    if (action === 'debugSchema') {
+      return output.setContent(JSON.stringify(debugEventSchema()));
+    }
+
+    if (action === 'migrateLegacyEvents') {
+      return output.setContent(JSON.stringify(migrateLegacyEventsToNewSheet()));
+    }
+
     if (action === 'debug') {
       var eventSs = getEventSpreadsheet();
       var eventSheets = eventSs.getSheets().map(function(s) { return s.getName(); });
@@ -613,6 +804,8 @@ function doGet(e) {
         eventSpreadsheetTitle: eventSs.getName(),
         eventSheets: eventSheets,
         eventSheetName: SHEET_NAME,
+        legacyEventSheetName: LEGACY_EVENT_SHEET_NAME,
+        eventHeaders: EVENT_HEADERS,
         draftSheetName: DRAFT_SHEET_NAME,
         holidaySheetName: HOLIDAY_SHEET_NAME,
         letterSpreadsheetTitle: letterSs.getName(),
@@ -660,6 +853,15 @@ function doPost(e) {
     }
     if (action === 'createLetterRequest') {
       return output.setContent(JSON.stringify(createLetterRequest(body.data)));
+    }
+    if (action === 'bootstrapEventSheet') {
+      return output.setContent(JSON.stringify(bootstrapEventSheet()));
+    }
+    if (action === 'debugSchema') {
+      return output.setContent(JSON.stringify(debugEventSchema()));
+    }
+    if (action === 'migrateLegacyEvents') {
+      return output.setContent(JSON.stringify(migrateLegacyEventsToNewSheet()));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));

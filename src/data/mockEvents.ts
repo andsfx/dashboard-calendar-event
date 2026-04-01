@@ -41,6 +41,9 @@ function ev(
     category,
     priority,
     status,
+    eventModel: '',
+    eventNominal: '',
+    eventModelNotes: '',
   };
 }
 
