@@ -17,6 +17,7 @@ interface SheetsEvent {
   month: string;
   status?: EventItem['status'];
   category?: string;
+  categories?: string[];
   priority?: EventItem['priority'];
   eventModel?: EventItem['eventModel'];
   eventNominal?: string;
@@ -81,20 +82,30 @@ function detectCategory(acara: string): string {
   if (/workshop|pelatihan|training|kelas|belajar/.test(name))        return 'Workshop';
   if (/lomba|kompetisi|competition|contest|turnamen/.test(name))     return 'Kompetisi';
   if (/fashion|style|mode|catwalk|runway/.test(name))                return 'Fashion';
-  if (/seminar|talkshow|talk\s?show|diskusi|symposium/.test(name))   return 'Seminar';
+  if (/seminar|talkshow|talk\s?show|diskusi|symposium|kajian/.test(name)) return 'Seminar';
   if (/pameran|expo|exhibition|display/.test(name))                  return 'Pameran';
   if (/konser|concert|musik|music|band|penyanyi/.test(name))         return 'Konser';
   if (/sosial|bakti|donor|charity|peduli|amal/.test(name))           return 'Sosial';
   if (/seni|art|crafts|kerajinan|lukis|drawing/.test(name))          return 'Seni';
-  if (/hiburan|entertainment|fun|carnival|party/.test(name))         return 'Hiburan';
+  if (/sport|olahraga|fitness|yoga|senam|futsal|run|fun run/.test(name)) return 'Olahraga';
+  if (/hiburan|entertainment|carnival|party/.test(name))             return 'Hiburan';
   if (/karir|career|job|rekrut|hiring|beasiswa/.test(name))          return 'Karir';
   if (/produk|product|launch|launching|promo|brand/.test(name))      return 'Produk';
   if (/kids|anak|children|baby|balita|pinguin/.test(name))           return 'Anak';
   if (/food|kuliner|culinary|makanan|minuman|cafe|resto/.test(name)) return 'Kuliner';
-  if (/sport|olahraga|fitness|yoga|senam|futsal|run/.test(name))     return 'Olahraga';
   if (/game|gaming|esport|tekno|tech/.test(name))                    return 'Teknologi';
   if (/health|kesehatan|medis|dokter|farmasi/.test(name))            return 'Kesehatan';
   return 'Umum';
+}
+
+function normalizeCategories(value?: string[] | string, fallbackCategory?: string): string[] {
+  const fromValue = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split('|').map(item => item.trim()).filter(Boolean)
+      : [];
+  const normalized = fromValue.length > 0 ? fromValue : (fallbackCategory ? [fallbackCategory] : []);
+  return Array.from(new Set(normalized.filter(Boolean)));
 }
 
 function getComputedStatus(dateStr: string): EventItem['status'] {
@@ -119,26 +130,30 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
       throw new SheetsApiError(result.error || 'Unknown error');
     }
 
-    const events: EventItem[] = result.data.events.map((e, index) => ({
-      id: `evt-${e.sheetRow}`,
-      sheetRow: e.sheetRow,
-      rowIndex: index + 2,
-      tanggal: e.tanggal,
-      dateStr: e.dateStr,
-      day: e.day,
-      jam: e.jam,
-      acara: e.acara,
-      lokasi: e.lokasi,
-      eo: e.eo,
-      keterangan: e.keterangan,
-      month: e.month,
-      status: e.status || getComputedStatus(e.dateStr),
-      category: e.category || detectCategory(e.acara),
-      priority: e.priority || 'medium',
-      eventModel: e.eventModel || '',
-      eventNominal: e.eventNominal || '',
-      eventModelNotes: e.eventModelNotes || '',
-    }));
+    const events: EventItem[] = result.data.events.map((e, index) => {
+      const categories = normalizeCategories(e.categories, e.category || detectCategory(e.acara));
+      return {
+        id: `evt-${e.sheetRow}`,
+        sheetRow: e.sheetRow,
+        rowIndex: index + 2,
+        tanggal: e.tanggal,
+        dateStr: e.dateStr,
+        day: e.day,
+        jam: e.jam,
+        acara: e.acara,
+        lokasi: e.lokasi,
+        eo: e.eo,
+        keterangan: e.keterangan,
+        month: e.month,
+        status: e.status || getComputedStatus(e.dateStr),
+        categories,
+        category: categories[0] || detectCategory(e.acara),
+        priority: e.priority || 'medium',
+        eventModel: e.eventModel || '',
+        eventNominal: e.eventNominal || '',
+        eventModelNotes: e.eventModelNotes || '',
+      };
+    });
 
     const holidays: HolidayItem[] = (result.data.holidays || []).map((holiday, index) => ({
       id: `hol-${holiday.sheetRow || index + 1}`,

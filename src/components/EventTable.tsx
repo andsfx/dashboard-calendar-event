@@ -2,7 +2,7 @@ import { Fragment, useMemo } from 'react';
 import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
-import { CategoryBadge } from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { sortTableEvents } from '../utils/eventUtils';
 
@@ -38,7 +38,7 @@ function getMonthLabel(dateStr: string, count: number) {
 function exportCSV(events: EventItem[]) {
   const headers = ['Tanggal', 'Hari', 'Jam', 'Acara', 'Lokasi', 'EO', 'Kategori', 'Prioritas', 'Status', 'Keterangan'];
   const rows = events.map(e => [
-    e.tanggal, e.day, e.jam, e.acara, e.lokasi, e.eo, e.category, e.priority, e.status, e.keterangan
+    e.tanggal, e.day, e.jam, e.acara, e.lokasi, e.eo, e.categories.join(' | '), e.priority, e.status, e.keterangan
   ].map(v => `"${(v ?? '').replace(/"/g, '""')}"`));
   const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -112,7 +112,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    <CategoryBadge category={ev.category} />
+                    <CategoryBadges categories={ev.categories} maxVisible={2} />
                     <PriorityBadge priority={ev.priority} />
                     {(() => {
                       const modelBadge = getEventModelBadge(ev.eventModel);
@@ -236,7 +236,9 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </td>
                     {/* Category */}
                     <td className="whitespace-nowrap px-4 py-3">
-                      <CategoryBadge category={ev.category} />
+                      <div className="flex flex-wrap gap-1.5">
+                        <CategoryBadges categories={ev.categories} maxVisible={2} />
+                      </div>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       {(() => {

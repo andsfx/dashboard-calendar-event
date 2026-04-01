@@ -53,7 +53,7 @@ export function useEvents() {
   }, [events]);
 
   const categories = useMemo(() => {
-    const unique = [...new Set(events.map(e => e.category))];
+    const unique = [...new Set(events.flatMap(e => e.categories))];
     return ['Semua', ...unique];
   }, [events]);
 
@@ -67,7 +67,7 @@ export function useEvents() {
   const filteredEvents = useMemo(() => {
     let result = events;
     if (activeFilter !== 'Semua') result = result.filter(e => e.status === activeFilter);
-    if (activeCategory !== 'Semua') result = result.filter(e => e.category === activeCategory);
+    if (activeCategory !== 'Semua') result = result.filter(e => e.categories.includes(activeCategory));
     if (activePriority !== 'Semua') result = result.filter(e => e.priority === activePriority);
     if (activeMonth !== 'Semua') result = result.filter(e => e.month === activeMonth);
     if (debouncedSearch.trim()) {
@@ -77,7 +77,7 @@ export function useEvents() {
         e.lokasi.toLowerCase().includes(q) ||
         e.eo.toLowerCase().includes(q) ||
         e.keterangan.toLowerCase().includes(q) ||
-        e.category.toLowerCase().includes(q)
+        e.categories.some(category => category.toLowerCase().includes(q))
       );
     }
     return sortEvents(result);

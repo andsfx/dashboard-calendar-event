@@ -38,6 +38,7 @@ function ev(
     lokasi,
     eo,
     keterangan,
+    categories: [category],
     category,
     priority,
     status,

@@ -1,7 +1,7 @@
 import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
-import { CategoryBadge } from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
@@ -63,7 +63,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
 
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
-            <CategoryBadge category={event.category} />
+            <CategoryBadges categories={event.categories} />
             <PriorityBadge priority={event.priority} />
             {isOngoing && (
               <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">

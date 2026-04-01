@@ -299,7 +299,7 @@ export default function App() {
   const upcomingEvents = visibleEvents.filter(e => e.status === 'upcoming');
   const visibleCategories = useMemo(() => {
     const source = isAdmin ? events : publicEvents;
-    return ['Semua', ...new Set(source.map(e => e.category))];
+    return ['Semua', ...new Set(source.flatMap(e => e.categories))];
   }, [isAdmin, events, publicEvents]);
   const visibleMonths = useMemo(() => {
     const source = isAdmin ? events : publicEvents;

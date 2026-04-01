@@ -34,7 +34,7 @@ function getPlaceholder(values: string[], fallback: string) {
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Lainnya'];
+const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
 const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
   { value: '', label: 'Pilih model' },
   { value: 'free', label: 'Free' },
@@ -58,6 +58,7 @@ const EMPTY: {
   lokasi: string;
   eo: string;
   keterangan: string;
+  categories: string[];
   category: string;
   priority: 'high' | 'medium' | 'low';
   eventModel: EventModel;
@@ -71,6 +72,7 @@ const EMPTY: {
   lokasi: '',
   eo: '',
   keterangan: '',
+  categories: ['Festival'],
   category: 'Festival',
   priority: 'medium',
   eventModel: '',
@@ -101,6 +103,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
         lokasi: editingEvent.lokasi,
         eo: editingEvent.eo,
         keterangan: editingEvent.keterangan,
+        categories: editingEvent.categories?.length ? editingEvent.categories : [editingEvent.category],
         category: editingEvent.category,
         priority: editingEvent.priority,
         eventModel: editingEvent.eventModel || '',
@@ -131,11 +134,30 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     setErrors(prev => ({ ...prev, [key]: '' }));
   };
 
+  const addCategory = (category: string) => {
+    if (!category) return;
+    setForm(prev => {
+      if (prev.categories.includes(category)) return prev;
+      const categories = [...prev.categories, category];
+      return { ...prev, categories, category: categories[0] || 'Umum' };
+    });
+    setErrors(prev => ({ ...prev, categories: '', category: '' }));
+  };
+
+  const removeCategory = (category: string) => {
+    setForm(prev => {
+      const categories = prev.categories.filter(item => item !== category);
+      return { ...prev, categories, category: categories[0] || '' };
+    });
+    setErrors(prev => ({ ...prev, categories: '', category: '' }));
+  };
+
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!form.acara.trim()) errs.acara = 'Nama acara wajib diisi';
     if (!form.dateStr) errs.dateStr = 'Tanggal wajib diisi';
     if (!form.lokasi.trim()) errs.lokasi = 'Lokasi wajib diisi';
+    if (form.categories.length === 0) errs.categories = 'Minimal pilih satu jenis acara';
     if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventNominal.trim()) errs.eventNominal = 'Nominal wajib diisi';
     if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventModelNotes.trim()) errs.eventModelNotes = 'Keterangan model event wajib diisi';
     return errs;
@@ -147,6 +169,11 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     const { isDraft, ...formData } = form;
+    const normalizedFormData = {
+      ...formData,
+      categories: formData.categories,
+      category: formData.categories[0] || 'Umum',
+    };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
     const now = new Date().toISOString().split('T')[0];
     const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
@@ -155,7 +182,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     setIsSubmitting(true);
     const success = await onSave({
       ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : { id: createId(), rowIndex: 0 }),
-      ...formData,
+      ...normalizedFormData,
       ...meta,
       status: finalStatus,
     });
@@ -286,12 +313,32 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
               <select
-                value={form.category}
-                onChange={e => set('category', e.target.value)}
+                value=""
+                onChange={e => {
+                  addCategory(e.target.value);
+                  e.target.value = '';
+                }}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               >
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="">Pilih jenis acara</option>
+                {CATEGORIES.filter(category => !form.categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {form.categories.map(category => (
+                  <span key={category} className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:border-violet-900/50 dark:bg-violet-900/20 dark:text-violet-300">
+                    {category}
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(category)}
+                      className="rounded-full p-0.5 text-violet-500 transition hover:bg-violet-100 hover:text-violet-700 dark:hover:bg-violet-900/30"
+                      aria-label={`Hapus kategori ${category}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {errors.categories && <p className="mt-1 text-xs text-red-500">{errors.categories}</p>}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>

@@ -11,9 +11,14 @@ export function CategoryChart({ events }: Props) {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null);
 
   const counts: Record<string, number> = {};
-  events.forEach(e => { counts[e.category] = (counts[e.category] ?? 0) + 1; });
+  events.forEach(event => {
+    const categories = event.categories.length > 0 ? event.categories : [event.category];
+    categories.forEach(category => {
+      counts[category] = (counts[category] ?? 0) + 1;
+    });
+  });
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const total = events.length || 1;
+  const total = Object.values(counts).reduce((sum, count) => sum + count, 0) || 1;
   const max = sorted[0]?.[1] ?? 1;
 
   // Donut segments

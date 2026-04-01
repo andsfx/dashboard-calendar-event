@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox, X } from
 import { EventItem, HolidayItem } from '../types';
 import { generateCalendarDays, groupByDate } from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
-import { CategoryBadge } from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadges';
 import { ModalWrapper } from './ModalWrapper';
 
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -216,7 +216,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           </div>
 
                           <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <CategoryBadge category={ev.category} />
+                            <CategoryBadges categories={ev.categories} maxVisible={2} />
                           </div>
 
                           <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
@@ -365,7 +365,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       </div>
 
                       <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <CategoryBadge category={ev.category} />
+                        <CategoryBadges categories={ev.categories} maxVisible={2} />
                       </div>
 
                       <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>

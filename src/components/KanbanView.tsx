@@ -1,6 +1,6 @@
 import { Clock, MapPin, Edit2, Trash2, ExternalLink, FileText, Radio, Clock3, CheckCircle2, PenSquare, Inbox } from 'lucide-react';
 import { EventItem, EventStatus } from '../types';
-import { CategoryBadge } from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 
@@ -131,7 +131,7 @@ function EventCard({
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
-          <CategoryBadge category={ev.category} />
+          <CategoryBadges categories={ev.categories} maxVisible={2} />
           <PriorityBadge priority={ev.priority} />
         </div>
       </div>

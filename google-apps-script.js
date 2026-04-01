@@ -130,10 +130,44 @@ function toDisplayDay(value, fallback) {
   return raw;
 }
 
+function parseEventCategories(value, fallbackCategory) {
+  var raw = String(value || '').trim();
+  var categories = raw
+    ? raw.split('|').map(function(item) { return String(item || '').trim(); }).filter(function(item) { return !!item; })
+    : [];
+
+  if (categories.length === 0 && fallbackCategory) {
+    categories = [String(fallbackCategory).trim()];
+  }
+
+  if (categories.length === 0) {
+    categories = ['Umum'];
+  }
+
+  return categories;
+}
+
+function stringifyEventCategories(categories, fallbackCategory) {
+  var values = Array.isArray(categories) ? categories : [];
+  var normalized = values
+    .map(function(item) { return String(item || '').trim(); })
+    .filter(function(item, index, arr) { return !!item && arr.indexOf(item) === index; });
+
+  if (normalized.length === 0 && fallbackCategory) {
+    normalized = [String(fallbackCategory).trim()];
+  }
+
+  if (normalized.length === 0) {
+    normalized = ['Umum'];
+  }
+
+  return normalized.join(' | ');
+}
+
 function getCanonicalEventRow(eventData) {
   var formatted = parseLooseDate(eventData.dateStr);
   var status = String(eventData.status || '').trim().toLowerCase();
-  var category = String(eventData.category || '').trim();
+  var categories = parseEventCategories(eventData.categories, eventData.category);
   var priority = String(eventData.priority || '').trim().toLowerCase();
   var eventModel = String(eventData.eventModel || '').trim().toLowerCase();
 
@@ -161,7 +195,7 @@ function getCanonicalEventRow(eventData) {
     eventData.eo || '',
     eventData.keterangan || '',
     status,
-    category || 'Umum',
+    stringifyEventCategories(categories),
     priority,
     eventModel,
     eventData.eventNominal || '',
@@ -214,7 +248,8 @@ function getLegacyEvents() {
       lokasi: colE,
       eo: colF,
       keterangan: colG,
-      category: 'Umum',
+      category: detectEventCategory(colD),
+      categories: [detectEventCategory(colD)],
       priority: 'medium',
       eventModel: '',
       eventNominal: '',
@@ -366,6 +401,29 @@ function getAutoEventStatus(dateStr) {
   return 'upcoming';
 }
 
+function detectEventCategory(acara) {
+  var name = String(acara || '').toLowerCase();
+  if (/bazaar|bazar|pasar|market|jualan|booth/.test(name)) return 'Bazaar';
+  if (/festival|fest|fair/.test(name)) return 'Festival';
+  if (/workshop|pelatihan|training|kelas|belajar/.test(name)) return 'Workshop';
+  if (/lomba|kompetisi|competition|contest|turnamen/.test(name)) return 'Kompetisi';
+  if (/fashion|style|mode|catwalk|runway/.test(name)) return 'Fashion';
+  if (/seminar|talkshow|talk\s?show|diskusi|symposium|kajian/.test(name)) return 'Seminar';
+  if (/pameran|expo|exhibition|display/.test(name)) return 'Pameran';
+  if (/konser|concert|musik|music|band|penyanyi/.test(name)) return 'Konser';
+  if (/sosial|bakti|donor|charity|peduli|amal/.test(name)) return 'Sosial';
+  if (/seni|art|crafts|kerajinan|lukis|drawing/.test(name)) return 'Seni';
+  if (/sport|olahraga|fitness|yoga|senam|futsal|run|fun run/.test(name)) return 'Olahraga';
+  if (/hiburan|entertainment|carnival|party/.test(name)) return 'Hiburan';
+  if (/karir|career|job|rekrut|hiring|beasiswa/.test(name)) return 'Karir';
+  if (/produk|product|launch|launching|promo|brand/.test(name)) return 'Produk';
+  if (/kids|anak|children|baby|balita|pinguin/.test(name)) return 'Anak';
+  if (/food|kuliner|culinary|makanan|minuman|cafe|resto/.test(name)) return 'Kuliner';
+  if (/game|gaming|esport|tekno|tech/.test(name)) return 'Teknologi';
+  if (/health|kesehatan|medis|dokter|farmasi/.test(name)) return 'Kesehatan';
+  return 'Umum';
+}
+
 function getAllHolidays() {
   var sheet = getHolidaySheet();
   var data = sheet.getDataRange().getValues();
@@ -416,6 +474,7 @@ function getAllEvents() {
     var formatted = parseLooseDate(dateValue);
     if (!formatted.dateStr) continue;
 
+    var categories = parseEventCategories(row[headerMap['Jenis Acara']], 'Umum');
     var status = String(row[headerMap['Status']] || '').trim().toLowerCase();
     if (status !== 'draft' && status !== 'upcoming' && status !== 'ongoing' && status !== 'past') {
       status = getAutoEventStatus(formatted.dateStr);
@@ -443,7 +502,8 @@ function getAllEvents() {
       keterangan: String(row[headerMap['Keterangan']] || '').trim(),
       month: formatted.monthName,
       status: status,
-      category: String(row[headerMap['Jenis Acara']] || '').trim(),
+      category: categories[0] || 'Umum',
+      categories: categories,
       priority: priority,
       eventModel: eventModel,
       eventNominal: String(row[headerMap['Nominal Event']] || '').trim(),

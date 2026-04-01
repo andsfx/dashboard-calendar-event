@@ -21,6 +21,7 @@ export interface EventItem {
   month: string;     // "Juni"
   status: EventStatus;
   category: string;
+  categories: string[];
   priority: 'high' | 'medium' | 'low';
   eventModel: EventModel;
   eventNominal: string;

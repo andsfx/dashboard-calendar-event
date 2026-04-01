@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
-import { CategoryBadge } from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadges';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 
 const ACCENT_STYLES = {
@@ -83,7 +83,9 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
               />
 
               <div className="mb-2.5 flex items-start justify-between gap-2">
-                <CategoryBadge category={ev.category} />
+                <div className="flex flex-wrap gap-1.5">
+                  <CategoryBadges categories={ev.categories} maxVisible={2} />
+                </div>
                 <div className="flex flex-wrap items-center justify-end gap-1.5">
                   {ev.status === 'ongoing' && (
                     <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
