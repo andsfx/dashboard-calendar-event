@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox, X } from 'lucide-react';
 import { EventItem, HolidayItem } from '../types';
 import { generateCalendarDays, groupByDate } from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadge } from './CategoryBadge';
+import { ModalWrapper } from './ModalWrapper';
 
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
 function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
@@ -65,11 +67,28 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
       return a.name.localeCompare(b.name);
     });
+  const selectedDayEvents = selectedDate ? (byDate[selectedDate] ?? []).slice().sort((a, b) => {
+    const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
+    if (timeCompare !== 0) return timeCompare;
+    return a.acara.localeCompare(b.acara);
+  }) : [];
+  const selectedDayHolidays = selectedDate ? (holidaysByDate[selectedDate] ?? []).slice().sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  }) : [];
+  const selectedDayTitle = selectedDate ? (() => {
+    const [yearStr, monthStr, dayStr] = selectedDate.split('-');
+    const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+    if (Number.isNaN(date.getTime())) return selectedDate;
+    return `${DAY_FULL[date.getDay()]}, ${Number(dayStr)} ${MONTH_ID[Number(monthStr) - 1]} ${yearStr}`;
+  })() : '';
+  const isDayPopupOpen = !!selectedDate && (selectedDayEvents.length > 0 || selectedDayHolidays.length > 0);
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-      {/* Calendar grid */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:w-96 lg:shrink-0">
+    <>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        {/* Calendar grid */}
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:w-96 lg:shrink-0">
         {/* Header */}
         <div className="flex items-center justify-between bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-4">
           <button onClick={prevMonth} className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
@@ -109,7 +128,13 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             return (
               <button
                 key={d.dateStr}
-                onClick={() => setSelectedDate(isSelected ? null : d.dateStr)}
+                onClick={() => {
+                  if (isSelected) {
+                    setSelectedDate(null);
+                    return;
+                  }
+                  setSelectedDate(d.dateStr);
+                }}
                 className={`relative flex h-9 w-full flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
                     ? 'bg-violet-600 text-white shadow-md'
@@ -145,10 +170,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur Nasional</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti Bersama</span>
         </div>
-      </div>
+        </div>
 
-      {/* Monthly event panel */}
-      <div className="flex-1">
+        {/* Monthly event panel */}
+        <div className="flex-1">
         {monthEvents.length > 0 || monthHolidays.length > 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
@@ -301,7 +326,111 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+
+      <ModalWrapper isOpen={isDayPopupOpen} onClose={() => setSelectedDate(null)} maxWidth="max-w-2xl">
+        <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
+            <div>
+              <p className="font-bold text-slate-800 dark:text-white">Agenda Tanggal</p>
+              <p className="text-xs text-slate-400">{selectedDayTitle}</p>
+            </div>
+            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-5 px-4 py-5 sm:px-6">
+            <section className="space-y-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
+                <p className="text-xs text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
+              </div>
+
+              {selectedDayEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedDayEvents.map(ev => (
+                    <button
+                      key={`day-popup-${ev.id}`}
+                      onClick={() => {
+                        setSelectedDate(null);
+                        onDetail(ev);
+                      }}
+                      className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                    >
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
+                        <StatusBadge status={ev.status} size="sm" />
+                      </div>
+
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <CategoryBadge category={ev.category} />
+                      </div>
+
+                      <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+
+                      <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        {ev.jam && (
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="h-3 w-3 shrink-0" />
+                            <span>{ev.jam}</span>
+                          </div>
+                        )}
+                        {ev.lokasi && (
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span className="line-clamp-2">{ev.lokasi}</span>
+                          </div>
+                        )}
+                        {ev.eo && <p>EO: {ev.eo}</p>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                  Tidak ada event pada tanggal ini.
+                </div>
+              )}
+            </section>
+
+            <section className="space-y-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
+                <p className="text-xs text-slate-400">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
+              </div>
+
+              {selectedDayHolidays.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedDayHolidays.map(holiday => {
+                    const badgeClass = holiday.type === 'libur_nasional'
+                      ? 'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:ring-rose-800/50'
+                      : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
+
+                    return (
+                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
+                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{holiday.day}, {holiday.tanggal}</p>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
+                            {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
+                          </span>
+                        </div>
+                        <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
+                        {holiday.description && <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                  Tidak ada hari libur pada tanggal ini.
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      </ModalWrapper>
+    </>
   );
 }
