@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, FileText, MapPin, Search, X } from 'lucide-react';
 import { EventItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
@@ -12,6 +12,12 @@ interface Props {
 
 export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Props) {
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery('');
+    }
+  }, [isOpen]);
 
   const filteredEvents = useMemo(() => {
     const keyword = query.trim().toLowerCase();

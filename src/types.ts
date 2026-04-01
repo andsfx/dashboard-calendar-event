@@ -44,7 +44,14 @@ export interface DraftEventItem {
   pic: string;
   phone: string;
   keterangan: string;
+  internalNote: string;
   month: string;
+  category: string;
+  categories: string[];
+  priority: 'high' | 'medium' | 'low';
+  eventModel: EventModel;
+  eventNominal: string;
+  eventModelNotes: string;
   progress: DraftProgress;
   published: boolean;
   publishedAt?: string;

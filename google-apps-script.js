@@ -11,8 +11,24 @@ const HOLIDAY_SHEET_NAME = 'LIBUR 2026';
 const EVENT_SPREADSHEET_ID = '1b9LfbnUz5lu6jtGRa60pAmmpAzKZWyamoGn-W4irWvQ';
 const LETTER_SPREADSHEET_ID = '1qaSZ-9RFsTDFqEa6GLJHoT_4hd8Kuv_elN4Uv_vGA0U';
 const LETTER_SHEET_NAME = 'Form Responses 1';
-const LETTER_FORM_VIEW_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/viewform';
-const LETTER_FORM_RESPONSE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/formResponse';
+const LETTER_FORM_DEFAULT_CONFIG = {
+  viewUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/viewform',
+  responseUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSduvNFIWbfjWONr-4-VnZRovCNdWa09jxPoOYPq1u6nmAy3cw/formResponse',
+  fields: {
+    tanggalSurat: 'entry.396954138',
+    nomorSurat: 'entry.998775376',
+    namaEO: 'entry.1480637284',
+    penanggungJawab: 'entry.1748978808',
+    alamatEO: 'entry.106428972',
+    namaEvent: 'entry.1492656390',
+    lokasi: 'entry.602007555',
+    hariTanggalPelaksanaan: 'entry.1866343511',
+    waktuPelaksanaan: 'entry.711834080',
+    nomorTelepon: 'entry.278386304',
+    hariTanggalLoading: 'entry.1067209676',
+    waktuLoading: 'entry.893311586'
+  }
+};
 const EVENT_HEADERS = [
   'Date',
   'Day',
@@ -82,6 +98,32 @@ function getLetterSpreadsheet() {
   return SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
 }
 
+function getLetterFormConfig() {
+  var raw = PropertiesService.getScriptProperties().getProperty('LETTER_FORM_CONFIG_JSON');
+  if (!raw) return LETTER_FORM_DEFAULT_CONFIG;
+
+  try {
+    var parsed = JSON.parse(raw);
+    return {
+      viewUrl: parsed.viewUrl || LETTER_FORM_DEFAULT_CONFIG.viewUrl,
+      responseUrl: parsed.responseUrl || LETTER_FORM_DEFAULT_CONFIG.responseUrl,
+      fields: Object.assign({}, LETTER_FORM_DEFAULT_CONFIG.fields, parsed.fields || {})
+    };
+  } catch (err) {
+    throw new Error('LETTER_FORM_CONFIG_JSON tidak valid: ' + err.message);
+  }
+}
+
+function getLetterFormConfigSummary() {
+  var config = getLetterFormConfig();
+  return {
+    viewUrl: config.viewUrl,
+    responseUrl: config.responseUrl,
+    fieldKeys: Object.keys(config.fields),
+    usingScriptProperties: !!PropertiesService.getScriptProperties().getProperty('LETTER_FORM_CONFIG_JSON')
+  };
+}
+
 function getSheet() {
   return ensureEventSheet();
 }
@@ -145,10 +187,14 @@ function toDisplayDay(value, fallback) {
 }
 
 function parseEventCategories(value, fallbackCategory) {
-  var raw = String(value || '').trim();
-  var categories = raw
-    ? raw.split('|').map(function(item) { return String(item || '').trim(); }).filter(function(item) { return !!item; })
-    : [];
+  var categories = Array.isArray(value)
+    ? value.map(function(item) { return String(item || '').trim(); }).filter(function(item) { return !!item; })
+    : (function() {
+        var raw = String(value || '').trim();
+        return raw
+          ? raw.split('|').map(function(item) { return String(item || '').trim(); }).filter(function(item) { return !!item; })
+          : [];
+      })();
 
   if (categories.length === 0 && fallbackCategory) {
     categories = [String(fallbackCategory).trim()];
@@ -345,6 +391,12 @@ function getDraftSheet() {
     'Penanggung Jawab',
     'Nomor Telepon',
     'Keterangan',
+    'Catatan Internal',
+    'Jenis Acara',
+    'Prioritas',
+    'Model Event',
+    'Nominal Event',
+    'Keterangan Model Event',
     'Progress',
     'Published',
     'Published At',
@@ -594,12 +646,22 @@ function getAllDraftEvents() {
 
     if (!formatted.dateStr || !acara) continue;
 
-    var publishedRaw = row[9];
+    var categories = parseEventCategories(row[9], detectEventCategory(acara));
+    var priority = String(row[10] || '').trim().toLowerCase();
+    if (priority !== 'high' && priority !== 'medium' && priority !== 'low') {
+      priority = 'medium';
+    }
+    var eventModel = String(row[11] || '').trim().toLowerCase();
+    if (eventModel !== 'free' && eventModel !== 'bayar' && eventModel !== 'support') {
+      eventModel = '';
+    }
+
+    var publishedRaw = row[14];
     var published = publishedRaw === true || String(publishedRaw).toLowerCase() === 'true';
-    var publishedAt = row[10] instanceof Date ? row[10].toISOString() : String(row[10] || '');
-    var deletedRaw = row[11];
+    var publishedAt = row[15] instanceof Date ? row[15].toISOString() : String(row[15] || '');
+    var deletedRaw = row[16];
     var deleted = deletedRaw === true || String(deletedRaw).toLowerCase() === 'true';
-    var deletedAt = row[12] instanceof Date ? row[12].toISOString() : String(row[12] || '');
+    var deletedAt = row[17] instanceof Date ? row[17].toISOString() : String(row[17] || '');
 
     drafts.push({
       sheetRow: i + 1,
@@ -613,8 +675,15 @@ function getAllDraftEvents() {
       pic: String(row[5] || '').trim(),
       phone: String(row[6] || '').trim(),
       keterangan: String(row[7] || '').trim(),
+      internalNote: String(row[8] || '').trim(),
       month: formatted.monthName,
-      progress: String(row[8] || 'draft').trim().toLowerCase() || 'draft',
+      category: categories[0] || detectEventCategory(acara),
+      categories: categories,
+      priority: priority,
+      eventModel: eventModel,
+      eventNominal: String(row[12] || '').trim(),
+      eventModelNotes: String(row[13] || '').trim(),
+      progress: String(row[14] || 'draft').trim().toLowerCase() || 'draft',
       published: published,
       publishedAt: publishedAt,
       deleted: deleted,
@@ -641,6 +710,12 @@ function addDraftEvent(draftData) {
     draftData.pic || '',
     draftData.phone || '',
     draftData.keterangan || '',
+    draftData.internalNote || '',
+    stringifyEventCategories(draftData.categories, draftData.category),
+    draftData.priority || 'medium',
+    draftData.eventModel || '',
+    draftData.eventNominal || '',
+    draftData.eventModelNotes || '',
     draftData.progress || 'draft',
     false,
     '',
@@ -659,11 +734,11 @@ function updateDraftEvent(draftData) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var current = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
+  var current = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
   var parts = String(draftData.dateStr || '').split('-');
   var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
 
-  sheet.getRange(sheetRow, 1, 1, 13).setValues([[
+  sheet.getRange(sheetRow, 1, 1, 18).setValues([[
     draftDate,
     draftData.jam || '',
     draftData.acara || '',
@@ -672,11 +747,17 @@ function updateDraftEvent(draftData) {
     draftData.pic || '',
     draftData.phone || '',
     draftData.keterangan || '',
-    draftData.progress || current[8] || 'draft',
-    typeof draftData.published === 'boolean' ? draftData.published : current[9],
-    draftData.publishedAt || current[10] || '',
-    typeof draftData.deleted === 'boolean' ? draftData.deleted : current[11],
-    draftData.deletedAt || current[12] || ''
+    draftData.internalNote || current[8] || '',
+    stringifyEventCategories(draftData.categories, draftData.category || detectEventCategory(draftData.acara || current[2])),
+    draftData.priority || current[10] || 'medium',
+    draftData.eventModel || current[11] || '',
+    draftData.eventNominal || current[12] || '',
+    draftData.eventModelNotes || current[13] || '',
+    draftData.progress || current[14] || 'draft',
+    typeof draftData.published === 'boolean' ? draftData.published : current[15],
+    draftData.publishedAt || current[16] || '',
+    typeof draftData.deleted === 'boolean' ? draftData.deleted : current[17],
+    draftData.deletedAt || current[17] || ''
   ]]);
 
   return { success: true };
@@ -689,16 +770,16 @@ function deleteDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
-  var existingNote = String(row[7] || '').trim();
+  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var existingNote = String(row[8] || '').trim();
   var deletedAt = new Date();
   var deletedNote = 'Dihapus admin pada ' + Utilities.formatDate(deletedAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
   var nextNote = existingNote ? existingNote + ' | ' + deletedNote : deletedNote;
 
-  sheet.getRange(sheetRow, 8).setValue(nextNote);
-  sheet.getRange(sheetRow, 9).setValue('cancel');
-  sheet.getRange(sheetRow, 12).setValue(true);
-  sheet.getRange(sheetRow, 13).setValue(deletedAt);
+  sheet.getRange(sheetRow, 9).setValue(nextNote);
+  sheet.getRange(sheetRow, 15).setValue('cancel');
+  sheet.getRange(sheetRow, 17).setValue(true);
+  sheet.getRange(sheetRow, 18).setValue(deletedAt);
   return { success: true };
 }
 
@@ -709,11 +790,11 @@ function publishDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
   var formatted = parseLooseDate(row[0]);
-  var progress = String(row[8] || 'draft').trim().toLowerCase();
-  var published = row[9] === true || String(row[9]).toLowerCase() === 'true';
-  var deleted = row[11] === true || String(row[11]).toLowerCase() === 'true';
+  var progress = String(row[14] || 'draft').trim().toLowerCase();
+  var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
+  var deleted = row[16] === true || String(row[16]).toLowerCase() === 'true';
 
   if (!formatted.dateStr || !String(row[2] || '').trim()) {
     return { success: false, error: 'Draft event data is incomplete' };
@@ -736,16 +817,22 @@ function publishDraftEvent(sheetRow) {
     eo: String(row[4] || '').trim(),
     pic: String(row[5] || '').trim(),
     phone: String(row[6] || '').trim(),
-    keterangan: String(row[7] || '').trim()
+    keterangan: String(row[7] || '').trim(),
+    category: parseEventCategories(row[9], detectEventCategory(String(row[2] || '').trim()))[0] || detectEventCategory(String(row[2] || '').trim()),
+    categories: parseEventCategories(row[9], detectEventCategory(String(row[2] || '').trim())),
+    priority: String(row[10] || '').trim().toLowerCase() || 'medium',
+    eventModel: String(row[11] || '').trim().toLowerCase() || '',
+    eventNominal: String(row[12] || '').trim(),
+    eventModelNotes: String(row[13] || '').trim()
   });
 
   if (!publishResult.success) {
     return publishResult;
   }
 
-  sheet.getRange(sheetRow, 9).setValue('confirm');
-  sheet.getRange(sheetRow, 10).setValue(true);
-  sheet.getRange(sheetRow, 11).setValue(new Date());
+  sheet.getRange(sheetRow, 15).setValue('confirm');
+  sheet.getRange(sheetRow, 16).setValue(true);
+  sheet.getRange(sheetRow, 17).setValue(new Date());
 
   return { success: true, row: publishResult.row };
 }
@@ -757,22 +844,22 @@ function restoreDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 13).getValues()[0];
-  var published = row[9] === true || String(row[9]).toLowerCase() === 'true';
+  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
 
   if (published) {
     return { success: false, error: 'Draft yang sudah dipublish tidak bisa dipulihkan' };
   }
 
-  var existingNote = String(row[7] || '').trim();
+  var existingNote = String(row[8] || '').trim();
   var restoredAt = new Date();
   var restoredNote = 'Dipulihkan admin pada ' + Utilities.formatDate(restoredAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
   var nextNote = existingNote ? existingNote + ' | ' + restoredNote : restoredNote;
 
-  sheet.getRange(sheetRow, 8).setValue(nextNote);
-  sheet.getRange(sheetRow, 9).setValue('draft');
-  sheet.getRange(sheetRow, 12).setValue(false);
-  sheet.getRange(sheetRow, 13).setValue('');
+  sheet.getRange(sheetRow, 9).setValue(nextNote);
+  sheet.getRange(sheetRow, 15).setValue('draft');
+  sheet.getRange(sheetRow, 17).setValue(false);
+  sheet.getRange(sheetRow, 18).setValue('');
 
   return { success: true };
 }
@@ -784,7 +871,8 @@ function extractGoogleFormHiddenField(html, name) {
 }
 
 function createLetterRequest(data) {
-  var viewResponse = UrlFetchApp.fetch(LETTER_FORM_VIEW_URL, {
+  var formConfig = getLetterFormConfig();
+  var viewResponse = UrlFetchApp.fetch(formConfig.viewUrl, {
     method: 'get',
     muteHttpExceptions: true,
     followRedirects: true,
@@ -803,18 +891,6 @@ function createLetterRequest(data) {
   }
 
   var payload = {
-    'entry.396954138': data.tanggalSurat || '',
-    'entry.998775376': data.nomorSurat || '',
-    'entry.1480637284': data.namaEO || '',
-    'entry.1748978808': data.penanggungJawab || '',
-    'entry.106428972': data.alamatEO || '',
-    'entry.1492656390': data.namaEvent || '',
-    'entry.602007555': data.lokasi || '',
-    'entry.1866343511': data.hariTanggalPelaksanaan || '',
-    'entry.711834080': data.waktuPelaksanaan || '',
-    'entry.278386304': data.nomorTelepon || '',
-    'entry.1067209676': data.hariTanggalLoading || '',
-    'entry.893311586': data.waktuLoading || '',
     'fvv': extractGoogleFormHiddenField(html, 'fvv') || '1',
     'pageHistory': extractGoogleFormHiddenField(html, 'pageHistory') || '0',
     'partialResponse': partialResponse,
@@ -822,7 +898,11 @@ function createLetterRequest(data) {
     'submissionTimestamp': extractGoogleFormHiddenField(html, 'submissionTimestamp') || '-1'
   };
 
-  var submitResponse = UrlFetchApp.fetch(LETTER_FORM_RESPONSE_URL, {
+  Object.keys(formConfig.fields).forEach(function(fieldKey) {
+    payload[formConfig.fields[fieldKey]] = data[fieldKey] || '';
+  });
+
+  var submitResponse = UrlFetchApp.fetch(formConfig.responseUrl, {
     method: 'post',
     payload: payload,
     contentType: 'application/x-www-form-urlencoded',
@@ -933,6 +1013,7 @@ function doGet(e) {
         eventSheetName: SHEET_NAME,
         legacyEventSheetName: LEGACY_EVENT_SHEET_NAME,
         eventHeaders: EVENT_HEADERS,
+        letterFormConfig: getLetterFormConfigSummary(),
         draftSheetName: DRAFT_SHEET_NAME,
         holidaySheetName: HOLIDAY_SHEET_NAME,
         letterSpreadsheetTitle: letterSs.getName(),

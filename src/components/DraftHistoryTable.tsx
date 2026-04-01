@@ -43,16 +43,16 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                   <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
                     {draft.deleted ? (
                       <div>
-                        <p className="font-semibold text-rose-600 dark:text-rose-300">Deleted</p>
+                        <p className="font-semibold text-rose-600 dark:text-rose-300">Dihapus</p>
                         <p>{formatDraftPublishedAt(draft.deletedAt)}</p>
                       </div>
                     ) : draft.published ? (
                       <div>
-                        <p className="font-semibold text-emerald-600 dark:text-emerald-300">Published</p>
+                        <p className="font-semibold text-emerald-600 dark:text-emerald-300">Dipublish</p>
                         <p>{formatDraftPublishedAt(draft.publishedAt)}</p>
                       </div>
                     ) : (
-                      <p className="font-semibold text-rose-600 dark:text-rose-300">Cancelled</p>
+                      <p className="font-semibold text-rose-600 dark:text-rose-300">Dibatalkan</p>
                     )}
                   </td>
                   <td className="px-4 py-3">

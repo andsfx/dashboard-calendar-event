@@ -90,7 +90,7 @@ export function useDraftEvents() {
       progress: 'cancel',
       deleted: true,
       deletedAt,
-      keterangan: target.keterangan ? `${target.keterangan} | ${deletedNote}` : deletedNote,
+      internalNote: target.internalNote ? `${target.internalNote} | ${deletedNote}` : deletedNote,
     };
 
     setDraftEvents(prev => prev.map(item => item.id === id ? nextTarget : item));
@@ -139,7 +139,7 @@ export function useDraftEvents() {
       progress: 'draft',
       deleted: false,
       deletedAt: '',
-      keterangan: target.keterangan ? `${target.keterangan} | ${restoredNote}` : restoredNote,
+      internalNote: target.internalNote ? `${target.internalNote} | ${restoredNote}` : restoredNote,
     };
 
     setDraftEvents(prev => prev.map(item => item.id === id ? restoredDraft : item));

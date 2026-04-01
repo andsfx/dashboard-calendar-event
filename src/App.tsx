@@ -744,7 +744,7 @@ export default function App() {
       <EventLetterPickerModal
         isOpen={showLetterPickerModal}
         onClose={() => setShowLetterPickerModal(false)}
-        events={visibleEvents}
+        events={publicEvents}
         onSelect={handleSelectLetterEvent}
       />
       <DraftLetterModal

@@ -57,7 +57,14 @@ interface DraftSheetsApiResponse {
     pic: string;
     phone: string;
     keterangan: string;
+    internalNote: string;
     month: string;
+    category: string;
+    categories: string[];
+    priority: 'high' | 'medium' | 'low';
+    eventModel: EventItem['eventModel'];
+    eventNominal: string;
+    eventModelNotes: string;
     progress: 'draft' | 'confirm' | 'cancel';
     published: boolean;
     publishedAt?: string;
@@ -256,7 +263,14 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
       pic: draft.pic,
       phone: draft.phone,
       keterangan: draft.keterangan,
+      internalNote: draft.internalNote || '',
       month: draft.month,
+      category: draft.category || detectCategory(draft.acara),
+      categories: normalizeCategories(draft.categories, draft.category || detectCategory(draft.acara)),
+      priority: draft.priority || 'medium',
+      eventModel: draft.eventModel || '',
+      eventNominal: draft.eventNominal || '',
+      eventModelNotes: draft.eventModelNotes || '',
       progress: draft.progress,
       published: !!draft.published,
       publishedAt: draft.publishedAt || '',

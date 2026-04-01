@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Calendar, Save, X } from 'lucide-react';
-import { DraftEventItem, DraftProgress, EventItem } from '../types';
+import { DraftEventItem, DraftProgress, EventItem, EventModel } from '../types';
 import { createId } from '../utils/eventUtils';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
+
+const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
+const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
+  { value: '', label: 'Pilih model' },
+  { value: 'free', label: 'Free' },
+  { value: 'bayar', label: 'Bayar' },
+  { value: 'support', label: 'Support' },
+];
 
 interface Props {
   isOpen: boolean;
@@ -14,7 +22,24 @@ interface Props {
   draftEvents: DraftEventItem[];
 }
 
-const EMPTY = {
+const EMPTY: {
+  dateStr: string;
+  jam: string;
+  acara: string;
+  lokasi: string;
+  eo: string;
+  pic: string;
+  phone: string;
+  keterangan: string;
+  internalNote: string;
+  categories: string[];
+  category: string;
+  priority: 'high' | 'medium' | 'low';
+  eventModel: EventModel;
+  eventNominal: string;
+  eventModelNotes: string;
+  progress: DraftProgress;
+} = {
   dateStr: '',
   jam: '',
   acara: '',
@@ -23,6 +48,13 @@ const EMPTY = {
   pic: '',
   phone: '',
   keterangan: '',
+  internalNote: '',
+  categories: [] as string[],
+  category: '',
+  priority: 'medium' as const,
+  eventModel: '' as EventModel,
+  eventNominal: '',
+  eventModelNotes: '',
   progress: 'draft' as DraftProgress,
 };
 
@@ -54,6 +86,13 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         pic: editingDraft.pic,
         phone: editingDraft.phone,
         keterangan: editingDraft.keterangan,
+        internalNote: editingDraft.internalNote || '',
+        categories: editingDraft.categories?.length ? editingDraft.categories : [editingDraft.category],
+        category: editingDraft.category || '',
+        priority: editingDraft.priority || 'medium',
+        eventModel: editingDraft.eventModel || '',
+        eventNominal: editingDraft.eventNominal || '',
+        eventModelNotes: editingDraft.eventModelNotes || '',
         progress: editingDraft.progress,
       });
     } else {
@@ -66,8 +105,35 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   if (!isOpen) return null;
 
   const set = (key: keyof typeof EMPTY, value: string) => {
-    setForm(prev => ({ ...prev, [key]: value }));
+    setForm(prev => {
+      if (key === 'eventModel') {
+        const nextModel = value as EventModel;
+        if (nextModel === 'bayar' || nextModel === 'support') {
+          return { ...prev, eventModel: nextModel };
+        }
+        return { ...prev, eventModel: nextModel, eventNominal: '', eventModelNotes: '' };
+      }
+      return { ...prev, [key]: value };
+    });
     setErrors(prev => ({ ...prev, [key]: '' }));
+  };
+
+  const addCategory = (category: string) => {
+    if (!category) return;
+    setForm(prev => {
+      if (prev.categories.includes(category)) return prev;
+      const categories = [...prev.categories, category];
+      return { ...prev, categories, category: categories[0] || 'Umum' };
+    });
+    setErrors(prev => ({ ...prev, categories: '' }));
+  };
+
+  const removeCategory = (category: string) => {
+    setForm(prev => {
+      const categories = prev.categories.filter(item => item !== category);
+      return { ...prev, categories, category: categories[0] || '' };
+    });
+    setErrors(prev => ({ ...prev, categories: '' }));
   };
 
   const validate = () => {
@@ -77,6 +143,9 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     if (!form.lokasi.trim()) nextErrors.lokasi = 'Lokasi wajib diisi';
     if (!form.pic.trim()) nextErrors.pic = 'Penanggung jawab wajib diisi';
     if (!form.phone.trim()) nextErrors.phone = 'Nomor telepon wajib diisi';
+    if (form.categories.length === 0) nextErrors.categories = 'Minimal pilih satu jenis acara';
+    if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventNominal.trim()) nextErrors.eventNominal = 'Nominal wajib diisi';
+    if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventModelNotes.trim()) nextErrors.eventModelNotes = 'Keterangan model event wajib diisi';
     return nextErrors;
   };
 
@@ -93,6 +162,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     const success = await onSave({
       ...(editingDraft ? { id: editingDraft.id, rowIndex: editingDraft.rowIndex } : { id: createId(), rowIndex: 0 }),
       ...form,
+      category: form.categories[0] || 'Umum',
       ...meta,
       published: editingDraft?.published ?? false,
       publishedAt: editingDraft?.publishedAt || '',
@@ -103,6 +173,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   };
 
   const isEdit = !!editingDraft;
+  const showModelDetails = form.eventModel === 'bayar' || form.eventModel === 'support';
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
@@ -225,6 +296,72 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             </div>
           </div>
 
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
+              <select
+                value=""
+                onChange={e => {
+                  addCategory(e.target.value);
+                  e.target.value = '';
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              >
+                <option value="">Pilih jenis acara</option>
+                {CATEGORIES.filter(category => !form.categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {form.categories.map(category => (
+                  <span key={category} className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:border-violet-900/50 dark:bg-violet-900/20 dark:text-violet-300">
+                    {category}
+                    <button type="button" onClick={() => removeCategory(category)} className="rounded-full p-0.5 text-violet-500 transition hover:bg-violet-100 hover:text-violet-700 dark:hover:bg-violet-900/30">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {errors.categories && <p className="mt-1 text-xs text-red-500">{errors.categories}</p>}
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>
+              <select
+                value={form.priority}
+                onChange={e => set('priority', e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              >
+                <option value="high">🔴 Tinggi</option>
+                <option value="medium">🔵 Sedang</option>
+                <option value="low">⚪ Rendah</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Model Event</label>
+            <select
+              value={form.eventModel}
+              onChange={e => set('eventModel', e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            >
+              {EVENT_MODELS.map(option => <option key={option.value || 'empty'} value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
+
+          {showModelDetails && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nominal <span className="text-red-500">*</span></label>
+                <input value={form.eventNominal} onChange={e => set('eventNominal', e.target.value)} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.eventNominal ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`} />
+                {errors.eventNominal && <p className="mt-1 text-xs text-red-500">{errors.eventNominal}</p>}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan Model Event <span className="text-red-500">*</span></label>
+                <input value={form.eventModelNotes} onChange={e => set('eventModelNotes', e.target.value)} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.eventModelNotes ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`} />
+                {errors.eventModelNotes && <p className="mt-1 text-xs text-red-500">{errors.eventModelNotes}</p>}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
             <textarea
@@ -232,6 +369,17 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               onChange={e => set('keterangan', e.target.value)}
               rows={3}
               placeholder="Tulis status progres atau catatan follow-up event"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Catatan Internal</label>
+            <textarea
+              value={form.internalNote}
+              onChange={e => set('internalNote', e.target.value)}
+              rows={3}
+              placeholder="Catatan admin internal, tidak ikut dipublish ke event utama"
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
