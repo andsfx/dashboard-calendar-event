@@ -100,6 +100,20 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
               label="Event Organizer"
               value={event.eo || '–'}
             />
+            {event.pic && (
+              <InfoRow
+                icon={<User className="h-4 w-4 text-cyan-500" />}
+                label="Penanggung Jawab"
+                value={event.pic}
+              />
+            )}
+            {event.phone && (
+              <InfoRow
+                icon={<Tag className="h-4 w-4 text-teal-500" />}
+                label="Nomor Handphone"
+                value={event.phone}
+              />
+            )}
             {event.eventModel && (
               <InfoRow
                 icon={<Tag className="h-4 w-4 text-emerald-500" />}

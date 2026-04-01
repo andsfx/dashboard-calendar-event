@@ -17,6 +17,8 @@ export interface EventItem {
   acara: string;
   lokasi: string;
   eo: string;
+  pic: string;
+  phone: string;
   keterangan: string;
   month: string;     // "Juni"
   status: EventStatus;

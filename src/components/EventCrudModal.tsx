@@ -12,7 +12,7 @@ interface Props {
   events: EventItem[];
 }
 
-function getUniqueSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo') {
+function getUniqueSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo' | 'pic' | 'phone') {
   const counts = new Map<string, number>();
 
   for (const event of events) {
@@ -57,6 +57,8 @@ const EMPTY: {
   acara: string;
   lokasi: string;
   eo: string;
+  pic: string;
+  phone: string;
   keterangan: string;
   categories: string[];
   category: string;
@@ -71,6 +73,8 @@ const EMPTY: {
   acara: '',
   lokasi: '',
   eo: '',
+  pic: '',
+  phone: '',
   keterangan: '',
   categories: ['Festival'],
   category: 'Festival',
@@ -89,10 +93,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
   const jamSuggestions = getUniqueSuggestions(events, 'jam');
   const lokasiSuggestions = getUniqueSuggestions(events, 'lokasi');
   const eoSuggestions = getUniqueSuggestions(events, 'eo');
+  const picSuggestions = getUniqueSuggestions(events, 'pic');
+  const phoneSuggestions = getUniqueSuggestions(events, 'phone');
 
   const jamPlaceholder = getPlaceholder(jamSuggestions, '09:00 - 17:00');
   const lokasiPlaceholder = getPlaceholder(lokasiSuggestions, 'Atrium Lt.1 / Hall A / Main Lobby');
   const eoPlaceholder = getPlaceholder(eoSuggestions, 'Internal MMB / EO Partner / Organizer Event');
+  const picPlaceholder = getPlaceholder(picSuggestions, 'Nama penanggung jawab event');
+  const phonePlaceholder = getPlaceholder(phoneSuggestions, '08xxxxxxxxxx');
 
   useEffect(() => {
     if (editingEvent) {
@@ -102,6 +110,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
         acara: editingEvent.acara,
         lokasi: editingEvent.lokasi,
         eo: editingEvent.eo,
+        pic: editingEvent.pic || '',
+        phone: editingEvent.phone || '',
         keterangan: editingEvent.keterangan,
         categories: editingEvent.categories?.length ? editingEvent.categories : [editingEvent.category],
         category: editingEvent.category,
@@ -306,6 +316,35 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
             <datalist id="eo-suggestions">
               {eoSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Penanggung Jawab</label>
+              <input
+                value={form.pic}
+                onChange={e => set('pic', e.target.value)}
+                placeholder={picPlaceholder}
+                list="pic-suggestions"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              />
+              <datalist id="pic-suggestions">
+                {picSuggestions.map(item => <option key={item} value={item} />)}
+              </datalist>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Handphone</label>
+              <input
+                value={form.phone}
+                onChange={e => set('phone', e.target.value)}
+                placeholder={phonePlaceholder}
+                list="phone-suggestions"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              />
+              <datalist id="phone-suggestions">
+                {phoneSuggestions.map(item => <option key={item} value={item} />)}
+              </datalist>
+            </div>
           </div>
 
           {/* Jenis Acara + Prioritas */}

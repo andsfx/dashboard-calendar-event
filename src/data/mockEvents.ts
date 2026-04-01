@@ -37,6 +37,8 @@ function ev(
     acara,
     lokasi,
     eo,
+    pic: '',
+    phone: '',
     keterangan,
     categories: [category],
     category,

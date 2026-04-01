@@ -13,6 +13,8 @@ interface SheetsEvent {
   acara: string;
   lokasi: string;
   eo: string;
+  pic?: string;
+  phone?: string;
   keterangan: string;
   month: string;
   status?: EventItem['status'];
@@ -143,6 +145,8 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
         acara: e.acara,
         lokasi: e.lokasi,
         eo: e.eo,
+        pic: e.pic || '',
+        phone: e.phone || '',
         keterangan: e.keterangan,
         month: e.month,
         status: e.status || getComputedStatus(e.dateStr),

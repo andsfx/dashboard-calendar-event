@@ -25,7 +25,9 @@ const EVENT_HEADERS = [
   'Prioritas',
   'Model Event',
   'Nominal Event',
-  'Keterangan Model Event'
+  'Keterangan Model Event',
+  'Penanggung Jawab',
+  'Nomor Handphone'
 ];
 
 // ---- Helpers ----
@@ -199,7 +201,9 @@ function getCanonicalEventRow(eventData) {
     priority,
     eventModel,
     eventData.eventNominal || '',
-    eventData.eventModelNotes || ''
+    eventData.eventModelNotes || '',
+    eventData.pic || '',
+    eventData.phone || ''
   ];
 }
 
@@ -247,6 +251,8 @@ function getLegacyEvents() {
       acara: colD,
       lokasi: colE,
       eo: colF,
+      pic: '',
+      phone: '',
       keterangan: colG,
       category: detectEventCategory(colD),
       categories: [detectEventCategory(colD)],
@@ -499,6 +505,8 @@ function getAllEvents() {
       acara: acara,
       lokasi: String(row[headerMap['Lokasi']] || '').trim(),
       eo: String(row[headerMap['EO']] || '').trim(),
+      pic: String(row[headerMap['Penanggung Jawab']] || '').trim(),
+      phone: String(row[headerMap['Nomor Handphone']] || '').trim(),
       keterangan: String(row[headerMap['Keterangan']] || '').trim(),
       month: formatted.monthName,
       status: status,
@@ -713,6 +721,8 @@ function publishDraftEvent(sheetRow) {
     acara: String(row[2] || '').trim(),
     lokasi: String(row[3] || '').trim(),
     eo: String(row[4] || '').trim(),
+    pic: String(row[5] || '').trim(),
+    phone: String(row[6] || '').trim(),
     keterangan: String(row[7] || '').trim()
   });
 
