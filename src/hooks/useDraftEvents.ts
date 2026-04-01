@@ -10,12 +10,16 @@ import {
 } from '../utils/sheetsApi';
 import { sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
-export function useDraftEvents() {
+export function useDraftEvents(enabled = false) {
   const [draftEvents, setDraftEvents] = useState<DraftEventItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const refreshDrafts = useCallback(async () => {
+    if (!enabled) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -27,11 +31,17 @@ export function useDraftEvents() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
+    if (!enabled) {
+      setDraftEvents([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     refreshDrafts();
-  }, [refreshDrafts]);
+  }, [enabled, refreshDrafts]);
 
   const activeDrafts = useMemo(
     () => draftEvents

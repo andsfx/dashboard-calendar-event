@@ -1,26 +1,10 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { CalendarDays, List, Kanban, Clock4, Plus, RefreshCw, Radio, Clock3, CheckCircle2, SearchX, ShieldCheck, Archive, ChevronDown, ChevronUp, ClipboardList, FileText } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
 import { FilterBar } from './components/FilterBar';
-import { FeaturedEvents } from './components/FeaturedEvents';
-import { QuarterTimeline } from './components/QuarterTimeline';
-import { CategoryChart } from './components/CategoryChart';
-import { EventTable } from './components/EventTable';
-import { CalendarView } from './components/CalendarView';
-import { KanbanView } from './components/KanbanView';
-import { TimelineView } from './components/TimelineView';
 import { AdminLoginModal } from './components/AdminLoginModal';
-import { EventCrudModal } from './components/EventCrudModal';
-import { EventDetailModal } from './components/EventDetailModal';
-import { DeleteConfirmModal } from './components/DeleteConfirmModal';
-import { DraftCrudModal } from './components/DraftCrudModal';
-import { DraftLetterModal } from './components/DraftLetterModal';
-import { DraftQueueTable } from './components/DraftQueueTable';
-import { EventLetterPickerModal } from './components/EventLetterPickerModal';
-import { DraftHistoryTable } from './components/DraftHistoryTable';
-import { AnnualThemeCrudModal } from './components/AnnualThemeCrudModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
@@ -37,6 +21,27 @@ const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> 
   { key: 'kanban',   label: 'Kanban',   icon: <Kanban  className="h-3.5 w-3.5" /> },
   { key: 'timeline', label: 'Timeline', icon: <Clock4  className="h-3.5 w-3.5" /> },
 ];
+
+const FeaturedEvents = lazy(() => import('./components/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
+const QuarterTimeline = lazy(() => import('./components/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
+const CategoryChart = lazy(() => import('./components/CategoryChart').then(m => ({ default: m.CategoryChart })));
+const EventTable = lazy(() => import('./components/EventTable').then(m => ({ default: m.EventTable })));
+const CalendarView = lazy(() => import('./components/CalendarView').then(m => ({ default: m.CalendarView })));
+const KanbanView = lazy(() => import('./components/KanbanView').then(m => ({ default: m.KanbanView })));
+const TimelineView = lazy(() => import('./components/TimelineView').then(m => ({ default: m.TimelineView })));
+const EventCrudModal = lazy(() => import('./components/EventCrudModal').then(m => ({ default: m.EventCrudModal })));
+const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
+const DeleteConfirmModal = lazy(() => import('./components/DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
+const DraftCrudModal = lazy(() => import('./components/DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
+const DraftLetterModal = lazy(() => import('./components/DraftLetterModal').then(m => ({ default: m.DraftLetterModal })));
+const DraftQueueTable = lazy(() => import('./components/DraftQueueTable').then(m => ({ default: m.DraftQueueTable })));
+const EventLetterPickerModal = lazy(() => import('./components/EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
+const DraftHistoryTable = lazy(() => import('./components/DraftHistoryTable').then(m => ({ default: m.DraftHistoryTable })));
+const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
+
+function SectionFallback({ height = 'h-32' }: { height?: string }) {
+  return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
+}
 
 export default function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -91,7 +96,7 @@ export default function App() {
     deleteDraft,
     publishDraft,
     restoreDraft,
-  } = useDraftEvents();
+  } = useDraftEvents(isAdmin);
 
   // Dark mode toggle
   const toggleDark = useCallback(() => {
@@ -503,13 +508,15 @@ export default function App() {
                 ))}
               </div>
             ) : (
-              <DraftQueueTable
-                drafts={activeDrafts}
-                onEdit={handleEditDraft}
-                onDelete={handleDeleteDraft}
-                onPublish={handlePublishDraft}
-                onProgressChange={handleDraftProgressChange}
-              />
+              <Suspense fallback={<SectionFallback height="h-48" />}>
+                <DraftQueueTable
+                  drafts={activeDrafts}
+                  onEdit={handleEditDraft}
+                  onDelete={handleDeleteDraft}
+                  onPublish={handlePublishDraft}
+                  onProgressChange={handleDraftProgressChange}
+                />
+              </Suspense>
             )}
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -534,7 +541,9 @@ export default function App() {
 
               {showDraftHistory && (
                 <div className="mt-4">
-                  <DraftHistoryTable drafts={draftHistory} onRestore={handleRestoreDraft} />
+                  <Suspense fallback={<SectionFallback height="h-40" />}>
+                    <DraftHistoryTable drafts={draftHistory} onRestore={handleRestoreDraft} />
+                  </Suspense>
                 </div>
               )}
             </div>
@@ -577,35 +586,45 @@ export default function App() {
         </section>
 
         {/* Quarter Timeline */}
-        {isAdmin && <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />}
+        {isAdmin && (
+          <Suspense fallback={<SectionFallback height="h-40" />}>
+            <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />
+          </Suspense>
+        )}
 
         {/* Featured ongoing & upcoming */}
         {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
           <div className="space-y-4 sm:space-y-5">
-            <FeaturedEvents
-              events={ongoingEvents}
-              title="Sedang Berlangsung"
-              accent="emerald"
-              icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
-            />
-            <FeaturedEvents
-              events={upcomingEvents.slice(0, 3)}
-              title="Segera Dimulai"
-              accent="amber"
-              icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-            />
+            <Suspense fallback={<SectionFallback height="h-40" />}>
+              <FeaturedEvents
+                events={ongoingEvents}
+                title="Sedang Berlangsung"
+                accent="emerald"
+                icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+              />
+            </Suspense>
+            <Suspense fallback={<SectionFallback height="h-40" />}>
+              <FeaturedEvents
+                events={upcomingEvents.slice(0, 3)}
+                title="Segera Dimulai"
+                accent="amber"
+                icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+              />
+            </Suspense>
           </div>
         )}
 
         {/* Featured upcoming for non-admin */}
         {!isAdmin && upcomingEvents.length > 0 && (
           <section id="featured" className="scroll-mt-32">
-            <FeaturedEvents
-              events={upcomingEvents.slice(0, 3)}
-              title="Segera Dimulai"
-              accent="amber"
-              icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-            />
+            <Suspense fallback={<SectionFallback height="h-40" />}>
+              <FeaturedEvents
+                events={upcomingEvents.slice(0, 3)}
+                title="Segera Dimulai"
+                accent="amber"
+                icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+              />
+            </Suspense>
           </section>
         )}
 
@@ -616,14 +635,18 @@ export default function App() {
               <h2 className="text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
             </div>
-            <CalendarView events={publicEvents} holidays={holidays} onDetail={handleDetailClick} />
+            <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
+              <CalendarView events={publicEvents} holidays={holidays} onDetail={handleDetailClick} />
+            </Suspense>
           </section>
         )}
 
         {/* Category chart */}
         {isAdmin && (
           <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <CategoryChart events={events} />
+            <Suspense fallback={<SectionFallback height="h-48" />}>
+              <CategoryChart events={events} />
+            </Suspense>
           </div>
         )}
 
@@ -709,39 +732,49 @@ export default function App() {
 
         {/* Event Views */}
         {viewMode === 'table' && (
-          <EventTable
-            events={visibleEvents}
-            isAdmin={isAdmin}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            onDetail={handleDetailClick}
-          />
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <EventTable
+              events={visibleEvents}
+              isAdmin={isAdmin}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onDetail={handleDetailClick}
+            />
+          </Suspense>
         )}
         {isAdmin && viewMode === 'calendar' && (
-          <CalendarView events={visibleEvents} holidays={holidays} onDetail={handleDetailClick} />
+          <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
+            <CalendarView events={visibleEvents} holidays={holidays} onDetail={handleDetailClick} />
+          </Suspense>
         )}
         {viewMode === 'kanban' && (
-          <KanbanView
-            events={visibleEvents}
-            isAdmin={isAdmin}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            onDetail={handleDetailClick}
-          />
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <KanbanView
+              events={visibleEvents}
+              isAdmin={isAdmin}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onDetail={handleDetailClick}
+            />
+          </Suspense>
         )}
         {viewMode === 'timeline' && (
-          <TimelineView
-            events={visibleEvents}
-            isAdmin={isAdmin}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            onDetail={handleDetailClick}
-          />
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <TimelineView
+              events={visibleEvents}
+              isAdmin={isAdmin}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onDetail={handleDetailClick}
+            />
+          </Suspense>
         )}
 
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
-            <QuarterTimeline themes={annualThemes} />
+            <Suspense fallback={<SectionFallback height="h-40" />}>
+              <QuarterTimeline themes={annualThemes} />
+            </Suspense>
           </section>
         )}
 
@@ -768,52 +801,54 @@ export default function App() {
         onClose={() => setShowLoginModal(false)}
         onLogin={handleLogin}
       />
-      <EventCrudModal
-        isOpen={showCrudModal}
-        onClose={() => { setShowCrudModal(false); setEditingEvent(null); }}
-        onSave={handleSave}
-        editingEvent={editingEvent}
-        events={events}
-      />
-      <DraftCrudModal
-        isOpen={showDraftModal}
-        onClose={() => { setShowDraftModal(false); setEditingDraft(null); }}
-        onSave={handleSaveDraft}
-        editingDraft={editingDraft}
-        events={events}
-        draftEvents={draftEvents}
-      />
-      <EventLetterPickerModal
-        isOpen={showLetterPickerModal}
-        onClose={() => setShowLetterPickerModal(false)}
-        events={publicEvents}
-        onSelect={handleSelectLetterEvent}
-      />
-      <DraftLetterModal
-        isOpen={showLetterModal}
-        onClose={() => { setShowLetterModal(false); setLetterInitialData(null); }}
-        initialData={letterInitialData}
-        onSubmit={handleSubmitLetter}
-      />
-      <AnnualThemeCrudModal
-        isOpen={showThemeModal}
-        onClose={() => { setShowThemeModal(false); setEditingTheme(null); }}
-        onSave={handleSaveTheme}
-        editingTheme={editingTheme}
-      />
-      <DeleteConfirmModal
-        isOpen={showDeleteModal}
-        event={deletingEvent}
-        onClose={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
-        onConfirm={handleDeleteConfirm}
-      />
-      <EventDetailModal
-        isOpen={showDetailModal}
-        event={detailEvent}
-        onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
-        onEdit={isAdmin ? handleEdit : undefined}
-        onDelete={isAdmin ? handleDeleteClick : undefined}
-      />
+      <Suspense fallback={null}>
+        <EventCrudModal
+          isOpen={showCrudModal}
+          onClose={() => { setShowCrudModal(false); setEditingEvent(null); }}
+          onSave={handleSave}
+          editingEvent={editingEvent}
+          events={events}
+        />
+        <DraftCrudModal
+          isOpen={showDraftModal}
+          onClose={() => { setShowDraftModal(false); setEditingDraft(null); }}
+          onSave={handleSaveDraft}
+          editingDraft={editingDraft}
+          events={events}
+          draftEvents={draftEvents}
+        />
+        <EventLetterPickerModal
+          isOpen={showLetterPickerModal}
+          onClose={() => setShowLetterPickerModal(false)}
+          events={publicEvents}
+          onSelect={handleSelectLetterEvent}
+        />
+        <DraftLetterModal
+          isOpen={showLetterModal}
+          onClose={() => { setShowLetterModal(false); setLetterInitialData(null); }}
+          initialData={letterInitialData}
+          onSubmit={handleSubmitLetter}
+        />
+        <AnnualThemeCrudModal
+          isOpen={showThemeModal}
+          onClose={() => { setShowThemeModal(false); setEditingTheme(null); }}
+          onSave={handleSaveTheme}
+          editingTheme={editingTheme}
+        />
+        <DeleteConfirmModal
+          isOpen={showDeleteModal}
+          event={deletingEvent}
+          onClose={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
+          onConfirm={handleDeleteConfirm}
+        />
+        <EventDetailModal
+          isOpen={showDetailModal}
+          event={detailEvent}
+          onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
+          onEdit={isAdmin ? handleEdit : undefined}
+          onDelete={isAdmin ? handleDeleteClick : undefined}
+        />
+      </Suspense>
 
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
