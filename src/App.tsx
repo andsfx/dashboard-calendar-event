@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus } from 'lucide-react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -700,6 +701,9 @@ export default function App() {
 
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      {/* Vercel Speed Insights */}
+      <SpeedInsights />
     </div>
   );
 }
