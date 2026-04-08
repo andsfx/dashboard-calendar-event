@@ -519,7 +519,10 @@ function getDraftSheet() {
     sheet = ss.insertSheet(DRAFT_SHEET_NAME);
     sheet.appendRow(headers);
     sheet.setFrozenRows(1);
-  } else if (sheet.getLastColumn() < headers.length) {
+  } else {
+    if (sheet.getMaxColumns() < headers.length) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+    }
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
 
@@ -767,12 +770,12 @@ function getAllDraftEvents() {
       eventModel = '';
     }
 
-    var publishedRaw = row[14];
+    var publishedRaw = row[15];
     var published = publishedRaw === true || String(publishedRaw).toLowerCase() === 'true';
-    var publishedAt = row[15] instanceof Date ? row[15].toISOString() : String(row[15] || '');
-    var deletedRaw = row[16];
+    var publishedAt = row[16] instanceof Date ? row[16].toISOString() : String(row[16] || '');
+    var deletedRaw = row[17];
     var deleted = deletedRaw === true || String(deletedRaw).toLowerCase() === 'true';
-    var deletedAt = row[17] instanceof Date ? row[17].toISOString() : String(row[17] || '');
+    var deletedAt = row[18] instanceof Date ? row[18].toISOString() : String(row[18] || '');
 
     drafts.push({
       sheetRow: i + 1,
@@ -845,11 +848,11 @@ function updateDraftEvent(draftData) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var current = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var current = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
   var parts = String(draftData.dateStr || '').split('-');
   var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
 
-  sheet.getRange(sheetRow, 1, 1, 18).setValues([[
+  sheet.getRange(sheetRow, 1, 1, 19).setValues([[
     draftDate,
     draftData.jam || '',
     draftData.acara || '',
@@ -868,7 +871,7 @@ function updateDraftEvent(draftData) {
     typeof draftData.published === 'boolean' ? draftData.published : current[15],
     draftData.publishedAt || current[16] || '',
     typeof draftData.deleted === 'boolean' ? draftData.deleted : current[17],
-    draftData.deletedAt || current[17] || ''
+    draftData.deletedAt || current[18] || ''
   ]]);
 
   return { success: true };
@@ -881,7 +884,7 @@ function deleteDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
   var existingNote = String(row[8] || '').trim();
   var deletedAt = new Date();
   var deletedNote = 'Dihapus admin pada ' + Utilities.formatDate(deletedAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
@@ -889,8 +892,8 @@ function deleteDraftEvent(sheetRow) {
 
   sheet.getRange(sheetRow, 9).setValue(nextNote);
   sheet.getRange(sheetRow, 15).setValue('cancel');
-  sheet.getRange(sheetRow, 17).setValue(true);
-  sheet.getRange(sheetRow, 18).setValue(deletedAt);
+  sheet.getRange(sheetRow, 18).setValue(true);
+  sheet.getRange(sheetRow, 19).setValue(deletedAt);
   return { success: true };
 }
 
@@ -901,11 +904,11 @@ function publishDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
   var formatted = parseLooseDate(row[0]);
   var progress = String(row[14] || 'draft').trim().toLowerCase();
   var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
-  var deleted = row[16] === true || String(row[16]).toLowerCase() === 'true';
+  var deleted = row[17] === true || String(row[17]).toLowerCase() === 'true';
 
   if (!formatted.dateStr || !String(row[2] || '').trim()) {
     return { success: false, error: 'Draft event data is incomplete' };
@@ -955,7 +958,7 @@ function restoreDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 18).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
   var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
 
   if (published) {
@@ -969,8 +972,8 @@ function restoreDraftEvent(sheetRow) {
 
   sheet.getRange(sheetRow, 9).setValue(nextNote);
   sheet.getRange(sheetRow, 15).setValue('draft');
-  sheet.getRange(sheetRow, 17).setValue(false);
-  sheet.getRange(sheetRow, 18).setValue('');
+  sheet.getRange(sheetRow, 18).setValue(false);
+  sheet.getRange(sheetRow, 19).setValue('');
 
   return { success: true };
 }
