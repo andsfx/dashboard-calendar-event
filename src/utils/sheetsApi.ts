@@ -1,6 +1,8 @@
 import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
 
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
+const ADMIN_PROXY_URL = '/api/apps-script-admin';
+const PUBLIC_PROXY_URL = '/api/apps-script-public';
 
 interface SheetsEvent {
   id?: string;
@@ -119,16 +121,17 @@ function normalizeCategories(value?: string[] | string, fallbackCategory?: strin
   return Array.from(new Set(normalized.filter(Boolean)));
 }
 
-async function postAction<T>(action: string, payload: Record<string, unknown>): Promise<T> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
+type ProxyKind = 'admin' | 'public';
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+async function postAction<T>(action: string, payload: Record<string, unknown>, proxyKind: ProxyKind = 'admin'): Promise<T> {
+  const url = proxyKind === 'public' ? PUBLIC_PROXY_URL : ADMIN_PROXY_URL;
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'text/plain;charset=utf-8',
+      'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({ action, ...payload }),
   });
   return response.json() as Promise<T>;
@@ -287,14 +290,8 @@ export async function deleteAnnualTheme(id: string): Promise<void> {
 }
 
 export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
-    throw new SheetsApiError('Apps Script URL belum dikonfigurasi');
-  }
-
   try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=readDrafts`);
-    const text = await response.text();
-    const result: DraftSheetsApiResponse = JSON.parse(text);
+    const result = await postAction<DraftSheetsApiResponse>('readDrafts', {}, 'admin');
 
     if (!result.success || !result.data) {
       throw new SheetsApiError(result.error || 'Failed to read drafts');
@@ -334,9 +331,9 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
   }
 }
 
-export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>): Promise<{ row: number; id: string }> {
+export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>, proxyKind: ProxyKind = 'admin'): Promise<{ row: number; id: string }> {
   try {
-    const result = await postAction<{ success: boolean; error?: string; row?: number; id?: string }>('createDraft', { data: draftData });
+    const result = await postAction<{ success: boolean; error?: string; row?: number; id?: string }>('createDraft', { data: draftData }, proxyKind);
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create draft failed');
     }
@@ -401,7 +398,7 @@ export async function createLetterRequest(data: LetterRequestItem): Promise<{ ro
   }
 
   try {
-    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createLetterRequest', { data });
+    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createLetterRequest', { data }, 'admin');
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create letter request failed');
     }

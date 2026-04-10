@@ -813,7 +813,7 @@ function updateEvent(eventData) {
   var sheetRow = eventData.sheetRow || findRowById(sheet, EVENT_HEADERS, 'ID', eventData.id);
   var headerMap = getEventHeaderMap();
 
-  if (!sheetRow || sheetRow < 1) {
+  if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid row number' };
   }
 
@@ -853,7 +853,7 @@ function deleteEvent(sheetRow) {
   var id = arguments.length > 1 ? arguments[1] : '';
   sheetRow = sheetRow || findRowById(sheet, EVENT_HEADERS, 'ID', id);
 
-  if (!sheetRow || sheetRow < 1) {
+  if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid row number' };
   }
 
@@ -1191,6 +1191,48 @@ function authorizeUrlFetch() {
   return 'UrlFetchApp authorized';
 }
 
+function getAdminApiToken() {
+  return String(PropertiesService.getScriptProperties().getProperty('ADMIN_API_TOKEN') || '').trim();
+}
+
+function getPublicSubmitToken() {
+  return String(PropertiesService.getScriptProperties().getProperty('PUBLIC_SUBMIT_TOKEN') || '').trim();
+}
+
+function isMutationAction(action) {
+  return [
+    'create', 'update', 'delete',
+    'createTheme', 'updateTheme', 'deleteTheme',
+    'createDraft', 'updateDraft', 'deleteDraft', 'publishDraft', 'restoreDraft',
+    'createLetterRequest',
+    'bootstrapEventSheet', 'migrateLegacyEvents', 'migrateStableIds'
+  ].indexOf(action) !== -1;
+}
+
+function isAdminProtectedAction(action) {
+  return action === 'readDrafts';
+}
+
+function isPublicMutationAction(action) {
+  return action === 'createDraft';
+}
+
+function authorizeRequest(action, token) {
+  if (!isMutationAction(action) && !isAdminProtectedAction(action)) return;
+
+  var expectedToken = isPublicMutationAction(action)
+    ? getPublicSubmitToken()
+    : getAdminApiToken();
+
+  if (!expectedToken) {
+    throw new Error((isPublicMutationAction(action) ? 'PUBLIC_SUBMIT_TOKEN' : 'ADMIN_API_TOKEN') + ' belum dikonfigurasi di Script Properties');
+  }
+
+  if (String(token || '').trim() !== expectedToken) {
+    throw new Error('Unauthorized mutation request');
+  }
+}
+
 // ---- Web App Handlers ----
 
 function doGet(e) {
@@ -1198,6 +1240,8 @@ function doGet(e) {
   var output = ContentService.createTextOutput().setMimeType(ContentService.MimeType.JSON);
 
   try {
+    authorizeRequest(action, e && e.parameter ? e.parameter.token : '');
+
     if (action === 'read') {
       var result = getAllEvents();
       return output.setContent(JSON.stringify({ success: true, data: result }));
@@ -1297,6 +1341,10 @@ function doGet(e) {
         annualThemeSheetName: THEME_SHEET_NAME,
         eventHeaders: EVENT_HEADERS,
         letterFormConfig: getLetterFormConfigSummary(),
+        authConfig: {
+          adminTokenConfigured: !!getAdminApiToken(),
+          publicSubmitTokenConfigured: !!getPublicSubmitToken(),
+        },
         draftSheetName: DRAFT_SHEET_NAME,
         holidaySheetName: HOLIDAY_SHEET_NAME,
         letterSpreadsheetTitle: letterSs.getName(),
@@ -1316,6 +1364,8 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents);
     var action = body.action;
     var output = ContentService.createTextOutput().setMimeType(ContentService.MimeType.JSON);
+
+    authorizeRequest(action, body.token || '');
 
     if (action === 'create') {
       return output.setContent(JSON.stringify(addEvent(body.data)));
