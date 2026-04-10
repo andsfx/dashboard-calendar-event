@@ -843,6 +843,7 @@ function addDraftEvent(draftData) {
 function updateDraftEvent(draftData) {
   var sheet = getDraftSheet();
   var sheetRow = draftData.sheetRow;
+  var hasOwn = Object.prototype.hasOwnProperty;
 
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid draft row number' };
@@ -854,24 +855,27 @@ function updateDraftEvent(draftData) {
 
   sheet.getRange(sheetRow, 1, 1, 19).setValues([[
     draftDate,
-    draftData.jam || '',
-    draftData.acara || '',
-    draftData.lokasi || '',
-    draftData.eo || '',
-    draftData.pic || '',
-    draftData.phone || '',
-    draftData.keterangan || '',
-    draftData.internalNote || current[8] || '',
-    stringifyEventCategories(draftData.categories, draftData.category || detectEventCategory(draftData.acara || current[2])),
-    draftData.priority || current[10] || 'medium',
-    draftData.eventModel || current[11] || '',
-    draftData.eventNominal || current[12] || '',
-    draftData.eventModelNotes || current[13] || '',
-    draftData.progress || current[14] || 'draft',
+    hasOwn.call(draftData, 'jam') ? draftData.jam : (current[1] || ''),
+    hasOwn.call(draftData, 'acara') ? draftData.acara : (current[2] || ''),
+    hasOwn.call(draftData, 'lokasi') ? draftData.lokasi : (current[3] || ''),
+    hasOwn.call(draftData, 'eo') ? draftData.eo : (current[4] || ''),
+    hasOwn.call(draftData, 'pic') ? draftData.pic : (current[5] || ''),
+    hasOwn.call(draftData, 'phone') ? draftData.phone : (current[6] || ''),
+    hasOwn.call(draftData, 'keterangan') ? draftData.keterangan : (current[7] || ''),
+    hasOwn.call(draftData, 'internalNote') ? draftData.internalNote : (current[8] || ''),
+    stringifyEventCategories(
+      hasOwn.call(draftData, 'categories') ? draftData.categories : parseEventCategories(current[9], detectEventCategory(hasOwn.call(draftData, 'acara') ? draftData.acara : current[2])),
+      hasOwn.call(draftData, 'category') ? draftData.category : parseEventCategories(current[9], detectEventCategory(hasOwn.call(draftData, 'acara') ? draftData.acara : current[2]))[0]
+    ),
+    hasOwn.call(draftData, 'priority') ? draftData.priority : (current[10] || 'medium'),
+    hasOwn.call(draftData, 'eventModel') ? draftData.eventModel : (current[11] || ''),
+    hasOwn.call(draftData, 'eventNominal') ? draftData.eventNominal : (current[12] || ''),
+    hasOwn.call(draftData, 'eventModelNotes') ? draftData.eventModelNotes : (current[13] || ''),
+    hasOwn.call(draftData, 'progress') ? draftData.progress : (current[14] || 'draft'),
     typeof draftData.published === 'boolean' ? draftData.published : current[15],
-    draftData.publishedAt || current[16] || '',
+    hasOwn.call(draftData, 'publishedAt') ? draftData.publishedAt : (current[16] || ''),
     typeof draftData.deleted === 'boolean' ? draftData.deleted : current[17],
-    draftData.deletedAt || current[18] || ''
+    hasOwn.call(draftData, 'deletedAt') ? draftData.deletedAt : (current[18] || '')
   ]]);
 
   return { success: true };
