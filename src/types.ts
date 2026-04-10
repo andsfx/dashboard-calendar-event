@@ -28,6 +28,7 @@ export interface EventItem {
   eventModel: EventModel;
   eventNominal: string;
   eventModelNotes: string;
+  sourceDraftId?: string;
 }
 
 export interface DraftEventItem {

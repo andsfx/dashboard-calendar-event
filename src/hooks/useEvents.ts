@@ -89,8 +89,8 @@ export function useEvents() {
     setEvents(prev => [...prev, normalizedEvent]);
     try {
       const { id, status, rowIndex, ...apiData } = normalizedEvent;
-      const row = await apiCreate(apiData);
-      setEvents(prev => prev.map(e => e.id === tempId ? { ...e, sheetRow: row } : e));
+      const created = await apiCreate(apiData);
+      setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
     } catch (err) {
       console.error('Error adding event:', err);
@@ -103,9 +103,9 @@ export function useEvents() {
     const prevEvent = events.find(e => e.id === ev.id);
     const normalizedEvent = normalizeEvent(ev);
     setEvents(prev => prev.map(e => e.id === ev.id ? normalizedEvent : e));
-    if (ev.sheetRow) {
+    if (ev.id) {
       try {
-        await apiUpdate(normalizedEvent as EventItem & { sheetRow: number });
+        await apiUpdate(normalizedEvent as EventItem & { id: string });
         return true;
       } catch (err) {
         console.error('Error updating event:', err);
@@ -119,9 +119,9 @@ export function useEvents() {
   const deleteEvent = useCallback(async (id: string): Promise<boolean> => {
     const target = events.find(e => e.id === id);
     setEvents(prev => prev.filter(e => e.id !== id));
-    if (target?.sheetRow) {
+    if (target?.id) {
       try {
-        await apiDelete(target.sheetRow);
+        await apiDelete(target.id);
         await refreshEvents();
         return true;
       } catch (err) {
@@ -150,9 +150,9 @@ export function useEvents() {
   }, [refreshEvents]);
 
   const updateTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
-    if (!theme.sheetRow) return false;
+    if (!theme.id) return false;
     try {
-      await apiUpdateTheme(theme as AnnualTheme & { sheetRow: number });
+      await apiUpdateTheme(theme as AnnualTheme & { id: string });
       await refreshEvents();
       return true;
     } catch (err) {
@@ -161,16 +161,20 @@ export function useEvents() {
     }
   }, [refreshEvents]);
 
-  const deleteTheme = useCallback(async (sheetRow: number): Promise<boolean> => {
+  const deleteTheme = useCallback(async (themeRef: string | number): Promise<boolean> => {
     try {
-      await apiDeleteTheme(sheetRow);
+      const id = typeof themeRef === 'string'
+        ? themeRef
+        : (annualThemes.find(theme => theme.sheetRow === themeRef)?.id || '');
+      if (!id) return false;
+      await apiDeleteTheme(id);
       await refreshEvents();
       return true;
     } catch (err) {
       console.error('Error deleting annual theme:', err);
       return false;
     }
-  }, [refreshEvents]);
+  }, [annualThemes, refreshEvents]);
 
   return {
     events,

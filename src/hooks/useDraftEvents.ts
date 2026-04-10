@@ -62,8 +62,8 @@ export function useDraftEvents(enabled = false) {
     setDraftEvents(prev => [draft, ...prev]);
     try {
       const { id, sheetRow, rowIndex, published, publishedAt, deleted, deletedAt, ...apiData } = draft;
-      const row = await apiCreateDraft(apiData);
-      setDraftEvents(prev => prev.map(item => item.id === tempId ? { ...item, sheetRow: row } : item));
+      const created = await apiCreateDraft(apiData);
+      setDraftEvents(prev => prev.map(item => item.id === tempId ? { ...item, id: created.id || tempId, sheetRow: created.row } : item));
       return true;
     } catch (err) {
       console.error('Error adding draft:', err);
@@ -75,10 +75,10 @@ export function useDraftEvents(enabled = false) {
   const updateDraft = useCallback(async (draft: DraftEventItem): Promise<boolean> => {
     const previous = draftEvents.find(item => item.id === draft.id);
     setDraftEvents(prev => prev.map(item => item.id === draft.id ? draft : item));
-    if (!draft.sheetRow) return true;
+    if (!draft.id) return true;
 
     try {
-      await apiUpdateDraft(draft as DraftEventItem & { sheetRow: number });
+      await apiUpdateDraft(draft as DraftEventItem & { id: string });
       return true;
     } catch (err) {
       console.error('Error updating draft:', err);
@@ -104,10 +104,10 @@ export function useDraftEvents(enabled = false) {
     };
 
     setDraftEvents(prev => prev.map(item => item.id === id ? nextTarget : item));
-    if (!target?.sheetRow) return true;
+    if (!target?.id) return true;
 
     try {
-      await apiDeleteDraft(target.sheetRow);
+      await apiDeleteDraft(target.id);
       return true;
     } catch (err) {
       console.error('Error deleting draft:', err);
@@ -118,10 +118,10 @@ export function useDraftEvents(enabled = false) {
 
   const publishDraft = useCallback(async (id: string): Promise<boolean> => {
     const target = draftEvents.find(item => item.id === id);
-    if (!target?.sheetRow) return false;
+    if (!target?.id) return false;
 
     try {
-      await apiPublishDraft(target.sheetRow);
+      await apiPublishDraft(target.id);
       const publishedAt = new Date().toISOString();
       setDraftEvents(prev => prev.map(item => item.id === id ? {
         ...item,
@@ -140,7 +140,7 @@ export function useDraftEvents(enabled = false) {
 
   const restoreDraft = useCallback(async (id: string): Promise<boolean> => {
     const target = draftEvents.find(item => item.id === id);
-    if (!target?.sheetRow || target.published) return false;
+    if (!target?.id || target.published) return false;
 
     const restoredAt = new Date().toLocaleString('id-ID');
     const restoredNote = `Dipulihkan admin pada ${restoredAt}`;
@@ -155,7 +155,7 @@ export function useDraftEvents(enabled = false) {
     setDraftEvents(prev => prev.map(item => item.id === id ? restoredDraft : item));
 
     try {
-      await apiRestoreDraft(target.sheetRow);
+      await apiRestoreDraft(target.id);
       return true;
     } catch (err) {
       console.error('Error restoring draft:', err);

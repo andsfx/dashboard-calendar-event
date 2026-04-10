@@ -3,6 +3,7 @@ import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, Lette
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 
 interface SheetsEvent {
+  id?: string;
   sheetRow: number;
   tanggal: string;
   dateStr: string;
@@ -22,6 +23,7 @@ interface SheetsEvent {
   eventModel?: EventItem['eventModel'];
   eventNominal?: string;
   eventModelNotes?: string;
+  sourceDraftId?: string;
 }
 
 interface SheetsApiResponse {
@@ -30,6 +32,7 @@ interface SheetsApiResponse {
     events: SheetsEvent[];
     themes: AnnualTheme[];
     holidays: Array<{
+      id?: string;
       sheetRow: number;
       tanggal: string;
       dateStr: string;
@@ -46,6 +49,7 @@ interface SheetsApiResponse {
 interface DraftSheetsApiResponse {
   success: boolean;
   data?: Array<{
+    id?: string;
     sheetRow: number;
     tanggal: string;
     dateStr: string;
@@ -155,7 +159,7 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
     const events: EventItem[] = result.data.events.map((e, index) => {
       const categories = normalizeCategories(e.categories, e.category || detectCategory(e.acara));
       return {
-        id: `evt-${e.sheetRow}`,
+        id: e.id || `evt-${e.sheetRow}`,
         sheetRow: e.sheetRow,
         rowIndex: index + 2,
         tanggal: e.tanggal,
@@ -176,11 +180,12 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
         eventModel: e.eventModel || '',
         eventNominal: e.eventNominal || '',
         eventModelNotes: e.eventModelNotes || '',
+        sourceDraftId: e.sourceDraftId || '',
       };
     });
 
     const holidays: HolidayItem[] = (result.data.holidays || []).map((holiday, index) => ({
-      id: `hol-${holiday.sheetRow || index + 1}`,
+      id: holiday.id || `hol-${holiday.sheetRow || index + 1}`,
       sheetRow: holiday.sheetRow,
       tanggal: holiday.tanggal,
       dateStr: holiday.dateStr,
@@ -207,20 +212,20 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
   }
 }
 
-export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<number> {
+export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<{ row: number; id: string }> {
   try {
-    const result = await postAction<{ success: boolean; error?: string; row?: number }>('create', { data: eventData });
+    const result = await postAction<{ success: boolean; error?: string; row?: number; id?: string }>('create', { data: eventData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create failed');
     }
-    return result.row || 0;
+    return { row: result.row || 0, id: result.id || '' };
   } catch (error) {
     console.error('Error creating event:', error);
     throw error;
   }
 }
 
-export async function updateEvent(eventData: Partial<EventItem> & { sheetRow: number }): Promise<void> {
+export async function updateEvent(eventData: Partial<EventItem> & { id: string }): Promise<void> {
   try {
     const result = await postAction<{ success: boolean; error?: string }>('update', { data: eventData });
     if (!result.success) {
@@ -232,9 +237,9 @@ export async function updateEvent(eventData: Partial<EventItem> & { sheetRow: nu
   }
 }
 
-export async function deleteEvent(sheetRow: number): Promise<void> {
+export async function deleteEvent(id: string): Promise<void> {
   try {
-    const result = await postAction<{ success: boolean; error?: string }>('delete', { sheetRow });
+    const result = await postAction<{ success: boolean; error?: string }>('delete', { id });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete failed');
     }
@@ -244,20 +249,20 @@ export async function deleteEvent(sheetRow: number): Promise<void> {
   }
 }
 
-export async function createAnnualTheme(themeData: Omit<AnnualTheme, 'id' | 'sheetRow'>): Promise<number> {
+export async function createAnnualTheme(themeData: Omit<AnnualTheme, 'id' | 'sheetRow'>): Promise<{ row: number; id: string }> {
   try {
-    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createTheme', { data: themeData });
+    const result = await postAction<{ success: boolean; error?: string; row?: number; id?: string }>('createTheme', { data: themeData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create annual theme failed');
     }
-    return result.row || 0;
+    return { row: result.row || 0, id: result.id || '' };
   } catch (error) {
     console.error('Error creating annual theme:', error);
     throw error;
   }
 }
 
-export async function updateAnnualTheme(themeData: Partial<AnnualTheme> & { sheetRow: number }): Promise<void> {
+export async function updateAnnualTheme(themeData: Partial<AnnualTheme> & { id: string }): Promise<void> {
   try {
     const result = await postAction<{ success: boolean; error?: string }>('updateTheme', { data: themeData });
     if (!result.success) {
@@ -269,9 +274,9 @@ export async function updateAnnualTheme(themeData: Partial<AnnualTheme> & { shee
   }
 }
 
-export async function deleteAnnualTheme(sheetRow: number): Promise<void> {
+export async function deleteAnnualTheme(id: string): Promise<void> {
   try {
-    const result = await postAction<{ success: boolean; error?: string }>('deleteTheme', { sheetRow });
+    const result = await postAction<{ success: boolean; error?: string }>('deleteTheme', { id });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete annual theme failed');
     }
@@ -296,7 +301,7 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
     }
 
     return result.data.map((draft, index) => ({
-      id: `draft-${draft.sheetRow}`,
+      id: draft.id || `draft-${draft.sheetRow}`,
       sheetRow: draft.sheetRow,
       rowIndex: index + 2,
       tanggal: draft.tanggal,
@@ -329,20 +334,20 @@ export async function fetchDraftEvents(): Promise<DraftEventItem[]> {
   }
 }
 
-export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>): Promise<number> {
+export async function createDraftEvent(draftData: Omit<DraftEventItem, 'id' | 'sheetRow' | 'rowIndex' | 'published' | 'publishedAt' | 'deleted' | 'deletedAt'>): Promise<{ row: number; id: string }> {
   try {
-    const result = await postAction<{ success: boolean; error?: string; row?: number }>('createDraft', { data: draftData });
+    const result = await postAction<{ success: boolean; error?: string; row?: number; id?: string }>('createDraft', { data: draftData });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Create draft failed');
     }
-    return result.row || 0;
+    return { row: result.row || 0, id: result.id || '' };
   } catch (error) {
     console.error('Error creating draft event:', error);
     throw error;
   }
 }
 
-export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { sheetRow: number }): Promise<void> {
+export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { id: string }): Promise<void> {
   try {
     const result = await postAction<{ success: boolean; error?: string }>('updateDraft', { data: draftData });
     if (!result.success) {
@@ -354,9 +359,9 @@ export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { sh
   }
 }
 
-export async function deleteDraftEvent(sheetRow: number): Promise<void> {
+export async function deleteDraftEvent(id: string): Promise<void> {
   try {
-    const result = await postAction<{ success: boolean; error?: string }>('deleteDraft', { sheetRow });
+    const result = await postAction<{ success: boolean; error?: string }>('deleteDraft', { id });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Delete draft failed');
     }
@@ -366,9 +371,9 @@ export async function deleteDraftEvent(sheetRow: number): Promise<void> {
   }
 }
 
-export async function publishDraftEvent(sheetRow: number): Promise<void> {
+export async function publishDraftEvent(id: string): Promise<void> {
   try {
-    const result = await postAction<{ success: boolean; error?: string }>('publishDraft', { sheetRow });
+    const result = await postAction<{ success: boolean; error?: string }>('publishDraft', { id });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Publish draft failed');
     }
@@ -378,9 +383,9 @@ export async function publishDraftEvent(sheetRow: number): Promise<void> {
   }
 }
 
-export async function restoreDraftEvent(sheetRow: number): Promise<void> {
+export async function restoreDraftEvent(id: string): Promise<void> {
   try {
-    const result = await postAction<{ success: boolean; error?: string }>('restoreDraft', { sheetRow });
+    const result = await postAction<{ success: boolean; error?: string }>('restoreDraft', { id });
     if (!result.success) {
       throw new SheetsApiError(result.error || 'Restore draft failed');
     }

@@ -46,19 +46,44 @@ const EVENT_HEADERS = [
   'Nominal Event',
   'Keterangan Model Event',
   'Penanggung Jawab',
-  'Nomor Handphone'
+  'Nomor Handphone',
+  'ID',
+  'Source Draft ID'
 ];
-const ANNUAL_THEME_HEADERS = ['Date Start', 'Date End', 'Event', 'Color'];
+const ANNUAL_THEME_HEADERS = ['Date Start', 'Date End', 'Event', 'Color', 'ID'];
 const ANNUAL_THEME_SEED = [
-  ['2026-01-17', '2026-02-17', 'Joyful January', '#6366f1'],
-  ['2026-02-20', '2026-03-29', 'Season Of Blessings', '#f59e0b'],
-  ['2026-04-01', '2026-05-17', 'Harmony Of Heritage', '#10b981'],
-  ['2026-05-01', '2026-07-19', 'Kick Off & School Vibes', '#0ea5e9'],
-  ['2026-08-01', '2026-08-01', 'Independence Blast', '#ef4444'],
-  ['2026-09-01', '2026-10-31', 'Culture Pop!', '#8b5cf6'],
-  ['2026-11-01', '2026-11-30', 'We Are Community', '#14b8a6'],
-  ['2026-12-01', '2027-01-10', 'Sparkling Holiday', '#f97316']
+  ['2026-01-17', '2026-02-17', 'Joyful January', '#6366f1', ''],
+  ['2026-02-20', '2026-03-29', 'Season Of Blessings', '#f59e0b', ''],
+  ['2026-04-01', '2026-05-17', 'Harmony Of Heritage', '#10b981', ''],
+  ['2026-05-01', '2026-07-19', 'Kick Off & School Vibes', '#0ea5e9', ''],
+  ['2026-08-01', '2026-08-01', 'Independence Blast', '#ef4444', ''],
+  ['2026-09-01', '2026-10-31', 'Culture Pop!', '#8b5cf6', ''],
+  ['2026-11-01', '2026-11-30', 'We Are Community', '#14b8a6', ''],
+  ['2026-12-01', '2027-01-10', 'Sparkling Holiday', '#f97316', '']
 ];
+const DRAFT_HEADERS = [
+  'Tanggal',
+  'Jam',
+  'Acara',
+  'Lokasi',
+  'EO',
+  'Penanggung Jawab',
+  'Nomor Telepon',
+  'Keterangan',
+  'Catatan Internal',
+  'Jenis Acara',
+  'Prioritas',
+  'Model Event',
+  'Nominal Event',
+  'Keterangan Model Event',
+  'Progress',
+  'Published',
+  'Published At',
+  'Deleted',
+  'Deleted At',
+  'ID'
+];
+const HOLIDAY_HEADERS = ['Tanggal', 'Nama Libur', 'Jenis', 'Keterangan', 'ID'];
 
 // ---- Helpers ----
 
@@ -106,6 +131,71 @@ function getEventSpreadsheet() {
   return SpreadsheetApp.openById(EVENT_SPREADSHEET_ID);
 }
 
+function generateStableId(prefix) {
+  return prefix + '_' + Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+}
+
+function ensureHeaders(sheet, headers) {
+  if (sheet.getMaxColumns() < headers.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  }
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.setFrozenRows(1);
+}
+
+function getHeaderMapForSheet(sheet, headers) {
+  var values = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  var map = {};
+
+  for (var i = 0; i < values.length; i++) {
+    map[String(values[i] || '').trim()] = i;
+  }
+
+  return map;
+}
+
+function ensureStableIds(sheet, headers, idHeader, prefix) {
+  var headerMap = getHeaderMapForSheet(sheet, headers);
+  var idIndex = headerMap[idHeader];
+  if (typeof idIndex !== 'number') return;
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  var values = sheet.getRange(2, idIndex + 1, lastRow - 1, 1).getValues();
+  var seen = {};
+
+  for (var i = 0; i < values.length; i++) {
+    var currentId = String(values[i][0] || '').trim();
+    if (!currentId || seen[currentId]) {
+      currentId = generateStableId(prefix);
+      values[i][0] = currentId;
+    }
+    seen[currentId] = true;
+  }
+
+  sheet.getRange(2, idIndex + 1, values.length, 1).setValues(values);
+}
+
+function findRowById(sheet, headers, idHeader, id) {
+  if (!id) return 0;
+  var headerMap = getHeaderMapForSheet(sheet, headers);
+  var idIndex = headerMap[idHeader];
+  if (typeof idIndex !== 'number') return 0;
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+
+  var values = sheet.getRange(2, idIndex + 1, lastRow - 1, 1).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (String(values[i][0] || '').trim() === String(id).trim()) {
+      return i + 2;
+    }
+  }
+
+  return 0;
+}
+
 function getLetterSpreadsheet() {
   return SpreadsheetApp.openById(LETTER_SPREADSHEET_ID);
 }
@@ -118,16 +208,13 @@ function getAnnualThemeSheet() {
     sheet = ss.insertSheet(THEME_SHEET_NAME);
   }
 
-  if (sheet.getMaxColumns() < ANNUAL_THEME_HEADERS.length) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), ANNUAL_THEME_HEADERS.length - sheet.getMaxColumns());
-  }
-
-  sheet.getRange(1, 1, 1, ANNUAL_THEME_HEADERS.length).setValues([ANNUAL_THEME_HEADERS]);
-  sheet.setFrozenRows(1);
+  ensureHeaders(sheet, ANNUAL_THEME_HEADERS);
 
   if (sheet.getLastRow() <= 1) {
     sheet.getRange(2, 1, ANNUAL_THEME_SEED.length, ANNUAL_THEME_HEADERS.length).setValues(ANNUAL_THEME_SEED);
   }
+
+  ensureStableIds(sheet, ANNUAL_THEME_HEADERS, 'ID', 'thm');
 
   return sheet;
 }
@@ -143,12 +230,13 @@ function getAllAnnualThemes() {
     var end = parseLooseDate(row[1]);
     var name = String(row[2] || '').trim();
     var color = String(row[3] || '').trim() || '#6366f1';
+    var id = String(row[4] || '').trim() || generateStableId('thm');
 
     if (!start.dateStr || !end.dateStr || !name) continue;
 
     themes.push({
       sheetRow: i + 1,
-      id: 'theme-' + (i + 1),
+      id: id,
       name: name,
       dateStart: start.dateStr,
       dateEnd: end.dateStr,
@@ -173,13 +261,14 @@ function createAnnualTheme(themeData) {
     return { success: false, error: 'Tanggal selesai tidak boleh sebelum tanggal mulai' };
   }
 
-  sheet.appendRow([start.dateStr, end.dateStr, name, color]);
-  return { success: true, row: sheet.getLastRow() };
+  var id = String(themeData.id || '').trim() || generateStableId('thm');
+  sheet.appendRow([start.dateStr, end.dateStr, name, color, id]);
+  return { success: true, row: sheet.getLastRow(), id: id };
 }
 
 function updateAnnualTheme(themeData) {
   var sheet = getAnnualThemeSheet();
-  var sheetRow = themeData.sheetRow;
+  var sheetRow = themeData.sheetRow || findRowById(sheet, ANNUAL_THEME_HEADERS, 'ID', themeData.id);
   var start = parseLooseDate(themeData.dateStart);
   var end = parseLooseDate(themeData.dateEnd);
   var name = String(themeData.name || '').trim();
@@ -195,12 +284,14 @@ function updateAnnualTheme(themeData) {
     return { success: false, error: 'Tanggal selesai tidak boleh sebelum tanggal mulai' };
   }
 
-  sheet.getRange(sheetRow, 1, 1, ANNUAL_THEME_HEADERS.length).setValues([[start.dateStr, end.dateStr, name, color]]);
+  var currentId = String(sheet.getRange(sheetRow, 5).getValue() || '').trim() || String(themeData.id || '').trim() || generateStableId('thm');
+  sheet.getRange(sheetRow, 1, 1, ANNUAL_THEME_HEADERS.length).setValues([[start.dateStr, end.dateStr, name, color, currentId]]);
   return { success: true };
 }
 
-function deleteAnnualTheme(sheetRow) {
+function deleteAnnualTheme(sheetRow, id) {
   var sheet = getAnnualThemeSheet();
+  sheetRow = sheetRow || findRowById(sheet, ANNUAL_THEME_HEADERS, 'ID', id);
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid annual theme row number' };
   }
@@ -261,12 +352,8 @@ function ensureEventSheet() {
     sheet = ss.insertSheet(SHEET_NAME);
   }
 
-  if (sheet.getMaxColumns() < EVENT_HEADERS.length) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), EVENT_HEADERS.length - sheet.getMaxColumns());
-  }
-
-  sheet.getRange(1, 1, 1, EVENT_HEADERS.length).setValues([EVENT_HEADERS]);
-  sheet.setFrozenRows(1);
+  ensureHeaders(sheet, EVENT_HEADERS);
+  ensureStableIds(sheet, EVENT_HEADERS, 'ID', 'evt');
   return sheet;
 }
 
@@ -372,7 +459,9 @@ function getCanonicalEventRow(eventData) {
     eventData.eventNominal || '',
     eventData.eventModelNotes || '',
     eventData.pic || '',
-    eventData.phone || ''
+    eventData.phone || '',
+    String(eventData.id || '').trim() || generateStableId('evt'),
+    String(eventData.sourceDraftId || '').trim()
   ];
 }
 
@@ -437,6 +526,9 @@ function getLegacyEvents() {
 
 function bootstrapEventSheet() {
   var sheet = ensureEventSheet();
+  getDraftSheet();
+  getHolidaySheet();
+  getAnnualThemeSheet();
   return {
     success: true,
     spreadsheetId: EVENT_SPREADSHEET_ID,
@@ -480,6 +572,7 @@ function migrateLegacyEventsToNewSheet() {
     var rows = legacyEvents.map(getCanonicalEventRow);
     sheet.getRange(2, 1, rows.length, EVENT_HEADERS.length).setValues(rows);
   }
+  ensureStableIds(sheet, EVENT_HEADERS, 'ID', 'evt');
 
   return {
     success: true,
@@ -490,41 +583,38 @@ function migrateLegacyEventsToNewSheet() {
   };
 }
 
+function migrateStableIds() {
+  var eventSheet = ensureEventSheet();
+  var draftSheet = getDraftSheet();
+  var holidaySheet = getHolidaySheet();
+  var themeSheet = getAnnualThemeSheet();
+
+  ensureStableIds(eventSheet, EVENT_HEADERS, 'ID', 'evt');
+  ensureStableIds(draftSheet, DRAFT_HEADERS, 'ID', 'drf');
+  ensureStableIds(holidaySheet, HOLIDAY_HEADERS, 'ID', 'hdy');
+  ensureStableIds(themeSheet, ANNUAL_THEME_HEADERS, 'ID', 'thm');
+
+  return {
+    success: true,
+    sheets: {
+      events: eventSheet.getLastRow() - 1,
+      drafts: draftSheet.getLastRow() - 1,
+      holidays: holidaySheet.getLastRow() - 1,
+      themes: themeSheet.getLastRow() - 1
+    }
+  };
+}
+
 function getDraftSheet() {
   var ss = getEventSpreadsheet();
   var sheet = ss.getSheetByName(DRAFT_SHEET_NAME);
-  var headers = [
-    'Tanggal',
-    'Jam',
-    'Acara',
-    'Lokasi',
-    'EO',
-    'Penanggung Jawab',
-    'Nomor Telepon',
-    'Keterangan',
-    'Catatan Internal',
-    'Jenis Acara',
-    'Prioritas',
-    'Model Event',
-    'Nominal Event',
-    'Keterangan Model Event',
-    'Progress',
-    'Published',
-    'Published At',
-    'Deleted',
-    'Deleted At'
-  ];
 
   if (!sheet) {
     sheet = ss.insertSheet(DRAFT_SHEET_NAME);
-    sheet.appendRow(headers);
-    sheet.setFrozenRows(1);
-  } else {
-    if (sheet.getMaxColumns() < headers.length) {
-      sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
-    }
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
+
+  ensureHeaders(sheet, DRAFT_HEADERS);
+  ensureStableIds(sheet, DRAFT_HEADERS, 'ID', 'drf');
 
   return sheet;
 }
@@ -532,15 +622,13 @@ function getDraftSheet() {
 function getHolidaySheet() {
   var ss = getEventSpreadsheet();
   var sheet = ss.getSheetByName(HOLIDAY_SHEET_NAME);
-  var headers = ['Tanggal', 'Nama Libur', 'Jenis', 'Keterangan'];
 
   if (!sheet) {
     sheet = ss.insertSheet(HOLIDAY_SHEET_NAME);
-    sheet.appendRow(headers);
-    sheet.setFrozenRows(1);
-  } else if (sheet.getLastColumn() < headers.length) {
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
+
+  ensureHeaders(sheet, HOLIDAY_HEADERS);
+  ensureStableIds(sheet, HOLIDAY_HEADERS, 'ID', 'hdy');
 
   return sheet;
 }
@@ -627,6 +715,7 @@ function getAllHolidays() {
     }
 
     holidays.push({
+      id: String(row[4] || '').trim(),
       sheetRow: i + 1,
       tanggal: formatted.tanggal,
       dateStr: formatted.dateStr,
@@ -676,6 +765,7 @@ function getAllEvents() {
     }
 
     events.push({
+      id: String(row[headerMap['ID']] || '').trim(),
       sheetRow: i + 1,
       tanggal: toDisplayTanggal(row[headerMap['Tanggal']], formatted.tanggal),
       dateStr: formatted.dateStr,
@@ -694,7 +784,8 @@ function getAllEvents() {
       priority: priority,
       eventModel: eventModel,
       eventNominal: String(row[headerMap['Nominal Event']] || '').trim(),
-      eventModelNotes: String(row[headerMap['Keterangan Model Event']] || '').trim()
+      eventModelNotes: String(row[headerMap['Keterangan Model Event']] || '').trim(),
+      sourceDraftId: String(row[headerMap['Source Draft ID']] || '').trim()
     });
   }
 
@@ -706,26 +797,48 @@ function getAllEvents() {
 function addEvent(eventData) {
   var sheet = getSheet();
   try {
-    sheet.appendRow(getCanonicalEventRow(eventData));
+    var row = getCanonicalEventRow(eventData);
+    sheet.appendRow(row);
   } catch (err) {
     return { success: false, error: err.message };
   }
 
-  return { success: true, row: sheet.getLastRow() };
+  return { success: true, row: sheet.getLastRow(), id: String(row[16] || '').trim() };
 }
 
 // ---- UPDATE: Edit existing event ----
 
 function updateEvent(eventData) {
   var sheet = getSheet();
-  var sheetRow = eventData.sheetRow;
+  var sheetRow = eventData.sheetRow || findRowById(sheet, EVENT_HEADERS, 'ID', eventData.id);
+  var headerMap = getEventHeaderMap();
 
   if (!sheetRow || sheetRow < 1) {
     return { success: false, error: 'Invalid row number' };
   }
 
   try {
-    sheet.getRange(sheetRow, 1, 1, EVENT_HEADERS.length).setValues([getCanonicalEventRow(eventData)]);
+    var current = sheet.getRange(sheetRow, 1, 1, EVENT_HEADERS.length).getValues()[0];
+    var currentData = {
+      dateStr: String(current[headerMap['Date']] || '').trim(),
+      jam: String(current[headerMap['Jam']] || '').trim(),
+      acara: String(current[headerMap['Acara']] || '').trim(),
+      lokasi: String(current[headerMap['Lokasi']] || '').trim(),
+      eo: String(current[headerMap['EO']] || '').trim(),
+      pic: String(current[headerMap['Penanggung Jawab']] || '').trim(),
+      phone: String(current[headerMap['Nomor Handphone']] || '').trim(),
+      keterangan: String(current[headerMap['Keterangan']] || '').trim(),
+      status: String(current[headerMap['Status']] || '').trim(),
+      categories: parseEventCategories(current[headerMap['Jenis Acara']], 'Umum'),
+      category: parseEventCategories(current[headerMap['Jenis Acara']], 'Umum')[0],
+      priority: String(current[headerMap['Prioritas']] || '').trim(),
+      eventModel: String(current[headerMap['Model Event']] || '').trim(),
+      eventNominal: String(current[headerMap['Nominal Event']] || '').trim(),
+      eventModelNotes: String(current[headerMap['Keterangan Model Event']] || '').trim(),
+      id: String(current[headerMap['ID']] || '').trim(),
+      sourceDraftId: String(current[headerMap['Source Draft ID']] || '').trim()
+    };
+    sheet.getRange(sheetRow, 1, 1, EVENT_HEADERS.length).setValues([getCanonicalEventRow(Object.assign({}, currentData, eventData))]);
   } catch (err) {
     return { success: false, error: err.message };
   }
@@ -737,6 +850,8 @@ function updateEvent(eventData) {
 
 function deleteEvent(sheetRow) {
   var sheet = getSheet();
+  var id = arguments.length > 1 ? arguments[1] : '';
+  sheetRow = sheetRow || findRowById(sheet, EVENT_HEADERS, 'ID', id);
 
   if (!sheetRow || sheetRow < 1) {
     return { success: false, error: 'Invalid row number' };
@@ -778,6 +893,7 @@ function getAllDraftEvents() {
     var deletedAt = row[18] instanceof Date ? row[18].toISOString() : String(row[18] || '');
 
     drafts.push({
+      id: String(row[19] || '').trim(),
       sheetRow: i + 1,
       tanggal: formatted.tanggal,
       dateStr: formatted.dateStr,
@@ -814,6 +930,7 @@ function addDraftEvent(draftData) {
   var insertRow = lastRow + 1;
   var parts = String(draftData.dateStr || '').split('-');
   var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  var id = String(draftData.id || '').trim() || generateStableId('drf');
 
   sheet.appendRow([
     draftDate,
@@ -834,26 +951,27 @@ function addDraftEvent(draftData) {
     false,
     '',
     false,
-    ''
+    '',
+    id
   ]);
 
-  return { success: true, row: insertRow };
+  return { success: true, row: insertRow, id: id };
 }
 
 function updateDraftEvent(draftData) {
   var sheet = getDraftSheet();
-  var sheetRow = draftData.sheetRow;
+  var sheetRow = draftData.sheetRow || findRowById(sheet, DRAFT_HEADERS, 'ID', draftData.id);
   var hasOwn = Object.prototype.hasOwnProperty;
 
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var current = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
+  var current = sheet.getRange(sheetRow, 1, 1, 20).getValues()[0];
   var parts = String(draftData.dateStr || '').split('-');
   var draftDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
 
-  sheet.getRange(sheetRow, 1, 1, 19).setValues([[
+  sheet.getRange(sheetRow, 1, 1, 20).setValues([[
     draftDate,
     hasOwn.call(draftData, 'jam') ? draftData.jam : (current[1] || ''),
     hasOwn.call(draftData, 'acara') ? draftData.acara : (current[2] || ''),
@@ -875,20 +993,22 @@ function updateDraftEvent(draftData) {
     typeof draftData.published === 'boolean' ? draftData.published : current[15],
     hasOwn.call(draftData, 'publishedAt') ? draftData.publishedAt : (current[16] || ''),
     typeof draftData.deleted === 'boolean' ? draftData.deleted : current[17],
-    hasOwn.call(draftData, 'deletedAt') ? draftData.deletedAt : (current[18] || '')
+    hasOwn.call(draftData, 'deletedAt') ? draftData.deletedAt : (current[18] || ''),
+    hasOwn.call(draftData, 'id') ? draftData.id : (current[19] || '')
   ]]);
 
   return { success: true };
 }
 
-function deleteDraftEvent(sheetRow) {
+function deleteDraftEvent(sheetRow, id) {
   var sheet = getDraftSheet();
+  sheetRow = sheetRow || findRowById(sheet, DRAFT_HEADERS, 'ID', id);
 
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 20).getValues()[0];
   var existingNote = String(row[8] || '').trim();
   var deletedAt = new Date();
   var deletedNote = 'Dihapus admin pada ' + Utilities.formatDate(deletedAt, Session.getScriptTimeZone(), 'dd MMM yyyy HH:mm');
@@ -901,8 +1021,9 @@ function deleteDraftEvent(sheetRow) {
   return { success: true };
 }
 
-function publishDraftEvent(sheetRow) {
+function publishDraftEvent(sheetRow, id) {
   var sheet = getDraftSheet();
+  sheetRow = sheetRow || findRowById(sheet, DRAFT_HEADERS, 'ID', id);
 
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid draft row number' };
@@ -921,8 +1042,29 @@ function publishDraftEvent(sheetRow) {
   if (draft.progress !== 'confirm') {
     return { success: false, error: 'Draft harus berstatus confirm sebelum dipublish' };
   }
-  if (draft.published) {
-    return { success: false, error: 'Draft ini sudah dipublish' };
+  var eventSheet = getSheet();
+  var eventHeaderMap = getEventHeaderMap();
+  var existingEvents = eventSheet.getLastRow() > 1
+    ? eventSheet.getRange(2, eventHeaderMap['Source Draft ID'] + 1, eventSheet.getLastRow() - 1, 1).getValues()
+    : [];
+  var existingRow = 0;
+  for (var i = 0; i < existingEvents.length; i++) {
+    if (String(existingEvents[i][0] || '').trim() === draft.id) {
+      existingRow = i + 2;
+      break;
+    }
+  }
+
+  if (draft.published || existingRow) {
+    if (!draft.published) {
+      sheet.getRange(sheetRow, 15).setValue('confirm');
+      sheet.getRange(sheetRow, 16).setValue(true);
+      if (!sheet.getRange(sheetRow, 17).getValue()) {
+        sheet.getRange(sheetRow, 17).setValue(new Date());
+      }
+    }
+    var existingEventId = existingRow ? String(eventSheet.getRange(existingRow, eventHeaderMap['ID'] + 1).getValue() || '').trim() : '';
+    return { success: true, row: existingRow || '', id: existingEventId };
   }
   if (draft.deleted) {
     return { success: false, error: 'Draft ini sudah dihapus dan masuk riwayat' };
@@ -942,7 +1084,8 @@ function publishDraftEvent(sheetRow) {
     priority: draft.priority,
     eventModel: draft.eventModel,
     eventNominal: draft.eventNominal,
-    eventModelNotes: draft.eventModelNotes
+    eventModelNotes: draft.eventModelNotes,
+    sourceDraftId: draft.id
   });
 
   if (!publishResult.success) {
@@ -956,14 +1099,15 @@ function publishDraftEvent(sheetRow) {
   return { success: true, row: publishResult.row };
 }
 
-function restoreDraftEvent(sheetRow) {
+function restoreDraftEvent(sheetRow, id) {
   var sheet = getDraftSheet();
+  sheetRow = sheetRow || findRowById(sheet, DRAFT_HEADERS, 'ID', id);
 
   if (!sheetRow || sheetRow < 2) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
+  var row = sheet.getRange(sheetRow, 1, 1, 20).getValues()[0];
   var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
 
   if (published) {
@@ -1071,7 +1215,7 @@ function doGet(e) {
 
     if (action === 'delete') {
       var deleteRow = parseInt(e.parameter.sheetRow || '0', 10);
-      return output.setContent(JSON.stringify(deleteEvent(deleteRow)));
+      return output.setContent(JSON.stringify(deleteEvent(deleteRow, e.parameter.id || '')));
     }
 
     if (action === 'createTheme') {
@@ -1086,7 +1230,7 @@ function doGet(e) {
 
     if (action === 'deleteTheme') {
       var deleteThemeRow = parseInt(e.parameter.sheetRow || '0', 10);
-      return output.setContent(JSON.stringify(deleteAnnualTheme(deleteThemeRow)));
+      return output.setContent(JSON.stringify(deleteAnnualTheme(deleteThemeRow, e.parameter.id || '')));
     }
 
     if (action === 'readDrafts') {
@@ -1105,17 +1249,17 @@ function doGet(e) {
 
     if (action === 'deleteDraft') {
       var deleteDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
-      return output.setContent(JSON.stringify(deleteDraftEvent(deleteDraftRow)));
+      return output.setContent(JSON.stringify(deleteDraftEvent(deleteDraftRow, e.parameter.id || '')));
     }
 
     if (action === 'publishDraft') {
       var publishDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
-      return output.setContent(JSON.stringify(publishDraftEvent(publishDraftRow)));
+      return output.setContent(JSON.stringify(publishDraftEvent(publishDraftRow, e.parameter.id || '')));
     }
 
     if (action === 'restoreDraft') {
       var restoreDraftRow = parseInt(e.parameter.sheetRow || '0', 10);
-      return output.setContent(JSON.stringify(restoreDraftEvent(restoreDraftRow)));
+      return output.setContent(JSON.stringify(restoreDraftEvent(restoreDraftRow, e.parameter.id || '')));
     }
 
     if (action === 'createLetterRequest') {
@@ -1133,6 +1277,10 @@ function doGet(e) {
 
     if (action === 'migrateLegacyEvents') {
       return output.setContent(JSON.stringify(migrateLegacyEventsToNewSheet()));
+    }
+
+    if (action === 'migrateStableIds') {
+      return output.setContent(JSON.stringify(migrateStableIds()));
     }
 
     if (action === 'debug') {
@@ -1176,7 +1324,7 @@ function doPost(e) {
       return output.setContent(JSON.stringify(updateEvent(body.data)));
     }
     if (action === 'delete') {
-      return output.setContent(JSON.stringify(deleteEvent(body.sheetRow)));
+      return output.setContent(JSON.stringify(deleteEvent(body.sheetRow, body.id || '')));
     }
     if (action === 'createTheme') {
       return output.setContent(JSON.stringify(createAnnualTheme(body.data)));
@@ -1185,7 +1333,7 @@ function doPost(e) {
       return output.setContent(JSON.stringify(updateAnnualTheme(body.data)));
     }
     if (action === 'deleteTheme') {
-      return output.setContent(JSON.stringify(deleteAnnualTheme(body.sheetRow)));
+      return output.setContent(JSON.stringify(deleteAnnualTheme(body.sheetRow, body.id || '')));
     }
 
     if (action === 'createDraft') {
@@ -1195,13 +1343,13 @@ function doPost(e) {
       return output.setContent(JSON.stringify(updateDraftEvent(body.data)));
     }
     if (action === 'deleteDraft') {
-      return output.setContent(JSON.stringify(deleteDraftEvent(body.sheetRow)));
+      return output.setContent(JSON.stringify(deleteDraftEvent(body.sheetRow, body.id || '')));
     }
     if (action === 'publishDraft') {
-      return output.setContent(JSON.stringify(publishDraftEvent(body.sheetRow)));
+      return output.setContent(JSON.stringify(publishDraftEvent(body.sheetRow, body.id || '')));
     }
     if (action === 'restoreDraft') {
-      return output.setContent(JSON.stringify(restoreDraftEvent(body.sheetRow)));
+      return output.setContent(JSON.stringify(restoreDraftEvent(body.sheetRow, body.id || '')));
     }
     if (action === 'createLetterRequest') {
       return output.setContent(JSON.stringify(createLetterRequest(body.data)));
@@ -1214,6 +1362,9 @@ function doPost(e) {
     }
     if (action === 'migrateLegacyEvents') {
       return output.setContent(JSON.stringify(migrateLegacyEventsToNewSheet()));
+    }
+    if (action === 'migrateStableIds') {
+      return output.setContent(JSON.stringify(migrateStableIds()));
     }
 
     return output.setContent(JSON.stringify({ success: false, error: 'Unknown action: ' + action }));
