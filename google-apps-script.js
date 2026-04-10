@@ -904,40 +904,41 @@ function publishDraftEvent(sheetRow) {
     return { success: false, error: 'Invalid draft row number' };
   }
 
-  var row = sheet.getRange(sheetRow, 1, 1, 19).getValues()[0];
-  var formatted = parseLooseDate(row[0]);
-  var progress = String(row[14] || 'draft').trim().toLowerCase();
-  var published = row[15] === true || String(row[15]).toLowerCase() === 'true';
-  var deleted = row[17] === true || String(row[17]).toLowerCase() === 'true';
+  var drafts = getAllDraftEvents();
+  var draft = drafts.filter(function(item) { return item.sheetRow === sheetRow; })[0];
 
-  if (!formatted.dateStr || !String(row[2] || '').trim()) {
+  if (!draft) {
+    return { success: false, error: 'Draft event tidak ditemukan' };
+  }
+
+  if (!draft.dateStr || !String(draft.acara || '').trim()) {
     return { success: false, error: 'Draft event data is incomplete' };
   }
-  if (progress !== 'confirm') {
+  if (draft.progress !== 'confirm') {
     return { success: false, error: 'Draft harus berstatus confirm sebelum dipublish' };
   }
-  if (published) {
+  if (draft.published) {
     return { success: false, error: 'Draft ini sudah dipublish' };
   }
-  if (deleted) {
+  if (draft.deleted) {
     return { success: false, error: 'Draft ini sudah dihapus dan masuk riwayat' };
   }
 
   var publishResult = addEvent({
-    dateStr: formatted.dateStr,
-    jam: String(row[1] || '').trim(),
-    acara: String(row[2] || '').trim(),
-    lokasi: String(row[3] || '').trim(),
-    eo: String(row[4] || '').trim(),
-    pic: String(row[5] || '').trim(),
-    phone: String(row[6] || '').trim(),
-    keterangan: String(row[7] || '').trim(),
-    category: parseEventCategories(row[9], detectEventCategory(String(row[2] || '').trim()))[0] || detectEventCategory(String(row[2] || '').trim()),
-    categories: parseEventCategories(row[9], detectEventCategory(String(row[2] || '').trim())),
-    priority: String(row[10] || '').trim().toLowerCase() || 'medium',
-    eventModel: String(row[11] || '').trim().toLowerCase() || '',
-    eventNominal: String(row[12] || '').trim(),
-    eventModelNotes: String(row[13] || '').trim()
+    dateStr: draft.dateStr,
+    jam: draft.jam,
+    acara: draft.acara,
+    lokasi: draft.lokasi,
+    eo: draft.eo,
+    pic: draft.pic,
+    phone: draft.phone,
+    keterangan: draft.keterangan,
+    category: draft.category,
+    categories: draft.categories,
+    priority: draft.priority,
+    eventModel: draft.eventModel,
+    eventNominal: draft.eventNominal,
+    eventModelNotes: draft.eventModelNotes
   });
 
   if (!publishResult.success) {
