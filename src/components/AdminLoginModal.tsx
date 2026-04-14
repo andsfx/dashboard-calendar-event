@@ -5,7 +5,7 @@ import { ModalWrapper } from './ModalWrapper';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (pw: string) => Promise<boolean>;
+  onLogin: (pw: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
@@ -21,11 +21,11 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ok = await onLogin(pw);
-    if (ok) {
+    const result = await onLogin(pw);
+    if (result.ok) {
       setPw(''); setError(''); onClose();
     } else {
-      setError('Password salah. Coba lagi.');
+      setError(result.error || 'Password salah. Coba lagi.');
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }

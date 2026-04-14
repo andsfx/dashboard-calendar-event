@@ -1,4 +1,4 @@
-const { requireAdminSession } = require('./_lib/auth');
+import { requireAdminSession } from './_lib/auth.js';
 
 const ALLOWED_ACTIONS = new Set([
   'readDrafts',
@@ -9,7 +9,7 @@ const ALLOWED_ACTIONS = new Set([
   'bootstrapEventSheet', 'migrateLegacyEvents', 'migrateStableIds'
 ]);
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (!requireAdminSession(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
@@ -39,4 +39,4 @@ module.exports = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message || 'Proxy request failed' });
   }
-};
+}

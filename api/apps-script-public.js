@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
@@ -27,4 +27,4 @@ module.exports = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message || 'Proxy request failed' });
   }
-};
+}

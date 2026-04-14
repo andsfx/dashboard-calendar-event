@@ -112,17 +112,34 @@ export default function App() {
         credentials: 'include',
         body: JSON.stringify({ password: pw }),
       });
-      const result = await response.json();
-      if (result.success) {
-        setIsAdmin(true);
-        return true;
+
+      const contentType = response.headers.get('content-type') || '';
+      let result: { success?: boolean; error?: string } | null = null;
+
+      if (contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Admin login returned non-JSON response:', text);
       }
-      return false;
+
+      if (response.ok && result?.success) {
+        setIsAdmin(true);
+        return { ok: true };
+      }
+
+      if (response.status === 401) {
+        return { ok: false, error: result?.error || 'Password salah. Coba lagi.' };
+      }
+
+      showToast('error', 'Login admin gagal', result?.error || 'Server auth sedang bermasalah. Periksa konfigurasi API admin lalu coba lagi.');
+      return { ok: false, error: 'Server auth error. Coba lagi sebentar.' };
     } catch (error) {
       console.error('Admin login error:', error);
-      return false;
+      showToast('error', 'Login admin gagal', 'Permintaan login tidak berhasil diproses. Cek server lokal Anda lalu coba lagi.');
+      return { ok: false, error: 'Server auth error. Coba lagi sebentar.' };
     }
-  }, []);
+  }, [showToast]);
 
   const handleLogout = useCallback(() => {
     fetch('/api/admin-logout', {

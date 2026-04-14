@@ -1,6 +1,6 @@
-const { getAdminSessionToken } = require('./_lib/auth');
+import { getAdminSessionToken } from './_lib/auth.js';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
@@ -19,4 +19,4 @@ module.exports = async (req, res) => {
 
   res.setHeader('Set-Cookie', `admin_session=${encodeURIComponent(sessionToken)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=28800`);
   return res.status(200).json({ success: true });
-};
+}
