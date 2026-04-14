@@ -4,15 +4,18 @@ import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
 import { AdminLoginModal } from './components/AdminLoginModal';
+import { CalendarView } from './components/CalendarView';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
-import { SectionNav } from './components/SectionNav';
+import { PublicEventRequestPayload, PublicLandingPage } from './components/PublicLandingPage';
+import { QuarterTimeline } from './components/QuarterTimeline';
 import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest } from './utils/sheetsApi';
+import { getDraftDateMeta } from './utils/draftUtils';
+import { createDraftEvent, createLetterRequest } from './utils/sheetsApi';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -22,9 +25,7 @@ const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> 
 ];
 
 const FeaturedEvents = lazy(() => import('./components/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
-const QuarterTimeline = lazy(() => import('./components/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
 const CategoryChart = lazy(() => import('./components/CategoryChart').then(m => ({ default: m.CategoryChart })));
-const CalendarView = lazy(() => import('./components/CalendarView').then(m => ({ default: m.CalendarView })));
 const EventCrudModal = lazy(() => import('./components/EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
 const DeleteConfirmModal = lazy(() => import('./components/DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
@@ -104,17 +105,34 @@ export default function App() {
     });
   }, []);
 
-  // Admin login - use env variable for password
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
-  
-  const handleLogin = useCallback((pw: string) => {
-    if (pw === ADMIN_PASSWORD) { setIsAdmin(true); return true; }
-    return false;
+  const handleLogin = useCallback(async (pw: string) => {
+    try {
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password: pw }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsAdmin(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Admin login error:', error);
+      return false;
+    }
   }, []);
 
   const handleLogout = useCallback(() => {
-    setIsAdmin(false);
-    showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
+    fetch('/api/admin-logout', {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(error => console.error('Admin logout error:', error)).finally(() => {
+      setIsAdmin(false);
+      showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
+    });
   }, [showToast]);
 
   // CRUD
@@ -169,11 +187,11 @@ export default function App() {
   }, [addTheme, updateTheme, showToast]);
 
   const handleDeleteTheme = useCallback(async (theme: AnnualTheme) => {
-    if (!theme.sheetRow) return;
+    if (!theme.id) return;
     const confirmed = window.confirm(`Hapus tema tahunan "${theme.name}"?`);
     if (!confirmed) return;
 
-    const success = await deleteTheme(theme.sheetRow);
+    const success = await deleteTheme(theme.id);
     if (success) {
       showToast('success', 'Tema dihapus', `"${theme.name}" telah dihapus.`);
     } else {
@@ -336,10 +354,35 @@ export default function App() {
     }
   }, [showToast]);
 
+  const handlePublicEventRequest = useCallback(async (payload: PublicEventRequestPayload) => {
+    try {
+      await createDraftEvent({
+        ...payload,
+        ...getDraftDateMeta(payload.dateStr),
+        internalNote: 'Dikirim dari landing page publik',
+        category: payload.categories[0] || 'Umum',
+        priority: 'medium',
+        progress: 'draft',
+      }, 'public');
+      showToast('success', 'Pengajuan terkirim', 'Tim event akan meninjau detail Anda dan menghubungi PIC yang terdaftar.');
+      return true;
+    } catch (error) {
+      console.error('Public event request error:', error);
+      showToast('error', 'Pengajuan gagal dikirim', 'Form belum berhasil masuk ke sistem. Silakan coba lagi beberapa saat lagi.');
+      return false;
+    }
+  }, [showToast]);
+
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
-  const ongoingEvents  = visibleEvents.filter(e => e.status === 'ongoing');
-  const upcomingEvents = visibleEvents.filter(e => e.status === 'upcoming');
+  const ongoingEvents = useMemo(
+    () => (isAdmin ? visibleEvents : publicEvents).filter(e => e.status === 'ongoing'),
+    [isAdmin, visibleEvents, publicEvents]
+  );
+  const upcomingEvents = useMemo(
+    () => (isAdmin ? visibleEvents : publicEvents).filter(e => e.status === 'upcoming'),
+    [isAdmin, visibleEvents, publicEvents]
+  );
   const visibleCategories = useMemo(() => {
     const source = isAdmin ? events : publicEvents;
     return ['Semua', ...new Set(source.flatMap(e => e.categories))];
@@ -361,17 +404,6 @@ export default function App() {
     () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar'),
     [isAdmin]
   );
-  const publicSectionItems = useMemo(
-    () => [
-      { id: 'summary', label: 'Overview' },
-      ...(upcomingEvents.length > 0 ? [{ id: 'featured', label: 'Coming Soon' }] : []),
-      { id: 'calendar', label: 'Calendar' },
-      { id: 'views', label: 'Events' },
-      { id: 'themes', label: 'Annual Theme' },
-    ],
-    [upcomingEvents.length]
-  );
-
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
       setActiveFilter('Semua');
@@ -404,7 +436,24 @@ export default function App() {
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
-      {/* Navbar */}
+      {!isAdmin ? (
+        <PublicLandingPage
+          isDark={isDark}
+          isLoading={isLoading}
+          events={publicEvents}
+          ongoingEvents={ongoingEvents}
+          upcomingEvents={upcomingEvents}
+          themes={annualThemes}
+          holidays={holidays}
+          onToggleDark={toggleDark}
+          onAdminClick={() => setShowLoginModal(true)}
+          onDetail={handleDetailClick}
+          onSubmitRequest={handlePublicEventRequest}
+        />
+      ) : isLoading ? (
+        <DashboardSkeleton isAdmin />
+      ) : (
+      <>
       <Navbar
         isDark={isDark}
         onToggleDark={toggleDark}
@@ -414,11 +463,6 @@ export default function App() {
         ongoingCount={visibleStats.ongoing}
       />
 
-      {!isAdmin && !isLoading && <SectionNav items={publicSectionItems} />}
-
-      {isLoading ? (
-        <DashboardSkeleton isAdmin={isAdmin} />
-      ) : (
       <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
@@ -641,6 +685,7 @@ export default function App() {
           </div>
         </footer>
       </main>
+      </>
       )}
 
       {/* Modals */}

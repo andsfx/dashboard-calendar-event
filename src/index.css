@@ -1,5 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-display: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --brand-cyan: #667eea;
+  --brand-pink: #764ba2;
+  --brand-ink: #0f172a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.reveal-on-scroll {
+  --reveal-distance: 48px;
+  --reveal-stagger-step: 80ms;
+}
+
+.reveal-stage {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity 880ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 880ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-stage > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-visible .reveal-stage {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-visible .reveal-stage > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-visible .reveal-stage > *:nth-child(1) { transition-delay: calc(var(--reveal-stagger-step) * 1); }
+.reveal-visible .reveal-stage > *:nth-child(2) { transition-delay: calc(var(--reveal-stagger-step) * 2); }
+.reveal-visible .reveal-stage > *:nth-child(3) { transition-delay: calc(var(--reveal-stagger-step) * 3); }
+.reveal-visible .reveal-stage > *:nth-child(4) { transition-delay: calc(var(--reveal-stagger-step) * 4); }
+.reveal-visible .reveal-stage > *:nth-child(5) { transition-delay: calc(var(--reveal-stagger-step) * 5); }
+.reveal-visible .reveal-stage > *:nth-child(6) { transition-delay: calc(var(--reveal-stagger-step) * 6); }
+
+.reveal-strong {
+  --reveal-distance: 56px;
+  --reveal-stagger-step: 110ms;
+}
+
+.reveal-strong .reveal-stage {
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 860ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-strong .reveal-stage > * {
+  transform: translateY(20px);
+  transition:
+    opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-cluster > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 860ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-visible .reveal-cluster > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-visible .reveal-cluster > *:nth-child(1) { transition-delay: 140ms; }
+.reveal-visible .reveal-cluster > *:nth-child(2) { transition-delay: 260ms; }
+.reveal-visible .reveal-cluster > *:nth-child(3) { transition-delay: 380ms; }
+.reveal-visible .reveal-cluster > *:nth-child(4) { transition-delay: 500ms; }
+
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(102, 126, 234, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(118, 75, 162, 0.06) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal-on-scroll,
+  .reveal-stage,
+  .reveal-stage > *,
+  .reveal-cluster > *,
+  .fade-up,
+  .fade-in,
+  .count-up,
+  .modal-backdrop,
+  .modal-panel,
+  .toast-enter,
+  .toast-exit,
+  .toast-progress,
+  .live-dot,
+  .shimmer {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* ─── Custom Scrollbar ─────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -10,7 +141,7 @@
 .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
 /* ─── Smooth focus outline ─────────────────────────────────── */
-* { outline-color: #8b5cf6; }
+* { outline-color: #7c6cf2; }
 
 /* ─── Modal animations ─────────────────────────────────────── */
 @keyframes modal-backdrop-in {

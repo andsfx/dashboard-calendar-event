@@ -96,7 +96,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
           </button>
           <div className="text-center">
             <p className="text-lg font-bold text-white">{MONTH_ID[month]}</p>
-            <p className="text-xs text-white/70">{year} · {monthEvents.length} acara</p>
+            <p className="text-xs text-white/70">{year} | {monthEvents.length} acara</p>
           </div>
           <button onClick={nextMonth} className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
             <ChevronRight className="h-5 w-5" />
