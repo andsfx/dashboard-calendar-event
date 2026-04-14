@@ -110,13 +110,21 @@ function detectCategory(acara: string): string {
   return 'Umum';
 }
 
+function splitCategoryTokens(values: Array<string | undefined | null>): string[] {
+  return values
+    .flatMap(value => String(value || '').split(/[|,]/))
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
 function normalizeCategories(value?: string[] | string, fallbackCategory?: string): string[] {
   const fromValue = Array.isArray(value)
-    ? value
+    ? splitCategoryTokens(value)
     : typeof value === 'string'
-      ? value.split(/[|,]/).map(item => item.trim()).filter(Boolean)
+      ? splitCategoryTokens([value])
       : [];
-  const normalized = fromValue.length > 0 ? fromValue : (fallbackCategory ? [fallbackCategory] : []);
+  const fallback = fallbackCategory ? splitCategoryTokens([fallbackCategory]) : [];
+  const normalized = fromValue.length > 0 ? fromValue : fallback;
   return Array.from(new Set(normalized.filter(Boolean)));
 }
 

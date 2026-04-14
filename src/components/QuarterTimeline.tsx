@@ -51,7 +51,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
         <div className="flex flex-wrap items-center gap-2">
           <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
             {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
-              ? '● Tema aktif'
+              ? 'Tema aktif'
               : 'Tidak ada tema aktif'}
           </span>
           {isAdmin && onAddTheme && (
@@ -156,7 +156,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                 <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-slate-800 dark:text-slate-100">{theme.name}</p>
               </div>
               <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
-                {formatDate(theme.dateStart)} – {formatDate(theme.dateEnd)}
+                {formatDate(theme.dateStart)} - {formatDate(theme.dateEnd)}
               </p>
 
               {/* Progress bar */}

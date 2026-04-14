@@ -7,7 +7,7 @@ interface Props {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, EO…' }: Props) {
+export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, EO...' }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut: Ctrl+K or "/" to focus

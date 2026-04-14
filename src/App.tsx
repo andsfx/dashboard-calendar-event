@@ -382,7 +382,12 @@ export default function App() {
   );
   const visibleCategories = useMemo(() => {
     const source = isAdmin ? events : publicEvents;
-    return ['Semua', ...new Set(source.flatMap(e => e.categories))];
+    const normalized = source
+      .flatMap(e => e.categories)
+      .flatMap(category => String(category || '').split(/[|,]/))
+      .map(category => category.trim())
+      .filter(Boolean);
+    return ['Semua', ...new Set(normalized)];
   }, [isAdmin, events, publicEvents]);
   const visibleMonths = useMemo(() => {
     const source = isAdmin ? events : publicEvents;
@@ -668,7 +673,7 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
           <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
-            <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
+            <p>(c) {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
               <span className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />

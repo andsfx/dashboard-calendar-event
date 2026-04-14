@@ -20,6 +20,17 @@ const PRIORITY_OPTIONS = [
   { key: 'low',    label: 'Rendah' },
 ];
 
+function normalizeOptionKeys(values: string[]) {
+  return Array.from(
+    new Set(
+      values
+        .flatMap(value => String(value || '').split(/[|,]/))
+        .map(value => value.trim())
+        .filter(Boolean)
+    )
+  );
+}
+
 /** Custom dropdown - consistent across all OS */
 function CustomDropdown({
   value,
@@ -120,7 +131,7 @@ export function FilterBar({
   showDraft = true,
   showPriority = true,
 }: Props) {
-  const categoryOptions = (categories ?? []).map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
+  const categoryOptions = normalizeOptionKeys(categories ?? []).map(c => ({ key: c, label: c === 'Semua' ? 'Semua Kategori' : c }));
   const monthOptions = (months ?? []).map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';

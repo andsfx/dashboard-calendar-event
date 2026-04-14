@@ -102,7 +102,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-1">{ev.tanggal}</span>
-                  {ev.jam && <span className="hidden text-slate-400 sm:inline">· {ev.jam}</span>}
+                  {ev.jam && <span className="hidden text-slate-400 sm:inline">- {ev.jam}</span>}
                 </div>
                 {ev.lokasi && (
                   <div className="flex items-center gap-1.5">
