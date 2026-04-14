@@ -1,6 +1,8 @@
+import { createHash } from 'node:crypto';
 import { requireAdminSession } from './_lib/auth.js';
 
 const ALLOWED_ACTIONS = new Set([
+  'debugProxyConfig',
   'readDrafts',
   'create', 'update', 'delete',
   'createTheme', 'updateTheme', 'deleteTheme',
@@ -8,6 +10,11 @@ const ALLOWED_ACTIONS = new Set([
   'createLetterRequest',
   'bootstrapEventSheet', 'migrateLegacyEvents', 'migrateStableIds'
 ]);
+
+function getTokenFingerprint(token) {
+  if (!token) return null;
+  return createHash('sha256').update(token).digest('hex').slice(0, 12);
+}
 
 export default async function handler(req, res) {
   if (!requireAdminSession(req, res)) return;
@@ -24,6 +31,18 @@ export default async function handler(req, res) {
   const action = String(req.body?.action || '').trim();
   if (!ALLOWED_ACTIONS.has(action)) {
     return res.status(400).json({ success: false, error: 'Action tidak diizinkan' });
+  }
+
+  if (action === 'debugProxyConfig') {
+    return res.status(200).json({
+      success: true,
+      data: {
+        appsScriptUrlConfigured: Boolean(url),
+        appsScriptUrl: url,
+        adminTokenConfigured: Boolean(token),
+        adminTokenFingerprint: getTokenFingerprint(token),
+      },
+    });
   }
 
   const payload = { ...req.body, token };
