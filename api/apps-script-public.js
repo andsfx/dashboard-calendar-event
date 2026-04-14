@@ -1,11 +1,31 @@
 export default async function handler(req, res) {
+  const url = String(process.env.APPS_SCRIPT_URL || '').trim();
+  if (!url) {
+    return res.status(500).json({ success: false, error: 'Public proxy belum dikonfigurasi' });
+  }
+
+  if (req.method === 'GET') {
+    const action = String(req.query?.action || '').trim();
+    if (action !== 'read') {
+      return res.status(400).json({ success: false, error: 'Action tidak diizinkan' });
+    }
+
+    try {
+      const response = await fetch(`${url}?action=read`);
+      const text = await response.text();
+      res.status(response.status).setHeader('Content-Type', 'application/json').send(text);
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message || 'Proxy request failed' });
+    }
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  const url = String(process.env.APPS_SCRIPT_URL || '').trim();
   const token = String(process.env.PUBLIC_SUBMIT_TOKEN || '').trim();
-  if (!url || !token) {
+  if (!token) {
     return res.status(500).json({ success: false, error: 'Public proxy belum dikonfigurasi' });
   }
 

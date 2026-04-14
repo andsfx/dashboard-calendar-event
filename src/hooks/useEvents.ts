@@ -29,7 +29,7 @@ export function useEvents() {
       setHolidays(sheetHolidays);
     } catch (err) {
       console.error('Fetch error:', err);
-      setError('Gagal memuat data dari spreadsheet. Periksa koneksi atau konfigurasi URL.');
+      setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
     } finally {
       setIsLoading(false);
     }

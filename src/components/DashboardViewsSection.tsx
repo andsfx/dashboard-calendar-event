@@ -59,6 +59,14 @@ export function DashboardViewsSection(props: Props) {
     onDetail,
   } = props;
 
+  const resetFilters = () => {
+    setSearchQuery('');
+    setActiveFilter('Semua');
+    setActiveCategory('Semua');
+    setActivePriority('Semua');
+    setActiveMonth('Semua');
+  };
+
   return (
     <>
       <section id="views" className="scroll-mt-32">
@@ -103,10 +111,10 @@ export function DashboardViewsSection(props: Props) {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
-                {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
+                {searchQuery && <span> � pencarian "<em>{searchQuery}</em>"</span>}
               </p>
               <button
-                onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
+                onClick={resetFilters}
                 className="flex items-center gap-1 self-start text-xs text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
               >
                 <RefreshCw className="h-3 w-3" /> Reset
@@ -118,7 +126,7 @@ export function DashboardViewsSection(props: Props) {
 
       {error && (
         <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
-          <span className="text-lg">⚠️</span>
+          <span className="text-lg">!</span>
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
@@ -129,7 +137,7 @@ export function DashboardViewsSection(props: Props) {
           <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
           <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
           <button
-            onClick={() => { setSearchQuery(''); setActiveFilter('upcoming'); setActiveCategory('Semua'); setActivePriority('Semua'); setActiveMonth('Semua'); }}
+            onClick={resetFilters}
             className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
           >
             Reset Filter

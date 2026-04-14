@@ -1,6 +1,5 @@
 import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
 
-const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || '';
 const ADMIN_PROXY_URL = '/api/apps-script-admin';
 const PUBLIC_PROXY_URL = '/api/apps-script-public';
 
@@ -115,7 +114,7 @@ function normalizeCategories(value?: string[] | string, fallbackCategory?: strin
   const fromValue = Array.isArray(value)
     ? value
     : typeof value === 'string'
-      ? value.split('|').map(item => item.trim()).filter(Boolean)
+      ? value.split(/[|,]/).map(item => item.trim()).filter(Boolean)
       : [];
   const normalized = fromValue.length > 0 ? fromValue : (fallbackCategory ? [fallbackCategory] : []);
   return Array.from(new Set(normalized.filter(Boolean)));
@@ -145,13 +144,8 @@ function getComputedStatus(dateStr: string): EventItem['status'] {
 }
 
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[]; holidays: HolidayItem[] }> {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('REPLACE_WITH_YOUR_URL')) {
-    console.warn('VITE_APPS_SCRIPT_URL masih menggunakan placeholder atau belum dikonfigurasi di .env.');
-    throw new SheetsApiError('Apps Script URL belum dikonfigurasi (masih menggunakan teks REPLACE_WITH_YOUR_URL)');
-  }
-
   try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=read`);
+    const response = await fetch(`${PUBLIC_PROXY_URL}?action=read`);
     const text = await response.text();
     const result: SheetsApiResponse = JSON.parse(text);
 
@@ -393,10 +387,6 @@ export async function restoreDraftEvent(id: string): Promise<void> {
 }
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
-  if (!APPS_SCRIPT_URL) {
-    throw new SheetsApiError('Apps Script URL tidak dikonfigurasi');
-  }
-
   try {
     const result = await postAction<{ success: boolean; error?: string; row?: number }>('createLetterRequest', { data }, 'admin');
     if (!result.success) {

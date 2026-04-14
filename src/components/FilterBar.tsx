@@ -15,12 +15,12 @@ const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: stri
 
 const PRIORITY_OPTIONS = [
   { key: 'Semua',  label: 'Semua Prioritas' },
-  { key: 'high',   label: '🔴 Tinggi' },
-  { key: 'medium', label: '🔵 Sedang' },
-  { key: 'low',    label: '⚪ Rendah' },
+  { key: 'high',   label: 'Tinggi' },
+  { key: 'medium', label: 'Sedang' },
+  { key: 'low',    label: 'Rendah' },
 ];
 
-/** Custom dropdown — consistent across all OS */
+/** Custom dropdown - consistent across all OS */
 function CustomDropdown({
   value,
   options,
