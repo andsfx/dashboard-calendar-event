@@ -23,8 +23,9 @@ export default async function handler(req, res) {
   }
 
   const url = String(process.env.APPS_SCRIPT_URL || '').trim();
-  const token = String(process.env.ADMIN_API_TOKEN || '').trim();
-  if (!url || !token) {
+  const adminToken = String(process.env.ADMIN_API_TOKEN || '').trim();
+  const publicSubmitToken = String(process.env.PUBLIC_SUBMIT_TOKEN || '').trim();
+  if (!url || !adminToken) {
     return res.status(500).json({ success: false, error: 'Admin proxy belum dikonfigurasi' });
   }
 
@@ -33,14 +34,21 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'Action tidak diizinkan' });
   }
 
+  const token = action === 'createDraft'
+    ? publicSubmitToken || adminToken
+    : adminToken;
+
   if (action === 'debugProxyConfig') {
     return res.status(200).json({
       success: true,
       data: {
         appsScriptUrlConfigured: Boolean(url),
         appsScriptUrl: url,
-        adminTokenConfigured: Boolean(token),
-        adminTokenFingerprint: getTokenFingerprint(token),
+        adminTokenConfigured: Boolean(adminToken),
+        adminTokenFingerprint: getTokenFingerprint(adminToken),
+        publicSubmitTokenConfigured: Boolean(publicSubmitToken),
+        publicSubmitTokenFingerprint: getTokenFingerprint(publicSubmitToken),
+        activeTokenForCreateDraftFingerprint: getTokenFingerprint(publicSubmitToken || adminToken),
       },
     });
   }
