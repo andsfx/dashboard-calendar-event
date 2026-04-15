@@ -1,8 +1,6 @@
-import { createHash } from 'node:crypto';
 import { requireAdminSession } from './_lib/auth.js';
 
 const ALLOWED_ACTIONS = new Set([
-  'debugProxyConfig',
   'readDrafts',
   'create', 'update', 'delete',
   'createTheme', 'updateTheme', 'deleteTheme',
@@ -10,11 +8,6 @@ const ALLOWED_ACTIONS = new Set([
   'createLetterRequest',
   'bootstrapEventSheet', 'migrateLegacyEvents', 'migrateStableIds'
 ]);
-
-function getTokenFingerprint(token) {
-  if (!token) return null;
-  return createHash('sha256').update(token).digest('hex').slice(0, 12);
-}
 
 export default async function handler(req, res) {
   if (!requireAdminSession(req, res)) return;
@@ -37,21 +30,6 @@ export default async function handler(req, res) {
   const token = action === 'createDraft'
     ? publicSubmitToken || adminToken
     : adminToken;
-
-  if (action === 'debugProxyConfig') {
-    return res.status(200).json({
-      success: true,
-      data: {
-        appsScriptUrlConfigured: Boolean(url),
-        appsScriptUrl: url,
-        adminTokenConfigured: Boolean(adminToken),
-        adminTokenFingerprint: getTokenFingerprint(adminToken),
-        publicSubmitTokenConfigured: Boolean(publicSubmitToken),
-        publicSubmitTokenFingerprint: getTokenFingerprint(publicSubmitToken),
-        activeTokenForCreateDraftFingerprint: getTokenFingerprint(publicSubmitToken || adminToken),
-      },
-    });
-  }
 
   const payload = { ...req.body, token };
 

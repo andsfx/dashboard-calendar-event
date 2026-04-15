@@ -1367,6 +1367,10 @@ function doPost(e) {
 
     authorizeRequest(action, body.token || '');
 
+    if (action === 'readDrafts') {
+      return output.setContent(JSON.stringify({ success: true, data: getAllDraftEvents() }));
+    }
+
     if (action === 'create') {
       return output.setContent(JSON.stringify(addEvent(body.data)));
     }
