@@ -1220,17 +1220,22 @@ function isPublicMutationAction(action) {
 function authorizeRequest(action, token) {
   if (!isMutationAction(action) && !isAdminProtectedAction(action)) return;
 
-  var expectedToken = isPublicMutationAction(action)
-    ? getPublicSubmitToken()
-    : getAdminApiToken();
+  var trimmedToken = String(token || '').trim();
+  var adminToken = getAdminApiToken();
+  var publicToken = getPublicSubmitToken();
 
-  if (!expectedToken) {
-    throw new Error((isPublicMutationAction(action) ? 'PUBLIC_SUBMIT_TOKEN' : 'ADMIN_API_TOKEN') + ' belum dikonfigurasi di Script Properties');
+  // Admin token is always accepted for any mutation
+  if (adminToken && trimmedToken === adminToken) return;
+
+  // Public token is accepted only for public mutation actions
+  if (isPublicMutationAction(action) && publicToken && trimmedToken === publicToken) return;
+
+  // No valid token matched
+  if (!adminToken && !publicToken) {
+    throw new Error('API tokens belum dikonfigurasi di Script Properties');
   }
 
-  if (String(token || '').trim() !== expectedToken) {
-    throw new Error('Unauthorized mutation request');
-  }
+  throw new Error('Unauthorized mutation request');
 }
 
 // ---- Web App Handlers ----
