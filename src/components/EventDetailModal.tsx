@@ -12,6 +12,7 @@ interface Props {
   onClose: () => void;
   onEdit?: (ev: EventItem) => void;
   onDelete?: (ev: EventItem) => void;
+  isAdmin?: boolean;
 }
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -33,7 +34,7 @@ function getEventModelLabel(value: EventItem['eventModel']) {
   return '';
 }
 
-export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: Props) {
+export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isAdmin = false }: Props) {
   if (!event) return null;
 
   const color = CATEGORY_COLORS[event.category] ?? '#6366f1';
@@ -64,7 +65,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
             <CategoryBadges categories={event.categories} />
-            <PriorityBadge priority={event.priority} />
+            {isAdmin && <PriorityBadge priority={event.priority} />}
             {isOngoing && (
               <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
                 <Zap className="h-3 w-3" /> LIVE
@@ -100,14 +101,14 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
               label="Event Organizer"
               value={event.eo || '–'}
             />
-            {event.pic && (
+            {isAdmin && event.pic && (
               <InfoRow
                 icon={<User className="h-4 w-4 text-cyan-500" />}
                 label="Penanggung Jawab"
                 value={event.pic}
               />
             )}
-            {event.phone && (
+            {isAdmin && event.phone && (
               <InfoRow
                 icon={<Tag className="h-4 w-4 text-teal-500" />}
                 label="Nomor Handphone"
@@ -121,14 +122,14 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
                 value={getEventModelLabel(event.eventModel)}
               />
             )}
-            {event.eventNominal && (
+            {isAdmin && event.eventNominal && (
               <InfoRow
                 icon={<Tag className="h-4 w-4 text-blue-500" />}
                 label="Nominal Event"
                 value={event.eventNominal}
               />
             )}
-            {event.eventModelNotes && (
+            {isAdmin && event.eventModelNotes && (
               <InfoRow
                 icon={<Tag className="h-4 w-4 text-violet-500" />}
                 label="Keterangan Model Event"
@@ -148,32 +149,30 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete }: P
         </div>
 
         {/* Footer actions */}
-        {(onEdit || onDelete) && (
-          <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6">
+        <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+          >
+            Tutup
+          </button>
+          {onEdit && (
             <button
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              onClick={() => { onClose(); onEdit(event); }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
-              Tutup
+              <Edit2 className="h-3.5 w-3.5" /> Edit
             </button>
-            {onEdit && (
-              <button
-                onClick={() => { onClose(); onEdit(event); }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
-              >
-                <Edit2 className="h-3.5 w-3.5" /> Edit
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={() => { onClose(); onDelete(event); }}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Hapus
-              </button>
-            )}
-          </div>
-        )}
+          )}
+          {onDelete && (
+            <button
+              onClick={() => { onClose(); onDelete(event); }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Hapus
+            </button>
+          )}
+        </div>
       </div>
     </ModalWrapper>
   );

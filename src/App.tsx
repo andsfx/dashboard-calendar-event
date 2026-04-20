@@ -12,7 +12,8 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest } from './utils/sheetsApi';
+import { createLetterRequest, createDraftEvent } from './utils/sheetsApi';
+import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -370,6 +371,37 @@ export default function App() {
     }
   }, [showToast]);
 
+  const handlePublicSubmitRequest = useCallback(async (payload: PublicEventRequestPayload) => {
+    try {
+      await createDraftEvent({
+        acara: payload.acara,
+        dateStr: payload.dateStr,
+        tanggal: '',
+        day: '',
+        jam: payload.jam,
+        lokasi: payload.lokasi,
+        eo: payload.eo,
+        pic: payload.pic,
+        phone: payload.phone,
+        keterangan: payload.keterangan,
+        internalNote: '',
+        month: '',
+        category: payload.categories[0] || 'Umum',
+        categories: payload.categories,
+        priority: 'medium',
+        eventModel: payload.eventModel,
+        eventNominal: payload.eventNominal,
+        eventModelNotes: payload.eventModelNotes,
+        progress: 'draft',
+      }, 'public');
+      showToast('success', 'Pengajuan terkirim', 'Tim mall akan meninjau pengajuan event Anda.');
+      return true;
+    } catch {
+      showToast('error', 'Gagal mengirim', 'Pengajuan belum terkirim. Coba lagi.');
+      return false;
+    }
+  }, [showToast]);
+
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
   const ongoingEvents = useMemo(
@@ -403,18 +435,18 @@ export default function App() {
     };
   }, [isAdmin, events, publicEvents]);
   const availableViewTabs = useMemo(
-    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar'),
+    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar' && tab.key !== 'kanban'),
     [isAdmin]
   );
   const publicSectionItems = useMemo(
     () => [
-      { id: 'summary', label: 'Overview' },
-      ...(upcomingEvents.length > 0 ? [{ id: 'featured', label: 'Coming Soon' }] : []),
-      { id: 'calendar', label: 'Calendar' },
-      { id: 'views', label: 'Events' },
-      { id: 'themes', label: 'Annual Theme' },
+      { id: 'summary', label: 'Ringkasan' },
+      ...((ongoingEvents.length > 0 || upcomingEvents.length > 0) ? [{ id: 'featured', label: 'Segera Hadir' }] : []),
+      { id: 'calendar', label: 'Kalender' },
+      { id: 'views', label: 'Daftar Acara' },
+      { id: 'themes', label: 'Tema Tahunan' },
     ],
-    [upcomingEvents.length]
+    [ongoingEvents.length, upcomingEvents.length]
   );
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
@@ -423,7 +455,7 @@ export default function App() {
   }, [isAdmin, activeFilter, setActiveFilter]);
 
   useEffect(() => {
-    if (!isAdmin && viewMode === 'calendar') {
+    if (!isAdmin && (viewMode === 'calendar' || viewMode === 'kanban')) {
       setViewMode('table');
     }
   }, [isAdmin, viewMode]);
@@ -447,7 +479,7 @@ export default function App() {
   }, [visibleMonths, activeMonth, setActiveMonth]);
 
   return (
-    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Navbar
         isDark={isDark}
         onToggleDark={toggleDark}
@@ -469,10 +501,10 @@ export default function App() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Dashboard Event
+              {isAdmin ? 'Dashboard Event' : 'Jadwal Event'}
             </h1>
             <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-              Pantau & kelola semua acara
+              {isAdmin ? 'Pantau & kelola semua acara' : 'Jadwal acara publik Metropolitan Mall Bekasi'}
             </p>
           </div>
           <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
@@ -515,6 +547,36 @@ export default function App() {
           </div>
         )}
 
+        {/* Public Welcome Section */}
+        {!isAdmin && (
+          <div className="relative overflow-hidden rounded-2xl border border-violet-200/60 bg-gradient-to-r from-violet-50 via-indigo-50 to-violet-50 p-4 sm:p-5 dark:border-violet-800/30 dark:from-violet-950/20 dark:via-indigo-950/20 dark:to-violet-950/20">
+            <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-violet-200/30 dark:bg-violet-700/10" />
+            <div className="absolute -right-2 bottom-0 h-16 w-16 rounded-full bg-indigo-200/20 dark:bg-indigo-700/10" />
+            <div className="relative">
+              <p className="text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-200">
+                Temukan acara yang sedang berlangsung dan agenda mendatang di area mall.
+              </p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                {visibleStats.ongoing > 0 && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
+                    {visibleStats.ongoing} berlangsung
+                  </span>
+                )}
+                {visibleStats.upcoming > 0 && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    {visibleStats.upcoming} mendatang
+                  </span>
+                )}
+                <span className="text-xs text-slate-400 dark:text-slate-500">
+                  {visibleStats.total} acara terjadwal
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {isAdmin && (
           <Suspense fallback={<SectionFallback height="h-64" />}>
             <AdminDraftSection
@@ -539,9 +601,9 @@ export default function App() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <StatCard
             icon={<CalendarDays className="h-5 w-5 text-white" />}
-            label={isAdmin ? 'Total Acara' : 'Total Event'}
+            label="Total Acara"
             value={visibleStats.total}
-            subtitle={isAdmin ? 'keseluruhan' : 'semua event'}
+            subtitle={isAdmin ? 'keseluruhan' : 'acara terjadwal'}
             gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           />
           <StatCard
@@ -561,7 +623,7 @@ export default function App() {
           />
           <StatCard
             icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-            label={isAdmin ? 'Selesai' : 'Event Selesai'}
+            label={isAdmin ? 'Selesai' : 'Sudah Selesai'}
             value={visibleStats.past}
             subtitle={isAdmin ? 'telah berlangsung' : 'arsip kegiatan'}
             gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
@@ -585,6 +647,7 @@ export default function App() {
                 title="Sedang Berlangsung"
                 accent="emerald"
                 icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                onDetail={handleDetailClick}
               />
             </Suspense>
             <Suspense fallback={<SectionFallback height="h-40" />}>
@@ -593,20 +656,33 @@ export default function App() {
                 title="Segera Dimulai"
                 accent="amber"
                 icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+                onDetail={handleDetailClick}
               />
             </Suspense>
           </div>
         )}
 
-        {/* Featured upcoming for non-admin */}
-        {!isAdmin && upcomingEvents.length > 0 && (
-          <section id="featured" className="scroll-mt-32">
+        {/* Featured for public -- ongoing + upcoming */}
+        {!isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
+          <section id="featured" className="space-y-4 scroll-mt-32 sm:space-y-5">
+            {ongoingEvents.length > 0 && (
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <FeaturedEvents
+                  events={ongoingEvents}
+                  title="Sedang Berlangsung"
+                  accent="emerald"
+                  icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                  onDetail={handleDetailClick}
+                />
+              </Suspense>
+            )}
             <Suspense fallback={<SectionFallback height="h-40" />}>
               <FeaturedEvents
                 events={upcomingEvents.slice(0, 3)}
                 title="Segera Dimulai"
                 accent="amber"
                 icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+                onDetail={handleDetailClick}
               />
             </Suspense>
           </section>
@@ -634,33 +710,35 @@ export default function App() {
           </div>
         )}
 
-        <Suspense fallback={<SectionFallback height="h-80" />}>
-          <DashboardViewsSection
-            viewMode={viewMode}
-            availableViewTabs={availableViewTabs}
-            setViewMode={setViewMode}
-            isAdmin={isAdmin}
-            visibleEvents={visibleEvents}
-            visibleStats={{ total: visibleStats.total }}
-            holidays={holidays}
-            error={error}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-            activePriority={activePriority}
-            setActivePriority={setActivePriority}
-            activeMonth={activeMonth}
-            setActiveMonth={setActiveMonth}
-            visibleCategories={visibleCategories}
-            visibleMonths={visibleMonths}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            onDetail={handleDetailClick}
-          />
-        </Suspense>
+        <section id="views" className="scroll-mt-32">
+          <Suspense fallback={<SectionFallback height="h-80" />}>
+            <DashboardViewsSection
+              viewMode={viewMode}
+              availableViewTabs={availableViewTabs}
+              setViewMode={setViewMode}
+              isAdmin={isAdmin}
+              visibleEvents={visibleEvents}
+              visibleStats={{ total: visibleStats.total }}
+              holidays={holidays}
+              error={error}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              activeFilter={activeFilter}
+              setActiveFilter={setActiveFilter}
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+              activePriority={activePriority}
+              setActivePriority={setActivePriority}
+              activeMonth={activeMonth}
+              setActiveMonth={setActiveMonth}
+              visibleCategories={visibleCategories}
+              visibleMonths={visibleMonths}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+              onDetail={handleDetailClick}
+            />
+          </Suspense>
+        </section>
 
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
@@ -739,6 +817,7 @@ export default function App() {
           onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
           onEdit={isAdmin ? handleEdit : undefined}
           onDelete={isAdmin ? handleDeleteClick : undefined}
+          isAdmin={isAdmin}
         />
       </Suspense>
 

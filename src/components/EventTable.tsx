@@ -113,7 +113,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
                   <div className="flex flex-wrap items-center gap-2">
                     <CategoryBadges categories={ev.categories} maxVisible={2} />
-                    <PriorityBadge priority={ev.priority} />
+                    {isAdmin && <PriorityBadge priority={ev.priority} />}
                     {(() => {
                       const modelBadge = getEventModelBadge(ev.eventModel);
                       return modelBadge ? (
@@ -134,7 +134,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                       <span className="line-clamp-2">{ev.lokasi || '–'}</span>
                     </div>
-                    {ev.eo && <p className="text-slate-600 dark:text-slate-300">EO: {ev.eo}</p>}
+                    {ev.eo && <p className="text-slate-600 dark:text-slate-300">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
                   </div>
                 </button>
 
@@ -183,7 +183,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">EO</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi</th>
             </tr>
           </thead>
@@ -219,9 +219,11 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       {ev.keterangan && (
                         <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">{ev.keterangan}</p>
                       )}
-                      <div className="mt-1">
-                        <PriorityBadge priority={ev.priority} />
-                      </div>
+                      {isAdmin && (
+                        <div className="mt-1">
+                          <PriorityBadge priority={ev.priority} />
+                        </div>
+                      )}
                     </td>
                     {/* Location */}
                     <td className="px-4 py-3">
@@ -294,12 +296,14 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800">
         <p className="text-xs text-slate-400">Menampilkan {events.length} acara</p>
-        <button
-          onClick={() => exportCSV(events)}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
-        >
-          <Download className="h-3 w-3" /> Export CSV
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => exportCSV(events)}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+          >
+            <Download className="h-3 w-3" /> Export CSV
+          </button>
+        )}
       </div>
     </div>
   );

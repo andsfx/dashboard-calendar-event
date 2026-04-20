@@ -84,7 +84,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={ev.status} size="sm" />
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
-                        <PriorityBadge priority={ev.priority} />
+                        {isAdmin && <PriorityBadge priority={ev.priority} />}
                       </div>
                       <p className="font-bold text-slate-800 dark:text-white">{ev.acara}</p>
                       {ev.keterangan && (

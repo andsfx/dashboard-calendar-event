@@ -22,6 +22,7 @@ interface Props {
   title: string;
   accent: string;
   icon: React.ReactNode;
+  onDetail?: (ev: EventItem) => void;
 }
 
 function CountdownBadge({ dateStr }: { dateStr: string }) {
@@ -53,7 +54,7 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
   );
 }
 
-export function FeaturedEvents({ events, title, accent, icon }: Props) {
+export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props) {
   if (events.length === 0) return null;
 
   const featured = events.slice(0, 3);
@@ -74,8 +75,12 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
           return (
             <div
               key={ev.id}
-                className={`relative overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 sm:p-5 ${accentStyle.border}`}
-              >
+              onClick={() => onDetail?.(ev)}
+              role={onDetail ? 'button' : undefined}
+              tabIndex={onDetail ? 0 : undefined}
+              onKeyDown={onDetail ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } } : undefined}
+              className={`relative overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer' : ''} ${accentStyle.border}`}
+            >
               {/* Glow bar */}
               <div
                 className="absolute left-0 top-0 h-1 w-full"
@@ -102,7 +107,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-1">{ev.tanggal}</span>
-                  {ev.jam && <span className="hidden text-slate-400 sm:inline">- {ev.jam}</span>}
+                  {ev.jam && <span className="text-slate-400">- {ev.jam}</span>}
                 </div>
                 {ev.lokasi && (
                   <div className="flex items-center gap-1.5">
@@ -110,7 +115,7 @@ export function FeaturedEvents({ events, title, accent, icon }: Props) {
                     <span className="line-clamp-1">{ev.lokasi}</span>
                   </div>
                 )}
-                {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">EO: {ev.eo}</p>}
+                {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">Penyelenggara: {ev.eo}</p>}
               </div>
 
               {ev.keterangan && (

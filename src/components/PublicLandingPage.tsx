@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CalendarDays, ChevronDown, Menu, Moon, Send, Shield, SunMedium, X } from 'lucide-react';
+import { ArrowRight, CalendarDays, ChevronDown, Clock, MapPin, Menu, Moon, Send, Shield, SunMedium, Timer, X, Zap } from 'lucide-react';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import heroImage from '../assets/landing/event-hero.jpg';
 import atmosphereImage from '../assets/landing/celebration.jpg';
@@ -117,12 +117,82 @@ function eyebrow(label: string, light = false) {
   );
 }
 
-function meta(event: EventItem) {
-  return `${event.day}, ${event.tanggal}${event.jam ? ` | ${event.jam}` : ''}`;
+function HeroCountdown({ dateStr }: { dateStr: string }) {
+  const [diff, setDiff] = useState('');
+
+  useEffect(() => {
+    const calc = () => {
+      const target = new Date(dateStr).getTime();
+      const now = Date.now();
+      const ms = target - now;
+      if (ms <= 0) { setDiff('Hari ini'); return; }
+      const days = Math.floor(ms / 86400000);
+      const hrs = Math.floor((ms % 86400000) / 3600000);
+      if (days > 0) setDiff(`${days}h ${hrs}j lagi`);
+      else {
+        const mins = Math.floor((ms % 3600000) / 60000);
+        setDiff(`${hrs}j ${mins}m lagi`);
+      }
+    };
+    calc();
+    const t = setInterval(calc, 60000);
+    return () => clearInterval(t);
+  }, [dateStr]);
+
+  if (!diff) return null;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[11px] font-semibold text-amber-200 backdrop-blur-sm">
+      <Timer className="h-3 w-3" /> {diff}
+    </span>
+  );
 }
 
-function shortMeta(event: EventItem) {
-  return `${event.tanggal}${event.jam ? ` | ${event.jam}` : ''}`;
+function HeroEventCard({ event, onClick }: { event: EventItem; onClick: (ev: EventItem) => void }) {
+  const isLive = event.status === 'ongoing';
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(event)}
+      className="group flex w-full items-start gap-3 rounded-2xl border border-white/[0.12] bg-white/[0.07] p-4 text-left backdrop-blur-md transition hover:bg-white/[0.13] hover:border-white/[0.2]"
+    >
+      <div className="shrink-0 pt-0.5">
+        {isLive ? (
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 backdrop-blur-sm">
+            <Zap className="h-4 w-4 text-emerald-300" />
+          </span>
+        ) : (
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+            <CalendarDays className="h-4 w-4 text-white/70" />
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          {isLive && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live
+            </span>
+          )}
+          {event.status === 'upcoming' && event.dateStr && <HeroCountdown dateStr={event.dateStr} />}
+        </div>
+        <p className="mt-1.5 text-[15px] font-semibold leading-snug text-white line-clamp-1 group-hover:text-white/95">{event.acara}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/60">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {event.tanggal}{event.jam ? ` | ${event.jam}` : ''}
+          </span>
+          {event.lokasi && (
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span className="line-clamp-1">{event.lokasi}</span>
+            </span>
+          )}
+        </div>
+      </div>
+      <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/30 transition group-hover:text-white/60 group-hover:translate-x-0.5" />
+    </button>
+  );
 }
 
 function SubmissionForm({ onSubmitRequest }: { onSubmitRequest: (payload: PublicEventRequestPayload) => Promise<boolean> }) {
@@ -255,42 +325,24 @@ export function PublicLandingPage({
     return today >= theme.dateStart && today <= theme.dateEnd;
   }) ?? themes[0] ?? null, [themes]);
 
-  const spotlight = ongoingEvents[0] ?? upcomingEvents[0] ?? events[0] ?? null;
-  const featuredList = useMemo(
-    () => [...ongoingEvents, ...upcomingEvents].filter((item, index, array) => array.findIndex(other => other.id === item.id) === index).slice(0, 3),
+  // Deduplicated ongoing + upcoming for hero cards (max 3, mobile max 2 handled via CSS)
+  const heroEvents = useMemo(
+    () => [...ongoingEvents, ...upcomingEvents]
+      .filter((item, index, array) => array.findIndex(other => other.id === item.id) === index)
+      .slice(0, 3),
     [ongoingEvents, upcomingEvents]
   );
-  const featuredRail = featuredList.length > 0
-    ? featuredList
-    : [
-        {
-          id: 'placeholder-1',
-          month: 'APR',
-          status: 'upcoming' as const,
-          acara: 'Jadwal acara berikutnya segera diumumkan',
-          tanggal: 'Pantau kalender publik',
-          jam: '',
-          lokasi: 'Area event utama Metropolitan Mall Bekasi',
-        },
-        {
-          id: 'placeholder-2',
-          month: 'APR',
-          status: 'upcoming' as const,
-          acara: 'Program keluarga akhir pekan sedang disiapkan',
-          tanggal: 'Informasi tampil menyusul',
-          jam: '',
-          lokasi: 'Atrium dan area pendukung',
-        },
-        {
-          id: 'placeholder-3',
-          month: 'APR',
-          status: 'upcoming' as const,
-          acara: 'Kolaborasi tenant dan aktivasi brand akan segera hadir',
-          tanggal: 'Lihat pembaruan berikutnya',
-          jam: '',
-          lokasi: 'Metropolitan Mall Bekasi',
-        },
-      ];
+
+  // All agenda for the "Semua Agenda Mendatang" section
+  const allAgenda = useMemo(
+    () => [...ongoingEvents, ...upcomingEvents]
+      .filter((item, index, array) => array.findIndex(other => other.id === item.id) === index),
+    [ongoingEvents, upcomingEvents]
+  );
+  const AGENDA_INITIAL_LIMIT = 6;
+  const [showAllAgenda, setShowAllAgenda] = useState(false);
+  const visibleAgenda = showAllAgenda ? allAgenda : allAgenda.slice(0, AGENDA_INITIAL_LIMIT);
+
   const partners = useMemo(() => Array.from(new Set(events.map(event => event.eo).filter(Boolean))).slice(0, 8), [events]);
   const headerClassName = isHeaderPinned
     ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md'
@@ -369,14 +421,15 @@ export function PublicLandingPage({
           id="hero"
           className="relative min-h-screen overflow-hidden"
           style={{
-            backgroundImage: `linear-gradient(90deg, rgba(15,23,42,0.64) 0%, rgba(15,23,42,0.4) 28%, rgba(15,23,42,0.1) 58%, rgba(15,23,42,0.16) 100%), linear-gradient(180deg, rgba(15,23,42,0.18) 0%, rgba(15,23,42,0.16) 18%, rgba(15,23,42,0.18) 54%, rgba(15,23,42,0.34) 100%), url(${heroImage})`,
+            backgroundImage: `linear-gradient(90deg, rgba(15,23,42,0.68) 0%, rgba(15,23,42,0.48) 30%, rgba(15,23,42,0.22) 60%, rgba(15,23,42,0.32) 100%), linear-gradient(180deg, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.18) 20%, rgba(15,23,42,0.22) 56%, rgba(15,23,42,0.42) 100%), url(${heroImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center top',
           }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(242,116,62,0.06),transparent_28%),radial-gradient(circle_at_top_right,rgba(124,108,242,0.04),transparent_24%)]" />
           <div className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-slate-950/34 via-slate-950/10 to-transparent md:w-[40%]" />
-          <div className="relative mx-auto flex min-h-[calc(100svh-4.5rem)] max-w-7xl items-center px-4 py-14 sm:px-6 sm:py-18 lg:py-22">
+          <div className="relative mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-7xl items-center gap-8 px-4 py-14 sm:px-6 sm:py-18 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:py-22">
+            {/* Left: Headline + CTA */}
             <RevealSection as="div" className="max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-black/14 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/76">
                 <CalendarDays className="h-3.5 w-3.5 text-orange-300" />
@@ -399,73 +452,133 @@ export function PublicLandingPage({
                 </a>
               </div>
             </RevealSection>
+
+            {/* Right: Upcoming Event Cards */}
+            <RevealSection as="div" className="flex flex-col gap-3 lg:self-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">
+                {heroEvents.length > 0 ? `${heroEvents.length} acara terdekat` : 'Agenda terdekat'}
+              </p>
+              {heroEvents.length > 0 ? (
+                <div className="flex flex-col gap-2.5">
+                  {heroEvents.map(ev => (
+                    <HeroEventCard key={ev.id} event={ev} onClick={onDetail} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-white/[0.12] bg-white/[0.07] p-5 backdrop-blur-md">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                      <CalendarDays className="h-4 w-4 text-white/50" />
+                    </span>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">Segera hadir</p>
+                  </div>
+                  <p className="mt-3 text-lg font-semibold leading-snug text-white/80">Jadwal acara berikutnya segera diumumkan.</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">Pantau kalender publik untuk update terbaru mengenai program dan aktivasi di area mall.</p>
+                </div>
+              )}
+            </RevealSection>
           </div>
         </section>
 
         <RevealSection id="featured" intensity="strong" className="px-4 py-20 sm:px-6">
-          <div className="reveal-cluster mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.62fr_1.38fr] lg:items-start">
-            <div className="max-w-md">
-              {eyebrow('Agenda Pekan Ini')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Sorotan acara minggu ini.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-600">Sorotan utama kami tampilkan lebih besar, lalu agenda berikutnya disusun sebagai rail singkat agar pengunjung bisa cepat memilih acara yang ingin didatangi.</p>
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                {eyebrow('Agenda Mendatang')}
+                <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Semua acara yang akan datang.</h2>
+              </div>
+              <p className="max-w-xl text-sm leading-7 text-slate-600">
+                Daftar lengkap acara yang sedang berlangsung dan akan segera dimulai di area Metropolitan Mall Bekasi.
+                {allAgenda.length > 0 && <span className="ml-1 font-medium" style={{ color: BRAND.accent }}>{allAgenda.length} acara tersedia</span>}
+              </p>
             </div>
-            <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-end">
-              <button
-                type="button"
-                onClick={() => spotlight && onDetail(spotlight)}
-                className="group relative overflow-hidden rounded-[2.4rem] text-left text-white shadow-[0_20px_56px_rgba(15,23,42,0.08)]"
-                style={{
-                  minHeight: 540,
-                  backgroundImage: `linear-gradient(180deg, rgba(17,24,39,0.08) 0%, rgba(17,24,39,0.78) 100%), url(${festivalImage})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/78 via-slate-950/12 to-transparent transition duration-500 group-hover:from-slate-950/70" />
-                <div className="relative flex h-full flex-col justify-end p-8 sm:p-10">
-                  <div className="max-w-[24rem] rounded-[1.75rem] bg-slate-950/54 p-5 shadow-[0_18px_46px_rgba(15,23,42,0.24)] backdrop-blur-[4px] sm:p-6">
-                    <p className="text-[11px] uppercase tracking-[0.3em] text-white/68">Sorotan utama akhir pekan</p>
-                    <p className="mt-4 max-w-md text-3xl font-semibold leading-tight sm:text-[2.3rem]">
-                    {spotlight?.acara || 'Acara akhir pekan berikutnya segera hadir di area utama mall'}
-                    </p>
-                    <p className="mt-4 max-w-lg text-sm leading-7 text-white/74">
-                    {spotlight?.keterangan || 'Pantau program yang paling ramai diperbincangkan pengunjung, lengkap dengan waktu tampil dan lokasi pelaksanaannya.'}
-                    </p>
-                    <div className="mt-6 flex flex-col gap-2 text-sm text-white/76 sm:flex-row sm:flex-wrap sm:gap-4">
-                      <span>{spotlight ? meta(spotlight) : 'Jadwal acara segera diumumkan'}</span>
-                      <span>{spotlight?.lokasi || 'Atrium dan area event utama'}</span>
-                    </div>
-                  </div>
-                </div>
-              </button>
-              <div className="rounded-[2rem] border border-black/8 bg-white/92 p-2 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-                <div className="space-y-1">
-                  {featuredRail.map((item, index) => (
+
+            {allAgenda.length > 0 ? (
+              <>
+                <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {visibleAgenda.map(ev => (
                     <button
-                      key={item.id}
+                      key={ev.id}
                       type="button"
-                      onClick={() => 'day' in item && onDetail(item)}
-                      className="flex w-full items-start gap-4 rounded-[1.5rem] px-4 py-5 text-left transition hover:bg-slate-50"
+                      onClick={() => onDetail(ev)}
+                      className="group rounded-[2rem] border p-5 text-left shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
+                      style={{ background: BRAND.paper, borderColor: BRAND.border }}
                     >
-                      <div className="w-14 shrink-0 pt-1 text-center">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: BRAND.accent }}>
-                          {item.month}
-                        </p>
-                        <p className="mt-2 text-2xl font-semibold text-slate-900">{String(index + 1).padStart(2, '0')}</p>
+                      <div className="flex items-center gap-2">
+                        {ev.status === 'ongoing' ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Live
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${BRAND.accent}14`, color: BRAND.accent }}>
+                            Segera hadir
+                          </span>
+                        )}
+                        <span className="text-[11px] font-medium text-slate-400">{ev.month}</span>
                       </div>
-                      <div className="min-w-0 flex-1 border-l border-black/6 pl-4">
-                        <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">
-                          {item.status === 'ongoing' ? 'Sedang berlangsung' : 'Segera hadir'}
-                        </p>
-                        <p className="mt-2 text-xl font-semibold leading-tight text-slate-900">{item.acara}</p>
-                        <p className="mt-3 text-sm leading-6 text-slate-600">{'day' in item ? shortMeta(item) : item.tanggal}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-500">{item.lokasi || 'Area event Metropolitan Mall Bekasi'}</p>
+                      <p className="mt-3 text-xl font-semibold leading-tight text-slate-900 line-clamp-2 group-hover:text-slate-700">{ev.acara}</p>
+                      <div className="mt-3 space-y-1.5 text-sm text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 shrink-0" />
+                          <span>{ev.tanggal}{ev.jam ? ` | ${ev.jam}` : ''}</span>
+                        </div>
+                        {ev.lokasi && (
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 shrink-0" />
+                            <span className="line-clamp-1">{ev.lokasi}</span>
+                          </div>
+                        )}
                       </div>
+                      {ev.keterangan && (
+                        <p className="mt-3 line-clamp-2 border-t pt-3 text-sm leading-6 text-slate-400" style={{ borderColor: BRAND.border }}>{ev.keterangan}</p>
+                      )}
+                      {ev.categories && ev.categories.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {ev.categories.slice(0, 2).map(cat => (
+                            <span key={cat} className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium text-slate-500" style={{ borderColor: BRAND.border }}>{cat}</span>
+                          ))}
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
+                {allAgenda.length > AGENDA_INITIAL_LIMIT && (
+                  <div className="mt-8 text-center">
+                    {showAllAgenda ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllAgenda(false)}
+                        className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                        style={{ borderColor: BRAND.border }}
+                      >
+                        Tampilkan lebih sedikit
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllAgenda(true)}
+                        className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                        style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
+                      >
+                        Lihat semua {allAgenda.length} acara
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mt-10 rounded-[2rem] border p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.05)]" style={{ background: BRAND.paper, borderColor: BRAND.border }}>
+                <CalendarDays className="mx-auto h-10 w-10 text-slate-300" />
+                <p className="mt-4 text-xl font-semibold text-slate-700">Belum ada agenda mendatang</p>
+                <p className="mt-2 text-sm text-slate-500">Jadwal acara berikutnya akan segera diumumkan. Pantau kalender publik untuk update terbaru.</p>
+                <a href="#calendar" className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white" style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}>
+                  Lihat Kalender
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </div>
-            </div>
+            )}
           </div>
         </RevealSection>
 
