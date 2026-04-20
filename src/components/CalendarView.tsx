@@ -9,6 +9,12 @@ import { ModalWrapper } from './ModalWrapper';
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2 };
+const STATUS_GROUPS = [
+  { key: 'ongoing' as const, label: 'Sedang Berlangsung', dot: 'bg-emerald-500' },
+  { key: 'upcoming' as const, label: 'Akan Datang', dot: 'bg-amber-400' },
+  { key: 'past' as const, label: 'Sudah Selesai', dot: 'bg-slate-400' },
+];
 
 function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
@@ -53,6 +59,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const monthEvents = events
     .filter(e => e.dateStr.startsWith(monthStr))
     .sort((a, b) => {
+      const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+      if (statusCompare !== 0) return statusCompare;
       const dateCompare = a.dateStr.localeCompare(b.dateStr);
       if (dateCompare !== 0) return dateCompare;
       const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
@@ -68,6 +76,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       return a.name.localeCompare(b.name);
     });
   const selectedDayEvents = selectedDate ? (byDate[selectedDate] ?? []).slice().sort((a, b) => {
+    const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+    if (statusCompare !== 0) return statusCompare;
     const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
     if (timeCompare !== 0) return timeCompare;
     return a.acara.localeCompare(b.acara);
@@ -192,55 +202,78 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                    <p className="text-xs text-slate-400">{monthEvents.length} event di bulan ini</p>
+                    <p className="text-xs text-slate-400">
+                      {monthEvents.length} event di bulan ini
+                      {monthEvents.length > 0 && (
+                        <span>
+                          {' '}({[
+                            monthEvents.filter(e => e.status === 'ongoing').length > 0 && `${monthEvents.filter(e => e.status === 'ongoing').length} berlangsung`,
+                            monthEvents.filter(e => e.status === 'upcoming').length > 0 && `${monthEvents.filter(e => e.status === 'upcoming').length} mendatang`,
+                            monthEvents.filter(e => e.status === 'past').length > 0 && `${monthEvents.filter(e => e.status === 'past').length} selesai`,
+                          ].filter(Boolean).join(', ')})
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </div>
 
                 {monthEvents.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {monthEvents.map(ev => {
-                      const isSelectedCard = selectedDate === ev.dateStr;
-
+                  <div className="space-y-0">
+                    {STATUS_GROUPS.map((group, groupIdx) => {
+                      const groupEvents = monthEvents.filter(ev => ev.status === group.key);
+                      if (groupEvents.length === 0) return null;
                       return (
-                        <button
-                          key={ev.id}
-                          onClick={() => onDetail(ev)}
-                          className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
-                            isSelectedCard
-                              ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
-                              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
-                          }`}
-                        >
-                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                              {ev.day}, {ev.tanggal}
+                        <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-slate-100 pt-5 dark:border-slate-700' : ''}>
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className={`h-2 w-2 rounded-full ${group.dot}`} />
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                              {group.label} ({groupEvents.length})
                             </p>
-                            <StatusBadge status={ev.status} size="sm" />
                           </div>
-
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <CategoryBadges categories={ev.categories} maxVisible={2} />
+                          <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${group.key === 'past' ? 'opacity-60' : ''}`}>
+                            {groupEvents.map(ev => {
+                              const isSelectedCard = selectedDate === ev.dateStr;
+                              return (
+                                <button
+                                  key={ev.id}
+                                  onClick={() => onDetail(ev)}
+                                  className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
+                                    isSelectedCard
+                                      ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                                      : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                                  }`}
+                                >
+                                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                                      {ev.day}, {ev.tanggal}
+                                    </p>
+                                    <StatusBadge status={ev.status} size="sm" />
+                                  </div>
+                                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                                    <CategoryBadges categories={ev.categories} maxVisible={2} />
+                                  </div>
+                                  <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                                  <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                    {ev.jam && (
+                                      <div className="flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3 shrink-0" />
+                                        <span>{ev.jam}</span>
+                                      </div>
+                                    )}
+                                    {ev.lokasi && (
+                                      <div className="flex items-center gap-1.5">
+                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        <span className="line-clamp-2">{ev.lokasi}</span>
+                                      </div>
+                                    )}
+                                    {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                                  </div>
+                                </button>
+                              );
+                            })}
                           </div>
-
-                          <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-
-                          <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                            {ev.jam && (
-                              <div className="flex items-center gap-1.5">
-                                <Clock className="h-3 w-3 shrink-0" />
-                                <span>{ev.jam}</span>
-                              </div>
-                            )}
-                            {ev.lokasi && (
-                              <div className="flex items-center gap-1.5">
-                                <MapPin className="h-3 w-3 shrink-0" />
-                                <span className="line-clamp-2">{ev.lokasi}</span>
-                              </div>
-                            )}
-                            {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                            {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
-                          </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -352,44 +385,57 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
               </div>
 
               {selectedDayEvents.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedDayEvents.map(ev => (
-                    <button
-                      key={`day-popup-${ev.id}`}
-                      onClick={() => {
-                        setSelectedDate(null);
-                        onDetail(ev);
-                      }}
-                      className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
-                    >
-                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
-                        <StatusBadge status={ev.status} size="sm" />
+                <div className="space-y-0">
+                  {STATUS_GROUPS.map((group, groupIdx) => {
+                    const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key);
+                    if (groupEvents.length === 0) return null;
+                    return (
+                      <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-slate-100 pt-4 dark:border-slate-700' : ''}>
+                        <div className="mb-3 flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-full ${group.dot}`} />
+                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            {group.label} ({groupEvents.length})
+                          </p>
+                        </div>
+                        <div className={`space-y-3 ${group.key === 'past' ? 'opacity-60' : ''}`}>
+                          {groupEvents.map(ev => (
+                            <button
+                              key={`day-popup-${ev.id}`}
+                              onClick={() => {
+                                setSelectedDate(null);
+                                onDetail(ev);
+                              }}
+                              className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                            >
+                              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
+                                <StatusBadge status={ev.status} size="sm" />
+                              </div>
+                              <div className="mb-2 flex flex-wrap items-center gap-2">
+                                <CategoryBadges categories={ev.categories} maxVisible={2} />
+                              </div>
+                              <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                              <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                {ev.jam && (
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="h-3 w-3 shrink-0" />
+                                    <span>{ev.jam}</span>
+                                  </div>
+                                )}
+                                {ev.lokasi && (
+                                  <div className="flex items-center gap-1.5">
+                                    <MapPin className="h-3 w-3 shrink-0" />
+                                    <span className="line-clamp-2">{ev.lokasi}</span>
+                                  </div>
+                                )}
+                                {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
                       </div>
-
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <CategoryBadges categories={ev.categories} maxVisible={2} />
-                      </div>
-
-                      <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-
-                      <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        {ev.jam && (
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="h-3 w-3 shrink-0" />
-                            <span>{ev.jam}</span>
-                          </div>
-                        )}
-                        {ev.lokasi && (
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 shrink-0" />
-                            <span className="line-clamp-2">{ev.lokasi}</span>
-                          </div>
-                        )}
-                        {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                      </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
