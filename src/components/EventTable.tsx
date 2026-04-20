@@ -114,7 +114,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   <div className="flex flex-wrap items-center gap-2">
                     <CategoryBadges categories={ev.categories} maxVisible={2} />
                     {isAdmin && <PriorityBadge priority={ev.priority} />}
-                    {(() => {
+                    {isAdmin && (() => {
                       const modelBadge = getEventModelBadge(ev.eventModel);
                       return modelBadge ? (
                         <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
@@ -182,7 +182,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Lokasi</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model</th>
+              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model</th>}
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi</th>
             </tr>
@@ -191,7 +191,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             {groupedEvents.map(group => (
               <Fragment key={group.monthKey}>
                 <tr key={`${group.monthKey}-header`} className="border-y border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/70">
-                  <td colSpan={9} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     {group.monthLabel}
                   </td>
                 </tr>
@@ -242,16 +242,18 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      {(() => {
-                        const modelBadge = getEventModelBadge(ev.eventModel);
-                        return modelBadge ? (
-                          <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
-                            {modelBadge.label}
-                          </span>
-                        ) : <span className="text-xs text-slate-300 dark:text-slate-600">-</span>;
-                      })()}
-                    </td>
+                    {isAdmin && (
+                      <td className="whitespace-nowrap px-4 py-3">
+                        {(() => {
+                          const modelBadge = getEventModelBadge(ev.eventModel);
+                          return modelBadge ? (
+                            <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
+                              {modelBadge.label}
+                            </span>
+                          ) : <span className="text-xs text-slate-300 dark:text-slate-600">-</span>;
+                        })()}
+                      </td>
+                    )}
                     {/* EO */}
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
                       {ev.eo || '–'}

@@ -115,7 +115,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
                 value={event.phone}
               />
             )}
-            {event.eventModel && (
+            {isAdmin && event.eventModel && (
               <InfoRow
                 icon={<Tag className="h-4 w-4 text-emerald-500" />}
                 label="Model Event"
