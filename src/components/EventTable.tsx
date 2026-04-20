@@ -209,7 +209,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       <div className="text-xs text-slate-400">{ev.tanggal}</div>
                     </td>
                     {/* Time */}
-                    <td className="whitespace-nowrap px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <td className="whitespace-nowrap px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                         <Clock className="h-3 w-3 text-slate-400" />
                         {ev.jam || '–'}
@@ -262,7 +262,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </td>
                     {/* Actions */}
                     <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => onDetail(ev)}
                           title="Detail"

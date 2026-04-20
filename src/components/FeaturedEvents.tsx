@@ -127,9 +127,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         })}
       </div>
       {events.length > 3 && (
-        <p className={`mt-3 text-xs font-medium ${accentStyle.link}`}>
-          +{events.length - 3} acara lainnya tersedia di tampilan utama
-        </p>
+        <button
+          type="button"
+          onClick={() => document.getElementById('views')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className={`mt-3 cursor-pointer text-xs font-medium transition hover:underline ${accentStyle.link}`}
+        >
+          +{events.length - 3} acara lainnya — lihat di daftar acara
+        </button>
       )}
     </div>
   );
