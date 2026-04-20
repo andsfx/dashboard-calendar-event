@@ -440,10 +440,10 @@ export default function App() {
   );
   const publicSectionItems = useMemo(
     () => [
-      { id: 'summary', label: 'Ringkasan' },
       ...((ongoingEvents.length > 0 || upcomingEvents.length > 0) ? [{ id: 'featured', label: 'Segera Hadir' }] : []),
       { id: 'calendar', label: 'Kalender' },
       { id: 'views', label: 'Daftar Acara' },
+      { id: 'summary', label: 'Ringkasan' },
       { id: 'themes', label: 'Tema Tahunan' },
     ],
     [ongoingEvents.length, upcomingEvents.length]
@@ -507,27 +507,25 @@ export default function App() {
               {isAdmin ? 'Pantau & kelola semua acara' : 'Jadwal acara publik Metropolitan Mall Bekasi'}
             </p>
           </div>
-          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <div className="w-full sm:w-[320px]">
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          {isAdmin && (
+            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <div className="w-full sm:w-[320px]">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              </div>
+              <button
+                onClick={handleOpenLetterPicker}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+              >
+                <FileText className="h-4 w-4" /> <span>Buat Surat</span>
+              </button>
+              <button
+                onClick={handleAddNew}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+              >
+                <Plus className="h-4 w-4" /> <span>Tambah</span>
+              </button>
             </div>
-            {isAdmin && (
-              <>
-                <button
-                  onClick={handleOpenLetterPicker}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                >
-                  <FileText className="h-4 w-4" /> <span>Buat Surat</span>
-                </button>
-                <button
-                  onClick={handleAddNew}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                >
-                  <Plus className="h-4 w-4" /> <span>Tambah</span>
-                </button>
-              </>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Admin Banner */}
@@ -544,36 +542,6 @@ export default function App() {
             >
               Keluar
             </button>
-          </div>
-        )}
-
-        {/* Public Welcome Section */}
-        {!isAdmin && (
-          <div className="relative overflow-hidden rounded-2xl border border-violet-200/60 bg-gradient-to-r from-violet-50 via-indigo-50 to-violet-50 p-4 sm:p-5 dark:border-violet-800/30 dark:from-violet-950/20 dark:via-indigo-950/20 dark:to-violet-950/20">
-            <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-violet-200/30 dark:bg-violet-700/10" />
-            <div className="absolute -right-2 bottom-0 h-16 w-16 rounded-full bg-indigo-200/20 dark:bg-indigo-700/10" />
-            <div className="relative">
-              <p className="text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-200">
-                Temukan acara yang sedang berlangsung dan agenda mendatang di area mall.
-              </p>
-              <div className="mt-2.5 flex flex-wrap items-center gap-3">
-                {visibleStats.ongoing > 0 && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
-                    {visibleStats.ongoing} berlangsung
-                  </span>
-                )}
-                {visibleStats.upcoming > 0 && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                    {visibleStats.upcoming} mendatang
-                  </span>
-                )}
-                <span className="text-xs text-slate-400 dark:text-slate-500">
-                  {visibleStats.total} acara terjadwal
-                </span>
-              </div>
-            </div>
           </div>
         )}
 
@@ -596,40 +564,42 @@ export default function App() {
           </Suspense>
         )}
 
-        {/* Stat Cards */}
-        <section id="summary" className="scroll-mt-32">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <StatCard
-            icon={<CalendarDays className="h-5 w-5 text-white" />}
-            label="Total Acara"
-            value={visibleStats.total}
-            subtitle={isAdmin ? 'keseluruhan' : 'acara terjadwal'}
-            gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          />
-          <StatCard
-            icon={<Radio className="h-5 w-5 text-white" />}
-            label="Sedang Berlangsung"
-            value={visibleStats.ongoing}
-            subtitle={isAdmin ? 'sedang aktif' : 'bisa dikunjungi sekarang'}
-            gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
-            pulse
-          />
-          <StatCard
-            icon={<Clock3 className="h-5 w-5 text-white" />}
-            label="Akan Datang"
-            value={visibleStats.upcoming}
-            subtitle={isAdmin ? 'akan datang' : 'jadwal berikutnya'}
-            gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
-          />
-          <StatCard
-            icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-            label={isAdmin ? 'Selesai' : 'Sudah Selesai'}
-            value={visibleStats.past}
-            subtitle={isAdmin ? 'telah berlangsung' : 'arsip kegiatan'}
-            gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
-          />
-          </div>
-        </section>
+        {/* Stat Cards -- admin only at top position */}
+        {isAdmin && (
+          <section id="summary" className="scroll-mt-32">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            <StatCard
+              icon={<CalendarDays className="h-5 w-5 text-white" />}
+              label="Total Acara"
+              value={visibleStats.total}
+              subtitle="keseluruhan"
+              gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            />
+            <StatCard
+              icon={<Radio className="h-5 w-5 text-white" />}
+              label="Sedang Berlangsung"
+              value={visibleStats.ongoing}
+              subtitle="sedang aktif"
+              gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
+              pulse
+            />
+            <StatCard
+              icon={<Clock3 className="h-5 w-5 text-white" />}
+              label="Akan Datang"
+              value={visibleStats.upcoming}
+              subtitle="akan datang"
+              gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
+            />
+            <StatCard
+              icon={<CheckCircle2 className="h-5 w-5 text-white" />}
+              label="Selesai"
+              value={visibleStats.past}
+              subtitle="telah berlangsung"
+              gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
+            />
+            </div>
+          </section>
+        )}
 
         {/* Quarter Timeline */}
         {isAdmin && (
@@ -739,6 +709,43 @@ export default function App() {
             />
           </Suspense>
         </section>
+
+        {/* Stat Cards -- public at bottom position */}
+        {!isAdmin && (
+          <section id="summary" className="scroll-mt-32">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            <StatCard
+              icon={<CalendarDays className="h-5 w-5 text-white" />}
+              label="Total Acara"
+              value={visibleStats.total}
+              subtitle="acara terjadwal"
+              gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            />
+            <StatCard
+              icon={<Radio className="h-5 w-5 text-white" />}
+              label="Sedang Berlangsung"
+              value={visibleStats.ongoing}
+              subtitle="bisa dikunjungi sekarang"
+              gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
+              pulse
+            />
+            <StatCard
+              icon={<Clock3 className="h-5 w-5 text-white" />}
+              label="Akan Datang"
+              value={visibleStats.upcoming}
+              subtitle="jadwal berikutnya"
+              gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
+            />
+            <StatCard
+              icon={<CheckCircle2 className="h-5 w-5 text-white" />}
+              label="Sudah Selesai"
+              value={visibleStats.past}
+              subtitle="arsip kegiatan"
+              gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
+            />
+            </div>
+          </section>
+        )}
 
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">

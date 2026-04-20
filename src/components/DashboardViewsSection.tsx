@@ -1,5 +1,6 @@
 import { RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus } from '../types';
+import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
 import { EventTable } from './EventTable';
 import { CalendarView } from './CalendarView';
@@ -72,6 +73,11 @@ export function DashboardViewsSection(props: Props) {
       <section>
         <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
+            {!isAdmin && (
+              <div className="w-full sm:w-[360px]">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Cari acara, lokasi, penyelenggara..." />
+              </div>
+            )}
             <div>
               <FilterBar
                 activeFilter={activeFilter}
