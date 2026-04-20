@@ -84,7 +84,7 @@ function CustomDropdown({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+        <div role="listbox" className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
           {options.map(opt => (
             <button
               key={opt.key}

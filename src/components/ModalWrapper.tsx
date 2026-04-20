@@ -6,6 +6,7 @@ interface Props {
   children: React.ReactNode;
   maxWidth?: string;
   className?: string;
+  ariaLabelledBy?: string;
 }
 
 /**
@@ -16,7 +17,7 @@ interface Props {
  * - Focus trap (first focusable element)
  * - Scroll lock
  */
-export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg', className = '' }: Props) {
+export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg', className = '', ariaLabelledBy }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Escape key handler
@@ -56,6 +57,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
       onClick={onClose}
       role="dialog"
       aria-modal="true"
+      aria-labelledby={ariaLabelledBy}
     >
       <div
         ref={panelRef}

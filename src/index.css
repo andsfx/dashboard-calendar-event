@@ -124,7 +124,9 @@ body {
   .toast-exit,
   .toast-progress,
   .live-dot,
-  .shimmer {
+  .shimmer,
+  .animate-pulse,
+  [class*="animate-pulse"] {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;

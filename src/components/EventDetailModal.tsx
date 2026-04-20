@@ -41,7 +41,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
   const isOngoing = event.status === 'ongoing';
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden">
         {/* Color accent header */}
         <div
@@ -73,7 +73,7 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
             )}
           </div>
 
-          <h2 className="pr-8 text-lg font-bold leading-snug text-slate-900 dark:text-white sm:pr-10 sm:text-xl">
+          <h2 id="event-detail-title" className="pr-8 text-lg font-bold leading-snug text-slate-900 dark:text-white sm:pr-10 sm:text-xl">
             {event.acara}
           </h2>
         </div>

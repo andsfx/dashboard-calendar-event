@@ -198,8 +198,10 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 ${ev.status === 'past' ? 'opacity-60' : ''}`}
+                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-violet-50 dark:focus-visible:bg-violet-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-60' : ''}`}
                     onClick={() => onDetail(ev)}
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
                   >
                     {/* Date */}
                     <td className="whitespace-nowrap px-4 py-3">

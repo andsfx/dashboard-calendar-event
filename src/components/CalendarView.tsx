@@ -91,14 +91,14 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:w-96 lg:shrink-0">
         {/* Header */}
         <div className="flex items-center justify-between bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-4">
-          <button onClick={prevMonth} className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
+          <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="text-center">
             <p className="text-lg font-bold text-white">{MONTH_ID[month]}</p>
             <p className="text-xs text-white/70">{year} | {monthEvents.length} acara</p>
           </div>
-          <button onClick={nextMonth} className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
+          <button onClick={nextMonth} aria-label="Bulan berikutnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
@@ -125,6 +125,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             const hasNationalHoliday = dayHolidays.some(h => h.type === 'libur_nasional');
             const hasCollectiveLeave = dayHolidays.some(h => h.type === 'cuti_bersama');
 
+            const dayLabel = `${d.day} ${MONTH_ID[month]} ${year}${dayEvents.length > 0 ? `, ${dayEvents.length} acara` : ''}${dayHolidays.length > 0 ? `, ${dayHolidays.length} hari libur` : ''}`;
+
             return (
               <button
                 key={d.dateStr}
@@ -135,6 +137,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   }
                   setSelectedDate(d.dateStr);
                 }}
+                aria-label={dayLabel}
                 className={`relative flex h-9 w-full flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
                     ? 'bg-violet-600 text-white shadow-md'
@@ -234,7 +237,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                 <span className="line-clamp-2">{ev.lokasi}</span>
                               </div>
                             )}
-                            {ev.eo && <p>EO: {ev.eo}</p>}
+                            {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
                             {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
                           </div>
                         </button>
@@ -383,7 +386,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                             <span className="line-clamp-2">{ev.lokasi}</span>
                           </div>
                         )}
-                        {ev.eo && <p>EO: {ev.eo}</p>}
+                        {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
                       </div>
                     </button>
                   ))}

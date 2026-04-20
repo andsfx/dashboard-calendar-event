@@ -74,8 +74,11 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-70' : ''}`}
+                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-70' : ''}`}
                   onClick={() => onDetail(ev)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

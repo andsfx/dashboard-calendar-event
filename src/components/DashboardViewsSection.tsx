@@ -69,7 +69,7 @@ export function DashboardViewsSection(props: Props) {
 
   return (
     <>
-      <section id="views" className="scroll-mt-32">
+      <section>
         <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col gap-3">
             <div>
@@ -111,7 +111,7 @@ export function DashboardViewsSection(props: Props) {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
-                {searchQuery && <span> · pencarian "<em>{searchQuery}</em>"</span>}
+                {searchQuery && <span> â€” pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
               </p>
               <button
                 onClick={resetFilters}
