@@ -48,7 +48,9 @@ const EVENT_HEADERS = [
   'Penanggung Jawab',
   'Nomor Handphone',
   'ID',
-  'Source Draft ID'
+  'Source Draft ID',
+  'Recurrence Group ID',
+  'Is Recurring'
 ];
 const ANNUAL_THEME_HEADERS = ['Date Start', 'Date End', 'Event', 'Color', 'ID'];
 const ANNUAL_THEME_SEED = [
@@ -461,7 +463,9 @@ function getCanonicalEventRow(eventData) {
     eventData.pic || '',
     eventData.phone || '',
     String(eventData.id || '').trim() || generateStableId('evt'),
-    String(eventData.sourceDraftId || '').trim()
+    String(eventData.sourceDraftId || '').trim(),
+    String(eventData.recurrenceGroupId || '').trim(),  // [18] Recurrence Group ID
+    eventData.isRecurring ? 'true' : ''                // [19] Is Recurring
   ];
 }
 
@@ -785,11 +789,39 @@ function getAllEvents() {
       eventModel: eventModel,
       eventNominal: String(row[headerMap['Nominal Event']] || '').trim(),
       eventModelNotes: String(row[headerMap['Keterangan Model Event']] || '').trim(),
-      sourceDraftId: String(row[headerMap['Source Draft ID']] || '').trim()
+      sourceDraftId: String(row[headerMap['Source Draft ID']] || '').trim(),
+      recurrenceGroupId: String(row[headerMap['Recurrence Group ID']] || '').trim(),
+      isRecurring: String(row[headerMap['Is Recurring']] || '').trim() === 'true'
     });
   }
 
   return { events: events, themes: getAllAnnualThemes(), holidays: getAllHolidays() };
+}
+
+// ---- BATCH CREATE: Add multiple events at once ----
+
+function batchCreateEvents(eventsData) {
+  var sheet = getSheet();
+  if (!Array.isArray(eventsData) || eventsData.length === 0) {
+    return { success: false, error: 'No events data provided' };
+  }
+  
+  try {
+    var rows = eventsData.map(function(eventData) {
+      return getCanonicalEventRow(eventData);
+    });
+    
+    var startRow = sheet.getLastRow() + 1;
+    sheet.getRange(startRow, 1, rows.length, EVENT_HEADERS.length).setValues(rows);
+    
+    var results = rows.map(function(row, i) {
+      return { id: String(row[16] || '').trim(), row: startRow + i };
+    });
+    
+    return { success: true, results: results, count: results.length };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 // ---- CREATE: Add new event ----
@@ -836,7 +868,9 @@ function updateEvent(eventData) {
       eventNominal: String(current[headerMap['Nominal Event']] || '').trim(),
       eventModelNotes: String(current[headerMap['Keterangan Model Event']] || '').trim(),
       id: String(current[headerMap['ID']] || '').trim(),
-      sourceDraftId: String(current[headerMap['Source Draft ID']] || '').trim()
+      sourceDraftId: String(current[headerMap['Source Draft ID']] || '').trim(),
+      recurrenceGroupId: String(current[headerMap['Recurrence Group ID']] || '').trim(),
+      isRecurring: String(current[headerMap['Is Recurring']] || '').trim() === 'true'
     };
     sheet.getRange(sheetRow, 1, 1, EVENT_HEADERS.length).setValues([getCanonicalEventRow(Object.assign({}, currentData, eventData))]);
   } catch (err) {
@@ -859,6 +893,35 @@ function deleteEvent(sheetRow) {
 
   sheet.deleteRow(sheetRow);
   return { success: true };
+}
+
+// ---- DELETE BY GROUP: Remove all events in a recurrence group ----
+
+function deleteByGroupId(groupId) {
+  var sheet = getSheet();
+  if (!groupId) {
+    return { success: false, error: 'Group ID is required' };
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var groupIdCol = EVENT_HEADERS.indexOf('Recurrence Group ID');
+  if (groupIdCol < 0) {
+    return { success: false, error: 'Recurrence Group ID column not found' };
+  }
+  
+  // Collect rows to delete in reverse order to avoid row shifting
+  var rowsToDelete = [];
+  for (var i = data.length - 1; i >= 1; i--) {
+    if (String(data[i][groupIdCol]).trim() === String(groupId).trim()) {
+      rowsToDelete.push(i + 1);
+    }
+  }
+  
+  for (var j = 0; j < rowsToDelete.length; j++) {
+    sheet.deleteRow(rowsToDelete[j]);
+  }
+  
+  return { success: true, deletedCount: rowsToDelete.length };
 }
 
 // ---- DRAFT EVENT CRUD ----
@@ -1201,7 +1264,7 @@ function getPublicSubmitToken() {
 
 function isMutationAction(action) {
   return [
-    'create', 'update', 'delete',
+    'create', 'update', 'delete', 'batchCreate', 'deleteByGroupId',
     'createTheme', 'updateTheme', 'deleteTheme',
     'createDraft', 'updateDraft', 'deleteDraft', 'publishDraft', 'restoreDraft',
     'createLetterRequest',
@@ -1384,6 +1447,12 @@ function doPost(e) {
     }
     if (action === 'delete') {
       return output.setContent(JSON.stringify(deleteEvent(body.sheetRow, body.id || '')));
+    }
+    if (action === 'batchCreate') {
+      return output.setContent(JSON.stringify(batchCreateEvents(body.data)));
+    }
+    if (action === 'deleteByGroupId') {
+      return output.setContent(JSON.stringify(deleteByGroupId(body.groupId)));
     }
     if (action === 'createTheme') {
       return output.setContent(JSON.stringify(createAnnualTheme(body.data)));

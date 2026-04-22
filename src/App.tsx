@@ -75,6 +75,7 @@ export default function App() {
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
     addEvent, updateEvent, deleteEvent,
+    addRecurringEvents, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     annualThemes,
     holidays,
@@ -270,6 +271,26 @@ export default function App() {
 
     return success;
   }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
+
+  const handleSaveBatch = useCallback(async (evs: EventItem[]) => {
+    const success = await addRecurringEvents(evs);
+    if (success) showToast('success', 'Event reguler ditambahkan!', `${evs.length} event berhasil dibuat.`);
+    else showToast('error', 'Gagal menambahkan', 'Event reguler belum tersimpan. Silakan coba lagi.');
+    if (success) {
+      setShowCrudModal(false);
+      setEditingEvent(null);
+    }
+    return success;
+  }, [addRecurringEvents, showToast]);
+
+  const handleDeleteSeries = useCallback(async (groupId: string) => {
+    const success = await deleteRecurringSeries(groupId);
+    if (success) showToast('success', 'Rangkaian dihapus!', 'Seluruh event dalam rangkaian telah dihapus.');
+    else showToast('error', 'Gagal menghapus', 'Rangkaian belum berhasil dihapus.');
+    setShowDetailModal(false);
+    setDetailEvent(null);
+    return success;
+  }, [deleteRecurringSeries, showToast]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingEvent) return false;
@@ -783,6 +804,7 @@ export default function App() {
           isOpen={showCrudModal}
           onClose={() => { setShowCrudModal(false); setEditingEvent(null); }}
           onSave={handleSave}
+          onSaveBatch={handleSaveBatch}
           editingEvent={editingEvent}
           events={events}
         />
@@ -824,6 +846,8 @@ export default function App() {
           onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
           onEdit={isAdmin ? handleEdit : undefined}
           onDelete={isAdmin ? handleDeleteClick : undefined}
+          onDeleteSeries={isAdmin ? handleDeleteSeries : undefined}
+          events={events}
           isAdmin={isAdmin}
         />
       </Suspense>

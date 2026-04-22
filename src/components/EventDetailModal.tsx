@@ -1,9 +1,9 @@
-import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag, CalendarDays } from 'lucide-react';
+import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag, CalendarDays, Repeat } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { CATEGORY_COLORS, isMultiDayEvent, formatDateRange, getMultiDayJamDisplay, getEventDuration, parseDateStrLocal, MONTH_NAMES } from '../utils/eventUtils';
+import { CATEGORY_COLORS, isMultiDayEvent, formatDateRange, getMultiDayJamDisplay, getEventDuration, parseDateStrLocal, MONTH_NAMES, isRecurringEvent, getRecurringSeries } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
 
 const DAY_NAMES = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -11,9 +11,11 @@ const DAY_NAMES = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 interface Props {
   isOpen: boolean;
   event: EventItem | null;
+  events?: EventItem[];
   onClose: () => void;
   onEdit?: (ev: EventItem) => void;
   onDelete?: (ev: EventItem) => void;
+  onDeleteSeries?: (groupId: string) => void;
   isAdmin?: boolean;
 }
 
@@ -36,13 +38,15 @@ function getEventModelLabel(value: EventItem['eventModel']) {
   return '';
 }
 
-export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isAdmin = false }: Props) {
+export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, onDelete, onDeleteSeries, isAdmin = false }: Props) {
   if (!event) return null;
 
   const color = CATEGORY_COLORS[event.category] ?? '#6366f1';
   const isOngoing = event.status === 'ongoing';
   const isMultiDay = isMultiDayEvent(event);
   const duration = isMultiDay ? getEventDuration(event.dateStr, event.dateEnd) : 1;
+  const isRecurring = isRecurringEvent(event);
+  const seriesEvents = isRecurring && event.recurrenceGroupId ? getRecurringSeries(events, event.recurrenceGroupId) : [];
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
@@ -78,6 +82,11 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
             {isMultiDay && (
               <span className="flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                 <CalendarDays className="h-3 w-3" /> Rangkaian acara · {duration} hari
+              </span>
+            )}
+            {isRecurring && (
+              <span className="flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                <Repeat className="h-3 w-3" /> Event reguler
               </span>
             )}
           </div>
@@ -156,6 +165,18 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
             </div>
           )}
 
+          {/* Series info untuk recurring event */}
+          {isRecurring && seriesEvents.length > 0 && (
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/30 dark:bg-indigo-900/10">
+              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                <Repeat className="h-3 w-3" /> Series Reguler
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-200">
+                Bagian dari series reguler ({seriesEvents.length} event total)
+              </p>
+            </div>
+          )}
+
           {/* Jadwal per Hari untuk rangkaian acara */}
           {isMultiDay && event.dayTimeSlots && event.dayTimeSlots.length > 0 && (
             <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
@@ -213,6 +234,14 @@ export function EventDetailModal({ isOpen, event, onClose, onEdit, onDelete, isA
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
+            </button>
+          )}
+          {isRecurring && onDeleteSeries && event.recurrenceGroupId && (
+            <button
+              onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-100 py-2.5 text-sm font-semibold text-red-800 transition hover:bg-red-200 active:scale-95 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
             </button>
           )}
         </div>

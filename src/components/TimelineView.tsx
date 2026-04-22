@@ -3,7 +3,7 @@ import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { formatDateRange, getMultiDayJamDisplay, isMultiDayEvent } from '../utils/eventUtils';
+import { formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../utils/eventUtils';
 
 interface Props {
   events: EventItem[];
@@ -87,6 +87,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                     <div className="flex-1">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={ev.status} size="sm" />
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                         {isAdmin && <PriorityBadge priority={ev.priority} />}
                       </div>

@@ -2,6 +2,8 @@ export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
 export type EventModel = '' | 'free' | 'bayar' | 'support';
 export type DraftProgress = 'draft' | 'confirm' | 'cancel';
 export type HolidayType = 'libur_nasional' | 'cuti_bersama';
+export type EventType = 'single' | 'multi_day' | 'recurring';
+export type RecurrenceFrequency = 'weekly' | 'biweekly' | 'monthly' | 'custom';
 
 export type ViewMode = 'table' | 'calendar' | 'kanban' | 'timeline';
 export type Theme = 'light' | 'dark';
@@ -9,6 +11,14 @@ export type Theme = 'light' | 'dark';
 export interface DayTimeSlot {
   date: string;      // "2025-06-12"
   jam: string;       // "10:00 - 12:00" (bisa kosong)
+}
+
+export interface RecurrenceRule {
+  frequency: RecurrenceFrequency;
+  daysOfWeek?: number[];    // [0]=Minggu, [1]=Senin, ..., [6]=Sabtu
+  dayOfMonth?: number;      // 1-31 (untuk monthly)
+  interval?: number;        // untuk custom: setiap N hari
+  endDate: string;          // "2026-06-30"
 }
 
 export interface EventItem {
@@ -35,8 +45,11 @@ export interface EventItem {
   eventNominal: string;
   eventModelNotes: string;
   sourceDraftId?: string;
-  isMultiDay?: boolean;       // true jika multi-day
-  dayTimeSlots?: DayTimeSlot[]; // jam untuk setiap hari
+  isMultiDay?: boolean;           // true jika multi-day
+  dayTimeSlots?: DayTimeSlot[];   // jam untuk setiap hari
+  eventType?: EventType;          // 'single' | 'multi_day' | 'recurring'
+  recurrenceGroupId?: string;     // shared ID untuk semua event dalam 1 series
+  isRecurring?: boolean;          // true jika bagian dari recurring series
 }
 
 export interface DraftEventItem {
@@ -67,8 +80,11 @@ export interface DraftEventItem {
   publishedAt?: string;
   deleted: boolean;
   deletedAt?: string;
-  isMultiDay?: boolean;       // true jika multi-day
-  dayTimeSlots?: DayTimeSlot[]; // jam untuk setiap hari
+  isMultiDay?: boolean;           // true jika multi-day
+  dayTimeSlots?: DayTimeSlot[];   // jam untuk setiap hari
+  eventType?: EventType;          // 'single' | 'multi_day' | 'recurring'
+  recurrenceGroupId?: string;     // shared ID untuk semua event dalam 1 series
+  isRecurring?: boolean;          // true jika bagian dari recurring series
 }
 
 export interface AnnualTheme {

@@ -28,6 +28,8 @@ interface SheetsEvent {
   sourceDraftId?: string;
   isMultiDay?: boolean;
   dayTimeSlots?: DayTimeSlot[];
+  recurrenceGroupId?: string;
+  isRecurring?: boolean;
 }
 
 interface SheetsApiResponse {
@@ -303,6 +305,9 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
         sourceDraftId: migrated.sourceDraftId || '',
         isMultiDay: migrated.isMultiDay,
         dayTimeSlots: migrated.dayTimeSlots,
+        recurrenceGroupId: migrated.recurrenceGroupId || '',
+        isRecurring: migrated.isRecurring || false,
+        eventType: migrated.isMultiDay ? 'multi_day' : (migrated.isRecurring ? 'recurring' : 'single'),
       };
     });
 
@@ -367,6 +372,32 @@ export async function deleteEvent(id: string): Promise<void> {
     }
   } catch (error) {
     console.error('Error deleting event:', error);
+    throw error;
+  }
+}
+
+export async function batchCreateEvents(eventsData: Array<Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>>): Promise<{ results: Array<{ row: number; id: string }>; count: number }> {
+  try {
+    const result = await postAction<{ success: boolean; error?: string; results?: Array<{ row: number; id: string }>; count?: number }>('batchCreate', { data: eventsData });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Batch create failed');
+    }
+    return { results: result.results || [], count: result.count || 0 };
+  } catch (error) {
+    console.error('Error batch creating events:', error);
+    throw error;
+  }
+}
+
+export async function deleteRecurringSeries(groupId: string): Promise<{ deletedCount: number }> {
+  try {
+    const result = await postAction<{ success: boolean; error?: string; deletedCount?: number }>('deleteByGroupId', { groupId });
+    if (!result.success) {
+      throw new SheetsApiError(result.error || 'Delete recurring series failed');
+    }
+    return { deletedCount: result.deletedCount || 0 };
+  } catch (error) {
+    console.error('Error deleting recurring series:', error);
     throw error;
   }
 }

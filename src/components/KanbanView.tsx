@@ -2,7 +2,7 @@ import { Clock, MapPin, Edit2, Trash2, ExternalLink, FileText, Radio, Clock3, Ch
 import { EventItem, EventStatus } from '../types';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { CATEGORY_COLORS } from '../utils/eventUtils';
+import { CATEGORY_COLORS, isRecurringEvent } from '../utils/eventUtils';
 
 const COLUMNS: Array<{
   status: EventStatus;
@@ -133,6 +133,7 @@ function EventCard({
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
           <CategoryBadges categories={ev.categories} maxVisible={2} />
           <PriorityBadge priority={ev.priority} />
+          {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { EventItem, EventStatus, DayTimeSlot } from '../types';
+import { EventItem, EventStatus, DayTimeSlot, RecurrenceRule } from '../types';
 
 export const STATUS_ORDER: Record<EventStatus, number> = {
   draft:    0,
@@ -326,3 +326,122 @@ export function recalculateStatuses(events: EventItem[]): EventItem[] {
     status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam, e.dateEnd),
   }));
 }
+
+// ===== RECURRING EVENT HELPERS =====
+
+export function isRecurringEvent(event: EventItem): boolean {
+  return event.isRecurring === true;
+}
+
+export function getRecurringSeries(events: EventItem[], groupId: string): EventItem[] {
+  if (!groupId) return [];
+  return events.filter(e => e.recurrenceGroupId === groupId);
+}
+
+/**
+ * Generate array tanggal berdasarkan recurrence rule.
+ * @param startDate - tanggal mulai (ISO string "YYYY-MM-DD")
+ * @param rule - recurrence rule
+ * @returns array of ISO date strings
+ */
+export function generateRecurringDates(startDate: string, rule: RecurrenceRule): string[] {
+  const start = parseDateStrLocal(startDate);
+  const end = parseDateStrLocal(rule.endDate);
+  if (!start || !end || end < start) return [];
+
+  const dates: string[] = [];
+  const fmtDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  if (rule.frequency === 'weekly' || rule.frequency === 'biweekly') {
+    const daysOfWeek = rule.daysOfWeek ?? [];
+    if (daysOfWeek.length === 0) return [];
+    const stepWeeks = rule.frequency === 'biweekly' ? 2 : 1;
+
+    // Cari awal minggu dari startDate (Minggu)
+    const weekStart = new Date(start);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+
+    let current = new Date(weekStart);
+    while (current <= end) {
+      for (const dow of daysOfWeek) {
+        const d = new Date(current);
+        d.setDate(d.getDate() + dow);
+        if (d >= start && d <= end) {
+          dates.push(fmtDate(d));
+        }
+      }
+      current.setDate(current.getDate() + 7 * stepWeeks);
+    }
+  } else if (rule.frequency === 'monthly') {
+    const dayOfMonth = rule.dayOfMonth ?? start.getDate();
+    let current = new Date(start.getFullYear(), start.getMonth(), dayOfMonth);
+    if (current < start) {
+      current.setMonth(current.getMonth() + 1);
+    }
+    while (current <= end) {
+      // Handle bulan yang tidak punya tanggal tersebut (misal 31 Februari)
+      const actualDay = current.getDate();
+      if (actualDay === dayOfMonth) {
+        dates.push(fmtDate(current));
+      }
+      current.setMonth(current.getMonth() + 1);
+      // Reset ke dayOfMonth karena setMonth bisa overflow
+      current.setDate(dayOfMonth);
+    }
+  } else if (rule.frequency === 'custom') {
+    const interval = rule.interval ?? 1;
+    if (interval < 1) return [];
+    let current = new Date(start);
+    while (current <= end) {
+      dates.push(fmtDate(current));
+      current.setDate(current.getDate() + interval);
+    }
+  }
+
+  return dates.sort();
+}
+
+/**
+ * Generate array EventItem dari template + recurrence rule.
+ * Setiap occurrence punya recurrenceGroupId yang sama.
+ */
+export function createRecurringEvents(
+  template: Omit<EventItem, 'id' | 'rowIndex' | 'status' | 'dateStr' | 'day' | 'tanggal' | 'month'>,
+  startDate: string,
+  rule: RecurrenceRule,
+): EventItem[] {
+  const dates = generateRecurringDates(startDate, rule);
+  if (dates.length === 0) return [];
+
+  const groupId = `rg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+  return dates.map((dateStr, idx) => {
+    const d = parseDateStrLocal(dateStr);
+    if (!d) return null;
+
+    const day = MONTH_NAMES.length > 0 ? ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()] : '';
+    const tanggal = `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+    const month = MONTH_NAMES[d.getMonth()];
+
+    return {
+      ...template,
+      id: createId(),
+      rowIndex: idx,
+      dateStr,
+      day,
+      tanggal,
+      month,
+      status: getStatus(dateStr, template.jam) as EventStatus,
+      eventType: 'recurring' as const,
+      recurrenceGroupId: groupId,
+      isRecurring: true,
+    };
+  }).filter(Boolean) as EventItem[];
+}
+
+// ===== END RECURRING EVENT HELPERS =====

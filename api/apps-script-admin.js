@@ -3,6 +3,7 @@ import { requireAdminSession } from './_lib/auth.js';
 const ALLOWED_ACTIONS = new Set([
   'readDrafts',
   'create', 'update', 'delete',
+  'batchCreate', 'deleteByGroupId',
   'createTheme', 'updateTheme', 'deleteTheme',
   'createDraft', 'updateDraft', 'deleteDraft', 'publishDraft', 'restoreDraft',
   'createLetterRequest',

@@ -4,7 +4,7 @@ import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent } from '../utils/eventUtils';
+import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../utils/eventUtils';
 
 interface Props {
   events: EventItem[];
@@ -108,7 +108,10 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         <p className="mt-0.5 line-clamp-2 text-xs text-slate-400">{ev.keterangan}</p>
                       )}
                     </div>
-                    <StatusBadge status={ev.status} />
+                    <div className="flex items-center gap-1.5">
+                      <StatusBadge status={ev.status} />
+                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
@@ -242,7 +245,10 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </td>
                     {/* Status */}
                     <td className="whitespace-nowrap px-4 py-3">
-                      <StatusBadge status={ev.status} />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge status={ev.status} />
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                      </div>
                     </td>
                     {/* Category */}
                     <td className="whitespace-nowrap px-4 py-3">

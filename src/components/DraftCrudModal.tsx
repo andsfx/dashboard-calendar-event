@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Calendar, Copy, Save, X } from 'lucide-react';
-import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot } from '../types';
-import { createId, parseDateStrLocal, getDateRange } from '../utils/eventUtils';
+import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
+import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES } from '../utils/eventUtils';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -45,6 +45,12 @@ const EMPTY: {
   eventNominal: string;
   eventModelNotes: string;
   progress: DraftProgress;
+  eventType: EventType;
+  recurrenceFrequency: RecurrenceFrequency;
+  recurrenceDaysOfWeek: number[];
+  recurrenceDayOfMonth: number;
+  recurrenceInterval: number;
+  recurrenceEndDate: string;
 } = {
   dateStr: '',
   dateEnd: '',
@@ -65,6 +71,12 @@ const EMPTY: {
   eventNominal: '',
   eventModelNotes: '',
   progress: 'draft' as DraftProgress,
+  eventType: 'single' as EventType,
+  recurrenceFrequency: 'weekly' as RecurrenceFrequency,
+  recurrenceDaysOfWeek: [] as number[],
+  recurrenceDayOfMonth: 1,
+  recurrenceInterval: 7,
+  recurrenceEndDate: '',
 };
 
 export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, draftEvents }: Props) {
@@ -86,6 +98,14 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
 
   useEffect(() => {
     if (editingDraft) {
+      // Determine eventType from existing draft data
+      let eventType: EventType = 'single';
+      if (editingDraft.isRecurring || editingDraft.eventType === 'recurring') {
+        eventType = 'recurring';
+      } else if (editingDraft.isMultiDay) {
+        eventType = 'multi_day';
+      }
+
       setForm({
         dateStr: editingDraft.dateStr,
         dateEnd: editingDraft.dateEnd || '',
@@ -106,6 +126,12 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         eventNominal: editingDraft.eventNominal || '',
         eventModelNotes: editingDraft.eventModelNotes || '',
         progress: editingDraft.progress,
+        eventType,
+        recurrenceFrequency: 'weekly',
+        recurrenceDaysOfWeek: [],
+        recurrenceDayOfMonth: 1,
+        recurrenceInterval: 7,
+        recurrenceEndDate: '',
       });
     } else {
       setForm(EMPTY);
@@ -116,8 +142,26 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
 
   if (!isOpen) return null;
 
-  const set = (key: keyof typeof EMPTY, value: string | boolean) => {
+  const set = (key: string, value: string | boolean | number) => {
     setForm(prev => {
+      if (key === 'eventType') {
+        const nextType = value as EventType;
+        if (nextType === 'single') {
+          // Clear multi-day and recurring fields
+          return { ...prev, eventType: nextType, isMultiDay: false, dateEnd: '', dayTimeSlots: [], recurrenceFrequency: 'weekly' as RecurrenceFrequency, recurrenceDaysOfWeek: [], recurrenceDayOfMonth: 1, recurrenceInterval: 7, recurrenceEndDate: '' };
+        }
+        if (nextType === 'multi_day') {
+          // Clear recurring fields, set isMultiDay=true
+          const dates = prev.dateStr ? getDateRange(prev.dateStr, prev.dateStr) : [];
+          return { ...prev, eventType: nextType, isMultiDay: true, dayTimeSlots: dates.map(d => ({ date: d, jam: prev.jam })), recurrenceFrequency: 'weekly' as RecurrenceFrequency, recurrenceDaysOfWeek: [], recurrenceDayOfMonth: 1, recurrenceInterval: 7, recurrenceEndDate: '' };
+        }
+        if (nextType === 'recurring') {
+          // Clear multi-day fields, set isMultiDay=false
+          return { ...prev, eventType: nextType, isMultiDay: false, dateEnd: '', dayTimeSlots: [] };
+        }
+        return { ...prev, eventType: nextType };
+      }
+
       if (key === 'eventModel') {
         const nextModel = value as EventModel;
         if (nextModel === 'bayar' || nextModel === 'support') {
@@ -203,10 +247,25 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventModelNotes.trim()) nextErrors.eventModelNotes = 'Keterangan model event wajib diisi';
     
     // Multi-day validation
-    if (form.isMultiDay) {
+    if (form.eventType === 'multi_day') {
       if (!form.dateEnd) nextErrors.dateEnd = 'Tanggal selesai wajib diisi untuk rangkaian acara';
       if (form.dateEnd && form.dateStr && form.dateEnd < form.dateStr) {
         nextErrors.dateEnd = 'Tanggal selesai harus >= tanggal mulai';
+      }
+    }
+
+    // Recurring validation
+    if (form.eventType === 'recurring') {
+      if (!form.recurrenceEndDate) {
+        nextErrors.recurrenceEndDate = 'Tanggal akhir recurring wajib diisi';
+      } else if (form.dateStr && form.recurrenceEndDate <= form.dateStr) {
+        nextErrors.recurrenceEndDate = 'Tanggal akhir harus setelah tanggal mulai';
+      }
+      if ((form.recurrenceFrequency === 'weekly' || form.recurrenceFrequency === 'biweekly') && form.recurrenceDaysOfWeek.length === 0) {
+        nextErrors.recurrenceDaysOfWeek = 'Pilih minimal 1 hari';
+      }
+      if (form.recurrenceFrequency === 'custom' && form.recurrenceInterval < 1) {
+        nextErrors.recurrenceInterval = 'Interval minimal 1 hari';
       }
     }
     
@@ -221,15 +280,33 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       return;
     }
 
+    // For recurring drafts, validate that dates would be generated
+    if (form.eventType === 'recurring' && form.dateStr && form.recurrenceEndDate) {
+      const rule: RecurrenceRule = {
+        frequency: form.recurrenceFrequency,
+        daysOfWeek: form.recurrenceDaysOfWeek,
+        dayOfMonth: form.recurrenceDayOfMonth,
+        interval: form.recurrenceInterval,
+        endDate: form.recurrenceEndDate,
+      };
+      const dates = generateRecurringDates(form.dateStr, rule);
+      if (dates.length === 0) {
+        setErrors({ recurrenceEndDate: 'Tidak ada tanggal yang dihasilkan dari aturan ini' });
+        return;
+      }
+    }
+
     const meta = getDraftDateMeta(form.dateStr);
     setIsSubmitting(true);
     const success = await onSave({
       ...(editingDraft ? { id: editingDraft.id, rowIndex: editingDraft.rowIndex } : { id: createId(), rowIndex: 0 }),
       ...form,
       category: form.categories[0] || 'Umum',
-      isMultiDay: form.isMultiDay,
-      dateEnd: form.isMultiDay ? form.dateEnd : undefined,
-      dayTimeSlots: form.isMultiDay ? form.dayTimeSlots : undefined,
+      isMultiDay: form.eventType === 'multi_day',
+      dateEnd: form.eventType === 'multi_day' ? form.dateEnd : undefined,
+      dayTimeSlots: form.eventType === 'multi_day' ? form.dayTimeSlots : undefined,
+      eventType: form.eventType,
+      isRecurring: form.eventType === 'recurring',
       ...meta,
       published: editingDraft?.published ?? false,
       publishedAt: editingDraft?.publishedAt || '',
@@ -287,22 +364,36 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
              </div>
            </div>
 
-          {/* Multi-day toggle */}
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
-            <input
-              type="checkbox"
-              id="isMultiDay"
-              checked={form.isMultiDay}
-              onChange={e => set('isMultiDay', e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
-            />
-            <label htmlFor="isMultiDay" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-              Rangkaian acara?
-            </label>
+          {/* Tipe acara */}
+          <div className="space-y-2">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
+            <div className="flex flex-wrap gap-3">
+              {([
+                { value: 'single', label: 'Acara biasa' },
+                { value: 'multi_day', label: 'Rangkaian acara' },
+                { value: 'recurring', label: 'Event reguler' },
+              ] as const).map(opt => (
+                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
+                  form.eventType === opt.value
+                    ? 'border-violet-400 bg-violet-50 text-violet-700 ring-1 ring-violet-200 dark:border-violet-600 dark:bg-violet-900/20 dark:text-violet-300'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}>
+                  <input
+                    type="radio"
+                    name="draftEventType"
+                    value={opt.value}
+                    checked={form.eventType === opt.value}
+                    onChange={() => set('eventType', opt.value)}
+                    className="sr-only"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Multi-day fields */}
-          {form.isMultiDay && (
+          {form.eventType === 'multi_day' && (
             <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -360,6 +451,141 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Recurring fields */}
+          {form.eventType === 'recurring' && (
+            <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
+              {/* Frequency selector */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
+                <select
+                  value={form.recurrenceFrequency}
+                  onChange={e => set('recurrenceFrequency', e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                >
+                  <option value="weekly">Setiap minggu</option>
+                  <option value="biweekly">Setiap 2 minggu</option>
+                  <option value="monthly">Setiap bulan</option>
+                  <option value="custom">Custom (setiap N hari)</option>
+                </select>
+              </div>
+
+              {/* Days of week for weekly/biweekly */}
+              {(form.recurrenceFrequency === 'weekly' || form.recurrenceFrequency === 'biweekly') && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setForm(prev => {
+                            const days = prev.recurrenceDaysOfWeek.includes(idx)
+                              ? prev.recurrenceDaysOfWeek.filter(d => d !== idx)
+                              : [...prev.recurrenceDaysOfWeek, idx].sort();
+                            return { ...prev, recurrenceDaysOfWeek: days };
+                          });
+                        }}
+                        className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                          form.recurrenceDaysOfWeek.includes(idx)
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-300'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.recurrenceDaysOfWeek && <p className="mt-1 text-xs text-red-500">{errors.recurrenceDaysOfWeek}</p>}
+                </div>
+              )}
+
+              {/* Day of month for monthly */}
+              {form.recurrenceFrequency === 'monthly' && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={form.recurrenceDayOfMonth}
+                    onChange={e => set('recurrenceDayOfMonth', e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  />
+                </div>
+              )}
+
+              {/* Interval for custom */}
+              {form.recurrenceFrequency === 'custom' && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={form.recurrenceInterval}
+                    onChange={e => set('recurrenceInterval', e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  />
+                </div>
+              )}
+
+              {/* End date */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  Sampai tanggal <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={form.recurrenceEndDate}
+                  onChange={e => set('recurrenceEndDate', e.target.value)}
+                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
+                    errors.recurrenceEndDate
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                  }`}
+                />
+                {errors.recurrenceEndDate && <p className="mt-1 text-xs text-red-500">{errors.recurrenceEndDate}</p>}
+              </div>
+
+              {/* Preview */}
+              {(() => {
+                if (!form.dateStr || !form.recurrenceEndDate) return null;
+                const rule: RecurrenceRule = {
+                  frequency: form.recurrenceFrequency,
+                  daysOfWeek: form.recurrenceDaysOfWeek,
+                  dayOfMonth: form.recurrenceDayOfMonth,
+                  interval: form.recurrenceInterval,
+                  endDate: form.recurrenceEndDate,
+                };
+                const dates = generateRecurringDates(form.dateStr, rule);
+                if (dates.length === 0) return null;
+                
+                return (
+                  <div className="rounded-xl border border-violet-300 bg-white p-3 dark:border-violet-700 dark:bg-slate-800/60">
+                    <p className="mb-2 text-xs font-semibold text-violet-700 dark:text-violet-300">
+                      Preview: {dates.length} event akan dibuat saat dipublish
+                    </p>
+                    <div className="max-h-40 space-y-1 overflow-y-auto">
+                      {dates.map((dateStr) => {
+                        const d = parseDateStrLocal(dateStr);
+                        if (!d) return null;
+                        const dayName = DAY_ID[d.getDay()];
+                        return (
+                          <div key={dateStr} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-1.5 text-xs dark:bg-slate-700/40">
+                            <span className="text-slate-700 dark:text-slate-200">
+                              {dayName}, {d.getDate()} {MONTH_ID[d.getMonth()]} {d.getFullYear()}
+                            </span>
+                            <span className="text-slate-400">{form.jam || '–'}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 

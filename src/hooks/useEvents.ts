@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
-import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme } from '../utils/sheetsApi';
+import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/sheetsApi';
 
 function normalizeEvent(ev: EventItem): EventItem {
   return recalculateStatuses([ev])[0];
@@ -99,6 +99,32 @@ export function useEvents() {
     }
   }, []);
 
+  const addRecurringEvents = useCallback(async (evs: EventItem[]): Promise<boolean> => {
+    if (evs.length === 0) return false;
+    const tempIds = evs.map(e => e.id);
+    const normalizedEvents = evs.map(normalizeEvent);
+    setEvents(prev => [...prev, ...normalizedEvents]);
+    try {
+      const apiDataList = normalizedEvents.map(e => {
+        const { id, status, rowIndex, ...apiData } = e;
+        return apiData;
+      });
+      const { results } = await apiBatchCreate(apiDataList);
+      setEvents(prev => prev.map(e => {
+        const idx = tempIds.indexOf(e.id);
+        if (idx >= 0 && results[idx]) {
+          return { ...e, id: results[idx].id || e.id, sheetRow: results[idx].row };
+        }
+        return e;
+      }));
+      return true;
+    } catch (err) {
+      console.error('Error adding recurring events:', err);
+      setEvents(prev => prev.filter(e => !tempIds.includes(e.id)));
+      return false;
+    }
+  }, []);
+
   const updateEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
     const normalizedEvent = normalizeEvent(ev);
@@ -131,6 +157,21 @@ export function useEvents() {
       }
     }
     return true;
+  }, [events, refreshEvents]);
+
+  const deleteRecurringSeries = useCallback(async (groupId: string): Promise<boolean> => {
+    const targets = events.filter(e => e.recurrenceGroupId === groupId);
+    const targetIds = targets.map(e => e.id);
+    setEvents(prev => prev.filter(e => e.recurrenceGroupId !== groupId));
+    try {
+      await apiDeleteSeries(groupId);
+      await refreshEvents();
+      return true;
+    } catch (err) {
+      console.error('Error deleting recurring series:', err);
+      setEvents(prev => [...prev, ...targets]);
+      return false;
+    }
   }, [events, refreshEvents]);
 
   const addTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
@@ -191,7 +232,7 @@ export function useEvents() {
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
-    addEvent, updateEvent, deleteEvent,
+    addEvent, addRecurringEvents, updateEvent, deleteEvent, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     refreshEvents,
   };

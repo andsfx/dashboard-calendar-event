@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
 import { CategoryBadges } from './CategoryBadges';
-import { CATEGORY_COLORS } from '../utils/eventUtils';
+import { CATEGORY_COLORS, isRecurringEvent } from '../utils/eventUtils';
 
 const ACCENT_STYLES = {
   emerald: {
@@ -57,7 +57,31 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
 export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props) {
   if (events.length === 0) return null;
 
-  const featured = events.slice(0, 3);
+  // Deduplicate recurring events: only show the next upcoming occurrence per series
+  const todayStr = new Date().toISOString().split('T')[0];
+  const deduped = (() => {
+    const seenGroups = new Set<string>();
+    const result: EventItem[] = [];
+    for (const ev of events) {
+      if (isRecurringEvent(ev) && ev.recurrenceGroupId) {
+        if (seenGroups.has(ev.recurrenceGroupId)) continue;
+        seenGroups.add(ev.recurrenceGroupId);
+        // Find the earliest occurrence >= today from the same series in the original events array
+        const seriesEvents = events.filter(
+          e => e.recurrenceGroupId === ev.recurrenceGroupId
+        );
+        const upcoming = seriesEvents
+          .filter(e => e.dateStr >= todayStr)
+          .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+        result.push(upcoming.length > 0 ? upcoming[0] : ev);
+      } else {
+        result.push(ev);
+      }
+    }
+    return result;
+  })();
+
+  const featured = deduped.slice(0, 3);
   const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.amber;
 
   return (
@@ -66,7 +90,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         <span className="shrink-0">{icon}</span>
         <h2 className="min-w-0 truncate font-bold text-slate-800 dark:text-white">{title}</h2>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
-          {events.length}
+          {deduped.length}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,13 +150,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
           );
         })}
       </div>
-      {events.length > 3 && (
+      {deduped.length > 3 && (
         <button
           type="button"
           onClick={() => document.getElementById('views')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
           className={`mt-3 cursor-pointer text-xs font-medium transition hover:underline ${accentStyle.link}`}
         >
-          +{events.length - 3} acara lainnya — lihat di daftar acara
+          +{deduped.length - 3} acara lainnya — lihat di daftar acara
         </button>
       )}
     </div>

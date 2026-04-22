@@ -10,7 +10,8 @@ import {
   formatDateRange,
   getMultiDayJamDisplay,
   getEventDuration,
-  getDateRange
+  getDateRange,
+  isRecurringEvent
 } from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
@@ -313,6 +314,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                         {duration} hari
                                       </span>
                                       <StatusBadge status={ev.status} size="sm" />
+                                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
                                     </div>
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -373,6 +375,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                       {ev.day}, {ev.tanggal}
                                     </p>
                                     <StatusBadge status={ev.status} size="sm" />
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
@@ -545,6 +548,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                       {duration} hari
                                     </span>
                                     <StatusBadge status={ev.status} size="sm" />
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
                                   </div>
                                 </div>
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -599,6 +603,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
                                 <StatusBadge status={ev.status} size="sm" />
+                                {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
                               </div>
                               <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <CategoryBadges categories={ev.categories} maxVisible={2} />
