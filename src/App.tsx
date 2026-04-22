@@ -519,11 +519,7 @@ export default function App() {
       } />
 
       {/* Dashboard — event schedule */}
-      <Route path="/dashboard" element={<DashboardContent />} />
-    </Routes>
-  );
-
-  function DashboardContent() { return (
+      <Route path="/dashboard" element={
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Navbar
         isDark={isDark}
@@ -879,5 +875,7 @@ export default function App() {
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
-  ); }
+      } />
+    </Routes>
+  );
 }

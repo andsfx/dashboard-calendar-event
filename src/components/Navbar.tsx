@@ -62,7 +62,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
 
           {/* Community Space link */}
           <a
-            href="#/community"
+            href="/"
             title="Community Space"
             className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
           >
