@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox, X } from 'lucide-react';
 import { EventItem, HolidayItem } from '../types';
-import { generateCalendarDays, groupByDate } from '../utils/eventUtils';
+import { 
+  generateCalendarDays, 
+  groupByDate,
+  isMultiDayEvent,
+  getMultiDayEventsForDate,
+  getSingleDayEventsForDate,
+  formatDateRange,
+  getMultiDayJamDisplay,
+  getEventDuration,
+  getDateRange
+} from '../utils/eventUtils';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { ModalWrapper } from './ModalWrapper';
@@ -20,6 +30,18 @@ function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
   if (!match) return Number.MAX_SAFE_INTEGER;
   return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+}
+
+// Helper untuk mendapatkan multi-day events yang ditampilkan di hari tertentu
+function getMultiDayBarsForDay(events: EventItem[], dateStr: string) {
+  const multiDayEvents = getMultiDayEventsForDate(events, dateStr);
+  return multiDayEvents.map(event => {
+    const range = getDateRange(event.dateStr, event.dateEnd);
+    const isFirst = range[0] === dateStr;
+    const isLast = range[range.length - 1] === dateStr;
+    const position = range.indexOf(dateStr);
+    return { event, isFirst, isLast, position, totalDays: range.length };
+  });
 }
 
 interface Props {
@@ -126,12 +148,14 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             if (!d) return <div key={`empty-${i}`} />;
             const dayEvents = byDate[d.dateStr] ?? [];
             const dayHolidays = holidaysByDate[d.dateStr] ?? [];
+            const multiDayBars = getMultiDayBarsForDay(events, d.dateStr);
+            const singleDayEvents = getSingleDayEventsForDate(dayEvents, d.dateStr);
             const hasEvents = dayEvents.length > 0;
             const hasHolidays = dayHolidays.length > 0;
             const isToday = d.dateStr === todayStr;
             const isSelected = d.dateStr === selectedDate;
-            const hasOngoing = dayEvents.some(e => e.status === 'ongoing');
-            const hasUpcoming = dayEvents.some(e => e.status === 'upcoming');
+            const hasOngoing = singleDayEvents.some(e => e.status === 'ongoing');
+            const hasUpcoming = singleDayEvents.some(e => e.status === 'upcoming');
             const hasNationalHoliday = dayHolidays.some(h => h.type === 'libur_nasional');
             const hasCollectiveLeave = dayHolidays.some(h => h.type === 'cuti_bersama');
 
@@ -163,7 +187,26 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   </div>
                 )}
                 {d.day}
-                {hasEvents && (
+                {multiDayBars.length > 0 && (
+                  <div className="absolute bottom-0.5 left-0.5 right-0.5 flex flex-col gap-0.5">
+                    {multiDayBars.map((bar, idx) => {
+                      const bgColor = bar.event.status === 'ongoing' 
+                        ? 'bg-emerald-400' 
+                        : bar.event.status === 'upcoming' 
+                        ? 'bg-amber-400' 
+                        : 'bg-slate-400';
+                      return (
+                        <div
+                          key={`${bar.event.id}-${idx}`}
+                          className={`h-0.5 rounded-full ${bgColor} ${
+                            bar.isFirst ? 'rounded-l-full' : ''
+                          } ${bar.isLast ? 'rounded-r-full' : ''}`}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+                {hasEvents && multiDayBars.length === 0 && (
                   <div className="absolute bottom-1 flex gap-0.5">
                     {hasOngoing && <span className="h-1 w-1 rounded-full bg-emerald-400" />}
                     {hasUpcoming && <span className="h-1 w-1 rounded-full bg-amber-400" />}
@@ -219,8 +262,70 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
                 {monthEvents.length > 0 ? (
                   <div className="space-y-0">
+                    {/* Multi-day events section */}
+                    {(() => {
+                      const multiDayEvents = monthEvents.filter(e => isMultiDayEvent(e));
+                      if (multiDayEvents.length === 0) return null;
+                      
+                      return (
+                        <div className="mb-5 space-y-3 rounded-xl border border-violet-200 bg-violet-50/40 p-4 dark:border-violet-800/50 dark:bg-violet-900/10">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-violet-500" />
+                            <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                              Multi-hari ({multiDayEvents.length})
+                            </p>
+                          </div>
+                          <div className="space-y-3">
+                            {multiDayEvents.map(ev => {
+                              const duration = getEventDuration(ev.dateStr, ev.dateEnd);
+                              return (
+                                <button
+                                  key={ev.id}
+                                  onClick={() => onDetail(ev)}
+                                  className="w-full rounded-xl border border-violet-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50/50 hover:shadow-md dark:border-violet-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                >
+                                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                                      {formatDateRange(ev.dateStr, ev.dateEnd)}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                        {duration} hari
+                                      </span>
+                                      <StatusBadge status={ev.status} size="sm" />
+                                    </div>
+                                  </div>
+                                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                                    <CategoryBadges categories={ev.categories} maxVisible={2} />
+                                  </div>
+                                  <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                                  <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                    {getMultiDayJamDisplay(ev) && (
+                                      <div className="flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3 shrink-0" />
+                                        <span>{getMultiDayJamDisplay(ev)}</span>
+                                      </div>
+                                    )}
+                                    {ev.lokasi && (
+                                      <div className="flex items-center gap-1.5">
+                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        <span className="line-clamp-2">{ev.lokasi}</span>
+                                      </div>
+                                    )}
+                                    {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Single-day events section */}
                     {STATUS_GROUPS.map((group, groupIdx) => {
-                      const groupEvents = monthEvents.filter(ev => ev.status === group.key);
+                      const groupEvents = monthEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                       if (groupEvents.length === 0) return null;
                       return (
                         <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-slate-100 pt-5 dark:border-slate-700' : ''}>
@@ -386,8 +491,72 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
               {selectedDayEvents.length > 0 ? (
                 <div className="space-y-0">
+                  {/* Multi-day events in day popup */}
+                  {(() => {
+                    const multiDayEvents = selectedDayEvents.filter(e => isMultiDayEvent(e));
+                    if (multiDayEvents.length === 0) return null;
+                    
+                    return (
+                      <div className="mb-4 space-y-3 rounded-xl border border-violet-200 bg-violet-50/40 p-3 dark:border-violet-800/50 dark:bg-violet-900/10">
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-violet-500" />
+                          <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                            Multi-hari ({multiDayEvents.length})
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          {multiDayEvents.map(ev => {
+                            const duration = getEventDuration(ev.dateStr, ev.dateEnd);
+                            return (
+                              <button
+                                key={`day-popup-multiday-${ev.id}`}
+                                onClick={() => {
+                                  setSelectedDate(null);
+                                  onDetail(ev);
+                                }}
+                                className="w-full rounded-lg border border-violet-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50/50 hover:shadow-md dark:border-violet-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                              >
+                                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                                    {formatDateRange(ev.dateStr, ev.dateEnd)}
+                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                      {duration} hari
+                                    </span>
+                                    <StatusBadge status={ev.status} size="sm" />
+                                  </div>
+                                </div>
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <CategoryBadges categories={ev.categories} maxVisible={2} />
+                                </div>
+                                <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                                <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                  {getMultiDayJamDisplay(ev) && (
+                                    <div className="flex items-center gap-1.5">
+                                      <Clock className="h-3 w-3 shrink-0" />
+                                      <span>{getMultiDayJamDisplay(ev)}</span>
+                                    </div>
+                                  )}
+                                  {ev.lokasi && (
+                                    <div className="flex items-center gap-1.5">
+                                      <MapPin className="h-3 w-3 shrink-0" />
+                                      <span className="line-clamp-2">{ev.lokasi}</span>
+                                    </div>
+                                  )}
+                                  {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Single-day events in day popup */}
                   {STATUS_GROUPS.map((group, groupIdx) => {
-                    const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key);
+                    const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                     if (groupEvents.length === 0) return null;
                     return (
                       <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-slate-100 pt-4 dark:border-slate-700' : ''}>

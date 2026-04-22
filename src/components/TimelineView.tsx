@@ -3,6 +3,7 @@ import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
+import { formatDateRange, getMultiDayJamDisplay, isMultiDayEvent } from '../utils/eventUtils';
 
 interface Props {
   events: EventItem[];
@@ -98,10 +99,10 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                     {/* Right: meta + actions */}
                     <div className="flex shrink-0 flex-col items-end gap-2">
                       <div className="text-right text-xs text-slate-500 dark:text-slate-400">
-                        <p className="font-semibold text-slate-700 dark:text-slate-200">{ev.day}, {ev.tanggal}</p>
-                        {ev.jam && (
+                        <p className="font-semibold text-slate-700 dark:text-slate-200">{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</p>
+                        {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && (
                           <p className="mt-0.5 flex items-center justify-end gap-1">
-                            <Clock className="h-3 w-3" /> {ev.jam}
+                            <Clock className="h-3 w-3" /> {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}
                           </p>
                         )}
                       </div>

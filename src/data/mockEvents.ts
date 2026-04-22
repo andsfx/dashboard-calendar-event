@@ -1,4 +1,4 @@
-import { EventItem, AnnualTheme } from '../types';
+import { EventItem, AnnualTheme, DayTimeSlot } from '../types';
 
 const today = new Date();
 const fmt = (d: Date) => d.toISOString().split('T')[0];
@@ -50,10 +50,84 @@ function ev(
   };
 }
 
+// Helper function untuk multi-day events
+function generateDayTimeSlots(startDate: Date, endDate: Date, jam: string): DayTimeSlot[] {
+  const slots: DayTimeSlot[] = [];
+  let current = new Date(startDate);
+  while (current <= endDate) {
+    const dateStr = fmt(current);
+    slots.push({ date: dateStr, jam });
+    current.setDate(current.getDate() + 1);
+  }
+  return slots;
+}
+
+function multiDayEv(
+  daysOffsetStart: number,
+  daysOffsetEnd: number,
+  jam: string,
+  acara: string,
+  lokasi: string,
+  eo: string,
+  keterangan: string,
+  category: string,
+  priority: 'high' | 'medium' | 'low',
+  status: 'upcoming' | 'ongoing' | 'past'
+): EventItem {
+  const startDate = addDays(today, daysOffsetStart);
+  const endDate = addDays(today, daysOffsetEnd);
+  const duration = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  
+  const startDateInfo = makeDate(startDate);
+  const endDateInfo = makeDate(endDate);
+  
+  // Format tanggal range
+  let tanggal: string;
+  if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+    // Sama bulan
+    tanggal = `${startDate.getDate()}-${endDate.getDate()} ${MONTH_ID[startDate.getMonth()]} ${startDate.getFullYear()}`;
+  } else {
+    // Beda bulan
+    tanggal = `${startDate.getDate()} ${MONTH_ID[startDate.getMonth()]} ${startDate.getFullYear()} - ${endDate.getDate()} ${MONTH_ID[endDate.getMonth()]} ${endDate.getFullYear()}`;
+  }
+  
+  const dayTimeSlots = generateDayTimeSlots(startDate, endDate, jam);
+  
+  return {
+    id: `ev-${idx}`,
+    rowIndex: idx++,
+    dateStr: startDateInfo.dateStr,
+    dateEnd: endDateInfo.dateStr,
+    day: startDateInfo.day,
+    tanggal,
+    month: startDateInfo.month,
+    jam,
+    acara,
+    lokasi,
+    eo,
+    pic: '',
+    phone: '',
+    keterangan,
+    categories: [category],
+    category,
+    priority,
+    status,
+    eventModel: '',
+    eventNominal: '',
+    eventModelNotes: '',
+    isMultiDay: true,
+    dayTimeSlots,
+  };
+}
+
 export const mockEvents: EventItem[] = [
   // Ongoing
   ev(0,  '09:00 - 21:00', 'Grand Bazaar Ramadan 2025',        'Atrium Utama Lt.1',   'EventPro Indonesia',  'Pameran & bazar produk UMKM lokal selama Ramadan',         'Bazaar',      'high',   'ongoing'),
   ev(0,  '10:00 - 22:00', 'Food Festival Nusantara',          'Food Court Lt.3',     'Nusantara Culinary',  'Festival kuliner dari 34 provinsi Indonesia',               'Festival',    'high',   'ongoing'),
+
+  // Multi-day events
+  multiDayEv(3, 6, '10:00 - 22:00', 'Festival Musik 4 Hari', 'Lapangan Utama', 'Event Organizer A', 'Festival musik terbesar tahun ini dengan 20+ artis', 'Festival', 'high', 'upcoming'),
+  multiDayEv(15, 30, '09:00 - 17:00', 'Workshop Intensif 2 Minggu', 'Gedung Pelatihan', 'Training Center', 'Workshop intensif programming dan web development', 'Workshop', 'medium', 'upcoming'),
 
   // Upcoming – this week
   ev(2,  '14:00 - 17:00', 'Workshop Batik Modern',            'Hall A Lt.2',         'Kriya Nusantara',     'Workshop membatik bagi pengunjung umum, kapasitas 50 orang', 'Workshop',    'medium', 'upcoming'),

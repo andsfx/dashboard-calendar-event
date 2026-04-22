@@ -1,4 +1,4 @@
-import { EventItem, EventStatus } from '../types';
+import { EventItem, EventStatus, DayTimeSlot } from '../types';
 
 export const STATUS_ORDER: Record<EventStatus, number> = {
   draft:    0,
@@ -42,6 +42,8 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Kesehatan:  '#e11d48',
   Umum:       '#64748b',
 };
+
+export const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
 export function sortEvents(events: EventItem[]): EventItem[] {
   return [...events].sort((a, b) => {
@@ -134,15 +136,132 @@ export function parseDateStrLocal(dateStr: string) {
   return date;
 }
 
-export function getStatus(dateStr: string, jam: string): EventStatus {
+// ===== MULTI-DAY EVENT HELPERS =====
+
+export function isMultiDayEvent(event: EventItem): boolean {
+  return !!(event.dateEnd && event.dateEnd !== event.dateStr);
+}
+
+export function getEventDuration(dateStr: string, dateEnd?: string): number {
+  if (!dateEnd || dateEnd === dateStr) return 1;
+  const start = parseDateStrLocal(dateStr);
+  const end = parseDateStrLocal(dateEnd);
+  if (!start || !end) return 1;
+  return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}
+
+export function getDateRange(dateStr: string, dateEnd?: string): string[] {
+  if (!dateEnd || dateEnd === dateStr) return [dateStr];
+  const dates: string[] = [];
+  const start = parseDateStrLocal(dateStr);
+  const end = parseDateStrLocal(dateEnd);
+  if (!start || !end) return [dateStr];
+  
+  let current = new Date(start);
+  while (current <= end) {
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, '0');
+    const day = String(current.getDate()).padStart(2, '0');
+    dates.push(`${year}-${month}-${day}`);
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
+
+export function formatDateRange(dateStr: string, dateEnd?: string): string {
+  if (!dateEnd || dateEnd === dateStr) {
+    // Single day
+    const date = parseDateStrLocal(dateStr);
+    if (!date) return dateStr;
+    const day = date.getDate();
+    const month = MONTH_NAMES[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  }
+  
+  const start = parseDateStrLocal(dateStr);
+  const end = parseDateStrLocal(dateEnd);
+  if (!start || !end) return dateStr;
+  
+  const startDay = start.getDate();
+  const startMonth = MONTH_NAMES[start.getMonth()];
+  const startYear = start.getFullYear();
+  
+  const endDay = end.getDate();
+  const endMonth = MONTH_NAMES[end.getMonth()];
+  const endYear = end.getFullYear();
+  
+  // Sama bulan dan tahun
+  if (start.getMonth() === end.getMonth() && startYear === endYear) {
+    return `${startDay}-${endDay} ${startMonth} ${startYear}`;
+  }
+  
+  // Beda bulan atau tahun
+  return `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
+}
+
+export function getJamForDate(event: EventItem, dateStr: string): string {
+  if (!event.dayTimeSlots || event.dayTimeSlots.length === 0) {
+    return event.jam || '';
+  }
+  const slot = event.dayTimeSlots.find(s => s.date === dateStr);
+  return slot?.jam || event.jam || '';
+}
+
+export function getMultiDayJamDisplay(event: EventItem): string {
+  if (!isMultiDayEvent(event) || !event.dayTimeSlots || event.dayTimeSlots.length === 0) {
+    return event.jam || '';
+  }
+  
+  const duration = getEventDuration(event.dateStr, event.dateEnd);
+  const firstJam = event.dayTimeSlots[0]?.jam || event.jam || '';
+  const lastJam = event.dayTimeSlots[event.dayTimeSlots.length - 1]?.jam || event.jam || '';
+  
+  return `${firstJam} (hari 1) - ${lastJam} (hari ${duration})`;
+}
+
+export function getMultiDayEventsForDate(events: EventItem[], dateStr: string): EventItem[] {
+  return events.filter(e => {
+    if (!isMultiDayEvent(e)) return false;
+    const range = getDateRange(e.dateStr, e.dateEnd);
+    return range.includes(dateStr);
+  });
+}
+
+export function getSingleDayEventsForDate(events: EventItem[], dateStr: string): EventItem[] {
+  return events.filter(e => {
+    if (isMultiDayEvent(e)) return false;
+    return e.dateStr === dateStr;
+  });
+}
+
+// ===== END MULTI-DAY EVENT HELPERS =====
+
+
+export function getStatus(dateStr: string, jam: string, dateEnd?: string): EventStatus {
   if (!dateStr) return 'upcoming';
   
   const now = new Date();
-  const eventDate = parseDateStrLocal(dateStr);
-  if (!eventDate) return 'upcoming';
-  
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const target = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+  
+  const startDate = parseDateStrLocal(dateStr);
+  if (!startDate) return 'upcoming';
+  
+  // Multi-day event
+  if (dateEnd && dateEnd !== dateStr) {
+    const endDate = parseDateStrLocal(dateEnd);
+    if (!endDate) return 'upcoming';
+    
+    const startTarget = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const endTarget = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    
+    if (today > endTarget) return 'past';
+    if (today < startTarget) return 'upcoming';
+    return 'ongoing'; // today is within range
+  }
+  
+  // Single-day event
+  const target = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
 
   if (target > today) return 'upcoming';
   if (target < today) return 'past';
@@ -170,7 +289,6 @@ export function getStatus(dateStr: string, jam: string): EventStatus {
         return 'past';
       }
       
-      // No end time - if now is after start, it's ongoing
       if (now >= startTime) return 'ongoing';
       return 'upcoming';
     }
@@ -185,6 +303,6 @@ export function recalculateStatuses(events: EventItem[]): EventItem[] {
   return events.map(e => ({
     ...e,
     // Preserve 'draft' — only auto-calculate non-draft events
-    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam),
+    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam, e.dateEnd),
   }));
 }

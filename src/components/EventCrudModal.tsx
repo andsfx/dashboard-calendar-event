@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Save, Calendar } from 'lucide-react';
-import { EventItem, EventModel } from '../types';
-import { createId, parseDateStrLocal } from '../utils/eventUtils';
+import { X, Save, Calendar, Copy, Trash2 } from 'lucide-react';
+import { EventItem, EventModel, DayTimeSlot } from '../types';
+import { createId, parseDateStrLocal, getDateRange } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -53,6 +53,9 @@ function dateToMeta(dateStr: string) {
 
 const EMPTY: {
   dateStr: string;
+  dateEnd: string;
+  isMultiDay: boolean;
+  dayTimeSlots: DayTimeSlot[];
   jam: string;
   acara: string;
   lokasi: string;
@@ -68,6 +71,9 @@ const EMPTY: {
   eventModelNotes: string;
 } = {
   dateStr: '',
+  dateEnd: '',
+  isMultiDay: false,
+  dayTimeSlots: [],
   jam: '',
   acara: '',
   lokasi: '',
@@ -104,6 +110,9 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     if (editingEvent) {
       setForm({
         dateStr: editingEvent.dateStr,
+        dateEnd: editingEvent.dateEnd || '',
+        isMultiDay: editingEvent.isMultiDay || false,
+        dayTimeSlots: editingEvent.dayTimeSlots || [],
         jam: editingEvent.jam,
         acara: editingEvent.acara,
         lokasi: editingEvent.lokasi,
@@ -127,7 +136,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
 
   if (!isOpen) return null;
 
-  const set = (key: string, val: string) => {
+  const set = (key: string, val: string | boolean) => {
     setForm(prev => {
       if (key === 'eventModel') {
         const nextModel = val as EventModel;
@@ -136,9 +145,52 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
         }
         return { ...prev, eventModel: nextModel, eventNominal: '', eventModelNotes: '' };
       }
+      
+      if (key === 'isMultiDay') {
+        const isMulti = val as boolean;
+        if (!isMulti) {
+          // Switching to single-day: clear multi-day fields
+          return { ...prev, isMultiDay: false, dateEnd: '', dayTimeSlots: [] };
+        } else {
+          // Switching to multi-day: initialize dayTimeSlots
+          const dates = prev.dateStr ? getDateRange(prev.dateStr, prev.dateStr) : [];
+          return { ...prev, isMultiDay: true, dayTimeSlots: dates.map(d => ({ date: d, jam: prev.jam })) };
+        }
+      }
+      
+      if (key === 'dateStr' || key === 'dateEnd') {
+        const newForm = { ...prev, [key]: val };
+        // Auto-generate dayTimeSlots if multi-day and both dates are set
+        if (newForm.isMultiDay && newForm.dateStr && newForm.dateEnd) {
+          const dates = getDateRange(newForm.dateStr, newForm.dateEnd);
+          newForm.dayTimeSlots = dates.map(d => {
+            const existing = prev.dayTimeSlots.find(s => s.date === d);
+            return existing || { date: d, jam: prev.jam };
+          });
+        }
+        return newForm;
+      }
+      
       return { ...prev, [key]: val };
     });
     setErrors(prev => ({ ...prev, [key]: '' }));
+  };
+
+  const setDayTimeSlot = (index: number, jam: string) => {
+    setForm(prev => {
+      const dayTimeSlots = [...prev.dayTimeSlots];
+      dayTimeSlots[index] = { ...dayTimeSlots[index], jam };
+      return { ...prev, dayTimeSlots };
+    });
+  };
+
+  const copyFromPreviousDay = (index: number) => {
+    if (index === 0) return;
+    setForm(prev => {
+      const dayTimeSlots = [...prev.dayTimeSlots];
+      dayTimeSlots[index] = { ...dayTimeSlots[index], jam: dayTimeSlots[index - 1].jam };
+      return { ...prev, dayTimeSlots };
+    });
   };
 
   const addCategory = (category: string) => {
@@ -167,6 +219,15 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
     if (form.categories.length === 0) errs.categories = 'Minimal pilih satu jenis acara';
     if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventNominal.trim()) errs.eventNominal = 'Nominal wajib diisi';
     if ((form.eventModel === 'bayar' || form.eventModel === 'support') && !form.eventModelNotes.trim()) errs.eventModelNotes = 'Keterangan model event wajib diisi';
+    
+    // Multi-day validation
+    if (form.isMultiDay) {
+      if (!form.dateEnd) errs.dateEnd = 'Tanggal selesai wajib diisi untuk acara multi-hari';
+      if (form.dateEnd && form.dateStr && form.dateEnd < form.dateStr) {
+        errs.dateEnd = 'Tanggal selesai harus >= tanggal mulai';
+      }
+    }
+    
     return errs;
   };
 
@@ -180,6 +241,9 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
       ...formData,
       categories: formData.categories,
       category: formData.categories[0] || 'Umum',
+      isMultiDay: formData.isMultiDay,
+      dateEnd: formData.isMultiDay ? formData.dateEnd : undefined,
+      dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : undefined,
     };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
     const now = new Date().toISOString().split('T')[0];
@@ -277,6 +341,82 @@ export function EventCrudModal({ isOpen, onClose, onSave, editingEvent, events }
               </datalist>
             </div>
           </div>
+
+          {/* Multi-day toggle */}
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
+            <input
+              type="checkbox"
+              id="isMultiDay"
+              checked={form.isMultiDay}
+              onChange={e => set('isMultiDay', e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+            />
+            <label htmlFor="isMultiDay" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              Acara multi-hari?
+            </label>
+          </div>
+
+          {/* Multi-day fields */}
+          {form.isMultiDay && (
+            <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  Tanggal Selesai <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={form.dateEnd}
+                  onChange={e => set('dateEnd', e.target.value)}
+                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
+                    errors.dateEnd
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                  }`}
+                />
+                {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
+              </div>
+
+              {/* Day time slots */}
+              {form.dayTimeSlots.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Jam per hari:</p>
+                  {form.dayTimeSlots.map((slot, idx) => {
+                    const date = parseDateStrLocal(slot.date);
+                    const dayName = date ? DAY_ID[date.getDay()] : '';
+                    const dayLabel = date ? `${dayName}, ${date.getDate()} ${MONTH_ID[date.getMonth()]}` : slot.date;
+                    
+                    return (
+                      <div key={slot.date} className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                            Hari {idx + 1}: {dayLabel}
+                          </label>
+                          <input
+                            type="text"
+                            value={slot.jam}
+                            onChange={e => setDayTimeSlot(idx, e.target.value)}
+                            placeholder={jamPlaceholder}
+                            list="jam-suggestions"
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-500 dark:bg-slate-600 dark:text-white"
+                          />
+                        </div>
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => copyFromPreviousDay(idx)}
+                            className="rounded-lg border border-slate-300 bg-white p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-500 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500"
+                            title="Salin dari hari sebelumnya"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Lokasi */}
           <div>

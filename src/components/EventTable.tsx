@@ -4,7 +4,7 @@ import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { sortTableEvents } from '../utils/eventUtils';
+import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent } from '../utils/eventUtils';
 
 interface Props {
   events: EventItem[];
@@ -124,12 +124,12 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     })()}
                   </div>
 
-                  <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                      <span>{ev.day}, {ev.tanggal}</span>
-                      {ev.jam && <span className="text-slate-400">· {ev.jam}</span>}
-                    </div>
+                   <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                     <div className="flex items-center gap-1.5">
+                       <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                       <span>{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</span>
+                       {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-slate-400">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
+                     </div>
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                       <span className="line-clamp-2">{ev.lokasi || '–'}</span>
@@ -205,14 +205,20 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   >
                     {/* Date */}
                     <td className="whitespace-nowrap px-4 py-3">
-                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{ev.day}</div>
-                      <div className="text-xs text-slate-400">{ev.tanggal}</div>
+                      {isMultiDayEvent(ev) ? (
+                        <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{formatDateRange(ev.dateStr, ev.dateEnd)}</div>
+                      ) : (
+                        <>
+                          <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{ev.day}</div>
+                          <div className="text-xs text-slate-400">{ev.tanggal}</div>
+                        </>
+                      )}
                     </td>
                     {/* Time */}
                     <td className="whitespace-nowrap px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                         <Clock className="h-3 w-3 text-slate-400" />
-                        {ev.jam || '–'}
+                        {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '–')}
                       </span>
                     </td>
                     {/* Event name */}

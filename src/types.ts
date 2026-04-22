@@ -6,12 +6,18 @@ export type HolidayType = 'libur_nasional' | 'cuti_bersama';
 export type ViewMode = 'table' | 'calendar' | 'kanban' | 'timeline';
 export type Theme = 'light' | 'dark';
 
+export interface DayTimeSlot {
+  date: string;      // "2025-06-12"
+  jam: string;       // "10:00 - 12:00" (bisa kosong)
+}
+
 export interface EventItem {
   id: string;
   sheetRow?: number;
   rowIndex: number;
   tanggal: string;   // "12 Juni 2025"
   dateStr: string;   // "2025-06-12"
+  dateEnd?: string;  // "2025-06-15" (untuk multi-day)
   day: string;       // "Kamis"
   jam: string;       // "10:00 - 12:00"
   acara: string;
@@ -29,6 +35,8 @@ export interface EventItem {
   eventNominal: string;
   eventModelNotes: string;
   sourceDraftId?: string;
+  isMultiDay?: boolean;       // true jika multi-day
+  dayTimeSlots?: DayTimeSlot[]; // jam untuk setiap hari
 }
 
 export interface DraftEventItem {
@@ -37,6 +45,7 @@ export interface DraftEventItem {
   rowIndex: number;
   tanggal: string;
   dateStr: string;
+  dateEnd?: string;  // "2025-06-15" (untuk multi-day)
   day: string;
   jam: string;
   acara: string;
@@ -58,6 +67,8 @@ export interface DraftEventItem {
   publishedAt?: string;
   deleted: boolean;
   deletedAt?: string;
+  isMultiDay?: boolean;       // true jika multi-day
+  dayTimeSlots?: DayTimeSlot[]; // jam untuk setiap hari
 }
 
 export interface AnnualTheme {

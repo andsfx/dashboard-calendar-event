@@ -1,4 +1,4 @@
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, HolidayType, LetterRequestItem, DayTimeSlot } from '../types';
 
 const ADMIN_PROXY_URL = '/api/apps-script-admin';
 const PUBLIC_PROXY_URL = '/api/apps-script-public';
@@ -8,6 +8,7 @@ interface SheetsEvent {
   sheetRow: number;
   tanggal: string;
   dateStr: string;
+  dateEnd?: string;
   day: string;
   jam: string;
   acara: string;
@@ -25,6 +26,8 @@ interface SheetsEvent {
   eventNominal?: string;
   eventModelNotes?: string;
   sourceDraftId?: string;
+  isMultiDay?: boolean;
+  dayTimeSlots?: DayTimeSlot[];
 }
 
 interface SheetsApiResponse {
@@ -85,6 +88,109 @@ class SheetsApiError extends Error {
     this.name = 'SheetsApiError';
   }
 }
+
+// ===== MULTI-DAY EVENT PARSING FUNCTIONS =====
+
+const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+function parseDateStrLocal(dateStr: string) {
+  if (!dateStr) return null;
+  const [yearStr, monthStr, dayStr] = dateStr.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (!year || !month || !day) return null;
+
+  const date = new Date(year, month - 1, day);
+  if (
+    Number.isNaN(date.getTime())
+    || date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function getDateRange(dateStr: string, dateEnd?: string): string[] {
+  if (!dateEnd || dateEnd === dateStr) return [dateStr];
+  const dates: string[] = [];
+  const start = parseDateStrLocal(dateStr);
+  const end = parseDateStrLocal(dateEnd);
+  if (!start || !end) return [dateStr];
+  
+  let current = new Date(start);
+  while (current <= end) {
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, '0');
+    const day = String(current.getDate()).padStart(2, '0');
+    dates.push(`${year}-${month}-${day}`);
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
+
+function parseMultiDayDate(tanggalStr: string): { dateStr: string; dateEnd?: string } {
+  if (!tanggalStr) return { dateStr: '' };
+  
+  // Format 1: "12-15 Juni 2025" (sama bulan)
+  const sameMonthMatch = tanggalStr.match(/(\d{1,2})-(\d{1,2})\s+(\w+)\s+(\d{4})/);
+  if (sameMonthMatch) {
+    const [, startDay, endDay, monthName, year] = sameMonthMatch;
+    const month = MONTH_NAMES.indexOf(monthName) + 1;
+    return {
+      dateStr: `${year}-${String(month).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
+      dateEnd: `${year}-${String(month).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
+    };
+  }
+  
+  // Format 2: "12 Juni - 15 Juli 2025" (beda bulan)
+  const diffMonthMatch = tanggalStr.match(/(\d{1,2})\s+(\w+)\s*-\s*(\d{1,2})\s+(\w+)\s+(\d{4})/);
+  if (diffMonthMatch) {
+    const [, startDay, startMonthName, endDay, endMonthName, year] = diffMonthMatch;
+    const startMonth = MONTH_NAMES.indexOf(startMonthName) + 1;
+    const endMonth = MONTH_NAMES.indexOf(endMonthName) + 1;
+    return {
+      dateStr: `${year}-${String(startMonth).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
+      dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
+    };
+  }
+  
+  // Format 3: Single day (existing format) - return as is
+  return { dateStr: tanggalStr };
+}
+
+function parseJamPerHari(jamStr: string, dateStr: string, dateEnd?: string): DayTimeSlot[] {
+  if (!dateEnd || dateEnd === dateStr) {
+    // Single day
+    return [{ date: dateStr, jam: jamStr || '' }];
+  }
+  
+  // Multi-day: generate jam untuk setiap hari
+  const dates = getDateRange(dateStr, dateEnd);
+  return dates.map(date => ({
+    date,
+    jam: jamStr || ''
+  }));
+}
+
+function migrateEventToMultiDay(event: SheetsEvent): SheetsEvent {
+  const { dateStr, dateEnd } = parseMultiDayDate(event.tanggal);
+  const isMultiDay = !!dateEnd && dateEnd !== dateStr;
+  
+  return {
+    ...event,
+    dateStr,
+    dateEnd,
+    isMultiDay,
+    dayTimeSlots: isMultiDay ? parseJamPerHari(event.jam, dateStr, dateEnd) : undefined
+  };
+}
+
+// ===== END MULTI-DAY EVENT PARSING FUNCTIONS =====
+
 
 /** Auto-detect category from event name using keyword matching */
 function detectCategory(acara: string): string {
@@ -162,30 +268,36 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
     }
 
     const events: EventItem[] = result.data.events.map((e, index) => {
-      const categories = normalizeCategories(e.categories, e.category || detectCategory(e.acara));
+      // Apply migration untuk multi-day events
+      const migrated = migrateEventToMultiDay(e);
+      
+      const categories = normalizeCategories(migrated.categories, migrated.category || detectCategory(migrated.acara));
       return {
-        id: e.id || `evt-${e.sheetRow}`,
-        sheetRow: e.sheetRow,
+        id: migrated.id || `evt-${migrated.sheetRow}`,
+        sheetRow: migrated.sheetRow,
         rowIndex: index + 2,
-        tanggal: e.tanggal,
-        dateStr: e.dateStr,
-        day: e.day,
-        jam: e.jam,
-        acara: e.acara,
-        lokasi: e.lokasi,
-        eo: e.eo,
-        pic: e.pic || '',
-        phone: e.phone || '',
-        keterangan: e.keterangan,
-        month: e.month,
-        status: e.status || getComputedStatus(e.dateStr),
+        tanggal: migrated.tanggal,
+        dateStr: migrated.dateStr,
+        dateEnd: migrated.dateEnd,
+        day: migrated.day,
+        jam: migrated.jam,
+        acara: migrated.acara,
+        lokasi: migrated.lokasi,
+        eo: migrated.eo,
+        pic: migrated.pic || '',
+        phone: migrated.phone || '',
+        keterangan: migrated.keterangan,
+        month: migrated.month,
+        status: migrated.status || getComputedStatus(migrated.dateStr),
         categories,
-        category: categories[0] || detectCategory(e.acara),
-        priority: e.priority || 'medium',
-        eventModel: e.eventModel || '',
-        eventNominal: e.eventNominal || '',
-        eventModelNotes: e.eventModelNotes || '',
-        sourceDraftId: e.sourceDraftId || '',
+        category: categories[0] || detectCategory(migrated.acara),
+        priority: migrated.priority || 'medium',
+        eventModel: migrated.eventModel || '',
+        eventNominal: migrated.eventNominal || '',
+        eventModelNotes: migrated.eventModelNotes || '',
+        sourceDraftId: migrated.sourceDraftId || '',
+        isMultiDay: migrated.isMultiDay,
+        dayTimeSlots: migrated.dayTimeSlots,
       };
     });
 
