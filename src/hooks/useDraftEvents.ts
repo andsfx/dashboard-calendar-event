@@ -7,7 +7,8 @@ import {
   deleteDraftEvent as apiDeleteDraft,
   publishDraftEvent as apiPublishDraft,
   restoreDraftEvent as apiRestoreDraft,
-} from '../utils/sheetsApi';
+} from '../utils/supabaseApi';
+import { supabase } from '../lib/supabase';
 import { sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
 export function useDraftEvents(enabled = false) {
@@ -41,6 +42,21 @@ export function useDraftEvents(enabled = false) {
       return;
     }
     refreshDrafts();
+  }, [enabled, refreshDrafts]);
+
+  // Supabase Realtime: auto-refresh on draft changes
+  useEffect(() => {
+    if (!enabled) return;
+    const channel = supabase
+      .channel('drafts-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'draft_events' }, () => {
+        refreshDrafts();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [enabled, refreshDrafts]);
 
   const activeDrafts = useMemo(

@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
-import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/sheetsApi';
+import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/supabaseApi';
+import { supabase } from '../lib/supabase';
 
 function normalizeEvent(ev: EventItem): EventItem {
   return recalculateStatuses([ev])[0];
@@ -35,9 +36,29 @@ export function useEvents() {
     }
   }, []);
 
-  // Load from Sheets
+  // Load from Supabase
   useEffect(() => {
     refreshEvents();
+  }, [refreshEvents]);
+
+  // Supabase Realtime: auto-refresh on changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('events-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+        refreshEvents();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'annual_themes' }, () => {
+        refreshEvents();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, () => {
+        refreshEvents();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [refreshEvents]);
 
   // Debounced search

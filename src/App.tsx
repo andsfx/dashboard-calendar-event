@@ -12,7 +12,7 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent } from './utils/sheetsApi';
+import { createLetterRequest, createDraftEvent } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
