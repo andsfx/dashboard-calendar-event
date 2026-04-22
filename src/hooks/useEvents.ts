@@ -24,10 +24,10 @@ export function useEvents() {
     setIsLoading(true);
     setError(null);
     try {
-      const { events: sheetsEvents, themes: sheetsThemes, holidays: sheetHolidays } = await fetchEvents();
-      setEvents(recalculateStatuses(sheetsEvents));
-      setThemes(sheetsThemes);
-      setHolidays(sheetHolidays);
+      const { events: fetchedEvents, themes: fetchedThemes, holidays: fetchedHolidays } = await fetchEvents();
+      setEvents(recalculateStatuses(fetchedEvents));
+      setThemes(fetchedThemes);
+      setHolidays(fetchedHolidays);
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
