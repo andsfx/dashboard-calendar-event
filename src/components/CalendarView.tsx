@@ -292,11 +292,11 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           <div className="flex items-center gap-2">
                             <span className="h-2 w-2 rounded-full bg-violet-500" />
                             <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
-                              Multi-hari ({multiDayEvents.length})
-                            </p>
-                          </div>
-                          <div className="space-y-3">
-                            {multiDayEvents.map(ev => {
+                            Rangkaian acara ({multiDayEvents.length})
+                          </p>
+                        </div>
+                        <div className="space-y-3">
+                          {multiDayEvents.map(ev => {
                               const duration = getEventDuration(ev.dateStr, ev.dateEnd);
                               return (
                                 <button
@@ -521,7 +521,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-2 rounded-full bg-violet-500" />
                           <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
-                            Multi-hari ({multiDayEvents.length})
+                            Rangkaian acara ({multiDayEvents.length})
                           </p>
                         </div>
                         <div className="space-y-2">

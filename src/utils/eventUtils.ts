@@ -223,10 +223,21 @@ export function getMultiDayJamDisplay(event: EventItem): string {
   }
   
   const duration = getEventDuration(event.dateStr, event.dateEnd);
-  const firstJam = event.dayTimeSlots[0]?.jam || event.jam || '';
-  const lastJam = event.dayTimeSlots[event.dayTimeSlots.length - 1]?.jam || event.jam || '';
+  const slots = event.dayTimeSlots.filter(s => s.jam);
   
-  return `${firstJam} (hari 1) - ${lastJam} (hari ${duration})`;
+  if (slots.length === 0) return '';
+  
+  // Cek apakah semua jam sama
+  const allSame = slots.every(s => s.jam === slots[0].jam);
+  
+  if (allSame) {
+    return `${slots[0].jam} (setiap hari)`;
+  }
+  
+  // Jam berbeda: tampilkan hari pertama dan terakhir
+  const firstJam = slots[0].jam;
+  const lastJam = slots[slots.length - 1].jam;
+  return `Hari 1: ${firstJam} · Hari ${duration}: ${lastJam}`;
 }
 
 export function getMultiDayEventsForDate(events: EventItem[], dateStr: string): EventItem[] {

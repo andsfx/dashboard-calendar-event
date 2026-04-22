@@ -204,7 +204,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     
     // Multi-day validation
     if (form.isMultiDay) {
-      if (!form.dateEnd) nextErrors.dateEnd = 'Tanggal selesai wajib diisi untuk acara multi-hari';
+      if (!form.dateEnd) nextErrors.dateEnd = 'Tanggal selesai wajib diisi untuk rangkaian acara';
       if (form.dateEnd && form.dateStr && form.dateEnd < form.dateStr) {
         nextErrors.dateEnd = 'Tanggal selesai harus >= tanggal mulai';
       }
@@ -297,7 +297,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               className="h-4 w-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
             />
             <label htmlFor="isMultiDay" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
-              Acara multi-hari?
+              Rangkaian acara?
             </label>
           </div>
 
