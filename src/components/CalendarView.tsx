@@ -76,10 +76,23 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
     setSelectedDate(null);
   };
 
-  // Count events in current month
+  // Count events in current month (termasuk multi-day yang overlap ke bulan ini)
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthStart = `${monthStr}-01`;
+  const monthEnd = `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
+  
   const monthEvents = events
-    .filter(e => e.dateStr.startsWith(monthStr))
+    .filter(e => {
+      if (isMultiDayEvent(e)) {
+        // Multi-day: tampilkan jika range overlap dengan bulan ini
+        const evStart = e.dateStr;
+        const evEnd = e.dateEnd!;
+        return evStart <= monthEnd && evEnd >= monthStart;
+      }
+      // Single-day: tampilkan jika dateStr di bulan ini
+      return e.dateStr.startsWith(monthStr);
+    })
     .sort((a, b) => {
       const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
       if (statusCompare !== 0) return statusCompare;
@@ -97,13 +110,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
       return a.name.localeCompare(b.name);
     });
-  const selectedDayEvents = selectedDate ? (byDate[selectedDate] ?? []).slice().sort((a, b) => {
-    const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
-    if (statusCompare !== 0) return statusCompare;
-    const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
-    if (timeCompare !== 0) return timeCompare;
-    return a.acara.localeCompare(b.acara);
-  }) : [];
+  // selectedDayEvents: gabungkan single-day events + multi-day events yang overlap
+  const selectedDayEvents = selectedDate ? (() => {
+    const singleDay = getSingleDayEventsForDate(events, selectedDate);
+    const multiDay = getMultiDayEventsForDate(events, selectedDate);
+    return [...singleDay, ...multiDay].sort((a, b) => {
+      const statusCompare = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+      if (statusCompare !== 0) return statusCompare;
+      const timeCompare = getTimeSortValue(a.jam) - getTimeSortValue(b.jam);
+      if (timeCompare !== 0) return timeCompare;
+      return a.acara.localeCompare(b.acara);
+    });
+  })() : [];
   const selectedDayHolidays = selectedDate ? (holidaysByDate[selectedDate] ?? []).slice().sort((a, b) => {
     if (a.type !== b.type) return a.type === 'libur_nasional' ? -1 : 1;
     return a.name.localeCompare(b.name);
@@ -115,6 +133,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
     return `${DAY_FULL[date.getDay()]}, ${Number(dayStr)} ${MONTH_ID[Number(monthStr) - 1]} ${yearStr}`;
   })() : '';
   const isDayPopupOpen = !!selectedDate && (selectedDayEvents.length > 0 || selectedDayHolidays.length > 0);
+  const selectedDayMultiDayEvents = selectedDate ? getMultiDayEventsForDate(events, selectedDate) : [];
+  const selectedDaySingleEvents = selectedDate ? getSingleDayEventsForDate(events, selectedDate) : [];
 
   return (
     <>
@@ -146,11 +166,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         <div className="grid grid-cols-7 gap-1 p-1.5 sm:p-2">
           {days.map((d, i) => {
             if (!d) return <div key={`empty-${i}`} />;
-            const dayEvents = byDate[d.dateStr] ?? [];
             const dayHolidays = holidaysByDate[d.dateStr] ?? [];
             const multiDayBars = getMultiDayBarsForDay(events, d.dateStr);
-            const singleDayEvents = getSingleDayEventsForDate(dayEvents, d.dateStr);
-            const hasEvents = dayEvents.length > 0;
+            const singleDayEvents = getSingleDayEventsForDate(events, d.dateStr);
+            const hasEvents = singleDayEvents.length > 0 || multiDayBars.length > 0;
             const hasHolidays = dayHolidays.length > 0;
             const isToday = d.dateStr === todayStr;
             const isSelected = d.dateStr === selectedDate;
@@ -159,7 +178,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             const hasNationalHoliday = dayHolidays.some(h => h.type === 'libur_nasional');
             const hasCollectiveLeave = dayHolidays.some(h => h.type === 'cuti_bersama');
 
-            const dayLabel = `${d.day} ${MONTH_ID[month]} ${year}${dayEvents.length > 0 ? `, ${dayEvents.length} acara` : ''}${dayHolidays.length > 0 ? `, ${dayHolidays.length} hari libur` : ''}`;
+            const totalDayEvents = singleDayEvents.length + multiDayBars.length;
+            const dayLabel = `${d.day} ${MONTH_ID[month]} ${year}${totalDayEvents > 0 ? `, ${totalDayEvents} acara` : ''}${dayHolidays.length > 0 ? `, ${dayHolidays.length} hari libur` : ''}`;
 
             return (
               <button

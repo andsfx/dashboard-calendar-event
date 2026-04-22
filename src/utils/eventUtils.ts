@@ -84,8 +84,17 @@ export function sortTableEvents(events: EventItem[]): EventItem[] {
 
 export function groupByDate(events: EventItem[]): Record<string, EventItem[]> {
   return events.reduce((acc, e) => {
-    if (!acc[e.dateStr]) acc[e.dateStr] = [];
-    acc[e.dateStr].push(e);
+    if (isMultiDayEvent(e)) {
+      // Multi-day events muncul di setiap hari dalam range
+      const dates = getDateRange(e.dateStr, e.dateEnd);
+      for (const date of dates) {
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(e);
+      }
+    } else {
+      if (!acc[e.dateStr]) acc[e.dateStr] = [];
+      acc[e.dateStr].push(e);
+    }
     return acc;
   }, {} as Record<string, EventItem[]>);
 }

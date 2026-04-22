@@ -177,8 +177,13 @@ function parseJamPerHari(jamStr: string, dateStr: string, dateEnd?: string): Day
 }
 
 function migrateEventToMultiDay(event: SheetsEvent): SheetsEvent {
-  const { dateStr, dateEnd } = parseMultiDayDate(event.tanggal);
-  const isMultiDay = !!dateEnd && dateEnd !== dateStr;
+  const parsed = parseMultiDayDate(event.tanggal);
+  const isMultiDay = !!parsed.dateEnd && parsed.dateEnd !== parsed.dateStr;
+  
+  // Untuk single-day, tetap gunakan dateStr asli dari Sheets (sudah dalam format YYYY-MM-DD)
+  // Untuk multi-day, gunakan dateStr dan dateEnd dari parsing
+  const dateStr = isMultiDay ? parsed.dateStr : event.dateStr;
+  const dateEnd = isMultiDay ? parsed.dateEnd : undefined;
   
   return {
     ...event,
