@@ -1,4 +1,5 @@
 import { EventItem, AnnualTheme, DayTimeSlot } from '../types';
+import { getStatus } from '../utils/eventUtils';
 
 const today = new Date();
 const fmt = (d: Date) => d.toISOString().split('T')[0];
@@ -186,6 +187,8 @@ export const annualThemes: AnnualTheme[] = [
 ];
 
 export function recalculateStatuses(events: EventItem[]): EventItem[] {
-  // In a real app, recalculate based on current time
-  return events;
+  return events.map(e => ({
+    ...e,
+    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam, e.dateEnd),
+  }));
 }
