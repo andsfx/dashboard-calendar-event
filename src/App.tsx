@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy, useSyncExternalStore } from 'react';
 import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
@@ -14,6 +14,20 @@ import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } f
 import { createId } from './utils/eventUtils';
 import { createLetterRequest, createDraftEvent } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
+
+const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
+
+/* ─── Hash-based routing ──────────────────────────────────── */
+function subscribeHash(cb: () => void) {
+  window.addEventListener('hashchange', cb);
+  return () => window.removeEventListener('hashchange', cb);
+}
+function getHash() {
+  return window.location.hash;
+}
+function useHash() {
+  return useSyncExternalStore(subscribeHash, getHash, () => '');
+}
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -41,6 +55,8 @@ function SectionFallback({ height = 'h-32' }: { height?: string }) {
 }
 
 export default function App() {
+  const hash = useHash();
+
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -498,6 +514,20 @@ export default function App() {
       setActiveMonth('Semua');
     }
   }, [visibleMonths, activeMonth, setActiveMonth]);
+
+  // Community landing page route
+  if (hash === '#/community') {
+    return (
+      <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+        <CommunityLandingPage
+          isDark={isDark}
+          onToggleDark={toggleDark}
+          onBack={() => { window.location.hash = ''; }}
+        />
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">

@@ -1,4 +1,4 @@
-import { Moon, Sun, CalendarDays, LogOut, Shield } from 'lucide-react';
+import { Moon, Sun, CalendarDays, LogOut, Shield, Users } from 'lucide-react';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
 
@@ -59,6 +59,16 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
               <span className="hidden md:inline">Admin</span>
             </button>
           )}
+
+          {/* Community Space link */}
+          <a
+            href="#/community"
+            title="Community Space"
+            className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
+          >
+            <Users className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Community</span>
+          </a>
 
           {/* Divider */}
           <div className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-slate-700" />
