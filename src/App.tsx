@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useMemo, Suspense, lazy, useSyncExternalStore } from 'react';
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
@@ -16,18 +17,6 @@ import { createLetterRequest, createDraftEvent } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
-
-/* ─── Hash-based routing ──────────────────────────────────── */
-function subscribeHash(cb: () => void) {
-  window.addEventListener('hashchange', cb);
-  return () => window.removeEventListener('hashchange', cb);
-}
-function getHash() {
-  return window.location.hash;
-}
-function useHash() {
-  return useSyncExternalStore(subscribeHash, getHash, () => '');
-}
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -55,7 +44,7 @@ function SectionFallback({ height = 'h-32' }: { height?: string }) {
 }
 
 export default function App() {
-  const hash = useHash();
+  const navigate = useNavigate();
 
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
@@ -515,21 +504,26 @@ export default function App() {
     }
   }, [visibleMonths, activeMonth, setActiveMonth]);
 
-  // Community landing page route
-  if (hash === '#/community') {
-    return (
-      <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-        <CommunityLandingPage
-          isDark={isDark}
-          onToggleDark={toggleDark}
-          onBack={() => { window.location.hash = ''; }}
-        />
-        <ToastContainer toasts={toasts} onRemove={removeToast} />
-      </Suspense>
-    );
-  }
-
   return (
+    <Routes>
+      {/* Community Landing Page — default route */}
+      <Route path="/" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <CommunityLandingPage
+            isDark={isDark}
+            onToggleDark={toggleDark}
+            onBack={() => navigate('/dashboard')}
+          />
+          <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </Suspense>
+      } />
+
+      {/* Dashboard — event schedule */}
+      <Route path="/dashboard" element={<DashboardContent />} />
+    </Routes>
+  );
+
+  function DashboardContent() { return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Navbar
         isDark={isDark}
@@ -885,5 +879,5 @@ export default function App() {
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
-  );
+  ); }
 }
