@@ -302,7 +302,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
 
   useEffect(() => {
     if (!isVisible || hasError) return;
-    const timer = setTimeout(() => setTimedOut(true), 10000);
+    const timer = setTimeout(() => setTimedOut(true), 30000);
     return () => clearTimeout(timer);
   }, [isVisible, hasError]);
 
