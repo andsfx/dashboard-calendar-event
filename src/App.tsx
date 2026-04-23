@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus, Settings } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus, Settings, ChevronDown } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -11,15 +11,17 @@ import { ToastContainer } from './components/ToastContainer';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
-import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
+import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchEventPhotos, uploadEventPhoto, deleteEventPhoto, updateEventPhotoOrder } from './utils/supabaseApi';
+import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchEventPhotos, uploadEventPhoto, deleteEventPhoto, updateEventPhotoOrder, fetchCommunityRegistrations, updateRegistrationStatus } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 import type { EventPhoto } from './types';
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const InstagramSettingsModal = lazy(() => import('./components/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 const EventPhotoManagerModal = lazy(() => import('./components/EventPhotoManagerModal').then(m => ({ default: m.EventPhotoManagerModal })));
+const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
+const CommunityRegistrationDetailModal = lazy(() => import('./components/CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -78,6 +80,11 @@ export default function App() {
   const [showPhotoManager, setShowPhotoManager] = useState(false);
   const [eventPhotos, setEventPhotos] = useState<EventPhoto[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [communityRegistrations, setCommunityRegistrations] = useState<CommunityRegistration[]>([]);
+  const [isRegLoading, setIsRegLoading] = useState(false);
+  const [showRegDetail, setShowRegDetail] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState<CommunityRegistration | null>(null);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -113,6 +120,40 @@ export default function App() {
   const refreshPhotos = useCallback(() => {
     fetchEventPhotos().then(setEventPhotos).catch(() => {});
   }, []);
+
+  const refreshRegistrations = useCallback(async () => {
+    if (!isAdmin) return;
+    setIsRegLoading(true);
+    try {
+      const regs = await fetchCommunityRegistrations();
+      setCommunityRegistrations(regs);
+    } catch {
+      // silently fail
+    } finally {
+      setIsRegLoading(false);
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    refreshRegistrations();
+  }, [refreshRegistrations]);
+
+  const handleRegDetail = useCallback((reg: CommunityRegistration) => {
+    setSelectedRegistration(reg);
+    setShowRegDetail(true);
+  }, []);
+
+  const handleUpdateRegStatus = useCallback(async (id: string, status: RegistrationStatus, adminNote: string) => {
+    try {
+      await updateRegistrationStatus(id, status, adminNote);
+      await refreshRegistrations();
+      showToast('success', 'Status diperbarui', `Pendaftaran berhasil diubah ke ${status}.`);
+      return true;
+    } catch {
+      showToast('error', 'Gagal memperbarui', 'Status pendaftaran belum berubah.');
+      return false;
+    }
+  }, [refreshRegistrations, showToast]);
 
   useEffect(() => {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
@@ -612,22 +653,35 @@ export default function App() {
               <div className="w-full sm:w-[320px]">
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
-              <button
-                onClick={() => setShowPhotoManager(true)}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                title="Kelola Foto Event"
-              >
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Foto</span>
-              </button>
-              <button
-                onClick={() => setShowInstagramSettings(true)}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                title="Instagram Gallery Settings"
-              >
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">IG</span>
-              </button>
+              <div className="relative shrink-0">
+                <button
+                  onClick={() => setShowSettingsMenu(prev => !prev)}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
+                  title="Settings"
+                >
+                  <Settings className="h-4 w-4" />
+                  <ChevronDown className={`h-3 w-3 transition ${showSettingsMenu ? 'rotate-180' : ''}`} />
+                </button>
+                {showSettingsMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowSettingsMenu(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800 z-50">
+                      <button
+                        onClick={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
+                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                      >
+                        Landing Page
+                      </button>
+                      <button
+                        onClick={() => { setShowPhotoManager(true); setShowSettingsMenu(false); }}
+                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                      >
+                        Foto Event
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
               <button
                 onClick={handleOpenLetterPicker}
                 className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
@@ -676,6 +730,16 @@ export default function App() {
               onPublishDraft={handlePublishDraft}
               onDraftProgressChange={handleDraftProgressChange}
               onRestoreDraft={handleRestoreDraft}
+            />
+          </Suspense>
+        )}
+
+        {isAdmin && (
+          <Suspense fallback={<SectionFallback height="h-40" />}>
+            <CommunityRegistrationSection
+              registrations={communityRegistrations}
+              isLoading={isRegLoading}
+              onDetail={handleRegDetail}
             />
           </Suspense>
         )}
@@ -961,6 +1025,12 @@ export default function App() {
           onDelete={deleteEventPhoto}
           onReorder={updateEventPhotoOrder}
           onRefresh={refreshPhotos}
+        />
+        <CommunityRegistrationDetailModal
+          isOpen={showRegDetail}
+          onClose={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
+          registration={selectedRegistration}
+          onUpdateStatus={handleUpdateRegStatus}
         />
       </Suspense>
 

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -480,6 +480,32 @@ export async function deleteEventPhoto(id: string, url: string): Promise<void> {
 export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateEventPhotoOrder', { data: photos });
   if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
+}
+
+// ---- Community Registrations ----
+
+export async function fetchCommunityRegistrations(): Promise<CommunityRegistration[]> {
+  const result = await adminAction<{ success: boolean; error?: string; data?: any[] }>('readRegistrations', {});
+  if (!result.success) throw new SupabaseApiError(result.error || 'Fetch registrations failed');
+  return (result.data || []).map(row => ({
+    id: row.id,
+    communityName: row.community_name || '',
+    communityType: row.community_type || '',
+    pic: row.pic || '',
+    phone: row.phone || '',
+    email: row.email || '',
+    instagram: row.instagram || '',
+    description: row.description || '',
+    preferredDate: row.preferred_date || '',
+    status: row.status || 'pending',
+    adminNote: row.admin_note || '',
+    createdAt: row.created_at || '',
+  }));
+}
+
+export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('updateRegistrationStatus', { id, status, adminNote });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Update registration failed');
 }
 
 // ---- Community Registration (public, via anon key) ----

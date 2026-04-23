@@ -194,6 +194,22 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- Community Registrations ----
+      case 'readRegistrations': {
+        const { data, error } = await sb.from('community_registrations').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        result = { success: true, data: data || [] };
+        break;
+      }
+      case 'updateRegistrationStatus': {
+        const updateData = { status: req.body.status };
+        if (req.body.adminNote !== undefined) updateData.admin_note = req.body.adminNote;
+        const { error } = await sb.from('community_registrations').update(updateData).eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
       // ---- Event Photos ----
       case 'createEventPhoto': {
         // Get current max sort_order

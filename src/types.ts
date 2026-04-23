@@ -108,6 +108,23 @@ export interface HolidayItem {
   description: string;
 }
 
+export type RegistrationStatus = 'pending' | 'reviewed' | 'approved' | 'rejected';
+
+export interface CommunityRegistration {
+  id: string;
+  communityName: string;
+  communityType: string;
+  pic: string;
+  phone: string;
+  email: string;
+  instagram: string;
+  description: string;
+  preferredDate: string;
+  status: RegistrationStatus;
+  adminNote: string;
+  createdAt: string;
+}
+
 export interface EventPhoto {
   id: string;
   url: string;
