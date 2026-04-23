@@ -413,6 +413,25 @@ export async function restoreDraftEvent(id: string): Promise<void> {
   if (!result.success) throw new SupabaseApiError(result.error || 'Restore draft failed');
 }
 
+// ---- Site Settings ----
+
+export async function fetchSiteSettings<T = unknown>(key: string): Promise<T | null> {
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', key)
+    .single();
+  if (error || !data) return null;
+  return data.value as T;
+}
+
+export async function updateSiteSettings(key: string, value: unknown): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>(
+    'updateSiteSettings', { key, value }
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Update settings failed');
+}
+
 // ---- Letter Request (legacy - still uses Google Apps Script) ----
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {

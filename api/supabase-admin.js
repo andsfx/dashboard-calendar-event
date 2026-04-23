@@ -182,6 +182,18 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- Site Settings ----
+      case 'updateSiteSettings': {
+        const { error } = await sb.from('site_settings').upsert({
+          key: req.body.key,
+          value: req.body.value,
+          updated_at: new Date().toISOString(),
+        });
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
       default:
         result = { success: false, error: `Unknown action: ${action}` };
     }

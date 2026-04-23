@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus } from 'lucide-react';
+import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus, Settings } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { StatCard } from './components/StatCard';
 import { SearchBar } from './components/SearchBar';
@@ -13,10 +13,11 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent } from './utils/supabaseApi';
+import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
+const InstagramSettingsModal = lazy(() => import('./components/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -70,6 +71,8 @@ export default function App() {
   const [letterInitialData, setLetterInitialData] = useState<Partial<LetterRequestItem> | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
+  const [showInstagramSettings, setShowInstagramSettings] = useState(false);
+  const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -100,6 +103,25 @@ export default function App() {
     publishDraft,
     restoreDraft,
   } = useDraftEvents(isAdmin);
+
+  // Fetch Instagram posts from site settings
+  useEffect(() => {
+    fetchSiteSettings<string[]>('instagram_posts').then(posts => {
+      if (posts && Array.isArray(posts)) setInstagramPosts(posts);
+    }).catch(() => {});
+  }, []);
+
+  const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
+    try {
+      await updateSiteSettings('instagram_posts', posts);
+      setInstagramPosts(posts);
+      showToast('success', 'Instagram diperbarui', 'Link Instagram gallery berhasil disimpan.');
+      return true;
+    } catch {
+      showToast('error', 'Gagal menyimpan', 'Link Instagram belum tersimpan. Coba lagi.');
+      return false;
+    }
+  }, [showToast]);
 
   // Dark mode toggle
   const toggleDark = useCallback(() => {
@@ -513,6 +535,7 @@ export default function App() {
             isDark={isDark}
             onToggleDark={toggleDark}
             onBack={() => navigate('/dashboard')}
+            instagramPosts={instagramPosts}
           />
           <ToastContainer toasts={toasts} onRemove={removeToast} />
         </Suspense>
@@ -553,6 +576,13 @@ export default function App() {
               <div className="w-full sm:w-[320px]">
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
+              <button
+                onClick={() => setShowInstagramSettings(true)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
+                title="Instagram Gallery Settings"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
               <button
                 onClick={handleOpenLetterPicker}
                 className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
@@ -869,6 +899,12 @@ export default function App() {
           onDeleteSeries={isAdmin ? handleDeleteSeries : undefined}
           events={events}
           isAdmin={isAdmin}
+        />
+        <InstagramSettingsModal
+          isOpen={showInstagramSettings}
+          onClose={() => setShowInstagramSettings(false)}
+          posts={instagramPosts}
+          onSave={handleSaveInstagramPosts}
         />
       </Suspense>
 

@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   CalendarDays,
@@ -255,14 +255,99 @@ function RegistrationForm() {
   );
 }
 
+/* ─── Lazy Instagram Embed ────────────────────────────────── */
+function LazyInstagramEmbed({ url }: { url: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Load Instagram embed script when visible
+  useEffect(() => {
+    if (!isVisible) return;
+    const existing = document.querySelector('script[src*="instagram.com/embed"]');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = 'https://www.instagram.com/embed.js';
+      script.async = true;
+      document.body.appendChild(script);
+    } else if ((window as any).instgrm) {
+      (window as any).instgrm.Embeds.process();
+    }
+  }, [isVisible]);
+
+  const embedUrl = url.endsWith('/') ? `${url}embed` : `${url}/embed`;
+
+  return (
+    <div ref={containerRef} className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700">
+      {isVisible && !hasError ? (
+        <iframe
+          src={embedUrl}
+          className="w-full border-0"
+          style={{ minHeight: 500 }}
+          loading="lazy"
+          title="Instagram post"
+          onError={() => setHasError(true)}
+        />
+      ) : hasError ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-[300px] flex-col items-center justify-center bg-[#faf6ef] p-8 text-center dark:bg-slate-800"
+        >
+          <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
+          <p className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
+        </a>
+      ) : (
+        <div className="flex h-[300px] items-center justify-center bg-slate-100 dark:bg-slate-800">
+          <div className="text-center">
+            <div className="mx-auto h-8 w-8 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600" />
+            <p className="mt-3 text-sm text-slate-400">Memuat Instagram...</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InstagramFallbackCard({ url }: { url: string }) {
+  return (
+    <a
+      href={url || 'https://instagram.com/metmalbekasi'}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+    >
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
+        <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
+      </div>
+      <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
+    </a>
+  );
+}
+
 /* ─── Main Component ──────────────────────────────────────── */
 interface CommunityLandingProps {
   isDark: boolean;
   onToggleDark: () => void;
   onBack: () => void;
+  instagramPosts?: string[];
 }
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts }: CommunityLandingProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -504,22 +589,17 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               </p>
             </div>
 
-            <div className="mt-10 grid gap-6 md:grid-cols-2">
-              {IG_POSTS.map((url, idx) => (
-                <a
-                  key={url}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
-                >
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
-                    <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
-                  </div>
-                  <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
-                </a>
-              ))}
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {(instagramPosts && instagramPosts.length > 0
+                ? instagramPosts
+                : IG_POSTS
+              ).map((url, idx) => {
+                const trimmedUrl = (url || '').trim();
+                if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
+                  return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
+                }
+                return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
+              })}
             </div>
 
             <div className="mt-8 text-center">
