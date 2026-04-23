@@ -29,7 +29,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { EventItem } from '../types';
+import { EventItem, EventPhoto } from '../types';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -442,6 +442,116 @@ function EventShowcase({ events, onDetail, onViewAll }: { events: EventItem[]; o
   );
 }
 
+/* ─── Photo Lightbox & Gallery ────────────────────────────── */
+function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
+  photos: EventPhoto[];
+  currentIndex: number;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const photo = photos[currentIndex];
+  if (!photo) return null;
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose, onPrev, onNext]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+      >
+        <X className="h-6 w-6" />
+      </button>
+
+      {photos.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); onPrev(); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+          >
+            <ChevronDown className="h-6 w-6 rotate-90" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNext(); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+          >
+            <ChevronDown className="h-6 w-6 -rotate-90" />
+          </button>
+        </>
+      )}
+
+      <div className="max-w-4xl px-12" onClick={(e) => e.stopPropagation()}>
+        <img
+          src={photo.url}
+          alt={photo.caption}
+          className="max-h-[80vh] w-full rounded-lg object-contain"
+        />
+        <div className="mt-4 text-center">
+          <p className="text-lg font-semibold text-white">{photo.caption}</p>
+          {photo.eventDate && <p className="mt-1 text-sm text-white/60">{photo.eventDate}</p>}
+          <p className="mt-2 text-xs text-white/40">{currentIndex + 1} / {photos.length}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PhotoGalleryGrid({ photos }: { photos: EventPhoto[] }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  if (photos.length === 0) return null;
+
+  return (
+    <>
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        {photos.map((photo, idx) => (
+          <button
+            key={photo.id}
+            type="button"
+            onClick={() => setLightboxIndex(idx)}
+            className="group relative cursor-pointer overflow-hidden rounded-xl aspect-[4/3] bg-slate-200 dark:bg-slate-700"
+          >
+            <img
+              src={photo.url}
+              alt={photo.caption}
+              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100">
+              <div className="p-3 sm:p-4">
+                <p className="text-sm font-semibold text-white line-clamp-2">{photo.caption}</p>
+                {photo.eventDate && <p className="mt-0.5 text-xs text-white/70">{photo.eventDate}</p>}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={photos}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onPrev={() => setLightboxIndex(prev => prev !== null ? (prev - 1 + photos.length) % photos.length : 0)}
+          onNext={() => setLightboxIndex(prev => prev !== null ? (prev + 1) % photos.length : 0)}
+        />
+      )}
+    </>
+  );
+}
+
 /* ─── Main Component ──────────────────────────────────────── */
 interface CommunityLandingProps {
   isDark: boolean;
@@ -450,9 +560,10 @@ interface CommunityLandingProps {
   instagramPosts?: string[];
   events?: EventItem[];
   onEventDetail?: (ev: EventItem) => void;
+  eventPhotos?: EventPhoto[];
 }
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, eventPhotos = [] }: CommunityLandingProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -706,6 +817,21 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
               })}
             </div>
+
+            {/* Dokumentasi Event */}
+            {eventPhotos.length > 0 && (
+              <div className="mt-14">
+                <div className="mb-2 flex items-center justify-center gap-2">
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Dokumentasi Event</p>
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                </div>
+                <p className="mb-1 text-center text-sm text-slate-500 dark:text-slate-400">
+                  Momen seru dari event yang sudah berlangsung
+                </p>
+                <PhotoGalleryGrid photos={eventPhotos} />
+              </div>
+            )}
 
             <div className="mt-8 text-center">
               <a

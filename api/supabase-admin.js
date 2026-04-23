@@ -194,6 +194,48 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- Event Photos ----
+      case 'createEventPhoto': {
+        // Get current max sort_order
+        const { data: maxData } = await sb.from('event_photos').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+        const nextOrder = (maxData?.[0]?.sort_order ?? -1) + 1;
+        const photoRow = { ...req.body.data, sort_order: nextOrder };
+        const { data, error } = await sb.from('event_photos').insert(photoRow).select('id, sort_order').single();
+        if (error) throw error;
+        result = { success: true, id: data.id, sortOrder: data.sort_order };
+        break;
+      }
+      case 'deleteEventPhoto': {
+        // Delete from table
+        const { error: dbErr } = await sb.from('event_photos').delete().eq('id', req.body.id);
+        if (dbErr) throw dbErr;
+        // Delete from storage
+        try {
+          const photoUrl = req.body.url || '';
+          const fileName = photoUrl.split('/').pop();
+          if (fileName) {
+            await sb.storage.from('event-photos').remove([fileName]);
+          }
+        } catch (storageErr) {
+          console.warn('Storage delete warning:', storageErr.message);
+        }
+        result = { success: true };
+        break;
+      }
+      case 'updateEventPhotoOrder': {
+        const updates = req.body.data;
+        if (!Array.isArray(updates)) {
+          result = { success: false, error: 'Invalid data' };
+          break;
+        }
+        for (const item of updates) {
+          const { error } = await sb.from('event_photos').update({ sort_order: item.sortOrder }).eq('id', item.id);
+          if (error) throw error;
+        }
+        result = { success: true };
+        break;
+      }
+
       default:
         result = { success: false, error: `Unknown action: ${action}` };
     }

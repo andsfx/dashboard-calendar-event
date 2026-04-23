@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -430,6 +430,56 @@ export async function updateSiteSettings(key: string, value: unknown): Promise<v
     'updateSiteSettings', { key, value }
   );
   if (!result.success) throw new SupabaseApiError(result.error || 'Update settings failed');
+}
+
+// ---- Event Photos ----
+
+export async function fetchEventPhotos(): Promise<EventPhoto[]> {
+  const { data, error } = await supabase
+    .from('event_photos')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw new SupabaseApiError(`Fetch event photos failed: ${error.message}`);
+  return (data || []).map(row => ({
+    id: row.id,
+    url: row.url,
+    caption: row.caption,
+    eventDate: row.event_date || '',
+    sortOrder: row.sort_order || 0,
+  }));
+}
+
+export async function uploadEventPhoto(file: File, caption: string, eventDate: string): Promise<EventPhoto> {
+  // 1. Upload file to Supabase Storage
+  const ext = file.name.split('.').pop() || 'jpg';
+  const fileName = `photo_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from('event-photos')
+    .upload(fileName, file, { contentType: file.type, upsert: false });
+  if (uploadError) throw new SupabaseApiError(`Upload failed: ${uploadError.message}`);
+
+  // 2. Get public URL
+  const { data: urlData } = supabase.storage.from('event-photos').getPublicUrl(fileName);
+  const url = urlData.publicUrl;
+
+  // 3. Insert metadata via admin proxy
+  const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
+    'createEventPhoto',
+    { data: { url, caption, event_date: eventDate } }
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
+
+  return { id: result.id || '', url, caption, eventDate, sortOrder: result.sortOrder || 0 };
+}
+
+export async function deleteEventPhoto(id: string, url: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteEventPhoto', { id, url });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
+}
+
+export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('updateEventPhotoOrder', { data: photos });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
 }
 
 // ---- Letter Request (legacy - still uses Google Apps Script) ----

@@ -108,6 +108,14 @@ export interface HolidayItem {
   description: string;
 }
 
+export interface EventPhoto {
+  id: string;
+  url: string;
+  caption: string;
+  eventDate: string;
+  sortOrder: number;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

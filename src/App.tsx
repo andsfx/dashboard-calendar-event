@@ -13,11 +13,13 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings } from './utils/supabaseApi';
+import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchEventPhotos, uploadEventPhoto, deleteEventPhoto, updateEventPhotoOrder } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
+import type { EventPhoto } from './types';
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const InstagramSettingsModal = lazy(() => import('./components/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
+const EventPhotoManagerModal = lazy(() => import('./components/EventPhotoManagerModal').then(m => ({ default: m.EventPhotoManagerModal })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -73,6 +75,8 @@ export default function App() {
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
   const [showInstagramSettings, setShowInstagramSettings] = useState(false);
   const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
+  const [showPhotoManager, setShowPhotoManager] = useState(false);
+  const [eventPhotos, setEventPhotos] = useState<EventPhoto[]>([]);
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -104,12 +108,17 @@ export default function App() {
     restoreDraft,
   } = useDraftEvents(isAdmin);
 
-  // Fetch Instagram posts from site settings
+  // Fetch Instagram posts + event photos
+  const refreshPhotos = useCallback(() => {
+    fetchEventPhotos().then(setEventPhotos).catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
       if (posts && Array.isArray(posts)) setInstagramPosts(posts);
     }).catch(() => {});
-  }, []);
+    refreshPhotos();
+  }, [refreshPhotos]);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
     try {
@@ -538,6 +547,7 @@ export default function App() {
             instagramPosts={instagramPosts}
             events={publicEvents}
             onEventDetail={handleDetailClick}
+            eventPhotos={eventPhotos}
           />
           <Suspense fallback={null}>
             <EventDetailModal
@@ -587,11 +597,20 @@ export default function App() {
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
               <button
+                onClick={() => setShowPhotoManager(true)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
+                title="Kelola Foto Event"
+              >
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Foto</span>
+              </button>
+              <button
                 onClick={() => setShowInstagramSettings(true)}
                 className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
                 title="Instagram Gallery Settings"
               >
                 <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">IG</span>
               </button>
               <button
                 onClick={handleOpenLetterPicker}
@@ -915,6 +934,15 @@ export default function App() {
           onClose={() => setShowInstagramSettings(false)}
           posts={instagramPosts}
           onSave={handleSaveInstagramPosts}
+        />
+        <EventPhotoManagerModal
+          isOpen={showPhotoManager}
+          onClose={() => setShowPhotoManager(false)}
+          photos={eventPhotos}
+          onUpload={uploadEventPhoto}
+          onDelete={deleteEventPhoto}
+          onReorder={updateEventPhotoOrder}
+          onRefresh={refreshPhotos}
         />
       </Suspense>
 
