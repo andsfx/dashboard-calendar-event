@@ -622,13 +622,14 @@ export async function deleteFromR2(url: string): Promise<void> {
   });
 }
 
-export async function uploadAlbumPhoto(albumId: string, file: File, caption: string): Promise<EventPhoto> {
+export async function uploadAlbumPhoto(albumId: string, file: File, caption?: string): Promise<EventPhoto> {
+  const finalCaption = caption?.trim() || file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
   const url = await uploadToR2(file);
   const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
-    'createAlbumPhoto', { data: { url, caption, album_id: albumId } }
+    'createAlbumPhoto', { data: { url, caption: finalCaption, album_id: albumId } }
   );
   if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
-  return { id: result.id || '', url, caption, eventDate: '', sortOrder: result.sortOrder || 0, albumId };
+  return { id: result.id || '', url, caption: finalCaption, eventDate: '', sortOrder: result.sortOrder || 0, albumId };
 }
 
 export async function deleteAlbumPhoto(id: string, url: string): Promise<void> {

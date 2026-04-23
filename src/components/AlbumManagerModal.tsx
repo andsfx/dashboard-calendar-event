@@ -32,12 +32,12 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   const [isCustomEvent, setIsCustomEvent] = useState(false);
 
   // Upload
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadCaption, setUploadCaption] = useState('');
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
-  const [previewUrl, setPreviewUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load albums when modal opens
@@ -66,13 +66,6 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
     }
   }, [isOpen, loadAlbums]);
 
-  // Cleanup preview URL
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
   const clearCreateForm = () => {
     setNewName('');
     setNewDesc('');
@@ -84,10 +77,9 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   };
 
   const clearUploadForm = () => {
-    setUploadFile(null);
-    setUploadCaption('');
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl('');
+    setUploadFiles([]);
+    setUploadProgress({ current: 0, total: 0 });
+    setIsDragOver(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -209,40 +201,80 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
 
   // --- Photo operations ---
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError('');
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFilesSelect = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const remaining = MAX_PHOTOS - albumPhotos.length - uploadFiles.length;
 
-    if (file.size > MAX_FILE_SIZE) {
-      setError('Ukuran file maksimal 10MB');
-      e.target.value = '';
-      return;
+    const valid = fileArray.filter(f => {
+      if (!f.type.startsWith('image/')) return false;
+      if (f.size > MAX_FILE_SIZE) return false;
+      return true;
+    });
+
+    const limited = valid.slice(0, Math.max(0, remaining));
+
+    if (valid.length > remaining) {
+      setError(`Hanya ${remaining} slot tersisa. ${valid.length - remaining} foto dilewati.`);
+    } else if (valid.length < fileArray.length) {
+      setError(`${fileArray.length - valid.length} file dilewati (bukan gambar atau terlalu besar).`);
     }
 
-    setUploadFile(file);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(URL.createObjectURL(file));
+    if (limited.length > 0) {
+      setUploadFiles(prev => [...prev, ...limited]);
+    }
   };
 
-  const handleUploadPhoto = async () => {
-    if (!selectedAlbum || !uploadFile) return;
-    if (!uploadCaption.trim()) {
-      setError('Caption wajib diisi');
-      return;
+  const removeUploadFile = (index: number) => {
+    setUploadFiles(prev => prev.filter((_, i) => i !== index));
+    setError('');
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files.length > 0) {
+      handleFilesSelect(e.dataTransfer.files);
     }
+  };
+
+  const handleBatchUpload = async () => {
+    if (!selectedAlbum || uploadFiles.length === 0) return;
 
     setUploading(true);
     setError('');
-    try {
-      await uploadAlbumPhoto(selectedAlbum.id, uploadFile, uploadCaption.trim());
-      clearUploadForm();
-      await refreshAlbumDetail();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal mengupload foto');
-    } finally {
-      setUploading(false);
+    setUploadProgress({ current: 0, total: uploadFiles.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < uploadFiles.length; i++) {
+      try {
+        await uploadAlbumPhoto(selectedAlbum.id, uploadFiles[i]);
+        successCount++;
+      } catch {
+        failCount++;
+      }
+      setUploadProgress({ current: i + 1, total: uploadFiles.length });
     }
+
+    clearUploadForm();
+    await refreshAlbumDetail();
+
+    if (failCount > 0) {
+      setError(`${successCount} foto berhasil, ${failCount} gagal diupload.`);
+    }
+
+    setUploading(false);
   };
 
   const handleSetCover = async (photoUrl: string) => {
@@ -267,7 +299,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
     }
   };
 
-  const isMaxPhotos = albumPhotos.length >= MAX_PHOTOS;
+  const isMaxPhotos = albumPhotos.length + uploadFiles.length >= MAX_PHOTOS;
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
@@ -594,67 +626,98 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700/30">
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Upload Foto Baru</p>
 
-                {isMaxPhotos && (
+                {isMaxPhotos && uploadFiles.length === 0 && (
                   <p className="text-xs text-amber-600 dark:text-amber-400">
                     Maksimal {MAX_PHOTOS} foto. Hapus foto yang ada untuk menambah yang baru.
                   </p>
                 )}
 
-                {/* File input + preview */}
-                <div className="flex items-start gap-3">
-                  {previewUrl ? (
-                    <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-600">
-                      <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
+                {/* Drag & drop upload zone */}
+                {!isMaxPhotos && !uploading && (
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition ${
+                      isDragOver
+                        ? 'border-violet-400 bg-violet-50 dark:border-violet-500 dark:bg-violet-900/20'
+                        : 'border-slate-300 hover:border-violet-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-violet-400 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Upload className="h-7 w-7 text-slate-400" />
+                    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+                      Drag & drop foto di sini
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      atau klik untuk pilih · max {MAX_PHOTOS - albumPhotos.length} foto · 10MB/file
+                    </p>
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={(e) => { if (e.target.files) handleFilesSelect(e.target.files); e.target.value = ''; }}
+                  className="hidden"
+                  disabled={isMaxPhotos}
+                />
+
+                {/* Preview grid */}
+                {uploadFiles.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                      {uploadFiles.map((file, idx) => (
+                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="h-full w-full object-cover"
+                          />
+                          {!uploading && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
+                              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{uploadFiles.length} foto dipilih</p>
+
+                    {/* Progress bar */}
+                    {uploading && uploadProgress.total > 0 && (
+                      <div className="space-y-1">
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                          <div
+                            className="h-full rounded-full bg-violet-500 transition-all duration-300"
+                            style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-slate-500">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
+                      </div>
+                    )}
+
+                    {/* Upload button */}
+                    {!uploading && (
                       <button
                         type="button"
-                        onClick={clearUploadForm}
-                        className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-white"
+                        onClick={handleBatchUpload}
+                        disabled={uploadFiles.length === 0}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-violet-900/30"
                       >
-                        <X className="h-3 w-3" />
+                        <Upload className="h-4 w-4" />
+                        Upload {uploadFiles.length} Foto
                       </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isMaxPhotos}
-                      className="flex h-20 w-20 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-violet-400 hover:text-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-500 dark:hover:border-violet-400"
-                    >
-                      <Upload className="h-5 w-5" />
-                      <span className="mt-1 text-[10px]">Pilih</span>
-                    </button>
-                  )}
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    disabled={isMaxPhotos}
-                  />
-
-                  <div className="flex-1">
-                    <input
-                      value={uploadCaption}
-                      onChange={(e) => setUploadCaption(e.target.value)}
-                      placeholder="Caption foto *"
-                      disabled={isMaxPhotos}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                    />
+                    )}
                   </div>
-                </div>
-
-                {/* Upload button */}
-                <button
-                  type="button"
-                  onClick={handleUploadPhoto}
-                  disabled={uploading || isMaxPhotos || !uploadFile || !uploadCaption.trim()}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-violet-900/30"
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploading ? 'Mengupload...' : 'Upload Foto'}
-                </button>
+                )}
               </div>
             </>
           )}
