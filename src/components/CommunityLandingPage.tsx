@@ -4,9 +4,12 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  Clock,
+  Clock3,
   Globe,
   Headphones,
   Heart,
+  Inbox,
   Lightbulb,
   Mail,
   MapPin,
@@ -16,6 +19,7 @@ import {
   Moon,
   Music,
   Phone,
+  Radio,
   Rocket,
   Send,
   Sparkles,
@@ -25,6 +29,9 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { EventItem } from '../types';
+import { CATEGORY_COLORS } from '../utils/eventUtils';
+import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
@@ -145,6 +152,7 @@ const NAV_ITEMS = [
   { href: '#benefits', label: 'Benefits' },
   { href: '#facilities', label: 'Fasilitas' },
   { href: '#gallery', label: 'Gallery' },
+  { href: '#events', label: 'Event' },
   { href: '#how', label: 'Cara Daftar' },
   { href: '#register', label: 'Daftar' },
   { href: '#faq', label: 'FAQ' },
@@ -342,14 +350,130 @@ function InstagramFallbackCard({ url }: { url: string }) {
 }
 
 /* ─── Main Component ──────────────────────────────────────── */
+/* ─── Upcoming Events Kanban ──────────────────────────────── */
+
+const KANBAN_COLUMNS = [
+  {
+    status: 'ongoing' as const,
+    label: 'Sedang Berlangsung',
+    icon: <Radio className="h-4 w-4" />,
+    gradient: 'from-emerald-500 to-teal-500',
+    cardBorder: 'border-emerald-200/60 dark:border-emerald-800/40',
+    emptyMsg: 'Tidak ada event yang sedang berlangsung',
+  },
+  {
+    status: 'upcoming' as const,
+    label: 'Mendatang',
+    icon: <Clock3 className="h-4 w-4" />,
+    gradient: 'from-amber-500 to-orange-500',
+    cardBorder: 'border-amber-200/60 dark:border-amber-800/40',
+    emptyMsg: 'Tidak ada event mendatang',
+  },
+];
+
+function EventKanbanCard({ ev, onDetail, cardBorder }: { ev: EventItem; onDetail: (ev: EventItem) => void; cardBorder: string }) {
+  const color = CATEGORY_COLORS[ev.category] ?? '#6366f1';
+  return (
+    <button
+      type="button"
+      onClick={() => onDetail(ev)}
+      className={`group w-full cursor-pointer overflow-hidden rounded-xl border bg-white text-left shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 ${cardBorder}`}
+    >
+      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />
+      <div className="p-4">
+        <p className="text-sm font-semibold leading-snug text-slate-800 dark:text-white line-clamp-2">{ev.acara}</p>
+        <div className="mt-2.5 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <p className="font-medium text-slate-700 dark:text-slate-200">{ev.day}, {ev.tanggal}</p>
+          {ev.jam && (
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3 shrink-0" />
+              <span>{ev.jam}</span>
+            </div>
+          )}
+          {ev.lokasi && (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="line-clamp-1">{ev.lokasi}</span>
+            </div>
+          )}
+        </div>
+        {ev.keterangan && (
+          <p className="mt-2 line-clamp-2 text-xs text-slate-400 leading-relaxed">{ev.keterangan}</p>
+        )}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
+          <CategoryBadges categories={ev.categories} maxVisible={2} />
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function UpcomingEventsKanban({ events, onDetail, onViewAll }: { events: EventItem[]; onDetail: (ev: EventItem) => void; onViewAll: () => void }) {
+  const MAX_PER_COLUMN = 6;
+
+  return (
+    <>
+      <div className="mt-12 grid gap-6 lg:grid-cols-2">
+        {KANBAN_COLUMNS.map(col => {
+          const colEvents = events
+            .filter(e => e.status === col.status)
+            .sort((a, b) => a.dateStr.localeCompare(b.dateStr))
+            .slice(0, MAX_PER_COLUMN);
+          const totalCount = events.filter(e => e.status === col.status).length;
+
+          return (
+            <div key={col.status} className="flex flex-col gap-3">
+              <div className={`flex items-center gap-2.5 rounded-xl bg-gradient-to-r px-4 py-2.5 text-white ${col.gradient}`}>
+                <span className="text-sm">{col.icon}</span>
+                <span className="text-sm font-bold">{col.label}</span>
+                <span className="ml-auto rounded-full bg-white/25 px-2.5 py-0.5 text-xs font-bold">{totalCount}</span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                {colEvents.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white/60 py-10 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
+                    <Inbox className="mb-1.5 h-6 w-6 opacity-40" />
+                    <p className="text-center text-xs px-3 leading-relaxed">{col.emptyMsg}</p>
+                  </div>
+                ) : (
+                  colEvents.map(ev => (
+                    <EventKanbanCard key={ev.id} ev={ev} onDetail={onDetail} cardBorder={col.cardBorder} />
+                  ))
+                )}
+                {totalCount > MAX_PER_COLUMN && (
+                  <p className="text-center text-xs text-slate-400">+{totalCount - MAX_PER_COLUMN} event lainnya</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-8 text-center">
+        <button
+          type="button"
+          onClick={onViewAll}
+          className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <CalendarDays className="h-4 w-4" />
+          Lihat Semua Event
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ─── Main Component ──────────────────────────────────────── */
 interface CommunityLandingProps {
   isDark: boolean;
   onToggleDark: () => void;
   onBack: () => void;
   instagramPosts?: string[];
+  events?: EventItem[];
+  onEventDetail?: (ev: EventItem) => void;
 }
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail }: CommunityLandingProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -618,6 +742,28 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             </div>
           </div>
         </RevealSection>
+
+        {/* ─── Upcoming Events ────────────────────────────────── */}
+        {events.length > 0 && onEventDetail && (
+          <RevealSection id="events" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
+            <div className="mx-auto max-w-7xl">
+              <div className="text-center">
+                {eyebrow('Agenda Event')}
+                <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+                  Event yang sedang & akan berlangsung.
+                </h2>
+                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+                  Lihat jadwal event terbaru di Metropolitan Mall Bekasi. Klik event untuk lihat detail.
+                </p>
+              </div>
+              <UpcomingEventsKanban
+                events={events.filter(e => e.status === 'ongoing' || e.status === 'upcoming')}
+                onDetail={onEventDetail}
+                onViewAll={onBack}
+              />
+            </div>
+          </RevealSection>
+        )}
 
         {/* ─── How It Works ──────────────────────────────────── */}
         <RevealSection id="how" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">

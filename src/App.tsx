@@ -536,7 +536,17 @@ export default function App() {
             onToggleDark={toggleDark}
             onBack={() => navigate('/dashboard')}
             instagramPosts={instagramPosts}
+            events={publicEvents}
+            onEventDetail={handleDetailClick}
           />
+          <Suspense fallback={null}>
+            <EventDetailModal
+              isOpen={showDetailModal}
+              event={detailEvent}
+              onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
+              events={events}
+            />
+          </Suspense>
           <ToastContainer toasts={toasts} onRemove={removeToast} />
         </Suspense>
       } />
