@@ -117,12 +117,14 @@ const IG_POSTS = [
 /* ─── Helpers ─────────────────────────────────────────────── */
 function RevealSection({
   children,
+  skeleton,
   className = '',
   as = 'section',
   intensity = 'default',
   ...rest
 }: {
   children: ReactNode;
+  skeleton?: ReactNode;
   className?: string;
   as?: 'section' | 'div';
   intensity?: 'default' | 'strong';
@@ -135,8 +137,86 @@ function RevealSection({
       className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
       {...rest}
     >
+      {!isVisible && skeleton && (
+        <div className="reveal-skeleton animate-pulse">{skeleton}</div>
+      )}
       <div className="reveal-stage">{children}</div>
     </Tag>
+  );
+}
+
+/* ─── Skeleton Components ─────────────────────────────────── */
+
+function SkeletonGalleryAlbums() {
+  return (
+    <div className="mx-auto max-w-7xl">
+      <div className="text-center">
+        <div className="mx-auto h-3 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto mt-4 h-9 w-72 rounded-lg bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-slate-100 dark:bg-slate-700/60" />
+      </div>
+      <div className="mt-10">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
+              <div className="aspect-[16/9] bg-slate-200 dark:bg-slate-700" />
+              <div className="p-3 sm:p-4">
+                <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-14">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          <div className="h-3 w-20 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
+              <div className="h-[300px] bg-slate-200 dark:bg-slate-700" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonEventGrid() {
+  return (
+    <div className="mx-auto max-w-7xl">
+      <div className="text-center">
+        <div className="mx-auto h-3 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto mt-4 h-9 w-80 max-w-full rounded-lg bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-slate-100 dark:bg-slate-700/60" />
+      </div>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="overflow-hidden rounded-2xl shadow-sm">
+            <div className="h-28 bg-slate-200 dark:bg-slate-700" />
+            <div className="border border-t-0 border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
+              <div className="space-y-2">
+                <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
+              </div>
+              <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-700">
+                <div className="h-5 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="h-5 w-14 rounded-full bg-slate-200 dark:bg-slate-700" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -713,7 +793,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         </RevealSection>
 
         {/* ─── Gallery / Instagram ───────────────────────────── */}
-        <RevealSection id="gallery" className="px-4 py-20 sm:px-6">
+        <RevealSection id="gallery" className="px-4 py-20 sm:px-6" skeleton={<SkeletonGalleryAlbums />}>
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               {eyebrow('Galeri')}
@@ -816,7 +896,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
 
         {/* ─── Upcoming Events ────────────────────────────────── */}
         {events.length > 0 && onEventDetail && (
-          <RevealSection id="events" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
+          <RevealSection id="events" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6" skeleton={<SkeletonEventGrid />}>
             <div className="mx-auto max-w-7xl">
               <div className="text-center">
                 {eyebrow('Agenda Event')}
