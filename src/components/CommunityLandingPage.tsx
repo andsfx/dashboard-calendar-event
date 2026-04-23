@@ -1,6 +1,7 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
+  CalendarDays,
   CheckCircle2,
   ChevronDown,
   Globe,
@@ -80,7 +81,7 @@ const STEPS: Array<{ num: string; title: string; desc: string }> = [
   { num: '01', title: 'Daftar & Submit', desc: 'Isi form pendaftaran komunitas. Ceritain siapa kamu dan apa yang mau kamu lakuin.' },
   { num: '02', title: 'Review Tim Mall', desc: 'Tim kami review proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
   { num: '03', title: 'Konfirmasi & Prep', desc: 'Setelah deal, kita siapin venue dan semua tools yang kamu butuhkan.' },
-  { num: '04', title: 'Event Day! 🎉', desc: 'Hari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.' },
+  { num: '04', title: 'Event Day!', desc: 'Hari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.' },
 ];
 
 const COMMUNITY_TYPES = [
@@ -197,20 +198,19 @@ function RegistrationForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-[2rem] border p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]" style={{ background: BRAND.paper, borderColor: BRAND.border }}>
+      <div className="rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
           <CheckCircle2 className="h-8 w-8 text-emerald-600" />
         </div>
-        <h3 className="mt-5 text-2xl font-bold text-slate-900">Pendaftaran Terkirim! 🎉</h3>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
+        <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
+        <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
           Terima kasih udah daftar! Tim kami akan review dan hubungi kamu dalam 3-5 hari kerja.
           <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: BRAND.accent }}>@metmalbekasi</a> buat update terbaru!
         </p>
         <button
           type="button"
           onClick={() => { setSubmitted(false); setForm({ communityName: '', communityType: '', pic: '', phone: '', email: '', instagram: '', description: '', preferredDate: '' }); }}
-          className="mt-6 inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          style={{ borderColor: BRAND.border }}
+          className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700"
         >
           Daftar Komunitas Lain
         </button>
@@ -223,29 +223,28 @@ function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[2rem] border p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] xl:p-7"
-      style={{ background: BRAND.paper, borderColor: BRAND.border }}
+      className="rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] xl:p-7"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <input value={form.communityName} onChange={e => setField('communityName', e.target.value)} placeholder="Nama komunitas *" className={`${inputClass} sm:col-span-2`} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <select value={form.communityType} onChange={e => setField('communityType', e.target.value)} className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }}>
+        <input value={form.communityName} onChange={e => setField('communityName', e.target.value)} placeholder="Nama komunitas *" aria-label="Nama komunitas" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600 sm:col-span-2`} />
+        <select value={form.communityType} onChange={e => setField('communityType', e.target.value)} aria-label="Tipe komunitas" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`}>
           <option value="">Tipe komunitas *</option>
           {COMMUNITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <input value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama PIC *" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp *" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Email (opsional)" type="email" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="Instagram komunitas (opsional)" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input type="date" value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang komunitas kamu dan rencana event yang mau diadain..." className={`${inputClass} resize-none sm:col-span-2`} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
+        <input value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama PIC *" aria-label="Nama PIC" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp *" aria-label="Nomor WhatsApp" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Email (opsional)" type="email" aria-label="Email" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="Instagram komunitas (opsional)" aria-label="Instagram komunitas" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input type="date" value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} placeholder="Preferensi tanggal event" aria-label="Preferensi tanggal event" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang komunitas kamu dan rencana event yang mau diadain..." aria-label="Deskripsi komunitas dan rencana event" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600 resize-none sm:col-span-2`} />
       </div>
-      {error && <p className="mt-4 text-sm text-rose-600">{error}</p>}
-      <div className="mt-6 flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: BRAND.border }}>
-        <p className="max-w-md text-xs leading-6 text-slate-500">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
+      {error && <p className="mt-4 text-sm text-rose-600" role="alert">{error}</p>}
+      <div className="mt-6 flex flex-col gap-4 border-t border-black/[0.06] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-md text-xs leading-6 text-slate-500 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:brightness-110 hover:shadow-lg"
           style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
         >
           <Send className="h-4 w-4" />
@@ -253,23 +252,6 @@ function RegistrationForm() {
         </button>
       </div>
     </form>
-  );
-}
-
-/* ─── Instagram Embed ─────────────────────────────────────── */
-function InstagramEmbed({ url }: { url: string }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border shadow-[0_12px_32px_rgba(15,23,42,0.06)]" style={{ borderColor: BRAND.border }}>
-      <iframe
-        src={`${url}embed`}
-        className="w-full border-0"
-        style={{ minHeight: 480 }}
-        allowTransparency
-        scrolling="no"
-        title="Instagram post"
-        loading="lazy"
-      />
-    </div>
   );
 }
 
@@ -290,19 +272,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Load Instagram embed script
-  useEffect(() => {
-    const existing = document.querySelector('script[src*="instagram.com/embed"]');
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = 'https://www.instagram.com/embed.js';
-      script.async = true;
-      document.body.appendChild(script);
-    } else if (window.instgrm) {
-      window.instgrm.Embeds.process();
-    }
   }, []);
 
   const headerClassName = isHeaderPinned
@@ -347,7 +316,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)]"
                 style={{ background: `linear-gradient(135deg, ${BRAND.accent} 0%, ${BRAND.accentSoft} 100%)` }}
               >
-                📅 Event Dashboard
+                <CalendarDays className="h-4 w-4" /> Event Dashboard
               </button>
               <button
                 type="button"
@@ -359,7 +328,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               </button>
             </div>
           </div>
-          {mobileNavOpen && (
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${mobileNavOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className={mobilePanelClass}>
               <nav className={mobileNavGridClass}>
                 {NAV_ITEMS.map(item => (
@@ -369,7 +338,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 ))}
               </nav>
             </div>
-          )}
+          </div>
         </div>
       </header>
 
@@ -377,7 +346,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
         {/* ─── Hero ───────────────────────────────────────────── */}
         <section
           id="hero"
-          className="relative min-h-screen overflow-hidden"
+          className="relative min-h-screen lg:max-h-[1000px] overflow-hidden"
           style={{
             background: `linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)`,
           }}
@@ -393,7 +362,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             <RevealSection as="div" className="max-w-4xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/8 px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.25em] text-white/80 backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 text-amber-400" />
-                Metmall Community Space
+                Metmal Community Space
               </div>
 
               <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
@@ -401,18 +370,18 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-violet-400 bg-clip-text text-transparent">
                   Community
                 </span>
-                ! 🚀
+                !
               </h1>
 
-              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/70 sm:text-xl">
-                Lagi cari tempat buat kumpul komunitas? Di Metmall Bekasi <strong className="text-white">GRATIS</strong>!
-                Venue, sound system, lighting — semua udah disiapin. Kamu tinggal fokus bikin komunitas makin hidup. 🤝
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
+                Lagi cari tempat buat kumpul komunitas? Di Metropolitan Mall Bekasi <strong className="text-white">GRATIS</strong>!
+                Venue, sound system, lighting — semua udah disiapin. Kamu tinggal fokus bikin komunitas makin hidup.
               </p>
 
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <a
                   href="#register"
-                  className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition hover:scale-[1.03] active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition hover:brightness-110 hover:shadow-xl"
                   style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
                 >
                   Daftar Sekarang
@@ -427,7 +396,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               </div>
 
               {/* Quick stats */}
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/60">
+              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/75">
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -451,8 +420,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
           </div>
 
           {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-            <ChevronDown className="h-6 w-6 text-white/40" />
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse">
+            <ChevronDown className="h-6 w-6 text-white/50" />
           </div>
         </section>
 
@@ -460,9 +429,9 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
         <RevealSection id="benefits" intensity="strong" className="px-4 py-20 sm:px-6">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
-              {eyebrow('Why Join Us')}
+              {eyebrow('Kenapa Gabung')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Bukan cuma dikasih space. 💪
+                Bukan cuma dikasih space.
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
                 Kamu juga dipush buat berkembang. Dari sponsorship sampai marketing support — semua buat komunitas kamu makin besar.
@@ -473,8 +442,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               {BENEFITS.map((b, i) => (
                 <div
                   key={b.title}
-                  className="group rounded-[2rem] border p-6 shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)] hover:-translate-y-1 dark:bg-slate-900 dark:border-slate-800"
-                  style={{ background: BRAND.paper, borderColor: BRAND.border, animationDelay: `${i * 100}ms` }}
+                  className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
+                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div
                     className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
@@ -497,7 +466,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               <div className="max-w-2xl">
                 {eyebrow('Fasilitas')}
                 <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                  Semua udah disiapin. ✨
+                  Semua udah disiapin.
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-7 text-slate-600 dark:text-slate-400">
@@ -509,8 +478,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
               {FACILITIES.map(f => (
                 <div
                   key={f.title}
-                  className="rounded-[1.75rem] border p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-800 dark:border-slate-700"
-                  style={{ background: '#fcfaf6', borderColor: BRAND.border }}
+                  className="rounded-[1.75rem] border bg-[#fcfaf6] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                     {f.icon}
@@ -527,9 +495,9 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
         <RevealSection id="gallery" className="px-4 py-20 sm:px-6">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
-              {eyebrow('Gallery & Social Proof')}
+              {eyebrow('Galeri')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Lihat sendiri keseruannya. 📸
+                Lihat sendiri keseruannya.
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
                 Follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: BRAND.accent }}>@metmalbekasi</a> buat update event terbaru!
@@ -537,8 +505,20 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-2">
-              {IG_POSTS.map(url => (
-                <InstagramEmbed key={url} url={url} />
+              {IG_POSTS.map((url, idx) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                >
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
+                    <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
+                  </div>
+                  <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
+                </a>
               ))}
             </div>
 
@@ -547,8 +527,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 href="https://instagram.com/metmalbekasi"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                style={{ borderColor: BRAND.border }}
+                className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 <Globe className="h-4 w-4" />
                 Lihat Semua di Instagram
@@ -564,7 +543,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             <div className="text-center">
               {eyebrow('Cara Daftar')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Gampang banget, cuma 4 langkah. 🎯
+                Gampang banget, cuma 4 langkah.
               </h2>
             </div>
 
@@ -575,8 +554,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                     <div className="absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 lg:block" style={{ background: `linear-gradient(90deg, ${BRAND.accent}40, transparent)` }} />
                   )}
                   <div
-                    className="relative rounded-[2rem] border p-6 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"
-                    style={{ background: '#fcfaf6', borderColor: BRAND.border }}
+                    className="relative rounded-[2rem] border bg-[#fcfaf6] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 shadow-[0_12px_28px_rgba(15,23,42,0.04)]"
                   >
                     <span
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-extrabold text-white"
@@ -599,7 +577,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             <div className="max-w-md">
               {eyebrow('Daftar Sekarang')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Yuk, gabung! 🙌
+                Yuk, gabung!
               </h2>
               <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">
                 Isi form di bawah dan ceritain tentang komunitas kamu. Tim kami akan review dan hubungi kamu secepatnya.
@@ -635,7 +613,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             <div className="text-center">
               {eyebrow('FAQ')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Pertanyaan yang sering muncul. 🤔
+                Pertanyaan yang sering muncul.
               </h2>
             </div>
             <div className="mt-10 space-y-3">
@@ -644,8 +622,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 return (
                   <div
                     key={question}
-                    className="overflow-hidden rounded-[1.8rem] border shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"
-                    style={{ background: '#faf6ef', borderColor: BRAND.border }}
+                    className="overflow-hidden rounded-[1.8rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)]"
                   >
                     <button
                       type="button"
@@ -656,7 +633,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                       <ChevronDown className={`h-5 w-5 shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} style={{ color: BRAND.accent }} />
                     </button>
                     {isOpen && (
-                      <div className="border-t px-5 py-5 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:px-6" style={{ borderColor: BRAND.border }}>
+                      <div className="border-t border-black/[0.06] dark:border-slate-700 px-5 py-5 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:px-6">
                         {answer}
                       </div>
                     )}
@@ -673,7 +650,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
             <div className="text-center">
               {eyebrow('Kontak')}
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Ada pertanyaan? Hubungi kami! 📞
+                Ada pertanyaan? Hubungi kami!
               </h2>
             </div>
 
@@ -682,8 +659,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 href="https://wa.me/6281318534823"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-[2rem] border p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 dark:bg-slate-800 dark:border-slate-700"
-                style={{ background: BRAND.paper, borderColor: BRAND.border }}
+                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
                   <Phone className="h-7 w-7" />
@@ -696,8 +672,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
                 href="https://wa.me/6281908142555"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-[2rem] border p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 dark:bg-slate-800 dark:border-slate-700"
-                style={{ background: BRAND.paper, borderColor: BRAND.border }}
+                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                   <Phone className="h-7 w-7" />
@@ -708,8 +683,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
 
               <a
                 href="mailto:marketing@malmetropolitan.com"
-                className="group rounded-[2rem] border p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 dark:bg-slate-800 dark:border-slate-700"
-                style={{ background: BRAND.paper, borderColor: BRAND.border }}
+                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                   <Mail className="h-7 w-7" />
@@ -734,7 +708,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack }: Community
           <div className="flex items-center gap-3">
             <LogoMark className="h-auto w-[102px] opacity-90" />
             <div>
-              <p className="font-medium text-slate-700 dark:text-white">Metmall Community Space</p>
+              <p className="font-medium text-slate-700 dark:text-white">Metmal Community Space</p>
               <p className="mt-1">Powered by You — Metropolitan Mall Bekasi</p>
             </div>
           </div>

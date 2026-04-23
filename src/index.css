@@ -126,7 +126,8 @@ body {
   .live-dot,
   .shimmer,
   .animate-pulse,
-  [class*="animate-pulse"] {
+  [class*="animate-pulse"],
+  [class*="animate-bounce"] {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
