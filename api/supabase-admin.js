@@ -194,6 +194,43 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- Photo Albums ----
+      case 'createAlbum': {
+        const { data, error } = await sb.from('photo_albums').insert(req.body.data).select('id').single();
+        if (error) throw error;
+        result = { success: true, id: data.id };
+        break;
+      }
+      case 'deleteAlbum': {
+        // Delete all photos in album first
+        await sb.from('event_photos').delete().eq('album_id', req.body.id);
+        const { error } = await sb.from('photo_albums').delete().eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+      case 'setAlbumCover': {
+        const { error } = await sb.from('photo_albums').update({ cover_photo_url: req.body.coverPhotoUrl }).eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+      case 'createAlbumPhoto': {
+        const { data: maxData } = await sb.from('event_photos').select('sort_order').eq('album_id', req.body.data.album_id).order('sort_order', { ascending: false }).limit(1);
+        const nextOrder = (maxData?.[0]?.sort_order ?? -1) + 1;
+        const photoRow = { ...req.body.data, sort_order: nextOrder };
+        const { data, error } = await sb.from('event_photos').insert(photoRow).select('id, sort_order').single();
+        if (error) throw error;
+        result = { success: true, id: data.id, sortOrder: data.sort_order };
+        break;
+      }
+      case 'deleteAlbumPhoto': {
+        const { error } = await sb.from('event_photos').delete().eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
       // ---- Community Registrations ----
       case 'readRegistrations': {
         const { data, error } = await sb.from('community_registrations').select('*').order('created_at', { ascending: false });

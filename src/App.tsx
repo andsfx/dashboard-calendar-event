@@ -13,13 +13,15 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchEventPhotos, uploadEventPhoto, deleteEventPhoto, updateEventPhotoOrder, fetchCommunityRegistrations, updateRegistrationStatus } from './utils/supabaseApi';
+import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
-import type { EventPhoto } from './types';
+
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const InstagramSettingsModal = lazy(() => import('./components/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
-const EventPhotoManagerModal = lazy(() => import('./components/EventPhotoManagerModal').then(m => ({ default: m.EventPhotoManagerModal })));
+const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
+const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
+const AlbumManagerModal = lazy(() => import('./components/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
 const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
 const CommunityRegistrationDetailModal = lazy(() => import('./components/CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 
@@ -77,8 +79,7 @@ export default function App() {
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
   const [showInstagramSettings, setShowInstagramSettings] = useState(false);
   const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
-  const [showPhotoManager, setShowPhotoManager] = useState(false);
-  const [eventPhotos, setEventPhotos] = useState<EventPhoto[]>([]);
+  const [showAlbumManager, setShowAlbumManager] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [communityRegistrations, setCommunityRegistrations] = useState<CommunityRegistration[]>([]);
   const [isRegLoading, setIsRegLoading] = useState(false);
@@ -115,11 +116,6 @@ export default function App() {
     publishDraft,
     restoreDraft,
   } = useDraftEvents(isAdmin);
-
-  // Fetch Instagram posts + event photos
-  const refreshPhotos = useCallback(() => {
-    fetchEventPhotos().then(setEventPhotos).catch(() => {});
-  }, []);
 
   const refreshRegistrations = useCallback(async () => {
     if (!isAdmin) return;
@@ -162,8 +158,7 @@ export default function App() {
     fetchSiteSettings<string>('hero_image').then(url => {
       if (url && typeof url === 'string') setHeroImageUrl(url);
     }).catch(() => {});
-    refreshPhotos();
-  }, [refreshPhotos]);
+  }, []);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
     try {
@@ -603,7 +598,6 @@ export default function App() {
             instagramPosts={instagramPosts}
             events={publicEvents}
             onEventDetail={handleDetailClick}
-            eventPhotos={eventPhotos}
             heroImageUrl={heroImageUrl}
           />
           <Suspense fallback={null}>
@@ -615,6 +609,18 @@ export default function App() {
             />
           </Suspense>
           <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </Suspense>
+      } />
+
+      {/* Gallery pages */}
+      <Route path="/gallery" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <GalleryIndexPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      <Route path="/gallery/:slug" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <GalleryAlbumPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
 
@@ -673,10 +679,10 @@ export default function App() {
                         Landing Page
                       </button>
                       <button
-                        onClick={() => { setShowPhotoManager(true); setShowSettingsMenu(false); }}
+                        onClick={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
                         className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
                       >
-                        Foto Event
+                        Album Gallery
                       </button>
                     </div>
                   </>
@@ -1017,14 +1023,9 @@ export default function App() {
           heroImageUrl={heroImageUrl}
           onSaveHeroImage={handleSaveHeroImage}
         />
-        <EventPhotoManagerModal
-          isOpen={showPhotoManager}
-          onClose={() => setShowPhotoManager(false)}
-          photos={eventPhotos}
-          onUpload={uploadEventPhoto}
-          onDelete={deleteEventPhoto}
-          onReorder={updateEventPhotoOrder}
-          onRefresh={refreshPhotos}
+        <AlbumManagerModal
+          isOpen={showAlbumManager}
+          onClose={() => setShowAlbumManager(false)}
         />
         <CommunityRegistrationDetailModal
           isOpen={showRegDetail}

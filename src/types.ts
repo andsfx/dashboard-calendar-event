@@ -131,6 +131,18 @@ export interface EventPhoto {
   caption: string;
   eventDate: string;
   sortOrder: number;
+  albumId?: string;
+}
+
+export interface PhotoAlbum {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  eventDate: string;
+  coverPhotoUrl: string;
+  sortOrder: number;
+  photoCount?: number;
 }
 
 export interface LetterRequestItem {

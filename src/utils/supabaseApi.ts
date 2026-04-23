@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -480,6 +480,132 @@ export async function deleteEventPhoto(id: string, url: string): Promise<void> {
 export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateEventPhotoOrder', { data: photos });
   if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
+}
+
+// ---- Photo Albums (Cloudflare R2 + Supabase metadata) ----
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+}
+
+export async function fetchAlbums(): Promise<PhotoAlbum[]> {
+  const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false });
+  if (error) throw new SupabaseApiError(`Fetch albums failed: ${error.message}`);
+
+  // Get photo counts per album
+  const { data: photos } = await supabase.from('event_photos').select('album_id');
+  const countMap: Record<string, number> = {};
+  for (const p of (photos || [])) {
+    if (p.album_id) countMap[p.album_id] = (countMap[p.album_id] || 0) + 1;
+  }
+
+  return (albums || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description || '',
+    eventDate: row.event_date || '',
+    coverPhotoUrl: row.cover_photo_url || '',
+    sortOrder: row.sort_order || 0,
+    photoCount: countMap[row.id] || 0,
+  }));
+}
+
+export async function fetchAlbumBySlug(slug: string): Promise<{ album: PhotoAlbum; photos: EventPhoto[] } | null> {
+  const { data: album, error } = await supabase.from('photo_albums').select('*').eq('slug', slug).single();
+  if (error || !album) return null;
+
+  const { data: photos } = await supabase.from('event_photos').select('*').eq('album_id', album.id).order('sort_order', { ascending: true });
+
+  return {
+    album: {
+      id: album.id,
+      name: album.name,
+      slug: album.slug,
+      description: album.description || '',
+      eventDate: album.event_date || '',
+      coverPhotoUrl: album.cover_photo_url || '',
+      sortOrder: album.sort_order || 0,
+      photoCount: (photos || []).length,
+    },
+    photos: (photos || []).map(p => ({
+      id: p.id,
+      url: p.url,
+      caption: p.caption || '',
+      eventDate: p.event_date || '',
+      sortOrder: p.sort_order || 0,
+      albumId: p.album_id || '',
+    })),
+  };
+}
+
+export async function createAlbum(name: string, description: string, eventDate: string): Promise<PhotoAlbum> {
+  const slug = slugify(name) || `album-${Date.now()}`;
+  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createAlbum', {
+    data: { name, slug, description, event_date: eventDate },
+  });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create album failed');
+  return { id: result.id || '', name, slug, description, eventDate, coverPhotoUrl: '', sortOrder: 0, photoCount: 0 };
+}
+
+export async function deleteAlbum(id: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbum', { id });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Delete album failed');
+}
+
+export async function setAlbumCover(albumId: string, coverPhotoUrl: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('setAlbumCover', { id: albumId, coverPhotoUrl });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Set cover failed');
+}
+
+export async function uploadToR2(file: File): Promise<string> {
+  const ext = file.name.split('.').pop() || 'jpg';
+  const fileName = `gallery/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
+
+  // Convert file to base64
+  const buffer = await file.arrayBuffer();
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+
+  const response = await fetch('/api/r2-upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ fileName, contentType: file.type, fileBase64: base64 }),
+  });
+
+  const result = await response.json();
+  if (!result.success) throw new SupabaseApiError(result.error || 'R2 upload failed');
+  return result.url;
+}
+
+export async function deleteFromR2(url: string): Promise<void> {
+  const publicUrlBase = (import.meta.env.VITE_R2_PUBLIC_URL || '').replace(/\/$/, '');
+  let fileName = url;
+  if (publicUrlBase && url.startsWith(publicUrlBase)) {
+    fileName = url.slice(publicUrlBase.length + 1);
+  }
+
+  await fetch('/api/r2-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ fileName }),
+  });
+}
+
+export async function uploadAlbumPhoto(albumId: string, file: File, caption: string): Promise<EventPhoto> {
+  const url = await uploadToR2(file);
+  const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
+    'createAlbumPhoto', { data: { url, caption, album_id: albumId } }
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
+  return { id: result.id || '', url, caption, eventDate: '', sortOrder: result.sortOrder || 0, albumId };
+}
+
+export async function deleteAlbumPhoto(id: string, url: string): Promise<void> {
+  await deleteFromR2(url);
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbumPhoto', { id });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
 }
 
 // ---- Community Registrations ----
