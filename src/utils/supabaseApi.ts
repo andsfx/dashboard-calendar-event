@@ -482,6 +482,20 @@ export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrde
   if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
 }
 
+// ---- Annual Themes (public read) ----
+
+export async function fetchAnnualThemesPublic(): Promise<AnnualTheme[]> {
+  const { data, error } = await supabase.from('annual_themes').select('*').order('date_start', { ascending: false });
+  if (error) return [];
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    dateStart: row.date_start,
+    dateEnd: row.date_end,
+    color: row.color,
+  }));
+}
+
 // ---- Photo Albums (Cloudflare R2 + Supabase metadata) ----
 
 function slugify(text: string): string {
@@ -508,6 +522,9 @@ export async function fetchAlbums(): Promise<PhotoAlbum[]> {
     coverPhotoUrl: row.cover_photo_url || '',
     sortOrder: row.sort_order || 0,
     photoCount: countMap[row.id] || 0,
+    eventId: row.event_id || '',
+    lokasi: row.lokasi || '',
+    themeId: row.theme_id || '',
   }));
 }
 
@@ -527,6 +544,9 @@ export async function fetchAlbumBySlug(slug: string): Promise<{ album: PhotoAlbu
       coverPhotoUrl: album.cover_photo_url || '',
       sortOrder: album.sort_order || 0,
       photoCount: (photos || []).length,
+      eventId: album.event_id || '',
+      lokasi: album.lokasi || '',
+      themeId: album.theme_id || '',
     },
     photos: (photos || []).map(p => ({
       id: p.id,
@@ -539,13 +559,15 @@ export async function fetchAlbumBySlug(slug: string): Promise<{ album: PhotoAlbu
   };
 }
 
-export async function createAlbum(name: string, description: string, eventDate: string): Promise<PhotoAlbum> {
+export async function createAlbum(name: string, description: string, eventDate: string, eventId?: string, lokasi?: string, themeId?: string): Promise<PhotoAlbum> {
   const slug = slugify(name) || `album-${Date.now()}`;
-  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createAlbum', {
-    data: { name, slug, description, event_date: eventDate },
-  });
+  const data: Record<string, unknown> = { name, slug, description, event_date: eventDate };
+  if (eventId) data.event_id = eventId;
+  if (lokasi) data.lokasi = lokasi;
+  if (themeId) data.theme_id = themeId;
+  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createAlbum', { data });
   if (!result.success) throw new SupabaseApiError(result.error || 'Create album failed');
-  return { id: result.id || '', name, slug, description, eventDate, coverPhotoUrl: '', sortOrder: 0, photoCount: 0 };
+  return { id: result.id || '', name, slug, description, eventDate, coverPhotoUrl: '', sortOrder: 0, photoCount: 0, eventId, lokasi, themeId };
 }
 
 export async function deleteAlbum(id: string): Promise<void> {

@@ -1026,6 +1026,8 @@ export default function App() {
         <AlbumManagerModal
           isOpen={showAlbumManager}
           onClose={() => setShowAlbumManager(false)}
+          pastEvents={events.filter(e => e.status === 'past')}
+          annualThemes={annualThemes}
         />
         <CommunityRegistrationDetailModal
           isOpen={showRegDetail}

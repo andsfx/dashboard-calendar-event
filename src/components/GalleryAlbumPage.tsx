@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Camera, ChevronDown, X, Moon, SunMedium, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Camera, ChevronDown, X, Moon, SunMedium, CalendarDays, MapPin } from 'lucide-react';
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/supabaseApi';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -226,6 +226,12 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                   <span className="flex items-center gap-1.5">
                     <CalendarDays className="h-4 w-4" />
                     {album.eventDate}
+                  </span>
+                )}
+                {album.lokasi && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4" />
+                    {album.lokasi}
                   </span>
                 )}
                 <span className="flex items-center gap-1.5">

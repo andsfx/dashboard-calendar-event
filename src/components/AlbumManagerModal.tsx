@@ -1,18 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } from 'lucide-react';
-import { PhotoAlbum, EventPhoto } from '../types';
+import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  pastEvents?: EventItem[];
+  annualThemes?: AnnualTheme[];
 }
 
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function AlbumManagerModal({ isOpen, onClose }: Props) {
+export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }: Props) {
   const [view, setView] = useState<'list' | 'detail'>('list');
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<PhotoAlbum | null>(null);
@@ -24,6 +26,10 @@ export function AlbumManagerModal({ isOpen, onClose }: Props) {
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newDate, setNewDate] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState('');
+  const [selectedThemeId, setSelectedThemeId] = useState('');
+  const [newLokasi, setNewLokasi] = useState('');
+  const [isCustomEvent, setIsCustomEvent] = useState(false);
 
   // Upload
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -71,6 +77,10 @@ export function AlbumManagerModal({ isOpen, onClose }: Props) {
     setNewName('');
     setNewDesc('');
     setNewDate('');
+    setNewLokasi('');
+    setSelectedEventId('');
+    setSelectedThemeId('');
+    setIsCustomEvent(false);
   };
 
   const clearUploadForm = () => {
@@ -79,6 +89,37 @@ export function AlbumManagerModal({ isOpen, onClose }: Props) {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl('');
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // --- Helpers ---
+
+  const autoMatchTheme = (dateStr: string): string => {
+    if (!dateStr || !annualThemes) return '';
+    const theme = annualThemes.find(t => dateStr >= t.dateStart && dateStr <= t.dateEnd);
+    return theme?.id || '';
+  };
+
+  const handleEventSelect = (eventId: string) => {
+    if (eventId === '__custom__') {
+      setIsCustomEvent(true);
+      setSelectedEventId('');
+      setNewName('');
+      setNewDesc('');
+      setNewDate('');
+      setNewLokasi('');
+      setSelectedThemeId('');
+      return;
+    }
+    setIsCustomEvent(false);
+    setSelectedEventId(eventId);
+    const event = pastEvents?.find(e => e.id === eventId);
+    if (event) {
+      setNewName(event.acara);
+      setNewDesc(event.keterangan || '');
+      setNewDate(event.dateStr);
+      setNewLokasi(event.lokasi || '');
+      setSelectedThemeId(autoMatchTheme(event.dateStr));
+    }
   };
 
   // --- Album CRUD ---
@@ -91,7 +132,14 @@ export function AlbumManagerModal({ isOpen, onClose }: Props) {
     setIsLoading(true);
     setError('');
     try {
-      await createAlbum(newName.trim(), newDesc.trim(), newDate);
+      await createAlbum(
+        newName.trim(),
+        newDesc.trim(),
+        newDate,
+        selectedEventId || undefined,
+        newLokasi.trim() || undefined,
+        selectedThemeId || undefined
+      );
       setShowCreateForm(false);
       clearCreateForm();
       await loadAlbums();
@@ -292,26 +340,94 @@ export function AlbumManagerModal({ isOpen, onClose }: Props) {
               {showCreateForm && (
                 <div className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 dark:border-violet-900/50 dark:bg-violet-900/10">
                   <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">Album Baru</p>
-                  <div className="space-y-2">
-                    <input
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder="Nama Event *"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                    />
-                    <input
-                      value={newDesc}
-                      onChange={(e) => setNewDesc(e.target.value)}
-                      placeholder="Deskripsi"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                    />
-                    <input
-                      type="date"
-                      value={newDate}
-                      onChange={(e) => setNewDate(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
-                    />
+                  <div className="space-y-3">
+                    {/* Event dropdown */}
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Pilih Event</label>
+                      <select
+                        value={isCustomEvent ? '__custom__' : selectedEventId}
+                        onChange={(e) => handleEventSelect(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      >
+                        <option value="">Pilih event yang sudah berlangsung...</option>
+                        {(pastEvents || [])
+                          .filter(e => !albums.some(a => a.eventId === e.id))
+                          .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
+                          .map(e => (
+                            <option key={e.id} value={e.id}>{e.acara} — {e.tanggal}</option>
+                          ))
+                        }
+                        <option value="__custom__">✏ Custom (ketik manual)</option>
+                      </select>
+                    </div>
+
+                    {/* Theme dropdown */}
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tema Tahunan</label>
+                      <select
+                        value={selectedThemeId}
+                        onChange={(e) => setSelectedThemeId(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      >
+                        <option value="">Pilih tema (opsional)...</option>
+                        {(annualThemes || []).map(t => (
+                          <option key={t.id} value={t.id}>{t.name} ({t.dateStart} — {t.dateEnd})</option>
+                        ))}
+                      </select>
+                      {selectedThemeId && !isCustomEvent && (
+                        <p className="mt-1 text-xs text-violet-500">Auto-matched berdasarkan tanggal event</p>
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event *</label>
+                      <input
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="Nama event"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                      <input
+                        value={newDesc}
+                        onChange={(e) => setNewDesc(e.target.value)}
+                        placeholder="Deskripsi event"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      />
+                    </div>
+
+                    {/* Date + Location row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal</label>
+                        <input
+                          type="date"
+                          value={newDate}
+                          onChange={(e) => {
+                            setNewDate(e.target.value);
+                            if (!isCustomEvent) setSelectedThemeId(autoMatchTheme(e.target.value));
+                          }}
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
+                        <input
+                          value={newLokasi}
+                          onChange={(e) => setNewLokasi(e.target.value)}
+                          placeholder="Lokasi event"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Action buttons */}
                   <div className="flex items-center gap-2">
                     <button
                       type="button"

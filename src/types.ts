@@ -143,6 +143,9 @@ export interface PhotoAlbum {
   coverPhotoUrl: string;
   sortOrder: number;
   photoCount?: number;
+  eventId?: string;
+  lokasi?: string;
+  themeId?: string;
 }
 
 export interface LetterRequestItem {
