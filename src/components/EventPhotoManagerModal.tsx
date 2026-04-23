@@ -14,7 +14,7 @@ interface Props {
 }
 
 const MAX_PHOTOS = 9;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export function EventPhotoManagerModal({ isOpen, onClose, photos, onUpload, onDelete, onReorder, onRefresh }: Props) {
   const [localPhotos, setLocalPhotos] = useState<EventPhoto[]>([]);
@@ -51,7 +51,7 @@ export function EventPhotoManagerModal({ isOpen, onClose, photos, onUpload, onDe
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE) {
-      setError('Ukuran file maksimal 5MB');
+      setError('Ukuran file maksimal 10MB');
       e.target.value = '';
       return;
     }
