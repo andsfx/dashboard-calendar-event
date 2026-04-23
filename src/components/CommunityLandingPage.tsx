@@ -291,14 +291,16 @@ function LazyInstagramEmbed({ url }: { url: string }) {
   return (
     <div ref={containerRef} className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700">
       {isVisible && !hasError ? (
-        <iframe
-          src={embedUrl}
-          className="w-full border-0"
-          style={{ minHeight: 500 }}
-          loading="lazy"
-          title="Instagram post"
-          onError={() => setHasError(true)}
-        />
+        <div className="mx-auto" style={{ maxWidth: 540 }}>
+          <iframe
+            src={embedUrl}
+            className="w-full border-0"
+            style={{ minHeight: 600 }}
+            loading="lazy"
+            title="Instagram post"
+            onError={() => setHasError(true)}
+          />
+        </div>
       ) : hasError ? (
         <a
           href={url}
