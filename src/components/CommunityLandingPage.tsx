@@ -31,7 +31,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { EventItem } from '../types';
+import { EventItem, PhotoAlbum } from '../types';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -464,9 +464,10 @@ interface CommunityLandingProps {
   events?: EventItem[];
   onEventDetail?: (ev: EventItem) => void;
   heroImageUrl?: string;
+  albums?: PhotoAlbum[];
 }
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -720,54 +721,95 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 Lihat sendiri keseruannya.
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-                Follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: BRAND.accent }}>@metmalbekasi</a> buat update event terbaru!
+                Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
               </p>
             </div>
 
-            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(instagramPosts && instagramPosts.length > 0
-                ? instagramPosts
-                : IG_POSTS
-              ).map((url, idx) => {
-                const trimmedUrl = (url || '').trim();
-                if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
-                  return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
-                }
-                return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
-              })}
-            </div>
+            {/* ── Dokumentasi Event ── */}
+            {albums.length > 0 && (
+              <div className="mt-10">
+                <div className="mb-6 flex items-center justify-center gap-2">
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Dokumentasi Event</p>
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                </div>
 
-            {/* Link ke Gallery */}
-            <div className="mt-12 flex flex-col items-center gap-4">
-              <div className="mb-2 flex items-center justify-center gap-2">
+                <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
+                  {albums.slice(0, 3).map(album => (
+                    <a
+                      key={album.id}
+                      href={`/gallery/${album.slug}`}
+                      className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
+                    >
+                      <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
+                        {album.coverPhotoUrl ? (
+                          <img src={album.coverPhotoUrl} alt={album.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">
+                            <Camera className="h-8 w-8 text-violet-300 dark:text-violet-500" aria-hidden="true" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100">
+                          <span className="text-sm font-semibold text-white">Lihat Foto &rarr;</span>
+                        </div>
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                          {album.eventDate && <span>{album.eventDate}</span>}
+                          {typeof album.photoCount === 'number' && album.photoCount > 0 && <span>{album.eventDate ? '·' : ''} {album.photoCount} foto</span>}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="mt-6 text-center">
+                  <a
+                    href="/gallery"
+                    className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+                  >
+                    <Camera className="h-4 w-4" aria-hidden="true" />
+                    Lihat Semua Gallery
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* ── Instagram ── */}
+            <div className={albums.length > 0 ? 'mt-14' : 'mt-10'}>
+              <div className="mb-6 flex items-center justify-center gap-2">
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Dokumentasi Event</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Instagram</p>
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               </div>
-              <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-                Lihat foto-foto dari event yang sudah berlangsung
-              </p>
-              <a
-                href="/gallery"
-                className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                <Camera className="h-4 w-4" />
-                Lihat Gallery Foto
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
 
-            <div className="mt-8 text-center">
-              <a
-                href="https://instagram.com/metmalbekasi"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
-              >
-                <Globe className="h-4 w-4" />
-                Lihat Semua di Instagram
-                <ArrowRight className="h-4 w-4" />
-              </a>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {(instagramPosts && instagramPosts.length > 0
+                  ? instagramPosts
+                  : IG_POSTS
+                ).map((url, idx) => {
+                  const trimmedUrl = (url || '').trim();
+                  if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
+                    return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
+                  }
+                  return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
+                })}
+              </div>
+
+              <div className="mt-8 text-center">
+                <a
+                  href="https://instagram.com/metmalbekasi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+                >
+                  <Globe className="h-4 w-4" aria-hidden="true" />
+                  Follow @metmalbekasi
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </div>
             </div>
           </div>
         </RevealSection>

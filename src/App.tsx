@@ -13,8 +13,9 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus } from './utils/supabaseApi';
+import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
+import type { PhotoAlbum } from './types';
 
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
@@ -81,6 +82,7 @@ export default function App() {
   const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
   const [showAlbumManager, setShowAlbumManager] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [landingAlbums, setLandingAlbums] = useState<PhotoAlbum[]>([]);
   const [communityRegistrations, setCommunityRegistrations] = useState<CommunityRegistration[]>([]);
   const [isRegLoading, setIsRegLoading] = useState(false);
   const [showRegDetail, setShowRegDetail] = useState(false);
@@ -158,6 +160,7 @@ export default function App() {
     fetchSiteSettings<string>('hero_image').then(url => {
       if (url && typeof url === 'string') setHeroImageUrl(url);
     }).catch(() => {});
+    fetchAlbums().then(setLandingAlbums).catch(() => {});
   }, []);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
@@ -599,6 +602,7 @@ export default function App() {
             events={publicEvents}
             onEventDetail={handleDetailClick}
             heroImageUrl={heroImageUrl}
+            albums={landingAlbums}
           />
           <Suspense fallback={null}>
             <EventDetailModal

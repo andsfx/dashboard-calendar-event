@@ -270,6 +270,17 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
     clearUploadForm();
     await refreshAlbumDetail();
 
+    // Auto-set cover if album doesn't have one yet
+    if (selectedAlbum && !selectedAlbum.coverPhotoUrl && successCount > 0) {
+      try {
+        const updated = await fetchAlbumBySlug(selectedAlbum.slug);
+        if (updated && updated.photos.length > 0) {
+          await setAlbumCover(selectedAlbum.id, updated.photos[0].url);
+          await refreshAlbumDetail();
+        }
+      } catch { /* silently fail */ }
+    }
+
     if (failCount > 0) {
       setError(`${successCount} foto berhasil, ${failCount} gagal diupload.`);
     }
