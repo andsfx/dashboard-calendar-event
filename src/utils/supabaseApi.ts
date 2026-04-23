@@ -584,9 +584,15 @@ export async function uploadToR2(file: File): Promise<string> {
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `gallery/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
 
-  // Convert file to base64
+  // Convert file to base64 (chunk-safe for large files)
   const buffer = await file.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  const base64 = btoa(binary);
 
   const response = await fetch('/api/r2-upload', {
     method: 'POST',
