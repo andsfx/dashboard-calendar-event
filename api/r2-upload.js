@@ -1,5 +1,6 @@
 import { requireAdminSession } from './_lib/auth.js';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const R2 = new S3Client({
   region: 'auto',
@@ -10,8 +11,6 @@ const R2 = new S3Client({
   },
 });
 
-export const config = { api: { bodyParser: { sizeLimit: '12mb' } } };
-
 export default async function handler(req, res) {
   if (!requireAdminSession(req, res)) return;
   if (req.method !== 'POST') {
@@ -19,26 +18,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { fileName, contentType, fileBase64 } = req.body;
-    if (!fileName || !contentType || !fileBase64) {
-      return res.status(400).json({ success: false, error: 'Missing fileName, contentType, or fileBase64' });
+    const { fileName, contentType } = req.body;
+    if (!fileName || !contentType) {
+      return res.status(400).json({ success: false, error: 'Missing fileName or contentType' });
     }
 
-    const buffer = Buffer.from(fileBase64, 'base64');
     const bucket = process.env.R2_BUCKET_NAME || 'metmal-gallery';
     const publicUrl = process.env.R2_PUBLIC_URL || '';
 
-    await R2.send(new PutObjectCommand({
+    // Generate presigned URL for direct client upload to R2
+    const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileName,
-      Body: buffer,
       ContentType: contentType,
-    }));
+    });
+
+    const uploadUrl = await getSignedUrl(R2, command, { expiresIn: 300 }); // 5 min expiry
 
     const url = `${publicUrl}/${fileName}`;
-    res.status(200).json({ success: true, url, fileName });
+    res.status(200).json({ success: true, uploadUrl, publicUrl: url, fileName });
   } catch (error) {
-    console.error('R2 upload error:', error);
-    res.status(500).json({ success: false, error: error.message || 'Upload failed' });
+    console.error('R2 presign error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Presign failed' });
   }
 }

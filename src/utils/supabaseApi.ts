@@ -584,26 +584,27 @@ export async function uploadToR2(file: File): Promise<string> {
   const ext = file.name.split('.').pop() || 'jpg';
   const fileName = `gallery/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
 
-  // Convert file to base64 (chunk-safe for large files)
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  const chunkSize = 8192;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  const base64 = btoa(binary);
-
-  const response = await fetch('/api/r2-upload', {
+  // Step 1: Get presigned upload URL from server
+  const presignRes = await fetch('/api/r2-upload', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ fileName, contentType: file.type, fileBase64: base64 }),
+    body: JSON.stringify({ fileName, contentType: file.type }),
   });
 
-  const result = await response.json();
-  if (!result.success) throw new SupabaseApiError(result.error || 'R2 upload failed');
-  return result.url;
+  const presignResult = await presignRes.json();
+  if (!presignResult.success) throw new SupabaseApiError(presignResult.error || 'R2 presign failed');
+
+  // Step 2: Upload file directly to R2 via presigned URL (no size limit)
+  const uploadRes = await fetch(presignResult.uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+
+  if (!uploadRes.ok) throw new SupabaseApiError(`R2 upload failed: ${uploadRes.status}`);
+
+  return presignResult.publicUrl;
 }
 
 export async function deleteFromR2(url: string): Promise<void> {
