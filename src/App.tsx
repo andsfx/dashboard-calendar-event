@@ -77,6 +77,7 @@ export default function App() {
   const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
   const [showPhotoManager, setShowPhotoManager] = useState(false);
   const [eventPhotos, setEventPhotos] = useState<EventPhoto[]>([]);
+  const [heroImageUrl, setHeroImageUrl] = useState('');
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -117,6 +118,9 @@ export default function App() {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
       if (posts && Array.isArray(posts)) setInstagramPosts(posts);
     }).catch(() => {});
+    fetchSiteSettings<string>('hero_image').then(url => {
+      if (url && typeof url === 'string') setHeroImageUrl(url);
+    }).catch(() => {});
     refreshPhotos();
   }, [refreshPhotos]);
 
@@ -128,6 +132,17 @@ export default function App() {
       return true;
     } catch {
       showToast('error', 'Gagal menyimpan', 'Link Instagram belum tersimpan. Coba lagi.');
+      return false;
+    }
+  }, [showToast]);
+
+  const handleSaveHeroImage = useCallback(async (url: string) => {
+    try {
+      await updateSiteSettings('hero_image', url);
+      setHeroImageUrl(url);
+      return true;
+    } catch {
+      showToast('error', 'Gagal menyimpan', 'Hero image belum tersimpan. Coba lagi.');
       return false;
     }
   }, [showToast]);
@@ -548,6 +563,7 @@ export default function App() {
             events={publicEvents}
             onEventDetail={handleDetailClick}
             eventPhotos={eventPhotos}
+            heroImageUrl={heroImageUrl}
           />
           <Suspense fallback={null}>
             <EventDetailModal
@@ -934,6 +950,8 @@ export default function App() {
           onClose={() => setShowInstagramSettings(false)}
           posts={instagramPosts}
           onSave={handleSaveInstagramPosts}
+          heroImageUrl={heroImageUrl}
+          onSaveHeroImage={handleSaveHeroImage}
         />
         <EventPhotoManagerModal
           isOpen={showPhotoManager}

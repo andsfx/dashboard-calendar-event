@@ -561,9 +561,10 @@ interface CommunityLandingProps {
   events?: EventItem[];
   onEventDetail?: (ev: EventItem) => void;
   eventPhotos?: EventPhoto[];
+  heroImageUrl?: string;
 }
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, eventPhotos = [] }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, eventPhotos = [], heroImageUrl }: CommunityLandingProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -648,10 +649,26 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <section
           id="hero"
           className="relative min-h-screen lg:max-h-[1000px] overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)`,
-          }}
         >
+          {/* Background: foto + gradient overlay */}
+          {heroImageUrl ? (
+            <>
+              <div className="absolute inset-0">
+                <img src={heroImageUrl} alt="" className="h-full w-full object-cover" />
+              </div>
+              {/* Gradient overlay di atas foto (60-70% opacity) */}
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(135deg, rgba(26,5,51,0.75) 0%, rgba(15,23,42,0.65) 40%, rgba(30,27,75,0.70) 70%, rgba(49,46,129,0.60) 100%)' }}
+              />
+            </>
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)' }}
+            />
+          )}
+
           {/* Decorative elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/20 blur-[120px]" />
