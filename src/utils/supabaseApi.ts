@@ -482,6 +482,32 @@ export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrde
   if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
 }
 
+// ---- Community Registration (public, via anon key) ----
+
+export async function submitCommunityRegistration(data: {
+  communityName: string;
+  communityType: string;
+  pic: string;
+  phone: string;
+  email?: string;
+  instagram?: string;
+  description?: string;
+  preferredDate?: string;
+}): Promise<{ id: string }> {
+  const { data: result, error } = await supabase.from('community_registrations').insert({
+    community_name: data.communityName,
+    community_type: data.communityType,
+    pic: data.pic,
+    phone: data.phone,
+    email: data.email || '',
+    instagram: data.instagram || '',
+    description: data.description || '',
+    preferred_date: data.preferredDate || '',
+  }).select('id').single();
+  if (error) throw new SupabaseApiError(`Registration failed: ${error.message}`);
+  return { id: result?.id || '' };
+}
+
 // ---- Letter Request (legacy - still uses Google Apps Script) ----
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {

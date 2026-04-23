@@ -1,4 +1,5 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useRef, useState } from 'react';
+import { submitCommunityRegistration } from '../utils/supabaseApi';
 import {
   ArrowRight,
   CalendarDays,
@@ -47,28 +48,30 @@ const BRAND = {
   border: 'rgba(148, 163, 184, 0.18)',
 };
 
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+
 /* ─── Data ────────────────────────────────────────────────── */
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
   {
-    icon: <Trophy className="h-7 w-7" />,
+    icon: <Trophy className="h-7 w-7" aria-hidden="true" />,
     title: 'Sponsorship Opportunities',
     desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu connect dengan brand dan tenant yang relevan.',
     color: '#f59e0b',
   },
   {
-    icon: <Megaphone className="h-7 w-7" />,
+    icon: <Megaphone className="h-7 w-7" aria-hidden="true" />,
     title: 'Marketing Support',
     desc: 'Tim marketing kami bantu promosiin event kamu lewat social media, digital signage, dan channel mall lainnya.',
     color: '#ec4899',
   },
   {
-    icon: <Rocket className="h-7 w-7" />,
+    icon: <Rocket className="h-7 w-7" aria-hidden="true" />,
     title: 'Grow Your Community',
     desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
     color: '#8b5cf6',
   },
   {
-    icon: <Zap className="h-7 w-7" />,
+    icon: <Zap className="h-7 w-7" aria-hidden="true" />,
     title: 'Free Venue & Event Tools',
     desc: 'Panggung, sound system, lighting, kursi penonton — semua GRATIS. Kamu tinggal fokus bikin acara yang seru.',
     color: '#10b981',
@@ -76,12 +79,12 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
 ];
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
-  { icon: <Mic2 className="h-6 w-6" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
-  { icon: <Headphones className="h-6 w-6" />, title: 'Sound System 10K Watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
-  { icon: <Lightbulb className="h-6 w-6" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin standout dan memorable.' },
-  { icon: <Users className="h-6 w-6" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa di-arrange sesuai kebutuhan acara kamu.' },
-  { icon: <MapPin className="h-6 w-6" />, title: 'Area Lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
-  { icon: <Heart className="h-6 w-6" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
+  { icon: <Mic2 className="h-6 w-6" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
+  { icon: <Headphones className="h-6 w-6" aria-hidden="true" />, title: 'Sound System 10K Watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
+  { icon: <Lightbulb className="h-6 w-6" aria-hidden="true" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin standout dan memorable.' },
+  { icon: <Users className="h-6 w-6" aria-hidden="true" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa di-arrange sesuai kebutuhan acara kamu.' },
+  { icon: <MapPin className="h-6 w-6" aria-hidden="true" />, title: 'Area Lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
+  { icon: <Heart className="h-6 w-6" aria-hidden="true" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
 ];
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
@@ -142,16 +145,16 @@ function LogoMark({ className = '' }: { className?: string }) {
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: BRAND.accent }}>
+    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
       {label}
     </p>
   );
 }
 
 const NAV_ITEMS = [
-  { href: '#benefits', label: 'Benefits' },
+  { href: '#benefits', label: 'Keuntungan' },
   { href: '#facilities', label: 'Fasilitas' },
-  { href: '#gallery', label: 'Gallery' },
+  { href: '#gallery', label: 'Galeri' },
   { href: '#events', label: 'Event' },
   { href: '#how', label: 'Cara Daftar' },
   { href: '#register', label: 'Daftar' },
@@ -197,10 +200,12 @@ function RegistrationForm() {
       return;
     }
     setSubmitting(true);
-    // For now, log to console. Will integrate with Google Apps Script later.
-    console.log('Community registration:', form);
-    await new Promise(r => setTimeout(r, 1200));
-    setSubmitted(true);
+    try {
+      await submitCommunityRegistration(form);
+      setSubmitted(true);
+    } catch (err) {
+      setError('Gagal mengirim pendaftaran. Coba lagi nanti.');
+    }
     setSubmitting(false);
   };
 
@@ -218,7 +223,7 @@ function RegistrationForm() {
         <button
           type="button"
           onClick={() => { setSubmitted(false); setForm({ communityName: '', communityType: '', pic: '', phone: '', email: '', instagram: '', description: '', preferredDate: '' }); }}
-          className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700"
+          className={`mt-6 inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing}`}
         >
           Daftar Komunitas Lain
         </button>
@@ -226,7 +231,7 @@ function RegistrationForm() {
     );
   }
 
-  const inputClass = 'w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-violet-400/40 dark:bg-slate-800 dark:text-white dark:border-slate-700';
+  const inputClass = 'w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-violet-400 dark:bg-slate-800 dark:text-white dark:border-slate-700';
 
   return (
     <form
@@ -240,9 +245,9 @@ function RegistrationForm() {
           {COMMUNITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <input value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama PIC *" aria-label="Nama PIC" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
-        <input value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp *" aria-label="Nomor WhatsApp" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp *" type="tel" aria-label="Nomor WhatsApp" aria-required="true" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
         <input value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Email (opsional)" type="email" aria-label="Email" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
-        <input value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="Instagram komunitas (opsional)" aria-label="Instagram komunitas" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
+        <input value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="Instagram komunitas (opsional)" type="url" aria-label="Instagram komunitas" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
         <input type="date" value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} placeholder="Preferensi tanggal event" aria-label="Preferensi tanggal event" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600`} />
         <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang komunitas kamu dan rencana event yang mau diadain..." aria-label="Deskripsi komunitas dan rencana event" className={`${inputClass} bg-[#fffdf9] border-black/[0.06] dark:bg-slate-700 dark:border-slate-600 resize-none sm:col-span-2`} />
       </div>
@@ -252,7 +257,7 @@ function RegistrationForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:brightness-110 hover:shadow-lg"
+          className={`inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:brightness-110 hover:shadow-lg ${focusRing}`}
           style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
         >
           <Send className="h-4 w-4" />
@@ -267,6 +272,7 @@ function RegistrationForm() {
 function LazyInstagramEmbed({ url }: { url: string }) {
   const [isVisible, setIsVisible] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -294,11 +300,17 @@ function LazyInstagramEmbed({ url }: { url: string }) {
     }
   }, [isVisible]);
 
+  useEffect(() => {
+    if (!isVisible || hasError) return;
+    const timer = setTimeout(() => setTimedOut(true), 10000);
+    return () => clearTimeout(timer);
+  }, [isVisible, hasError]);
+
   const embedUrl = url.endsWith('/') ? `${url}embed` : `${url}/embed`;
 
   return (
     <div ref={containerRef} className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700">
-      {isVisible && !hasError ? (
+      {isVisible && !hasError && !timedOut ? (
         <div className="mx-auto" style={{ maxWidth: 540 }}>
           <iframe
             src={embedUrl}
@@ -309,7 +321,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
             onError={() => setHasError(true)}
           />
         </div>
-      ) : hasError ? (
+      ) : (hasError || timedOut) ? (
         <a
           href={url}
           target="_blank"
@@ -381,7 +393,7 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
             >
               {isOngoing ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                  <Radio className="h-3 w-3 animate-pulse" /> BERLANGSUNG
+                  <Radio className="h-3 w-3" /> BERLANGSUNG
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
@@ -431,7 +443,7 @@ function EventShowcase({ events, onDetail, onViewAll }: { events: EventItem[]; o
         <button
           type="button"
           onClick={onViewAll}
-          className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+          className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
         >
           <CalendarDays className="h-4 w-4" />
           Lihat Semua Event
@@ -451,9 +463,9 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
   onNext: () => void;
 }) {
   const photo = photos[currentIndex];
-  if (!photo) return null;
 
   useEffect(() => {
+    if (!photo) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowLeft') onPrev();
@@ -461,7 +473,9 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose, onPrev, onNext]);
+  }, [photo, onClose, onPrev, onNext]);
+
+  if (!photo) return null;
 
   return (
     <div
@@ -601,21 +615,21 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
       <header className={headerClassName}>
         <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 sm:py-3">
           <div className="flex items-center justify-between gap-4">
-            <button onClick={onBack} className="shrink-0 flex items-center gap-2">
+            <button onClick={onBack} className={`shrink-0 flex items-center gap-2 ${focusRing}`}>
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
             </button>
             <nav className={navClassName}>
               {NAV_ITEMS.map(item => (
-                <a key={item.href} href={item.href} className="transition hover:opacity-80">{item.label}</a>
+                <a key={item.href} href={item.href} className={`transition hover:opacity-80 ${focusRing}`}>{item.label}</a>
               ))}
             </nav>
             <div className="flex items-center gap-2">
-              <button onClick={onToggleDark} className={utilityButtonClass} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
+              <button onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
                 {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
               <button
                 onClick={onBack}
-                className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)]"
+                className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] ${focusRing}`}
                 style={{ background: `linear-gradient(135deg, ${BRAND.accent} 0%, ${BRAND.accentSoft} 100%)` }}
               >
                 <CalendarDays className="h-4 w-4" /> Event Dashboard
@@ -623,7 +637,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <button
                 type="button"
                 onClick={() => setMobileNavOpen(prev => !prev)}
-                className={`${utilityButtonClass} lg:hidden`}
+                className={`${utilityButtonClass} lg:hidden ${focusRing}`}
                 aria-label={mobileNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
               >
                 {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -654,7 +668,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           {heroImageUrl ? (
             <>
               <div className="absolute inset-0">
-                <img src={heroImageUrl} alt="" className="h-full w-full object-cover" />
+                <img src={heroImageUrl} alt="" className="h-full w-full object-cover" fetchPriority="high" />
               </div>
               {/* Gradient overlay di atas foto (60-70% opacity) */}
               <div
@@ -699,7 +713,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <a
                   href="#register"
-                  className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition hover:brightness-110 hover:shadow-xl"
+                  className={`inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition hover:brightness-110 hover:shadow-xl ${focusRing}`}
                   style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
                 >
                   Daftar Sekarang
@@ -707,7 +721,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 </a>
                 <a
                   href="#benefits"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/14"
+                  className={`inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/14 ${focusRing}`}
                 >
                   Lihat Benefits
                 </a>
@@ -717,19 +731,19 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/75">
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                   </span>
                   <span>100% Gratis</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/20">
-                    <Music className="h-4 w-4 text-violet-400" />
+                    <Music className="h-4 w-4 text-violet-400" aria-hidden="true" />
                   </span>
                   <span>Sound 10K Watt</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/20">
-                    <Users className="h-4 w-4 text-amber-400" />
+                    <Users className="h-4 w-4 text-amber-400" aria-hidden="true" />
                   </span>
                   <span>Open for All</span>
                 </div>
@@ -855,7 +869,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 href="https://instagram.com/metmalbekasi"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
               >
                 <Globe className="h-4 w-4" />
                 Lihat Semua di Instagram
@@ -977,10 +991,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                      className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
+                      className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
                     >
                       <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                      <ChevronDown className={`h-5 w-5 shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} style={{ color: BRAND.accent }} />
+                      <ChevronDown className={`h-5 w-5 shrink-0 transition text-violet-500 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isOpen && (
                       <div className="border-t border-black/[0.06] dark:border-slate-700 px-5 py-5 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:px-6">
@@ -1009,10 +1023,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 href="https://wa.me/6281318534823"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
+                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                  <Phone className="h-7 w-7" />
+                  <Phone className="h-7 w-7" aria-hidden="true" />
                 </div>
                 <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">WhatsApp Andy</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">0813-1853-4823</p>
@@ -1022,10 +1036,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 href="https://wa.me/6281908142555"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
+                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-                  <Phone className="h-7 w-7" />
+                  <Phone className="h-7 w-7" aria-hidden="true" />
                 </div>
                 <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">WhatsApp Uca</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">0819-0814-2555</p>
@@ -1033,10 +1047,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
 
               <a
                 href="mailto:marketing@malmetropolitan.com"
-                className="group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1"
+                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                  <Mail className="h-7 w-7" />
+                  <Mail className="h-7 w-7" aria-hidden="true" />
                 </div>
                 <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">Email</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">marketing@malmetropolitan.com</p>
