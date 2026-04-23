@@ -25,19 +25,6 @@ body {
 .reveal-on-scroll {
   --reveal-distance: 48px;
   --reveal-stagger-step: 80ms;
-  position: relative;
-}
-
-/* Skeleton placeholder: visible before reveal, fades out when content appears */
-.reveal-skeleton {
-  transition: opacity 400ms ease-out;
-}
-
-.reveal-visible .reveal-skeleton {
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
 }
 
 .reveal-stage {

@@ -131,15 +131,26 @@ function RevealSection({
 } & React.HTMLAttributes<HTMLElement>) {
   const { ref, isVisible } = useScrollReveal();
   const Tag = as;
+
+  // If skeleton provided and not yet visible, show skeleton instead of reveal-stage
+  if (!isVisible && skeleton) {
+    return (
+      <Tag
+        ref={ref as never}
+        className={className}
+        {...rest}
+      >
+        <div className="animate-pulse">{skeleton}</div>
+      </Tag>
+    );
+  }
+
   return (
     <Tag
       ref={ref as never}
       className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
       {...rest}
     >
-      {!isVisible && skeleton && (
-        <div className="reveal-skeleton animate-pulse">{skeleton}</div>
-      )}
       <div className="reveal-stage">{children}</div>
     </Tag>
   );
