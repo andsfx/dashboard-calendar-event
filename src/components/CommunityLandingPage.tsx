@@ -804,17 +804,32 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               {BENEFITS.map((b, i) => (
                 <div
                   key={b.title}
-                  className="group rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)] dark:bg-slate-800 dark:border-slate-700"
-                  style={{ animationDelay: `${i * 100}ms` }}
+                  className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                  style={{ '--accent-color': b.color } as React.CSSProperties}
                 >
+                  {/* Accent bar */}
                   <div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
-                    style={{ background: `linear-gradient(135deg, ${b.color}, ${b.color}cc)` }}
+                    className="absolute left-0 right-0 top-0 h-1 transition-all duration-300 group-hover:h-2"
+                    style={{ background: b.color }}
+                  />
+
+                  {/* Icon with colored background */}
+                  <div
+                    className="flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+                    style={{ background: `${b.color}15`, color: b.color }}
                   >
                     {b.icon}
                   </div>
+
                   <h3 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">{b.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{b.desc}</p>
+
+                  {/* Decorative gradient blob */}
+                  <div
+                    className="pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-20"
+                    style={{ background: b.color }}
+                    aria-hidden="true"
+                  />
                 </div>
               ))}
             </div>
