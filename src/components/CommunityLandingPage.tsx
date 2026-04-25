@@ -740,15 +740,18 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <a
                   href="#register"
-                  className={`inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition hover:brightness-110 hover:shadow-xl ${focusRing}`}
-                  style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}
+                  className={`group inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:brightness-110 hover:shadow-xl ${focusRing}`}
+                  style={{ 
+                    background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)`,
+                    boxShadow: '0 20px 40px -12px rgba(242, 116, 62, 0.5)'
+                  }}
                 >
                   Daftar Sekarang
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </a>
                 <a
                   href="#benefits"
-                  className={`inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/14 ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-full border-2 border-white/20 bg-white/10 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-xl transition hover:border-white/40 hover:bg-white/20 ${focusRing}`}
                 >
                   Lihat Benefits
                 </a>
