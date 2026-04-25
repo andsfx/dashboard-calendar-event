@@ -109,8 +109,7 @@ function LogoMark({ className = '' }: { className?: string }) {
 function eyebrow(label: string, light = false) {
   return (
     <p
-      className={`text-[11px] font-semibold uppercase tracking-[0.3em] ${light ? 'text-white/72' : 'text-slate-500'}`}
-      style={{ color: light ? undefined : BRAND.accent }}
+      className={`text-[11px] font-semibold uppercase tracking-[0.3em] ${light ? 'text-white/80' : 'text-violet-500 dark:text-violet-400'}`}
     >
       {label}
     </p>
@@ -249,54 +248,52 @@ function SubmissionForm({ onSubmitRequest }: { onSubmitRequest: (payload: Public
     setSubmitting(false);
   };
 
-  const inputClass = 'w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 dark:text-white outline-none transition focus:ring-2';
-  const inputStyle = { background: '#fffdf9', borderColor: BRAND.border };
+  const inputClass = 'w-full rounded-2xl border border-slate-200/50 bg-[#fffdf9] px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-violet-400 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-slate-500';
   const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[2rem] border p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:bg-slate-900 dark:border-slate-700 xl:p-7"
-      style={{ background: BRAND.paper, borderColor: BRAND.border }}
+      className="rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:bg-slate-900 dark:border-slate-700 xl:p-7"
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor="submit-acara" className={labelClass}>Nama Event <span className="text-rose-500">*</span></label>
-          <input id="submit-acara" value={form.acara} onChange={e => setField('acara', e.target.value)} placeholder="Nama event" className={inputClass} style={inputStyle} />
+          <input id="submit-acara" value={form.acara} onChange={e => setField('acara', e.target.value)} placeholder="Nama event" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-eo" className={labelClass}>EO / Brand <span className="text-rose-500">*</span></label>
-          <input id="submit-eo" value={form.eo} onChange={e => setField('eo', e.target.value)} placeholder="EO / Brand" className={inputClass} style={inputStyle} />
+          <input id="submit-eo" value={form.eo} onChange={e => setField('eo', e.target.value)} placeholder="EO / Brand" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-pic" className={labelClass}>PIC <span className="text-rose-500">*</span></label>
-          <input id="submit-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="PIC" className={inputClass} style={inputStyle} />
+          <input id="submit-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="PIC" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-phone" className={labelClass}>Nomor Telepon <span className="text-rose-500">*</span></label>
-          <input id="submit-phone" type="tel" autoComplete="tel" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor telepon" className={inputClass} style={inputStyle} />
+          <input id="submit-phone" type="tel" autoComplete="tel" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor telepon" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-date" className={labelClass}>Tanggal <span className="text-rose-500">*</span></label>
-          <input id="submit-date" type="date" value={form.dateStr} onChange={e => setField('dateStr', e.target.value)} className={inputClass} style={inputStyle} />
+          <input id="submit-date" type="date" value={form.dateStr} onChange={e => setField('dateStr', e.target.value)} className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-jam" className={labelClass}>Jam Pelaksanaan</label>
-          <input id="submit-jam" value={form.jam} onChange={e => setField('jam', e.target.value)} placeholder="Jam pelaksanaan" className={inputClass} style={inputStyle} />
+          <input id="submit-jam" value={form.jam} onChange={e => setField('jam', e.target.value)} placeholder="Jam pelaksanaan" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-lokasi" className={labelClass}>Preferensi Area <span className="text-rose-500">*</span></label>
-          <input id="submit-lokasi" value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} placeholder="Preferensi area" className={inputClass} style={inputStyle} />
+          <input id="submit-lokasi" value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} placeholder="Preferensi area" className={inputClass} />
         </div>
         <div>
           <label htmlFor="submit-category" className={labelClass}>Kategori</label>
-          <select id="submit-category" value={form.categories[0] || 'Umum'} onChange={e => setField('categories', [e.target.value])} className={inputClass} style={inputStyle}>
+          <select id="submit-category" value={form.categories[0] || 'Umum'} onChange={e => setField('categories', [e.target.value])} className={inputClass}>
             {CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
           </select>
         </div>
         <div>
           <label htmlFor="submit-model" className={labelClass}>Model Event</label>
-          <select id="submit-model" value={form.eventModel} onChange={e => setField('eventModel', e.target.value)} className={inputClass} style={inputStyle}>
+          <select id="submit-model" value={form.eventModel} onChange={e => setField('eventModel', e.target.value)} className={inputClass}>
             {MODELS.map(model => <option key={model.label} value={model.value}>{model.label}</option>)}
           </select>
         </div>
@@ -304,22 +301,22 @@ function SubmissionForm({ onSubmitRequest }: { onSubmitRequest: (payload: Public
           <>
             <div>
               <label htmlFor="submit-nominal" className={labelClass}>Nominal <span className="text-rose-500">*</span></label>
-              <input id="submit-nominal" value={form.eventNominal} onChange={e => setField('eventNominal', e.target.value)} placeholder="Nominal" className={inputClass} style={inputStyle} />
+              <input id="submit-nominal" value={form.eventNominal} onChange={e => setField('eventNominal', e.target.value)} placeholder="Nominal" className={inputClass} />
             </div>
             <div>
               <label htmlFor="submit-model-notes" className={labelClass}>Keterangan Model <span className="text-rose-500">*</span></label>
-              <input id="submit-model-notes" value={form.eventModelNotes} onChange={e => setField('eventModelNotes', e.target.value)} placeholder="Keterangan model" className={inputClass} style={inputStyle} />
+              <input id="submit-model-notes" value={form.eventModelNotes} onChange={e => setField('eventModelNotes', e.target.value)} placeholder="Keterangan model" className={inputClass} />
             </div>
           </>
         )}
         <div className="sm:col-span-2">
           <label htmlFor="submit-keterangan" className={labelClass}>Keterangan</label>
-          <textarea id="submit-keterangan" value={form.keterangan} onChange={e => setField('keterangan', e.target.value)} rows={5} placeholder="Ringkas konsep event, target pengunjung, dan kebutuhan utama." className={`${inputClass} resize-none`} style={inputStyle} />
+          <textarea id="submit-keterangan" value={form.keterangan} onChange={e => setField('keterangan', e.target.value)} rows={5} placeholder="Ringkas konsep event, target pengunjung, dan kebutuhan utama." className={`${inputClass} resize-none`} />
         </div>
       </div>
       {error && <p className="mt-4 text-sm text-rose-600">{error}</p>}
-      <div className="mt-6 flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: BRAND.border }}>
-        <p className="max-w-xl text-sm leading-7 text-slate-600">Setiap pengajuan akan ditinjau tim mall berdasarkan jadwal, area, dan kebutuhan pelaksanaan acara sebelum ditindaklanjuti ke PIC.</p>
+      <div className="mt-6 flex flex-col gap-4 border-t border-slate-200/50 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-400">Setiap pengajuan akan ditinjau tim mall berdasarkan jadwal, area, dan kebutuhan pelaksanaan acara sebelum ditindaklanjuti ke PIC.</p>
         <button
           type="submit"
           disabled={submitting}
@@ -383,22 +380,22 @@ export function PublicLandingPage({
 
   const partners = useMemo(() => Array.from(new Set(events.map(event => event.eo).filter(Boolean))).slice(0, 8), [events]);
   const headerClassName = isHeaderPinned
-    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md'
+    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
     : 'absolute inset-x-0 top-0 z-50 text-white';
   const navClassName = isHeaderPinned
-    ? 'hidden items-center gap-7 text-[13px] font-medium text-slate-700 lg:flex'
+    ? 'hidden items-center gap-7 text-[13px] font-medium text-slate-700 dark:text-slate-300 lg:flex'
     : 'hidden items-center gap-7 text-[13px] font-medium text-white/90 lg:flex';
   const utilityButtonClass = isHeaderPinned
-    ? 'inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.05)]'
+    ? 'inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:text-white dark:border-slate-700'
     : 'inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm';
   const mobilePanelClass = isHeaderPinned
-    ? 'mt-3 rounded-[1.6rem] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden'
-    : 'mt-3 rounded-[1.6rem] border border-white/10 bg-slate-950/46 p-3 shadow-[0_18px_36px_rgba(15,23,42,0.22)] backdrop-blur-md lg:hidden';
+    ? 'mt-3 rounded-2xl border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] dark:bg-slate-900/98 dark:border-slate-700 lg:hidden mobile-nav-enter'
+    : 'mt-3 rounded-2xl border border-white/10 bg-slate-950/46 p-3 shadow-[0_18px_36px_rgba(15,23,42,0.22)] backdrop-blur-md lg:hidden mobile-nav-enter';
   const mobileNavGridClass = isHeaderPinned
-    ? 'grid grid-cols-2 gap-2 text-sm font-medium text-slate-700'
+    ? 'grid grid-cols-2 gap-2 text-sm font-medium text-slate-700 dark:text-slate-200'
     : 'grid grid-cols-2 gap-2 text-sm font-medium text-white';
   const mobileNavItemClass = isHeaderPinned
-    ? 'rounded-xl bg-[#f6f1ea] px-4 py-3 text-center transition hover:bg-[#efe8de]'
+    ? 'rounded-xl bg-[#f6f1ea] px-4 py-3 text-center transition hover:bg-[#efe8de] dark:bg-slate-800 dark:hover:bg-slate-700'
     : 'rounded-xl bg-white/8 px-4 py-3 text-center transition hover:bg-white/14';
 
   return (
@@ -411,7 +408,7 @@ export function PublicLandingPage({
             </a>
             <nav className={navClassName}>
               {NAV_ITEMS.map(item => (
-                <a key={item.href} href={item.href}>
+                <a key={item.href} href={item.href} className="rounded-lg px-1.5 py-1 transition-colors hover:text-violet-500 dark:hover:text-violet-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
                   {item.label}
                 </a>
               ))}
@@ -548,7 +545,7 @@ export function PublicLandingPage({
                             Live
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${BRAND.accent}14`, color: BRAND.accent }}>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                             Segera hadir
                           </span>
                         )}
@@ -659,17 +656,18 @@ export function PublicLandingPage({
               {ATMOSPHERE_IMAGES.map((image, index) => (
                 <div
                   key={image.label}
-                  className="relative overflow-hidden rounded-[2rem] border shadow-[0_16px_42px_rgba(15,23,42,0.06)]"
+                  className="relative overflow-hidden rounded-[2rem] border border-slate-200/30 shadow-[0_16px_42px_rgba(15,23,42,0.06)] dark:border-slate-700"
                   style={{
                     minHeight: index === 0 ? 420 : 280,
-                    borderColor: BRAND.border,
-                    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.08) 0%, rgba(15,23,42,0.72) 100%), url(${image.src})`,
+                    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.08) 0%, rgba(15,23,42,0.78) 100%), url(${image.src})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}
+                  role="img"
+                  aria-label={`${image.label}: ${image.mood}`}
                 >
                   <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/68">{image.label}</p>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/80">{image.label}</p>
                     <p className="mt-3 max-w-sm text-2xl font-semibold leading-tight">{image.mood}</p>
                   </div>
                 </div>
