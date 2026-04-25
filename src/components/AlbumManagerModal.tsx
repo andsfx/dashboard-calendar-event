@@ -259,7 +259,9 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
 
     for (let i = 0; i < uploadFiles.length; i++) {
       try {
-        await uploadAlbumPhoto(selectedAlbum.id, uploadFiles[i]);
+        const file = uploadFiles[i];
+        if (!file) continue;
+        await uploadAlbumPhoto(selectedAlbum.id, file);
         successCount++;
       } catch {
         failCount++;
@@ -275,8 +277,11 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
       try {
         const updated = await fetchAlbumBySlug(selectedAlbum.slug);
         if (updated && updated.photos.length > 0) {
-          await setAlbumCover(selectedAlbum.id, updated.photos[0].url);
-          await refreshAlbumDetail();
+          const firstPhoto = updated.photos[0];
+          if (firstPhoto) {
+            await setAlbumCover(selectedAlbum.id, firstPhoto.url);
+            await refreshAlbumDetail();
+          }
         }
       } catch { /* silently fail */ }
     }

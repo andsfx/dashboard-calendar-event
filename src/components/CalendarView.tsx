@@ -30,7 +30,10 @@ const STATUS_GROUPS = [
 function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
   if (!match) return Number.MAX_SAFE_INTEGER;
-  return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+  const hour = match[1];
+  const minute = match[2];
+  if (!hour || !minute) return Number.MAX_SAFE_INTEGER;
+  return parseInt(hour, 10) * 60 + parseInt(minute, 10);
 }
 
 // Helper untuk mendapatkan multi-day events yang ditampilkan di hari tertentu
@@ -61,7 +64,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const byDate = groupByDate(events);
   const holidaysByDate = holidays.reduce((acc, holiday) => {
     if (!acc[holiday.dateStr]) acc[holiday.dateStr] = [];
-    acc[holiday.dateStr].push(holiday);
+    const dateArray = acc[holiday.dateStr];
+    if (dateArray) {
+      dateArray.push(holiday);
+    }
     return acc;
   }, {} as Record<string, HolidayItem[]>);
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;

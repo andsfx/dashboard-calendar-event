@@ -26,7 +26,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      setIsClosing(false);
+      return;
     } else if (shouldRender && !isClosing) {
       // Parent set isOpen=false (e.g. after successful login) — trigger exit animation
       setIsClosing(true);
@@ -36,6 +36,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
       }, 200);
       return () => clearTimeout(timer);
     }
+    return;
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClose = useCallback(() => {

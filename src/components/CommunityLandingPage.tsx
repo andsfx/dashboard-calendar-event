@@ -390,7 +390,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
     const el = containerRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
+      (entries) => { const entry = entries[0]; if (entry?.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
       { rootMargin: '200px' }
     );
     observer.observe(el);

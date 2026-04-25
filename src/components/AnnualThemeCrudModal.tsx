@@ -18,7 +18,7 @@ const EMPTY = {
   name: '',
   dateStart: '',
   dateEnd: '',
-  color: COLOR_OPTIONS[0].value,
+  color: COLOR_OPTIONS[0]?.value ?? '#3b82f6',
 };
 
 interface Props {

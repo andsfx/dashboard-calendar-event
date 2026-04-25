@@ -21,16 +21,21 @@ function isValidTimeRange(value: string): boolean {
 
 function dateInputToDisplay(dateStr: string): { tanggal: string; dateStr: string; day: string; month: string } {
   if (!dateStr) return { tanggal: '', dateStr: '', day: '', month: '' };
-  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = dateStr.split('-').map(Number);
+  const y = parts[0];
+  const m = parts[1];
+  const d = parts[2];
+  if (!y || !m || !d) return { tanggal: '', dateStr: '', day: '', month: '' };
   const dateObj = new Date(y, m - 1, d);
+  const monthName = NUM_BULAN[m] ?? '';
+  const dayName = HARI[dateObj.getDay()] ?? '';
   return {
-    tanggal: `${d} ${NUM_BULAN[m]} ${y}`,
+    tanggal: `${d} ${monthName} ${y}`,
     dateStr: dateStr,
-    day: HARI[dateObj.getDay()],
-    month: NUM_BULAN[m],
+    day: dayName,
+    month: monthName,
   };
 }
-
 export default function CrudEventModal({ isOpen, editingEvent, onClose, onSave }: CrudEventModalProps) {
   const [formData, setFormData] = useState({
     date: '',

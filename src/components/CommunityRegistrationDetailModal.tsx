@@ -58,7 +58,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
     if (isOpen && registration) {
       setAdminNote(registration.adminNote || '');
       setWaTemplate('reviewed');
-      setWaMessage(applyVars(WA_TEMPLATES.reviewed, registration));
+      const template = WA_TEMPLATES.reviewed; if (template) { setWaMessage(applyVars(template, registration)); }
       setIsSubmitting(false);
     }
   }, [isOpen, registration]);
