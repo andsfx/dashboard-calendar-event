@@ -680,17 +680,41 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               />
             </>
           ) : (
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)' }}
-            />
+            <>
+              {/* Base gradient */}
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)' }}
+              />
+              {/* Noise texture overlay */}
+              <div
+                className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'repeat',
+                }}
+              />
+              {/* Mesh gradient overlay */}
+              <div
+                className="absolute inset-0 opacity-40 dark:opacity-30"
+                style={{
+                  background: `
+                    radial-gradient(circle at 20% 30%, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.10) 0%, transparent 50%),
+                    radial-gradient(circle at 30% 70%, rgba(99, 102, 241, 0.13) 0%, transparent 50%)
+                  `,
+                }}
+              />
+            </>
           )}
 
           {/* Decorative elements */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/20 blur-[120px]" />
-            <div className="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-orange-500/15 blur-[100px]" />
-            <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-500/20 blur-[80px]" />
+            <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/25 blur-[120px]" />
+            <div className="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-orange-500/25 blur-[100px]" />
+            <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-500/25 blur-[80px]" />
+            <div className="absolute right-1/4 bottom-1/4 h-72 w-72 rounded-full bg-pink-500/25 blur-[90px]" />
           </div>
 
           <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
