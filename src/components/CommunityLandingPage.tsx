@@ -42,11 +42,6 @@ const BRAND = {
   accent: '#7c6cf2',
   accentSoft: '#9185f7',
   accentWarm: '#f2743e',
-  ink: '#111827',
-  inkSoft: '#1f2937',
-  paper: '#faf6ef',
-  paperSoft: '#f5efe6',
-  border: 'rgba(148, 163, 184, 0.18)',
 };
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
@@ -111,7 +106,7 @@ const FAQS: Array<[string, string]> = [
 
 const IG_POSTS = [
   'https://www.instagram.com/p/DXYxAlQkXrD/',
-  'https://www.instagram.com/metmalbekasi/',
+  'https://www.instagram.com/metmalbekasi/p/DXecp6JEaqt/',
 ];
 
 /* ─── Helpers ─────────────────────────────────────────────── */
@@ -295,7 +290,7 @@ function RegistrationForm() {
     try {
       await submitCommunityRegistration(form);
       setSubmitted(true);
-    } catch (err) {
+    } catch {
       setError('Gagal mengirim pendaftaran. Coba lagi nanti.');
     }
     setSubmitting(false);
@@ -304,8 +299,8 @@ function RegistrationForm() {
   if (submitted) {
     return (
       <div className="rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+          <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
         </div>
         <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
         <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
@@ -619,10 +614,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
       <header className={headerClassName}>
         <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 sm:py-3">
           <div className="flex items-center justify-between gap-4">
-            <button onClick={onBack} className={`shrink-0 flex items-center gap-2 ${focusRing}`}>
+            <button onClick={onBack} className={`shrink-0 flex items-center gap-2 ${focusRing}`} aria-label="Kembali ke halaman utama">
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
             </button>
-            <nav className={navClassName}>
+            <nav className={navClassName} aria-label="Navigasi utama">
               {NAV_ITEMS.map(item => (
                 <a key={item.href} href={item.href} className={`transition hover:opacity-80 ${focusRing}`}>{item.label}</a>
               ))}
@@ -650,9 +645,9 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
           <div className={`overflow-hidden transition-all duration-300 ease-out ${mobileNavOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className={mobilePanelClass}>
-              <nav className={mobileNavGridClass}>
+              <nav className={mobileNavGridClass} aria-label="Navigasi mobile">
                 {NAV_ITEMS.map(item => (
-                  <a key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)} className={mobileNavItemClass}>
+                  <a key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)} className={`${mobileNavItemClass} ${focusRing}`}>
                     {item.label}
                   </a>
                 ))}
@@ -756,7 +751,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
 
           {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse" aria-hidden="true">
             <ChevronDown className="h-6 w-6 text-white/50" />
           </div>
         </section>
@@ -864,7 +859,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                             <Camera className="h-8 w-8 text-violet-300 dark:text-violet-500" aria-hidden="true" />
                           </div>
                         )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
                           <span className="text-sm font-semibold text-white">Lihat Foto &rarr;</span>
                         </div>
                       </div>
@@ -1035,16 +1030,17 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                   >
                     <button
                       type="button"
+                      id={`community-faq-trigger-${index}`}
                       onClick={() => setOpenFaq(isOpen ? -1 : index)}
                       className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
                       aria-expanded={isOpen}
-                      aria-controls={`community-faq-${index}`}
+                      aria-controls={isOpen ? `community-faq-${index}` : undefined}
                     >
                       <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                      <ChevronDown className={`h-5 w-5 shrink-0 transition text-violet-500 ${isOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`h-5 w-5 shrink-0 transition text-violet-500 dark:text-violet-400 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isOpen && (
-                      <div id={`community-faq-${index}`} role="region" className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">
+                      <div id={`community-faq-${index}`} role="region" aria-labelledby={`community-faq-trigger-${index}`} className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">
                         {answer}
                       </div>
                     )}
@@ -1114,7 +1110,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
       </main>
 
       {/* ─── Footer ──────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
+      <footer className="border-t border-slate-200/50 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <LogoMark className="h-auto w-[102px] opacity-90" />
@@ -1125,13 +1121,13 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
           <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right">
             <div className="flex items-center gap-3">
-              <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-700 dark:hover:text-white">Instagram</a>
+              <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Instagram</a>
               <span>·</span>
-              <a href="https://www.threads.net/@metmalbekasi" target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-700 dark:hover:text-white">Threads</a>
+              <a href="https://www.threads.net/@metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Threads</a>
               <span>·</span>
-              <a href="https://www.youtube.com/@metmalbekasi" target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-700 dark:hover:text-white">YouTube</a>
+              <a href="https://www.youtube.com/@metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>YouTube</a>
               <span>·</span>
-              <a href="https://www.malmetropolitan.com" target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-700 dark:hover:text-white">Website</a>
+              <a href="https://www.malmetropolitan.com" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Website</a>
             </div>
             <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi — Metland Coloring Life</p>
           </div>

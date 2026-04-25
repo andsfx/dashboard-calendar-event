@@ -44,11 +44,6 @@ const BRAND = {
   accent: '#7c6cf2',
   accentSoft: '#9185f7',
   accentWarm: '#f2743e',
-  ink: '#111827',
-  inkSoft: '#1f2937',
-  paper: '#faf6ef',
-  paperSoft: '#f5efe6',
-  border: 'rgba(148, 163, 184, 0.18)',
 };
 
 const FAQS = [
@@ -406,7 +401,7 @@ export function PublicLandingPage({
             <a href="#hero" className="shrink-0">
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
             </a>
-            <nav className={navClassName}>
+            <nav className={navClassName} aria-label="Navigasi utama">
               {NAV_ITEMS.map(item => (
                 <a key={item.href} href={item.href} className="rounded-lg px-1.5 py-1 transition-colors hover:text-violet-500 dark:hover:text-violet-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
                   {item.label}
@@ -434,13 +429,13 @@ export function PublicLandingPage({
           </div>
           {mobileNavOpen && (
             <div className={mobilePanelClass}>
-              <nav className={mobileNavGridClass}>
+              <nav className={mobileNavGridClass} aria-label="Navigasi mobile">
                 {NAV_ITEMS.map(item => (
                   <a
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileNavOpen(false)}
-                    className={mobileNavItemClass}
+                    className={`${mobileNavItemClass} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500`}
                   >
                     {item.label}
                   </a>
@@ -505,10 +500,10 @@ export function PublicLandingPage({
                     <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
                       <CalendarDays className="h-4 w-4 text-white/50" />
                     </span>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">Segera hadir</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/60">Segera hadir</p>
                   </div>
-                  <p className="mt-3 text-lg font-semibold leading-snug text-white/80">Jadwal acara berikutnya segera diumumkan.</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">Pantau kalender publik untuk update terbaru mengenai program dan aktivasi di area mall.</p>
+                  <p className="mt-3 text-lg font-semibold leading-snug text-white/85">Jadwal acara berikutnya segera diumumkan.</p>
+                  <p className="mt-2 text-sm leading-6 text-white/65">Pantau kalender publik untuk update terbaru mengenai program dan aktivasi di area mall.</p>
                 </div>
               )}
             </RevealSection>
@@ -524,7 +519,7 @@ export function PublicLandingPage({
               </div>
               <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-400">
                 Daftar lengkap acara yang sedang berlangsung dan akan segera dimulai di area Metropolitan Mall Bekasi.
-                {allAgenda.length > 0 && <span className="ml-1 font-medium" style={{ color: BRAND.accent }}>{allAgenda.length} acara tersedia</span>}
+                {allAgenda.length > 0 && <span className="ml-1 font-medium text-violet-500 dark:text-violet-400">{allAgenda.length} acara tersedia</span>}
               </p>
             </div>
 
@@ -540,7 +535,7 @@ export function PublicLandingPage({
                     >
                       <div className="flex items-center gap-2">
                         {ev.status === 'ongoing' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             Live
                           </span>
@@ -549,10 +544,10 @@ export function PublicLandingPage({
                             Segera hadir
                           </span>
                         )}
-                        <span className="text-[11px] font-medium text-slate-400">{ev.month}</span>
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{ev.month}</span>
                       </div>
                         <p className="mt-3 text-xl font-semibold leading-tight text-slate-900 line-clamp-2 group-hover:text-slate-700 dark:text-white dark:group-hover:text-slate-200">{ev.acara}</p>
-                      <div className="mt-3 space-y-1.5 text-sm text-slate-500">
+                      <div className="mt-3 space-y-1.5 text-sm text-slate-500 dark:text-slate-400">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 shrink-0" />
                           <span>{ev.tanggal}{ev.jam ? ` | ${ev.jam}` : ''}</span>
@@ -603,9 +598,9 @@ export function PublicLandingPage({
               </>
             ) : (
               <div className="mt-10 rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:border-slate-700">
-                <CalendarDays className="mx-auto h-10 w-10 text-slate-300" />
+                <CalendarDays className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
                 <p className="mt-4 text-xl font-semibold text-slate-700 dark:text-white">Belum ada agenda mendatang</p>
-                <p className="mt-2 text-sm text-slate-500">Jadwal acara berikutnya akan segera diumumkan. Pantau kalender publik untuk update terbaru.</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Jadwal acara berikutnya akan segera diumumkan. Pantau kalender publik untuk update terbaru.</p>
                 <a href="#calendar" className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white" style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}>
                   Lihat Kalender
                   <ArrowRight className="h-4 w-4" />
@@ -656,7 +651,7 @@ export function PublicLandingPage({
               {ATMOSPHERE_IMAGES.map((image, index) => (
                 <div
                   key={image.label}
-                  className="relative overflow-hidden rounded-[2rem] border border-slate-200/30 shadow-[0_16px_42px_rgba(15,23,42,0.06)] dark:border-slate-700"
+                  className="relative overflow-hidden rounded-[2rem] border border-slate-200/50 shadow-[0_16px_42px_rgba(15,23,42,0.06)] dark:border-slate-700"
                   style={{
                     minHeight: index === 0 ? 420 : 280,
                     backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.08) 0%, rgba(15,23,42,0.78) 100%), url(${image.src})`,
@@ -696,7 +691,7 @@ export function PublicLandingPage({
             <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(partners.length > 0 ? partners : ['Metropolitan Mall Bekasi', 'Community Partner', 'Lifestyle Tenant', 'Creative Event']).map(name => (
                 <div key={name} className="rounded-[1.5rem] border border-slate-200/50 bg-[#faf6ef] p-5 text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">Partner acara</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Partner acara</p>
                   <p className="mt-3 text-base font-semibold leading-7 text-slate-900 dark:text-white">{name}</p>
                 </div>
               ))}
@@ -728,15 +723,16 @@ export function PublicLandingPage({
                   <div key={question} className="overflow-hidden rounded-[1.8rem] border border-slate-200/50 bg-[#faf6ef] shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
                     <button
                       type="button"
+                      id={`faq-trigger-${index}`}
                       onClick={() => setOpenFaq(isOpen ? -1 : index)}
                       className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
                       aria-expanded={isOpen}
-                      aria-controls={`faq-answer-${index}`}
+                      aria-controls={isOpen ? `faq-answer-${index}` : undefined}
                     >
                       <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                      <ChevronDown className={`h-5 w-5 shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} style={{ color: BRAND.accent }} />
+                      <ChevronDown className={`h-5 w-5 shrink-0 text-violet-500 dark:text-violet-400 transition ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    {isOpen && <div id={`faq-answer-${index}`} role="region" className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">{answer}</div>}
+                    {isOpen && <div id={`faq-answer-${index}`} role="region" aria-labelledby={`faq-trigger-${index}`} className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">{answer}</div>}
                   </div>
                 );
               })}
@@ -745,7 +741,7 @@ export function PublicLandingPage({
         </RevealSection>
       </main>
 
-      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
+      <footer className="border-t border-slate-200/50 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <LogoMark className="h-auto w-[102px] opacity-90" />
