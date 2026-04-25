@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Moon, SunMedium, CalendarDays, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/supabaseApi';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { GalleryHeader } from './GalleryHeader';
 
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
@@ -23,10 +23,13 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [themes, setThemes] = useState<AnnualTheme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    setFetchError(false);
     Promise.all([fetchAlbums(), fetchAnnualThemesPublic()])
       .then(([albumData, themeData]) => {
         if (!cancelled) {
@@ -35,13 +38,13 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         }
       })
       .catch(() => {
-        if (!cancelled) { setAlbums([]); setThemes([]); }
+        if (!cancelled) { setAlbums([]); setThemes([]); setFetchError(true); }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [retryCount]);
 
   const groupedByTheme = useMemo(() => {
     const groups: Array<{ theme: AnnualTheme | null; albums: PhotoAlbum[] }> = [];
@@ -78,36 +81,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
-      {/* ─── Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3">
-          <button
-            onClick={() => navigate('/')}
-            className="shrink-0 flex items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-          >
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
-          </button>
-          <span className="hidden text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-200 sm:block">
-            Gallery Event
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-md"
-              style={{ background: 'linear-gradient(135deg, #7c6cf2 0%, #9185f7 100%)' }}
-            >
-              <CalendarDays className="h-4 w-4" /> Dashboard
-            </button>
-          </div>
-        </div>
-      </header>
+      <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       {/* ─── Main Content ───────────────────────────────────── */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -148,8 +122,30 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
           </div>
         )}
 
+        {/* Error state */}
+        {!isLoading && fetchError && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
+            </div>
+            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+              Gagal memuat data
+            </p>
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+              Terjadi kesalahan saat memuat album. Periksa koneksi internet Anda.
+            </p>
+            <button
+              onClick={() => setRetryCount(c => c + 1)}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-violet-700"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Coba lagi
+            </button>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!isLoading && albums.length === 0 && (
+        {!isLoading && !fetchError && albums.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
               <Camera className="h-7 w-7 text-slate-400 dark:text-slate-500" />
@@ -191,10 +187,9 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                 {/* Album grid */}
                 <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
                   {groupAlbums.map((album) => (
-                    <button
+                    <Link
                       key={album.id}
-                      type="button"
-                      onClick={() => navigate(`/gallery/${album.slug}`)}
+                      to={`/gallery/${album.slug}`}
                       className="group cursor-pointer overflow-hidden rounded-2xl bg-white text-left shadow-sm transition hover:shadow-lg dark:bg-slate-800"
                     >
                       {/* Cover image */}
@@ -242,7 +237,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                           )}
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               </section>

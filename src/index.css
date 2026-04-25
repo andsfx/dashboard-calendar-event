@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+/* Font loaded via <link> in index.html for non-blocking render */
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
@@ -33,7 +33,6 @@ body {
   transition:
     opacity 880ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 880ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
 }
 
 .reveal-stage > * {
@@ -60,6 +59,10 @@ body {
 .reveal-visible .reveal-stage > *:nth-child(4) { transition-delay: calc(var(--reveal-stagger-step) * 4); }
 .reveal-visible .reveal-stage > *:nth-child(5) { transition-delay: calc(var(--reveal-stagger-step) * 5); }
 .reveal-visible .reveal-stage > *:nth-child(6) { transition-delay: calc(var(--reveal-stagger-step) * 6); }
+.reveal-visible .reveal-stage > *:nth-child(7) { transition-delay: calc(var(--reveal-stagger-step) * 7); }
+.reveal-visible .reveal-stage > *:nth-child(8) { transition-delay: calc(var(--reveal-stagger-step) * 8); }
+.reveal-visible .reveal-stage > *:nth-child(9) { transition-delay: calc(var(--reveal-stagger-step) * 9); }
+.reveal-visible .reveal-stage > *:nth-child(10) { transition-delay: calc(var(--reveal-stagger-step) * 10); }
 
 .reveal-strong {
   --reveal-distance: 56px;
@@ -155,13 +158,19 @@ body {
   from { opacity: 0; transform: scale(0.94) translateY(8px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+@keyframes modal-backdrop-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 @keyframes modal-panel-out {
   from { opacity: 1; transform: scale(1) translateY(0); }
   to   { opacity: 0; transform: scale(0.94) translateY(8px); }
 }
 
 .modal-backdrop { animation: modal-backdrop-in 0.18s ease forwards; }
+.modal-backdrop-out { animation: modal-backdrop-out 0.2s ease forwards; }
 .modal-panel    { animation: modal-panel-in  0.22s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.modal-panel-out { animation: modal-panel-out 0.2s ease forwards; }
 
 /* ─── Toast animations ─────────────────────────────────────── */
 @keyframes toast-in {

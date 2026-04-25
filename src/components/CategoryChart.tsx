@@ -52,7 +52,8 @@ export function CategoryChart({ events }: Props) {
         <>
           {/* SVG Donut chart */}
           <div className="mb-5 flex items-center justify-center">
-            <svg width="96" height="96" viewBox="0 0 100 100" className="overflow-visible sm:h-[110px] sm:w-[110px]">
+            <svg width="96" height="96" viewBox="0 0 100 100" className="overflow-visible sm:h-[110px] sm:w-[110px]" role="img" aria-label="Distribusi kategori event">
+              <title>Distribusi kategori event</title>
               {/* Background circle */}
               <circle cx="50" cy="50" r={r} fill="none" stroke="currentColor" strokeWidth="14"
                 className="text-slate-100 dark:text-slate-700" />

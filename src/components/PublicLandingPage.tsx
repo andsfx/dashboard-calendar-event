@@ -177,7 +177,7 @@ function HeroEventCard({ event, onClick }: { event: EventItem; onClick: (ev: Eve
           {event.status === 'upcoming' && event.dateStr && <HeroCountdown dateStr={event.dateStr} />}
         </div>
         <p className="mt-1.5 text-[15px] font-semibold leading-snug text-white line-clamp-1 group-hover:text-white/95">{event.acara}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/60">
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/80">
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" />
             {event.tanggal}{event.jam ? ` | ${event.jam}` : ''}
@@ -249,35 +249,73 @@ function SubmissionForm({ onSubmitRequest }: { onSubmitRequest: (payload: Public
     setSubmitting(false);
   };
 
-  const inputClass = 'w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 outline-none transition focus:ring-2';
+  const inputClass = 'w-full rounded-2xl border px-4 py-3 text-sm text-slate-800 dark:text-white outline-none transition focus:ring-2';
+  const inputStyle = { background: '#fffdf9', borderColor: BRAND.border };
+  const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[2rem] border p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] xl:p-7"
+      className="rounded-[2rem] border p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:bg-slate-900 dark:border-slate-700 xl:p-7"
       style={{ background: BRAND.paper, borderColor: BRAND.border }}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <input value={form.acara} onChange={e => setField('acara', e.target.value)} placeholder="Nama event" className={`${inputClass} sm:col-span-2`} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.eo} onChange={e => setField('eo', e.target.value)} placeholder="EO / Brand" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="PIC" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor telepon" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input type="date" value={form.dateStr} onChange={e => setField('dateStr', e.target.value)} className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.jam} onChange={e => setField('jam', e.target.value)} placeholder="Jam pelaksanaan" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <input value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} placeholder="Preferensi area" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-        <select value={form.categories[0] || 'Umum'} onChange={e => setField('categories', [e.target.value])} className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }}>
-          {CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
-        </select>
-        <select value={form.eventModel} onChange={e => setField('eventModel', e.target.value)} className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }}>
-          {MODELS.map(model => <option key={model.label} value={model.value}>{model.label}</option>)}
-        </select>
+        <div className="sm:col-span-2">
+          <label htmlFor="submit-acara" className={labelClass}>Nama Event <span className="text-rose-500">*</span></label>
+          <input id="submit-acara" value={form.acara} onChange={e => setField('acara', e.target.value)} placeholder="Nama event" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-eo" className={labelClass}>EO / Brand <span className="text-rose-500">*</span></label>
+          <input id="submit-eo" value={form.eo} onChange={e => setField('eo', e.target.value)} placeholder="EO / Brand" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-pic" className={labelClass}>PIC <span className="text-rose-500">*</span></label>
+          <input id="submit-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="PIC" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-phone" className={labelClass}>Nomor Telepon <span className="text-rose-500">*</span></label>
+          <input id="submit-phone" type="tel" autoComplete="tel" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor telepon" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-date" className={labelClass}>Tanggal <span className="text-rose-500">*</span></label>
+          <input id="submit-date" type="date" value={form.dateStr} onChange={e => setField('dateStr', e.target.value)} className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-jam" className={labelClass}>Jam Pelaksanaan</label>
+          <input id="submit-jam" value={form.jam} onChange={e => setField('jam', e.target.value)} placeholder="Jam pelaksanaan" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-lokasi" className={labelClass}>Preferensi Area <span className="text-rose-500">*</span></label>
+          <input id="submit-lokasi" value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} placeholder="Preferensi area" className={inputClass} style={inputStyle} />
+        </div>
+        <div>
+          <label htmlFor="submit-category" className={labelClass}>Kategori</label>
+          <select id="submit-category" value={form.categories[0] || 'Umum'} onChange={e => setField('categories', [e.target.value])} className={inputClass} style={inputStyle}>
+            {CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="submit-model" className={labelClass}>Model Event</label>
+          <select id="submit-model" value={form.eventModel} onChange={e => setField('eventModel', e.target.value)} className={inputClass} style={inputStyle}>
+            {MODELS.map(model => <option key={model.label} value={model.value}>{model.label}</option>)}
+          </select>
+        </div>
         {(form.eventModel === 'bayar' || form.eventModel === 'support') && (
           <>
-            <input value={form.eventNominal} onChange={e => setField('eventNominal', e.target.value)} placeholder="Nominal" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
-            <input value={form.eventModelNotes} onChange={e => setField('eventModelNotes', e.target.value)} placeholder="Keterangan model" className={inputClass} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
+            <div>
+              <label htmlFor="submit-nominal" className={labelClass}>Nominal <span className="text-rose-500">*</span></label>
+              <input id="submit-nominal" value={form.eventNominal} onChange={e => setField('eventNominal', e.target.value)} placeholder="Nominal" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label htmlFor="submit-model-notes" className={labelClass}>Keterangan Model <span className="text-rose-500">*</span></label>
+              <input id="submit-model-notes" value={form.eventModelNotes} onChange={e => setField('eventModelNotes', e.target.value)} placeholder="Keterangan model" className={inputClass} style={inputStyle} />
+            </div>
           </>
         )}
-        <textarea value={form.keterangan} onChange={e => setField('keterangan', e.target.value)} rows={5} placeholder="Ringkas konsep event, target pengunjung, dan kebutuhan utama." className={`${inputClass} resize-none sm:col-span-2`} style={{ background: '#fffdf9', borderColor: BRAND.border }} />
+        <div className="sm:col-span-2">
+          <label htmlFor="submit-keterangan" className={labelClass}>Keterangan</label>
+          <textarea id="submit-keterangan" value={form.keterangan} onChange={e => setField('keterangan', e.target.value)} rows={5} placeholder="Ringkas konsep event, target pengunjung, dan kebutuhan utama." className={`${inputClass} resize-none`} style={inputStyle} />
+        </div>
       </div>
       {error && <p className="mt-4 text-sm text-rose-600">{error}</p>}
       <div className="mt-6 flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: BRAND.border }}>
@@ -455,7 +493,7 @@ export function PublicLandingPage({
 
             {/* Right: Upcoming Event Cards */}
             <RevealSection as="div" className="flex flex-col gap-3 lg:self-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/75">
                 {heroEvents.length > 0 ? `${heroEvents.length} acara terdekat` : 'Agenda terdekat'}
               </p>
               {heroEvents.length > 0 ? (
@@ -485,9 +523,9 @@ export function PublicLandingPage({
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
                 {eyebrow('Agenda Mendatang')}
-                <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Semua acara yang akan datang.</h2>
+                <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Semua acara yang akan datang.</h2>
               </div>
-              <p className="max-w-xl text-sm leading-7 text-slate-600">
+              <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-400">
                 Daftar lengkap acara yang sedang berlangsung dan akan segera dimulai di area Metropolitan Mall Bekasi.
                 {allAgenda.length > 0 && <span className="ml-1 font-medium" style={{ color: BRAND.accent }}>{allAgenda.length} acara tersedia</span>}
               </p>
@@ -501,8 +539,7 @@ export function PublicLandingPage({
                       key={ev.id}
                       type="button"
                       onClick={() => onDetail(ev)}
-                      className="group rounded-[2rem] border p-5 text-left shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
-                      style={{ background: BRAND.paper, borderColor: BRAND.border }}
+                      className="group rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-5 text-left shadow-[0_12px_32px_rgba(15,23,42,0.05)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)] dark:bg-slate-800 dark:border-slate-700"
                     >
                       <div className="flex items-center gap-2">
                         {ev.status === 'ongoing' ? (
@@ -517,7 +554,7 @@ export function PublicLandingPage({
                         )}
                         <span className="text-[11px] font-medium text-slate-400">{ev.month}</span>
                       </div>
-                      <p className="mt-3 text-xl font-semibold leading-tight text-slate-900 line-clamp-2 group-hover:text-slate-700">{ev.acara}</p>
+                        <p className="mt-3 text-xl font-semibold leading-tight text-slate-900 line-clamp-2 group-hover:text-slate-700 dark:text-white dark:group-hover:text-slate-200">{ev.acara}</p>
                       <div className="mt-3 space-y-1.5 text-sm text-slate-500">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 shrink-0" />
@@ -531,12 +568,12 @@ export function PublicLandingPage({
                         )}
                       </div>
                       {ev.keterangan && (
-                        <p className="mt-3 line-clamp-2 border-t pt-3 text-sm leading-6 text-slate-400" style={{ borderColor: BRAND.border }}>{ev.keterangan}</p>
+                        <p className="mt-3 line-clamp-2 border-t border-slate-200/50 pt-3 text-sm leading-6 text-slate-400 dark:border-slate-700 dark:text-slate-500">{ev.keterangan}</p>
                       )}
                       {ev.categories && ev.categories.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {ev.categories.slice(0, 2).map(cat => (
-                            <span key={cat} className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium text-slate-500" style={{ borderColor: BRAND.border }}>{cat}</span>
+                            <span key={cat} className="rounded-full border border-slate-200/50 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 dark:border-slate-600 dark:text-slate-400">{cat}</span>
                           ))}
                         </div>
                       )}
@@ -549,8 +586,7 @@ export function PublicLandingPage({
                       <button
                         type="button"
                         onClick={() => setShowAllAgenda(false)}
-                        className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                        style={{ borderColor: BRAND.border }}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200/50 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
                       >
                         Tampilkan lebih sedikit
                       </button>
@@ -569,9 +605,9 @@ export function PublicLandingPage({
                 )}
               </>
             ) : (
-              <div className="mt-10 rounded-[2rem] border p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.05)]" style={{ background: BRAND.paper, borderColor: BRAND.border }}>
+              <div className="mt-10 rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:border-slate-700">
                 <CalendarDays className="mx-auto h-10 w-10 text-slate-300" />
-                <p className="mt-4 text-xl font-semibold text-slate-700">Belum ada agenda mendatang</p>
+                <p className="mt-4 text-xl font-semibold text-slate-700 dark:text-white">Belum ada agenda mendatang</p>
                 <p className="mt-2 text-sm text-slate-500">Jadwal acara berikutnya akan segera diumumkan. Pantau kalender publik untuk update terbaru.</p>
                 <a href="#calendar" className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white" style={{ background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)` }}>
                   Lihat Kalender
@@ -582,15 +618,15 @@ export function PublicLandingPage({
           </div>
         </RevealSection>
 
-        <RevealSection id="calendar" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 sm:px-6">
+        <RevealSection id="calendar" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
           <div className="reveal-cluster mx-auto max-w-7xl space-y-10">
-            <div className="rounded-[2.25rem] border p-4 shadow-[0_16px_40px_rgba(15,23,42,0.06)]" style={{ background: '#fcfaf6', borderColor: BRAND.border }}>
+            <div className="rounded-[2.25rem] border border-slate-200/50 bg-[#fcfaf6] p-4 shadow-[0_16px_40px_rgba(15,23,42,0.06)] dark:bg-slate-800 dark:border-slate-700">
               {isLoading ? <div className="h-[32rem] animate-pulse rounded-[1.8rem] bg-slate-200/70 dark:bg-slate-800/70" /> : <CalendarView events={events} holidays={holidays} onDetail={onDetail} />}
             </div>
             <div className="max-w-3xl">
               {eyebrow('Kalender')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Pilih tanggal, lalu temukan acara.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-600">Kalender ini merangkum jadwal panggung, bazaar, program keluarga, dan agenda musiman agar rencana kunjungan lebih mudah disusun dari satu tampilan.</p>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Pilih tanggal, lalu temukan acara.</h2>
+              <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">Kalender ini merangkum jadwal panggung, bazaar, program keluarga, dan agenda musiman agar rencana kunjungan lebih mudah disusun dari satu tampilan.</p>
             </div>
           </div>
         </RevealSection>
@@ -599,13 +635,13 @@ export function PublicLandingPage({
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.68fr_1.32fr] lg:items-start">
             <div className="max-w-md">
               {eyebrow('Tema Tahunan')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Tema tahunan yang sedang berjalan.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-600">Lewat tema tahunan, pengunjung bisa mengenali periode acara yang sedang berjalan, mulai dari musim liburan, momen keluarga, sampai program promo musiman.</p>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Tema tahunan yang sedang berjalan.</h2>
+              <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">Lewat tema tahunan, pengunjung bisa mengenali periode acara yang sedang berjalan, mulai dari musim liburan, momen keluarga, sampai program promo musiman.</p>
               {activeTheme && (
-                <div className="mt-8 rounded-[1.75rem] border p-5 shadow-[0_12px_32px_rgba(15,23,42,0.05)]" style={{ background: '#faf6ef', borderColor: BRAND.border }}>
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Tema aktif</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-900">{activeTheme.name}</p>
-                  <p className="mt-2 text-sm text-slate-500">{activeTheme.dateStart} sampai {activeTheme.dateEnd}</p>
+                <div className="mt-8 rounded-[1.75rem] border border-slate-200/50 bg-[#faf6ef] p-5 shadow-[0_12px_32px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:border-slate-700">
+                  <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Tema aktif</p>
+                  <p className="mt-3 text-2xl font-semibold text-slate-900 dark:text-white">{activeTheme.name}</p>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{activeTheme.dateStart} sampai {activeTheme.dateEnd}</p>
                 </div>
               )}
             </div>
@@ -613,11 +649,11 @@ export function PublicLandingPage({
           </div>
         </RevealSection>
 
-        <RevealSection as="div" className="border-y border-black/5 bg-[#f1ebe2] px-4 py-20 sm:px-6">
+        <RevealSection as="div" className="border-y border-black/5 bg-[#f1ebe2] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-2xl">
               {eyebrow('Suasana Event')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Suasana acara di area mall.</h2>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Suasana acara di area mall.</h2>
             </div>
             <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.1fr_0.9fr_0.9fr]">
               {ATMOSPHERE_IMAGES.map((image, index) => (
@@ -647,35 +683,35 @@ export function PublicLandingPage({
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
                 {eyebrow('Mitra')}
-                <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Partner di balik setiap acara.</h2>
+                <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Partner di balik setiap acara.</h2>
               </div>
-              <p className="max-w-xl text-sm leading-7 text-slate-600">Daftar ini memberi gambaran siapa saja yang pernah membawa program ke area Metropolitan Mall Bekasi dan tampil dalam kalender publik kami.</p>
+              <p className="max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-400">Daftar ini memberi gambaran siapa saja yang pernah membawa program ke area Metropolitan Mall Bekasi dan tampil dalam kalender publik kami.</p>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600">
-              <div className="rounded-full border px-4 py-2.5 font-medium shadow-[0_10px_24px_rgba(15,23,42,0.04)]" style={{ background: '#faf6ef', borderColor: BRAND.border }}>
+            <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-400">
+              <div className="rounded-full border border-slate-200/50 bg-[#faf6ef] px-4 py-2.5 font-medium shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
                 {partners.length > 0 ? `${partners.length} kolaborator acara aktif` : 'Kolaborasi acara lintas EO dan tenant'}
               </div>
-              <div className="rounded-full border px-4 py-2.5 font-medium shadow-[0_10px_24px_rgba(15,23,42,0.04)]" style={{ background: '#faf6ef', borderColor: BRAND.border }}>
+              <div className="rounded-full border border-slate-200/50 bg-[#faf6ef] px-4 py-2.5 font-medium shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
                 EO, tenant, komunitas, dan brand activation
               </div>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(partners.length > 0 ? partners : ['Metropolitan Mall Bekasi', 'Community Partner', 'Lifestyle Tenant', 'Creative Event']).map(name => (
-                <div key={name} className="rounded-[1.5rem] border p-5 text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)]" style={{ background: '#faf6ef', borderColor: BRAND.border }}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Partner acara</p>
-                  <p className="mt-3 text-base font-semibold leading-7 text-slate-900">{name}</p>
+                <div key={name} className="rounded-[1.5rem] border border-slate-200/50 bg-[#faf6ef] p-5 text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">Partner acara</p>
+                  <p className="mt-3 text-base font-semibold leading-7 text-slate-900 dark:text-white">{name}</p>
                 </div>
               ))}
             </div>
           </div>
         </RevealSection>
 
-        <RevealSection id="submit" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 sm:px-6">
+        <RevealSection id="submit" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
           <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
             <div className="max-w-md">
               {eyebrow('Pengajuan Event')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Ajukan event dari sini.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-600">Isi tanggal, area, PIC, dan kebutuhan acara agar tim Metropolitan Mall Bekasi bisa mengecek kecocokan jadwal serta kesiapan area sebelum program ditindaklanjuti.</p>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Ajukan event dari sini.</h2>
+              <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">Isi tanggal, area, PIC, dan kebutuhan acara agar tim Metropolitan Mall Bekasi bisa mengecek kecocokan jadwal serta kesiapan area sebelum program ditindaklanjuti.</p>
             </div>
             <SubmissionForm onSubmitRequest={onSubmitRequest} />
           </div>
@@ -685,18 +721,24 @@ export function PublicLandingPage({
           <div className="mx-auto max-w-5xl">
             <div className="text-center">
               {eyebrow('FAQ')}
-              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">Pertanyaan yang sering diajukan.</h2>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-slate-950 dark:text-white sm:text-5xl">Pertanyaan yang sering diajukan.</h2>
             </div>
             <div className="mt-10 space-y-3">
               {FAQS.map(([question, answer], index) => {
                 const isOpen = openFaq === index;
                 return (
-                  <div key={question} className="overflow-hidden rounded-[1.8rem] border shadow-[0_12px_28px_rgba(15,23,42,0.04)]" style={{ background: '#faf6ef', borderColor: BRAND.border }}>
-                    <button type="button" onClick={() => setOpenFaq(isOpen ? -1 : index)} className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6">
-                      <span className="text-lg font-semibold text-slate-900">{question}</span>
+                  <div key={question} className="overflow-hidden rounded-[1.8rem] border border-slate-200/50 bg-[#faf6ef] shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                      className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${index}`}
+                    >
+                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
                       <ChevronDown className={`h-5 w-5 shrink-0 transition ${isOpen ? 'rotate-180' : ''}`} style={{ color: BRAND.accent }} />
                     </button>
-                    {isOpen && <div className="border-t px-5 py-5 text-sm leading-7 text-slate-600 sm:px-6" style={{ borderColor: BRAND.border }}>{answer}</div>}
+                    {isOpen && <div id={`faq-answer-${index}`} role="region" className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">{answer}</div>}
                   </div>
                 );
               })}
@@ -705,12 +747,12 @@ export function PublicLandingPage({
         </RevealSection>
       </main>
 
-      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 sm:px-6">
+      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <LogoMark className="h-auto w-[102px] opacity-90" />
             <div>
-              <p className="font-medium text-slate-700">Kalender publik Metropolitan Mall Bekasi</p>
+              <p className="font-medium text-slate-700 dark:text-slate-200">Kalender publik Metropolitan Mall Bekasi</p>
               <p className="mt-1">Pantau agenda publik, cari acara akhir pekan, dan ajukan aktivasi baru dari halaman resmi Metropolitan Mall Bekasi.</p>
             </div>
           </div>

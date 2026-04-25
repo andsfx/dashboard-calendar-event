@@ -43,12 +43,12 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
 
   return (
     <div
-      className="fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-default sm:p-5"
+      className="fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl sm:p-5"
       style={{ background: gradient, animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       {/* Decorative blobs */}
       <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
-      <div className="absolute -right-2 bottom-2 h-14 w-14 rounded-full bg-white/8 transition-transform duration-300 group-hover:scale-105" />
+      <div className="absolute -right-2 bottom-2 h-14 w-14 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-105" />
 
       <div className="relative flex items-start justify-between">
         <div>

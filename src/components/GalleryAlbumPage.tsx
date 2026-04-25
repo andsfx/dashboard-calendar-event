@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Camera, ChevronDown, X, Moon, SunMedium, CalendarDays, MapPin } from 'lucide-react';
+import { ArrowLeft, Camera, ChevronDown, X, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/supabaseApi';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { GalleryHeader } from './GalleryHeader';
 
 /* ─── Standalone Lightbox ─────────────────────────────────── */
 function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
@@ -14,7 +14,9 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
   onNext: () => void;
 }) {
   const photo = photos[currentIndex];
+  const lightboxRef = useRef<HTMLDivElement>(null);
 
+  // Keyboard navigation
   useEffect(() => {
     if (!photo) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -26,33 +28,67 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
     return () => window.removeEventListener('keydown', handleKey);
   }, [photo, onClose, onPrev, onNext]);
 
+  // Focus trap
+  useEffect(() => {
+    if (!photo || !lightboxRef.current) return;
+    const container = lightboxRef.current;
+    const focusableSelector = 'button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    // Auto-focus close button
+    const closeBtn = container.querySelector<HTMLElement>('[data-lightbox-close]');
+    closeBtn?.focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(container.querySelectorAll<HTMLElement>(focusableSelector));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [photo]);
+
   if (!photo) return null;
 
   return (
     <div
+      ref={lightboxRef}
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Foto: ${photo.caption}`}
     >
       {/* Close button */}
       <button
+        data-lightbox-close
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/20"
+        aria-label="Tutup lightbox"
       >
         <X className="h-6 w-6" />
       </button>
 
-      {/* Prev / Next */}
+      {/* Prev / Next — min 44x44 touch target */}
       {photos.length > 1 && (
         <>
           <button
             onClick={(e) => { e.stopPropagation(); onPrev(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white transition hover:bg-white/20"
+            aria-label="Foto sebelumnya"
           >
             <ChevronDown className="h-6 w-6 rotate-90" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onNext(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white transition hover:bg-white/20"
+            aria-label="Foto berikutnya"
           >
             <ChevronDown className="h-6 w-6 -rotate-90" />
           </button>
@@ -60,7 +96,7 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
       )}
 
       {/* Image + caption */}
-      <div className="max-w-4xl px-12" onClick={(e) => e.stopPropagation()}>
+      <div className="max-w-4xl px-16" onClick={(e) => e.stopPropagation()}>
         <img
           src={photo.url}
           alt={photo.caption}
@@ -89,12 +125,15 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const [album, setAlbum] = useState<PhotoAlbum | null>(null);
   const [photos, setPhotos] = useState<EventPhoto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
     setIsLoading(true);
+    setFetchError(false);
     fetchAlbumBySlug(slug)
       .then((result) => {
         if (cancelled) return;
@@ -110,13 +149,14 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
         if (!cancelled) {
           setAlbum(null);
           setPhotos([]);
+          setFetchError(true);
         }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
     return () => { cancelled = true; };
-  }, [slug]);
+  }, [slug, retryCount]);
 
   // Lock body scroll when lightbox is open
   useEffect(() => {
@@ -128,40 +168,11 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
     return () => { document.body.style.overflow = ''; };
   }, [lightboxIndex]);
 
-  const notFound = !isLoading && !album;
+  const notFound = !isLoading && !album && !fetchError;
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
-      {/* ─── Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3">
-          <button
-            onClick={() => navigate('/')}
-            className="shrink-0 flex items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-          >
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
-          </button>
-          <span className="hidden text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-200 sm:block">
-            Gallery Event
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-md"
-              style={{ background: 'linear-gradient(135deg, #7c6cf2 0%, #9185f7 100%)' }}
-            >
-              <CalendarDays className="h-4 w-4" /> Dashboard
-            </button>
-          </div>
-        </div>
-      </header>
+      <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       {/* ─── Main Content ───────────────────────────────────── */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -185,6 +196,28 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                 <div key={i} className="aspect-[4/3] rounded-xl bg-slate-200 dark:bg-slate-700" />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Error state */}
+        {!isLoading && fetchError && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
+            </div>
+            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+              Gagal memuat album
+            </p>
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+              Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.
+            </p>
+            <button
+              onClick={() => setRetryCount(c => c + 1)}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-violet-700"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Coba lagi
+            </button>
           </div>
         )}
 

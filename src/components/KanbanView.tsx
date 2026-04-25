@@ -68,8 +68,12 @@ function EventCard({
 
   return (
     <div
-      className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 ${ev.status === 'past' ? 'opacity-65' : ''} ${cardBorder}`}
+      className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-65' : ''} ${cardBorder}`}
       onClick={() => onDetail(ev)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
+      aria-label={`${ev.acara} — ${ev.tanggal}`}
     >
       {/* Color top bar */}
       <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />
@@ -85,25 +89,28 @@ function EventCard({
             <button
               onClick={() => onDetail(ev)}
               title="Lihat detail"
+              aria-label="Lihat detail"
               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400"
             >
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
             {isAdmin && (
               <>
                 <button
                   onClick={() => onEdit(ev)}
                   title="Edit"
+                  aria-label="Edit acara"
                   className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                 >
-                  <Edit2 className="h-3 w-3" />
+                  <Edit2 className="h-3 w-3" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => onDelete(ev)}
                   title="Hapus"
+                  aria-label="Hapus acara"
                   className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3" aria-hidden="true" />
                 </button>
               </>
             )}
@@ -154,7 +161,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+    <div className={`flex gap-4 overflow-x-auto pb-2 lg:grid lg:overflow-visible lg:pb-0 ${visibleColumns.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
       {visibleColumns.map(col => {
         const colEvents = events.filter(e => e.status === col.status);
         return (
