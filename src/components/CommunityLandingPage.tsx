@@ -495,30 +495,34 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
             key={ev.id}
             type="button"
             onClick={() => onDetail(ev)}
-            className={`group cursor-pointer overflow-hidden rounded-2xl text-left shadow-sm transition hover:shadow-lg hover:-translate-y-0.5 ${focusRing}`}
+            aria-label={`${ev.acara} — ${ev.tanggal}`}
+            className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl text-left shadow-sm transition hover:shadow-lg hover:-translate-y-0.5 ${focusRing}`}
           >
-            {/* Gradient top section */}
+            {/* Gradient top section — fixed min-height for consistency */}
             <div
-              className="relative px-5 pb-5 pt-6"
-              style={{ background: `linear-gradient(135deg, ${color}dd 0%, ${color}88 100%)` }}
+              className="relative flex min-h-[120px] flex-1 flex-col justify-between px-5 pb-5 pt-5"
+              style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)` }}
             >
-              {isOngoing ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                  <Radio className="h-3 w-3" /> BERLANGSUNG
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                  <CalendarDays className="h-3 w-3" /> {ev.tanggal}
-                </span>
-              )}
-              <p className="mt-3 text-lg font-bold leading-snug text-white line-clamp-2">{ev.acara}</p>
+              {/* Status badge */}
+              <div>
+                {isOngoing ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+                    <Radio className="h-3 w-3" aria-hidden="true" /> BERLANGSUNG
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+                    <CalendarDays className="h-3 w-3" aria-hidden="true" /> {ev.tanggal}
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-base font-bold leading-snug text-white line-clamp-2 drop-shadow-sm">{ev.acara}</p>
             </div>
             {/* Bottom section */}
-            <div className="border border-t-0 border-black/[0.06] bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
+            <div className="border border-t-0 border-slate-200/50 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
               <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                {ev.jam && <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 shrink-0" /><span>{ev.jam}</span></div>}
-                {ev.lokasi && <div className="flex items-center gap-1.5"><MapPin className="h-3 w-3 shrink-0" /><span className="line-clamp-1">{ev.lokasi}</span></div>}
-                {ev.eo && <div className="flex items-center gap-1.5"><Users className="h-3 w-3 shrink-0" /><span className="line-clamp-1">{ev.eo}</span></div>}
+                {ev.jam && <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 shrink-0" aria-hidden="true" /><span>{ev.jam}</span></div>}
+                {ev.lokasi && <div className="flex items-center gap-1.5"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.lokasi}</span></div>}
+                {ev.eo && <div className="flex items-center gap-1.5"><Users className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.eo}</span></div>}
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
                 <CategoryBadges categories={ev.categories} maxVisible={2} />
