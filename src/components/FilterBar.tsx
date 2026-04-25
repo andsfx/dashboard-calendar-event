@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { EventStatus } from '../types';
 
@@ -45,8 +45,10 @@ function CustomDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
 
   const selected = options.find(o => o.key === value);
+  const currentIndex = options.findIndex(o => o.key === value);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -59,11 +61,25 @@ function CustomDropdown({
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') { setOpen(false); return; }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = (currentIndex + 1) % options.length;
+        onChange(options[next].key);
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = (currentIndex - 1 + options.length) % options.length;
+        onChange(options[prev].key);
+      }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setOpen(false);
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [open]);
+  }, [open, currentIndex, options, onChange]);
 
   return (
     <div ref={ref} className="relative w-full">
@@ -78,13 +94,14 @@ function CustomDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={label}
+        aria-controls={open ? `listbox-${label}` : undefined}
       >
         <span className="truncate text-left">{selected?.label ?? label}</span>
         <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div role="listbox" className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+        <div id={`listbox-${label}`} ref={listboxRef} role="listbox" aria-label={label} className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
           {options.map(opt => (
             <button
               key={opt.key}
@@ -144,6 +161,7 @@ export function FilterBar({
           <button
             key={tab.key}
             onClick={() => onFilterChange(tab.key)}
+            aria-pressed={activeFilter === tab.key}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
               activeFilter === tab.key
                 ? 'bg-white shadow text-slate-800 dark:bg-slate-700 dark:text-white'

@@ -57,7 +57,10 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
               {event.tanggal} · {event.lokasi || 'Tanpa lokasi'}
             </p>
           </div>
-          <p className="mt-3 text-xs text-slate-400">⚠ Tindakan ini tidak dapat dibatalkan.</p>
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+            <AlertTriangle className="h-3 w-3 shrink-0 text-amber-500" aria-hidden="true" />
+            Tindakan ini tidak dapat dibatalkan.
+          </p>
         </div>
 
         <div className="flex gap-3 border-t border-slate-100 px-6 py-4 dark:border-slate-700">

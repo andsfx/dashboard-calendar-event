@@ -379,6 +379,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
       <div
         className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
+        tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
@@ -394,6 +395,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
           <button
             onClick={onClose}
             disabled={isSubmitting}
+            aria-label="Tutup"
             className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
           >
             <X className="h-4 w-4" />

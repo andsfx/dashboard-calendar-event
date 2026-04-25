@@ -357,7 +357,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                               {group.label} ({groupEvents.length})
                             </p>
                           </div>
-                          <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${group.key === 'past' ? 'opacity-60' : ''}`}>
+                          <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${group.key === 'past' ? 'opacity-80' : ''}`}>
                             {groupEvents.map(ev => {
                               const isSelectedCard = selectedDate === ev.dateStr;
                               return (
@@ -590,7 +590,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                             {group.label} ({groupEvents.length})
                           </p>
                         </div>
-                        <div className={`space-y-3 ${group.key === 'past' ? 'opacity-60' : ''}`}>
+                        <div className={`space-y-3 ${group.key === 'past' ? 'opacity-80' : ''}`}>
                           {groupEvents.map(ev => (
                             <button
                               key={`day-popup-${ev.id}`}

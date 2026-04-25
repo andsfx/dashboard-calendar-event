@@ -54,13 +54,13 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         {/* Color accent header */}
         <div
           className="relative px-4 pb-5 pt-6 sm:px-6"
-          style={{
-            background: `linear-gradient(135deg, ${color}22 0%, ${color}08 100%)`,
-            borderBottom: `3px solid ${color}44`,
-          }}
+          style={{ '--event-color': color } as React.CSSProperties}
         >
           {/* Top accent line */}
-          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${color}, ${color}44)` }} />
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${color}, ${color}44)` }} />
+          {/* Subtle bg tint — works in both light and dark */}
+          <div className="absolute inset-0 rounded-t-2xl opacity-10 dark:opacity-5" style={{ background: color }} />
+          <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: `${color}44` }} />
 
           <button
             onClick={onClose}
@@ -75,18 +75,18 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             <CategoryBadges categories={event.categories} />
             {isAdmin && <PriorityBadge priority={event.priority} />}
             {isOngoing && (
-              <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                <Zap className="h-3 w-3" /> LIVE
+              <span aria-label="Event sedang berlangsung" className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                <Zap className="h-3 w-3" aria-hidden="true" /> LIVE
               </span>
             )}
             {isMultiDay && (
-              <span className="flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                <CalendarDays className="h-3 w-3" /> Rangkaian acara · {duration} hari
+              <span aria-label={`Rangkaian acara ${duration} hari`} className="flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                <CalendarDays className="h-3 w-3" aria-hidden="true" /> Rangkaian acara · {duration} hari
               </span>
             )}
             {isRecurring && (
-              <span className="flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
-                <Repeat className="h-3 w-3" /> Event reguler
+              <span aria-label="Event reguler berulang" className="flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                <Repeat className="h-3 w-3" aria-hidden="true" /> Event reguler
               </span>
             )}
           </div>

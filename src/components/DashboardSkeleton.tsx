@@ -1,5 +1,5 @@
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-700 ${className}`} />;
+  return <div className={`animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-600 ${className}`} />;
 }
 
 export function DashboardSkeleton({ isAdmin }: { isAdmin: boolean }) {

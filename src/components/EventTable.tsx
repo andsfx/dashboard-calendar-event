@@ -96,10 +96,15 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
               {group.monthLabel}
             </div>
             {group.events.map(ev => (
-              <div key={ev.id} className={`space-y-3 p-4 ${ev.status === 'past' ? 'opacity-70' : ''}`}>
-                <button
+              <div key={ev.id} className={`space-y-3 p-4 ${ev.status === 'past' ? 'opacity-80' : ''}`}>
+                {/* Mobile card — use div+role instead of nested buttons */}
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onDetail(ev)}
-                  className="w-full cursor-pointer text-left"
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
+                  aria-label={`Lihat detail ${ev.acara}`}
+                  className="w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 rounded-lg"
                 >
                   <div className="mb-2 flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -139,7 +144,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </div>
                     {ev.eo && <p className="text-slate-600 dark:text-slate-300">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
                   </div>
-                </button>
+                   </div>
 
                 <div className="flex items-center gap-2 pt-1">
                   <button
@@ -173,6 +178,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[750px] text-sm">
+          <caption className="sr-only">Tabel jadwal event</caption>
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
               <th className="px-4 py-3 text-left">
@@ -201,9 +207,11 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-violet-50 dark:focus-visible:bg-violet-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-60' : ''}`}
+                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-violet-50 dark:focus-visible:bg-violet-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-80' : ''}`}
                     onClick={() => onDetail(ev)}
                     tabIndex={0}
+                    role="button"
+                    aria-label={`Lihat detail ${ev.acara}`}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
                   >
                     {/* Date */}
@@ -277,26 +285,26 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => onDetail(ev)}
-                          title="Detail"
+                          aria-label="Lihat detail"
                           className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400"
                         >
-                          <ExternalLink className="h-3.5 w-3.5" />
+                          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
                         {isAdmin && (
                           <>
                             <button
                               onClick={() => onEdit(ev)}
-                              title="Edit"
+                              aria-label="Edit acara"
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                             >
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                             <button
                               onClick={() => onDelete(ev)}
-                              title="Hapus"
+                              aria-label="Hapus acara"
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                           </>
                         )}

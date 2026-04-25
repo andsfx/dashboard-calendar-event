@@ -1,5 +1,14 @@
 /* Font loaded via <link> in index.html for non-blocking render */
 @import "tailwindcss";
+
+/* ─── Z-Index Scale ────────────────────────────────────────────
+ * z-10:   Dropdowns, popovers
+ * z-20:   Sticky section nav
+ * z-30:   Sticky headers, fixed nav
+ * z-40:   Backdrop overlays
+ * z-50:   Modals, dialogs
+ * z-[200]: Toasts, skip link
+ * ─────────────────────────────────────────────────────────── */
 @variant dark (&:where(.dark, .dark *));
 
 :root {

@@ -24,6 +24,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1100px] text-sm">
+          <caption className="sr-only">Tabel antrian draft event aktif</caption>
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
               {['Tanggal', 'Event', 'Jam', 'EO', 'PIC', 'No. Telepon', 'Lokasi', 'Progress', 'Aksi'].map(label => (

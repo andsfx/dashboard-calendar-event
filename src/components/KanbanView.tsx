@@ -68,7 +68,7 @@ function EventCard({
 
   return (
     <div
-      className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-65' : ''} ${cardBorder}`}
+            className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
       onClick={() => onDetail(ev)}
       role="button"
       tabIndex={0}

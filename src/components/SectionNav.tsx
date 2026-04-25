@@ -53,7 +53,13 @@ export function SectionNav({ items }: Props) {
           {items.map(item => (
             <button
               key={item.id}
-              onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+      onClick={() => {
+                const el = document.getElementById(item.id);
+                if (!el) return;
+                const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+              }}
+              aria-current={activeId === item.id ? 'true' : undefined}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                 activeId === item.id
                   ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300'

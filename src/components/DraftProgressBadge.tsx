@@ -22,8 +22,11 @@ export function DraftProgressBadge({ progress }: { progress: DraftProgress }) {
   const cfg = CONFIG[progress];
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.className}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.className}`}
+      aria-label={`Status: ${cfg.label}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} aria-hidden="true" />
       {cfg.label}
     </span>
   );

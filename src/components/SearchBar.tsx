@@ -18,7 +18,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         inputRef.current?.focus();
         inputRef.current?.select();
       }
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA' && !(document.activeElement as HTMLElement)?.isContentEditable) {
         e.preventDefault();
         inputRef.current?.focus();
       }

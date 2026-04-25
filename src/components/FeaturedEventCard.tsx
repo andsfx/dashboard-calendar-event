@@ -88,7 +88,7 @@ export default function FeaturedEventCard({ events, annualThemes }: FeaturedEven
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: theme.color }} />
                       <span className="text-xs font-bold uppercase tracking-wider" style={{ color: theme.color }}>
-                        Active Season
+                        Musim Aktif
                       </span>
                     </div>
                     <h4 className="text-lg font-bold text-slate-800 dark:text-white">{theme.name}</h4>

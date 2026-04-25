@@ -102,6 +102,8 @@ export function DashboardViewsSection(props: Props) {
                   <button
                     key={tab.key}
                     onClick={() => setViewMode(tab.key)}
+                    aria-pressed={viewMode === tab.key}
+                    aria-label={`Tampilan ${tab.label}`}
                     className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
                         ? 'border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-800/50 dark:bg-slate-600 dark:text-violet-300'

@@ -77,7 +77,9 @@ export function AdminDraftSection({
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <button
           onClick={() => setShowDraftHistory(v => !v)}
-          className="flex w-full items-center justify-between gap-3 text-left"
+          className="flex w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-slate-800"
+          aria-expanded={showDraftHistory}
+          aria-controls="draft-history-content"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
@@ -95,7 +97,7 @@ export function AdminDraftSection({
         </button>
 
         {showDraftHistory && (
-          <div className="mt-4">
+          <div id="draft-history-content" className="mt-4">
             <DraftHistoryTable drafts={draftHistory} onRestore={onRestoreDraft} />
           </div>
         )}

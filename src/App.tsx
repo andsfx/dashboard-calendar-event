@@ -631,6 +631,13 @@ export default function App() {
       {/* Dashboard — event schedule */}
       <Route path="/dashboard" element={
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      {/* Skip to main content — WCAG 2.4.1 */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none"
+      >
+        Lewati ke konten utama
+      </a>
       <Navbar
         isDark={isDark}
         onToggleDark={toggleDark}
@@ -646,7 +653,7 @@ export default function App() {
         <DashboardSkeleton isAdmin={isAdmin} />
       ) : (
 
-      <main className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -667,7 +674,9 @@ export default function App() {
                 <button
                   onClick={() => setShowSettingsMenu(prev => !prev)}
                   className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                  title="Settings"
+                  aria-label="Menu pengaturan"
+                  aria-expanded={showSettingsMenu}
+                  aria-haspopup="menu"
                 >
                   <Settings className="h-4 w-4" />
                   <ChevronDown className={`h-3 w-3 transition ${showSettingsMenu ? 'rotate-180' : ''}`} />
@@ -948,12 +957,12 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
           <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
-            <p>(c) {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
+            <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" />
-                <span>{visibleStats.ongoing} berlangsung</span>
-              </span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
+                  <span>{visibleStats.ongoing} berlangsung</span>
+                </span>
               <span className="hidden sm:inline">·</span>
               <span>{visibleStats.upcoming} mendatang</span>
             </div>

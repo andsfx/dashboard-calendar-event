@@ -75,7 +75,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-70' : ''}`}
+                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   onClick={() => onDetail(ev)}
                   role="button"
                   tabIndex={0}

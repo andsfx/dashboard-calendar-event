@@ -74,6 +74,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
+            aria-pressed={activeTab === tab.key}
             className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
               activeTab === tab.key
                 ? 'bg-violet-600 text-white shadow-sm'
