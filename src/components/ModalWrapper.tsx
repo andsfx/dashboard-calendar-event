@@ -27,10 +27,19 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
+    } else if (shouldRender && !isClosing) {
+      // Parent set isOpen=false (e.g. after successful login) — trigger exit animation
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setIsClosing(false);
+        setShouldRender(false);
+      }, 200);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClose = useCallback(() => {
+    if (isClosing) return;
     setIsClosing(true);
     const timer = setTimeout(() => {
       setIsClosing(false);
@@ -38,7 +47,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
       onClose();
     }, 200); // match modal-panel-out duration
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onClose, isClosing]);
 
   // Escape key handler
   useEffect(() => {
