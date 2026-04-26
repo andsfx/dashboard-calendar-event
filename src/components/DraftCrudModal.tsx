@@ -1,20 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Calendar, Copy, Save, X } from 'lucide-react';
+import { Calendar, Save, X } from 'lucide-react';
 import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
 import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES } from '../utils/eventUtils';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
-
-const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
-const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
-  { value: '', label: 'Pilih model' },
-  { value: 'free', label: 'Free' },
-  { value: 'bayar', label: 'Bayar' },
-  { value: 'support', label: 'Support' },
-];
-
-const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+import { EventFormBasicFields } from './forms/EventFormBasicFields';
+import { EventFormDetailsFields } from './forms/EventFormDetailsFields';
+import { EventFormModelFields } from './forms/EventFormModelFields';
+import { MultiDayEventFields } from './forms/MultiDayEventFields';
+import { RecurringEventFields } from './forms/RecurringEventFields';
 
 interface Props {
   isOpen: boolean;
@@ -242,6 +236,15 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     });
   };
 
+  const toggleDayOfWeek = (day: number) => {
+    setForm(prev => {
+      const days = prev.recurrenceDaysOfWeek.includes(day)
+        ? prev.recurrenceDaysOfWeek.filter(d => d !== day)
+        : [...prev.recurrenceDaysOfWeek, day].sort();
+      return { ...prev, recurrenceDaysOfWeek: days };
+    });
+  };
+
   const validate = () => {
     const nextErrors: Record<string, string> = {};
     if (!form.dateStr) nextErrors.dateStr = 'Tanggal wajib diisi';
@@ -324,7 +327,6 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   };
 
   const isEdit = !!editingDraft;
-  const showModelDetails = form.eventModel === 'bayar' || form.eventModel === 'support';
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
@@ -345,31 +347,19 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:px-6">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal <span className="text-red-500">*</span></label>
-              <input
-                type="date"
-                value={form.dateStr}
-                onChange={e => set('dateStr', e.target.value)}
-                className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStr ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`}
-              />
-              {errors.dateStr && <p className="mt-1 text-xs text-red-500">{errors.dateStr}</p>}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jam</label>
-              <input
-                value={form.jam}
-                onChange={e => set('jam', e.target.value)}
-                placeholder={getSuggestionPlaceholder(jamSuggestions, '09:00 - 17:00 / 10:00 - 22:00')}
-                list="draft-jam-suggestions"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              />
-               <datalist id="draft-jam-suggestions">
-                 {jamSuggestions.map(item => <option key={item} value={item} />)}
-               </datalist>
-             </div>
-           </div>
+          <EventFormBasicFields
+            dateStr={form.dateStr}
+            jam={form.jam}
+            acara={form.acara}
+            lokasi={form.lokasi}
+            errors={errors}
+            jamSuggestions={jamSuggestions}
+            lokasiSuggestions={lokasiSuggestions}
+            jamPlaceholder={getSuggestionPlaceholder(jamSuggestions, '09:00 - 17:00 / 10:00 - 22:00')}
+            lokasiPlaceholder={getSuggestionPlaceholder(lokasiSuggestions, 'Atrium Lt.1 / Hall A / Main Lobby')}
+            onFieldChange={set}
+            isDraft={true}
+          />
 
           {/* Tipe acara */}
           <div className="space-y-2">
@@ -401,342 +391,73 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
 
           {/* Multi-day fields */}
           {form.eventType === 'multi_day' && (
-            <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Tanggal Selesai <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={form.dateEnd}
-                  onChange={e => set('dateEnd', e.target.value)}
-                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
-                    errors.dateEnd
-                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
-                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
-                  }`}
-                />
-                {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
-              </div>
-
-              {/* Day time slots */}
-              {form.dayTimeSlots.length > 0 && (
-                <div className="space-y-3">
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Jam per hari:</p>
-                  {form.dayTimeSlots.map((slot, idx) => {
-                    const date = parseDateStrLocal(slot.date);
-                    const dayName = date ? DAY_ID[date.getDay()] : '';
-                    const dayLabel = date ? `${dayName}, ${date.getDate()} ${MONTH_ID[date.getMonth()]}` : slot.date;
-                    
-                    return (
-                      <div key={slot.date} className="flex items-end gap-2">
-                        <div className="flex-1">
-                          <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                            Hari {idx + 1}: {dayLabel}
-                          </label>
-                          <input
-                            type="text"
-                            value={slot.jam}
-                            onChange={e => setDayTimeSlot(idx, e.target.value)}
-                            placeholder={getSuggestionPlaceholder(jamSuggestions, '09:00 - 17:00')}
-                            list="draft-jam-suggestions"
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-500 dark:bg-slate-600 dark:text-white"
-                          />
-                        </div>
-                        {idx > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => copyFromPreviousDay(idx)}
-                            className="rounded-lg border border-slate-300 bg-white p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-500 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500"
-                            title="Salin dari hari sebelumnya"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <MultiDayEventFields
+              dateEnd={form.dateEnd}
+              dayTimeSlots={form.dayTimeSlots}
+              errors={errors}
+              jamSuggestions={jamSuggestions}
+              jamPlaceholder={getSuggestionPlaceholder(jamSuggestions, '09:00 - 17:00')}
+              onDateEndChange={(value) => set('dateEnd', value)}
+              onDayTimeSlotChange={setDayTimeSlot}
+              onCopyFromPreviousDay={copyFromPreviousDay}
+              isDraft={true}
+            />
           )}
 
           {/* Recurring fields */}
           {form.eventType === 'recurring' && (
-            <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
-              {/* Frequency selector */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
-                <select
-                  value={form.recurrenceFrequency}
-                  onChange={e => set('recurrenceFrequency', e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                >
-                  <option value="weekly">Setiap minggu</option>
-                  <option value="biweekly">Setiap 2 minggu</option>
-                  <option value="monthly">Setiap bulan</option>
-                  <option value="custom">Custom (setiap N hari)</option>
-                </select>
-              </div>
-
-              {/* Days of week for weekly/biweekly */}
-              {(form.recurrenceFrequency === 'weekly' || form.recurrenceFrequency === 'biweekly') && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setForm(prev => {
-                            const days = prev.recurrenceDaysOfWeek.includes(idx)
-                              ? prev.recurrenceDaysOfWeek.filter(d => d !== idx)
-                              : [...prev.recurrenceDaysOfWeek, idx].sort();
-                            return { ...prev, recurrenceDaysOfWeek: days };
-                          });
-                        }}
-                        className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                          form.recurrenceDaysOfWeek.includes(idx)
-                            ? 'bg-violet-600 text-white'
-                            : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-300'
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    ))}
-                  </div>
-                  {errors.recurrenceDaysOfWeek && <p className="mt-1 text-xs text-red-500">{errors.recurrenceDaysOfWeek}</p>}
-                </div>
-              )}
-
-              {/* Day of month for monthly */}
-              {form.recurrenceFrequency === 'monthly' && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={31}
-                    value={form.recurrenceDayOfMonth}
-                    onChange={e => set('recurrenceDayOfMonth', e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-              )}
-
-              {/* Interval for custom */}
-              {form.recurrenceFrequency === 'custom' && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.recurrenceInterval}
-                    onChange={e => set('recurrenceInterval', e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-              )}
-
-              {/* End date */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Sampai tanggal <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={form.recurrenceEndDate}
-                  onChange={e => set('recurrenceEndDate', e.target.value)}
-                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
-                    errors.recurrenceEndDate
-                      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
-                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
-                  }`}
-                />
-                {errors.recurrenceEndDate && <p className="mt-1 text-xs text-red-500">{errors.recurrenceEndDate}</p>}
-              </div>
-
-              {/* Preview */}
-              {(() => {
-                if (!form.dateStr || !form.recurrenceEndDate) return null;
-                const rule: RecurrenceRule = {
-                  frequency: form.recurrenceFrequency,
-                  daysOfWeek: form.recurrenceDaysOfWeek,
-                  dayOfMonth: form.recurrenceDayOfMonth,
-                  interval: form.recurrenceInterval,
-                  endDate: form.recurrenceEndDate,
-                };
-                const dates = generateRecurringDates(form.dateStr, rule);
-                if (dates.length === 0) return null;
-                
-                return (
-                  <div className="rounded-xl border border-violet-300 bg-white p-3 dark:border-violet-700 dark:bg-slate-800/60">
-                    <p className="mb-2 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                      Preview: {dates.length} event akan dibuat saat dipublish
-                    </p>
-                    <div className="max-h-40 space-y-1 overflow-y-auto">
-                      {dates.map((dateStr) => {
-                        const d = parseDateStrLocal(dateStr);
-                        if (!d) return null;
-                        const dayName = DAY_ID[d.getDay()];
-                        return (
-                          <div key={dateStr} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-1.5 text-xs dark:bg-slate-700/40">
-                            <span className="text-slate-700 dark:text-slate-200">
-                              {dayName}, {d.getDate()} {MONTH_ID[d.getMonth()]} {d.getFullYear()}
-                            </span>
-                            <span className="text-slate-400">{form.jam || '–'}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+            <RecurringEventFields
+              dateStr={form.dateStr}
+              jam={form.jam}
+              recurrenceFrequency={form.recurrenceFrequency}
+              recurrenceDaysOfWeek={form.recurrenceDaysOfWeek}
+              recurrenceDayOfMonth={form.recurrenceDayOfMonth}
+              recurrenceInterval={form.recurrenceInterval}
+              recurrenceEndDate={form.recurrenceEndDate}
+              errors={errors}
+              onFieldChange={set}
+              onToggleDayOfWeek={toggleDayOfWeek}
+              isDraft={true}
+            />
           )}
 
-           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event <span className="text-red-500">*</span></label>
-            <input
-              value={form.acara}
-              onChange={e => set('acara', e.target.value)}
-              placeholder="Masukkan nama event yang akan diproses"
-              className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.acara ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`}
-            />
-            {errors.acara && <p className="mt-1 text-xs text-red-500">{errors.acara}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama EO</label>
-              <input
-                value={form.eo}
-                onChange={e => set('eo', e.target.value)}
-                placeholder={getSuggestionPlaceholder(eoSuggestions, 'Internal MMB / EO Partner / Organizer Event')}
-                list="draft-eo-suggestions"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              />
-              <datalist id="draft-eo-suggestions">
-                {eoSuggestions.map(item => <option key={item} value={item} />)}
-              </datalist>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi <span className="text-red-500">*</span></label>
-              <input
-                value={form.lokasi}
-                onChange={e => set('lokasi', e.target.value)}
-                placeholder={getSuggestionPlaceholder(lokasiSuggestions, 'Atrium Lt.1 / Hall A / Main Lobby')}
-                list="draft-lokasi-suggestions"
-                className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.lokasi ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`}
-              />
-              <datalist id="draft-lokasi-suggestions">
-                {lokasiSuggestions.map(item => <option key={item} value={item} />)}
-              </datalist>
-              {errors.lokasi && <p className="mt-1 text-xs text-red-500">{errors.lokasi}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Penanggung Jawab <span className="text-red-500">*</span></label>
-              <input
-                value={form.pic}
-                onChange={e => set('pic', e.target.value)}
-                placeholder="Nama PIC event"
-                className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.pic ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`}
-              />
-              {errors.pic && <p className="mt-1 text-xs text-red-500">{errors.pic}</p>}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Telepon <span className="text-red-500">*</span></label>
-              <input
-                value={form.phone}
-                onChange={e => set('phone', e.target.value)}
-                placeholder="08xxxxxxxxxx"
-                className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.phone ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`}
-              />
-              {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Progress</label>
-              <select
-                value={form.progress}
-                onChange={e => set('progress', e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              >
-                <option value="draft">Draft</option>
-                <option value="confirm">Confirm</option>
-                <option value="cancel">Cancel</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
-              <select
-                value=""
-                onChange={e => {
-                  addCategory(e.target.value);
-                  e.target.value = '';
-                }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              >
-                <option value="">Pilih jenis acara</option>
-                {CATEGORIES.filter(category => !form.categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {form.categories.map(category => (
-                  <span key={category} className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:border-violet-900/50 dark:bg-violet-900/20 dark:text-violet-300">
-                    {category}
-                    <button type="button" onClick={() => removeCategory(category)} className="rounded-full p-0.5 text-violet-500 transition hover:bg-violet-100 hover:text-violet-700 dark:hover:bg-violet-900/30">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              {errors.categories && <p className="mt-1 text-xs text-red-500">{errors.categories}</p>}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>
-              <select
-                value={form.priority}
-                onChange={e => set('priority', e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              >
-                <option value="high">🔴 Tinggi</option>
-                <option value="medium">🔵 Sedang</option>
-                <option value="low">⚪ Rendah</option>
-              </select>
-            </div>
-          </div>
+          <EventFormDetailsFields
+            eo={form.eo}
+            pic={form.pic}
+            phone={form.phone}
+            categories={form.categories}
+            priority={form.priority}
+            errors={errors}
+            eoSuggestions={eoSuggestions}
+            eoPlaceholder={getSuggestionPlaceholder(eoSuggestions, 'Internal MMB / EO Partner / Organizer Event')}
+            picPlaceholder="Nama PIC event"
+            phonePlaceholder="08xxxxxxxxxx"
+            onFieldChange={set}
+            onAddCategory={addCategory}
+            onRemoveCategory={removeCategory}
+            isDraft={true}
+          />
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Model Event</label>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Progress</label>
             <select
-              value={form.eventModel}
-              onChange={e => set('eventModel', e.target.value)}
+              value={form.progress}
+              onChange={e => set('progress', e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             >
-              {EVENT_MODELS.map(option => <option key={option.value || 'empty'} value={option.value}>{option.label}</option>)}
+              <option value="draft">Draft</option>
+              <option value="confirm">Confirm</option>
+              <option value="cancel">Cancel</option>
             </select>
           </div>
 
-          {showModelDetails && (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nominal <span className="text-red-500">*</span></label>
-                <input value={form.eventNominal} onChange={e => set('eventNominal', e.target.value)} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.eventNominal ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`} />
-                {errors.eventNominal && <p className="mt-1 text-xs text-red-500">{errors.eventNominal}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan Model Event <span className="text-red-500">*</span></label>
-                <input value={form.eventModelNotes} onChange={e => set('eventModelNotes', e.target.value)} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.eventModelNotes ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'}`} />
-                {errors.eventModelNotes && <p className="mt-1 text-xs text-red-500">{errors.eventModelNotes}</p>}
-              </div>
-            </div>
-          )}
+          <EventFormModelFields
+            eventModel={form.eventModel}
+            eventNominal={form.eventNominal}
+            eventModelNotes={form.eventModelNotes}
+            errors={errors}
+            onFieldChange={set}
+          />
 
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>

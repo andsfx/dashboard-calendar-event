@@ -1,41 +1,32 @@
-import { FormEvent, ReactNode, useEffect, useRef, useState } from 'react';
-import { submitCommunityRegistration } from '../utils/supabaseApi';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   CalendarDays,
   Camera,
-  CheckCircle2,
-  ChevronDown,
   Clock,
-
   Globe,
-  Headphones,
-  Heart,
   Inbox,
-  Lightbulb,
   Mail,
   MapPin,
-  Megaphone,
   Menu,
-  Mic2,
   Moon,
-  Music,
   Phone,
   Radio,
-  Rocket,
-  Send,
-  Sparkles,
   SunMedium,
-  Trophy,
   Users,
   X,
-  Zap,
 } from 'lucide-react';
 import { EventItem, PhotoAlbum } from '../types';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { CommunityHero } from './community/CommunityHero';
+import { CommunityBenefits } from './community/CommunityBenefits';
+import { CommunityFacilities } from './community/CommunityFacilities';
+import { CommunitySteps } from './community/CommunitySteps';
+import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
+import { CommunityFAQ } from './community/CommunityFAQ';
 
 /* ─── Brand tokens (consistent with PublicLandingPage) ────── */
 const BRAND = {
@@ -45,64 +36,6 @@ const BRAND = {
 };
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
-
-/* ─── Data ────────────────────────────────────────────────── */
-const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
-  {
-    icon: <Trophy className="h-7 w-7" aria-hidden="true" />,
-    title: 'Sponsorship Opportunities',
-    desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu connect dengan brand dan tenant yang relevan.',
-    color: '#f59e0b',
-  },
-  {
-    icon: <Megaphone className="h-7 w-7" aria-hidden="true" />,
-    title: 'Marketing Support',
-    desc: 'Tim marketing kami bantu promosiin event kamu lewat social media, digital signage, dan channel mall lainnya.',
-    color: '#ec4899',
-  },
-  {
-    icon: <Rocket className="h-7 w-7" aria-hidden="true" />,
-    title: 'Grow Your Community',
-    desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
-    color: '#8b5cf6',
-  },
-  {
-    icon: <Zap className="h-7 w-7" aria-hidden="true" />,
-    title: 'Free Venue & Event Tools',
-    desc: 'Panggung, sound system, lighting, kursi penonton — semua GRATIS. Kamu tinggal fokus bikin acara yang seru.',
-    color: '#10b981',
-  },
-];
-
-const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
-  { icon: <Mic2 className="h-6 w-6" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
-  { icon: <Headphones className="h-6 w-6" aria-hidden="true" />, title: 'Sound System 10K Watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
-  { icon: <Lightbulb className="h-6 w-6" aria-hidden="true" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin standout dan memorable.' },
-  { icon: <Users className="h-6 w-6" aria-hidden="true" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa di-arrange sesuai kebutuhan acara kamu.' },
-  { icon: <MapPin className="h-6 w-6" aria-hidden="true" />, title: 'Area Lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
-  { icon: <Heart className="h-6 w-6" aria-hidden="true" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
-];
-
-const STEPS: Array<{ num: string; title: string; desc: string }> = [
-  { num: '01', title: 'Daftar & Submit', desc: 'Isi form pendaftaran komunitas. Ceritain siapa kamu dan apa yang mau kamu lakuin.' },
-  { num: '02', title: 'Review Tim Mall', desc: 'Tim kami review proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
-  { num: '03', title: 'Konfirmasi & Prep', desc: 'Setelah deal, kita siapin venue dan semua tools yang kamu butuhkan.' },
-  { num: '04', title: 'Event Day!', desc: 'Hari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.' },
-];
-
-const COMMUNITY_TYPES = [
-  'Musik', 'Dance', 'Seni & Kreatif', 'Gaming', 'Olahraga', 'Pendidikan',
-  'Fotografi', 'Kuliner', 'Teknologi', 'Sosial', 'Lainnya',
-];
-
-const FAQS: Array<[string, string]> = [
-  ['Beneran gratis? Nggak ada biaya tersembunyi?', 'Beneran 100% gratis! Panggung, sound system, lighting, kursi — semua disediakan tanpa biaya. Yang perlu kamu siapin cuma konsep acara dan semangat komunitas kamu.'],
-  ['Komunitas apa aja yang bisa daftar?', 'Semua jenis komunitas welcome! Musik, dance, seni, gaming, olahraga, pendidikan, dan lainnya. Selama punya konsep acara yang jelas dan positif, kita open.'],
-  ['Berapa lama proses review-nya?', 'Biasanya 3-5 hari kerja setelah form diterima. Tim kami akan hubungi PIC untuk diskusi lebih lanjut soal jadwal dan kebutuhan.'],
-  ['Bisa request tanggal tertentu?', 'Bisa! Tulis preferensi tanggal di form. Tim kami akan cek ketersediaan dan konfirmasi secepatnya.'],
-  ['Apakah bisa kolaborasi dengan komunitas lain?', 'Absolutely! Justru itu salah satu value yang kami tawarkan. Kami bisa bantu connect kamu dengan komunitas lain yang udah bergabung.'],
-  ['Apa syarat untuk mendaftar?', 'Kirimkan company profile atau portofolio komunitas beserta proposal event ke email kami. Nggak perlu ribet — yang penting jelas konsep dan tujuannya.'],
-];
 
 const IG_POSTS = [
   'https://www.instagram.com/p/DXYxAlQkXrD/',
@@ -235,147 +168,6 @@ function eyebrow(label: string) {
     <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
       {label}
     </p>
-  );
-}
-
-const NAV_ITEMS = [
-  { href: '#benefits', label: 'Keuntungan' },
-  { href: '#facilities', label: 'Fasilitas' },
-  { href: '#gallery', label: 'Galeri' },
-  { href: '#events', label: 'Event' },
-  { href: '#how', label: 'Cara Daftar' },
-  { href: '#register', label: 'Daftar' },
-  { href: '#faq', label: 'FAQ' },
-];
-
-/* ─── Registration Form ──────────────────────────────────── */
-interface CommunityFormData {
-  communityName: string;
-  communityType: string;
-  pic: string;
-  phone: string;
-  email: string;
-  instagram: string;
-  description: string;
-  preferredDate: string;
-}
-
-function RegistrationForm() {
-  const [form, setForm] = useState<CommunityFormData>({
-    communityName: '',
-    communityType: '',
-    pic: '',
-    phone: '',
-    email: '',
-    instagram: '',
-    description: '',
-    preferredDate: '',
-  });
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const setField = (key: keyof CommunityFormData, value: string) => {
-    setForm(prev => ({ ...prev, [key]: value }));
-    setError('');
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!form.communityName.trim() || !form.pic.trim() || !form.phone.trim() || !form.communityType) {
-      setError('Lengkapi nama komunitas, tipe, PIC, dan nomor telepon ya!');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await submitCommunityRegistration(form);
-      setSubmitted(true);
-    } catch {
-      setError('Gagal mengirim pendaftaran. Coba lagi nanti.');
-    }
-    setSubmitting(false);
-  };
-
-  if (submitted) {
-    return (
-      <div className="rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-          <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-        </div>
-        <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
-        <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
-          Terima kasih udah daftar! Tim kami akan review dan hubungi kamu dalam 3-5 hari kerja.
-          <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-violet-500 hover:text-violet-600 dark:text-violet-400 dark:hover:text-violet-300">@metmalbekasi</a> buat update terbaru!
-        </p>
-        <button
-          type="button"
-          onClick={() => { setSubmitted(false); setForm({ communityName: '', communityType: '', pic: '', phone: '', email: '', instagram: '', description: '', preferredDate: '' }); }}
-          className={`mt-6 inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing}`}
-        >
-          Daftar Komunitas Lain
-        </button>
-      </div>
-    );
-  }
-
-  const inputClass = 'w-full rounded-2xl border border-slate-200/50 bg-[#fffdf9] px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-violet-400 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-slate-500';
-  const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:bg-slate-800 dark:border-slate-700 xl:p-7"
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <label htmlFor="reg-community" className={labelClass}>Nama Komunitas <span className="text-rose-500">*</span></label>
-          <input id="reg-community" value={form.communityName} onChange={e => setField('communityName', e.target.value)} placeholder="Nama komunitas" required className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="reg-type" className={labelClass}>Tipe Komunitas <span className="text-rose-500">*</span></label>
-          <select id="reg-type" value={form.communityType} onChange={e => setField('communityType', e.target.value)} required className={inputClass}>
-            <option value="">Pilih tipe</option>
-            {COMMUNITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-500">*</span></label>
-          <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama PIC" required className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-500">*</span></label>
-          <input id="reg-phone" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp" type="tel" autoComplete="tel" required className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="reg-email" className={labelClass}>Email</label>
-          <input id="reg-email" value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Email (opsional)" type="email" autoComplete="email" className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="reg-instagram" className={labelClass}>Instagram Komunitas</label>
-          <input id="reg-instagram" value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="@username atau URL" className={inputClass} />
-        </div>
-        <div>
-          <label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</label>
-          <input id="reg-date" type="date" value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="reg-desc" className={labelClass}>Deskripsi</label>
-          <textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang komunitas kamu dan rencana event yang mau diadain..." className={`${inputClass} resize-none`} />
-        </div>
-      </div>
-      {error && <p className="mt-4 text-sm text-rose-600" role="alert">{error}</p>}
-      <div className="mt-6 flex flex-col gap-4 border-t border-black/[0.06] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-6 text-slate-500 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
-        <button
-          type="submit"
-          disabled={submitting}
-          className={`inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:brightness-110 hover:shadow-lg ${focusRing}`}
-        >
-          <Send className="h-4 w-4" />
-          {submitting ? 'Mengirim...' : 'Daftar Sekarang!'}
-        </button>
-      </div>
-    </form>
   );
 }
 
@@ -581,8 +373,17 @@ interface CommunityLandingProps {
   albums?: PhotoAlbum[];
 }
 
+const NAV_ITEMS = [
+  { href: '#benefits', label: 'Keuntungan' },
+  { href: '#facilities', label: 'Fasilitas' },
+  { href: '#gallery', label: 'Galeri' },
+  { href: '#events', label: 'Event' },
+  { href: '#how', label: 'Cara Daftar' },
+  { href: '#register', label: 'Daftar' },
+  { href: '#faq', label: 'FAQ' },
+];
+
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
-  const [openFaq, setOpenFaq] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
 
@@ -662,211 +463,9 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
       </header>
 
       <main>
-        {/* ─── Hero ───────────────────────────────────────────── */}
-        <section
-          id="hero"
-          className="relative min-h-screen lg:max-h-[1000px] overflow-hidden"
-        >
-          {/* Background: foto + gradient overlay */}
-          {heroImageUrl ? (
-            <>
-              <div className="absolute inset-0">
-                <img src={heroImageUrl} alt="" className="h-full w-full object-cover" fetchPriority="high" />
-              </div>
-              {/* Gradient overlay di atas foto (60-70% opacity) */}
-              <div
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(135deg, rgba(26,5,51,0.75) 0%, rgba(15,23,42,0.65) 40%, rgba(30,27,75,0.70) 70%, rgba(49,46,129,0.60) 100%)' }}
-              />
-            </>
-          ) : (
-            <>
-              {/* Base gradient */}
-              <div
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(135deg, #1a0533 0%, #0f172a 40%, #1e1b4b 70%, #312e81 100%)' }}
-              />
-              {/* Noise texture overlay */}
-              <div
-                className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'repeat',
-                }}
-              />
-              {/* Mesh gradient overlay */}
-              <div
-                className="absolute inset-0 opacity-40 dark:opacity-30"
-                style={{
-                  background: `
-                    radial-gradient(circle at 20% 30%, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-                    radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.10) 0%, transparent 50%),
-                    radial-gradient(circle at 30% 70%, rgba(99, 102, 241, 0.13) 0%, transparent 50%)
-                  `,
-                }}
-              />
-            </>
-          )}
-
-          {/* Decorative elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/25 blur-[120px]" />
-            <div className="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-orange-500/25 blur-[100px]" />
-            <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-500/25 blur-[80px]" />
-            <div className="absolute right-1/4 bottom-1/4 h-72 w-72 rounded-full bg-pink-500/25 blur-[90px]" />
-          </div>
-
-          <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-            <RevealSection as="div" className="max-w-4xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/8 px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.25em] text-white/80 backdrop-blur-sm">
-                <Sparkles className="h-4 w-4 text-amber-400" />
-                Metmal Community Space
-              </div>
-
-              <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
-                Calling All{' '}
-                <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-violet-400 bg-clip-text text-transparent">
-                  Community
-                </span>
-                !
-              </h1>
-
-              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
-                Lagi cari tempat buat kumpul komunitas? Di Metropolitan Mall Bekasi <strong className="text-white">GRATIS</strong>!
-                Venue, sound system, lighting semua udah disiapin. Kamu tinggal fokus bikin komunitas makin hidup.
-              </p>
-
-              <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <a
-                  href="#register"
-                  className={`group inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:brightness-110 hover:shadow-xl ${focusRing}`}
-                  style={{ 
-                    background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)`,
-                    boxShadow: '0 20px 40px -12px rgba(242, 116, 62, 0.5)'
-                  }}
-                >
-                  Daftar Sekarang
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </a>
-                <a
-                  href="#benefits"
-                  className={`inline-flex items-center gap-2 rounded-full border-2 border-white/20 bg-white/10 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-xl transition hover:border-white/40 hover:bg-white/20 ${focusRing}`}
-                >
-                  Lihat Benefits
-                </a>
-              </div>
-
-              {/* Quick stats */}
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/75">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-                  </span>
-                  <span>100% Gratis</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/20">
-                    <Music className="h-4 w-4 text-violet-400" aria-hidden="true" />
-                  </span>
-                  <span>Sound 10K Watt</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/20">
-                    <Users className="h-4 w-4 text-amber-400" aria-hidden="true" />
-                  </span>
-                  <span>Open for All</span>
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse" aria-hidden="true">
-            <ChevronDown className="h-6 w-6 text-white/50" />
-          </div>
-        </section>
-
-        {/* ─── Benefits ──────────────────────────────────────── */}
-        <RevealSection id="benefits" intensity="strong" className="px-4 py-20 sm:px-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="text-center">
-              {eyebrow('Kenapa Gabung')}
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Bukan cuma dikasih space.
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-                Kamu juga dipush buat berkembang. Dari sponsorship sampai marketing support — semua buat komunitas kamu makin besar.
-              </p>
-            </div>
-
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {BENEFITS.map((b, i) => (
-                <div
-                  key={b.title}
-                  className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
-                  style={{ '--accent-color': b.color } as React.CSSProperties}
-                >
-                  {/* Accent bar */}
-                  <div
-                    className="absolute left-0 right-0 top-0 h-1 transition-all duration-300 group-hover:h-2"
-                    style={{ background: b.color }}
-                  />
-
-                  {/* Icon with colored background */}
-                  <div
-                    className="flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
-                    style={{ background: `${b.color}15`, color: b.color }}
-                  >
-                    {b.icon}
-                  </div>
-
-                  <h3 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">{b.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{b.desc}</p>
-
-                  {/* Decorative gradient blob */}
-                  <div
-                    className="pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-20"
-                    style={{ background: b.color }}
-                    aria-hidden="true"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* ─── Facilities ────────────────────────────────────── */}
-        <RevealSection id="facilities" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                {eyebrow('Fasilitas')}
-                <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                  Semua udah disiapin.
-                </h2>
-              </div>
-              <p className="max-w-md text-sm leading-7 text-slate-600 dark:text-slate-400">
-                Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang memorable!
-              </p>
-            </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {FACILITIES.map(f => (
-                <div
-                  key={f.title}
-                  className="rounded-[1.75rem] border bg-[#fcfaf6] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-                    {f.icon}
-                  </div>
-                  <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{f.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{f.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
+        <CommunityHero heroImageUrl={heroImageUrl} />
+        <CommunityBenefits />
+        <CommunityFacilities />
 
         {/* ─── Gallery / Instagram ───────────────────────────── */}
         <RevealSection id="gallery" className="px-4 py-20 sm:px-6" skeleton={<SkeletonGalleryAlbums />}>
@@ -992,110 +591,9 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </RevealSection>
         )}
 
-        {/* ─── How It Works ──────────────────────────────────── */}
-        <RevealSection id="how" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="text-center">
-              {eyebrow('Cara Daftar')}
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Gampang banget, cuma 4 langkah.
-              </h2>
-            </div>
-
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {STEPS.map((s, i) => (
-                <div key={s.num} className="relative">
-                  {i < STEPS.length - 1 && (
-                    <div className="absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block" />
-                  )}
-                  <div className="relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white">
-                      {s.num}
-                    </span>
-                    <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">{s.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* ─── Registration Form ─────────────────────────────── */}
-        <RevealSection id="register" intensity="strong" className="px-4 py-20 sm:px-6">
-          <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
-            <div className="max-w-md">
-              {eyebrow('Daftar Sekarang')}
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Yuk, gabung!
-              </h2>
-              <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">
-                Isi form di bawah dan ceritain tentang komunitas kamu. Tim kami akan review dan hubungi kamu secepatnya.
-              </p>
-              <div className="mt-8 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Proses review 3-5 hari kerja</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Semua fasilitas 100% gratis</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Terbuka untuk semua jenis komunitas</p>
-                </div>
-              </div>
-            </div>
-            <RegistrationForm />
-          </div>
-        </RevealSection>
-
-        {/* ─── FAQ ────────────────────────────────────────────── */}
-        <RevealSection id="faq" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
-          <div className="mx-auto max-w-5xl">
-            <div className="text-center">
-              {eyebrow('FAQ')}
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Pertanyaan yang sering muncul.
-              </h2>
-            </div>
-            <div className="mt-10 space-y-3">
-              {FAQS.map(([question, answer], index) => {
-                const isOpen = openFaq === index;
-                return (
-                  <div
-                    key={question}
-                    className="overflow-hidden rounded-[1.8rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)]"
-                  >
-                    <button
-                      type="button"
-                      id={`community-faq-trigger-${index}`}
-                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                      className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
-                      aria-expanded={isOpen}
-                      aria-controls={isOpen ? `community-faq-${index}` : undefined}
-                    >
-                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                      <ChevronDown className={`h-5 w-5 shrink-0 transition text-violet-500 dark:text-violet-400 ${isOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {isOpen && (
-                      <div id={`community-faq-${index}`} role="region" aria-labelledby={`community-faq-trigger-${index}`} className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">
-                        {answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </RevealSection>
+        <CommunitySteps />
+        <CommunityRegistrationForm />
+        <CommunityFAQ />
 
         {/* ─── Contact ───────────────────────────────────────── */}
         <RevealSection className="px-4 py-20 sm:px-6">

@@ -1,13 +1,14 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { CalendarDays, List, Kanban, Clock4, Radio, Clock3, CheckCircle2, ShieldCheck, FileText, Plus, Settings, ChevronDown } from 'lucide-react';
+import { List, Kanban, Clock4, Radio, Clock3 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
-import { StatCard } from './components/StatCard';
-import { SearchBar } from './components/SearchBar';
-import { AdminLoginModal } from './components/AdminLoginModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
+import { DashboardHeader } from './components/dashboard/DashboardHeader';
+import { DashboardStats } from './components/dashboard/DashboardStats';
+import { AdminBanner } from './components/dashboard/AdminBanner';
+import { DashboardModals } from './components/dashboard/DashboardModals';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -28,7 +29,7 @@ const CommunityRegistrationDetailModal = lazy(() => import('./components/Communi
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
-  { key: 'calendar', label: 'Kalender', icon: <CalendarDays className="h-3.5 w-3.5" /> },
+  { key: 'calendar', label: 'Kalender', icon: <List className="h-3.5 w-3.5" /> },
   { key: 'kanban',   label: 'Kanban',   icon: <Kanban  className="h-3.5 w-3.5" /> },
   { key: 'timeline', label: 'Timeline', icon: <Clock4  className="h-3.5 w-3.5" /> },
 ];
@@ -656,83 +657,21 @@ export default function App() {
       <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              {isAdmin ? 'Dashboard Event' : 'Jadwal Event'}
-            </h1>
-            <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-              {isAdmin ? 'Pantau & kelola semua acara' : 'Jadwal acara publik Metropolitan Mall Bekasi'}
-            </p>
-          </div>
-          {isAdmin && (
-            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-              <div className="w-full sm:w-[320px]">
-                <SearchBar value={searchQuery} onChange={setSearchQuery} />
-              </div>
-              <div className="relative shrink-0">
-                <button
-                  onClick={() => setShowSettingsMenu(prev => !prev)}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-slate-950 shrink-0"
-                  aria-label="Menu pengaturan"
-                  aria-expanded={showSettingsMenu}
-                  aria-haspopup="menu"
-                >
-                  <Settings className="h-4 w-4" />
-                  <ChevronDown className={`h-3 w-3 transition ${showSettingsMenu ? 'rotate-180' : ''}`} />
-                </button>
-                {showSettingsMenu && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowSettingsMenu(false)} />
-                    <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800 z-50">
-                      <button
-                        onClick={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
-                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
-                      >
-                        Landing Page
-                      </button>
-                      <button
-                        onClick={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
-                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
-                      >
-                        Album Gallery
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-              <button
-                onClick={handleOpenLetterPicker}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 shadow-sm transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
-              >
-                <FileText className="h-4 w-4" /> <span>Buat Surat</span>
-              </button>
-              <button
-                onClick={handleAddNew}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
-              >
-                <Plus className="h-4 w-4" /> <span>Tambah</span>
-              </button>
-            </div>
-          )}
-        </div>
+        <DashboardHeader
+          isAdmin={isAdmin}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          showSettingsMenu={showSettingsMenu}
+          onToggleSettingsMenu={() => setShowSettingsMenu(prev => !prev)}
+          onCloseSettingsMenu={() => setShowSettingsMenu(false)}
+          onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
+          onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
+          onOpenLetterPicker={handleOpenLetterPicker}
+          onAddNew={handleAddNew}
+        />
 
         {/* Admin Banner */}
-        {isAdmin && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 dark:border-violet-800/50 dark:bg-violet-900/20">
-            <ShieldCheck className="h-5 w-5 shrink-0 text-violet-600 dark:text-violet-300" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-violet-800 dark:text-violet-300">Mode Admin Aktif</p>
-              <p className="text-xs text-violet-600 dark:text-violet-400">Bisa tambah, edit, hapus acara</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-xl border border-violet-300 px-3 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-900/40 dark:focus-visible:ring-offset-slate-950"
-            >
-              Keluar
-            </button>
-          </div>
-        )}
+        {isAdmin && <AdminBanner onLogout={handleLogout} />}
 
         {isAdmin && (
           <Suspense fallback={<SectionFallback height="h-64" />}>
@@ -764,41 +703,7 @@ export default function App() {
         )}
 
         {/* Stat Cards -- admin only at top position */}
-        {isAdmin && (
-          <section id="summary" className="scroll-mt-32">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            <StatCard
-              icon={<CalendarDays className="h-5 w-5 text-white" />}
-              label="Total Acara"
-              value={visibleStats.total}
-              subtitle="keseluruhan"
-              gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            />
-            <StatCard
-              icon={<Radio className="h-5 w-5 text-white" />}
-              label="Sedang Berlangsung"
-              value={visibleStats.ongoing}
-              subtitle="sedang aktif"
-              gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
-              pulse
-            />
-            <StatCard
-              icon={<Clock3 className="h-5 w-5 text-white" />}
-              label="Akan Datang"
-              value={visibleStats.upcoming}
-              subtitle="akan datang"
-              gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
-            />
-            <StatCard
-              icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-              label="Selesai"
-              value={visibleStats.past}
-              subtitle="telah berlangsung"
-              gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
-            />
-            </div>
-          </section>
-        )}
+        {isAdmin && <DashboardStats stats={visibleStats} />}
 
         {/* Quarter Timeline */}
         {isAdmin && (
@@ -910,41 +815,7 @@ export default function App() {
         </section>
 
         {/* Stat Cards -- public at bottom position */}
-        {!isAdmin && (
-          <section id="summary" className="scroll-mt-32">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            <StatCard
-              icon={<CalendarDays className="h-5 w-5 text-white" />}
-              label="Total Acara"
-              value={visibleStats.total}
-              subtitle="acara terjadwal"
-              gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            />
-            <StatCard
-              icon={<Radio className="h-5 w-5 text-white" />}
-              label="Sedang Berlangsung"
-              value={visibleStats.ongoing}
-              subtitle="bisa dikunjungi sekarang"
-              gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
-              pulse
-            />
-            <StatCard
-              icon={<Clock3 className="h-5 w-5 text-white" />}
-              label="Akan Datang"
-              value={visibleStats.upcoming}
-              subtitle="jadwal berikutnya"
-              gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
-            />
-            <StatCard
-              icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-              label="Sudah Selesai"
-              value={visibleStats.past}
-              subtitle="arsip kegiatan"
-              gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
-            />
-            </div>
-          </section>
-        )}
+        {!isAdmin && <DashboardStats stats={visibleStats} />}
 
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
@@ -972,83 +843,59 @@ export default function App() {
       )}
 
       {/* Modals */}
-      <AdminLoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
+      <DashboardModals
+        showLoginModal={showLoginModal}
+        onCloseLoginModal={() => setShowLoginModal(false)}
         onLogin={handleLogin}
+        showCrudModal={showCrudModal}
+        onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); }}
+        onSave={handleSave}
+        onSaveBatch={handleSaveBatch}
+        editingEvent={editingEvent}
+        events={events}
+        showDraftModal={showDraftModal}
+        onCloseDraftModal={() => { setShowDraftModal(false); setEditingDraft(null); }}
+        onSaveDraft={handleSaveDraft}
+        editingDraft={editingDraft}
+        draftEvents={draftEvents}
+        showLetterPickerModal={showLetterPickerModal}
+        onCloseLetterPickerModal={() => setShowLetterPickerModal(false)}
+        publicEvents={publicEvents}
+        onSelectLetterEvent={handleSelectLetterEvent}
+        showLetterModal={showLetterModal}
+        onCloseLetterModal={() => { setShowLetterModal(false); setLetterInitialData(null); }}
+        letterInitialData={letterInitialData}
+        onSubmitLetter={handleSubmitLetter}
+        showThemeModal={showThemeModal}
+        onCloseThemeModal={() => { setShowThemeModal(false); setEditingTheme(null); }}
+        onSaveTheme={handleSaveTheme}
+        editingTheme={editingTheme}
+        showDeleteModal={showDeleteModal}
+        onCloseDeleteModal={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
+        deletingEvent={deletingEvent}
+        onDeleteConfirm={handleDeleteConfirm}
+        showDetailModal={showDetailModal}
+        onCloseDetailModal={() => { setShowDetailModal(false); setDetailEvent(null); }}
+        detailEvent={detailEvent}
+        onEdit={isAdmin ? handleEdit : undefined}
+        onDelete={isAdmin ? handleDeleteClick : undefined}
+        onDeleteSeries={isAdmin ? handleDeleteSeries : undefined}
+        isAdmin={isAdmin}
+        showInstagramSettings={showInstagramSettings}
+        onCloseInstagramSettings={() => setShowInstagramSettings(false)}
+        instagramPosts={instagramPosts}
+        onSaveInstagramPosts={handleSaveInstagramPosts}
+        heroImageUrl={heroImageUrl}
+        onSaveHeroImage={handleSaveHeroImage}
+        showAlbumManager={showAlbumManager}
+        onCloseAlbumManager={() => setShowAlbumManager(false)}
+        pastEvents={events.filter(e => e.status === 'past')}
+        annualThemes={annualThemes}
+        showRegDetail={showRegDetail}
+        onCloseRegDetail={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
+        selectedRegistration={selectedRegistration}
+        onUpdateRegStatus={handleUpdateRegStatus}
       />
-      <Suspense fallback={null}>
-        <EventCrudModal
-          isOpen={showCrudModal}
-          onClose={() => { setShowCrudModal(false); setEditingEvent(null); }}
-          onSave={handleSave}
-          onSaveBatch={handleSaveBatch}
-          editingEvent={editingEvent}
-          events={events}
-        />
-        <DraftCrudModal
-          isOpen={showDraftModal}
-          onClose={() => { setShowDraftModal(false); setEditingDraft(null); }}
-          onSave={handleSaveDraft}
-          editingDraft={editingDraft}
-          events={events}
-          draftEvents={draftEvents}
-        />
-        <EventLetterPickerModal
-          isOpen={showLetterPickerModal}
-          onClose={() => setShowLetterPickerModal(false)}
-          events={publicEvents}
-          onSelect={handleSelectLetterEvent}
-        />
-        <DraftLetterModal
-          isOpen={showLetterModal}
-          onClose={() => { setShowLetterModal(false); setLetterInitialData(null); }}
-          initialData={letterInitialData}
-          onSubmit={handleSubmitLetter}
-        />
-        <AnnualThemeCrudModal
-          isOpen={showThemeModal}
-          onClose={() => { setShowThemeModal(false); setEditingTheme(null); }}
-          onSave={handleSaveTheme}
-          editingTheme={editingTheme}
-        />
-        <DeleteConfirmModal
-          isOpen={showDeleteModal}
-          event={deletingEvent}
-          onClose={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
-          onConfirm={handleDeleteConfirm}
-        />
-        <EventDetailModal
-          isOpen={showDetailModal}
-          event={detailEvent}
-          onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
-          onEdit={isAdmin ? handleEdit : undefined}
-          onDelete={isAdmin ? handleDeleteClick : undefined}
-          onDeleteSeries={isAdmin ? handleDeleteSeries : undefined}
-          events={events}
-          isAdmin={isAdmin}
-        />
-        <InstagramSettingsModal
-          isOpen={showInstagramSettings}
-          onClose={() => setShowInstagramSettings(false)}
-          posts={instagramPosts}
-          onSave={handleSaveInstagramPosts}
-          heroImageUrl={heroImageUrl}
-          onSaveHeroImage={handleSaveHeroImage}
-        />
-        <AlbumManagerModal
-          isOpen={showAlbumManager}
-          onClose={() => setShowAlbumManager(false)}
-          pastEvents={events.filter(e => e.status === 'past')}
-          annualThemes={annualThemes}
-        />
-        <CommunityRegistrationDetailModal
-          isOpen={showRegDetail}
-          onClose={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
-          registration={selectedRegistration}
-          onUpdateStatus={handleUpdateRegStatus}
-        />
-      </Suspense>
 
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
