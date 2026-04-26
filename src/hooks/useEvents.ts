@@ -5,7 +5,11 @@ import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, delete
 import { supabase } from '../lib/supabase';
 
 function normalizeEvent(ev: EventItem): EventItem {
-  return recalculateStatuses([ev])[0];
+  const normalized = recalculateStatuses([ev])[0];
+  if (!normalized) {
+    return ev;
+  }
+  return normalized;
 }
 
 export function useEvents() {

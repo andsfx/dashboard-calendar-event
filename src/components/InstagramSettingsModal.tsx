@@ -70,8 +70,8 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
 
   const validate = (): boolean => {
     for (let i = 0; i < 3; i++) {
-      const url = postUrls[i].trim();
-      if (url && !url.includes('instagram.com')) {
+      const url = postUrls[i];
+      if (url && url.trim() && !url.includes('instagram.com')) {
         setError(`Post ${i + 1}: URL harus dari instagram.com`);
         return false;
       }

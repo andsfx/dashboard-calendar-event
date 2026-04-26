@@ -16,7 +16,10 @@ export function SectionNav({ items }: Props) {
 
   useEffect(() => {
     if (items.length === 0) return;
-    setActiveId(items[0].id);
+    const firstItem = items[0];
+    if (firstItem) {
+      setActiveId(firstItem.id);
+    }
 
     const sections = ids
       .map(id => document.getElementById(id))

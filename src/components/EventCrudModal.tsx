@@ -225,7 +225,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   const setDayTimeSlot = (index: number, jam: string) => {
     setForm(prev => {
       const dayTimeSlots = [...prev.dayTimeSlots];
-      dayTimeSlots[index] = { ...dayTimeSlots[index], jam };
+      const slot = dayTimeSlots[index];
+      if (slot) {
+        dayTimeSlots[index] = { ...slot, jam };
+      }
       return { ...prev, dayTimeSlots };
     });
   };
@@ -234,7 +237,11 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     if (index === 0) return;
     setForm(prev => {
       const dayTimeSlots = [...prev.dayTimeSlots];
-      dayTimeSlots[index] = { ...dayTimeSlots[index], jam: dayTimeSlots[index - 1].jam };
+      const currentSlot = dayTimeSlots[index];
+      const previousSlot = dayTimeSlots[index - 1];
+      if (currentSlot && previousSlot) {
+        dayTimeSlots[index] = { ...currentSlot, jam: previousSlot.jam };
+      }
       return { ...prev, dayTimeSlots };
     });
   };
@@ -357,7 +364,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : undefined,
     };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
-    const now = new Date().toISOString().split('T')[0];
+    const now = new Date().toISOString().split('T')[0] ?? '';
     const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
     const finalStatus = autoStatus;
 

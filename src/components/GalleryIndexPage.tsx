@@ -10,7 +10,10 @@ const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt'
 function formatThemeDate(dateStr: string): string {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-');
-  return `${parseInt(d)} ${MONTH_SHORT[parseInt(m) - 1]} ${y}`;
+  const day = d ? parseInt(d) : 0;
+  const monthIndex = m ? parseInt(m) - 1 : 0;
+  const monthName = MONTH_SHORT[monthIndex] ?? '';
+  return `${day} ${monthName} ${y ?? ''}`;
 }
 
 interface Props {

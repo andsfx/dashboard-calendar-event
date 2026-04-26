@@ -58,7 +58,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
   if (events.length === 0) return null;
 
   // Deduplicate recurring events: only show the next upcoming occurrence per series
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toISOString().split('T')[0] ?? '';
   const deduped = (() => {
     const seenGroups = new Set<string>();
     const result: EventItem[] = [];
@@ -73,7 +73,12 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         const upcoming = seriesEvents
           .filter(e => e.dateStr >= todayStr)
           .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
-        result.push(upcoming.length > 0 ? upcoming[0] : ev);
+        const nextEvent = upcoming[0];
+        if (nextEvent) {
+          result.push(nextEvent);
+        } else {
+          result.push(ev);
+        }
       } else {
         result.push(ev);
       }

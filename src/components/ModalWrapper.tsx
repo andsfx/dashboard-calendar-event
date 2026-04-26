@@ -91,14 +91,14 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
       const last = focusableElements[focusableElements.length - 1];
 
       if (e.shiftKey) {
-        if (document.activeElement === first) {
+        if (first && document.activeElement === first) {
           e.preventDefault();
-          last.focus();
+          last?.focus();
         }
       } else {
-        if (document.activeElement === last) {
+        if (last && document.activeElement === last) {
           e.preventDefault();
-          first.focus();
+          first?.focus();
         }
       }
     };

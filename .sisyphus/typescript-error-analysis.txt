@@ -1,0 +1,82 @@
+=== TYPESCRIPT ERROR ANALYSIS ===
+Generated: 2026-04-26
+Flag: noUncheckedIndexedAccess: true
+
+SUMMARY:
+- Total Errors: 54 (expected ~55, actual 54)
+- Affected Files: 16
+- Error Types: 4 distinct TypeScript error codes
+
+=== ERROR TYPE BREAKDOWN ===
+
+1. TS18048 (18 occurrences) - "X is possibly 'undefined'"
+   - Most common error type
+   - Occurs when accessing array/object elements without null checks
+   - Examples: 'today' is possibly 'undefined', 'last' is possibly 'undefined'
+
+2. TS2345 (16 occurrences) - "Argument of type 'string | undefined' is not assignable to parameter of type 'string'"
+   - Second most common
+   - Function calls with potentially undefined values
+   - Requires explicit undefined checks before passing to functions
+
+3. TS2322 (10 occurrences) - "Type 'X | undefined' is not assignable to type 'X'"
+   - Assignment/property type mismatches
+   - Occurs in object literals and variable assignments
+   - Examples: dateStr, date properties
+
+4. TS2532 (10 occurrences) - "Object is possibly 'undefined'"
+   - Direct object access without null checks
+   - Similar to TS18048 but for object property access
+
+=== FILES WITH MOST ERRORS ===
+
+High Priority (10+ errors):
+- src/components/QuarterTimeline.tsx: 12 errors
+- src/utils/eventUtils.ts: 11 errors
+
+Medium Priority (4-9 errors):
+- src/data/mockEvents.ts: 5 errors
+- src/components/EventCrudModal.tsx: 4 errors
+- src/utils/sheetsApi.ts: 4 errors
+
+Low Priority (1-3 errors):
+- src/components/FeaturedEvents.tsx: 2 errors
+- src/components/FilterBar.tsx: 2 errors
+- src/components/GalleryAlbumPage.tsx: 2 errors
+- src/components/GalleryIndexPage.tsx: 2 errors
+- src/components/ModalWrapper.tsx: 2 errors
+- src/components/PublicLandingPage.tsx: 2 errors
+- src/utils/eventInput.ts: 2 errors
+- src/components/EventTable.tsx: 1 error
+- src/components/InstagramSettingsModal.tsx: 1 error
+- src/components/SectionNav.tsx: 1 error
+- src/hooks/useEvents.ts: 1 error
+
+=== COMMON PATTERNS ===
+
+1. Array Access Pattern:
+   - array.split(',')[0] → potentially undefined
+   - dates[0] → potentially undefined
+   - Fix: Use optional chaining or explicit checks
+
+2. Object Property Access:
+   - obj[key] → potentially undefined
+   - Fix: Use optional chaining or default values
+
+3. Date/String Manipulation:
+   - today variable from array access
+   - dateStr from split operations
+   - Fix: Add fallback values or guards
+
+=== RECOMMENDED FIX STRATEGY ===
+
+Phase 1: High-impact files (QuarterTimeline, eventUtils)
+Phase 2: Data layer (mockEvents, sheetsApi)
+Phase 3: Component layer (remaining components)
+Phase 4: Utilities and hooks
+
+Common fixes:
+- Optional chaining: obj?.prop
+- Nullish coalescing: value ?? defaultValue
+- Type guards: if (value !== undefined) { ... }
+- Array access: array.at(0) or array[0] with guard

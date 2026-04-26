@@ -14,7 +14,9 @@ const MONTH_ABBR = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt',
 
 function formatDate(str: string) {
   const [, m, d] = str.split('-');
-  return `${d} ${MONTH_ABBR[parseInt(m) - 1]}`;
+  const monthIndex = parseInt(m ?? '1') - 1;
+  const monthName = MONTH_ABBR[monthIndex];
+  return `${d ?? ''} ${monthName ?? ''}`;
 }
 
 function calcProgress(start: string, end: string, today: string): number {
@@ -27,11 +29,14 @@ function calcProgress(start: string, end: string, today: string): number {
 }
 
 export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditTheme, onDeleteTheme }: Props) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0] ?? '';
   const [selectedThemeId, setSelectedThemeId] = useState('');
 
   const activeTheme = useMemo(
-    () => themes.find(t => today >= t.dateStart && today <= t.dateEnd) ?? themes[0],
+    () => {
+      const found = themes.find(t => today >= t.dateStart && today <= t.dateEnd);
+      return found ?? themes[0];
+    },
     [themes, today]
   );
 
@@ -42,7 +47,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
   }, [activeTheme]);
 
   const selectedTheme = themes.find(t => t.id === selectedThemeId) ?? activeTheme;
-  const themeYear = themes[0]?.dateStart?.slice(0, 4) ?? new Date().getFullYear().toString();
+  const firstTheme = themes[0];
+  const themeYear = firstTheme?.dateStart?.slice(0, 4) ?? new Date().getFullYear().toString();
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">

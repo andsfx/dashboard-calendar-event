@@ -65,12 +65,14 @@ function CustomDropdown({
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         const next = (currentIndex + 1) % options.length;
-        onChange(options[next].key);
+        const nextOption = options[next];
+        if (nextOption) onChange(nextOption.key);
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault();
         const prev = (currentIndex - 1 + options.length) % options.length;
-        onChange(options[prev].key);
+        const prevOption = options[prev];
+        if (prevOption) onChange(prevOption.key);
       }
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();

@@ -141,23 +141,27 @@ function parseMultiDayDate(tanggalStr: string): { dateStr: string; dateEnd?: str
   const sameMonthMatch = tanggalStr.match(/(\d{1,2})-(\d{1,2})\s+(\w+)\s+(\d{4})/);
   if (sameMonthMatch) {
     const [, startDay, endDay, monthName, year] = sameMonthMatch;
-    const month = MONTH_NAMES.indexOf(monthName) + 1;
-    return {
-      dateStr: `${year}-${String(month).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
-      dateEnd: `${year}-${String(month).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
-    };
+    if (startDay && endDay && monthName && year) {
+      const month = MONTH_NAMES.indexOf(monthName) + 1;
+      return {
+        dateStr: `${year}-${String(month).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
+        dateEnd: `${year}-${String(month).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
+      };
+    }
   }
   
   // Format 2: "12 Juni - 15 Juli 2025" (beda bulan)
   const diffMonthMatch = tanggalStr.match(/(\d{1,2})\s+(\w+)\s*-\s*(\d{1,2})\s+(\w+)\s+(\d{4})/);
   if (diffMonthMatch) {
     const [, startDay, startMonthName, endDay, endMonthName, year] = diffMonthMatch;
-    const startMonth = MONTH_NAMES.indexOf(startMonthName) + 1;
-    const endMonth = MONTH_NAMES.indexOf(endMonthName) + 1;
-    return {
-      dateStr: `${year}-${String(startMonth).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
-      dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
-    };
+    if (startDay && startMonthName && endDay && endMonthName && year) {
+      const startMonth = MONTH_NAMES.indexOf(startMonthName) + 1;
+      const endMonth = MONTH_NAMES.indexOf(endMonthName) + 1;
+      return {
+        dateStr: `${year}-${String(startMonth).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
+        dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
+      };
+    }
   }
   
   // Format 3: Single day (existing format) - return as is
@@ -258,7 +262,7 @@ async function postAction<T>(action: string, payload: Record<string, unknown>, p
 }
 
 function getComputedStatus(dateStr: string): EventItem['status'] {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0] ?? '';
   if (dateStr < today) return 'past';
   if (dateStr === today) return 'ongoing';
   return 'upcoming';

@@ -351,7 +351,7 @@ export function PublicLandingPage({
   }, []);
 
   const activeTheme = useMemo(() => themes.find(theme => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0] ?? '';
     return today >= theme.dateStart && today <= theme.dateEnd;
   }) ?? themes[0] ?? null, [themes]);
 

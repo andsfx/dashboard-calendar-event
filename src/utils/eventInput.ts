@@ -28,8 +28,10 @@ function deriveDateFields(dateStr: string | undefined): Pick<EventItem, 'tanggal
   const date = parseIsoDateLocal(dateStr);
   if (!date) return null;
 
-  const day = HARI[date.getDay()];
-  const month = BULAN[date.getMonth()];
+  const dayIndex = date.getDay();
+  const monthIndex = date.getMonth();
+  const day = HARI[dayIndex] ?? '';
+  const month = BULAN[monthIndex] ?? '';
   const tanggal = `${date.getDate()} ${month} ${date.getFullYear()}`;
 
   return { tanggal, day, month };

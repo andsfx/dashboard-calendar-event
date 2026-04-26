@@ -2,18 +2,20 @@ import { EventItem, AnnualTheme, DayTimeSlot } from '../types';
 import { getStatus } from '../utils/eventUtils';
 
 const today = new Date();
-const fmt = (d: Date) => d.toISOString().split('T')[0];
+const fmt = (d: Date) => d.toISOString().split('T')[0] ?? '';
 const addDays = (d: Date, n: number) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 function makeDate(d: Date) {
+  const dayIndex = d.getDay();
+  const monthIndex = d.getMonth();
   return {
     dateStr: fmt(d),
-    day: DAY_ID[d.getDay()],
-    tanggal: `${d.getDate()} ${MONTH_ID[d.getMonth()]} ${d.getFullYear()}`,
-    month: MONTH_ID[d.getMonth()],
+    day: DAY_ID[dayIndex] ?? '',
+    tanggal: `${d.getDate()} ${MONTH_ID[monthIndex] ?? ''} ${d.getFullYear()}`,
+    month: MONTH_ID[monthIndex] ?? '',
   };
 }
 
@@ -84,12 +86,15 @@ function multiDayEv(
   
   // Format tanggal range
   let tanggal: string;
+  const startMonthName = MONTH_ID[startDate.getMonth()] ?? '';
+  const endMonthName = MONTH_ID[endDate.getMonth()] ?? '';
+  
   if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
     // Sama bulan
-    tanggal = `${startDate.getDate()}-${endDate.getDate()} ${MONTH_ID[startDate.getMonth()]} ${startDate.getFullYear()}`;
+    tanggal = `${startDate.getDate()}-${endDate.getDate()} ${startMonthName} ${startDate.getFullYear()}`;
   } else {
     // Beda bulan
-    tanggal = `${startDate.getDate()} ${MONTH_ID[startDate.getMonth()]} ${startDate.getFullYear()} - ${endDate.getDate()} ${MONTH_ID[endDate.getMonth()]} ${endDate.getFullYear()}`;
+    tanggal = `${startDate.getDate()} ${startMonthName} ${startDate.getFullYear()} - ${endDate.getDate()} ${endMonthName} ${endDate.getFullYear()}`;
   }
   
   const dayTimeSlots = generateDayTimeSlots(startDate, endDate, jam);

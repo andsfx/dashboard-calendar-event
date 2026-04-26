@@ -31,8 +31,9 @@ function getEventModelBadge(eventModel: EventItem['eventModel']) {
 
 function getMonthLabel(dateStr: string, count: number) {
   const [year, month] = dateStr.split('-');
-  const monthName = MONTH_NAMES[parseInt(month, 10) - 1] ?? month;
-  return `${monthName} ${year} • ${count} acara`;
+  const monthIndex = month ? parseInt(month, 10) - 1 : 0;
+  const monthName = MONTH_NAMES[monthIndex] ?? month ?? '';
+  return `${monthName} ${year ?? ''} • ${count} acara`;
 }
 
 function exportCSV(events: EventItem[]) {

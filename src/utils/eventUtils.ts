@@ -57,7 +57,7 @@ export function sortEvents(events: EventItem[]): EventItem[] {
 
 function getTimeSortValue(jam: string) {
   const match = jam?.match(/(\d{1,2})[:.](\d{2})/);
-  if (!match) return Number.MAX_SAFE_INTEGER;
+  if (!match || !match[1] || !match[2]) return Number.MAX_SAFE_INTEGER;
   return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
 }
 
@@ -89,11 +89,17 @@ export function groupByDate(events: EventItem[]): Record<string, EventItem[]> {
       const dates = getDateRange(e.dateStr, e.dateEnd);
       for (const date of dates) {
         if (!acc[date]) acc[date] = [];
-        acc[date].push(e);
+        const dateEvents = acc[date];
+        if (dateEvents) {
+          dateEvents.push(e);
+        }
       }
     } else {
       if (!acc[e.dateStr]) acc[e.dateStr] = [];
-      acc[e.dateStr].push(e);
+      const dateEvents = acc[e.dateStr];
+      if (dateEvents) {
+        dateEvents.push(e);
+      }
     }
     return acc;
   }, {} as Record<string, EventItem[]>);
@@ -227,16 +233,21 @@ export function getMultiDayJamDisplay(event: EventItem): string {
   
   if (slots.length === 0) return '';
   
+  const firstSlot = slots[0];
+  if (!firstSlot) return '';
+  
   // Cek apakah semua jam sama
-  const allSame = slots.every(s => s.jam === slots[0].jam);
+  const allSame = slots.every(s => s.jam === firstSlot.jam);
   
   if (allSame) {
-    return `${slots[0].jam} (setiap hari)`;
+    return `${firstSlot.jam} (setiap hari)`;
   }
   
   // Jam berbeda: tampilkan hari pertama dan terakhir
-  const firstJam = slots[0].jam;
-  const lastJam = slots[slots.length - 1].jam;
+  const firstJam = firstSlot.jam;
+  const lastSlot = slots[slots.length - 1];
+  const lastJam = lastSlot?.jam;
+  if (!lastJam) return `Hari 1: ${firstJam}`;
   return `Hari 1: ${firstJam} · Hari ${duration}: ${lastJam}`;
 }
 
@@ -291,14 +302,14 @@ export function getStatus(dateStr: string, jam: string, dateEnd?: string): Event
 
   try {
     const timeMatch = jam.match(/(\d{1,2})[:.](\d{2})/);
-    if (timeMatch) {
+    if (timeMatch && timeMatch[1] && timeMatch[2]) {
       const startHour = parseInt(timeMatch[1]);
       const startMin = parseInt(timeMatch[2]);
       const startTime = new Date(today);
       startTime.setHours(startHour, startMin, 0);
       
       const endMatch = jam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
-      if (endMatch) {
+      if (endMatch && endMatch[1] && endMatch[2]) {
         const endHour = parseInt(endMatch[1]);
         const endMin = parseInt(endMatch[2]);
         const endTime = new Date(today);
