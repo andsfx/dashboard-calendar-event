@@ -134,10 +134,8 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
     let cancelled = false;
     setIsLoading(true);
     setFetchError(false);
-    console.log('Fetching album with slug:', slug);
     fetchAlbumBySlug(slug)
       .then((result) => {
-        console.log('Album fetch result:', result);
         if (cancelled) return;
         if (result) {
           setAlbum(result.album);

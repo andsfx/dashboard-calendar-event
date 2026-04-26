@@ -595,10 +595,6 @@ export default function App() {
       {/* Community Landing Page — default route */}
       <Route path="/" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          {(() => {
-            console.log('Albums passed to landing:', landingAlbums);
-            return null;
-          })()}
           <CommunityLandingPage
             isDark={isDark}
             onToggleDark={toggleDark}

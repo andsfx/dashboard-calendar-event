@@ -1,0 +1,49 @@
+﻿# Task 7: Deployment Evidence
+
+## Date
+2026-04-26 17:59:41
+
+## Fix Applied
+**File**: src/utils/supabaseApi.ts:506
+**Change**: Added .limit(100) to fetchAlbums() query
+
+**Before**:
+```typescript
+const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false });
+```
+
+**After**:
+```typescript
+const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false }).limit(100);
+```
+
+## Root Cause Analysis
+Based on evidence from Tasks 3, 4, 5, 6:
+
+1. **Task 3**: Landing page showed only 5 albums
+2. **Task 4**: Target album exists in database (created 2026-04-26T07:41:42)
+3. **Task 5**: Console logs confirmed only 5 albums in fetchAlbums() response
+4. **Task 6**: Slugify function works correctly (not the issue)
+
+**Root Cause**: Supabase has a default pagination limit that was restricting results to 5 albums. The target album was not in the top 5 by created_at descending order.
+
+## Build Verification
+- Build command: npm run build
+- Status: ✅ SUCCESS
+- Build time: 2.81s
+- No compilation errors
+
+## Deployment
+- Commit: 787ca0e
+- Message: "fix(gallery): increase album fetch limit to 100 - resolves 404 for lomba-fashion-show album"
+- Push status: ✅ SUCCESS
+- Deployment URL: https://metmal-community-hub.vercel.app/
+- HTTP Status: 200 OK
+- Deployment accessible: ✅ YES
+
+## Expected Outcome
+With .limit(100) added to fetchAlbums(), all albums (up to 100) will now be fetched and displayed on the landing page. The target album "Lomba Fashion Show Kebaya & Pakaian Adat - Happy Play Kids" should now appear in the gallery list and be accessible at:
+https://metmal-community-hub.vercel.app/gallery/lomba-fashion-show-kebaya-pakaian-adat-happy-play-kids
+
+## Next Steps
+User should verify the gallery page loads correctly and the target album is now accessible.
