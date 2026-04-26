@@ -503,7 +503,7 @@ function slugify(text: string): string {
 }
 
 export async function fetchAlbums(): Promise<PhotoAlbum[]> {
-  const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false });
+  const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false }).limit(100);
   if (error) throw new SupabaseApiError(`Fetch albums failed: ${error.message}`);
 
   // Get photo counts per album

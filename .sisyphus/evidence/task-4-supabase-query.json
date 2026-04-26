@@ -1,0 +1,37 @@
+{
+  "query": {
+    "url": "https://xddqinydbuargyfseycw.supabase.co/rest/v1/photo_albums?slug=eq.lomba-fashion-show-kebaya-pakaian-adat-happy-play-kids",
+    "method": "GET",
+    "headers": {
+      "apikey": "sb_publishable_ujBcyIJnqq91hmwfGUbe0w_E4ChLVVN",
+      "Authorization": "Bearer sb_publishable_ujBcyIJnqq91hmwfGUbe0w_E4ChLVVN"
+    }
+  },
+  "response": {
+    "status": 200,
+    "data": [
+      {
+        "id": "alb_bc27d24478214ae5b097c99cf1c2b77f",
+        "name": "Lomba Fashion Show Kebaya & Pakaian Adat - Happy Play Kids",
+        "slug": "lomba-fashion-show-kebaya-pakaian-adat-happy-play-kids",
+        "description": "",
+        "event_date": "2026-04-26",
+        "cover_photo_url": "https://pub-c0103529dbd64355bbd0bc83c0aaf37c.r2.dev/gallery/1777189320232_12jo1.JPG",
+        "sort_order": 0,
+        "created_at": "2026-04-26T07:41:42.437128+00:00",
+        "event_id": "evt_c5764765161b",
+        "lokasi": "Panggung Funworld Lt. 3",
+        "theme_id": "thm_fa07f4cfd3c3"
+      }
+    ]
+  },
+  "verification": {
+    "http_status": "200 OK",
+    "album_exists": true,
+    "album_id_matches": true,
+    "expected_id": "alb_bc27d24478214ae5b097c99cf1c2b77f",
+    "actual_id": "alb_bc27d24478214ae5b097c99cf1c2b77f",
+    "rls_blocking": false,
+    "notes": "Album is publicly accessible via anon key. No RLS policies blocking access."
+  }
+}
