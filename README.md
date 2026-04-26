@@ -47,6 +47,23 @@ npm run dev
 npm run build
 ```
 
+## Testing
+
+```bash
+# Run tests in watch mode
+npm run test
+
+# Run tests with UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+Current test coverage:
+- Unit tests: eventInput, eventDateTime utilities
+- Component tests: StatCard
+
 ## Konfigurasi
 
 Buat file `.env` dengan:
