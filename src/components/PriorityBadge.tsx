@@ -1,10 +1,12 @@
+import { memo } from 'react';
+
 const CONFIG = {
   high:   { label: 'Prioritas Tinggi', className: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' },
   medium: { label: 'Sedang',           className: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
   low:    { label: 'Rendah',           className: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' },
 };
 
-export function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low' }) {
+export const PriorityBadge = memo(function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low' }) {
   const cfg = CONFIG[priority];
   return (
     <span
@@ -14,4 +16,4 @@ export function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low
       {cfg.label}
     </span>
   );
-}
+});

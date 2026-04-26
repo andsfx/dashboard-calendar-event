@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { DraftProgress } from '../types';
 
 const CONFIG: Record<DraftProgress, { label: string; className: string; dot: string }> = {
@@ -18,7 +19,7 @@ const CONFIG: Record<DraftProgress, { label: string; className: string; dot: str
   },
 };
 
-export function DraftProgressBadge({ progress }: { progress: DraftProgress }) {
+export const DraftProgressBadge = memo(function DraftProgressBadge({ progress }: { progress: DraftProgress }) {
   const cfg = CONFIG[progress];
 
   return (
@@ -30,4 +31,4 @@ export function DraftProgressBadge({ progress }: { progress: DraftProgress }) {
       {cfg.label}
     </span>
   );
-}
+});

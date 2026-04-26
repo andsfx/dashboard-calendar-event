@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { EventStatus } from '../types';
 
 const CONFIG: Record<EventStatus, { label: string; className: string; dotClass: string }> = {
@@ -28,7 +29,7 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-export function StatusBadge({ status, size = 'md' }: Props) {
+export const StatusBadge = memo(function StatusBadge({ status, size = 'md' }: Props) {
   const cfg = CONFIG[status];
   return (
     <span
@@ -39,4 +40,4 @@ export function StatusBadge({ status, size = 'md' }: Props) {
       {cfg.label}
     </span>
   );
-}
+});

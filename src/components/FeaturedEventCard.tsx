@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Clock, MapPin, Users, Zap, Sparkles, CalendarDays } from 'lucide-react';
 import { EventItem, AnnualTheme } from '../types';
 import { useEffect, useState } from 'react';
@@ -43,7 +44,7 @@ function formatDateShort(dateStr: string): string {
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-export default function FeaturedEventCard({ events, annualThemes }: FeaturedEventCardProps) {
+const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes }: FeaturedEventCardProps) {
   const ongoingEvents = events.filter(e => e.status === 'ongoing');
   const activeThemes = getActiveThemes(annualThemes);
   const [progress, setProgress] = useState<Record<string, number>>({});
@@ -193,4 +194,6 @@ export default function FeaturedEventCard({ events, annualThemes }: FeaturedEven
       )}
     </div>
   );
-}
+});
+
+export default FeaturedEventCard;

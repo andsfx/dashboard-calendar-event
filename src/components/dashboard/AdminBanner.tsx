@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { ShieldCheck } from 'lucide-react';
 
 interface AdminBannerProps {
   onLogout: () => void;
 }
 
-export function AdminBanner({ onLogout }: AdminBannerProps) {
+export const AdminBanner = memo(function AdminBanner({ onLogout }: AdminBannerProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 dark:border-violet-800/50 dark:bg-violet-900/20">
       <ShieldCheck className="h-5 w-5 shrink-0 text-violet-600 dark:text-violet-300" />
@@ -20,4 +21,4 @@ export function AdminBanner({ onLogout }: AdminBannerProps) {
       </button>
     </div>
   );
-}
+});

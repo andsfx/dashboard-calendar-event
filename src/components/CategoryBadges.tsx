@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { CategoryBadge } from './CategoryBadge';
 
-export function CategoryBadges({ categories, maxVisible }: { categories: string[]; maxVisible?: number }) {
+export const CategoryBadges = memo(function CategoryBadges({ categories, maxVisible }: { categories: string[]; maxVisible?: number }) {
   const uniqueCategories = Array.from(new Set(categories.filter(Boolean)));
   const visible = typeof maxVisible === 'number' ? uniqueCategories.slice(0, maxVisible) : uniqueCategories;
   const remaining = uniqueCategories.length - visible.length;
@@ -22,4 +23,4 @@ export function CategoryBadges({ categories, maxVisible }: { categories: string[
       )}
     </>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -38,7 +38,7 @@ function useCountUp(target: number, duration = 800, delay = 0) {
   return count;
 }
 
-export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pulse = false, trend }: StatCardProps) {
+export const StatCard = memo(function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pulse = false, trend }: StatCardProps) {
   const displayed = useCountUp(value, 900, delay);
 
   return (
@@ -70,4 +70,4 @@ export function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pu
       </div>
     </div>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CalendarDays, Radio, Clock3, CheckCircle2 } from 'lucide-react';
 import { StatCard } from '../StatCard';
 
@@ -10,7 +11,7 @@ interface DashboardStatsProps {
   };
 }
 
-export function DashboardStats({ stats }: DashboardStatsProps) {
+export const DashboardStats = memo(function DashboardStats({ stats }: DashboardStatsProps) {
   return (
     <section id="summary" className="scroll-mt-32">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -46,4 +47,4 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
       </div>
     </section>
   );
-}
+});

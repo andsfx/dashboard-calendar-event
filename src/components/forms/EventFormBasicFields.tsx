@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface EventFormBasicFieldsProps {
   dateStr: string;
   jam: string;
@@ -12,7 +14,7 @@ interface EventFormBasicFieldsProps {
   isDraft?: boolean;
 }
 
-export function EventFormBasicFields({
+export const EventFormBasicFields = memo(function EventFormBasicFields({
   dateStr,
   jam,
   acara,
@@ -103,4 +105,4 @@ export function EventFormBasicFields({
       </div>
     </>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { X } from 'lucide-react';
 
 const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
@@ -21,7 +22,7 @@ interface EventFormDetailsFieldsProps {
   isDraft?: boolean;
 }
 
-export function EventFormDetailsFields({
+export const EventFormDetailsFields = memo(function EventFormDetailsFields({
   eo,
   pic,
   phone,
@@ -155,4 +156,4 @@ export function EventFormDetailsFields({
       </div>
     </>
   );
-}
+});

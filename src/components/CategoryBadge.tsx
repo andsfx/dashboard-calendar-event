@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 
 // Categories that need dark text for WCAG AA contrast (4.5:1) with their background color
@@ -10,7 +11,7 @@ const DARK_TEXT_CATEGORIES = new Set([
   'Seni',       // #f97316 (orange)
 ]);
 
-export function CategoryBadge({ category }: { category: string }) {
+export const CategoryBadge = memo(function CategoryBadge({ category }: { category: string }) {
   const color = CATEGORY_COLORS[category] ?? '#6366f1';
   const useDarkText = DARK_TEXT_CATEGORIES.has(category);
   return (
@@ -21,4 +22,4 @@ export function CategoryBadge({ category }: { category: string }) {
       {category}
     </span>
   );
-}
+});
