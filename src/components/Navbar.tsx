@@ -1,4 +1,5 @@
-import { Moon, Sun, CalendarDays, LogOut, Shield, Users } from 'lucide-react';
+import { Moon, Sun, CalendarDays, LogOut, Shield, Users, Crown } from 'lucide-react';
+import type { AuthUser } from '../types/auth';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
 
@@ -6,12 +7,45 @@ interface Props {
   isDark: boolean;
   onToggleDark: () => void;
   isAdmin: boolean;
+  isSuperadmin?: boolean;
+  isLegacy?: boolean;
+  user?: AuthUser | null;
   onLoginClick: () => void;
   onLogout: () => void;
   ongoingCount?: number;
 }
 
-export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
+function RoleBadge({ user, isLegacy, isSuperadmin }: { user?: AuthUser | null; isLegacy?: boolean; isSuperadmin?: boolean }) {
+  if (isSuperadmin && user) {
+    return (
+      <span className="hidden items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-300 sm:flex">
+        <Crown className="h-3 w-3" />
+        <span className="max-w-[100px] truncate">{user.display_name}</span>
+      </span>
+    );
+  }
+
+  if (user) {
+    return (
+      <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-300 sm:flex">
+        <Shield className="h-3 w-3" />
+        <span className="max-w-[100px] truncate">{user.display_name}</span>
+      </span>
+    );
+  }
+
+  if (isLegacy) {
+    return (
+      <span className="hidden items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-300 sm:flex">
+        <Shield className="h-3 w-3" /> Admin
+      </span>
+    );
+  }
+
+  return null;
+}
+
+export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, user, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
   return (
     <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/85">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
@@ -37,9 +71,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, onLogout, 
         <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
           {isAdmin ? (
             <>
-              <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-300 sm:flex">
-                <Shield className="h-3 w-3" /> Admin
-              </span>
+              <RoleBadge user={user} isLegacy={isLegacy} isSuperadmin={isSuperadmin} />
               <button
                 onClick={onLogout}
                 title="Keluar dari mode admin"

@@ -13,11 +13,14 @@ const InstagramSettingsModal = lazy(() => import('../InstagramSettingsModal').th
 const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
 const CommunityRegistrationDetailModal = lazy(() => import('../CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 
+import type { LoginResult } from '../../types/auth';
+
 interface DashboardModalsProps {
   // Login modal
   showLoginModal: boolean;
   onCloseLoginModal: () => void;
-  onLogin: (pw: string) => Promise<{ ok: boolean; error?: string }>;
+  onEmailLogin: (email: string, password: string) => Promise<LoginResult>;
+  onLegacyLogin: (password: string) => Promise<LoginResult>;
 
   // CRUD modal
   showCrudModal: boolean;
@@ -91,7 +94,8 @@ interface DashboardModalsProps {
 export function DashboardModals({
   showLoginModal,
   onCloseLoginModal,
-  onLogin,
+  onEmailLogin,
+  onLegacyLogin,
   showCrudModal,
   onCloseCrudModal,
   onSave,
@@ -146,7 +150,8 @@ export function DashboardModals({
       <AdminLoginModal
         isOpen={showLoginModal}
         onClose={onCloseLoginModal}
-        onLogin={onLogin}
+        onEmailLogin={onEmailLogin}
+        onLegacyLogin={onLegacyLogin}
       />
       <Suspense fallback={null}>
         <EventCrudModal

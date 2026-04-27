@@ -12,6 +12,7 @@ import { DashboardModals } from './components/dashboard/DashboardModals';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
+import { useAuth } from './hooks/useAuth';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId } from './utils/eventUtils';
 import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
@@ -63,7 +64,8 @@ export default function App() {
     return dark;
   });
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const auth = useAuth();
+  const isAdmin = auth.isAdmin;
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
@@ -197,52 +199,10 @@ export default function App() {
     });
   }, []);
 
-  const handleLogin = useCallback(async (pw: string) => {
-    try {
-      const response = await fetch('/api/admin-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password: pw }),
-      });
-
-      const contentType = response.headers.get('content-type') || '';
-      let result: { success?: boolean; error?: string } | null = null;
-
-      if (contentType.includes('application/json')) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Admin login returned non-JSON response:', text);
-      }
-
-      if (response.ok && result?.success) {
-        setIsAdmin(true);
-        return { ok: true };
-      }
-
-      if (response.status === 401) {
-        return { ok: false, error: result?.error || 'Password salah. Coba lagi.' };
-      }
-
-      showToast('error', 'Login admin gagal', result?.error || 'Server auth sedang bermasalah. Periksa konfigurasi API admin lalu coba lagi.');
-      return { ok: false, error: 'Server auth error. Coba lagi sebentar.' };
-    } catch (error) {
-      console.error('Admin login error:', error);
-      showToast('error', 'Login admin gagal', 'Permintaan login tidak berhasil diproses. Cek server lokal Anda lalu coba lagi.');
-      return { ok: false, error: 'Server auth error. Coba lagi sebentar.' };
-    }
-  }, [showToast]);
-
-  const handleLogout = useCallback(() => {
-    fetch('/api/admin-logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(error => console.error('Admin logout error:', error)).finally(() => {
-      setIsAdmin(false);
-      showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
-    });
-  }, [showToast]);
+  const handleLogout = useCallback(async () => {
+    await auth.logout();
+    showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
+  }, [auth, showToast]);
 
   // CRUD
   const handleAddNew = useCallback(() => {
@@ -643,6 +603,9 @@ export default function App() {
         isDark={isDark}
         onToggleDark={toggleDark}
         isAdmin={isAdmin}
+        isSuperadmin={auth.isSuperadmin}
+        isLegacy={auth.isLegacy}
+        user={auth.user}
         onLoginClick={() => setShowLoginModal(true)}
         onLogout={handleLogout}
         ongoingCount={visibleStats.ongoing}
@@ -846,7 +809,8 @@ export default function App() {
       <DashboardModals
         showLoginModal={showLoginModal}
         onCloseLoginModal={() => setShowLoginModal(false)}
-        onLogin={handleLogin}
+        onEmailLogin={auth.login}
+        onLegacyLogin={auth.legacyLogin}
         showCrudModal={showCrudModal}
         onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); }}
         onSave={handleSave}
