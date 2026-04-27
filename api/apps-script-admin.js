@@ -1,4 +1,4 @@
-import { requireAdminSession } from './_lib/auth.js';
+import { requireAuth } from './_lib/auth.js';
 
 const ALLOWED_ACTIONS = new Set([
   'readDrafts',
@@ -11,7 +11,8 @@ const ALLOWED_ACTIONS = new Set([
 ]);
 
 export default async function handler(req, res) {
-  if (!requireAdminSession(req, res)) return;
+  const authInfo = await requireAuth(req, res, ['superadmin', 'admin']);
+  if (!authInfo) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }

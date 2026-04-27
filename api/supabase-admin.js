@@ -1,18 +1,10 @@
-import { requireAdminSession } from './_lib/auth.js';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-function getSupabase() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Supabase belum dikonfigurasi');
-  }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-}
+import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
 
 export default async function handler(req, res) {
-  if (!requireAdminSession(req, res)) return;
+  // Dual auth: Supabase Auth first, legacy cookie fallback
+  const authInfo = await requireAuth(req, res, ['superadmin', 'admin']);
+  if (!authInfo) return; // 401/403 already sent
+
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
@@ -23,7 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const sb = getSupabase();
+    const sb = getServiceSupabase();
     let result;
 
     switch (action) {
@@ -32,18 +24,21 @@ export default async function handler(req, res) {
         const { data, error } = await sb.from('events').insert(req.body.data).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_event', 'event', data.id, { acara: req.body.data?.acara }, req);
         break;
       }
       case 'updateEvent': {
         const { error } = await sb.from('events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'update_event', 'event', req.body.id, { fields: Object.keys(req.body.data || {}) }, req);
         break;
       }
       case 'deleteEvent': {
         const { error } = await sb.from('events').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'delete_event', 'event', req.body.id, null, req);
         break;
       }
       case 'batchCreateEvents': {
@@ -56,6 +51,7 @@ export default async function handler(req, res) {
         if (error) throw error;
         const results = (data || []).map(r => ({ id: r.id }));
         result = { success: true, results, count: results.length };
+        await logActivity(authInfo, 'batch_create_events', 'event', null, { count: results.length }, req);
         break;
       }
       case 'deleteRecurringSeries': {
@@ -67,6 +63,7 @@ export default async function handler(req, res) {
         const { data, error } = await sb.from('events').delete().eq('recurrence_group_id', groupId).select('id');
         if (error) throw error;
         result = { success: true, deletedCount: (data || []).length };
+        await logActivity(authInfo, 'delete_recurring_series', 'event', groupId, { deletedCount: (data || []).length }, req);
         break;
       }
 
@@ -75,18 +72,21 @@ export default async function handler(req, res) {
         const { data, error } = await sb.from('annual_themes').insert(req.body.data).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_theme', 'theme', data.id, { name: req.body.data?.name }, req);
         break;
       }
       case 'updateTheme': {
         const { error } = await sb.from('annual_themes').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'update_theme', 'theme', req.body.id, null, req);
         break;
       }
       case 'deleteTheme': {
         const { error } = await sb.from('annual_themes').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'delete_theme', 'theme', req.body.id, null, req);
         break;
       }
 
@@ -101,12 +101,14 @@ export default async function handler(req, res) {
         const { data, error } = await sb.from('draft_events').insert(req.body.data).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_draft', 'draft', data.id, { acara: req.body.data?.acara }, req);
         break;
       }
       case 'updateDraft': {
         const { error } = await sb.from('draft_events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'update_draft', 'draft', req.body.id, null, req);
         break;
       }
       case 'deleteDraft': {
@@ -119,6 +121,7 @@ export default async function handler(req, res) {
         }).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'delete_draft', 'draft', req.body.id, null, req);
         break;
       }
       case 'publishDraft': {
@@ -169,6 +172,7 @@ export default async function handler(req, res) {
         if (updateErr) throw updateErr;
 
         result = { success: true };
+        await logActivity(authInfo, 'publish_draft', 'draft', draftId, { acara: draft.acara }, req);
         break;
       }
       case 'restoreDraft': {
@@ -179,6 +183,7 @@ export default async function handler(req, res) {
         }).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'restore_draft', 'draft', req.body.id, null, req);
         break;
       }
 
@@ -191,6 +196,7 @@ export default async function handler(req, res) {
         });
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'update_site_settings', 'settings', req.body.key, null, req);
         break;
       }
 
@@ -199,6 +205,7 @@ export default async function handler(req, res) {
         const { data, error } = await sb.from('photo_albums').insert(req.body.data).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_album', 'album', data.id, { title: req.body.data?.title }, req);
         break;
       }
       case 'deleteAlbum': {
@@ -207,6 +214,7 @@ export default async function handler(req, res) {
         const { error } = await sb.from('photo_albums').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'delete_album', 'album', req.body.id, null, req);
         break;
       }
       case 'setAlbumCover': {
@@ -244,6 +252,7 @@ export default async function handler(req, res) {
         const { error } = await sb.from('community_registrations').update(updateData).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
+        await logActivity(authInfo, 'update_registration_status', 'registration', req.body.id, { status: req.body.status }, req);
         break;
       }
 

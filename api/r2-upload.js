@@ -1,4 +1,4 @@
-import { requireAdminSession } from './_lib/auth.js';
+import { requireAuth } from './_lib/auth.js';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -12,7 +12,8 @@ const R2 = new S3Client({
 });
 
 export default async function handler(req, res) {
-  if (!requireAdminSession(req, res)) return;
+  const authInfo = await requireAuth(req, res, ['superadmin', 'admin']);
+  if (!authInfo) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
