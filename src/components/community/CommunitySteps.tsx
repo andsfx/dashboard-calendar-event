@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
-  { num: '01', title: 'Daftar & Submit', desc: 'Isi form pendaftaran komunitas. Ceritain siapa kamu dan apa yang mau kamu lakuin.' },
+  { num: '01', title: 'Daftar & Submit', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritain rencana event kamu.' },
   { num: '02', title: 'Review Tim Mall', desc: 'Tim kami review proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
   { num: '03', title: 'Konfirmasi & Prep', desc: 'Setelah deal, kita siapin venue dan semua tools yang kamu butuhkan.' },
   { num: '04', title: 'Event Day!', desc: 'Hari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.' },
