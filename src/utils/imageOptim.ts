@@ -1,21 +1,16 @@
 /**
- * Cloudflare R2 Image Optimization Utility
+ * Image Optimization Utility
  *
- * Generates optimized image URLs via the /api/img proxy.
- * The proxy fetches from R2, resizes with sharp, converts to WebP,
- * and caches at Vercel's edge for 30 days.
+ * Uses Vercel's built-in image optimization (/_vercel/image) for R2 photos.
+ * Vercel fetches the original, resizes, converts to WebP/AVIF, and caches at edge.
+ * No server-side dependencies needed (no sharp).
  *
  * Usage:
- *   import { thumbUrl, imgUrl } from '../utils/imageOptim';
+ *   import { thumbUrl, gridUrl, lightboxUrl } from '../utils/imageOptim';
  *
- *   // Gallery index cover (small thumbnail)
- *   <img src={thumbUrl(album.coverPhotoUrl)} />
- *
- *   // Album grid photo (medium)
- *   <img src={imgUrl(photo.url, { w: 640 })} />
- *
- *   // Lightbox (large, high quality)
- *   <img src={imgUrl(photo.url, { w: 1600, q: 85 })} />
+ *   <img src={thumbUrl(album.coverPhotoUrl)} />     // 480px cover
+ *   <img src={gridUrl(photo.url)} />                 // 640px grid
+ *   <img src={lightboxUrl(photo.url)} />             // 1600px lightbox
  */
 
 const R2_PUBLIC_URL = (import.meta.env.VITE_R2_PUBLIC_URL || '').replace(/\/$/, '');
@@ -23,12 +18,8 @@ const R2_PUBLIC_URL = (import.meta.env.VITE_R2_PUBLIC_URL || '').replace(/\/$/, 
 interface ImgOptions {
   /** Target width in pixels (default: 800) */
   w?: number;
-  /** Target height in pixels (omit for auto) */
-  h?: number;
   /** Quality 1-100 (default: 75) */
   q?: number;
-  /** Fit mode: cover | contain | fill | inside | outside */
-  fit?: 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
 }
 
 /**
@@ -40,20 +31,16 @@ function isR2Url(url: string): boolean {
 }
 
 /**
- * Generate an optimized image URL via the /api/img proxy.
- * Falls back to the original URL if it's not from R2.
+ * Generate an optimized image URL via Vercel's built-in image optimization.
+ * Falls back to the original URL if it's not from R2 or env is not configured.
  */
 export function imgUrl(originalUrl: string, options: ImgOptions = {}): string {
   if (!isR2Url(originalUrl)) return originalUrl;
 
-  const params = new URLSearchParams();
-  params.set('url', originalUrl);
-  if (options.w) params.set('w', String(options.w));
-  if (options.h) params.set('h', String(options.h));
-  if (options.q) params.set('q', String(options.q));
-  if (options.fit) params.set('fit', options.fit);
+  const w = options.w || 800;
+  const q = options.q || 75;
 
-  return `/api/img?${params.toString()}`;
+  return `/_vercel/image?url=${encodeURIComponent(originalUrl)}&w=${w}&q=${q}`;
 }
 
 /**

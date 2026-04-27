@@ -1,4 +1,14 @@
 {
+  "images": {
+    "remotePatterns": [
+      {
+        "protocol": "https",
+        "hostname": "cdn.andotherstori.my.id"
+      }
+    ],
+    "formats": ["image/avif", "image/webp"],
+    "minimumCacheTTL": 2592000
+  },
   "rewrites": [
     {
       "source": "/(.*)",
