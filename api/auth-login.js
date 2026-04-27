@@ -1,9 +1,11 @@
-import { getServiceSupabase, logActivity } from './_lib/auth.js';
+import { getAnonSupabase, getServiceSupabase, logActivity } from './_lib/auth.js';
 
 /**
  * POST /api/auth-login
  * 
  * Login via Supabase Auth (email + password).
+ * Uses anon client for signIn (service_role can't do user-level sign-in).
+ * Uses service client for DB lookups.
  * Returns user info + sets access token cookie.
  */
 export default async function handler(req, res) {
@@ -22,10 +24,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const sb = getServiceSupabase();
+    // Use anon client for signIn (service_role can't do user-level auth)
+    const anonSb = getAnonSupabase();
+    const serviceSb = getServiceSupabase();
 
-    // 1. Sign in with Supabase Auth
-    const { data: authData, error: authError } = await sb.auth.signInWithPassword({
+    // 1. Sign in with Supabase Auth (anon client)
+    const { data: authData, error: authError } = await anonSb.auth.signInWithPassword({
       email,
       password,
     });
@@ -45,8 +49,8 @@ export default async function handler(req, res) {
       return res.status(401).json({ success: false, error: 'Login gagal' });
     }
 
-    // 2. Look up user in our users table
-    const { data: dbUser, error: dbError } = await sb
+    // 2. Look up user in our users table (use service client to bypass RLS)
+    const { data: dbUser, error: dbError } = await serviceSb
       .from('users')
       .select('id, email, display_name, role, is_active')
       .eq('id', authData.user.id)
@@ -54,8 +58,6 @@ export default async function handler(req, res) {
 
     if (dbError || !dbUser) {
       // Auth user exists but no entry in users table
-      // Sign them out since they're not authorized
-      await sb.auth.admin.signOut(authData.session.access_token).catch(() => {});
       return res.status(403).json({
         success: false,
         error: 'Akun tidak terdaftar di sistem. Hubungi superadmin.',
@@ -63,7 +65,6 @@ export default async function handler(req, res) {
     }
 
     if (!dbUser.is_active) {
-      await sb.auth.admin.signOut(authData.session.access_token).catch(() => {});
       return res.status(403).json({
         success: false,
         error: 'Akun dinonaktifkan. Hubungi superadmin.',
@@ -71,7 +72,7 @@ export default async function handler(req, res) {
     }
 
     // 3. Update last_login_at
-    await sb
+    await serviceSb
       .from('users')
       .update({ last_login_at: new Date().toISOString() })
       .eq('id', dbUser.id)

@@ -33,12 +33,24 @@ export function requireAdminSession(req, res) {
 // ─── Supabase client helpers ──────────────────────────────────────
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
 export function getServiceSupabase() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('Supabase belum dikonfigurasi');
   }
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+}
+
+/**
+ * Get anon Supabase client — needed for signInWithPassword
+ * (service_role client can't do user-level sign-in)
+ */
+export function getAnonSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase anon key belum dikonfigurasi');
+  }
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 // ─── Supabase Auth verification ───────────────────────────────────
