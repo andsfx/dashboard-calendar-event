@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send } from 'lucide-react';
-import { CommunityRegistration, RegistrationStatus } from '../types';
+import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -12,12 +12,49 @@ interface Props {
 
 const WA_TEMPLATES: Record<string, string> = {
   reviewed:
-    'Halo {PIC}, pendaftaran komunitas {NAMA} di Metmal Community Space sedang kami review. Kami akan menghubungi kamu dalam 3-5 hari kerja.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sedang kami review. Kami akan menghubungi kamu dalam 3-5 hari kerja.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   approved:
-    'Halo {PIC}, pendaftaran komunitas {NAMA} di Metmal Community Space sudah disetujui! Silakan hubungi kami untuk diskusi jadwal dan kebutuhan event.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sudah disetujui! Silakan hubungi kami untuk diskusi jadwal dan kebutuhan event.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   rejected:
-    'Halo {PIC}, terima kasih sudah mendaftarkan komunitas {NAMA} di Metmal Community Space. Mohon maaf, saat ini pendaftaran belum bisa kami proses. Silakan hubungi kami untuk info lebih lanjut.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, terima kasih sudah mendaftarkan {TIPE} {NAMA} di Metmal Community Space. Mohon maaf, saat ini pendaftaran belum bisa kami proses. Silakan hubungi kami untuk info lebih lanjut.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   custom: '',
+};
+
+const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
+  community: 'Komunitas',
+  school: 'Sekolah/Universitas',
+  company: 'Perusahaan',
+  eo: 'Event Organizer',
+  campus: 'Organisasi Kampus',
+  government: 'Instansi Pemerintah',
+  ngo: 'NGO/Yayasan',
+  other: 'Organisasi',
+};
+
+const TYPE_SPECIFIC_LABELS: Record<string, string> = {
+  communitySubType: 'Tipe Komunitas',
+  memberCount: 'Jumlah Anggota',
+  socialLinks: 'Media Sosial',
+  educationLevel: 'Jenjang Pendidikan',
+  institutionType: 'Tipe Institusi',
+  studentCount: 'Jumlah Siswa/Mahasiswa',
+  advisorName: 'Pembimbing',
+  industry: 'Industri',
+  employeeCount: 'Jumlah Karyawan',
+  eventPurpose: 'Tujuan Event',
+  specialization: 'Spesialisasi',
+  portfolio: 'Portfolio',
+  teamSize: 'Jumlah Tim',
+  universityName: 'Universitas',
+  faculty: 'Fakultas',
+  campusOrgType: 'Tipe Organisasi',
+  department: 'Departemen',
+  programName: 'Nama Program',
+  focusArea: 'Bidang Fokus',
+  registrationNumber: 'Nomor Registrasi',
+  programDescription: 'Deskripsi Program',
+  customOrgType: 'Tipe Organisasi',
+  additionalInfo: 'Info Tambahan',
 };
 
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -71,7 +108,11 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
   }, [waTemplate, registration]);
 
   function applyVars(tpl: string, reg: CommunityRegistration): string {
-    return tpl.replace(/\{PIC\}/g, reg.pic).replace(/\{NAMA\}/g, reg.communityName);
+    const orgLabel = ORG_TYPE_LABELS[(reg.organizationType || 'community') as OrganizationType] || 'organisasi';
+    return tpl
+      .replace(/\{PIC\}/g, reg.pic)
+      .replace(/\{NAMA\}/g, reg.organizationName || reg.communityName)
+      .replace(/\{TIPE\}/g, orgLabel);
   }
 
   const handleStatusChange = async (newStatus: RegistrationStatus) => {
@@ -120,7 +161,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <h2 id="reg-detail-title" className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                 Detail Pendaftaran
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{registration.communityName}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{registration.organizationName || registration.communityName}</p>
             </div>
           </div>
         </div>
@@ -129,8 +170,8 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         <div className="overflow-y-auto flex-1 px-4 py-5 sm:px-6 space-y-4">
           {/* Info Grid */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <InfoItem icon={<Users className="h-4 w-4 text-violet-500" />} label="Nama Komunitas" value={registration.communityName} />
-            <InfoItem icon={<FileText className="h-4 w-4 text-blue-500" />} label="Tipe Komunitas" value={registration.communityType} />
+            <InfoItem icon={<Users className="h-4 w-4 text-violet-500" />} label="Nama Organisasi" value={registration.organizationName || registration.communityName} />
+            <InfoItem icon={<FileText className="h-4 w-4 text-blue-500" />} label="Tipe Organisasi" value={ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType] || registration.communityType} />
             <InfoItem icon={<Users className="h-4 w-4 text-amber-500" />} label="PIC" value={registration.pic} />
             <InfoItem icon={<Phone className="h-4 w-4 text-emerald-500" />} label="Nomor WhatsApp" value={registration.phone} />
             {registration.email && (
@@ -143,6 +184,27 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <InfoItem icon={<Calendar className="h-4 w-4 text-cyan-500" />} label="Preferensi Tanggal" value={registration.preferredDate} />
             )}
           </div>
+
+          {/* Type-Specific Data */}
+          {registration.typeSpecificData && Object.keys(registration.typeSpecificData).length > 0 && (
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/40">
+              <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <FileText className="h-3 w-3" /> Detail {ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType]}
+              </p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {Object.entries(registration.typeSpecificData).map(([key, value]) => {
+                  if (!value && value !== 0) return null;
+                  const label = TYPE_SPECIFIC_LABELS[key] || key;
+                  return (
+                    <div key={key} className="rounded-lg bg-white p-2.5 dark:bg-slate-800">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                      <p className="mt-0.5 text-sm font-medium text-slate-700 dark:text-slate-200">{String(value)}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Deskripsi */}
           {registration.description && (

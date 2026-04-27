@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye } from 'lucide-react';
-import { CommunityRegistration, RegistrationStatus } from '../types';
+import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter } from 'lucide-react';
+import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../types';
 
 interface Props {
   registrations: CommunityRegistration[];
@@ -15,6 +15,26 @@ const STATUS_TABS: Array<{ key: RegistrationStatus | 'all'; label: string; dot?:
   { key: 'approved', label: 'Approved', dot: 'bg-emerald-500' },
   { key: 'rejected', label: 'Rejected', dot: 'bg-red-500' },
 ];
+
+const ORG_TYPE_CONFIG: Record<OrganizationType, { label: string; color: string }> = {
+  community: { label: 'Komunitas', color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
+  school: { label: 'Sekolah', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+  company: { label: 'Perusahaan', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
+  eo: { label: 'EO', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
+  campus: { label: 'Kampus', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300' },
+  government: { label: 'Pemerintah', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  ngo: { label: 'NGO', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
+  other: { label: 'Lainnya', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300' },
+};
+
+function OrgTypeBadge({ type }: { type: OrganizationType }) {
+  const config = ORG_TYPE_CONFIG[type] || ORG_TYPE_CONFIG.other;
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${config.color}`}>
+      {config.label}
+    </span>
+  );
+}
 
 function StatusBadgeReg({ status }: { status: RegistrationStatus }) {
   const config = {
@@ -36,16 +56,25 @@ function formatDate(dateStr: string): string {
 
 export function CommunityRegistrationSection({ registrations, isLoading, onDetail }: Props) {
   const [activeTab, setActiveTab] = useState<RegistrationStatus | 'all'>('all');
+  const [orgTypeFilter, setOrgTypeFilter] = useState<OrganizationType | 'all'>('all');
 
   const pendingCount = useMemo(
     () => registrations.filter((r) => r.status === 'pending').length,
     [registrations],
   );
 
-  const filtered = useMemo(
-    () => (activeTab === 'all' ? registrations : registrations.filter((r) => r.status === activeTab)),
-    [registrations, activeTab],
-  );
+  // Get unique org types present in data
+  const orgTypesInData = useMemo(() => {
+    const types = new Set(registrations.map(r => r.organizationType || 'community'));
+    return Array.from(types).sort() as OrganizationType[];
+  }, [registrations]);
+
+  const filtered = useMemo(() => {
+    let result = registrations;
+    if (activeTab !== 'all') result = result.filter(r => r.status === activeTab);
+    if (orgTypeFilter !== 'all') result = result.filter(r => (r.organizationType || 'community') === orgTypeFilter);
+    return result;
+  }, [registrations, activeTab, orgTypeFilter]);
 
   return (
     <section id="registrations" className="space-y-4 scroll-mt-32">
@@ -56,7 +85,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-800 dark:text-white">Pendaftaran Komunitas</p>
+            <p className="text-sm font-bold text-slate-800 dark:text-white">Pendaftaran Organisasi</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Antrian pendaftaran dari landing page</p>
           </div>
         </div>
@@ -68,23 +97,59 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
         )}
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            aria-pressed={activeTab === tab.key}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-              activeTab === tab.key
-                ? 'bg-violet-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-            }`}
-          >
-            {tab.dot && <span className={`h-2 w-2 rounded-full ${activeTab === tab.key ? 'bg-white/80' : tab.dot}`} />}
-            {tab.label}
-          </button>
-        ))}
+      {/* Filter rows */}
+      <div className="space-y-2">
+        {/* Status filter */}
+        <div className="flex flex-wrap gap-2">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              aria-pressed={activeTab === tab.key}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                activeTab === tab.key
+                  ? 'bg-violet-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              {tab.dot && <span className={`h-2 w-2 rounded-full ${activeTab === tab.key ? 'bg-white/80' : tab.dot}`} />}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Org type filter (only show if multiple types exist) */}
+        {orgTypesInData.length > 1 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Filter className="h-3.5 w-3.5 text-slate-400" />
+            <button
+              onClick={() => setOrgTypeFilter('all')}
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+                orgTypeFilter === 'all'
+                  ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
+                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
+              }`}
+            >
+              Semua Tipe
+            </button>
+            {orgTypesInData.map(type => {
+              const config = ORG_TYPE_CONFIG[type] || ORG_TYPE_CONFIG.other;
+              return (
+                <button
+                  key={type}
+                  onClick={() => setOrgTypeFilter(type)}
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+                    orgTypeFilter === type
+                      ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
+                      : `${config.color} hover:opacity-80`
+                  }`}
+                >
+                  {config.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -97,7 +162,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-16 dark:border-slate-700 dark:bg-slate-800">
           <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="text-sm text-slate-400 dark:text-slate-500">Belum ada pendaftaran komunitas</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500">Belum ada pendaftaran</p>
         </div>
       ) : (
         <>
@@ -111,8 +176,15 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-800 dark:text-white">{reg.communityName}</p>
-                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{reg.communityType}</p>
+                    <p className="truncate text-sm font-bold text-slate-800 dark:text-white">
+                      {reg.organizationName || reg.communityName}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                      <OrgTypeBadge type={reg.organizationType || 'community'} />
+                      {reg.organizationType === 'community' && reg.communityType && (
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">• {reg.communityType}</span>
+                      )}
+                    </div>
                   </div>
                   <StatusBadgeReg status={reg.status} />
                 </div>
@@ -130,7 +202,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Nama Komunitas</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Nama</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tipe</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">PIC</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Phone</th>
@@ -146,8 +218,12 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     onClick={() => onDetail(reg)}
                     className="cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-700/40"
                   >
-                    <td className="px-4 py-3 font-medium text-slate-800 dark:text-white">{reg.communityName}</td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.communityType}</td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-slate-800 dark:text-white">{reg.organizationName || reg.communityName}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <OrgTypeBadge type={reg.organizationType || 'community'} />
+                    </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.pic}</td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.phone}</td>
                     <td className="px-4 py-3"><StatusBadgeReg status={reg.status} /></td>
