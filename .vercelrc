@@ -1,0 +1,3 @@
+# Vercel build config
+# Force fresh install without cache to bypass Tencent mirror issue
+ENABLE_EXPERIMENTAL_COREPACK=1
