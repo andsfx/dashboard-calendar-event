@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, ChevronDown, Music, Sparkles, Users } from 'lucide-react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { ReactNode } from 'react';
+import { imgUrl } from '../../utils/imageOptim';
 
 const BRAND = {
   accent: '#7c6cf2',
@@ -48,7 +49,7 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
       {heroImageUrl ? (
         <>
           <div className="absolute inset-0">
-            <img src={heroImageUrl} alt="" className="h-full w-full object-cover" fetchPriority="high" />
+            <img src={imgUrl(heroImageUrl, { w: 1920, q: 80 })} alt="" className="h-full w-full object-cover" fetchPriority="high" />
           </div>
           {/* Gradient overlay di atas foto (60-70% opacity) */}
           <div

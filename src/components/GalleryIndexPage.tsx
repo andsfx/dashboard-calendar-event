@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/supabaseApi';
 import { GalleryHeader } from './GalleryHeader';
+import { thumbUrl } from '../utils/imageOptim';
 
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
@@ -199,7 +200,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                       <div className="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-slate-200 dark:bg-slate-700">
                         {album.coverPhotoUrl ? (
                           <img
-                            src={album.coverPhotoUrl}
+                            src={thumbUrl(album.coverPhotoUrl)}
                             alt={album.name}
                             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                             loading="lazy"

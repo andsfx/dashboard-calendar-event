@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, ChevronDown, X, CalendarDays, MapPin, RefreshCw } fr
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/supabaseApi';
 import { GalleryHeader } from './GalleryHeader';
+import { gridUrl, lightboxUrl } from '../utils/imageOptim';
 
 /* ─── Standalone Lightbox ─────────────────────────────────── */
 function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
@@ -98,7 +99,7 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
       {/* Image + caption */}
       <div className="max-w-4xl px-16" onClick={(e) => e.stopPropagation()}>
         <img
-          src={photo.url}
+          src={lightboxUrl(photo.url)}
           alt={photo.caption}
           className="max-h-[80vh] w-full rounded-lg object-contain"
         />
@@ -297,7 +298,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                     className="group relative cursor-pointer overflow-hidden rounded-xl aspect-[4/3] bg-slate-200 dark:bg-slate-700"
                   >
                     <img
-                      src={photo.url}
+                      src={gridUrl(photo.url)}
                       alt={photo.caption}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       loading="lazy"

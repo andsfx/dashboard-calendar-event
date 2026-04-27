@@ -27,6 +27,7 @@ import { CommunityFacilities } from './community/CommunityFacilities';
 import { CommunitySteps } from './community/CommunitySteps';
 import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityFAQ } from './community/CommunityFAQ';
+import { thumbUrl } from '../utils/imageOptim';
 
 /* ─── Brand tokens (consistent with PublicLandingPage) ────── */
 const BRAND = {
@@ -498,7 +499,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                     >
                       <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
                         {album.coverPhotoUrl ? (
-                          <img src={album.coverPhotoUrl} alt={album.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+                          <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
                         ) : (
                           <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">
                             <Camera className="h-8 w-8 text-violet-300 dark:text-violet-500" aria-hidden="true" />

@@ -3,6 +3,7 @@ import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } 
 import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
+import { adminThumbUrl } from '../utils/imageOptim';
 
 interface Props {
   isOpen: boolean;
@@ -520,7 +521,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       >
                         {album.coverPhotoUrl ? (
                           <img
-                            src={album.coverPhotoUrl}
+                            src={adminThumbUrl(album.coverPhotoUrl)}
                             alt={album.name}
                             className="h-full w-full object-cover"
                             loading="lazy"
@@ -609,7 +610,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                           {/* Thumbnail */}
                           <div className="aspect-[4/3] w-full">
                             <img
-                              src={photo.url}
+                              src={adminThumbUrl(photo.url)}
                               alt={photo.caption}
                               className="h-full w-full object-cover"
                               loading="lazy"
