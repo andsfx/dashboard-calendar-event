@@ -31,9 +31,9 @@ export function requireAdminSession(req, res) {
 }
 
 // ─── Supabase client helpers ──────────────────────────────────────
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xddqinydbuargyfseycw.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZHFpbnlkYnVhcmd5ZnNleWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MTU0NjAsImV4cCI6MjA5MDA5MTQ2MH0.TNUxkAO9v20TCM-HuIdCbT5Wgs2FgZ4SpQcsU9vYuIU';
 
 export function getServiceSupabase() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
