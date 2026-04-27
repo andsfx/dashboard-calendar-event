@@ -656,6 +656,9 @@ export async function fetchCommunityRegistrations(): Promise<CommunityRegistrati
     status: row.status || 'pending',
     adminNote: row.admin_note || '',
     createdAt: row.created_at || '',
+    organizationType: row.organization_type || 'community',
+    organizationName: row.organization_name || row.community_name || '',
+    typeSpecificData: row.type_specific_data || {},
   }));
 }
 
@@ -675,6 +678,9 @@ export async function submitCommunityRegistration(data: {
   instagram?: string;
   description?: string;
   preferredDate?: string;
+  organizationType?: string;
+  organizationName?: string;
+  typeSpecificData?: Record<string, string | number>;
 }): Promise<{ id: string }> {
   const { data: result, error } = await supabase.from('community_registrations').insert({
     community_name: data.communityName,
@@ -685,6 +691,9 @@ export async function submitCommunityRegistration(data: {
     instagram: data.instagram || '',
     description: data.description || '',
     preferred_date: data.preferredDate || '',
+    organization_type: data.organizationType || 'community',
+    organization_name: data.organizationName || data.communityName,
+    type_specific_data: data.typeSpecificData || {},
   }).select('id').single();
   if (error) throw new SupabaseApiError(`Registration failed: ${error.message}`);
   return { id: result?.id || '' };

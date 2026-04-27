@@ -108,6 +108,8 @@ export interface HolidayItem {
   description: string;
 }
 
+export type OrganizationType = 'community' | 'school' | 'company' | 'eo' | 'campus' | 'government' | 'ngo' | 'other';
+
 export type RegistrationStatus = 'pending' | 'reviewed' | 'approved' | 'rejected';
 
 export interface CommunityRegistration {
@@ -123,6 +125,9 @@ export interface CommunityRegistration {
   status: RegistrationStatus;
   adminNote: string;
   createdAt: string;
+  organizationType: OrganizationType;
+  organizationName: string;
+  typeSpecificData: Record<string, string | number>;
 }
 
 export interface EventPhoto {
