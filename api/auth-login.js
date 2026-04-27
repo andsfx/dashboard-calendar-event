@@ -25,8 +25,10 @@ export default async function handler(req, res) {
 
   try {
     // Use anon client for signIn (service_role can't do user-level auth)
+    console.log('[auth-login] Creating Supabase clients...');
     const anonSb = getAnonSupabase();
     const serviceSb = getServiceSupabase();
+    console.log('[auth-login] Clients created successfully');
 
     // 1. Sign in with Supabase Auth (anon client)
     const { data: authData, error: authError } = await anonSb.auth.signInWithPassword({
