@@ -1,0 +1,48 @@
+{
+  "agents": {
+    "explore": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "librarian": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "oracle": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "metis": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "momus": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "quick": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "deep": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "visual-engineering": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "unspecified-high": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    },
+    "unspecified-low": {
+      "provider": "enowxai-standard",
+      "model": "claude-sonnet-4.5"
+    }
+  },
+  "default": {
+    "provider": "enowxai-standard",
+    "model": "claude-sonnet-4.5"
+  }
+}
