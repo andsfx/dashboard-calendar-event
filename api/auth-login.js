@@ -31,17 +31,21 @@ export default async function handler(req, res) {
     console.log('[auth-login] Clients created successfully');
 
     // 1. Sign in with Supabase Auth (anon client)
+    console.log('[auth-login] Attempting signInWithPassword for:', email);
     const { data: authData, error: authError } = await anonSb.auth.signInWithPassword({
       email,
       password,
     });
 
     if (authError) {
+      console.error('[auth-login] Auth error:', authError);
       // Map common Supabase Auth errors to Indonesian
       const errorMap = {
         'Invalid login credentials': 'Email atau password salah',
         'Email not confirmed': 'Email belum dikonfirmasi',
         'Too many requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
+        'Invalid CSRF token': 'Sesi login tidak valid. Silakan refresh halaman dan coba lagi.',
+        'PKCE verification failed': 'Verifikasi keamanan gagal. Silakan coba lagi.',
       };
       const message = errorMap[authError.message] || authError.message;
       return res.status(401).json({ success: false, error: message });
@@ -82,9 +86,14 @@ export default async function handler(req, res) {
 
     // 4. Set access token cookie (HttpOnly, Secure)
     const maxAge = authData.session.expires_in || 3600; // default 1 hour
+    const isProduction = process.env.NODE_ENV === 'production';
+    const domain = isProduction ? process.env.COOKIE_DOMAIN : undefined;
+    
+    console.log('[auth-login] Setting cookies with domain:', domain || 'default');
+    
     const cookies = [
-      `sb-access-token=${authData.session.access_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`,
-      `sb-refresh-token=${authData.session.refresh_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 24 * 30}`, // 30 days
+      `sb-access-token=${authData.session.access_token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${maxAge}${domain ? `; Domain=${domain}` : ''}`,
+      `sb-refresh-token=${authData.session.refresh_token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${60 * 60 * 24 * 30}${domain ? `; Domain=${domain}` : ''}`, // 30 days
     ];
     res.setHeader('Set-Cookie', cookies);
 
@@ -93,6 +102,7 @@ export default async function handler(req, res) {
     await logActivity(authInfo, 'login', 'user', dbUser.id, { email: dbUser.email }, req);
 
     // 6. Return user info
+    console.log('[auth-login] Login successful for user:', dbUser.id);
     return res.status(200).json({
       success: true,
       user: {
@@ -107,11 +117,11 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error('auth-login error:', error);
+    console.error('[auth-login] Unexpected error:', error);
     return res.status(500).json({
       success: false,
       error: 'Login gagal. Coba lagi nanti.',
-      debug: error.message,
+      debug: process.env.NODE_ENV !== 'production' ? error.message : undefined,
     });
   }
 }

@@ -25,4 +25,25 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
  * - Public draft submission
  * - Realtime subscriptions
  */
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+    flowType: 'pkce',
+    storage: {
+      getItem: (key) => {
+        if (typeof window === 'undefined') return null;
+        return window.localStorage.getItem(key);
+      },
+      setItem: (key, value) => {
+        if (typeof window === 'undefined') return;
+        window.localStorage.setItem(key, value);
+      },
+      removeItem: (key) => {
+        if (typeof window === 'undefined') return;
+        window.localStorage.removeItem(key);
+      },
+    },
+  },
+});
