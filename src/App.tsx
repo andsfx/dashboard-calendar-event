@@ -514,9 +514,9 @@ export default function App() {
   const publicSectionItems = useMemo(
     () => [
       ...((ongoingEvents.length > 0 || upcomingEvents.length > 0) ? [{ id: 'featured', label: 'Segera Hadir' }] : []),
+      { id: 'summary', label: 'Ringkasan' },
       { id: 'calendar', label: 'Kalender' },
       { id: 'views', label: 'Daftar Acara' },
-      { id: 'summary', label: 'Ringkasan' },
       { id: 'themes', label: 'Tema Tahunan' },
     ],
     [ongoingEvents.length, upcomingEvents.length]
@@ -731,7 +731,7 @@ export default function App() {
             </section>
           )}
 
-        {/* Featured for public -- ongoing + upcoming */}
+        {/* Public: 1. Featured Events — sedang berlangsung / segera dimulai */}
         {!isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
           <section id="featured" className="space-y-4 scroll-mt-32 sm:space-y-5">
             {ongoingEvents.length > 0 && (
@@ -745,19 +745,28 @@ export default function App() {
                 />
               </Suspense>
             )}
-            <Suspense fallback={<SectionFallback height="h-40" />}>
-              <FeaturedEvents
-                events={upcomingEvents.slice(0, 3)}
-                title="Segera Dimulai"
-                accent="amber"
-                icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-                onDetail={handleDetailClick}
-              />
-            </Suspense>
+            {upcomingEvents.length > 0 && (
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <FeaturedEvents
+                  events={upcomingEvents.slice(0, 3)}
+                  title="Segera Dimulai"
+                  accent="amber"
+                  icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+                  onDetail={handleDetailClick}
+                />
+              </Suspense>
+            )}
           </section>
         )}
 
-        {/* Public Calendar */}
+        {/* Public: 2. Ringkasan — stat cards */}
+        {!isAdmin && (
+          <section id="summary" className="scroll-mt-32">
+            <DashboardStats stats={visibleStats} />
+          </section>
+        )}
+
+        {/* Public: 3. Kalender Event */}
         {!isAdmin && (
           <section id="calendar" className="space-y-3 scroll-mt-32">
             <div>
@@ -812,9 +821,7 @@ export default function App() {
             </section>
           )}
 
-        {/* Stat Cards -- public at bottom position */}
-        {!isAdmin && <DashboardStats stats={visibleStats} />}
-
+        {/* Public: 5. Tema Tahunan — paling bawah */}
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
             <Suspense fallback={<SectionFallback height="h-40" />}>
