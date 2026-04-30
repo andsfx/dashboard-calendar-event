@@ -17,6 +17,8 @@ import {
   Menu,
   X,
   ClipboardCheck,
+  UserCog,
+  Activity,
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
 
@@ -83,6 +85,13 @@ export const AdminSidebar = memo(function AdminSidebar({
       ],
     },
     {
+      label: 'System',
+      items: [
+        ...(isSuperadmin ? [{ id: 'user-management', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'scroll' as const }] : []),
+        { id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'scroll' as const },
+      ],
+    },
+    {
       label: 'Settings',
       items: [
         { id: 'landing-page', label: 'Landing Page', icon: <Globe className="h-4 w-4" />, action: 'callback', callback: onOpenInstagramSettings },
@@ -90,7 +99,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         { id: 'letter', label: 'Buat Surat', icon: <FileText className="h-4 w-4" />, action: 'callback', callback: onOpenLetterPicker },
       ],
     },
-  ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker]);
+  ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, isSuperadmin]);
 
   const scrollSectionIds = useMemo(() => 
     navGroups.flatMap(group => 

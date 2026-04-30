@@ -50,6 +50,8 @@ const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModa
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
+const UserManagement = lazy(() => import('./components/admin/UserManagement').then(m => ({ default: m.UserManagement })));
+const ActivityLog = lazy(() => import('./components/admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
@@ -835,6 +837,24 @@ export default function App() {
           <section id="survey-section" className="scroll-mt-20">
             <Suspense fallback={<SectionFallback height="h-48" />}>
               <SurveyDashboard events={events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
+            </Suspense>
+          </section>
+        )}
+
+        {/* 9. User Management — superadmin only */}
+        {auth.isSuperadmin && (
+          <section id="user-management" className="scroll-mt-20">
+            <Suspense fallback={<SectionFallback height="h-48" />}>
+              <UserManagement />
+            </Suspense>
+          </section>
+        )}
+
+        {/* 10. Activity Log — admin + superadmin */}
+        {isAdmin && (
+          <section id="activity-log" className="scroll-mt-20">
+            <Suspense fallback={<SectionFallback height="h-48" />}>
+              <ActivityLog />
             </Suspense>
           </section>
         )}
