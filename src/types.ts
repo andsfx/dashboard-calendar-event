@@ -174,3 +174,66 @@ export interface ToastMessage {
   title: string;
   message: string;
 }
+
+// ─── Survey Kepuasan Pelanggan ────────────────────────────────────
+
+export type SurveyType = 'organizer' | 'public';
+
+export interface SurveyResponse {
+  id: string;
+  event_id: string;
+  survey_type: SurveyType;
+  respondent_name: string;
+  respondent_email: string;
+  respondent_phone: string;
+  respondent_organization: string;
+  // Mall ratings (1-10)
+  mall_cleanliness: number;
+  mall_staff_service: number;
+  mall_coordination: number;
+  mall_security: number;
+  mall_comment: string;
+  // EO ratings (1-10, null for organizer survey)
+  eo_event_quality: number | null;
+  eo_organization: number | null;
+  eo_committee_service: number | null;
+  eo_promotion_accuracy: number | null;
+  eo_recommendation: number | null;
+  eo_comment: string;
+  general_comment: string;
+  device_fingerprint: string;
+  created_at: string;
+}
+
+export interface SurveySummary {
+  event_id: string;
+  total_responses: number;
+  organizer_responses: number;
+  public_responses: number;
+  mall_avg: {
+    cleanliness: number;
+    staff_service: number;
+    coordination: number;
+    security: number;
+    overall: number;
+  } | null;
+  eo_avg: {
+    event_quality: number;
+    organization: number;
+    committee_service: number;
+    promotion_accuracy: number;
+    recommendation: number;
+    overall: number;
+  } | null;
+}
+
+export interface SurveyConfig {
+  id: string;
+  event_id: string;
+  is_active: boolean;
+  auto_activate_after_event: boolean;
+  activated_at: string | null;
+  deactivated_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
