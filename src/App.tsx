@@ -8,6 +8,7 @@ import { ToastContainer } from './components/ToastContainer';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { DashboardStats } from './components/dashboard/DashboardStats';
 import { AdminBanner } from './components/dashboard/AdminBanner';
+import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
@@ -599,105 +600,132 @@ export default function App() {
       >
         Lewati ke konten utama
       </a>
-      <Navbar
-        isDark={isDark}
-        onToggleDark={toggleDark}
-        isAdmin={isAdmin}
-        isSuperadmin={auth.isSuperadmin}
-        isLegacy={auth.isLegacy}
-        user={auth.user}
-        onLoginClick={() => setShowLoginModal(true)}
-        onLogout={handleLogout}
-        ongoingCount={visibleStats.ongoing}
-      />
 
-      {!isAdmin && !isLoading && <SectionNav items={publicSectionItems} />}
-
-      {isLoading ? (
-        <DashboardSkeleton isAdmin={isAdmin} />
-      ) : (
-
-      <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-
-        {/* Header */}
-        <DashboardHeader
-          isAdmin={isAdmin}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          showSettingsMenu={showSettingsMenu}
-          onToggleSettingsMenu={() => setShowSettingsMenu(prev => !prev)}
-          onCloseSettingsMenu={() => setShowSettingsMenu(false)}
-          onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
-          onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
+      {/* Admin Sidebar */}
+      {isAdmin && (
+        <AdminSidebar
+          isDark={isDark}
+          onToggleDark={toggleDark}
+          onLogout={handleLogout}
+          user={auth.user}
+          isSuperadmin={auth.isSuperadmin}
+          isLegacy={auth.isLegacy}
+          onOpenInstagramSettings={() => setShowInstagramSettings(true)}
+          onOpenAlbumManager={() => setShowAlbumManager(true)}
           onOpenLetterPicker={handleOpenLetterPicker}
-          onAddNew={handleAddNew}
+        />
+      )}
+
+      {/* Main content wrapper */}
+      <div className={isAdmin ? 'lg:ml-64' : ''}>
+        <Navbar
+          isDark={isDark}
+          onToggleDark={toggleDark}
+          isAdmin={isAdmin}
+          isSuperadmin={auth.isSuperadmin}
+          isLegacy={auth.isLegacy}
+          user={auth.user}
+          onLoginClick={() => setShowLoginModal(true)}
+          onLogout={handleLogout}
+          ongoingCount={visibleStats.ongoing}
         />
 
-        {/* Admin Banner */}
-        {isAdmin && <AdminBanner onLogout={handleLogout} />}
+        {!isAdmin && !isLoading && <SectionNav items={publicSectionItems} />}
 
-        {isAdmin && (
-          <Suspense fallback={<SectionFallback height="h-64" />}>
-            <AdminDraftSection
-              activeDrafts={activeDrafts}
-              draftHistory={draftHistory}
-              draftError={draftError}
-              isDraftLoading={isDraftLoading}
-              showDraftHistory={showDraftHistory}
-              setShowDraftHistory={setShowDraftHistory}
-              onAddDraft={handleAddDraft}
-              onEditDraft={handleEditDraft}
-              onDeleteDraft={handleDeleteDraft}
-              onPublishDraft={handlePublishDraft}
-              onDraftProgressChange={handleDraftProgressChange}
-              onRestoreDraft={handleRestoreDraft}
-            />
-          </Suspense>
-        )}
+        {isLoading ? (
+          <DashboardSkeleton isAdmin={isAdmin} />
+        ) : (
 
-        {isAdmin && (
-          <Suspense fallback={<SectionFallback height="h-40" />}>
-            <CommunityRegistrationSection
-              registrations={communityRegistrations}
-              isLoading={isRegLoading}
-              onDetail={handleRegDetail}
-            />
-          </Suspense>
-        )}
+        <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
-        {/* Stat Cards -- admin only at top position */}
-        {isAdmin && <DashboardStats stats={visibleStats} />}
+          {/* Header */}
+          <DashboardHeader
+            isAdmin={isAdmin}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            showSettingsMenu={showSettingsMenu}
+            onToggleSettingsMenu={() => setShowSettingsMenu(prev => !prev)}
+            onCloseSettingsMenu={() => setShowSettingsMenu(false)}
+            onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
+            onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
+            onOpenLetterPicker={handleOpenLetterPicker}
+            onAddNew={handleAddNew}
+          />
 
-        {/* Quarter Timeline */}
-        {isAdmin && (
-          <Suspense fallback={<SectionFallback height="h-40" />}>
-            <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />
-          </Suspense>
-        )}
+          {/* Draft Section */}
+          {isAdmin && (
+            <section id="draft-section" className="scroll-mt-32">
+              <Suspense fallback={<SectionFallback height="h-64" />}>
+                <AdminDraftSection
+                  activeDrafts={activeDrafts}
+                  draftHistory={draftHistory}
+                  draftError={draftError}
+                  isDraftLoading={isDraftLoading}
+                  showDraftHistory={showDraftHistory}
+                  setShowDraftHistory={setShowDraftHistory}
+                  onAddDraft={handleAddDraft}
+                  onEditDraft={handleEditDraft}
+                  onDeleteDraft={handleDeleteDraft}
+                  onPublishDraft={handlePublishDraft}
+                  onDraftProgressChange={handleDraftProgressChange}
+                  onRestoreDraft={handleRestoreDraft}
+                />
+              </Suspense>
+            </section>
+          )}
 
-        {/* Featured ongoing & upcoming */}
-        {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
-          <div className="space-y-4 sm:space-y-5">
-            <Suspense fallback={<SectionFallback height="h-40" />}>
-              <FeaturedEvents
-                events={ongoingEvents}
-                title="Sedang Berlangsung"
-                accent="emerald"
-                icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
-                onDetail={handleDetailClick}
-              />
-            </Suspense>
-            <Suspense fallback={<SectionFallback height="h-40" />}>
-              <FeaturedEvents
-                events={upcomingEvents.slice(0, 3)}
-                title="Segera Dimulai"
-                accent="amber"
-                icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-                onDetail={handleDetailClick}
-              />
-            </Suspense>
-          </div>
-        )}
+          {/* Community Registrations */}
+          {isAdmin && (
+            <section id="registrations" className="scroll-mt-32">
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <CommunityRegistrationSection
+                  registrations={communityRegistrations}
+                  isLoading={isRegLoading}
+                  onDetail={handleRegDetail}
+                />
+              </Suspense>
+            </section>
+          )}
+
+          {/* Stat Cards -- admin only at top position */}
+          {isAdmin && (
+            <section id="overview" className="scroll-mt-32">
+              <DashboardStats stats={visibleStats} />
+            </section>
+          )}
+
+          {/* Quarter Timeline */}
+          {isAdmin && (
+            <section id="themes" className="scroll-mt-32">
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />
+              </Suspense>
+            </section>
+          )}
+
+          {/* Featured ongoing & upcoming */}
+          {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
+            <div className="space-y-4 sm:space-y-5">
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <FeaturedEvents
+                  events={ongoingEvents}
+                  title="Sedang Berlangsung"
+                  accent="emerald"
+                  icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                  onDetail={handleDetailClick}
+                />
+              </Suspense>
+              <Suspense fallback={<SectionFallback height="h-40" />}>
+                <FeaturedEvents
+                  events={upcomingEvents.slice(0, 3)}
+                  title="Segera Dimulai"
+                  accent="amber"
+                  icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+                  onDetail={handleDetailClick}
+                />
+              </Suspense>
+            </div>
+          )}
 
         {/* Featured for public -- ongoing + upcoming */}
         {!isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
@@ -738,14 +766,16 @@ export default function App() {
           </section>
         )}
 
-        {/* Category chart */}
-        {isAdmin && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <Suspense fallback={<SectionFallback height="h-48" />}>
-              <CategoryChart events={events} />
-            </Suspense>
-          </div>
-        )}
+          {/* Category chart */}
+          {isAdmin && (
+            <section id="category-chart" className="scroll-mt-32">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <Suspense fallback={<SectionFallback height="h-48" />}>
+                  <CategoryChart events={events} />
+                </Suspense>
+              </div>
+            </section>
+          )}
 
         <section id="views" className="scroll-mt-32">
           <Suspense fallback={<SectionFallback height="h-80" />}>
@@ -788,22 +818,23 @@ export default function App() {
           </section>
         )}
 
-        {/* Footer */}
-        <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
-          <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
-            <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
-              <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
-                  <span>{visibleStats.ongoing} berlangsung</span>
-                </span>
-              <span className="hidden sm:inline">·</span>
-              <span>{visibleStats.upcoming} mendatang</span>
+          {/* Footer */}
+          <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
+            <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
+              <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
+                <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
+                    <span>{visibleStats.ongoing} berlangsung</span>
+                  </span>
+                <span className="hidden sm:inline">·</span>
+                <span>{visibleStats.upcoming} mendatang</span>
+              </div>
             </div>
-          </div>
-        </footer>
-      </main>
-      )}
+          </footer>
+        </main>
+        )}
+      </div>
 
       {/* Modals */}
       <DashboardModals

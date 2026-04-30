@@ -69,66 +69,70 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
 
         {/* Right actions */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          {/* Admin view - simplified (sidebar handles most controls) */}
           {isAdmin ? (
             <>
-              <RoleBadge user={user} isLegacy={isLegacy} isSuperadmin={isSuperadmin} />
-              <button
-                onClick={onLogout}
-                title="Keluar dari mode admin"
-                className={`flex h-9 items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 sm:px-3 ${focusRing}`}
+              {/* Community Space link */}
+              <a
+                href="/"
+                title="Community Space"
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
               >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Keluar</span>
-              </button>
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Community</span>
+              </a>
             </>
           ) : (
-            <button
-              onClick={onLoginClick}
-              title="Masuk sebagai admin"
-              className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 sm:px-3 ${focusRing}`}
-            >
-              <Shield className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">Admin</span>
-            </button>
+            <>
+              {/* Public view - full controls */}
+              <button
+                onClick={onLoginClick}
+                title="Masuk sebagai admin"
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 sm:px-3 ${focusRing}`}
+              >
+                <Shield className="h-3.5 w-3.5" />
+                <span className="hidden md:inline">Admin</span>
+              </button>
+
+              {/* Community Space link */}
+              <a
+                href="/"
+                title="Community Space"
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
+              >
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Community</span>
+              </a>
+
+              {/* Divider */}
+              <div className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+
+              {/* Dark mode toggle */}
+              <div className="tooltip-parent hidden sm:block">
+                <button
+                  onClick={onToggleDark}
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 ${focusRing}`}
+                  aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
+                >
+                  {isDark
+                    ? <Sun className="h-4 w-4 text-amber-500" />
+                    : <Moon className="h-4 w-4" />
+                  }
+                </button>
+                <span className="tooltip-box">{isDark ? 'Mode terang' : 'Mode gelap'}</span>
+              </div>
+              <button
+                onClick={onToggleDark}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
+                aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
+              >
+                {isDark
+                  ? <Sun className="h-4 w-4 text-amber-500" />
+                  : <Moon className="h-4 w-4" />
+                }
+              </button>
+            </>
           )}
-
-          {/* Community Space link */}
-          <a
-            href="/"
-            title="Community Space"
-            className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
-          >
-            <Users className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Community</span>
-          </a>
-
-          {/* Divider */}
-          <div className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-slate-700" />
-
-          {/* Dark mode toggle */}
-          <div className="tooltip-parent hidden sm:block">
-            <button
-              onClick={onToggleDark}
-               className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 ${focusRing}`}
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark
-                ? <Sun className="h-4 w-4 text-amber-500" />
-                : <Moon className="h-4 w-4" />
-              }
-            </button>
-            <span className="tooltip-box">{isDark ? 'Mode terang' : 'Mode gelap'}</span>
-          </div>
-          <button
-            onClick={onToggleDark}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
-            aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-          >
-            {isDark
-              ? <Sun className="h-4 w-4 text-amber-500" />
-              : <Moon className="h-4 w-4" />
-            }
-          </button>
         </div>
       </div>
     </nav>
