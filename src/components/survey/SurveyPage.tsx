@@ -4,7 +4,7 @@ import {
   Sparkles, HeartHandshake, MessageCircle, ShieldCheck,
   Star, ListChecks, Users, Megaphone, ThumbsUp,
   Building2, Loader2, AlertTriangle, ClipboardCheck,
-  User, Mail, Phone, Briefcase, Send,
+  User, Mail, Phone, Briefcase, Send, ArrowLeft,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
@@ -62,6 +62,14 @@ export default function SurveyPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  const goBack = useCallback(() => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   /* ─── Load event + check fingerprint ─────────────────────────── */
   useEffect(() => {
@@ -163,7 +171,7 @@ export default function SurveyPage() {
   // Loading
   if (loading) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
           <p className="mt-3 text-sm text-slate-500">Memuat survey...</p>
@@ -175,7 +183,7 @@ export default function SurveyPage() {
   // Error
   if (error) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <AlertTriangle className="h-10 w-10 text-amber-500" />
           <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">{error}</p>
@@ -190,7 +198,7 @@ export default function SurveyPage() {
   // Already submitted
   if (alreadySubmitted) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ClipboardCheck className="h-12 w-12 text-emerald-500" />
           <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Anda Sudah Mengisi Survey</h2>
@@ -208,7 +216,7 @@ export default function SurveyPage() {
   // Success
   if (submitted) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <SurveySuccess eventName={event?.acara || ''} onBack={() => navigate('/dashboard')} />
       </PageShell>
     );
@@ -216,7 +224,7 @@ export default function SurveyPage() {
 
   // Survey form
   return (
-    <PageShell>
+    <PageShell onBack={goBack}>
       {/* Event info header */}
       <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-4 dark:border-violet-800 dark:from-violet-950/40 dark:to-indigo-950/40">
         <div className="flex items-start gap-3">
@@ -414,13 +422,23 @@ export default function SurveyPage() {
 
 /* ─── Page shell ───────────────────────────────────────────────── */
 
-function PageShell({ children }: { children: React.ReactNode }) {
+function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
-        <div className="mx-auto flex max-w-xl items-center gap-3 px-4 py-3">
-          <ClipboardCheck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+        <div className="mx-auto flex max-w-xl items-center gap-2 px-4 py-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              aria-label="Kembali"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+          )}
+          <ClipboardCheck className="h-5 w-5 shrink-0 text-violet-600 dark:text-violet-400" />
           <div>
             <h1 className="text-sm font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">Metropolitan Mall Bekasi</p>
