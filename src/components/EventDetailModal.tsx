@@ -1,6 +1,9 @@
-import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag, CalendarDays, Repeat, ClipboardCheck } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag, CalendarDays, Repeat, ClipboardCheck, QrCode } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
+
+const SurveyQRCode = lazy(() => import('./survey/SurveyQRCode'));
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { CATEGORY_COLORS, isMultiDayEvent, formatDateRange, getMultiDayJamDisplay, getEventDuration, parseDateStrLocal, MONTH_NAMES, isRecurringEvent, getRecurringSeries } from '../utils/eventUtils';
@@ -212,24 +215,41 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           )}
         </div>
 
-        {/* Survey banner — only for past events, non-admin */}
-        {event.status === 'past' && !isAdmin && (
+        {/* Survey section — for past events (both admin & public) */}
+        {event.status === 'past' && (
           <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-700 sm:px-6">
-            <a
-              href={`/survey/${event.id}`}
-              className="flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-3 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/50">
-                <ClipboardCheck className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            {/* Public: CTA banner */}
+            {!isAdmin && (
+              <a
+                href={`/survey/${event.id}`}
+                className="mb-3 flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-3 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/50">
+                  <ClipboardCheck className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">Isi Survey Kepuasan</p>
+                  <p className="text-[11px] text-violet-500 dark:text-violet-400">Bantu kami meningkatkan kualitas layanan</p>
+                </div>
+                <span className="shrink-0 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white">
+                  Isi Survey
+                </span>
+              </a>
+            )}
+            {/* QR Code (both admin & public) */}
+            <details className="group">
+              <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-violet-600 dark:text-slate-400 dark:hover:text-violet-400">
+                <QrCode className="h-3.5 w-3.5" />
+                <span>QR Code Survey</span>
+                <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
+              </summary>
+              <div className="mt-3">
+                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" /></div>}>
+                  <SurveyQRCode eventId={event.id} eventName={event.acara} />
+                </Suspense>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">Isi Survey Kepuasan</p>
-                <p className="text-[11px] text-violet-500 dark:text-violet-400">Bantu kami meningkatkan kualitas layanan</p>
-              </div>
-              <span className="shrink-0 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white">
-                Isi Survey
-              </span>
-            </a>
+            </details>
           </div>
         )}
 
