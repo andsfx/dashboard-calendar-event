@@ -652,9 +652,44 @@ export default function App() {
             onAddNew={handleAddNew}
           />
 
-          {/* Draft Section */}
+          {/* 1. Overview — Stat Cards (paling penting, pertama dilihat) */}
           {isAdmin && (
-            <section id="draft-section" className="scroll-mt-32">
+            <section id="overview" className="scroll-mt-20">
+              <DashboardStats stats={visibleStats} />
+            </section>
+          )}
+
+          {/* 2. Featured Events — yang sedang/akan berlangsung */}
+          {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
+            <div className="space-y-4 sm:space-y-5">
+              {ongoingEvents.length > 0 && (
+                <Suspense fallback={<SectionFallback height="h-40" />}>
+                  <FeaturedEvents
+                    events={ongoingEvents}
+                    title="Sedang Berlangsung"
+                    accent="emerald"
+                    icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                    onDetail={handleDetailClick}
+                  />
+                </Suspense>
+              )}
+              {upcomingEvents.length > 0 && (
+                <Suspense fallback={<SectionFallback height="h-40" />}>
+                  <FeaturedEvents
+                    events={upcomingEvents.slice(0, 3)}
+                    title="Segera Dimulai"
+                    accent="amber"
+                    icon={<Clock3 className="h-4 w-4 text-amber-500" />}
+                    onDetail={handleDetailClick}
+                  />
+                </Suspense>
+              )}
+            </div>
+          )}
+
+          {/* 3. Draft Queue — event yang perlu di-review/publish */}
+          {isAdmin && (
+            <section id="draft-section" className="scroll-mt-20">
               <Suspense fallback={<SectionFallback height="h-64" />}>
                 <AdminDraftSection
                   activeDrafts={activeDrafts}
@@ -674,9 +709,9 @@ export default function App() {
             </section>
           )}
 
-          {/* Community Registrations */}
+          {/* 4. Community Registrations — pendaftaran masuk */}
           {isAdmin && (
-            <section id="registrations" className="scroll-mt-32">
+            <section id="registrations" className="scroll-mt-20">
               <Suspense fallback={<SectionFallback height="h-40" />}>
                 <CommunityRegistrationSection
                   registrations={communityRegistrations}
@@ -687,44 +722,13 @@ export default function App() {
             </section>
           )}
 
-          {/* Stat Cards -- admin only at top position */}
+          {/* 5. Tema Tahunan — perencanaan jangka panjang */}
           {isAdmin && (
-            <section id="overview" className="scroll-mt-32">
-              <DashboardStats stats={visibleStats} />
-            </section>
-          )}
-
-          {/* Quarter Timeline */}
-          {isAdmin && (
-            <section id="themes" className="scroll-mt-32">
+            <section id="themes" className="scroll-mt-20">
               <Suspense fallback={<SectionFallback height="h-40" />}>
                 <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />
               </Suspense>
             </section>
-          )}
-
-          {/* Featured ongoing & upcoming */}
-          {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
-            <div className="space-y-4 sm:space-y-5">
-              <Suspense fallback={<SectionFallback height="h-40" />}>
-                <FeaturedEvents
-                  events={ongoingEvents}
-                  title="Sedang Berlangsung"
-                  accent="emerald"
-                  icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
-                  onDetail={handleDetailClick}
-                />
-              </Suspense>
-              <Suspense fallback={<SectionFallback height="h-40" />}>
-                <FeaturedEvents
-                  events={upcomingEvents.slice(0, 3)}
-                  title="Segera Dimulai"
-                  accent="amber"
-                  icon={<Clock3 className="h-4 w-4 text-amber-500" />}
-                  onDetail={handleDetailClick}
-                />
-              </Suspense>
-            </div>
           )}
 
         {/* Featured for public -- ongoing + upcoming */}
@@ -766,18 +770,8 @@ export default function App() {
           </section>
         )}
 
-          {/* Category chart */}
-          {isAdmin && (
-            <section id="category-chart" className="scroll-mt-32">
-              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                <Suspense fallback={<SectionFallback height="h-48" />}>
-                  <CategoryChart events={events} />
-                </Suspense>
-              </div>
-            </section>
-          )}
-
-        <section id="views" className="scroll-mt-32">
+        {/* 6. Jadwal Event — tabel/kalender/kanban/timeline */}
+        <section id="views" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <DashboardViewsSection
               viewMode={viewMode}
@@ -806,6 +800,17 @@ export default function App() {
             />
           </Suspense>
         </section>
+
+        {/* 7. Category Chart — statistik/analytics */}
+          {isAdmin && (
+            <section id="category-chart" className="scroll-mt-20">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <Suspense fallback={<SectionFallback height="h-48" />}>
+                  <CategoryChart events={events} />
+                </Suspense>
+              </div>
+            </section>
+          )}
 
         {/* Stat Cards -- public at bottom position */}
         {!isAdmin && <DashboardStats stats={visibleStats} />}
