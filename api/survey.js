@@ -368,13 +368,14 @@ async function handleStats(req, res) {
 
   const uniqueEvents = new Set((eventIds || []).map(r => r.event_id)).size;
 
-  // Average mall ratings across all responses
+  // Average ratings across all responses
   const { data: allResponses } = await sb
     .from('survey_responses')
-    .select('mall_cleanliness, mall_staff_service, mall_coordination, mall_security, eo_recommendation, survey_type')
+    .select('mall_cleanliness, mall_staff_service, mall_coordination, mall_security, eo_event_quality, eo_organization, eo_committee_service, eo_promotion_accuracy, eo_recommendation, survey_type')
     .limit(5000);
 
   let mallAvg = null;
+  let eoAvg = null;
   let npsScore = null;
 
   if (allResponses && allResponses.length > 0) {
@@ -394,6 +395,28 @@ async function handleStats(req, res) {
       overall: +((sum.cleanliness + sum.staff + sum.coord + sum.security) / (n * 4)).toFixed(1),
     };
 
+    // EO averages from public responses
+    const publicResponses = allResponses.filter(r => r.survey_type === 'public' && r.eo_event_quality != null);
+    if (publicResponses.length > 0) {
+      const eoSum = { quality: 0, org: 0, committee: 0, promo: 0, rec: 0 };
+      for (const r of publicResponses) {
+        eoSum.quality += r.eo_event_quality || 0;
+        eoSum.org += r.eo_organization || 0;
+        eoSum.committee += r.eo_committee_service || 0;
+        eoSum.promo += r.eo_promotion_accuracy || 0;
+        eoSum.rec += r.eo_recommendation || 0;
+      }
+      const pn = publicResponses.length;
+      eoAvg = {
+        event_quality: +(eoSum.quality / pn).toFixed(1),
+        organization: +(eoSum.org / pn).toFixed(1),
+        committee_service: +(eoSum.committee / pn).toFixed(1),
+        promotion_accuracy: +(eoSum.promo / pn).toFixed(1),
+        recommendation: +(eoSum.rec / pn).toFixed(1),
+        overall: +((eoSum.quality + eoSum.org + eoSum.committee + eoSum.promo + eoSum.rec) / (pn * 5)).toFixed(1),
+      };
+    }
+
     // NPS from public responses
     const publicWithNps = allResponses.filter(r => r.survey_type === 'public' && r.eo_recommendation != null);
     if (publicWithNps.length > 0) {
@@ -403,12 +426,12 @@ async function handleStats(req, res) {
     }
   }
 
-  // Recent responses (last 10)
+  // Recent responses (last 10) — include comments for detail view
   const { data: recent } = await sb
     .from('survey_responses')
-    .select('id, event_id, survey_type, mall_cleanliness, mall_staff_service, mall_coordination, mall_security, eo_recommendation, respondent_name, created_at')
+    .select('id, event_id, survey_type, mall_cleanliness, mall_staff_service, mall_coordination, mall_security, eo_event_quality, eo_organization, eo_committee_service, eo_promotion_accuracy, eo_recommendation, respondent_name, respondent_email, mall_comment, eo_comment, general_comment, created_at')
     .order('created_at', { ascending: false })
-    .limit(10);
+    .limit(20);
 
   return res.json({
     success: true,
@@ -418,6 +441,7 @@ async function handleStats(req, res) {
       public_responses: publicCount || 0,
       unique_events: uniqueEvents,
       mall_avg: mallAvg,
+      eo_avg: eoAvg,
       nps_score: npsScore,
       recent: recent || [],
     },
