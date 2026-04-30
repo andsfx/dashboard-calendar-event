@@ -67,9 +67,11 @@ export default async function handler(req, res) {
     }
 
     try {
+      console.log('[auth/login] step 1: creating clients');
       const anonSb = getAnonSupabase();
       const serviceSb = getServiceSupabase();
 
+      console.log('[auth/login] step 2: signInWithPassword');
       const { data: authData, error: authError } = await anonSb.auth.signInWithPassword({ email, password });
 
       if (authError) {
@@ -87,6 +89,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, error: 'Login gagal' });
       }
 
+      console.log('[auth/login] step 3: lookup user in DB, userId:', authData.user.id);
       const { data: dbUser, error: dbError } = await serviceSb
         .from('users')
         .select('id, email, display_name, role, is_active')
@@ -102,28 +105,30 @@ export default async function handler(req, res) {
         return res.status(403).json({ success: false, error: 'Akun dinonaktifkan. Hubungi superadmin.' });
       }
 
+      console.log('[auth/login] step 4: update last_login_at');
       await serviceSb.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', dbUser.id).catch(() => {});
 
+      console.log('[auth/login] step 5: set cookies');
       const maxAge = authData.session.expires_in || 3600;
-      const isProduction = process.env.NODE_ENV === 'production';
-      const domain = isProduction ? process.env.COOKIE_DOMAIN : undefined;
-      const domainStr = domain ? `; Domain=${domain}` : '';
+      const domainStr = process.env.COOKIE_DOMAIN ? `; Domain=${process.env.COOKIE_DOMAIN}` : '';
 
       res.setHeader('Set-Cookie', [
-        `sb-access-token=${authData.session.access_token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${maxAge}${domainStr}`,
-        `sb-refresh-token=${authData.session.refresh_token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${60 * 60 * 24 * 30}${domainStr}`,
+        `sb-access-token=${authData.session.access_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}${domainStr}`,
+        `sb-refresh-token=${authData.session.refresh_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 24 * 30}${domainStr}`,
       ]);
 
-      await logActivity({ user: dbUser, legacy: false }, 'login', 'user', dbUser.id, { email: dbUser.email }, req);
+      console.log('[auth/login] step 6: log activity');
+      await logActivity({ user: dbUser, legacy: false }, 'login', 'user', dbUser.id, { email: dbUser.email }, req).catch(() => {});
 
+      console.log('[auth/login] step 7: return success');
       return res.status(200).json({
         success: true,
         user: { id: dbUser.id, email: dbUser.email, display_name: dbUser.display_name, role: dbUser.role },
         session: { access_token: authData.session.access_token, expires_at: authData.session.expires_at },
       });
     } catch (err) {
-      console.error('[auth/login] unexpected:', err);
-      return res.status(500).json({ success: false, error: 'Login gagal. Coba lagi nanti.' });
+      console.error('[auth/login] unexpected:', err?.message || err, err?.stack);
+      return res.status(500).json({ success: false, error: 'Login gagal. Coba lagi nanti.', debug: String(err?.message || err) });
     }
   }
 
