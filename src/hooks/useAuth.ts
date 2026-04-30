@@ -19,7 +19,7 @@ export function useAuth() {
 
     async function checkSession() {
       try {
-        const res = await fetch('/api/auth-me', {
+        const res = await fetch('/api/auth?action=me', {
           method: 'GET',
           credentials: 'include',
         });
@@ -71,7 +71,7 @@ export function useAuth() {
   // ─── Login with email + password (Supabase Auth) ────────────────
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     try {
-      const res = await fetch('/api/auth-login', {
+      const res = await fetch('/api/auth?action=login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ export function useAuth() {
   const logout = useCallback(async () => {
     try {
       // Use new auth-logout (clears both Supabase + legacy cookies)
-      await fetch('/api/auth-logout', {
+      await fetch('/api/auth?action=logout', {
         method: 'POST',
         credentials: 'include',
       });
