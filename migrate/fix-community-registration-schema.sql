@@ -122,13 +122,16 @@ END $$;
 
 -- Backfill organization_type and organization_name for existing rows
 -- Must run BEFORE adding CHECK constraint on organization_type
+-- Also normalizes legacy value 'community' → 'komunitas'
 UPDATE community_registrations
 SET 
   organization_type = 'komunitas',
-  organization_name = community_name
+  organization_name = COALESCE(NULLIF(organization_name, ''), community_name)
 WHERE 
-  organization_type IS NULL 
-  OR organization_name IS NULL;
+  organization_type IS NULL
+  OR organization_type NOT IN ('komunitas', 'umkm', 'organisasi', 'lainnya')
+  OR organization_name IS NULL
+  OR organization_name = '';
 
 
 -- ============================================================================
