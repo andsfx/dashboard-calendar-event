@@ -5,6 +5,7 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
+import { validateEmail, validatePhone, validateInstagram } from '../../utils/validation';
 
 const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
   community: 'Komunitas',
@@ -48,12 +49,21 @@ const INITIAL_FORM: FormData = {
 function RegistrationForm() {
   const [form, setForm] = useState<FormData>({ ...INITIAL_FORM });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
     setError('');
+    // Clear field-specific error when user types
+    if (key === 'email' || key === 'phone' || key === 'instagram') {
+      setFieldErrors(prev => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
+    }
   };
 
   const handleOrgTypeChange = (type: OrganizationType) => {
@@ -76,6 +86,41 @@ function RegistrationForm() {
       setError('Lengkapi nama organisasi, PIC, dan nomor telepon ya!');
       return;
     }
+
+    // Validate fields using validation utilities
+    const errors: Record<string, string> = {};
+
+    // Validate email (optional field - only validate if provided)
+    if (form.email.trim()) {
+      const emailResult = validateEmail(form.email);
+      if (!emailResult.valid && emailResult.error) {
+        errors.email = emailResult.error;
+      }
+    }
+
+    // Validate phone (required field)
+    const phoneResult = validatePhone(form.phone);
+    if (!phoneResult.valid && phoneResult.error) {
+      errors.phone = phoneResult.error;
+    }
+
+    // Validate Instagram (optional field - only validate if provided)
+    if (form.instagram.trim()) {
+      const instagramResult = validateInstagram(form.instagram);
+      if (!instagramResult.valid && instagramResult.error) {
+        errors.instagram = instagramResult.error;
+      }
+    }
+
+    // If there are validation errors, set them and return early
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError('Mohon perbaiki kesalahan pada form.');
+      return;
+    }
+
+    // Clear field errors if validation passes
+    setFieldErrors({});
 
     // For community type, communityType comes from typeSpecificData
     const communityType = form.organizationType === 'community'
@@ -194,15 +239,59 @@ function RegistrationForm() {
             </div>
             <div>
               <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-500">*</span></label>
-              <input id="reg-phone" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="Nomor WhatsApp" type="tel" autoComplete="tel" required className={inputClass} />
+              <input 
+                id="reg-phone" 
+                value={form.phone} 
+                onChange={e => setField('phone', e.target.value)} 
+                placeholder="Nomor WhatsApp" 
+                type="tel" 
+                autoComplete="tel" 
+                required 
+                className={inputClass}
+                aria-invalid={!!fieldErrors.phone}
+                aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
+              />
+              {fieldErrors.phone && (
+                <p id="phone-error" className="text-red-500 text-sm mt-1" role="alert">
+                  {fieldErrors.phone}
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="reg-email" className={labelClass}>Email</label>
-              <input id="reg-email" value={form.email} onChange={e => setField('email', e.target.value)} placeholder="Email (opsional)" type="email" autoComplete="email" className={inputClass} />
+              <input 
+                id="reg-email" 
+                value={form.email} 
+                onChange={e => setField('email', e.target.value)} 
+                placeholder="Email (opsional)" 
+                type="email" 
+                autoComplete="email" 
+                className={inputClass}
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+              />
+              {fieldErrors.email && (
+                <p id="email-error" className="text-red-500 text-sm mt-1" role="alert">
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="reg-instagram" className={labelClass}>Instagram / Media Sosial</label>
-              <input id="reg-instagram" value={form.instagram} onChange={e => setField('instagram', e.target.value)} placeholder="@username atau URL" className={inputClass} />
+              <input 
+                id="reg-instagram" 
+                value={form.instagram} 
+                onChange={e => setField('instagram', e.target.value)} 
+                placeholder="@username atau URL" 
+                className={inputClass}
+                aria-invalid={!!fieldErrors.instagram}
+                aria-describedby={fieldErrors.instagram ? 'instagram-error' : undefined}
+              />
+              {fieldErrors.instagram && (
+                <p id="instagram-error" className="text-red-500 text-sm mt-1" role="alert">
+                  {fieldErrors.instagram}
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</label>
