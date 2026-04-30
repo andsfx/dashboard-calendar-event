@@ -50,7 +50,6 @@ const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModa
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
-const SurveyPopup = lazy(() => import('./components/survey/SurveyPopup'));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
@@ -866,12 +865,7 @@ export default function App() {
         </main>
         )}
 
-        {/* Survey popup for public — shows after event ends */}
-        {!isAdmin && (
-          <Suspense fallback={null}>
-            <SurveyPopup pastEvents={events.filter(e => e.status === 'past')} />
-          </Suspense>
-        )}
+
       </div>
 
       {/* Modals */}
