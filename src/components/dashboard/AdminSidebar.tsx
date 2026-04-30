@@ -16,6 +16,7 @@ import {
   Crown,
   Menu,
   X,
+  ClipboardCheck,
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
 
@@ -75,9 +76,10 @@ export const AdminSidebar = memo(function AdminSidebar({
       ],
     },
     {
-      label: 'Community',
+      label: 'Engagement',
       items: [
         { id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'scroll' },
+        { id: 'survey-section', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'scroll' },
       ],
     },
     {

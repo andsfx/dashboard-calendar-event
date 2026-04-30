@@ -49,6 +49,8 @@ const EventLetterPickerModal = lazy(() => import('./components/EventLetterPicker
 const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
+const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
+const SurveyPopup = lazy(() => import('./components/survey/SurveyPopup'));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
@@ -829,6 +831,15 @@ export default function App() {
             </section>
           )}
 
+        {/* 8. Survey Kepuasan — admin only */}
+        {isAdmin && (
+          <section id="survey-section" className="scroll-mt-20">
+            <Suspense fallback={<SectionFallback height="h-48" />}>
+              <SurveyDashboard events={events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
+            </Suspense>
+          </section>
+        )}
+
         {/* Public: 5. Tema Tahunan — paling bawah */}
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
@@ -853,6 +864,13 @@ export default function App() {
             </div>
           </footer>
         </main>
+        )}
+
+        {/* Survey popup for public — shows after event ends */}
+        {!isAdmin && (
+          <Suspense fallback={null}>
+            <SurveyPopup pastEvents={events.filter(e => e.status === 'past')} />
+          </Suspense>
         )}
       </div>
 
