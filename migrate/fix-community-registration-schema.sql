@@ -117,10 +117,26 @@ END $$;
 
 
 -- ============================================================================
--- STEP 3: Add validation constraints
+-- STEP 3: Backfill existing data BEFORE adding constraints
+-- ============================================================================
+
+-- Backfill organization_type and organization_name for existing rows
+-- Must run BEFORE adding CHECK constraint on organization_type
+UPDATE community_registrations
+SET 
+  organization_type = 'komunitas',
+  organization_name = community_name
+WHERE 
+  organization_type IS NULL 
+  OR organization_name IS NULL;
+
+
+-- ============================================================================
+-- STEP 4: Add validation constraints (after backfill)
 -- ============================================================================
 
 -- Add CHECK constraint for organization_type (enum values)
+-- NULL is allowed for backward compatibility with rows added before this migration
 DO $$ 
 BEGIN
   IF NOT EXISTS (
@@ -129,13 +145,13 @@ BEGIN
   ) THEN
     ALTER TABLE community_registrations
       ADD CONSTRAINT chk_organization_type
-      CHECK (organization_type IN ('komunitas', 'umkm', 'organisasi', 'lainnya'));
+      CHECK (organization_type IS NULL OR organization_type IN ('komunitas', 'umkm', 'organisasi', 'lainnya'));
   END IF;
 END $$;
 
 
 -- ============================================================================
--- STEP 4: Add unique constraint to prevent duplicates
+-- STEP 5: Add unique constraint to prevent duplicates
 -- ============================================================================
 
 -- Add unique constraint on (email, phone) combination
@@ -162,20 +178,6 @@ BEGIN
     END IF;
   END IF;
 END $$;
-
-
--- ============================================================================
--- STEP 5: Backfill existing data
--- ============================================================================
-
--- Backfill organization_type and organization_name for existing rows
-UPDATE community_registrations
-SET 
-  organization_type = 'komunitas',
-  organization_name = community_name
-WHERE 
-  organization_type IS NULL 
-  OR organization_name IS NULL;
 
 
 -- ============================================================================
