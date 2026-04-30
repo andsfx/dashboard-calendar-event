@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       }
 
       console.log('[auth/login] step 4: update last_login_at');
-      await serviceSb.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', dbUser.id).catch(() => {});
+      try { await serviceSb.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', dbUser.id); } catch {};
 
       console.log('[auth/login] step 5: set cookies');
       const maxAge = authData.session.expires_in || 3600;
