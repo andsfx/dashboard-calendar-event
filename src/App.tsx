@@ -48,6 +48,7 @@ const DraftLetterModal = lazy(() => import('./components/DraftLetterModal').then
 const EventLetterPickerModal = lazy(() => import('./components/EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
 const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
+const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
@@ -587,6 +588,13 @@ export default function App() {
       <Route path="/gallery/:slug" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <GalleryAlbumPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+
+      {/* Survey — standalone page */}
+      <Route path="/survey/:eventId" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <SurveyPage />
         </Suspense>
       } />
 
