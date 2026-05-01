@@ -9,8 +9,8 @@ import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEven
 interface Props {
   events: EventItem[];
   isAdmin: boolean;
-  onEdit: (ev: EventItem) => void;
-  onDelete: (ev: EventItem) => void;
+  onEdit?: (ev: EventItem) => void;
+  onDelete?: (ev: EventItem) => void;
   onDetail: (ev: EventItem) => void;
 }
 
@@ -154,21 +154,21 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   >
                     <ExternalLink className="h-3.5 w-3.5" /> Detail
                   </button>
-                  {isAdmin && (
-                    <>
+                  {onEdit && (
                       <button
                         onClick={() => onEdit(ev)}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"
                       >
                         <Edit2 className="h-3.5 w-3.5" /> Edit
                       </button>
+                  )}
+                  {onDelete && (
                       <button
                         onClick={() => onDelete(ev)}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Hapus
                       </button>
-                    </>
                   )}
                 </div>
               </div>
@@ -291,8 +291,9 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
-                        {isAdmin && (
+                        {(onEdit || onDelete) && (
                           <>
+                            {onEdit && (
                             <button
                               onClick={() => onEdit(ev)}
                               aria-label="Edit acara"
@@ -300,6 +301,8 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
+                            )}
+                            {onDelete && (
                             <button
                               onClick={() => onDelete(ev)}
                               aria-label="Hapus acara"
@@ -307,6 +310,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
+                            )}
                           </>
                         )}
                       </div>

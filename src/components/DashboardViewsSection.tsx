@@ -28,8 +28,8 @@ interface Props {
   setActiveMonth: (value: string) => void;
   visibleCategories: string[];
   visibleMonths: string[];
-  onEdit: (event: EventItem) => void;
-  onDelete: (event: EventItem) => void;
+  onEdit?: (event: EventItem) => void;
+  onDelete?: (event: EventItem) => void;
   onDetail: (event: EventItem) => void;
 }
 

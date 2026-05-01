@@ -152,7 +152,7 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user || isLegacy,
-    isAdmin: isLegacy || (user?.role === 'admin') || (user?.role === 'superadmin'),
+    isAdmin: isLegacy || (user?.role === 'admin') || (user?.role === 'superadmin') || (user?.role === 'viewer') || (user?.role === 'eo_tenant'),
     isSuperadmin: user?.role === 'superadmin',
     isLegacy,
   }), [user, isLoading, isLegacy]);

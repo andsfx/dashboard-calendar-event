@@ -14,6 +14,7 @@ import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
+import { usePermission } from './hooks/usePermission';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId } from './utils/eventUtils';
 import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
@@ -71,6 +72,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
   const isAdmin = auth.isAdmin;
+  const permissions = usePermission(auth.user, auth.isLegacy);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
@@ -660,7 +662,7 @@ export default function App() {
             onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
             onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
             onOpenLetterPicker={handleOpenLetterPicker}
-            onAddNew={handleAddNew}
+            onAddNew={permissions.canEditEvents ? handleAddNew : undefined}
           />
 
           {/* 1. Overview — Stat Cards (paling penting, pertama dilihat) */}
@@ -737,7 +739,7 @@ export default function App() {
           {isAdmin && (
             <section id="themes" className="scroll-mt-20">
               <Suspense fallback={<SectionFallback height="h-40" />}>
-                <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={handleAddTheme} onEditTheme={handleEditTheme} onDeleteTheme={handleDeleteTheme} />
+                <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handleDeleteTheme : undefined} />
               </Suspense>
             </section>
           )}
@@ -814,8 +816,8 @@ export default function App() {
               setActiveMonth={setActiveMonth}
               visibleCategories={visibleCategories}
               visibleMonths={visibleMonths}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
+              onEdit={permissions.canEditEvents ? handleEdit : undefined}
+              onDelete={permissions.canDeleteEvents ? handleDeleteClick : undefined}
               onDetail={handleDetailClick}
             />
           </Suspense>
@@ -924,9 +926,9 @@ export default function App() {
         showDetailModal={showDetailModal}
         onCloseDetailModal={() => { setShowDetailModal(false); setDetailEvent(null); }}
         detailEvent={detailEvent}
-        onEdit={isAdmin ? handleEdit : undefined}
-        onDelete={isAdmin ? handleDeleteClick : undefined}
-        onDeleteSeries={isAdmin ? handleDeleteSeries : undefined}
+        onEdit={permissions.canEditEvents ? handleEdit : undefined}
+        onDelete={permissions.canDeleteEvents ? handleDeleteClick : undefined}
+        onDeleteSeries={permissions.canDeleteEvents ? handleDeleteSeries : undefined}
         isAdmin={isAdmin}
         showInstagramSettings={showInstagramSettings}
         onCloseInstagramSettings={() => setShowInstagramSettings(false)}

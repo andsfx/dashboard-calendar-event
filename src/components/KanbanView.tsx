@@ -50,8 +50,8 @@ const COLUMNS: Array<{
 interface Props {
   events: EventItem[];
   isAdmin: boolean;
-  onEdit: (ev: EventItem) => void;
-  onDelete: (ev: EventItem) => void;
+  onEdit?: (ev: EventItem) => void;
+  onDelete?: (ev: EventItem) => void;
   onDetail: (ev: EventItem) => void;
 }
 
@@ -59,8 +59,8 @@ function EventCard({
   ev, isAdmin, onEdit, onDelete, onDetail, cardBorder,
 }: {
   ev: EventItem; isAdmin: boolean;
-  onEdit: (e: EventItem) => void;
-  onDelete: (e: EventItem) => void;
+  onEdit?: (e: EventItem) => void;
+  onDelete?: (e: EventItem) => void;
   onDetail: (e: EventItem) => void;
   cardBorder: string;
 }) {
@@ -94,8 +94,9 @@ function EventCard({
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
-            {isAdmin && (
+            {(onEdit || onDelete) && (
               <>
+                {onEdit && (
                 <button
                   onClick={() => onEdit(ev)}
                   title="Edit"
@@ -104,6 +105,8 @@ function EventCard({
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />
                 </button>
+                )}
+                {onDelete && (
                 <button
                   onClick={() => onDelete(ev)}
                   title="Hapus"
@@ -112,6 +115,7 @@ function EventCard({
                 >
                   <Trash2 className="h-3 w-3" aria-hidden="true" />
                 </button>
+                )}
               </>
             )}
           </div>
