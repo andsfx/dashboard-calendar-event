@@ -3,7 +3,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PAT = process.env.SUPABASE_PAT || 'sbp_a73696cb33cf515b0b38dead0efc91f3dd091ec7';
+const PAT = process.env.SUPABASE_PAT || 'sbp_e3c5fe50ab23c9805dee15a5bb4bd767a84c47d6';
 
 const migrationFile = process.argv[2];
 let sql;
@@ -13,12 +13,12 @@ if (migrationFile) {
   console.log(`Running: ${migrationFile}`);
 } else {
   sql = `SELECT json_build_object(
-    'role_constraint', (SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='public.users'::regclass AND conname='users_role_check'),
-    'new_columns', (SELECT json_agg(column_name) FROM information_schema.columns WHERE table_name='users' AND column_name IN ('eo_organization','assigned_events','avatar_url')),
-    'activity_indexes', (SELECT json_agg(indexname) FROM pg_indexes WHERE tablename='activity_logs'),
-    'policies_count', (SELECT count(*) FROM pg_policies WHERE tablename IN ('users','activity_logs'))
+    'event_photos_cols', (SELECT json_agg(column_name ORDER BY ordinal_position) FROM information_schema.columns WHERE table_name='event_photos'),
+    'photo_albums_cols', (SELECT json_agg(column_name ORDER BY ordinal_position) FROM information_schema.columns WHERE table_name='photo_albums'),
+    'event_photos_count', (SELECT count(*) FROM event_photos),
+    'photo_albums_count', (SELECT count(*) FROM photo_albums)
   ) as info`;
-  console.log('Verifying schema...');
+  console.log('Checking photo tables...');
 }
 
 const res = await fetch('https://api.supabase.com/v1/projects/xddqinydbuargyfseycw/database/query', {

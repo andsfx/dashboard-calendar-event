@@ -4,6 +4,7 @@ import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 
 const SurveyQRCode = lazy(() => import('./survey/SurveyQRCode'));
+import { EventPhotoGallery } from './EventPhotoGallery';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { CATEGORY_COLORS, isMultiDayEvent, formatDateRange, getMultiDayJamDisplay, getEventDuration, parseDateStrLocal, MONTH_NAMES, isRecurringEvent, getRecurringSeries } from '../utils/eventUtils';
@@ -214,6 +215,17 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </div>
           )}
         </div>
+
+        {/* Photo Gallery — for ongoing + past events */}
+        {(event.status === 'ongoing' || event.status === 'past') && (
+          <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-700 sm:px-6">
+            <EventPhotoGallery
+              eventId={event.id}
+              eventName={event.acara}
+              canUpload={isAdmin}
+            />
+          </div>
+        )}
 
         {/* Survey section — for past events (both admin & public) */}
         {event.status === 'past' && (
