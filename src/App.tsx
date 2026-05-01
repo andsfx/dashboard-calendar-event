@@ -53,6 +53,7 @@ const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
 const UserManagement = lazy(() => import('./components/admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('./components/admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
+const AnalyticsDashboard = lazy(() => import('./components/admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
@@ -823,14 +824,12 @@ export default function App() {
           </Suspense>
         </section>
 
-        {/* 7. Category Chart — statistik/analytics */}
+        {/* 7. Analytics — statistik lanjutan */}
           {isAdmin && (
             <section id="category-chart" className="scroll-mt-20">
-              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                <Suspense fallback={<SectionFallback height="h-48" />}>
-                  <CategoryChart events={events} />
-                </Suspense>
-              </div>
+              <Suspense fallback={<SectionFallback height="h-80" />}>
+                <AnalyticsDashboard events={events} />
+              </Suspense>
             </section>
           )}
 

@@ -66,7 +66,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       label: 'Overview',
       items: [
         { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, action: 'scroll' },
-        { id: 'category-chart', label: 'Statistik', icon: <BarChart3 className="h-4 w-4" />, action: 'scroll' },
+        { id: 'category-chart', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'scroll' },
       ],
     },
     {
