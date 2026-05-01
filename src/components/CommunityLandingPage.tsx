@@ -680,12 +680,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             </div>
           </div>
         </RevealSection>
-        {/* Floating WhatsApp */}
-        <a href="https://wa.me/6281318534823?text=Halo%20saya%20mau%20tanya%20soal%20community%20space" target="_blank" rel="noopener noreferrer" className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-600 hover:scale-105 sm:bottom-6 sm:right-6" aria-label="Chat via WhatsApp">
-          <Phone className="h-5 w-5" />
-          <span className="hidden sm:inline">Chat WhatsApp</span>
-        </a>
-
         {/* Sticky Mobile CTA */}
         {isHeaderPinned && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 py-3 backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
