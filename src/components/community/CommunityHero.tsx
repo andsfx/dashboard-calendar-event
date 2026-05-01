@@ -99,7 +99,7 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
         <RevealSection as="div" className="max-w-4xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/8 px-5 py-2.5 text-[12px] font-bold uppercase tracking-[0.25em] text-white/80 backdrop-blur-sm">
             <Sparkles className="h-4 w-4 text-amber-400" />
-            Metmal Community Space
+            100+ Event Sudah Terlaksana
           </div>
 
           <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
@@ -117,6 +117,9 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
           <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
             Venue, sound system, lighting semua udah disiapin.{' '}
             Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lainnya.
+          </p>
+          <p className="mx-auto mt-4 max-w-md text-sm font-medium text-amber-300/90">
+            Slot terbatas setiap bulan — daftar sekarang sebelum penuh!
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

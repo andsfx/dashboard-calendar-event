@@ -347,7 +347,7 @@ function RevealSection({
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
       {label}
     </p>
   );
@@ -364,6 +364,12 @@ export function CommunityRegistrationForm() {
           </h2>
           <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">
             Isi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu secepatnya.
+          </p>
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Mau tanya-tanya dulu?{' '}
+            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">
+              Chat via WhatsApp
+            </a>
           </p>
           <div className="mt-8 space-y-4">
             <div className="flex items-start gap-3">

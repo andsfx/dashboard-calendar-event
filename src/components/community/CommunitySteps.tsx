@@ -33,7 +33,7 @@ function RevealSection({
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
       {label}
     </p>
   );

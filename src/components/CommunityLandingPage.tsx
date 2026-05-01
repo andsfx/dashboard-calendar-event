@@ -166,9 +166,18 @@ function LogoMark({ className = '' }: { className?: string }) {
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
       {label}
     </p>
+  );
+}
+
+function StatBadge({ number, label }: { number: string; label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-2xl font-extrabold text-violet-600 dark:text-violet-400 sm:text-3xl">{number}</span>
+      <span className="text-left text-xs font-medium text-slate-600 dark:text-slate-400 leading-tight">{label}</span>
+    </div>
   );
 }
 
@@ -206,7 +215,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
 
   useEffect(() => {
     if (!isVisible || hasError) return;
-    const timer = setTimeout(() => setTimedOut(true), 30000);
+    const timer = setTimeout(() => setTimedOut(true), 10000);
     return () => clearTimeout(timer);
   }, [isVisible, hasError]);
 
@@ -463,10 +472,33 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         </div>
       </header>
 
+      {/* Skip to register */}
+      <a href="#register" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white">
+        Langsung ke form pendaftaran
+      </a>
+
       <main>
         <CommunityHero heroImageUrl={heroImageUrl} />
+
+        {/* ─── Social Proof Strip ─────────────────────────────── */}
+        <RevealSection className="border-b border-black/5 bg-white px-4 py-10 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
+          <div className="mx-auto max-w-7xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+              Dipercaya oleh komunitas di Bekasi
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+              <StatBadge number="100+" label="Event Terlaksana" />
+              <StatBadge number="50+" label="Komunitas Bergabung" />
+              <StatBadge number="10,000+" label="Total Pengunjung" />
+            </div>
+          </div>
+        </RevealSection>
+
         <CommunityBenefits />
         <CommunityFacilities />
+        <CommunitySteps />
+        <CommunityFAQ />
+        <CommunityRegistrationForm />
 
         {/* ─── Gallery / Instagram ───────────────────────────── */}
         <RevealSection id="gallery" className="px-4 py-20 sm:px-6" skeleton={<SkeletonGalleryAlbums />}>
@@ -592,10 +624,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </RevealSection>
         )}
 
-        <CommunitySteps />
-        <CommunityRegistrationForm />
-        <CommunityFAQ />
-
         {/* ─── Contact ───────────────────────────────────────── */}
         <RevealSection className="px-4 py-20 sm:px-6">
           <div className="mx-auto max-w-7xl">
@@ -652,10 +680,25 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             </div>
           </div>
         </RevealSection>
+        {/* Floating WhatsApp */}
+        <a href="https://wa.me/6281318534823?text=Halo%20saya%20mau%20tanya%20soal%20community%20space" target="_blank" rel="noopener noreferrer" className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-600 hover:scale-105 sm:bottom-6 sm:right-6" aria-label="Chat via WhatsApp">
+          <Phone className="h-5 w-5" />
+          <span className="hidden sm:inline">Chat WhatsApp</span>
+        </a>
+
+        {/* Sticky Mobile CTA */}
+        {isHeaderPinned && (
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 py-3 backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
+            <a href="#register" className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg">
+              Daftar Gratis Sekarang
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        )}
       </main>
 
       {/* ─── Footer ──────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200/50 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
+      <footer className="border-t border-slate-200/50 bg-[#fbfaf7] px-4 py-8 pb-20 sm:pb-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <LogoMark className="h-auto w-[102px] opacity-90" />

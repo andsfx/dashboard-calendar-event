@@ -5,25 +5,25 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
   {
     icon: <Trophy className="h-7 w-7" aria-hidden="true" />,
-    title: 'Sponsorship Opportunities',
+    title: 'Dukungan Sponsorship',
     desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu connect dengan brand dan tenant yang relevan.',
     color: '#f59e0b',
   },
   {
     icon: <Megaphone className="h-7 w-7" aria-hidden="true" />,
-    title: 'Marketing Support',
+    title: 'Promosi & Marketing',
     desc: 'Tim marketing kami bantu promosiin event kamu lewat social media, digital signage, dan channel mall lainnya.',
     color: '#ec4899',
   },
   {
     icon: <Rocket className="h-7 w-7" aria-hidden="true" />,
-    title: 'Grow Your Community',
+    title: 'Kembangkan Komunitas',
     desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
     color: '#8b5cf6',
   },
   {
     icon: <Zap className="h-7 w-7" aria-hidden="true" />,
-    title: 'Free Venue & Event Tools',
+    title: 'Venue & Peralatan Gratis',
     desc: 'Panggung, sound system, lighting, kursi penonton — semua GRATIS. Kamu tinggal fokus bikin acara yang seru.',
     color: '#10b981',
   },
@@ -54,7 +54,7 @@ function RevealSection({
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
       {label}
     </p>
   );
