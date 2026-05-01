@@ -111,8 +111,12 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
-            Lagi cari tempat buat event atau kumpul komunitas? Di Metropolitan Mall Bekasi <strong className="text-white">GRATIS</strong>!
-            Venue, sound system, lighting semua udah disiapin. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lainnya.
+            Lagi cari tempat buat event atau kumpul komunitas?{' '}
+            Di Metropolitan Mall Bekasi <strong className="text-white">GRATIS!</strong>
+          </p>
+          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
+            Venue, sound system, lighting semua udah disiapin.{' '}
+            Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lainnya.
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
