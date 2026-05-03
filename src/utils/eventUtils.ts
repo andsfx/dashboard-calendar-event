@@ -288,6 +288,24 @@ export function getStatus(dateStr: string, jam: string, dateEnd?: string): Event
     
     if (today > endTarget) return 'past';
     if (today < startTarget) return 'upcoming';
+    
+    // On the last day, check end time
+    if (today.getTime() === endTarget.getTime() && jam) {
+      try {
+        const endMatch = jam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
+        if (endMatch && endMatch[1] && endMatch[2]) {
+          const endHour = parseInt(endMatch[1]);
+          const endMin = parseInt(endMatch[2]);
+          const endTime = new Date(now);
+          endTime.setHours(endHour, endMin, 0);
+          
+          if (now > endTime) return 'past';
+        }
+      } catch (e) {
+        console.error('Error parsing end time for multi-day event:', e);
+      }
+    }
+    
     return 'ongoing'; // today is within range
   }
   

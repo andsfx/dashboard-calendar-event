@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { sortEvents, recalculateStatuses, parseDateStrLocal, generateRecurringDates } from '../eventUtils'
+import { describe, it, expect, vi } from 'vitest'
+import { sortEvents, recalculateStatuses, parseDateStrLocal, generateRecurringDates, getStatus } from '../eventUtils'
 import type { EventItem, RecurrenceRule } from '../../types'
 
 describe('eventUtils', () => {
@@ -103,6 +103,68 @@ describe('eventUtils', () => {
       
       const dates = generateRecurringDates('2024-02-01', rule)
       expect(dates).toEqual([])
+    })
+  })
+
+  describe('getStatus - multi-day events', () => {
+    it('marks multi-day event as past after end time on last day', () => {
+      // Mock current time: 3 Mei 2026, 18:00 (6 PM)
+      const mockDate = new Date('2026-05-03T18:00:00')
+      vi.setSystemTime(mockDate)
+      
+      // Event: 2-3 Mei, jam 10.00-17.00
+      const status = getStatus('2026-05-02', '10.00 - 17.00', '2026-05-03')
+      expect(status).toBe('past')
+      
+      vi.useRealTimers()
+    })
+
+    it('marks multi-day event as ongoing during end time on last day', () => {
+      // Mock current time: 3 Mei 2026, 15:00 (3 PM)
+      const mockDate = new Date('2026-05-03T15:00:00')
+      vi.setSystemTime(mockDate)
+      
+      // Event: 2-3 Mei, jam 10.00-17.00
+      const status = getStatus('2026-05-02', '10.00 - 17.00', '2026-05-03')
+      expect(status).toBe('ongoing')
+      
+      vi.useRealTimers()
+    })
+
+    it('marks multi-day event as ongoing on middle days', () => {
+      // Mock current time: 3 Mei 2026, 12:00
+      const mockDate = new Date('2026-05-03T12:00:00')
+      vi.setSystemTime(mockDate)
+      
+      // Event: 2-4 Mei, jam 10.00-17.00
+      const status = getStatus('2026-05-02', '10.00 - 17.00', '2026-05-04')
+      expect(status).toBe('ongoing')
+      
+      vi.useRealTimers()
+    })
+
+    it('marks multi-day event as past after end date', () => {
+      // Mock current time: 5 Mei 2026
+      const mockDate = new Date('2026-05-05T10:00:00')
+      vi.setSystemTime(mockDate)
+      
+      // Event: 2-3 Mei
+      const status = getStatus('2026-05-02', '10.00 - 17.00', '2026-05-03')
+      expect(status).toBe('past')
+      
+      vi.useRealTimers()
+    })
+
+    it('marks multi-day event as upcoming before start date', () => {
+      // Mock current time: 1 Mei 2026
+      const mockDate = new Date('2026-05-01T10:00:00')
+      vi.setSystemTime(mockDate)
+      
+      // Event: 2-3 Mei
+      const status = getStatus('2026-05-02', '10.00 - 17.00', '2026-05-03')
+      expect(status).toBe('upcoming')
+      
+      vi.useRealTimers()
     })
   })
 })
