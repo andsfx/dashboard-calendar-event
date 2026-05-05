@@ -669,6 +669,21 @@ export async function updateRegistrationStatus(id: string, status: string, admin
 
 // ---- Community Registration (public, via anon key) ----
 
+// Map frontend organization types to backend types
+function mapOrganizationType(frontendType?: string): string {
+  const typeMap: Record<string, string> = {
+    'community': 'komunitas',
+    'school': 'organisasi',
+    'company': 'umkm',
+    'eo': 'organisasi',
+    'campus': 'organisasi',
+    'government': 'organisasi',
+    'ngo': 'organisasi',
+    'other': 'lainnya',
+  };
+  return typeMap[frontendType || ''] || 'komunitas';
+}
+
 export async function submitCommunityRegistration(data: {
   communityName: string;
   communityType: string;
@@ -687,7 +702,7 @@ export async function submitCommunityRegistration(data: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      organization_type: data.organizationType || 'komunitas',
+      organization_type: mapOrganizationType(data.organizationType),
       organization_name: data.organizationName || data.communityName,
       pic: data.pic,
       phone: data.phone,
