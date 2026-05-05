@@ -469,12 +469,16 @@ export default async function handler(req, res) {
     
   } catch (error) {
     console.error('[community-registration] Unexpected error:', error);
+    console.error('[community-registration] Error stack:', error.stack);
+    console.error('[community-registration] Request body:', JSON.stringify(req.body));
     
-    // Don't expose internal error details in production
+    // Expose error details for debugging (Vercel logs will show this)
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan server. Silakan coba lagi.',
-      debug: process.env.NODE_ENV !== 'production' ? error.message : undefined
+      // Include error message for debugging (will be visible in Vercel logs)
+      _debug: error.message,
+      _stack: error.stack?.split('\n').slice(0, 3).join('\n')
     });
   }
 }
