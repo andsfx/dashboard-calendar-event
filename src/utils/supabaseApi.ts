@@ -682,21 +682,32 @@ export async function submitCommunityRegistration(data: {
   organizationName?: string;
   typeSpecificData?: Record<string, string | number>;
 }): Promise<{ id: string }> {
-  const { data: result, error } = await supabase.from('community_registrations').insert({
-    community_name: data.communityName,
-    community_type: data.communityType,
-    pic: data.pic,
-    phone: data.phone,
-    email: data.email || '',
-    instagram: data.instagram || '',
-    description: data.description || '',
-    preferred_date: data.preferredDate || '',
-    organization_type: data.organizationType || 'komunitas',
-    organization_name: data.organizationName || data.communityName,
-    type_specific_data: data.typeSpecificData || {},
-  }).select('id').single();
-  if (error) throw new SupabaseApiError(`Registration failed: ${error.message}`);
-  return { id: result?.id || '' };
+  // Use API endpoint to bypass RLS with service role key
+  const response = await fetch('/api/community-registration', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      organization_type: data.organizationType || 'komunitas',
+      organization_name: data.organizationName || data.communityName,
+      pic: data.pic,
+      phone: data.phone,
+      email: data.email || '',
+      instagram: data.instagram || '',
+      description: data.description || '',
+      preferred_date: data.preferredDate || '',
+      community_name: data.communityName,
+      community_type: data.communityType,
+      type_specific_data: data.typeSpecificData || {},
+    }),
+  });
+  
+  const result = await response.json();
+  
+  if (!response.ok || !result.success) {
+    throw new SupabaseApiError(result.error || 'Registration failed');
+  }
+  
+  return { id: result.id || '' };
 }
 
 // ---- Letter Request (legacy - still uses Google Apps Script) ----
