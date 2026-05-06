@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send } from 'lucide-react';
+import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus } from 'lucide-react';
 import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -8,6 +8,7 @@ interface Props {
   onClose: () => void;
   registration: CommunityRegistration | null;
   onUpdateStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
+  onCreateEvent?: (registration: CommunityRegistration) => void;
 }
 
 const WA_TEMPLATES: Record<string, string> = {
@@ -84,7 +85,7 @@ function StatusBadge({ status }: { status: RegistrationStatus }) {
   );
 }
 
-export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus }: Props) {
+export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent }: Props) {
   const [adminNote, setAdminNote] = useState('');
   const [waTemplate, setWaTemplate] = useState('reviewed');
   const [waMessage, setWaMessage] = useState('');
@@ -273,6 +274,19 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6 shrink-0">
+          {onCreateEvent && (
+            <button
+              onClick={() => {
+                if (registration) {
+                  onCreateEvent(registration);
+                  onClose();
+                }
+              }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 active:scale-95 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+            >
+              <CalendarPlus className="h-3.5 w-3.5" /> Buat Event
+            </button>
+          )}
           {canReview && (
             <button
               onClick={() => handleStatusChange('reviewed')}

@@ -89,6 +89,7 @@ interface DashboardModalsProps {
   onCloseRegDetail: () => void;
   selectedRegistration: CommunityRegistration | null;
   onUpdateRegStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
+  onCreateEventFromRegistration?: (registration: CommunityRegistration) => void;
 }
 
 export function DashboardModals({
@@ -144,6 +145,7 @@ export function DashboardModals({
   onCloseRegDetail,
   selectedRegistration,
   onUpdateRegStatus,
+  onCreateEventFromRegistration,
 }: DashboardModalsProps) {
   return (
     <>
@@ -223,6 +225,7 @@ export function DashboardModals({
           onClose={onCloseRegDetail}
           registration={selectedRegistration}
           onUpdateStatus={onUpdateRegStatus}
+          onCreateEvent={onCreateEventFromRegistration}
         />
       </Suspense>
     </>

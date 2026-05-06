@@ -164,6 +164,28 @@ export default function App() {
     }
   }, [refreshRegistrations, showToast]);
 
+  const handleCreateEventFromRegistration = useCallback((registration: CommunityRegistration) => {
+    // Pre-fill event data from registration
+    const prefillEvent: Partial<EventItem> = {
+      id: createId(),
+      acara: registration.organizationName || registration.communityName,
+      lokasi: '', // Admin will fill this
+      eo: registration.organizationName || registration.communityName,
+      pic: registration.pic,
+      phone: registration.phone,
+      keterangan: registration.description || '',
+      dateStr: registration.preferredDate || '', // Admin can change this
+      jam: '', // Admin will fill this
+      categories: [], // Admin will select
+      priority: 'medium',
+      status: 'draft', // Start as draft
+    };
+    
+    setEditingEvent(prefillEvent as EventItem);
+    setShowCrudModal(true);
+    showToast('info', 'Buat Event', 'Form event telah diisi dengan data pendaftaran. Silakan lengkapi dan simpan.');
+  }, [showToast]);
+
   useEffect(() => {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
       if (posts && Array.isArray(posts)) setInstagramPosts(posts);
@@ -943,6 +965,7 @@ export default function App() {
         onCloseRegDetail={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
         selectedRegistration={selectedRegistration}
         onUpdateRegStatus={handleUpdateRegStatus}
+        onCreateEventFromRegistration={handleCreateEventFromRegistration}
       />
 
       {/* Toast notifications */}
