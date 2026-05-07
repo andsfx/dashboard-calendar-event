@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { List, Kanban, Clock4, Radio, Clock3 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
@@ -62,9 +62,6 @@ function SectionFallback({ height = 'h-32' }: { height?: string }) {
 
 export default function App() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
-
 
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
@@ -658,8 +655,8 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Dashboard routes */}
-      <Route path="/dashboard/*" element={
+      {/* Dashboard — event schedule */}
+      <Route path="/dashboard" element={
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Skip to main content — WCAG 2.4.1 */}
       <a
@@ -721,14 +718,14 @@ export default function App() {
           />
 
           {/* 1. Overview — Stat Cards (paling penting, pertama dilihat) */}
-          {isAdmin && dashboardPath === '/' && (
+          {isAdmin && (
             <section id="overview" className="scroll-mt-20">
               <DashboardStats stats={visibleStats} />
             </section>
           )}
 
           {/* 2. Featured Events — yang sedang/akan berlangsung */}
-          {isAdmin && dashboardPath === '/' && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
+          {isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
             <div className="space-y-4 sm:space-y-5">
               {ongoingEvents.length > 0 && (
                 <Suspense fallback={<SectionFallback height="h-40" />}>
@@ -756,14 +753,8 @@ export default function App() {
           )}
 
           {/* 3. Draft Queue — event yang perlu di-review/publish */}
-          {isAdmin && dashboardPath === '/drafts' && (
+          {isAdmin && (
             <section id="draft-section" className="scroll-mt-20">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Draft Queue</h1>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Kelola draft event sebelum dipublikasikan
-                </p>
-              </div>
               <Suspense fallback={<SectionFallback height="h-64" />}>
                 <AdminDraftSection
                   activeDrafts={activeDrafts}
@@ -784,14 +775,8 @@ export default function App() {
           )}
 
           {/* 4. Community Registrations — pendaftaran masuk */}
-          {isAdmin && dashboardPath === '/registrations' && (
+          {isAdmin && (
             <section id="registrations" className="scroll-mt-20">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Community</h1>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Kelola permintaan pendaftaran dari community
-                </p>
-              </div>
               <Suspense fallback={<SectionFallback height="h-40" />}>
                 <CommunityRegistrationSection
                   registrations={communityRegistrations}
@@ -803,14 +788,8 @@ export default function App() {
           )}
 
           {/* 5. Tema Tahunan — perencanaan jangka panjang */}
-          {isAdmin && dashboardPath === '/themes' && (
+          {isAdmin && (
             <section id="themes" className="scroll-mt-20">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tema Tahunan</h1>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Kelola tema dan perencanaan tahunan
-                </p>
-              </div>
               <Suspense fallback={<SectionFallback height="h-40" />}>
                 <QuarterTimeline themes={annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handleDeleteTheme : undefined} />
               </Suspense>
@@ -866,16 +845,7 @@ export default function App() {
         )}
 
         {/* 6. Jadwal Event — tabel/kalender/kanban/timeline */}
-        {((isAdmin && dashboardPath === '/events') || (!isAdmin && dashboardPath === '/')) && (
         <section id="views" className="scroll-mt-20">
-          {isAdmin && (
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Jadwal Event</h1>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Kelola semua event dalam berbagai tampilan
-              </p>
-            </div>
-          )}
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <DashboardViewsSection
               viewMode={viewMode}
@@ -904,17 +874,10 @@ export default function App() {
             />
           </Suspense>
         </section>
-        )}
 
         {/* 7. Analytics — statistik lanjutan */}
-          {isAdmin && dashboardPath === '/analytics' && (
+          {isAdmin && (
             <section id="category-chart" className="scroll-mt-20">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Analytics</h1>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Analisis tren dan statistik event
-                </p>
-              </div>
               <Suspense fallback={<SectionFallback height="h-80" />}>
                 <AnalyticsDashboard events={events} />
               </Suspense>
@@ -922,14 +885,8 @@ export default function App() {
           )}
 
         {/* 8. Survey Kepuasan — admin only */}
-        {isAdmin && dashboardPath === '/survey' && (
+        {isAdmin && (
           <section id="survey-section" className="scroll-mt-20">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Kelola survey dan feedback dari peserta event
-              </p>
-            </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
               <SurveyDashboard events={events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
             </Suspense>
@@ -937,14 +894,8 @@ export default function App() {
         )}
 
         {/* 9. User Management — superadmin only */}
-        {auth.isSuperadmin && dashboardPath === '/users' && (
+        {auth.isSuperadmin && (
           <section id="user-management" className="scroll-mt-20">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Kelola user dan permission (Superadmin only)
-              </p>
-            </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
               <UserManagement />
             </Suspense>
@@ -952,14 +903,8 @@ export default function App() {
         )}
 
         {/* 10. Activity Log — admin + superadmin */}
-        {isAdmin && dashboardPath === '/activity-log' && (
+        {isAdmin && (
           <section id="activity-log" className="scroll-mt-20">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Log</h1>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Audit trail dari semua aktivitas sistem
-              </p>
-            </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
               <ActivityLog />
             </Suspense>

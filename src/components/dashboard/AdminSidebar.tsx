@@ -1,4 +1,5 @@
-import { memo, useEffect, useState, useMemo } from 'react';
+import { memo, useState, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   BarChart3,
@@ -26,7 +27,8 @@ interface NavItem {
   id: string;
   label: string;
   icon: React.ReactNode;
-  action: 'scroll' | 'callback';
+  action: 'route' | 'callback';
+  route?: string;
   callback?: () => void;
 }
 
@@ -58,37 +60,37 @@ export const AdminSidebar = memo(function AdminSidebar({
   onOpenAlbumManager,
   onOpenLetterPicker,
 }: AdminSidebarProps) {
-  const [activeId, setActiveId] = useState('overview');
+  const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const navGroups: NavGroup[] = useMemo(() => [
     {
       label: 'Overview',
       items: [
-        { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, action: 'scroll' },
-        { id: 'category-chart', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'scroll' },
+        { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route', route: '/dashboard' },
+        { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'route', route: '/dashboard/analytics' },
       ],
     },
     {
       label: 'Event Management',
       items: [
-        { id: 'views', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'scroll' },
-        { id: 'draft-section', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'scroll' },
-        { id: 'themes', label: 'Tema Tahunan', icon: <Palette className="h-4 w-4" />, action: 'scroll' },
+        { id: 'events', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'route', route: '/dashboard/events' },
+        { id: 'drafts', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'route', route: '/dashboard/drafts' },
+        { id: 'themes', label: 'Tema Tahunan', icon: <Palette className="h-4 w-4" />, action: 'route', route: '/dashboard/themes' },
       ],
     },
     {
       label: 'Engagement',
       items: [
-        { id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'scroll' },
-        { id: 'survey-section', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'scroll' },
+        { id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'route', route: '/dashboard/registrations' },
+        { id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/survey' },
       ],
     },
     {
       label: 'System',
       items: [
-        ...(isSuperadmin ? [{ id: 'user-management', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'scroll' as const }] : []),
-        { id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'scroll' as const },
+        ...(isSuperadmin ? [{ id: 'users', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/users' }] : []),
+        { id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/activity-log' },
       ],
     },
     {
@@ -101,49 +103,20 @@ export const AdminSidebar = memo(function AdminSidebar({
     },
   ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, isSuperadmin]);
 
-  const scrollSectionIds = useMemo(() => 
-    navGroups.flatMap(group => 
-      group.items.filter(item => item.action === 'scroll').map(item => item.id)
-    ), [navGroups]);
-
-  useEffect(() => {
-    const sections = scrollSectionIds
-      .map(id => document.getElementById(id))
-      .filter((section): section is HTMLElement => !!section);
-
-    if (sections.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const visible = entries
-          .filter(entry => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        if (visible[0]?.target?.id) {
-          setActiveId(visible[0].target.id);
-        }
-      },
-      {
-        rootMargin: '-100px 0px -55% 0px',
-        threshold: [0.15, 0.3, 0.5, 0.75],
-      }
-    );
-
-    sections.forEach(section => observer.observe(section));
-    return () => observer.disconnect();
-  }, [scrollSectionIds]);
-
   const handleNavClick = (item: NavItem) => {
     if (item.action === 'callback' && item.callback) {
       item.callback();
       setIsMobileOpen(false);
-    } else if (item.action === 'scroll') {
-      const el = document.getElementById(item.id);
-      if (!el) return;
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
-      setIsMobileOpen(false);
     }
+    // For route items, Link component will handle navigation
+    setIsMobileOpen(false);
+  };
+
+  const isActive = (item: NavItem) => {
+    if (item.action === 'route' && item.route) {
+      return location.pathname === item.route;
+    }
+    return false;
   };
 
   const sidebarContent = (
@@ -170,37 +143,42 @@ export const AdminSidebar = memo(function AdminSidebar({
 
       {/* Navigation groups */}
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        {navGroups.map((group, groupIdx) => (
-          <div key={groupIdx}>
-            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              {group.label}
-            </p>
-            <div className="space-y-1">
-              {group.items.map(item => {
-                const isActive = item.action === 'scroll' && activeId === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNavClick(item)}
-                    className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
-                        : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {isActive && (
-                      <span className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-violet-600 dark:bg-violet-400" />
-                    )}
-                    <span className={`transition-colors ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+            {navGroups.map((group, groupIdx) => (
+              <div key={groupIdx}>
+                <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {group.label}
+                </h3>
+                <div className="space-y-1">
+                  {group.items.map(item => {
+                    const active = isActive(item);
+                    return item.action === 'route' && item.route ? (
+                      <Link
+                        key={item.id}
+                        to={item.route}
+                        onClick={() => handleNavClick(item)}
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                          active
+                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                            : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </Link>
+                    ) : (
+                      <button
+                        key={item.id}
+                        onClick={() => handleNavClick(item)}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
       </nav>
 
       {/* Bottom controls */}
