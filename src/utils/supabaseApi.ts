@@ -614,12 +614,16 @@ export async function deleteFromR2(url: string): Promise<void> {
     fileName = url.slice(publicUrlBase.length + 1);
   }
 
-  await fetch('/api/r2-delete', {
+  const res = await fetch('/api/r2-delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ fileName }),
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new SupabaseApiError(body.error || `R2 delete failed (${res.status})`);
+  }
 }
 
 export async function uploadAlbumPhoto(albumId: string, file: File, caption?: string): Promise<EventPhoto> {
@@ -716,9 +720,19 @@ export async function submitCommunityRegistration(data: {
     }),
   });
   
+  if (!response.ok) {
+    let errorMsg = 'Registration failed';
+    try {
+      const errBody = await response.json();
+      errorMsg = errBody.error || errorMsg;
+    } catch {
+      errorMsg = `Server error (${response.status})`;
+    }
+    throw new SupabaseApiError(errorMsg);
+  }
+
   const result = await response.json();
-  
-  if (!response.ok || !result.success) {
+  if (!result.success) {
     throw new SupabaseApiError(result.error || 'Registration failed');
   }
   

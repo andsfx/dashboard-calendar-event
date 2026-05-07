@@ -11,7 +11,9 @@ export function getCookie(req, name) {
 
 // ─── Legacy auth (old password-based) ─────────────────────────────
 export function getAdminSessionToken() {
-  return String(process.env.ADMIN_SESSION_TOKEN || 'admin-session-testing').trim();
+  const token = process.env.ADMIN_SESSION_TOKEN;
+  if (!token) throw new Error('ADMIN_SESSION_TOKEN environment variable is not set');
+  return String(token).trim();
 }
 
 export function requireAdminSession(req, res) {

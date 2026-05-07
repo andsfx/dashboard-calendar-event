@@ -16,7 +16,7 @@ import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
-import { createId } from './utils/eventUtils';
+import { createId, parseDateStrLocal, MONTH_NAMES } from './utils/eventUtils';
 import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 import type { PhotoAlbum } from './types';
@@ -137,16 +137,23 @@ export default function App() {
     try {
       const regs = await fetchCommunityRegistrations();
       setCommunityRegistrations(regs);
+      setSelectedRegistration(prev => prev ? (regs.find(r => r.id === prev.id) ?? prev) : null);
     } catch {
-      // silently fail
+      showToast('error', 'Gagal memuat', 'Data pendaftaran belum berhasil dimuat. Coba refresh halaman.');
     } finally {
       setIsRegLoading(false);
     }
-  }, [isAdmin]);
+  }, [isAdmin, showToast]);
 
   useEffect(() => {
     refreshRegistrations();
   }, [refreshRegistrations]);
+
+  useEffect(() => {
+    if (draftError) {
+      showToast('error', 'Gagal memuat draft', draftError);
+    }
+  }, [draftError, showToast]);
 
   const handleRegDetail = useCallback((reg: CommunityRegistration) => {
     setSelectedRegistration(reg);
@@ -170,12 +177,12 @@ export default function App() {
     const dateStr = registration.preferredDate || '';
     const dateMeta = dateStr ? (() => {
       const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-      const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-      const d = new Date(dateStr);
+      const d = parseDateStrLocal(dateStr);
+      if (!d) return { day: '', tanggal: '', month: '' };
       return {
         day: DAY_ID[d.getDay()] || '',
-        tanggal: `${d.getDate()} ${MONTH_ID[d.getMonth()]} ${d.getFullYear()}`,
-        month: MONTH_ID[d.getMonth()] || '',
+        tanggal: `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`,
+        month: MONTH_NAMES[d.getMonth()] || '',
       };
     })() : { day: '', tanggal: '', month: '' };
     
@@ -256,6 +263,7 @@ export default function App() {
   // CRUD
   const handleAddNew = useCallback(() => {
     setEditingEvent(null);
+    setInitialEventData(null);
     setShowCrudModal(true);
   }, []);
 
@@ -367,6 +375,7 @@ export default function App() {
     if (success) {
       setShowCrudModal(false);
       setEditingEvent(null);
+      setInitialEventData(null);
     }
 
     return success;
@@ -379,6 +388,7 @@ export default function App() {
     if (success) {
       setShowCrudModal(false);
       setEditingEvent(null);
+      setInitialEventData(null);
     }
     return success;
   }, [addRecurringEvents, showToast]);

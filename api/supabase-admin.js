@@ -1,4 +1,31 @@
 import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
+const R2 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+  },
+});
+
+const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+const R2_BUCKET = process.env.R2_BUCKET_NAME || 'metmal-gallery';
+
+async function deleteR2File(url) {
+  if (!url || !R2_PUBLIC_URL) return;
+  try {
+    let key = url;
+    if (url.startsWith(R2_PUBLIC_URL)) {
+      key = url.slice(R2_PUBLIC_URL.length).replace(/^\//, '');
+    }
+    if (!key) return;
+    await R2.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  } catch (err) {
+    console.warn('[deleteR2File] Failed to delete from R2:', url, err.message);
+  }
+}
 
 export default async function handler(req, res) {
   // Dual auth: Supabase Auth first, legacy cookie fallback
@@ -28,6 +55,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateEvent': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Event ID is required' });
         const { error } = await sb.from('events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -35,6 +63,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteEvent': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Event ID is required' });
         const { error } = await sb.from('events').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -76,6 +105,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateTheme': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Theme ID is required' });
         const { error } = await sb.from('annual_themes').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -83,6 +113,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteTheme': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Theme ID is required' });
         const { error } = await sb.from('annual_themes').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -105,6 +136,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateDraft': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
         const { error } = await sb.from('draft_events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -112,7 +144,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteDraft': {
-        // Soft delete: set progress=cancel, deleted=true
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
         const now = new Date().toISOString();
         const { error } = await sb.from('draft_events').update({
           progress: 'cancel',
@@ -126,6 +158,7 @@ export default async function handler(req, res) {
       }
       case 'publishDraft': {
         const draftId = req.body.id;
+        if (!draftId) return res.status(400).json({ success: false, error: 'Draft ID is required' });
         // 1. Fetch the draft
         const { data: draft, error: fetchErr } = await sb.from('draft_events').select('*').eq('id', draftId).single();
         if (fetchErr) throw fetchErr;
@@ -134,37 +167,41 @@ export default async function handler(req, res) {
         if (draft.deleted) throw new Error('Draft is deleted');
         if (draft.progress !== 'confirm') throw new Error('Draft must be confirmed before publishing');
 
-        // 2. Create event from draft
-        const eventRow = {
-          date_str: draft.date_str,
-          date_end: draft.date_end,
-          day: draft.day,
-          tanggal: draft.tanggal,
-          jam: draft.jam,
-          acara: draft.acara,
-          lokasi: draft.lokasi,
-          eo: draft.eo,
-          pic: draft.pic,
-          phone: draft.phone,
-          keterangan: draft.keterangan,
-          month: draft.month,
-          category: draft.category,
-          categories: draft.categories,
-          priority: draft.priority,
-          event_model: draft.event_model,
-          event_nominal: draft.event_nominal,
-          event_model_notes: draft.event_model_notes,
-          source_draft_id: draftId,
-          is_multi_day: draft.is_multi_day,
-          day_time_slots: draft.day_time_slots,
-          event_type: draft.event_type,
-          recurrence_group_id: draft.recurrence_group_id,
-          is_recurring: draft.is_recurring,
-        };
-        const { error: insertErr } = await sb.from('events').insert(eventRow);
-        if (insertErr) throw insertErr;
+        // 2. Idempotency: check if event already exists for this draft (prevents duplicate on retry)
+        const { data: existing } = await sb.from('events').select('id').eq('source_draft_id', draftId).maybeSingle();
+        if (!existing) {
+          // 3. Create event from draft
+          const eventRow = {
+            date_str: draft.date_str,
+            date_end: draft.date_end,
+            day: draft.day,
+            tanggal: draft.tanggal,
+            jam: draft.jam,
+            acara: draft.acara,
+            lokasi: draft.lokasi,
+            eo: draft.eo,
+            pic: draft.pic,
+            phone: draft.phone,
+            keterangan: draft.keterangan,
+            month: draft.month,
+            category: draft.category,
+            categories: draft.categories,
+            priority: draft.priority,
+            event_model: draft.event_model,
+            event_nominal: draft.event_nominal,
+            event_model_notes: draft.event_model_notes,
+            source_draft_id: draftId,
+            is_multi_day: draft.is_multi_day,
+            day_time_slots: draft.day_time_slots,
+            event_type: draft.event_type,
+            recurrence_group_id: draft.recurrence_group_id,
+            is_recurring: draft.is_recurring,
+          };
+          const { error: insertErr } = await sb.from('events').insert(eventRow);
+          if (insertErr) throw insertErr;
+        }
 
-        // 3. Mark draft as published
+        // 4. Mark draft as published (safe to repeat if already marked)
         const { error: updateErr } = await sb.from('draft_events').update({
           published: true,
           published_at: new Date().toISOString(),
@@ -176,6 +213,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'restoreDraft': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
         const { error } = await sb.from('draft_events').update({
           progress: 'draft',
           deleted: false,
@@ -193,7 +231,7 @@ export default async function handler(req, res) {
           key: req.body.key,
           value: req.body.value,
           updated_at: new Date().toISOString(),
-        });
+        }, { onConflict: 'key' });
         if (error) throw error;
         result = { success: true };
         await logActivity(authInfo, 'update_site_settings', 'settings', req.body.key, null, req);
@@ -209,8 +247,16 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteAlbum': {
-        // Delete all photos in album first
-        await sb.from('event_photos').delete().eq('album_id', req.body.id);
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Album ID is required' });
+        // Fetch all photo URLs before deleting DB rows
+        const { data: photos } = await sb.from('event_photos').select('id, url').eq('album_id', req.body.id);
+        // Delete photo rows from DB
+        const { error: photoDeleteErr } = await sb.from('event_photos').delete().eq('album_id', req.body.id);
+        if (photoDeleteErr) throw photoDeleteErr;
+        // Delete files from R2 (fire-and-forget per file, don't block on failures)
+        if (photos && photos.length > 0) {
+          await Promise.allSettled(photos.map(p => deleteR2File(p.url)));
+        }
         const { error } = await sb.from('photo_albums').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -268,19 +314,9 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteEventPhoto': {
-        // Delete from table
         const { error: dbErr } = await sb.from('event_photos').delete().eq('id', req.body.id);
         if (dbErr) throw dbErr;
-        // Delete from storage
-        try {
-          const photoUrl = req.body.url || '';
-          const fileName = photoUrl.split('/').pop();
-          if (fileName) {
-            await sb.storage.from('event-photos').remove([fileName]);
-          }
-        } catch (storageErr) {
-          console.warn('Storage delete warning:', storageErr.message);
-        }
+        await deleteR2File(req.body.url || '');
         result = { success: true };
         break;
       }

@@ -130,7 +130,7 @@ function RegistrationForm() {
     setSubmitting(true);
     try {
       await submitCommunityRegistration({
-        communityName: form.organizationName, // backward compat
+        communityName: form.organizationName,
         communityType,
         pic: form.pic,
         phone: form.phone,
@@ -145,8 +145,9 @@ function RegistrationForm() {
       setSubmitted(true);
     } catch {
       setError('Gagal mengirim pendaftaran. Coba lagi nanti.');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   if (submitted) {

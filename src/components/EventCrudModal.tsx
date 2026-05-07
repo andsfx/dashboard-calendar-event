@@ -182,7 +182,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     }
     setErrors({});
     setIsSubmitting(false);
-  }, [editingEvent, isOpen]);
+  }, [editingEvent, initialData, isOpen]);
 
   if (!isOpen) return null;
 

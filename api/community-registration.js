@@ -169,10 +169,6 @@ function validateEmail(value) {
     return { valid: false, error: 'Email terlalu pendek (minimal 5 karakter).' };
   }
   
-  if (sanitized.length > 254) {
-    return { valid: false, error: 'Email terlalu panjang (maksimal 254 karakter).' };
-  }
-  
   if (!EMAIL_REGEX.test(sanitized)) {
     return { valid: false, error: 'Format email tidak valid. Contoh: user@domain.com' };
   }
@@ -233,10 +229,6 @@ function validateDescription(value) {
   
   const sanitized = sanitizeString(value, 1000);
   
-  if (sanitized.length > 1000) {
-    return { valid: false, error: 'Deskripsi terlalu panjang (maksimal 1000 karakter).' };
-  }
-  
   return { valid: true, value: sanitized };
 }
 
@@ -254,10 +246,6 @@ function validatePreferredDate(value) {
   }
   
   const sanitized = sanitizeString(value, 100);
-  
-  if (sanitized.length > 100) {
-    return { valid: false, error: 'Tanggal preferensi terlalu panjang (maksimal 100 karakter).' };
-  }
   
   return { valid: true, value: sanitized };
 }
@@ -277,10 +265,6 @@ function validateCommunityName(value) {
   
   const sanitized = sanitizeString(value, 200);
   
-  if (sanitized.length > 200) {
-    return { valid: false, error: 'Nama komunitas terlalu panjang (maksimal 200 karakter).' };
-  }
-  
   return { valid: true, value: sanitized };
 }
 
@@ -298,10 +282,6 @@ function validateCommunityType(value) {
   }
   
   const sanitized = sanitizeString(value, 100);
-  
-  if (sanitized.length > 100) {
-    return { valid: false, error: 'Tipe komunitas terlalu panjang (maksimal 100 karakter).' };
-  }
   
   return { valid: true, value: sanitized };
 }
@@ -472,13 +452,12 @@ export default async function handler(req, res) {
     console.error('[community-registration] Error stack:', error.stack);
     console.error('[community-registration] Request body:', JSON.stringify(req.body));
     
-    // Expose error details for debugging (Vercel logs will show this)
+    console.error('[community-registration] Unexpected error:', error);
+    console.error('[community-registration] Error stack:', error.stack);
+    console.error('[community-registration] Request body:', JSON.stringify(req.body));
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan server. Silakan coba lagi.',
-      // Include error message for debugging (will be visible in Vercel logs)
-      _debug: error.message,
-      _stack: error.stack?.split('\n').slice(0, 3).join('\n')
     });
   }
 }

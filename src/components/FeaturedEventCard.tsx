@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Clock, MapPin, Users, Zap, Sparkles, CalendarDays } from 'lucide-react';
 import { EventItem, AnnualTheme } from '../types';
 import { useEffect, useState } from 'react';
@@ -45,7 +45,7 @@ function formatDateShort(dateStr: string): string {
 }
 
 const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes }: FeaturedEventCardProps) {
-  const ongoingEvents = events.filter(e => e.status === 'ongoing');
+  const ongoingEvents = useMemo(() => events.filter(e => e.status === 'ongoing'), [events]);
   const activeThemes = getActiveThemes(annualThemes);
   const [progress, setProgress] = useState<Record<string, number>>({});
 
@@ -60,7 +60,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
     updateProgress();
     const interval = setInterval(updateProgress, 60000);
     return () => clearInterval(interval);
-  }, [events]);
+  }, [ongoingEvents]);
 
   return (
     <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>

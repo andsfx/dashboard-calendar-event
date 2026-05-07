@@ -10,6 +10,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import { AnnualTheme, EventItem, EventModel, HolidayItem } from '../types';
 import { CalendarView } from './CalendarView';
 import { QuarterTimeline } from './QuarterTimeline';
+import { parseDateStrLocal } from '../utils/eventUtils';
 
 export interface PublicEventRequestPayload {
   dateStr: string;
@@ -116,7 +117,8 @@ function HeroCountdown({ dateStr }: { dateStr: string }) {
 
   useEffect(() => {
     const calc = () => {
-      const target = new Date(dateStr).getTime();
+      const d = parseDateStrLocal(dateStr);
+      const target = d ? d.getTime() : 0;
       const now = Date.now();
       const ms = target - now;
       if (ms <= 0) { setDiff('Hari ini'); return; }
@@ -351,7 +353,8 @@ export function PublicLandingPage({
   }, []);
 
   const activeTheme = useMemo(() => themes.find(theme => {
-    const today = new Date().toISOString().split('T')[0] ?? '';
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     return today >= theme.dateStart && today <= theme.dateEnd;
   }) ?? themes[0] ?? null, [themes]);
 

@@ -269,7 +269,7 @@ export function getSingleDayEventsForDate(events: EventItem[], dateStr: string):
 // ===== END MULTI-DAY EVENT HELPERS =====
 
 
-export function getStatus(dateStr: string, jam: string, dateEnd?: string): EventStatus {
+export function getStatus(dateStr: string, jam: string, dateEnd?: string, dayTimeSlots?: DayTimeSlot[]): EventStatus {
   if (!dateStr) return 'upcoming';
   
   const now = new Date();
@@ -290,19 +290,22 @@ export function getStatus(dateStr: string, jam: string, dateEnd?: string): Event
     if (today < startTarget) return 'upcoming';
     
     // On the last day, check end time
-    if (today.getTime() === endTarget.getTime() && jam) {
-      try {
-        const endMatch = jam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
-        if (endMatch && endMatch[1] && endMatch[2]) {
-          const endHour = parseInt(endMatch[1]);
-          const endMin = parseInt(endMatch[2]);
-          const endTime = new Date(now);
-          endTime.setHours(endHour, endMin, 0);
-          
-          if (now > endTime) return 'past';
+    if (today.getTime() === endTarget.getTime()) {
+      // Prefer the last day's slot jam if available
+      const lastDayJam = dayTimeSlots?.find(s => s.date === dateEnd)?.jam || jam;
+      if (lastDayJam) {
+        try {
+          const endMatch = lastDayJam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
+          if (endMatch && endMatch[1] && endMatch[2]) {
+            const endHour = parseInt(endMatch[1]);
+            const endMin = parseInt(endMatch[2]);
+            const endTime = new Date(now);
+            endTime.setHours(endHour, endMin, 0);
+            if (now > endTime) return 'past';
+          }
+        } catch (e) {
+          console.error('Error parsing end time for multi-day event:', e);
         }
-      } catch (e) {
-        console.error('Error parsing end time for multi-day event:', e);
       }
     }
     
@@ -351,8 +354,7 @@ export function getStatus(dateStr: string, jam: string, dateEnd?: string): Event
 export function recalculateStatuses(events: EventItem[]): EventItem[] {
   return events.map(e => ({
     ...e,
-    // Preserve 'draft' — only auto-calculate non-draft events
-    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam, e.dateEnd),
+    status: e.status === 'draft' ? 'draft' : getStatus(e.dateStr, e.jam, e.dateEnd, e.dayTimeSlots),
   }));
 }
 

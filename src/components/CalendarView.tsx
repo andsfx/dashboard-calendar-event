@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Clock, MapPin, CalendarDays, Inbox, X } from
 import { EventItem, HolidayItem } from '../types';
 import { 
   generateCalendarDays, 
-  groupByDate,
   isMultiDayEvent,
   getMultiDayEventsForDate,
   getSingleDayEventsForDate,
@@ -20,7 +19,7 @@ import { ModalWrapper } from './ModalWrapper';
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2 };
+const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2, draft: 3 };
 const STATUS_GROUPS = [
   { key: 'ongoing' as const, label: 'Sedang Berlangsung', dot: 'bg-emerald-500' },
   { key: 'upcoming' as const, label: 'Akan Datang', dot: 'bg-amber-400' },
@@ -61,7 +60,6 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const days = generateCalendarDays(year, month);
-  const byDate = groupByDate(events);
   const holidaysByDate = holidays.reduce((acc, holiday) => {
     if (!acc[holiday.dateStr]) acc[holiday.dateStr] = [];
     const dateArray = acc[holiday.dateStr];

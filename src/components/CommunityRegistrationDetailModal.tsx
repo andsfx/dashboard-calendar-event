@@ -95,8 +95,10 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
   useEffect(() => {
     if (isOpen && registration) {
       setAdminNote(registration.adminNote || '');
-      setWaTemplate('reviewed');
-      const template = WA_TEMPLATES.reviewed; if (template) { setWaMessage(applyVars(template, registration)); }
+      const defaultTemplate = (registration.status in WA_TEMPLATES) ? registration.status : 'reviewed';
+      setWaTemplate(defaultTemplate);
+      const template = WA_TEMPLATES[defaultTemplate];
+      if (template) { setWaMessage(applyVars(template, registration)); }
       setIsSubmitting(false);
     }
   }, [isOpen, registration]);
@@ -274,7 +276,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6 shrink-0">
-          {onCreateEvent && (
+          {onCreateEvent && registration?.status === 'approved' && (
             <button
               onClick={() => {
                 if (registration) {
@@ -282,7 +284,8 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                   onClose();
                 }
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 active:scale-95 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+              disabled={isSubmitting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 active:scale-95 disabled:opacity-50 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
             >
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Event
             </button>
