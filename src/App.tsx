@@ -99,6 +99,7 @@ export default function App() {
   const [showRegDetail, setShowRegDetail] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<CommunityRegistration | null>(null);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [initialEventData, setInitialEventData] = useState<Partial<EventItem> | null>(null);
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -178,11 +179,10 @@ export default function App() {
       };
     })() : { day: '', tanggal: '', month: '' };
     
-    // Pre-fill event data from registration
-    const prefillEvent: Partial<EventItem> = {
-      id: createId(),
+    // Pre-fill event data from registration (NO id → will be treated as CREATE, not UPDATE)
+    const prefillData: Partial<EventItem> = {
       acara: registration.organizationName || registration.communityName,
-      lokasi: '', // Admin will fill this
+      lokasi: '',
       eo: registration.organizationName || registration.communityName,
       pic: registration.pic,
       phone: registration.phone,
@@ -191,22 +191,16 @@ export default function App() {
       day: dateMeta.day,
       tanggal: dateMeta.tanggal,
       month: dateMeta.month,
-      jam: '', // Admin will fill this
-      categories: [], // Admin will select
-      category: 'Umum', // Default category
+      jam: '',
+      categories: [],
+      category: 'Umum',
       priority: 'medium',
-      status: 'upcoming', // Will be recalculated based on date
       eventModel: 'free',
-      eventNominal: '',
-      eventModelNotes: '',
-      isMultiDay: false,
-      dayTimeSlots: undefined,
-      eventType: 'single',
-      recurrenceGroupId: '',
-      isRecurring: false,
     };
     
-    setEditingEvent(prefillEvent as EventItem);
+    // Use initialData (NOT editingEvent) so handleSave calls addEvent (INSERT), not updateEvent (UPDATE)
+    setInitialEventData(prefillData);
+    setEditingEvent(null);
     setShowCrudModal(true);
     showToast('info', 'Buat Event', 'Form event telah diisi dengan data pendaftaran. Silakan lengkapi dan simpan.');
   }, [showToast]);
@@ -943,7 +937,7 @@ export default function App() {
         onEmailLogin={auth.login}
         onLegacyLogin={auth.legacyLogin}
         showCrudModal={showCrudModal}
-        onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); }}
+        onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); setInitialEventData(null); }}
         onSave={handleSave}
         onSaveBatch={handleSaveBatch}
         editingEvent={editingEvent}
@@ -991,6 +985,7 @@ export default function App() {
         selectedRegistration={selectedRegistration}
         onUpdateRegStatus={handleUpdateRegStatus}
         onCreateEventFromRegistration={handleCreateEventFromRegistration}
+        initialEventData={initialEventData}
       />
 
       {/* Toast notifications */}

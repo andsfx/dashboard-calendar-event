@@ -16,6 +16,7 @@ interface Props {
   onSaveBatch?: (data: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
+  initialData?: Partial<EventItem> | null;
 }
 
 function getUniqueSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo' | 'pic' | 'phone') {
@@ -98,7 +99,7 @@ const EMPTY: {
   recurrenceEndDate: '',
 };
 
-export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events }: Props) {
+export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, initialData }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,7 +121,6 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       // Determine eventType from existing event data
       let eventType: EventType = 'single';
       if (editingEvent.isRecurring) {
-        // Recurring events are individual instances, edit as single
         eventType = 'single';
       } else if (editingEvent.isMultiDay) {
         eventType = 'multi_day';
@@ -145,6 +145,32 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         eventNominal: editingEvent.eventNominal || '',
         eventModelNotes: editingEvent.eventModelNotes || '',
         eventType,
+        recurrenceFrequency: 'weekly',
+        recurrenceDaysOfWeek: [],
+        recurrenceDayOfMonth: 1,
+        recurrenceInterval: 7,
+        recurrenceEndDate: '',
+      });
+    } else if (initialData) {
+      setForm({
+        dateStr: initialData.dateStr || '',
+        dateEnd: initialData.dateEnd || '',
+        isMultiDay: initialData.isMultiDay || false,
+        dayTimeSlots: initialData.dayTimeSlots || [],
+        jam: initialData.jam || '',
+        acara: initialData.acara || '',
+        lokasi: initialData.lokasi || '',
+        eo: initialData.eo || '',
+        pic: initialData.pic || '',
+        phone: initialData.phone || '',
+        keterangan: initialData.keterangan || '',
+        categories: initialData.categories?.length ? initialData.categories : (initialData.category ? [initialData.category] : []),
+        category: initialData.category || '',
+        priority: initialData.priority || 'medium',
+        eventModel: initialData.eventModel || '',
+        eventNominal: initialData.eventNominal || '',
+        eventModelNotes: initialData.eventModelNotes || '',
+        eventType: (initialData.eventType as EventType) || 'single',
         recurrenceFrequency: 'weekly',
         recurrenceDaysOfWeek: [],
         recurrenceDayOfMonth: 1,

@@ -29,6 +29,7 @@ interface DashboardModalsProps {
   onSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
+  initialEventData?: Partial<EventItem> | null;
 
   // Draft modal
   showDraftModal: boolean;
@@ -103,6 +104,7 @@ export function DashboardModals({
   onSaveBatch,
   editingEvent,
   events,
+  initialEventData,
   showDraftModal,
   onCloseDraftModal,
   onSaveDraft,
@@ -163,6 +165,7 @@ export function DashboardModals({
           onSaveBatch={onSaveBatch}
           editingEvent={editingEvent}
           events={events}
+          initialData={initialEventData}
         />
         <DraftCrudModal
           isOpen={showDraftModal}
