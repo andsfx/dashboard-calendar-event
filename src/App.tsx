@@ -165,6 +165,19 @@ export default function App() {
   }, [refreshRegistrations, showToast]);
 
   const handleCreateEventFromRegistration = useCallback((registration: CommunityRegistration) => {
+    // Parse preferred date or use empty string
+    const dateStr = registration.preferredDate || '';
+    const dateMeta = dateStr ? (() => {
+      const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+      const d = new Date(dateStr);
+      return {
+        day: DAY_ID[d.getDay()] || '',
+        tanggal: `${d.getDate()} ${MONTH_ID[d.getMonth()]} ${d.getFullYear()}`,
+        month: MONTH_ID[d.getMonth()] || '',
+      };
+    })() : { day: '', tanggal: '', month: '' };
+    
     // Pre-fill event data from registration
     const prefillEvent: Partial<EventItem> = {
       id: createId(),
@@ -174,11 +187,23 @@ export default function App() {
       pic: registration.pic,
       phone: registration.phone,
       keterangan: registration.description || '',
-      dateStr: registration.preferredDate || '', // Admin can change this
+      dateStr,
+      day: dateMeta.day,
+      tanggal: dateMeta.tanggal,
+      month: dateMeta.month,
       jam: '', // Admin will fill this
       categories: [], // Admin will select
+      category: 'Umum', // Default category
       priority: 'medium',
-      status: 'draft', // Start as draft
+      status: 'upcoming', // Will be recalculated based on date
+      eventModel: 'free',
+      eventNominal: '',
+      eventModelNotes: '',
+      isMultiDay: false,
+      dayTimeSlots: undefined,
+      eventType: 'single',
+      recurrenceGroupId: '',
+      isRecurring: false,
     };
     
     setEditingEvent(prefillEvent as EventItem);
