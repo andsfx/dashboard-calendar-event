@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     }
 
     const bucket = process.env.R2_BUCKET_NAME || 'metmal-gallery';
-    const publicUrl = process.env.R2_PUBLIC_URL || '';
+    const publicUrl = (process.env.R2_PUBLIC_URL || '').replace(/\/+$/, '');
 
     // Generate presigned URL for direct client upload to R2
     const command = new PutObjectCommand({

@@ -28,6 +28,12 @@ function isR2Url(url: string): boolean {
   return url.startsWith(R2_PUBLIC_URL);
 }
 
+/** Normalize R2 URL by removing double slashes in path */
+function normalizeUrl(url: string): string {
+  // Fix double slashes in path (e.g. https://cdn.example.com//gallery/... → https://cdn.example.com/gallery/...)
+  return url.replace(/(https?:\/\/)|(\/)+/g, (match, protocol) => protocol || '/');
+}
+
 /**
  * Generate an optimized image URL via wsrv.nl image proxy.
  * Falls back to the original URL if it's not from R2.
@@ -35,8 +41,9 @@ function isR2Url(url: string): boolean {
 export function imgUrl(originalUrl: string, options: ImgOptions = {}): string {
   if (!isR2Url(originalUrl)) return originalUrl;
 
+  const normalized = normalizeUrl(originalUrl);
   const params = new URLSearchParams();
-  params.set('url', originalUrl);
+  params.set('url', normalized);
   if (options.w) params.set('w', String(options.w));
   if (options.h) params.set('h', String(options.h));
   if (options.q) params.set('q', String(options.q));
