@@ -204,6 +204,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                             alt={album.name}
                             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                             loading="lazy"
+                            onError={(e) => { (e.target as HTMLImageElement).src = album.coverPhotoUrl; }}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">

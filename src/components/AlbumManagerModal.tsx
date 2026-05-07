@@ -525,6 +525,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                             alt={album.name}
                             className="h-full w-full object-cover"
                             loading="lazy"
+                            onError={(e) => { (e.target as HTMLImageElement).src = album.coverPhotoUrl; }}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
@@ -614,6 +615,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                               alt={photo.caption}
                               className="h-full w-full object-cover"
                               loading="lazy"
+                              onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
                             />
                           </div>
 

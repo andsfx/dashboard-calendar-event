@@ -102,6 +102,7 @@ function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
           src={lightboxUrl(photo.url)}
           alt={photo.caption}
           className="max-h-[80vh] w-full rounded-lg object-contain"
+          onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
         />
         <div className="mt-4 text-center">
           <p className="text-lg font-semibold text-white">{photo.caption}</p>
@@ -302,6 +303,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                       alt={photo.caption}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
                     />
                     {/* Hover overlay with caption */}
                     <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100">
