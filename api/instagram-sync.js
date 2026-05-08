@@ -62,14 +62,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Call Apify Instagram Post Scraper (synchronous run)
+    // 1. Call Apify Instagram Scraper (synchronous run)
+    const validUrls = urls.map(u => u.trim()).filter(Boolean);
     const apifyInput = {
-      directUrls: urls.map(u => u.trim()).filter(Boolean),
-      resultsLimit: urls.length,
+      directUrls: validUrls,
+      resultsType: 'posts',
+      resultsLimit: validUrls.length,
     };
 
     const runResponse = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-post-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
