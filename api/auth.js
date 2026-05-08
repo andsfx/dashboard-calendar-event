@@ -1,4 +1,4 @@
-import { getAnonSupabase, getServiceSupabase, verifySupabaseAuth, getCookie, getAdminSessionToken, logActivity } from './_lib/auth.js';
+import { getAnonSupabase, getServiceSupabase, verifySupabaseAuth, tryRefreshSession, getCookie, getAdminSessionToken, logActivity } from './_lib/auth.js';
 
 /**
  * /api/auth?action=login   POST  — email+password login
@@ -12,6 +12,7 @@ export default async function handler(req, res) {
   if (action === 'me') {
     if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
     try {
+      // 1. Try existing access token
       const supabaseAuth = await verifySupabaseAuth(req);
       if (supabaseAuth) {
         return res.status(200).json({
@@ -25,6 +26,43 @@ export default async function handler(req, res) {
           legacy: false,
         });
       }
+
+      // 2. Access token expired — try refresh
+      const newSession = await tryRefreshSession(req);
+      if (newSession) {
+        const sb = getServiceSupabase();
+        const { data: { user: authUser }, error: authError } = await sb.auth.getUser(newSession.access_token);
+        if (!authError && authUser) {
+          const { data: dbUser } = await sb
+            .from('users')
+            .select('id, email, display_name, role, is_active')
+            .eq('id', authUser.id)
+            .single();
+
+          if (dbUser && dbUser.is_active) {
+            // Set refreshed cookies
+            const maxAge = newSession.expires_in || 3600;
+            const domainStr = process.env.COOKIE_DOMAIN ? `; Domain=${process.env.COOKIE_DOMAIN}` : '';
+            res.setHeader('Set-Cookie', [
+              `sb-access-token=${newSession.access_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}${domainStr}`,
+              `sb-refresh-token=${newSession.refresh_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 24 * 30}${domainStr}`,
+            ]);
+
+            return res.status(200).json({
+              success: true,
+              user: {
+                id: dbUser.id,
+                email: dbUser.email,
+                display_name: dbUser.display_name,
+                role: dbUser.role,
+              },
+              legacy: false,
+            });
+          }
+        }
+      }
+
+      // 3. Legacy cookie
       const expected = getAdminSessionToken();
       const actual = getCookie(req, 'admin_session');
       if (expected && actual && actual === expected) {

@@ -108,9 +108,28 @@ export async function verifySupabaseAuth(req) {
   }
 }
 
+/**
+ * Try to refresh the session using the refresh token cookie.
+ * Returns new session data or null if refresh fails.
+ */
+export async function tryRefreshSession(req) {
+  const refreshToken = getCookie(req, 'sb-refresh-token');
+  if (!refreshToken) return null;
+
+  try {
+    const anonSb = getAnonSupabase();
+    const { data, error } = await anonSb.auth.refreshSession({ refresh_token: refreshToken });
+    if (error || !data.session) return null;
+    return data.session;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Unified auth middleware (dual: Supabase Auth + legacy) ───────
 /**
  * requireAuth — tries Supabase Auth first, falls back to legacy cookie.
+ * If access token is expired but refresh token exists, auto-refreshes.
  * 
  * @param {object} req - Request object
  * @param {object} res - Response object
@@ -136,7 +155,42 @@ export async function requireAuth(req, res, allowedRoles = ['superadmin', 'admin
     return { user: dbUser, role: dbUser.role, legacy: false };
   }
 
-  // 2. Fall back to legacy cookie auth
+  // 2. Access token invalid/expired — try refresh
+  const newSession = await tryRefreshSession(req);
+  if (newSession) {
+    // Verify the refreshed token
+    const sb = getServiceSupabase();
+    const { data: { user: authUser }, error: authError } = await sb.auth.getUser(newSession.access_token);
+    if (!authError && authUser) {
+      const { data: dbUser } = await sb
+        .from('users')
+        .select('id, email, display_name, role, is_active')
+        .eq('id', authUser.id)
+        .single();
+
+      if (dbUser && dbUser.is_active) {
+        if (!allowedRoles.includes(dbUser.role)) {
+          res.status(403).json({
+            success: false,
+            error: `Akses ditolak. Butuh role: ${allowedRoles.join(' atau ')}`
+          });
+          return false;
+        }
+
+        // Set new cookies with refreshed tokens
+        const maxAge = newSession.expires_in || 3600;
+        const domainStr = process.env.COOKIE_DOMAIN ? `; Domain=${process.env.COOKIE_DOMAIN}` : '';
+        res.setHeader('Set-Cookie', [
+          `sb-access-token=${newSession.access_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}${domainStr}`,
+          `sb-refresh-token=${newSession.refresh_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 24 * 30}${domainStr}`,
+        ]);
+
+        return { user: dbUser, role: dbUser.role, legacy: false };
+      }
+    }
+  }
+
+  // 3. Fall back to legacy cookie auth
   const expected = getAdminSessionToken();
   const actual = getCookie(req, 'admin_session');
   if (expected && actual && actual === expected) {
@@ -152,7 +206,7 @@ export async function requireAuth(req, res, allowedRoles = ['superadmin', 'admin
     return { user: null, role: 'admin', legacy: true };
   }
 
-  // 3. Both failed
+  // 4. All auth methods failed
   res.status(401).json({ success: false, error: 'Unauthorized — silakan login' });
   return false;
 }
