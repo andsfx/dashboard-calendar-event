@@ -5,10 +5,12 @@ import {
   Camera,
   Clock,
   Globe,
+  Heart,
   Inbox,
   Mail,
   MapPin,
   Menu,
+  MessageCircle,
   Moon,
   Phone,
   Radio,
@@ -257,6 +259,63 @@ function LazyInstagramEmbed({ url }: { url: string }) {
   );
 }
 
+interface CachedInstagramPost {
+  postUrl: string;
+  shortCode: string;
+  cachedImageUrl: string;
+  caption: string;
+  likesCount: number;
+  commentsCount: number;
+  ownerUsername: string;
+  postTimestamp: string | null;
+}
+
+function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
+  const truncatedCaption = post.caption.length > 120
+    ? post.caption.slice(0, 120) + '...'
+    : post.caption;
+
+  return (
+    <a
+      href={post.postUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg hover:-translate-y-1 dark:border-slate-700 dark:bg-slate-800"
+    >
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-700">
+        <img
+          src={post.cachedImageUrl}
+          alt={truncatedCaption || 'Instagram post'}
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = post.cachedImageUrl; }}
+        />
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 flex items-center justify-center gap-6 bg-black/50 opacity-0 transition duration-300 group-hover:opacity-100">
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
+            <Heart className="h-4 w-4 fill-white" />
+            {post.likesCount > 999 ? `${(post.likesCount / 1000).toFixed(1)}K` : post.likesCount}
+          </span>
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
+            <MessageCircle className="h-4 w-4 fill-white" />
+            {post.commentsCount}
+          </span>
+        </div>
+      </div>
+      {/* Caption */}
+      <div className="p-4">
+        <p className="text-sm leading-relaxed text-slate-600 line-clamp-3 dark:text-slate-400">
+          {truncatedCaption}
+        </p>
+        <p className="mt-2 text-xs font-medium text-violet-600 dark:text-violet-400">
+          @{post.ownerUsername || 'metmalbekasi'}
+        </p>
+      </div>
+    </a>
+  );
+}
+
 function InstagramFallbackCard({ url }: { url: string }) {
   return (
     <a
@@ -396,6 +455,19 @@ const NAV_ITEMS = [
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
+  const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
+
+  // Fetch cached Instagram posts
+  useEffect(() => {
+    fetch('/api/instagram-sync')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.posts) && data.posts.length > 0) {
+          setCachedIgPosts(data.posts);
+        }
+      })
+      .catch(() => { /* silent fail — fallback to iframe */ });
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsHeaderPinned(window.scrollY > 32);
@@ -566,25 +638,35 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             )}
 
             {/* ── Instagram ── */}
-            <div className={albums.length > 0 ? 'mt-14' : 'mt-10'}>
+            <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
               <div className="mb-6 flex items-center justify-center gap-2">
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Instagram</p>
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(instagramPosts && instagramPosts.length > 0
-                  ? instagramPosts
-                  : IG_POSTS
-                ).map((url, idx) => {
-                  const trimmedUrl = (url || '').trim();
-                  if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
-                    return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
-                  }
-                  return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
-                })}
-              </div>
+              {/* Use cached posts if available (fast, no external scripts) */}
+              {cachedIgPosts.length > 0 ? (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {cachedIgPosts.map((post) => (
+                    <InstagramCachedCard key={post.shortCode || post.postUrl} post={post} />
+                  ))}
+                </div>
+              ) : (
+                /* Fallback: iframe embed (slower, loads external scripts) */
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {(instagramPosts && instagramPosts.length > 0
+                    ? instagramPosts
+                    : IG_POSTS
+                  ).map((url, idx) => {
+                    const trimmedUrl = (url || '').trim();
+                    if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
+                      return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
+                    }
+                    return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
+                  })}
+                </div>
+              )}
 
               <div className="mt-8 text-center">
                 <a

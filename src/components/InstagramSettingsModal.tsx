@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Save, X, Globe, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { Settings, Save, X, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -18,6 +18,8 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
   const [error, setError] = useState('');
   const [heroUrl, setHeroUrl] = useState('');
   const [heroUploading, setHeroUploading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState('');
   const heroFileRef = useRef<HTMLInputElement>(null);
 
   // Reset form when modal opens
@@ -193,6 +195,45 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
           <p className="text-xs text-slate-400 dark:text-slate-500">
             Kosongkan field untuk sembunyikan post. URL harus dari instagram.com
           </p>
+
+          {/* Sync Instagram Button */}
+          <button
+            type="button"
+            disabled={isSyncing || postUrls.every(u => !u.trim())}
+            onClick={async () => {
+              const validUrls = postUrls.filter(u => u.trim() && u.includes('instagram.com'));
+              if (validUrls.length === 0) { setSyncResult('Tidak ada URL valid untuk di-sync'); return; }
+              setIsSyncing(true);
+              setSyncResult('');
+              try {
+                const res = await fetch('/api/instagram-sync', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({ urls: validUrls }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                  setSyncResult(`Berhasil sync ${data.synced} post! Image di-cache ke CDN.`);
+                } else {
+                  setSyncResult(`Gagal: ${data.error}`);
+                }
+              } catch (err) {
+                setSyncResult('Gagal terhubung ke server');
+              } finally {
+                setIsSyncing(false);
+              }
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+          >
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing via Apify...' : 'Sync & Cache Instagram Posts'}
+          </button>
+          {syncResult && (
+            <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'}`}>
+              {syncResult}
+            </p>
+          )}
 
           {error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-900/20 dark:text-red-400">
