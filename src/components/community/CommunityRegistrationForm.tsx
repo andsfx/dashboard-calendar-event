@@ -356,7 +356,7 @@ function eyebrow(label: string) {
 
 export function CommunityRegistrationForm() {
   return (
-    <RevealSection id="register" intensity="strong" className="px-4 py-20 sm:px-6">
+    <RevealSection id="register" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           {eyebrow('Daftar Sekarang')}

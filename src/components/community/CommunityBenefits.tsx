@@ -62,7 +62,7 @@ function eyebrow(label: string) {
 
 export function CommunityBenefits() {
   return (
-    <RevealSection id="benefits" intensity="strong" className="px-4 py-20 sm:px-6">
+    <RevealSection id="benefits" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
           {eyebrow('Kenapa Gabung')}
@@ -74,7 +74,7 @@ export function CommunityBenefits() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
           {BENEFITS.map((b) => (
             <div
               key={b.title}

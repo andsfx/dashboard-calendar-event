@@ -41,7 +41,7 @@ function eyebrow(label: string) {
 
 export function CommunitySteps() {
   return (
-    <RevealSection id="how" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
+    <RevealSection id="how" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
           {eyebrow('Cara Daftar')}
@@ -50,7 +50,7 @@ export function CommunitySteps() {
           </h2>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <div key={s.num} className="relative">
               {i < STEPS.length - 1 && (

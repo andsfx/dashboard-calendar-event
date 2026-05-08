@@ -481,7 +481,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityHero heroImageUrl={heroImageUrl} />
 
         {/* ─── Social Proof Strip ─────────────────────────────── */}
-        <RevealSection className="border-b border-black/5 bg-white px-4 py-10 dark:bg-slate-900 dark:border-slate-800 sm:px-6">
+        <RevealSection className="border-b border-black/5 bg-white px-4 py-14 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-16">
           <div className="mx-auto max-w-7xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
               Dipercaya oleh komunitas di Bekasi
@@ -501,7 +501,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityRegistrationForm />
 
         {/* ─── Gallery / Instagram ───────────────────────────── */}
-        <RevealSection id="gallery" className="px-4 py-20 sm:px-6" skeleton={<SkeletonGalleryAlbums />}>
+        <RevealSection id="gallery" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               {eyebrow('Galeri')}
@@ -515,7 +515,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
 
             {/* ── Dokumentasi Event ── */}
             {albums.length > 0 && (
-              <div className="mt-10">
+              <div className="mt-10 sm:mt-14 lg:mt-16">
                 <div className="mb-6 flex items-center justify-center gap-2">
                   <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Dokumentasi Event</p>
@@ -604,7 +604,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
 
         {/* ─── Upcoming Events ────────────────────────────────── */}
         {events.length > 0 && onEventDetail && (
-          <RevealSection id="events" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-20 dark:bg-slate-900 dark:border-slate-800 sm:px-6" skeleton={<SkeletonEventGrid />}>
+          <RevealSection id="events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonEventGrid />}>
             <div className="mx-auto max-w-7xl">
               <div className="text-center">
                 {eyebrow('Agenda Event')}
@@ -625,7 +625,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         )}
 
         {/* ─── Contact ───────────────────────────────────────── */}
-        <RevealSection className="px-4 py-20 sm:px-6">
+        <RevealSection className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               {eyebrow('Kontak')}
@@ -634,7 +634,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               </h2>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
               <a
                 href="https://wa.me/6281318534823"
                 target="_blank"
