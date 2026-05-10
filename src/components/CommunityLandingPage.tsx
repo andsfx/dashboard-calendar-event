@@ -168,7 +168,7 @@ function LogoMark({ className = '' }: { className?: string }) {
 
 function eyebrow(label: string) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
+    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600">
       {label}
     </p>
   );
@@ -249,10 +249,15 @@ function LazyInstagramEmbed({ url }: { url: string }) {
         </a>
       ) : (
         <div className="flex h-[300px] items-center justify-center bg-slate-100 dark:bg-slate-800">
-          <div className="text-center">
-            <div className="mx-auto h-8 w-8 animate-pulse rounded-full bg-slate-300 dark:bg-slate-600" />
-            <p className="mt-3 text-sm text-slate-400">Memuat Instagram...</p>
-          </div>
+            <div className="w-full max-w-[220px] text-center" role="status" aria-live="polite">
+              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500 dark:border-slate-700 dark:border-t-violet-400" aria-hidden="true" />
+              <div className="mt-6 space-y-3" aria-hidden="true">
+                <div className="mx-auto h-3 w-32 rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="mx-auto h-3 w-44 rounded-full bg-slate-200/80 dark:bg-slate-700/70" />
+                <div className="mx-auto h-3 w-24 rounded-full bg-slate-200/70 dark:bg-slate-700/60" />
+              </div>
+              <p className="sr-only">Memuat Instagram...</p>
+            </div>
         </div>
       )}
     </div>
@@ -400,10 +405,18 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
 
 function EmptyEvents() {
   return (
-    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-14 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-      <Inbox className="mb-2 h-8 w-8 opacity-40" />
-      <p className="text-sm font-medium">Belum ada event mendatang</p>
-      <p className="mt-1 text-xs">Cek kembali nanti untuk update terbaru</p>
+    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-16 text-center dark:border-slate-700 dark:bg-slate-800/30">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-900/20">
+        <CalendarDays className="h-8 w-8 text-violet-400 dark:text-violet-500" aria-hidden="true" />
+      </div>
+      <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
+      <p className="mt-2 max-w-xs text-sm text-slate-500 dark:text-slate-400">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
+      <a
+        href="#contact"
+        className="mt-5 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+      >
+        Hubungi Kami <ArrowRight className="h-4 w-4" />
+      </a>
     </div>
   );
 }
@@ -548,7 +561,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                   </div>
 
                   <div>
-                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Countdown menuju event</p>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Countdown menuju event</p>
                     <div className="grid max-w-md grid-cols-3 gap-3">
                       <CountdownPill label="Hari" value={countdown.days} color={catColor} />
                       <CountdownPill label="Jam" value={countdown.hours} color={catColor} />
@@ -604,7 +617,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
           {/* ── Side panel ── */}
           {otherEvents.length > 0 ? (
             <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Event besar lainnya</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Event besar lainnya</p>
               <div className="mt-5 space-y-3">
                 {otherEvents.slice(0, 3).map(event => {
                   const evCat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
@@ -634,7 +647,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                 <CalendarDays className="h-8 w-8" style={{ color: catColor }} />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
                 <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Looking for Sponsor & Support</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
               </div>
@@ -757,8 +770,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 onClick={() => setMobileNavOpen(prev => !prev)}
                 className={`${utilityButtonClass} lg:hidden ${focusRing}`}
                 aria-label={mobileNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
+                aria-expanded={mobileNavOpen}
               >
                 {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                <span className="sr-only">{mobileNavOpen ? 'Tutup menu' : 'Buka menu'}</span>
               </button>
             </div>
           </div>
@@ -787,7 +802,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         {/* ─── Social Proof Strip ─────────────────────────────── */}
         <RevealSection className="border-b border-black/5 bg-white px-4 py-14 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-16">
           <div className="mx-auto max-w-7xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
               Dipercaya oleh komunitas di Bekasi
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
@@ -824,7 +839,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <div className="mt-10 sm:mt-14 lg:mt-16">
                 <div className="mb-6 flex items-center justify-center gap-2">
                   <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Dokumentasi Event</p>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
                   <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
                 </div>
 
@@ -849,7 +864,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                       </div>
                       <div className="p-3 sm:p-4">
                         <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           {album.eventDate && <span>{album.eventDate}</span>}
                           {typeof album.photoCount === 'number' && album.photoCount > 0 && <span>{album.eventDate ? '·' : ''} {album.photoCount} foto</span>}
                         </div>
@@ -875,7 +890,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
               <div className="mb-6 flex items-center justify-center gap-2">
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Instagram</p>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Instagram</h3>
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               </div>
 
@@ -941,7 +956,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         )}
 
         {/* ─── Contact ───────────────────────────────────────── */}
-        <RevealSection className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+        <RevealSection id="contact" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               {eyebrow('Kontak')}
