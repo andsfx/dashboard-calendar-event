@@ -99,6 +99,7 @@ interface DbEvent {
   event_type: string;
   recurrence_group_id: string;
   is_recurring: boolean;
+  poster_url: string | null;
 }
 
 function dbEventToEventItem(row: DbEvent, index: number): EventItem {
@@ -131,6 +132,7 @@ function dbEventToEventItem(row: DbEvent, index: number): EventItem {
     eventType: (row.event_type as EventItem['eventType']) || 'single',
     recurrenceGroupId: row.recurrence_group_id || '',
     isRecurring: row.is_recurring || false,
+    posterUrl: row.poster_url || '',
   };
 }
 
@@ -161,6 +163,7 @@ function eventItemToDbRow(ev: Partial<EventItem>): Record<string, unknown> {
   if (ev.eventType !== undefined) row.event_type = ev.eventType;
   if (ev.recurrenceGroupId !== undefined) row.recurrence_group_id = ev.recurrenceGroupId;
   if (ev.isRecurring !== undefined) row.is_recurring = ev.isRecurring;
+  if (ev.posterUrl !== undefined) row.poster_url = ev.posterUrl || null;
   return row;
 }
 

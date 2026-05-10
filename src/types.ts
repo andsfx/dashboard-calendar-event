@@ -50,6 +50,7 @@ export interface EventItem {
   eventType?: EventType;          // 'single' | 'multi_day' | 'recurring'
   recurrenceGroupId?: string;     // shared ID untuk semua event dalam 1 series
   isRecurring?: boolean;          // true jika bagian dari recurring series
+  posterUrl?: string;             // poster/flyer image URL for upcoming event promo
 }
 
 export interface DraftEventItem {

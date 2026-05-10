@@ -466,7 +466,12 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
   if (!mainEvent) return null;
   const countdown = getCountdown(mainEvent.dateStr, now);
   const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
-  const promoImageUrl = mainAlbum?.coverPhotoUrl || '';
+  const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
+  const promoImageCaption = mainEvent.posterUrl
+    ? 'Poster/flyer dari detail event.'
+    : mainAlbum?.coverPhotoUrl
+      ? 'Materi promosi dari album gallery event.'
+      : 'Belum ada poster/flyer untuk event ini.';
 
   return (
     <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
@@ -568,7 +573,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                       </div>
                     )}
                     <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                      {promoImageUrl ? 'Materi promosi dari album gallery event.' : 'Poster otomatis dari detail event.'}
+                      {promoImageCaption}
                     </p>
                   </div>
                 </div>
