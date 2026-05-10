@@ -634,20 +634,21 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                 <CalendarDays className="h-8 w-8" style={{ color: catColor }} />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Jangan lewatkan</p>
-                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Daftar sekarang</p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Amankan tempat Anda sebelum kehabisan.</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
+                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Looking for Sponsor & Support</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
               </div>
-              <button
-                type="button"
-                onClick={() => onDetail?.(mainEvent)}
+              <a
+                href={`https://wa.me/6281318534823?text=${encodeURIComponent(`Halo, saya tertarik untuk menjadi sponsor atau mendukung event "${mainEvent.acara}". Mohon informasi lebih lanjut.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
                 style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
               >
-                Daftar Sekarang <ArrowRight className="h-4 w-4" />
-              </button>
+                Contact Us <ArrowRight className="h-4 w-4" />
+              </a>
             </div>
           )}
         </div>
