@@ -452,7 +452,7 @@ function CountdownPill({ label, value }: { label: string; value: number }) {
   );
 }
 
-function UpcomingEventsFeature({ events, onDetail }: { events: EventItem[]; onDetail?: (ev: EventItem) => void }) {
+function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem[]; albums: PhotoAlbum[]; onDetail?: (ev: EventItem) => void }) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -465,20 +465,37 @@ function UpcomingEventsFeature({ events, onDetail }: { events: EventItem[]; onDe
   const [mainEvent, ...otherEvents] = events;
   if (!mainEvent) return null;
   const countdown = getCountdown(mainEvent.dateStr, now);
+  const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
+  const promoImageUrl = mainAlbum?.coverPhotoUrl || '';
 
   return (
     <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
-          <div className="relative overflow-hidden rounded-[2.25rem] bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,108,242,0.55),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(242,116,62,0.45),transparent_32%)]" aria-hidden="true" />
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.55),rgba(15,23,42,0.95))]" aria-hidden="true" />
-            <div className="relative z-10 flex min-h-[420px] flex-col justify-between gap-10">
+          <div className="relative overflow-hidden rounded-[2.25rem] bg-slate-950 text-white shadow-2xl">
+            {promoImageUrl ? (
+              <img
+                src={thumbUrl(promoImageUrl)}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,108,242,0.75),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(242,116,62,0.55),transparent_32%),linear-gradient(135deg,#1a0533,#0f172a_45%,#312e81)]" aria-hidden="true" />
+            )}
+            <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.92)_0%,rgba(15,23,42,0.76)_46%,rgba(15,23,42,0.35)_100%)]" aria-hidden="true" />
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-violet-500/30 blur-3xl" aria-hidden="true" />
+            <div className="relative z-10 grid min-h-[460px] gap-8 p-6 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:p-10">
+              <div className="flex flex-col justify-between gap-10">
               <div>
                 {eyebrow('Upcoming Big Event')}
                 <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
                   {mainEvent.acara}
                 </h2>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <CategoryBadges categories={mainEvent.categories?.length ? mainEvent.categories : [mainEvent.category]} maxVisible={3} />
+                </div>
                 <div className="mt-5 flex flex-wrap gap-3 text-sm text-white/75">
                   <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
                     <CalendarDays className="h-4 w-4" /> {mainEvent.day}, {mainEvent.tanggal}
@@ -515,6 +532,34 @@ function UpcomingEventsFeature({ events, onDetail }: { events: EventItem[]; onDe
                 >
                   Lihat Detail Event <ArrowRight className="h-4 w-4" />
                 </button>
+              </div>
+              </div>
+
+              <div className="hidden items-end justify-end lg:flex">
+                <div className="w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur-md">
+                  {promoImageUrl ? (
+                    <img
+                      src={thumbUrl(promoImageUrl)}
+                      alt={`Materi promosi ${mainEvent.acara}`}
+                      className="aspect-[4/5] w-full rounded-[1.5rem] object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1.5rem] bg-gradient-to-br from-violet-600 via-slate-950 to-orange-500 p-6">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">Metropolitan Mall Bekasi</p>
+                        <p className="mt-4 text-3xl font-black leading-tight text-white">{mainEvent.acara}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white/80">{mainEvent.tanggal}</p>
+                        <p className="mt-1 text-xs text-white/60">{mainEvent.lokasi}</p>
+                      </div>
+                    </div>
+                  )}
+                  <p className="mt-3 text-xs text-white/60">
+                    {promoImageUrl ? 'Materi promosi dari album gallery event.' : 'Poster otomatis dari detail event.'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -685,7 +730,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
         </RevealSection>
 
-        <UpcomingEventsFeature events={featuredUpcomingEvents} onDetail={onEventDetail} />
+        <UpcomingEventsFeature events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} />
 
         <CommunityBenefits />
         <CommunityFacilities />
