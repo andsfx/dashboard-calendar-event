@@ -1,5 +1,5 @@
 import { Fragment, useMemo } from 'react';
-import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays, Star } from 'lucide-react';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
@@ -11,6 +11,8 @@ interface Props {
   isAdmin: boolean;
   onEdit?: (ev: EventItem) => void;
   onDelete?: (ev: EventItem) => void;
+  featuredUpcomingIds?: string[];
+  onToggleFeaturedUpcoming?: (ev: EventItem) => void;
   onDetail: (ev: EventItem) => void;
 }
 
@@ -51,7 +53,7 @@ function exportCSV(events: EventItem[]) {
   URL.revokeObjectURL(url);
 }
 
-export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
+export function EventTable({ events, isAdmin, onEdit, onDelete, featuredUpcomingIds = [], onToggleFeaturedUpcoming, onDetail }: Props) {
   const groupedEvents = useMemo(() => {
     const sortedEvents = sortTableEvents(events);
     const groups: Array<{ monthKey: string; monthLabel: string; events: EventItem[] }> = [];
@@ -154,6 +156,19 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   >
                     <ExternalLink className="h-3.5 w-3.5" /> Detail
                   </button>
+                  {onToggleFeaturedUpcoming && (
+                    <button
+                      onClick={() => onToggleFeaturedUpcoming(ev)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition ${
+                        featuredUpcomingIds.includes(ev.id)
+                          ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300'
+                          : 'border-slate-200 text-slate-600 hover:bg-amber-50 hover:text-amber-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-amber-900/20 dark:hover:text-amber-300'
+                      }`}
+                    >
+                      <Star className={`h-3.5 w-3.5 ${featuredUpcomingIds.includes(ev.id) ? 'fill-current' : ''}`} />
+                      Featured
+                    </button>
+                  )}
                   {onEdit && (
                       <button
                         onClick={() => onEdit(ev)}
@@ -291,6 +306,20 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
+                        {onToggleFeaturedUpcoming && (
+                          <button
+                            onClick={() => onToggleFeaturedUpcoming(ev)}
+                            aria-label={featuredUpcomingIds.includes(ev.id) ? 'Hapus dari Upcoming Events' : 'Tampilkan di Upcoming Events'}
+                            title={featuredUpcomingIds.includes(ev.id) ? 'Featured di landing page' : 'Jadikan Upcoming Events'}
+                            className={`rounded-lg p-1.5 transition ${
+                              featuredUpcomingIds.includes(ev.id)
+                                ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-300'
+                                : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/30 dark:hover:text-amber-400'
+                            }`}
+                          >
+                            <Star className={`h-3.5 w-3.5 ${featuredUpcomingIds.includes(ev.id) ? 'fill-current' : ''}`} aria-hidden="true" />
+                          </button>
+                        )}
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (

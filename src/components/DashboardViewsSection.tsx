@@ -30,6 +30,8 @@ interface Props {
   visibleMonths: string[];
   onEdit?: (event: EventItem) => void;
   onDelete?: (event: EventItem) => void;
+  featuredUpcomingIds?: string[];
+  onToggleFeaturedUpcoming?: (event: EventItem) => void;
   onDetail: (event: EventItem) => void;
 }
 
@@ -57,6 +59,8 @@ export function DashboardViewsSection(props: Props) {
     visibleMonths,
     onEdit,
     onDelete,
+    featuredUpcomingIds = [],
+    onToggleFeaturedUpcoming,
     onDetail,
   } = props;
 
@@ -154,7 +158,15 @@ export function DashboardViewsSection(props: Props) {
       )}
 
       {viewMode === 'table' && (
-        <EventTable events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+        <EventTable
+          events={visibleEvents}
+          isAdmin={isAdmin}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          featuredUpcomingIds={featuredUpcomingIds}
+          onToggleFeaturedUpcoming={onToggleFeaturedUpcoming}
+          onDetail={onDetail}
+        />
       )}
       {isAdmin && viewMode === 'calendar' && (
         <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />

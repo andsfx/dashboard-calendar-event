@@ -430,6 +430,119 @@ function EventShowcase({ events, onDetail, onViewAll }: { events: EventItem[]; o
   );
 }
 
+function getCountdown(targetDate: string, now: number) {
+  const target = new Date(`${targetDate}T00:00:00`).getTime();
+  const diff = Math.max(0, target - now);
+  const dayMs = 24 * 60 * 60 * 1000;
+  const hourMs = 60 * 60 * 1000;
+  const minuteMs = 60 * 1000;
+  return {
+    days: Math.floor(diff / dayMs),
+    hours: Math.floor((diff % dayMs) / hourMs),
+    minutes: Math.floor((diff % hourMs) / minuteMs),
+  };
+}
+
+function CountdownPill({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
+      <p className="text-2xl font-black text-white sm:text-3xl">{String(value).padStart(2, '0')}</p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">{label}</p>
+    </div>
+  );
+}
+
+function UpcomingEventsFeature({ events, onDetail }: { events: EventItem[]; onDetail?: (ev: EventItem) => void }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  if (events.length === 0) return null;
+
+  const [mainEvent, ...otherEvents] = events;
+  if (!mainEvent) return null;
+  const countdown = getCountdown(mainEvent.dateStr, now);
+
+  return (
+    <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
+          <div className="relative overflow-hidden rounded-[2.25rem] bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,108,242,0.55),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(242,116,62,0.45),transparent_32%)]" aria-hidden="true" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.55),rgba(15,23,42,0.95))]" aria-hidden="true" />
+            <div className="relative z-10 flex min-h-[420px] flex-col justify-between gap-10">
+              <div>
+                {eyebrow('Upcoming Big Event')}
+                <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
+                  {mainEvent.acara}
+                </h2>
+                <div className="mt-5 flex flex-wrap gap-3 text-sm text-white/75">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                    <CalendarDays className="h-4 w-4" /> {mainEvent.day}, {mainEvent.tanggal}
+                  </span>
+                  {mainEvent.jam && (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                      <Clock className="h-4 w-4" /> {mainEvent.jam}
+                    </span>
+                  )}
+                  {mainEvent.lokasi && (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                      <MapPin className="h-4 w-4" /> {mainEvent.lokasi}
+                    </span>
+                  )}
+                </div>
+                {mainEvent.keterangan && (
+                  <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 line-clamp-3">
+                    {mainEvent.keterangan}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-white/50">Countdown menuju event</p>
+                <div className="grid max-w-md grid-cols-3 gap-3">
+                  <CountdownPill label="Hari" value={countdown.days} />
+                  <CountdownPill label="Jam" value={countdown.hours} />
+                  <CountdownPill label="Menit" value={countdown.minutes} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onDetail?.(mainEvent)}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-white/90"
+                >
+                  Lihat Detail Event <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Event besar lainnya</p>
+            <div className="mt-5 space-y-3">
+              {(otherEvents.length > 0 ? otherEvents : events.slice(0, 3)).slice(0, 3).map(event => (
+                <button
+                  key={event.id}
+                  type="button"
+                  onClick={() => onDetail?.(event)}
+                  className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
+                >
+                  <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <CalendarDays className="h-3.5 w-3.5" /> {event.tanggal}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </RevealSection>
+  );
+}
+
 /* ─── Main Component ──────────────────────────────────────── */
 interface CommunityLandingProps {
   isDark: boolean;
@@ -437,12 +550,14 @@ interface CommunityLandingProps {
   onBack: () => void;
   instagramPosts?: string[];
   events?: EventItem[];
+  featuredUpcomingIds?: string[];
   onEventDetail?: (ev: EventItem) => void;
   heroImageUrl?: string;
   albums?: PhotoAlbum[];
 }
 
 const NAV_ITEMS = [
+  { href: '#upcoming-events', label: 'Upcoming' },
   { href: '#benefits', label: 'Keuntungan' },
   { href: '#facilities', label: 'Fasilitas' },
   { href: '#gallery', label: 'Galeri' },
@@ -452,7 +567,7 @@ const NAV_ITEMS = [
   { href: '#faq', label: 'FAQ' },
 ];
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], featuredUpcomingIds = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
@@ -475,6 +590,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const featuredUpcomingEvents = events
+    .filter(event => featuredUpcomingIds.includes(event.id) && event.status === 'upcoming')
+    .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
 
   const headerClassName = isHeaderPinned
     ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
@@ -565,6 +684,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             </div>
           </div>
         </RevealSection>
+
+        <UpcomingEventsFeature events={featuredUpcomingEvents} onDetail={onEventDetail} />
 
         <CommunityBenefits />
         <CommunityFacilities />

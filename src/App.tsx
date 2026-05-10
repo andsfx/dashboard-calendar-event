@@ -103,6 +103,7 @@ export default function App() {
   const [selectedRegistration, setSelectedRegistration] = useState<CommunityRegistration | null>(null);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [initialEventData, setInitialEventData] = useState<Partial<EventItem> | null>(null);
+    const [featuredUpcomingIds, setFeaturedUpcomingIds] = useState<string[]>([]);
 
   const { toasts, showToast, removeToast } = useToast();
   const {
@@ -223,6 +224,9 @@ export default function App() {
       if (url && typeof url === 'string') setHeroImageUrl(url);
     }).catch(() => {});
     fetchAlbums().then(setLandingAlbums).catch(() => {});
+        fetchSiteSettings<string[]>('featured_upcoming_event_ids').then(ids => {
+          if (Array.isArray(ids)) setFeaturedUpcomingIds(ids.filter(id => typeof id === 'string'));
+        }).catch(() => {});
   }, []);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
@@ -247,6 +251,27 @@ export default function App() {
       return false;
     }
   }, [showToast]);
+
+  const handleToggleFeaturedUpcoming = useCallback(async (event: EventItem) => {
+    const exists = featuredUpcomingIds.includes(event.id);
+    const nextIds = exists
+      ? featuredUpcomingIds.filter(id => id !== event.id)
+      : [...featuredUpcomingIds, event.id];
+
+    try {
+      await updateSiteSettings('featured_upcoming_event_ids', nextIds);
+      setFeaturedUpcomingIds(nextIds);
+      showToast(
+        'success',
+        exists ? 'Dihapus dari Upcoming Events' : 'Ditambahkan ke Upcoming Events',
+        exists
+          ? `"${event.acara}" tidak lagi tampil di section Upcoming Events.`
+          : `"${event.acara}" akan tampil di landing page.`
+      );
+    } catch {
+      showToast('error', 'Gagal menyimpan', 'Pilihan Upcoming Events belum tersimpan. Coba lagi.');
+    }
+  }, [featuredUpcomingIds, showToast]);
 
   // Dark mode toggle
   const toggleDark = useCallback(() => {
@@ -626,6 +651,7 @@ export default function App() {
             onEventDetail={handleDetailClick}
             heroImageUrl={heroImageUrl}
             albums={landingAlbums}
+            featuredUpcomingIds={featuredUpcomingIds}
           />
           <Suspense fallback={null}>
             <EventDetailModal
@@ -900,6 +926,8 @@ export default function App() {
               visibleMonths={visibleMonths}
               onEdit={permissions.canEditEvents ? handleEdit : undefined}
               onDelete={permissions.canDeleteEvents ? handleDeleteClick : undefined}
+              featuredUpcomingIds={featuredUpcomingIds}
+              onToggleFeaturedUpcoming={permissions.canEditEvents ? handleToggleFeaturedUpcoming : undefined}
               onDetail={handleDetailClick}
             />
           </Suspense>
