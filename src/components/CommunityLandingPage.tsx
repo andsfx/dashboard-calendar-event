@@ -445,9 +445,9 @@ function getCountdown(targetDate: string, now: number) {
 
 function CountdownPill({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
-      <p className="text-2xl font-black text-white sm:text-3xl">{String(value).padStart(2, '0')}</p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">{label}</p>
+    <div className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-center text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300">
+      <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em]">{label}</p>
     </div>
   );
 }
@@ -472,116 +472,149 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
     <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
-          <div className="relative overflow-hidden rounded-[2.25rem] bg-slate-950 text-white shadow-2xl">
+          {/* ── Main event card ── */}
+          <div className="rounded-[2rem] border border-black/[0.06] bg-[#faf6ef] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:bg-slate-800 dark:border-slate-700 overflow-hidden">
+            {/* Top banner */}
             {promoImageUrl ? (
-              <img
-                src={thumbUrl(promoImageUrl)}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="lazy"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
+              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
+                <img
+                  src={thumbUrl(promoImageUrl)}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" aria-hidden="true" />
+              </div>
             ) : (
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,108,242,0.75),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(242,116,62,0.55),transparent_32%),linear-gradient(135deg,#1a0533,#0f172a_45%,#312e81)]" aria-hidden="true" />
+              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full bg-gradient-to-br from-violet-600 to-indigo-700 overflow-hidden">
+                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-400/30 blur-3xl" aria-hidden="true" />
+                <div className="absolute -left-8 bottom-0 h-40 w-40 rounded-full bg-indigo-400/20 blur-2xl" aria-hidden="true" />
+              </div>
             )}
-            <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(15,23,42,0.92)_0%,rgba(15,23,42,0.76)_46%,rgba(15,23,42,0.35)_100%)]" aria-hidden="true" />
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-violet-500/30 blur-3xl" aria-hidden="true" />
-            <div className="relative z-10 grid min-h-[460px] gap-8 p-6 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:p-10">
-              <div className="flex flex-col justify-between gap-10">
-              <div>
-                {eyebrow('Upcoming Big Event')}
-                <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-                  {mainEvent.acara}
-                </h2>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <CategoryBadges categories={mainEvent.categories?.length ? mainEvent.categories : [mainEvent.category]} maxVisible={3} />
-                </div>
-                <div className="mt-5 flex flex-wrap gap-3 text-sm text-white/75">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                    <CalendarDays className="h-4 w-4" /> {mainEvent.day}, {mainEvent.tanggal}
-                  </span>
-                  {mainEvent.jam && (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                      <Clock className="h-4 w-4" /> {mainEvent.jam}
-                    </span>
-                  )}
-                  {mainEvent.lokasi && (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                      <MapPin className="h-4 w-4" /> {mainEvent.lokasi}
-                    </span>
-                  )}
-                </div>
-                {mainEvent.keterangan && (
-                  <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 line-clamp-3">
-                    {mainEvent.keterangan}
-                  </p>
-                )}
-              </div>
 
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-white/50">Countdown menuju event</p>
-                <div className="grid max-w-md grid-cols-3 gap-3">
-                  <CountdownPill label="Hari" value={countdown.days} />
-                  <CountdownPill label="Jam" value={countdown.hours} />
-                  <CountdownPill label="Menit" value={countdown.minutes} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onDetail?.(mainEvent)}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-slate-950 transition hover:bg-white/90"
-                >
-                  Lihat Detail Event <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-              </div>
-
-              <div className="hidden items-end justify-end lg:flex">
-                <div className="w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur-md">
-                  {promoImageUrl ? (
-                    <img
-                      src={thumbUrl(promoImageUrl)}
-                      alt={`Materi promosi ${mainEvent.acara}`}
-                      className="aspect-[4/5] w-full rounded-[1.5rem] object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1.5rem] bg-gradient-to-br from-violet-600 via-slate-950 to-orange-500 p-6">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">Metropolitan Mall Bekasi</p>
-                        <p className="mt-4 text-3xl font-black leading-tight text-white">{mainEvent.acara}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-white/80">{mainEvent.tanggal}</p>
-                        <p className="mt-1 text-xs text-white/60">{mainEvent.lokasi}</p>
-                      </div>
+            {/* Content area */}
+            <div className="p-6 sm:p-8 lg:p-10">
+              <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+                {/* Left: info */}
+                <div className="flex flex-col justify-between gap-8">
+                  <div>
+                    {eyebrow('Upcoming Big Event')}
+                    <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+                      {mainEvent.acara}
+                    </h2>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <CategoryBadges categories={mainEvent.categories?.length ? mainEvent.categories : [mainEvent.category]} maxVisible={3} />
                     </div>
-                  )}
-                  <p className="mt-3 text-xs text-white/60">
-                    {promoImageUrl ? 'Materi promosi dari album gallery event.' : 'Poster otomatis dari detail event.'}
-                  </p>
+                    <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
+                        <CalendarDays className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.day}, {mainEvent.tanggal}
+                      </span>
+                      {mainEvent.jam && (
+                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
+                          <Clock className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.jam}
+                        </span>
+                      )}
+                      {mainEvent.lokasi && (
+                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
+                          <MapPin className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.lokasi}
+                        </span>
+                      )}
+                    </div>
+                    {mainEvent.keterangan && (
+                      <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 line-clamp-3">
+                        {mainEvent.keterangan}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Countdown menuju event</p>
+                    <div className="grid max-w-md grid-cols-3 gap-3">
+                      <CountdownPill label="Hari" value={countdown.days} />
+                      <CountdownPill label="Jam" value={countdown.hours} />
+                      <CountdownPill label="Menit" value={countdown.minutes} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onDetail?.(mainEvent)}
+                      className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white transition hover:from-violet-700 hover:to-indigo-700"
+                    >
+                      Lihat Detail Event <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right: promo poster — visible all sizes */}
+                <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
+                  <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-700 p-3">
+                    {promoImageUrl ? (
+                      <img
+                        src={thumbUrl(promoImageUrl)}
+                        alt={`Materi promosi ${mainEvent.acara}`}
+                        className="aspect-[4/5] w-full rounded-[1rem] object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1rem] bg-gradient-to-br from-violet-100 via-white to-amber-50 dark:from-violet-900/40 dark:via-slate-800 dark:to-slate-900 p-5">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500 dark:text-violet-400">Metropolitan Mall Bekasi</p>
+                          <p className="mt-4 text-2xl font-bold leading-tight text-slate-950 dark:text-white">{mainEvent.acara}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{mainEvent.tanggal}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{mainEvent.lokasi}</p>
+                        </div>
+                      </div>
+                    )}
+                    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                      {promoImageUrl ? 'Materi promosi dari album gallery event.' : 'Poster otomatis dari detail event.'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Event besar lainnya</p>
-            <div className="mt-5 space-y-3">
-              {(otherEvents.length > 0 ? otherEvents : events.slice(0, 3)).slice(0, 3).map(event => (
-                <button
-                  key={event.id}
-                  type="button"
-                  onClick={() => onDetail?.(event)}
-                  className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
-                >
-                  <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
-                  <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                    <CalendarDays className="h-3.5 w-3.5" /> {event.tanggal}
-                  </p>
-                </button>
-              ))}
+          {/* ── Side panel ── */}
+          {otherEvents.length > 0 ? (
+            <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Event besar lainnya</p>
+              <div className="mt-5 space-y-3">
+                {otherEvents.slice(0, 3).map(event => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    onClick={() => onDetail?.(event)}
+                    className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
+                  >
+                    <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
+                    <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                      <CalendarDays className="h-3.5 w-3.5" /> {event.tanggal}
+                    </p>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-6 rounded-[2rem] border border-black/[0.06] bg-white p-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50 dark:bg-violet-900/20">
+                <CalendarDays className="h-8 w-8 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Jangan lewatkan</p>
+                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Daftar sekarang</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Amankan tempat Anda sebelum kehabisan.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onDetail?.(mainEvent)}
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white transition hover:from-violet-700 hover:to-indigo-700"
+              >
+                Daftar Sekarang <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </RevealSection>
