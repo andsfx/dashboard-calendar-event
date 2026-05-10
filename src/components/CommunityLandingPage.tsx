@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   CalendarDays,
@@ -443,9 +443,15 @@ function getCountdown(targetDate: string, now: number) {
   };
 }
 
-function CountdownPill({ label, value }: { label: string; value: number }) {
+function CountdownPill({ label, value, color }: { label: string; value: number; color?: string }) {
+  const pillStyle: CSSProperties = color
+    ? { borderColor: `${color}40`, backgroundColor: `${color}12`, color }
+    : {};
   return (
-    <div className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-center text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300">
+    <div
+      className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-center text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+      style={pillStyle}
+    >
       <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
       <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em]">{label}</p>
     </div>
@@ -464,6 +470,11 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
 
   const [mainEvent, ...otherEvents] = events;
   if (!mainEvent) return null;
+
+  // Derive category color from mainEvent
+  const mainCat = (mainEvent.categories?.length ? mainEvent.categories[0] : mainEvent.category) || 'Umum';
+  const catColor = CATEGORY_COLORS[mainCat] ?? CATEGORY_COLORS.Umum;
+
   const countdown = getCountdown(mainEvent.dateStr, now);
   const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
   const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
@@ -492,9 +503,12 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" aria-hidden="true" />
               </div>
             ) : (
-              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full bg-gradient-to-br from-violet-600 to-indigo-700 overflow-hidden">
-                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-400/30 blur-3xl" aria-hidden="true" />
-                <div className="absolute -left-8 bottom-0 h-40 w-40 rounded-full bg-indigo-400/20 blur-2xl" aria-hidden="true" />
+              <div
+                className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden"
+                style={{ background: `linear-gradient(135deg, ${catColor}cc 0%, ${catColor}88 100%)` }}
+              >
+                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl" style={{ backgroundColor: `${catColor}50` }} aria-hidden="true" />
+                <div className="absolute -left-8 bottom-0 h-40 w-40 rounded-full blur-2xl" style={{ backgroundColor: `${catColor}30` }} aria-hidden="true" />
               </div>
             )}
 
@@ -513,16 +527,16 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                     </div>
                     <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
                       <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                        <CalendarDays className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.day}, {mainEvent.tanggal}
+                        <CalendarDays className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.day}, {mainEvent.tanggal}
                       </span>
                       {mainEvent.jam && (
                         <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                          <Clock className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.jam}
+                          <Clock className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.jam}
                         </span>
                       )}
                       {mainEvent.lokasi && (
                         <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                          <MapPin className="h-4 w-4 text-violet-600 dark:text-violet-400" /> {mainEvent.lokasi}
+                          <MapPin className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.lokasi}
                         </span>
                       )}
                     </div>
@@ -534,16 +548,19 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                   </div>
 
                   <div>
-                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Countdown menuju event</p>
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Countdown menuju event</p>
                     <div className="grid max-w-md grid-cols-3 gap-3">
-                      <CountdownPill label="Hari" value={countdown.days} />
-                      <CountdownPill label="Jam" value={countdown.hours} />
-                      <CountdownPill label="Menit" value={countdown.minutes} />
+                      <CountdownPill label="Hari" value={countdown.days} color={catColor} />
+                      <CountdownPill label="Jam" value={countdown.hours} color={catColor} />
+                      <CountdownPill label="Menit" value={countdown.minutes} color={catColor} />
                     </div>
                     <button
                       type="button"
                       onClick={() => onDetail?.(mainEvent)}
-                      className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white transition hover:from-violet-700 hover:to-indigo-700"
+                      className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
+                      style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
                     >
                       Lihat Detail Event <ArrowRight className="h-4 w-4" />
                     </button>
@@ -561,9 +578,12 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1rem] bg-gradient-to-br from-violet-100 via-white to-amber-50 dark:from-violet-900/40 dark:via-slate-800 dark:to-slate-900 p-5">
+                      <div
+                        className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1rem] p-5"
+                        style={{ background: `linear-gradient(135deg, ${catColor}18 0%, #ffffff 60%, #fef3c710 100%)` }}
+                      >
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500 dark:text-violet-400">Metropolitan Mall Bekasi</p>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: catColor }}>Metropolitan Mall Bekasi</p>
                           <p className="mt-4 text-2xl font-bold leading-tight text-slate-950 dark:text-white">{mainEvent.acara}</p>
                         </div>
                         <div>
@@ -584,37 +604,47 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
           {/* ── Side panel ── */}
           {otherEvents.length > 0 ? (
             <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Event besar lainnya</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Event besar lainnya</p>
               <div className="mt-5 space-y-3">
-                {otherEvents.slice(0, 3).map(event => (
-                  <button
-                    key={event.id}
-                    type="button"
-                    onClick={() => onDetail?.(event)}
-                    className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
-                  >
-                    <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
-                    <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                      <CalendarDays className="h-3.5 w-3.5" /> {event.tanggal}
-                    </p>
-                  </button>
-                ))}
+                {otherEvents.slice(0, 3).map(event => {
+                  const evCat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
+                  const evColor = CATEGORY_COLORS[evCat] ?? CATEGORY_COLORS.Umum;
+                  return (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => onDetail?.(event)}
+                      className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
+                      style={{ '--ev-color': evColor } as CSSProperties}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${evColor}60`; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = ''; }}
+                    >
+                      <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
+                      <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <CalendarDays className="h-3.5 w-3.5" style={{ color: evColor }} /> {event.tanggal}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-6 rounded-[2rem] border border-black/[0.06] bg-white p-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50 dark:bg-violet-900/20">
-                <CalendarDays className="h-8 w-8 text-violet-600 dark:text-violet-400" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: `${catColor}18` }}>
+                <CalendarDays className="h-8 w-8" style={{ color: catColor }} />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Jangan lewatkan</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Jangan lewatkan</p>
                 <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Daftar sekarang</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Amankan tempat Anda sebelum kehabisan.</p>
               </div>
               <button
                 type="button"
                 onClick={() => onDetail?.(mainEvent)}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white transition hover:from-violet-700 hover:to-indigo-700"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
+                style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
               >
                 Daftar Sekarang <ArrowRight className="h-4 w-4" />
               </button>
