@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { X, Save, Calendar } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
 import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES, createRecurringEvents, getStatus } from '../utils/eventUtils';
+import { uploadToR2 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { EventFormBasicFields } from './forms/EventFormBasicFields';
 import { EventFormDetailsFields } from './forms/EventFormDetailsFields';
@@ -73,6 +74,7 @@ const EMPTY: {
   recurrenceDayOfMonth: number;
   recurrenceInterval: number;
   recurrenceEndDate: string;
+  posterUrl: string;
 } = {
   dateStr: '',
   dateEnd: '',
@@ -97,12 +99,16 @@ const EMPTY: {
   recurrenceDayOfMonth: 1,
   recurrenceInterval: 7,
   recurrenceEndDate: '',
+  posterUrl: '',
 };
 
 export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, initialData }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [posterUploading, setPosterUploading] = useState(false);
+  const [posterError, setPosterError] = useState('');
+  const posterInputRef = useRef<HTMLInputElement>(null);
 
   const jamSuggestions = getUniqueSuggestions(events, 'jam');
   const lokasiSuggestions = getUniqueSuggestions(events, 'lokasi');
@@ -150,6 +156,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceDayOfMonth: 1,
         recurrenceInterval: 7,
         recurrenceEndDate: '',
+        posterUrl: editingEvent.posterUrl || '',
       });
     } else if (initialData) {
       setForm({
@@ -176,15 +183,47 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceDayOfMonth: 1,
         recurrenceInterval: 7,
         recurrenceEndDate: '',
+        posterUrl: initialData.posterUrl || '',
       });
     } else {
       setForm(EMPTY);
     }
     setErrors({});
     setIsSubmitting(false);
+    setPosterError('');
   }, [editingEvent, initialData, isOpen]);
 
   if (!isOpen) return null;
+
+  async function handlePosterChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setPosterError('File harus berupa gambar (JPG, PNG, WebP, dll).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setPosterError('Ukuran file maksimal 10 MB.');
+      return;
+    }
+    setPosterError('');
+    setPosterUploading(true);
+    try {
+      const url = await uploadToR2(file);
+      setForm(prev => ({ ...prev, posterUrl: url }));
+    } catch (err) {
+      setPosterError(err instanceof Error ? err.message : 'Upload gagal. Coba lagi.');
+    } finally {
+      setPosterUploading(false);
+      if (posterInputRef.current) posterInputRef.current.value = '';
+    }
+  }
+
+  function handleRemovePoster() {
+    setForm(prev => ({ ...prev, posterUrl: '' }));
+    setPosterError('');
+    if (posterInputRef.current) posterInputRef.current.value = '';
+  }
 
   const set = (key: string, val: string | boolean | number) => {
     setForm(prev => {
@@ -548,6 +587,72 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               placeholder="Deskripsi singkat tentang acara..."
               className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
+          </div>
+
+          {/* Poster / Flyer */}
+          <div>
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <Image className="h-3.5 w-3.5 text-emerald-500" />
+              Poster / Flyer Event
+            </label>
+            {form.posterUrl ? (
+              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+                <img
+                  src={form.posterUrl}
+                  alt="Poster acara"
+                  className="max-h-48 w-full object-contain"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <div className="flex gap-2 border-t border-slate-200 bg-white/80 p-2 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
+                  <button
+                    type="button"
+                    onClick={() => posterInputRef.current?.click()}
+                    disabled={posterUploading}
+                    className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    Ganti
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRemovePoster}
+                    disabled={posterUploading}
+                    className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => posterInputRef.current?.click()}
+                disabled={posterUploading}
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+              >
+                {posterUploading ? (
+                  <>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400/30 border-t-emerald-500" />
+                    <span className="text-xs font-medium">Mengupload...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-5 w-5" />
+                    <span className="text-xs font-medium">Klik untuk upload poster / flyer</span>
+                    <span className="text-[10px]">JPG, PNG, WebP — maks. 10 MB</span>
+                  </>
+                )}
+              </button>
+            )}
+            <input
+              ref={posterInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePosterChange}
+            />
+            {posterError && <p className="mt-1 text-xs text-red-500">{posterError}</p>}
           </div>
 
           {/* Actions */}

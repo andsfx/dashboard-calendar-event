@@ -633,7 +633,6 @@ interface CommunityLandingProps {
   onBack: () => void;
   instagramPosts?: string[];
   events?: EventItem[];
-  featuredUpcomingIds?: string[];
   onEventDetail?: (ev: EventItem) => void;
   heroImageUrl?: string;
   albums?: PhotoAlbum[];
@@ -650,7 +649,7 @@ const NAV_ITEMS = [
   { href: '#faq', label: 'FAQ' },
 ];
 
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], featuredUpcomingIds = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
@@ -675,7 +674,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   }, []);
 
   const featuredUpcomingEvents = events
-    .filter(event => featuredUpcomingIds.includes(event.id) && event.status === 'upcoming')
+    .filter(event => event.priority === 'high' && event.status === 'upcoming')
     .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
 
   const headerClassName = isHeaderPinned
