@@ -1,3 +1,4 @@
+import { type KeyboardEvent } from 'react';
 import { type OrganizationType } from '../../types';
 import { Users, GraduationCap, Building2, PartyPopper, School, Landmark, Heart, MoreHorizontal } from 'lucide-react';
 
@@ -23,31 +24,68 @@ const ORG_TYPES: OrgTypeOption[] = [
 interface Props {
   value: OrganizationType | '';
   onChange: (type: OrganizationType) => void;
+  error?: string;
 }
 
-export function OrganizationTypeSelector({ value, onChange }: Props) {
+export function OrganizationTypeSelector({ value, onChange, error }: Props) {
+  const selectedIndex = ORG_TYPES.findIndex(opt => opt.value === value);
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+    event.preventDefault();
+    const lastIndex = ORG_TYPES.length - 1;
+    let nextIndex = index;
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = index === lastIndex ? 0 : index + 1;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = index === 0 ? lastIndex : index - 1;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = lastIndex;
+
+    const nextOption = ORG_TYPES[nextIndex];
+    if (!nextOption) return;
+
+    onChange(nextOption.value);
+    requestAnimationFrame(() => {
+      document.getElementById(`organization-type-${nextOption.value}`)?.focus();
+    });
+  };
+
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+      <p id="organization-type-label" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
         Tipe Organisasi <span className="text-rose-500">*</span>
       </p>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        {ORG_TYPES.map((opt) => {
+      <div
+        className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
+        role="radiogroup"
+        aria-labelledby="organization-type-label"
+        aria-describedby={error ? 'organization-type-error' : undefined}
+        aria-required="true"
+      >
+        {ORG_TYPES.map((opt, index) => {
           const Icon = opt.icon;
           const isSelected = value === opt.value;
           return (
             <button
+              id={`organization-type-${opt.value}`}
               key={opt.value}
               type="button"
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={isSelected || (!value && index === Math.max(selectedIndex, 0)) ? 0 : -1}
               onClick={() => onChange(opt.value)}
-              className={`group relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 ${
+              onKeyDown={event => handleKeyDown(event, index)}
+              className={`group relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 motion-reduce:transition-none ${
                 isSelected
                   ? 'border-violet-500 bg-violet-50 shadow-md dark:border-violet-400 dark:bg-violet-950/30'
-                  : 'border-slate-200/60 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
+                  : error
+                    ? 'border-rose-300 bg-rose-50/60 hover:border-rose-400 dark:border-rose-800 dark:bg-rose-950/20'
+                    : 'border-slate-200/60 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
               }`}
             >
-              <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 ${opt.color}`}>
-                <Icon className="h-5 w-5" />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 motion-reduce:transform-none motion-reduce:transition-none ${opt.color}`}>
+                <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className={`text-xs font-bold ${isSelected ? 'text-violet-700 dark:text-violet-300' : 'text-slate-700 dark:text-slate-200'}`}>
@@ -68,6 +106,11 @@ export function OrganizationTypeSelector({ value, onChange }: Props) {
           );
         })}
       </div>
+      {error && (
+        <p id="organization-type-error" className="text-sm text-rose-600" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

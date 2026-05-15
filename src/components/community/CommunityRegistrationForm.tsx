@@ -1,7 +1,7 @@
-import { FormEvent, ReactNode, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { CheckCircle2, Send, ArrowLeft } from 'lucide-react';
 import { submitCommunityRegistration } from '../../utils/supabaseApi';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
@@ -56,14 +56,12 @@ function RegistrationForm() {
   const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
     setError('');
-    // Clear field-specific error when user types
-    if (key === 'email' || key === 'phone' || key === 'instagram') {
-      setFieldErrors(prev => {
-        const updated = { ...prev };
-        delete updated[key];
-        return updated;
-      });
-    }
+    setFieldErrors(prev => {
+      if (!prev[key]) return prev;
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
   };
 
   const handleOrgTypeChange = (type: OrganizationType) => {
@@ -74,21 +72,35 @@ function RegistrationForm() {
       communityType: '', // reset community type
     }));
     setError('');
+    setFieldErrors(prev => {
+      if (!prev.organizationType) return prev;
+      const updated = { ...prev };
+      delete updated.organizationType;
+      return updated;
+    });
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.organizationType) {
-      setError('Pilih tipe organisasi terlebih dahulu.');
-      return;
-    }
-    if (!form.organizationName.trim() || !form.pic.trim() || !form.phone.trim()) {
-      setError('Lengkapi nama organisasi, PIC, dan nomor telepon ya!');
-      return;
-    }
 
     // Validate fields using validation utilities
     const errors: Record<string, string> = {};
+
+    if (!form.organizationType) {
+      errors.organizationType = 'Pilih tipe organisasi terlebih dahulu.';
+    }
+
+    if (!form.organizationName.trim()) {
+      errors.organizationName = `${form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi'} wajib diisi.`;
+    }
+
+    if (!form.pic.trim()) {
+      errors.pic = 'Nama PIC wajib diisi.';
+    }
+
+    if (!form.phone.trim()) {
+      errors.phone = 'Nomor WhatsApp wajib diisi.';
+    }
 
     // Validate email (optional field - only validate if provided)
     if (form.email.trim()) {
@@ -115,7 +127,7 @@ function RegistrationForm() {
     // If there are validation errors, set them and return early
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setError('Mohon perbaiki kesalahan pada form.');
+      setError('Periksa kolom yang ditandai, lalu kirim ulang.');
       return;
     }
 
@@ -188,7 +200,13 @@ function RegistrationForm() {
       <OrganizationTypeSelector
         value={form.organizationType}
         onChange={handleOrgTypeChange}
+        error={fieldErrors.organizationType}
       />
+      {fieldErrors.organizationType && (
+        <p id="organization-type-error" className="mt-2 text-sm text-rose-600" role="alert">
+          {fieldErrors.organizationType}
+        </p>
+      )}
 
       {/* Step 2: Form Fields (shown after type selection) */}
       {showForm && (
@@ -221,7 +239,14 @@ function RegistrationForm() {
                 placeholder={form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi / lembaga'}
                 required
                 className={inputClass}
+                aria-invalid={!!fieldErrors.organizationName}
+                aria-describedby={fieldErrors.organizationName ? 'organization-name-error' : undefined}
               />
+              {fieldErrors.organizationName && (
+                <p id="organization-name-error" className="mt-1 text-sm text-rose-600" role="alert">
+                  {fieldErrors.organizationName}
+                </p>
+              )}
             </div>
 
             {/* Type-Specific Fields */}
@@ -236,7 +261,12 @@ function RegistrationForm() {
             {/* Common Fields */}
             <div>
               <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-500">*</span></label>
-              <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} />
+              <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
+              {fieldErrors.pic && (
+                <p id="pic-error" className="mt-1 text-sm text-rose-600" role="alert">
+                  {fieldErrors.pic}
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-500">*</span></label>
@@ -253,7 +283,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
               />
               {fieldErrors.phone && (
-                <p id="phone-error" className="text-red-500 text-sm mt-1" role="alert">
+                <p id="phone-error" className="mt-1 text-sm text-rose-600" role="alert">
                   {fieldErrors.phone}
                 </p>
               )}
@@ -272,7 +302,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               />
               {fieldErrors.email && (
-                <p id="email-error" className="text-red-500 text-sm mt-1" role="alert">
+                <p id="email-error" className="mt-1 text-sm text-rose-600" role="alert">
                   {fieldErrors.email}
                 </p>
               )}
@@ -289,7 +319,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.instagram ? 'instagram-error' : undefined}
               />
               {fieldErrors.instagram && (
-                <p id="instagram-error" className="text-red-500 text-sm mt-1" role="alert">
+                <p id="instagram-error" className="mt-1 text-sm text-rose-600" role="alert">
                   {fieldErrors.instagram}
                 </p>
               )}
@@ -312,54 +342,23 @@ function RegistrationForm() {
         <p className="max-w-md text-xs leading-6 text-slate-500 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"
-          disabled={submitting || !form.organizationType}
-          className={`inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 transition hover:brightness-110 hover:shadow-lg ${focusRing}`}
+          disabled={submitting}
+          className={`inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 hover:shadow-lg disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
         >
           <Send className="h-4 w-4" />
-          {submitting ? 'Mengirim...' : 'Daftar Sekarang!'}
+          {submitting ? 'Mengirim...' : 'Kirim Pendaftaran'}
         </button>
       </div>
     </form>
   );
 }
 
-function RevealSection({
-  children,
-  className = '',
-  intensity = 'default',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  intensity?: 'default' | 'strong';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </section>
-  );
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
-}
-
 export function CommunityRegistrationForm() {
   return (
-    <RevealSection id="register" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="register" intensity="strong" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
-          {eyebrow('Daftar Sekarang')}
+          <CommunityEyebrow>Daftar Sekarang</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Yuk, gabung!
           </h2>
