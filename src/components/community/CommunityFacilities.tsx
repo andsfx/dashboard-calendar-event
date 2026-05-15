@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Headphones, Heart, Lightbulb, MapPin, Mic2, Users } from 'lucide-react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
   { icon: <Mic2 className="h-6 w-6" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
@@ -11,44 +11,13 @@ const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
   { icon: <Heart className="h-6 w-6" aria-hidden="true" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
 ];
 
-function RevealSection({
-  children,
-  className = '',
-  intensity = 'default',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  intensity?: 'default' | 'strong';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </section>
-  );
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
-}
-
 export function CommunityFacilities() {
   return (
     <RevealSection id="facilities" intensity="strong" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            {eyebrow('Fasilitas')}
+            <CommunityEyebrow>Fasilitas</CommunityEyebrow>
             <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Semua udah disiapin.
             </h2>

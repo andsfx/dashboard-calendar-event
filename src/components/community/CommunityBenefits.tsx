@@ -1,18 +1,18 @@
 import { ReactNode } from 'react';
 import { Megaphone, Rocket, Trophy, Zap } from 'lucide-react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
 
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
   {
     icon: <Trophy className="h-7 w-7" aria-hidden="true" />,
     title: 'Dukungan Sponsorship',
-    desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu connect dengan brand dan tenant yang relevan.',
+    desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.',
     color: '#f59e0b',
   },
   {
     icon: <Megaphone className="h-7 w-7" aria-hidden="true" />,
     title: 'Promosi & Marketing',
-    desc: 'Tim marketing kami bantu promosiin event kamu lewat social media, digital signage, dan channel mall lainnya.',
+    desc: 'Tim marketing kami bantu promosikan event kamu lewat media sosial, digital signage, dan kanal mall lainnya.',
     color: '#ec4899',
   },
   {
@@ -29,48 +29,17 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
   },
 ];
 
-function RevealSection({
-  children,
-  className = '',
-  intensity = 'default',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  intensity?: 'default' | 'strong';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </section>
-  );
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
-}
-
 export function CommunityBenefits() {
   return (
     <RevealSection id="benefits" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          {eyebrow('Kenapa Gabung')}
+          <CommunityEyebrow>Kenapa Gabung</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Bukan cuma dikasih space.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-            Kamu juga dipush buat berkembang. Dari sponsorship sampai marketing support — semua buat komunitas kamu makin besar.
+            Kamu juga didukung untuk berkembang. Dari sponsorship sampai promosi, semua untuk memperbesar jangkauan komunitas kamu.
           </p>
         </div>
 
@@ -78,7 +47,7 @@ export function CommunityBenefits() {
           {BENEFITS.map((b) => (
             <div
               key={b.title}
-              className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+              className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-800"
               style={{ '--accent-color': b.color } as React.CSSProperties}
             >
               {/* Accent bar */}

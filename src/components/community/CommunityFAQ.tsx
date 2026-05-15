@@ -1,46 +1,17 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
 
 const FAQS: Array<[string, string]> = [
-  ['Beneran gratis? Nggak ada biaya tersembunyi?', 'Beneran 100% gratis! Panggung, sound system, lighting, kursi — semua disediakan tanpa biaya. Yang perlu kamu siapin cuma konsep acara dan semangat komunitas kamu.'],
-  ['Komunitas apa aja yang bisa daftar?', 'Semua jenis komunitas welcome! Musik, dance, seni, gaming, olahraga, pendidikan, dan lainnya. Selama punya konsep acara yang jelas dan positif, kita open.'],
-  ['Berapa lama proses review-nya?', 'Biasanya 3-5 hari kerja setelah form diterima. Tim kami akan hubungi PIC untuk diskusi lebih lanjut soal jadwal dan kebutuhan.'],
-  ['Bisa request tanggal tertentu?', 'Bisa! Tulis preferensi tanggal di form. Tim kami akan cek ketersediaan dan konfirmasi secepatnya.'],
-  ['Apakah bisa kolaborasi dengan komunitas lain?', 'Absolutely! Justru itu salah satu value yang kami tawarkan. Kami bisa bantu connect kamu dengan komunitas lain yang udah bergabung.'],
-  ['Apa syarat untuk mendaftar?', 'Kirimkan company profile atau portofolio komunitas beserta proposal event ke email kami. Nggak perlu ribet — yang penting jelas konsep dan tujuannya.'],
+  ['Benar gratis? Ada biaya tersembunyi?', 'Benar 100% gratis. Panggung, sound system, lighting, dan kursi disediakan tanpa biaya. Kamu cukup siapkan konsep acara dan kebutuhan komunitas.'],
+  ['Komunitas apa saja yang bisa daftar?', 'Musik, dance, seni, gaming, olahraga, pendidikan, dan komunitas lain bisa mendaftar selama konsep acaranya jelas dan positif.'],
+  ['Berapa lama proses review?', 'Biasanya 3-5 hari kerja setelah form diterima. Tim kami akan menghubungi PIC untuk diskusi jadwal dan kebutuhan.'],
+  ['Bisa request tanggal tertentu?', 'Bisa. Tulis preferensi tanggal di form. Tim kami akan cek ketersediaan dan konfirmasi secepatnya.'],
+  ['Apakah bisa kolaborasi dengan komunitas lain?', 'Bisa. Kami dapat membantu menghubungkan kamu dengan komunitas lain yang sudah bergabung.'],
+  ['Apa syarat untuk mendaftar?', 'Kirimkan profil atau portofolio komunitas beserta proposal event. Yang penting, konsep dan tujuan acaranya jelas.'],
 ];
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
-
-function RevealSection({
-  children,
-  className = '',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref as never}
-      className={`reveal-on-scroll ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </section>
-  );
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
-}
 
 export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
@@ -49,7 +20,7 @@ export function CommunityFAQ() {
     <RevealSection id="faq" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="text-center">
-          {eyebrow('FAQ')}
+          <CommunityEyebrow>FAQ</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Pertanyaan yang sering muncul.
           </h2>

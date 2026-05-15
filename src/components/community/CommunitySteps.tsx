@@ -1,5 +1,4 @@
-import { ReactNode } from 'react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
   { num: '01', title: 'Daftar & Submit', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritain rencana event kamu.' },
@@ -8,43 +7,12 @@ const STEPS: Array<{ num: string; title: string; desc: string }> = [
   { num: '04', title: 'Event Day!', desc: 'Hari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.' },
 ];
 
-function RevealSection({
-  children,
-  className = '',
-  intensity = 'default',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  intensity?: 'default' | 'strong';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </section>
-  );
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
-}
-
 export function CommunitySteps() {
   return (
     <RevealSection id="how" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          {eyebrow('Cara Daftar')}
+          <CommunityEyebrow>Cara Daftar</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Gampang banget, cuma 4 langkah.
           </h2>
