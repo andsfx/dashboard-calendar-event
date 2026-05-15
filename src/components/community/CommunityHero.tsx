@@ -1,7 +1,6 @@
 import { ArrowRight, CheckCircle2, ChevronDown, Music, Sparkles, Users } from 'lucide-react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
-import { ReactNode } from 'react';
 import { imgUrl } from '../../utils/imageOptim';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const BRAND = {
   accent: '#7c6cf2',
@@ -10,30 +9,6 @@ const BRAND = {
 };
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
-
-function RevealSection({
-  children,
-  className = '',
-  as = 'section',
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  as?: 'section' | 'div';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-  const Tag = as;
-
-  return (
-    <Tag
-      ref={ref as never}
-      className={`reveal-on-scroll ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </Tag>
-  );
-}
 
 interface CommunityHeroProps {
   heroImageUrl?: string;
@@ -49,7 +24,19 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
       {heroImageUrl ? (
         <>
           <div className="absolute inset-0">
-            <img src={imgUrl(heroImageUrl, { w: 1920, q: 80 })} alt="" className="h-full w-full object-cover" fetchPriority="high" />
+            <img
+              src={imgUrl(heroImageUrl, { w: 1280, q: 78 })}
+              srcSet={`
+                ${imgUrl(heroImageUrl, { w: 768, q: 74 })} 768w,
+                ${imgUrl(heroImageUrl, { w: 1280, q: 78 })} 1280w,
+                ${imgUrl(heroImageUrl, { w: 1920, q: 80 })} 1920w
+              `}
+              sizes="100vw"
+              alt=""
+              className="h-full w-full object-cover"
+              fetchPriority="high"
+              decoding="async"
+            />
           </div>
           {/* Gradient overlay di atas foto (60-70% opacity) */}
           <div
@@ -88,7 +75,7 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
       )}
 
       {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 hidden overflow-hidden sm:block">
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/25 blur-[120px]" />
         <div className="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-orange-500/25 blur-[100px]" />
         <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-indigo-500/25 blur-[80px]" />
@@ -103,42 +90,36 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
           </div>
 
           <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
-            Calling All{' '}
-            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-violet-400 bg-clip-text text-transparent">
-              Community
-            </span>
-            !
+            Panggung Gratis untuk Komunitas Bekasi
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
-            Lagi cari tempat buat event atau kumpul komunitas?{' '}
-            Di Metropolitan Mall Bekasi <strong className="text-white">GRATIS!</strong>
+            Cari venue untuk event komunitas? Metropolitan Mall Bekasi siapkan tempatnya <strong className="text-white">gratis.</strong>
           </p>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
-            Venue, sound system, lighting semua udah disiapin.{' '}
-            Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lainnya.
+            Venue, sound system, dan lighting sudah tersedia. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lain.
           </p>
           <p className="mx-auto mt-4 max-w-md text-sm font-medium text-amber-300/90">
-            Slot terbatas setiap bulan — daftar sekarang sebelum penuh!
+            Slot bulanan terbatas. Daftar sebelum jadwal penuh.
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <a
               href="#register"
-              className={`group inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:brightness-110 hover:shadow-xl ${focusRing}`}
+              className={`group inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:brightness-110 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none ${focusRing}`}
               style={{ 
                 background: `linear-gradient(135deg, ${BRAND.accentWarm} 0%, ${BRAND.accent} 100%)`,
                 boxShadow: '0 20px 40px -12px rgba(242, 116, 62, 0.5)'
               }}
             >
               Daftar Sekarang
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none" />
             </a>
             <a
               href="#benefits"
               className={`inline-flex items-center gap-2 rounded-full border-2 border-white/20 bg-white/10 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-xl transition hover:border-white/40 hover:bg-white/20 ${focusRing}`}
             >
-              Lihat Benefits
+              Lihat Keuntungan
             </a>
           </div>
 
@@ -160,14 +141,14 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/20">
                 <Users className="h-4 w-4 text-amber-400" aria-hidden="true" />
               </span>
-              <span>Open for All</span>
+              <span>Terbuka untuk Semua</span>
             </div>
           </div>
         </RevealSection>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse" aria-hidden="true">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-pulse motion-reduce:animate-none" aria-hidden="true">
         <ChevronDown className="h-6 w-6 text-white/50" />
       </div>
     </section>

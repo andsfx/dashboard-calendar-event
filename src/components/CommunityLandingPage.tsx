@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   CalendarDays,
@@ -22,7 +22,7 @@ import { EventItem, PhotoAlbum } from '../types';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
-import { useScrollReveal } from '../hooks/useScrollReveal';
+import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
 import { CommunityHero } from './community/CommunityHero';
 import { CommunityBenefits } from './community/CommunityBenefits';
 import { CommunityFacilities } from './community/CommunityFacilities';
@@ -46,46 +46,6 @@ const IG_POSTS = [
 ];
 
 /* ─── Helpers ─────────────────────────────────────────────── */
-function RevealSection({
-  children,
-  skeleton,
-  className = '',
-  as = 'section',
-  intensity = 'default',
-  ...rest
-}: {
-  children: ReactNode;
-  skeleton?: ReactNode;
-  className?: string;
-  as?: 'section' | 'div';
-  intensity?: 'default' | 'strong';
-} & React.HTMLAttributes<HTMLElement>) {
-  const { ref, isVisible } = useScrollReveal();
-  const Tag = as;
-
-  // If skeleton provided and not yet visible, show skeleton instead of reveal-stage
-  if (!isVisible && skeleton) {
-    return (
-      <Tag
-        ref={ref as never}
-        className={className}
-        {...rest}
-      >
-        <div className="animate-pulse">{skeleton}</div>
-      </Tag>
-    );
-  }
-
-  return (
-    <Tag
-      ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
-    </Tag>
-  );
-}
 
 /* ─── Skeleton Components ─────────────────────────────────── */
 
@@ -164,14 +124,6 @@ function SkeletonEventGrid() {
 
 function LogoMark({ className = '' }: { className?: string }) {
   return <img src={mallLogo} alt="Metropolitan Mall Bekasi" className={className} />;
-}
-
-function eyebrow(label: string) {
-  return (
-    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600">
-      {label}
-    </p>
-  );
 }
 
 function StatBadge({ number, label }: { number: string; label: string }) {
@@ -531,7 +483,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                 {/* Left: info */}
                 <div className="flex flex-col justify-between gap-8">
                   <div>
-                    {eyebrow('Upcoming Big Event')}
+                    <CommunityEyebrow className="text-xs">Upcoming Big Event</CommunityEyebrow>
                     <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                       {mainEvent.acara}
                     </h2>
@@ -648,7 +600,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
-                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Looking for Sponsor & Support</p>
+                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Cari Sponsor atau Dukungan</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
               </div>
               <a
@@ -660,7 +612,7 @@ function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem
                 onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
               >
-                Contact Us <ArrowRight className="h-4 w-4" />
+                Hubungi Kami <ArrowRight className="h-4 w-4" />
               </a>
             </div>
           )}
@@ -711,11 +663,23 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => setIsHeaderPinned(window.scrollY > 32);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setIsHeaderPinned(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileNavOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileNavOpen]);
+
 
   const featuredUpcomingEvents = events
     .filter(event => event.priority === 'high' && event.status === 'upcoming')
@@ -771,13 +735,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 className={`${utilityButtonClass} lg:hidden ${focusRing}`}
                 aria-label={mobileNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
                 aria-expanded={mobileNavOpen}
+                aria-controls="community-mobile-nav"
               >
                 {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
                 <span className="sr-only">{mobileNavOpen ? 'Tutup menu' : 'Buka menu'}</span>
               </button>
             </div>
           </div>
-          <div className={`overflow-hidden transition-all duration-300 ease-out ${mobileNavOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div id="community-mobile-nav" className={`overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none ${mobileNavOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`} hidden={!mobileNavOpen}>
             <div className={mobilePanelClass}>
               <nav className={mobileNavGridClass} aria-label="Navigasi mobile">
                 {NAV_ITEMS.map(item => (
@@ -825,7 +790,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <RevealSection id="gallery" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
-              {eyebrow('Galeri')}
+              <CommunityEyebrow className="text-xs">Galeri</CommunityEyebrow>
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
                 Lihat sendiri keseruannya.
               </h2>
@@ -938,7 +903,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           <RevealSection id="events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonEventGrid />}>
             <div className="mx-auto max-w-7xl">
               <div className="text-center">
-                {eyebrow('Agenda Event')}
+                <CommunityEyebrow className="text-xs">Agenda Event</CommunityEyebrow>
                 <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
                   Event yang sedang & akan berlangsung.
                 </h2>
@@ -959,7 +924,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <RevealSection id="contact" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
-              {eyebrow('Kontak')}
+              <CommunityEyebrow className="text-xs">Kontak</CommunityEyebrow>
               <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
                 Ada pertanyaan? Hubungi kami!
               </h2>
