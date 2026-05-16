@@ -319,7 +319,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   const isMaxPhotos = albumPhotos.length + uploadFiles.length >= MAX_PHOTOS;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="album-manager-title">
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
@@ -336,7 +336,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               <ImageIcon className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">
+              <p id="album-manager-title" className="font-bold text-slate-800 dark:text-white">
                 {view === 'list' ? 'Album Gallery' : selectedAlbum?.name || 'Detail Album'}
               </p>
               <p className="text-xs text-slate-400">

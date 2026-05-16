@@ -87,7 +87,7 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="annual-theme-title">
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
               <CalendarDays className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">{editingTheme ? 'Edit Tema Tahunan' : 'Tambah Tema Tahunan'}</p>
+              <p id="annual-theme-title" className="font-bold text-slate-800 dark:text-white">{editingTheme ? 'Edit Tema Tahunan' : 'Tambah Tema Tahunan'}</p>
               <p className="text-xs text-slate-400">Kelola tema yang tampil di section Tema Tahunan.</p>
             </div>
           </div>

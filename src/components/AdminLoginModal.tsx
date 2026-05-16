@@ -76,7 +76,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
     : pw.trim() && !loading;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="admin-login-title">
       <div className={`rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden transition-transform ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
         {/* Header gradient */}
         <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5">
@@ -86,7 +86,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                 <Lock className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="font-bold text-white">Login Admin</p>
+                <p id="admin-login-title" className="font-bold text-white">Login Admin</p>
                 <p className="text-xs text-white/70">Masuk ke mode admin</p>
               </div>
             </div>
