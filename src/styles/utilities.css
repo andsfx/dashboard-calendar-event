@@ -66,6 +66,18 @@
   @apply flex h-10 w-10 items-center justify-center rounded-xl;
 }
 
+.ui-operational-card {
+  @apply flex min-h-[132px] flex-col justify-between rounded-2xl border p-4 shadow-sm sm:p-5;
+}
+
+.ui-kpi-label {
+  @apply text-[11px] font-bold uppercase tracking-[0.18em];
+}
+
+.ui-kpi-value {
+  @apply text-3xl font-black leading-none tabular-nums;
+}
+
 .tooltip-parent {
   position: relative;
 }
