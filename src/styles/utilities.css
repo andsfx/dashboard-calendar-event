@@ -1,0 +1,95 @@
+.ui-focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+}
+
+.ui-focus-ring-panel {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+}
+
+.ui-dashboard-surface {
+  @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800;
+}
+
+.ui-dashboard-panel {
+  @apply rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800;
+}
+
+.ui-empty-panel {
+  @apply rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center dark:border-slate-700 dark:bg-slate-800/50;
+}
+
+.ui-alert-panel {
+  @apply rounded-2xl border border-red-200 bg-red-50 dark:border-red-800/50 dark:bg-red-900/20;
+}
+
+.ui-campaign-card {
+  border-radius: var(--radius-campaign-card);
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  background: #fcfaf6;
+  box-shadow: var(--shadow-card-soft);
+}
+
+.dark .ui-campaign-card {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+.ui-campaign-icon-gradient {
+  @apply bg-gradient-to-br from-orange-500 to-violet-500 text-white;
+}
+
+.ui-gradient-primary {
+  @apply bg-gradient-to-r from-violet-600 to-indigo-600;
+}
+
+.ui-gradient-primary-hover {
+  @apply hover:from-violet-700 hover:to-indigo-700;
+}
+
+.ui-dashboard-card-padded {
+  @apply rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800;
+}
+
+.ui-text-muted {
+  @apply text-slate-500 dark:text-slate-400;
+}
+
+.ui-text-secondary {
+  @apply text-slate-600 dark:text-slate-400;
+}
+
+.ui-text-strong {
+  @apply text-slate-800 dark:text-white;
+}
+
+.ui-icon-tile {
+  @apply flex h-10 w-10 items-center justify-center rounded-xl;
+}
+
+.tooltip-parent {
+  position: relative;
+}
+
+.tooltip-parent:hover .tooltip-box {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.tooltip-box {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  z-index: 100;
+}
