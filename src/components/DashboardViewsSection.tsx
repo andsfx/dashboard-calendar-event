@@ -103,7 +103,7 @@ export function DashboardViewsSection(props: Props) {
   return (
     <>
       <section>
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-3 sm:p-4">
           <div className="flex flex-col gap-3">
             {!isAdmin && (
               <div className="w-full sm:w-[360px]">
@@ -128,7 +128,7 @@ export function DashboardViewsSection(props: Props) {
             </div>
 
             <div className="space-y-2">
-              <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
+              <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Tampilan</p>
               <div role="tablist" aria-labelledby="view-tabs-label" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
                 {availableViewTabs.map(tab => (
                   <button
@@ -142,7 +142,7 @@ export function DashboardViewsSection(props: Props) {
                     onClick={() => setViewMode(tab.key)}
                     onKeyDown={event => handleViewTabKeyDown(event, availableViewTabs.findIndex(item => item.key === tab.key))}
                     aria-label={`Tampilan ${tab.label}`}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
+                    className={`ui-focus-ring flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
                         ? 'border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-800/50 dark:bg-slate-600 dark:text-violet-300'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
@@ -155,7 +155,7 @@ export function DashboardViewsSection(props: Props) {
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs ui-text-muted">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
                 {searchQuery && <span>, pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
               </p>
@@ -163,7 +163,7 @@ export function DashboardViewsSection(props: Props) {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="flex items-center gap-1 self-start text-xs font-semibold text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
+                  className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-violet-600 hover:underline dark:text-violet-400"
                 >
                   <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
                 </button>
@@ -191,29 +191,29 @@ export function DashboardViewsSection(props: Props) {
             <p className="mt-2 text-2xl font-black tabular-nums text-emerald-900 dark:text-emerald-100">{activeNowCount}</p>
             <p className="text-xs text-emerald-800/75 dark:text-emerald-200/75">event sedang berjalan</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-            <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi Berikutnya</p>
+          <div className="ui-dashboard-panel p-4">
+            <p className="text-xs font-bold uppercase tracking-wide ui-text-muted">Aksi Berikutnya</p>
             <p className="mt-2 line-clamp-1 text-sm font-semibold text-slate-900 dark:text-white">{nextPriorityEvent?.acara ?? 'Tidak ada event aktif'}</p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{nextPriorityEvent ? `${nextPriorityEvent.tanggal}, ${nextPriorityEvent.lokasi}` : 'Filter bisa diubah untuk melihat jadwal lain'}</p>
+            <p className="mt-1 text-xs ui-text-muted">{nextPriorityEvent ? `${nextPriorityEvent.tanggal}, ${nextPriorityEvent.lokasi}` : 'Filter bisa diubah untuk melihat jadwal lain'}</p>
           </div>
         </section>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
+        <div className="ui-alert-panel flex items-center gap-3 px-5 py-3">
           <span className="text-lg">!</span>
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
 
       {!error && visibleEvents.length === 0 && visibleStats.total > 0 && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center dark:border-slate-700 dark:bg-slate-800/50">
+        <div className="ui-empty-panel flex flex-col items-center gap-3 py-16">
           <SearchX className="h-10 w-10 text-slate-400" />
           <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
           <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
           <button
             onClick={resetFilters}
-            className="mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+            className="ui-focus-ring mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700"
           >
             Reset Filter
           </button>
@@ -221,7 +221,7 @@ export function DashboardViewsSection(props: Props) {
       )}
 
       {(!error && (visibleEvents.length > 0 || visibleStats.total === 0)) && (
-        <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950">
+        <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="ui-focus-ring-panel">
           {viewMode === 'table' && (
             <EventTable
               events={visibleEvents}

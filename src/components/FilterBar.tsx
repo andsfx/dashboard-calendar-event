@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, Check, X } from 'lucide-react';
 import { EventStatus } from '../types';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
+const focusRing = 'ui-focus-ring';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
