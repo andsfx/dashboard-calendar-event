@@ -34,19 +34,19 @@ export function AdminDraftSection({
 }: Props) {
   return (
     <section id="drafts" className="space-y-4 scroll-mt-32">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ui-dashboard-card-padded">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+          <div className="ui-icon-tile bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
             <ClipboardList className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-800 dark:text-white">Queue Aktif Draft Event</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Antrian event yang masih diproses</p>
+            <p className="text-sm font-bold ui-text-strong">Queue Aktif Draft Event</p>
+            <p className="text-xs ui-text-muted">Antrian event yang masih diproses</p>
           </div>
         </div>
         <button
           onClick={onAddDraft}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 dark:shadow-violet-900/30"
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-gradient-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition ui-gradient-primary-hover dark:shadow-violet-900/30"
         >
           <Plus className="h-4 w-4" /> Tambah Draft Event
         </button>
@@ -74,23 +74,23 @@ export function AdminDraftSection({
         />
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-card-padded">
         <button
           onClick={() => setShowDraftHistory(v => !v)}
-          className="flex w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 rounded-xl dark:focus-visible:ring-offset-slate-800"
+          className="flex w-full items-center justify-between gap-3 text-left ui-focus-ring rounded-xl"
           aria-expanded={showDraftHistory}
           aria-controls="draft-history-content"
         >
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+            <div className="ui-icon-tile bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
               <Archive className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-800 dark:text-white">Riwayat Draft Event</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Event yang dibatalkan atau sudah dipublikasikan</p>
+              <p className="text-sm font-bold ui-text-strong">Riwayat Draft Event</p>
+              <p className="text-xs ui-text-muted">Event yang dibatalkan atau sudah dipublikasikan</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold ui-text-muted">
             <span>{draftHistory.length} item</span>
             {showDraftHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>

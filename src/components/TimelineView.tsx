@@ -43,7 +43,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400">
         <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
@@ -57,7 +57,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
         <div key={month}>
           {/* Month header */}
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-8 items-center rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4">
+            <div className="flex h-8 items-center rounded-xl ui-gradient-primary px-4">
               <span className="text-xs font-bold text-white">{month}</span>
             </div>
             <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-700" />
@@ -75,7 +75,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950 ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   onClick={() => onDetail(ev)}
                   role="button"
                   tabIndex={0}
@@ -91,15 +91,15 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                         {isAdmin && <PriorityBadge priority={ev.priority} />}
                       </div>
-                      <p className="font-bold text-slate-800 dark:text-white">{ev.acara}</p>
+                      <p className="font-bold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{ev.keterangan}</p>
+                        <p className="mt-1 line-clamp-2 text-xs ui-text-muted">{ev.keterangan}</p>
                       )}
                     </div>
 
                     {/* Right: meta + actions */}
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      <div className="text-right text-xs text-slate-500 dark:text-slate-400">
+                      <div className="text-right text-xs ui-text-muted">
                         <p className="font-semibold text-slate-700 dark:text-slate-200">{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</p>
                         {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && (
                           <p className="mt-0.5 flex items-center justify-end gap-1">

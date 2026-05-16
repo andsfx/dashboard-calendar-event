@@ -80,7 +80,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400">
         <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
@@ -89,7 +89,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+    <div className="ui-dashboard-surface overflow-hidden dark:bg-slate-800/60">
       <div className="divide-y divide-slate-100 dark:divide-slate-700/50 md:hidden">
         {groupedEvents.map(group => (
           <div key={group.monthKey}>
@@ -105,11 +105,11 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   onClick={() => onDetail(ev)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
                   aria-label={`Lihat detail ${ev.acara}`}
-                  className="w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 rounded-lg"
+                  className="ui-focus-ring w-full cursor-pointer rounded-lg text-left"
                 >
                   <div className="mb-2 flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                      <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
                         <p className="mt-0.5 line-clamp-2 text-xs text-slate-400">{ev.keterangan}</p>
                       )}
@@ -133,7 +133,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     })()}
                   </div>
 
-                   <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                   <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
                      <div className="flex items-center gap-1.5">
                        <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                        <span>{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</span>
@@ -183,25 +183,25 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
               <th className="px-4 py-3 text-left">
-                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide ui-text-muted">
                   <ArrowUpDown className="h-3 w-3" /> Tanggal
                 </span>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Waktu</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Acara</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Lokasi</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori</th>
-              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model</th>}
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Waktu</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Acara</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Lokasi</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Kategori</th>
+              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Model</th>}
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide ui-text-muted">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
             {groupedEvents.map(group => (
               <Fragment key={group.monthKey}>
                 <tr key={`${group.monthKey}-header`} className="border-y border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/70">
-                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide ui-text-muted">
                     {group.monthLabel}
                   </td>
                 </tr>
@@ -235,7 +235,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </td>
                     {/* Event name */}
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
+                      <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
                         <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">{ev.keterangan}</p>
                       )}
@@ -278,7 +278,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       </td>
                     )}
                     {/* EO */}
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
+                    <td className="whitespace-nowrap px-4 py-3 text-xs ui-text-muted">
                       {ev.eo || '–'}
                     </td>
                     {/* Actions */}
