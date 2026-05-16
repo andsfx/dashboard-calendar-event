@@ -1,0 +1,32 @@
+/* Design tokens aligned to DESIGN.md */
+:root {
+  --font-display: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+
+  --brand-violet: #7c6cf2;
+  --brand-violet-soft: #9185f7;
+  --brand-orange: #f2743e;
+  --brand-paper: #f4efe8;
+  --brand-card: #faf6ef;
+  --brand-card-light: #fffdf9;
+  --brand-ink: #0f172a;
+
+  /* Backward-compatible aliases for older landing CSS. */
+  --brand-cyan: var(--brand-violet-soft);
+  --brand-pink: var(--brand-violet);
+
+  --surface-paper: var(--brand-paper);
+  --surface-card: var(--brand-card);
+  --surface-card-light: var(--brand-card-light);
+
+  --focus-ring-color: var(--brand-violet);
+  --focus-ring-offset-light: var(--brand-card-light);
+  --focus-ring-offset-dark: #0f172a;
+
+  --radius-card: 1rem;
+  --radius-card-lg: 1.5rem;
+  --radius-campaign-card: 2rem;
+  --shadow-card-soft: 0 12px 28px rgba(15, 23, 42, 0.04);
+  --shadow-card-raised: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
