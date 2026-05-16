@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Calendar, Save, X } from 'lucide-react';
+import { Calendar, FileEdit, Save, X } from 'lucide-react';
 import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
 import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES } from '../utils/eventUtils';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../utils/draftUtils';
@@ -329,15 +329,19 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   const isEdit = !!editingDraft;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800" tabIndex={-1}>
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="draft-crud-title">
+      <div
+        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
+        tabIndex={-1}
+      >
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
-              <Calendar className="h-4 w-4 text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-violet-600">
+              <FileEdit className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">{isEdit ? 'Edit Draft Event' : 'Tambah Draft Event'}</p>
+              <p id="draft-crud-title" className="font-bold text-slate-800 dark:text-white">{isEdit ? 'Edit Draft Event' : 'Tambah Draft Event'}</p>
               <p className="text-xs text-slate-400">{isEdit ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}</p>
             </div>
           </div>

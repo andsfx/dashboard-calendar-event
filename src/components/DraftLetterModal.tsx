@@ -137,7 +137,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const errorClass = 'border-red-400 focus:ring-red-100';
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl" ariaLabelledBy="draft-letter-title">
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">Form Surat Izin Konfirmasi Event</p>
+              <p id="draft-letter-title" className="font-bold text-slate-800 dark:text-white">Form Surat Izin Konfirmasi Event</p>
               <p className="text-xs text-slate-400">Data akan dikirim ke spreadsheet AutoCrat untuk proses dokumen.</p>
             </div>
           </div>

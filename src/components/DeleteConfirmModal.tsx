@@ -25,7 +25,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="delete-confirm-title">
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden">
         {/* Red accent top bar */}
         <div className="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-500" />
@@ -45,7 +45,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
             </button>
           </div>
 
-          <h3 className="mb-2 text-lg font-bold text-slate-900 dark:text-white">Hapus Acara?</h3>
+          <h3 id="delete-confirm-title" className="mb-2 text-lg font-bold text-slate-900 dark:text-white">Hapus Acara?</h3>
           <p className="mb-1 text-sm text-slate-500 dark:text-slate-400">
             Acara berikut akan dihapus secara permanen:
           </p>
