@@ -7,6 +7,7 @@ interface Props {
   maxWidth?: string;
   className?: string;
   ariaLabelledBy?: string;
+  ariaLabel?: string;
 }
 
 /**
@@ -17,14 +18,16 @@ interface Props {
  * - Scroll lock
  * - Proper ARIA dialog role on panel
  */
-export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg', className = '', ariaLabelledBy }: Props) {
+export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg', className = '', ariaLabelledBy, ariaLabel = 'Dialog' }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
   // Handle open/close with exit animation
   useEffect(() => {
     if (isOpen) {
+      triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setShouldRender(true);
       return;
     } else if (shouldRender && !isClosing) {
@@ -49,6 +52,13 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     }, 200); // match modal-panel-out duration
     return () => clearTimeout(timer);
   }, [onClose, isClosing]);
+
+  // Return focus to opener after close
+  useEffect(() => {
+    if (shouldRender || !triggerRef.current) return;
+    if (document.contains(triggerRef.current)) triggerRef.current.focus();
+    triggerRef.current = null;
+  }, [shouldRender]);
 
   // Escape key handler
   useEffect(() => {
@@ -79,7 +89,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
 
     // Auto-focus first focusable element
     const firstFocusable = panel.querySelector<HTMLElement>(focusableSelector);
-    firstFocusable?.focus();
+    (firstFocusable ?? panel).focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
@@ -121,6 +131,8 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
         role="dialog"
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
+        aria-label={ariaLabelledBy ? undefined : ariaLabel}
+        tabIndex={-1}
       >
         {children}
       </div>
