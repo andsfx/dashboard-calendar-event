@@ -1,5 +1,5 @@
-import { RefreshCw, SearchX } from 'lucide-react';
-import { EventItem, ViewMode, EventStatus } from '../types';
+import { AlertTriangle, CalendarClock, FilterX, RefreshCw, SearchX } from 'lucide-react';
+import { EventItem, ViewMode, EventStatus, HolidayItem } from '../types';
 import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
 import { EventTable } from './EventTable';
@@ -14,7 +14,7 @@ interface Props {
   isAdmin: boolean;
   visibleEvents: EventItem[];
   visibleStats: { total: number };
-  holidays: any[];
+  holidays: HolidayItem[];
   error: string | null;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
@@ -68,6 +68,38 @@ export function DashboardViewsSection(props: Props) {
     setActiveMonth('Semua');
   };
 
+  const activeFilterCount = [
+    searchQuery.trim(),
+    activeFilter !== 'Semua' ? activeFilter : '',
+    activeCategory !== 'Semua' ? activeCategory : '',
+    activePriority !== 'Semua' ? activePriority : '',
+    activeMonth !== 'Semua' ? activeMonth : '',
+  ].filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0;
+  const highPriorityCount = visibleEvents.filter(event => event.priority === 'high' && event.status !== 'past').length;
+  const activeNowCount = visibleEvents.filter(event => event.status === 'ongoing').length;
+  const nextPriorityEvent = visibleEvents.find(event => event.status === 'ongoing' || (event.priority === 'high' && event.status === 'upcoming')) ?? visibleEvents.find(event => event.status === 'upcoming');
+  const panelId = `dashboard-panel-${viewMode}`;
+
+  const handleViewTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+    event.preventDefault();
+    const lastIndex = availableViewTabs.length - 1;
+    let nextIndex = index;
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = index === lastIndex ? 0 : index + 1;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = index === 0 ? lastIndex : index - 1;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = lastIndex;
+
+    const nextTab = availableViewTabs[nextIndex];
+    if (!nextTab) return;
+
+    setViewMode(nextTab.key);
+    requestAnimationFrame(() => document.getElementById(`dashboard-tab-${nextTab.key}`)?.focus());
+  };
+
   return (
     <>
       <section>
@@ -96,13 +128,19 @@ export function DashboardViewsSection(props: Props) {
             </div>
 
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
+              <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Tampilan</p>
+              <div role="tablist" aria-labelledby="view-tabs-label" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
                 {availableViewTabs.map(tab => (
                   <button
                     key={tab.key}
+                    id={`dashboard-tab-${tab.key}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={viewMode === tab.key}
+                    aria-controls={panelId}
+                    tabIndex={viewMode === tab.key ? 0 : -1}
                     onClick={() => setViewMode(tab.key)}
-                    aria-pressed={viewMode === tab.key}
+                    onKeyDown={event => handleViewTabKeyDown(event, availableViewTabs.findIndex(item => item.key === tab.key))}
                     aria-label={`Tampilan ${tab.label}`}
                     className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
@@ -119,18 +157,47 @@ export function DashboardViewsSection(props: Props) {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
-                {searchQuery && <span> — pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
+                {searchQuery && <span>, pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
               </p>
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-1 self-start text-xs text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
-              >
-                <RefreshCw className="h-3 w-3" /> Reset
-              </button>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 self-start text-xs font-semibold text-violet-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:text-violet-400 dark:focus-visible:ring-offset-slate-950"
+                >
+                  <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
+                </button>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {isAdmin && !error && visibleStats.total > 0 && (
+        <section aria-label="Prioritas operasional" className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
+              <AlertTriangle className="h-4 w-4" />
+              <p className="text-xs font-bold uppercase tracking-wide">Perlu Dipantau</p>
+            </div>
+            <p className="mt-2 text-2xl font-black tabular-nums text-amber-900 dark:text-amber-100">{highPriorityCount}</p>
+            <p className="text-xs text-amber-800/75 dark:text-amber-200/75">prioritas tinggi belum selesai</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+              <CalendarClock className="h-4 w-4" />
+              <p className="text-xs font-bold uppercase tracking-wide">Aktif Sekarang</p>
+            </div>
+            <p className="mt-2 text-2xl font-black tabular-nums text-emerald-900 dark:text-emerald-100">{activeNowCount}</p>
+            <p className="text-xs text-emerald-800/75 dark:text-emerald-200/75">event sedang berjalan</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aksi Berikutnya</p>
+            <p className="mt-2 line-clamp-1 text-sm font-semibold text-slate-900 dark:text-white">{nextPriorityEvent?.acara ?? 'Tidak ada event aktif'}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{nextPriorityEvent ? `${nextPriorityEvent.tanggal}, ${nextPriorityEvent.lokasi}` : 'Filter bisa diubah untuk melihat jadwal lain'}</p>
+          </div>
+        </section>
+      )}
 
       {error && (
         <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 dark:border-red-800/50 dark:bg-red-900/20">
@@ -153,23 +220,27 @@ export function DashboardViewsSection(props: Props) {
         </div>
       )}
 
-      {viewMode === 'table' && (
-        <EventTable
-          events={visibleEvents}
-          isAdmin={isAdmin}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onDetail={onDetail}
-        />
-      )}
-      {isAdmin && viewMode === 'calendar' && (
-        <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
-      )}
-      {viewMode === 'kanban' && (
-        <KanbanView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
-      )}
-      {viewMode === 'timeline' && (
-        <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+      {(!error && (visibleEvents.length > 0 || visibleStats.total === 0)) && (
+        <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950">
+          {viewMode === 'table' && (
+            <EventTable
+              events={visibleEvents}
+              isAdmin={isAdmin}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onDetail={onDetail}
+            />
+          )}
+          {isAdmin && viewMode === 'calendar' && (
+            <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
+          )}
+          {viewMode === 'kanban' && (
+            <KanbanView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+          )}
+          {viewMode === 'timeline' && (
+            <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+          )}
+        </section>
       )}
     </>
   );

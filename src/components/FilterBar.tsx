@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, X } from 'lucide-react';
 import { EventStatus } from '../types';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
@@ -154,6 +154,12 @@ export function FilterBar({
   const monthOptions = (months ?? []).map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
+  const activeChips = [
+    activeFilter !== 'Semua' ? { key: 'status', label: `Status: ${statusTabs.find(tab => tab.key === activeFilter)?.label ?? activeFilter}`, clear: () => onFilterChange('Semua') } : null,
+    activeMonth !== 'Semua' ? { key: 'month', label: `Bulan: ${activeMonth}`, clear: () => onMonthChange('Semua') } : null,
+    activeCategory !== 'Semua' ? { key: 'category', label: `Kategori: ${activeCategory}`, clear: () => onCategoryChange('Semua') } : null,
+    showPriority && activePriority !== 'Semua' ? { key: 'priority', label: `Prioritas: ${PRIORITY_OPTIONS.find(option => option.key === activePriority)?.label ?? activePriority}`, clear: () => onPriorityChange('Semua') } : null,
+  ].filter((chip): chip is { key: string; label: string; clear: () => void } => chip !== null);
 
   return (
     <div className="flex flex-col gap-3">
@@ -201,6 +207,23 @@ export function FilterBar({
           />
         )}
       </div>
+
+      {activeChips.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2" aria-label="Filter aktif">
+          {activeChips.map(chip => (
+            <button
+              key={chip.key}
+              type="button"
+              onClick={chip.clear}
+              className={`inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 dark:border-violet-900/50 dark:bg-violet-950/40 dark:text-violet-300 ${focusRing}`}
+              aria-label={`Hapus filter ${chip.label}`}
+            >
+              {chip.label}
+              <X className="h-3 w-3" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
