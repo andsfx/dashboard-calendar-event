@@ -34,7 +34,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
   if (!isOpen) return null;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="letter-picker-title">
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
@@ -42,7 +42,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">Pilih Event Untuk Surat</p>
+              <p id="letter-picker-title" className="font-bold text-slate-800 dark:text-white">Pilih Event Untuk Surat</p>
               <p className="text-xs text-slate-400">Pilih event terlebih dahulu sebelum mengisi form surat.</p>
             </div>
           </div>

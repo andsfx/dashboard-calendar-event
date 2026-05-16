@@ -452,7 +452,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   if (!isOpen) return null;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-crud-title">
       <div
         className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
         tabIndex={-1}
@@ -464,7 +464,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               <Calendar className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">{isEdit ? 'Edit Acara' : 'Tambah Acara Baru'}</p>
+              <p id="event-crud-title" className="font-bold text-slate-800 dark:text-white">{isEdit ? 'Edit Acara' : 'Tambah Acara Baru'}</p>
               <p className="text-xs text-slate-400">{isEdit ? `Mengubah: ${editingEvent.acara}` : 'Isi detail acara di bawah'}</p>
             </div>
           </div>
