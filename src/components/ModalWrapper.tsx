@@ -56,8 +56,12 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
   // Return focus to opener after close
   useEffect(() => {
     if (shouldRender || !triggerRef.current) return;
-    if (document.contains(triggerRef.current)) triggerRef.current.focus();
+    const target = triggerRef.current;
     triggerRef.current = null;
+    // Defer focus restoration so it runs after the DOM settles post-animation
+    requestAnimationFrame(() => {
+      if (document.contains(target)) target.focus();
+    });
   }, [shouldRender]);
 
   // Escape key handler
