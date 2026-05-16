@@ -8,7 +8,7 @@ const BRAND = {
   accentWarm: '#f2743e',
 };
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'ui-focus-ring';
 
 interface CommunityHeroProps {
   heroImageUrl?: string;

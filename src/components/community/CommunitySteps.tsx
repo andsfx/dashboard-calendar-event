@@ -24,8 +24,8 @@ export function CommunitySteps() {
               {i < STEPS.length - 1 && (
                 <div className="absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block" />
               )}
-              <div className="relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white">
+              <div className="ui-campaign-card relative p-6">
+                <span className="ui-campaign-icon-gradient inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-extrabold">
                   {s.num}
                 </span>
                 <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">{s.title}</h3>

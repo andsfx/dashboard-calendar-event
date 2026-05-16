@@ -76,7 +76,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
               tabIndex={isSelected || (!value && index === Math.max(selectedIndex, 0)) ? 0 : -1}
               onClick={() => onChange(opt.value)}
               onKeyDown={event => handleKeyDown(event, index)}
-              className={`group relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 motion-reduce:transition-none ${
+              className={`ui-focus-ring group relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 motion-reduce:transition-none ${
                 isSelected
                   ? 'border-violet-500 bg-violet-50 shadow-md dark:border-violet-400 dark:bg-violet-950/30'
                   : error

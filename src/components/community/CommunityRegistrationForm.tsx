@@ -18,7 +18,7 @@ const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
   other: 'Lainnya',
 };
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'ui-focus-ring';
 
 interface FormData {
   organizationType: OrganizationType | '';
@@ -166,12 +166,12 @@ function RegistrationForm() {
     const orgType = form.organizationType as OrganizationType;
     const typeLabel = orgType ? (ORG_TYPE_LABELS[orgType] ?? 'Organisasi') : 'Organisasi';
     return (
-      <div className="rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+      <div className="ui-campaign-card p-8 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
         </div>
         <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
-        <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+        <p className="mt-3 text-sm leading-7 ui-text-secondary">
           Terima kasih udah daftar! Tim kami akan review dan hubungi kamu dalam 3-5 hari kerja.
           <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-violet-500 hover:text-violet-600 dark:text-violet-400 dark:hover:text-violet-300">@metmalbekasi</a> buat update terbaru!
         </p>
@@ -194,7 +194,7 @@ function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:bg-slate-800 dark:border-slate-700 xl:p-7"
+      className="ui-campaign-card p-5 xl:p-7"
     >
       {/* Step 1: Organization Type Selector */}
       <OrganizationTypeSelector
@@ -362,7 +362,7 @@ export function CommunityRegistrationForm() {
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Yuk, gabung!
           </h2>
-          <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mt-5 text-sm leading-7 ui-text-secondary">
             Isi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu secepatnya.
           </p>
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
@@ -376,19 +376,19 @@ export function CommunityRegistrationForm() {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Proses review 3-5 hari kerja</p>
+              <p className="text-sm leading-6 ui-text-secondary">Proses review 3-5 hari kerja</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Semua fasilitas 100% gratis</p>
+              <p className="text-sm leading-6 ui-text-secondary">Semua fasilitas 100% gratis</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Terbuka untuk semua jenis organisasi</p>
+              <p className="text-sm leading-6 ui-text-secondary">Terbuka untuk semua jenis organisasi</p>
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ export function CommunityBenefits() {
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Bukan cuma dikasih space.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 ui-text-secondary">
             Kamu juga didukung untuk berkembang. Dari sponsorship sampai promosi, semua untuk memperbesar jangkauan komunitas kamu.
           </p>
         </div>
@@ -47,7 +47,7 @@ export function CommunityBenefits() {
           {BENEFITS.map((b) => (
             <div
               key={b.title}
-              className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-800"
+              className="ui-campaign-card group relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none"
               style={{ '--accent-color': b.color } as React.CSSProperties}
             >
               {/* Accent bar */}
@@ -65,7 +65,7 @@ export function CommunityBenefits() {
               </div>
 
               <h3 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">{b.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{b.desc}</p>
+              <p className="mt-2 text-sm leading-6 ui-text-secondary">{b.desc}</p>
 
               {/* Decorative gradient blob */}
               <div

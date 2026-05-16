@@ -22,7 +22,7 @@ export function CommunityFacilities() {
               Semua udah disiapin.
             </h2>
           </div>
-          <p className="max-w-md text-sm leading-7 text-slate-600 dark:text-slate-400">
+          <p className="max-w-md text-sm leading-7 ui-text-secondary">
             Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang memorable!
           </p>
         </div>
@@ -31,13 +31,13 @@ export function CommunityFacilities() {
           {FACILITIES.map(f => (
             <div
               key={f.title}
-              className="rounded-[1.75rem] border bg-[#fcfaf6] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
+              className="ui-campaign-card p-5 transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                 {f.icon}
               </div>
               <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{f.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{f.detail}</p>
+              <p className="mt-2 text-sm leading-6 ui-text-muted">{f.detail}</p>
             </div>
           ))}
         </div>

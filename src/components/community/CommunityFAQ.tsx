@@ -11,7 +11,7 @@ const FAQS: Array<[string, string]> = [
   ['Apa syarat untuk mendaftar?', 'Kirimkan profil atau portofolio komunitas beserta proposal event. Yang penting, konsep dan tujuan acaranya jelas.'],
 ];
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'ui-focus-ring';
 
 export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
@@ -31,7 +31,7 @@ export function CommunityFAQ() {
             return (
               <div
                 key={question}
-                className="overflow-hidden rounded-[1.8rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.04)]"
+                className="ui-campaign-card overflow-hidden"
               >
                 <button
                   type="button"
