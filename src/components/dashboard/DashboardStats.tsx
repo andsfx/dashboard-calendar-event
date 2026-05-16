@@ -20,14 +20,14 @@ export const DashboardStats = memo(function DashboardStats({ stats }: DashboardS
           label="Total Acara"
           value={stats.total}
           subtitle="keseluruhan"
-          gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+          gradient="linear-gradient(135deg, #475569 0%, #334155 100%)"
         />
         <StatCard
           icon={<Radio className="h-5 w-5 text-white" />}
           label="Sedang Berlangsung"
           value={stats.ongoing}
           subtitle="sedang aktif"
-          gradient="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
+          gradient="linear-gradient(135deg, #047857 0%, #065f46 100%)"
           pulse
         />
         <StatCard
@@ -35,14 +35,14 @@ export const DashboardStats = memo(function DashboardStats({ stats }: DashboardS
           label="Akan Datang"
           value={stats.upcoming}
           subtitle="akan datang"
-          gradient="linear-gradient(135deg, #f093fb 0%, #f5a623 100%)"
+          gradient="linear-gradient(135deg, #b45309 0%, #92400e 100%)"
         />
         <StatCard
           icon={<CheckCircle2 className="h-5 w-5 text-white" />}
           label="Selesai"
           value={stats.past}
           subtitle="telah berlangsung"
-          gradient="linear-gradient(135deg, #4facfe 0%, #6c757d 100%)"
+          gradient="linear-gradient(135deg, #64748b 0%, #475569 100%)"
         />
       </div>
     </section>

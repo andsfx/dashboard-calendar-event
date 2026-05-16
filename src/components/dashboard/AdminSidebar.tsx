@@ -67,23 +67,23 @@ export const AdminSidebar = memo(function AdminSidebar({
     {
       label: 'Overview',
       items: [
-        { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route', route: '/dashboard' },
+        { id: 'overview', label: 'Command Center', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route', route: '/dashboard' },
         { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'route', route: '/dashboard/analytics' },
       ],
     },
     {
       label: 'Event Management',
       items: [
-        { id: 'events', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'route', route: '/dashboard/events' },
+        { id: 'events', label: 'Event Schedule', icon: <CalendarDays className="h-4 w-4" />, action: 'route', route: '/dashboard/events' },
         { id: 'drafts', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'route', route: '/dashboard/drafts' },
-        { id: 'themes', label: 'Tema Tahunan', icon: <Palette className="h-4 w-4" />, action: 'route', route: '/dashboard/themes' },
+        { id: 'themes', label: 'Annual Themes', icon: <Palette className="h-4 w-4" />, action: 'route', route: '/dashboard/themes' },
       ],
     },
     {
       label: 'Engagement',
       items: [
-        { id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'route', route: '/dashboard/registrations' },
-        { id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/survey' },
+        { id: 'registrations', label: 'Registrations', icon: <Users className="h-4 w-4" />, action: 'route', route: '/dashboard/registrations' },
+        { id: 'survey', label: 'Satisfaction Survey', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/survey' },
       ],
     },
     {
@@ -94,11 +94,11 @@ export const AdminSidebar = memo(function AdminSidebar({
       ],
     },
     {
-      label: 'Settings',
+      label: 'Content Settings',
       items: [
         { id: 'landing-page', label: 'Landing Page', icon: <Globe className="h-4 w-4" />, action: 'callback', callback: onOpenInstagramSettings },
         { id: 'album-gallery', label: 'Album Gallery', icon: <Image className="h-4 w-4" />, action: 'callback', callback: onOpenAlbumManager },
-        { id: 'letter', label: 'Buat Surat', icon: <FileText className="h-4 w-4" />, action: 'callback', callback: onOpenLetterPicker },
+        { id: 'letter', label: 'Create Letter', icon: <FileText className="h-4 w-4" />, action: 'callback', callback: onOpenLetterPicker },
       ],
     },
   ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, isSuperadmin]);

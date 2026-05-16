@@ -1,16 +1,10 @@
-import { Plus, FileText } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { SearchBar } from '../SearchBar';
 
 interface DashboardHeaderProps {
   isAdmin: boolean;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  showSettingsMenu: boolean;
-  onToggleSettingsMenu: () => void;
-  onCloseSettingsMenu: () => void;
-  onOpenInstagramSettings: () => void;
-  onOpenAlbumManager: () => void;
-  onOpenLetterPicker: () => void;
   onAddNew?: () => void;
 }
 

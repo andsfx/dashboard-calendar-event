@@ -708,12 +708,6 @@ export default function App() {
             isAdmin={isAdmin}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            showSettingsMenu={showSettingsMenu}
-            onToggleSettingsMenu={() => setShowSettingsMenu(prev => !prev)}
-            onCloseSettingsMenu={() => setShowSettingsMenu(false)}
-            onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
-            onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
-            onOpenLetterPicker={handleOpenLetterPicker}
             onAddNew={permissions.canEditEvents ? handleAddNew : undefined}
           />
 

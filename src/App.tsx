@@ -101,7 +101,7 @@ export default function App() {
   const [isRegLoading, setIsRegLoading] = useState(false);
   const [showRegDetail, setShowRegDetail] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<CommunityRegistration | null>(null);
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+
   const [initialEventData, setInitialEventData] = useState<Partial<EventItem> | null>(null);
 
   const { toasts, showToast, removeToast } = useToast();
@@ -712,12 +712,6 @@ export default function App() {
             isAdmin={isAdmin}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            showSettingsMenu={showSettingsMenu}
-            onToggleSettingsMenu={() => setShowSettingsMenu(prev => !prev)}
-            onCloseSettingsMenu={() => setShowSettingsMenu(false)}
-            onOpenInstagramSettings={() => { setShowInstagramSettings(true); setShowSettingsMenu(false); }}
-            onOpenAlbumManager={() => { setShowAlbumManager(true); setShowSettingsMenu(false); }}
-            onOpenLetterPicker={handleOpenLetterPicker}
             onAddNew={permissions.canEditEvents ? handleAddNew : undefined}
           />
 
