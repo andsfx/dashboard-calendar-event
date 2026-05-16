@@ -134,7 +134,7 @@ export default function App() {
     restoreDraft,
   } = useDraftEvents(isAdmin);
 
-  const refreshRegistrations = useCallback(async () => {
+  const refreshRegistrations = useCallback(async (showError = true) => {
     if (!isAdmin) return;
     setIsRegLoading(true);
     try {
@@ -142,21 +142,25 @@ export default function App() {
       setCommunityRegistrations(regs);
       setSelectedRegistration(prev => prev ? (regs.find(r => r.id === prev.id) ?? prev) : null);
     } catch {
-      showToast('error', 'Gagal memuat', 'Data pendaftaran belum berhasil dimuat. Coba refresh halaman.');
+      if (showError) {
+        showToast('error', 'Gagal memuat', 'Data pendaftaran belum berhasil dimuat. Coba refresh halaman.');
+      }
     } finally {
       setIsRegLoading(false);
     }
   }, [isAdmin, showToast]);
 
   useEffect(() => {
-    refreshRegistrations();
-  }, [refreshRegistrations]);
+    if (isAdmin && dashboardPath === '/registrations') {
+      refreshRegistrations();
+    }
+  }, [dashboardPath, isAdmin, refreshRegistrations]);
 
   useEffect(() => {
-    if (draftError) {
+    if (draftError && dashboardPath === '/drafts') {
       showToast('error', 'Gagal memuat draft', draftError);
     }
-  }, [draftError, showToast]);
+  }, [dashboardPath, draftError, showToast]);
 
   const handleRegDetail = useCallback((reg: CommunityRegistration) => {
     setSelectedRegistration(reg);
