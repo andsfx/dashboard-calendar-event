@@ -32,7 +32,7 @@ export function DashboardHeader({
           {onAddNew && (
             <button
               onClick={onAddNew}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+              className="flex items-center justify-center gap-1.5 rounded-xl ui-gradient-primary ui-gradient-primary-hover px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
             >
               <Plus className="h-4 w-4" /> <span>Tambah</span>
             </button>
