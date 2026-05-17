@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CalendarClock, RefreshCw, SearchX } from 'lucide-react';
+import { RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem } from '../types';
 import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
@@ -76,9 +76,6 @@ export function DashboardViewsSection(props: Props) {
     activeMonth !== 'Semua' ? activeMonth : '',
   ].filter(Boolean).length;
   const hasActiveFilters = activeFilterCount > 0;
-  const highPriorityCount = visibleEvents.filter(event => event.priority === 'high' && event.status !== 'past').length;
-  const activeNowCount = visibleEvents.filter(event => event.status === 'ongoing').length;
-  const nextPriorityEvent = visibleEvents.find(event => event.status === 'ongoing' || (event.priority === 'high' && event.status === 'upcoming')) ?? visibleEvents.find(event => event.status === 'upcoming');
   const panelId = `dashboard-panel-${viewMode}`;
 
   const handleViewTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
@@ -173,68 +170,7 @@ export function DashboardViewsSection(props: Props) {
         </div>
       </section>
 
-      {isAdmin && !error && visibleStats.total > 0 && (
-        <section aria-labelledby="operational-priorities-title" className="ui-dashboard-surface p-4 sm:p-5">
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 id="operational-priorities-title" className="text-sm font-bold text-slate-900 dark:text-white">
-                Operational Priorities
-              </h2>
-              <p className="text-xs ui-text-muted">
-                Fast snapshot of events that need attention.
-              </p>
-            </div>
-          </div>
 
-          <div className="grid gap-3 lg:grid-cols-3">
-            <div className="ui-operational-card border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="ui-kpi-label text-amber-700 dark:text-amber-300">Needs Attention</p>
-                  <p className="mt-3 ui-kpi-value text-amber-900 dark:text-amber-100">{highPriorityCount}</p>
-                </div>
-                <div className="ui-icon-tile bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                </div>
-              </div>
-              <p className="mt-4 text-xs leading-5 text-amber-800/75 dark:text-amber-200/75">high-priority unfinished events</p>
-            </div>
-
-            <div className="ui-operational-card border-emerald-200 bg-emerald-50 dark:border-emerald-900/50 dark:bg-emerald-950/30">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="ui-kpi-label text-emerald-700 dark:text-emerald-300">Live Now</p>
-                  <p className="mt-3 ui-kpi-value text-emerald-900 dark:text-emerald-100">{activeNowCount}</p>
-                </div>
-                <div className="ui-icon-tile bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                  <CalendarClock className="h-4 w-4" aria-hidden="true" />
-                </div>
-              </div>
-              <p className="mt-4 text-xs leading-5 text-emerald-800/75 dark:text-emerald-200/75">currently running events</p>
-            </div>
-
-            <button
-              type="button"
-              disabled={!nextPriorityEvent}
-              onClick={() => { if (nextPriorityEvent) onDetail(nextPriorityEvent); }}
-              className="ui-operational-card ui-focus-ring border-slate-200 bg-white text-left transition hover:border-violet-200 hover:shadow-md disabled:cursor-default disabled:hover:border-slate-200 disabled:hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-violet-800/60 dark:disabled:hover:border-slate-700"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="ui-kpi-label ui-text-muted">Next Action</p>
-                  <p className="mt-3 line-clamp-2 text-base font-bold leading-snug text-slate-900 dark:text-white">{nextPriorityEvent?.acara ?? 'No active event'}</p>
-                </div>
-                <div className="ui-icon-tile bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300">
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </div>
-              </div>
-              <p className="mt-4 text-xs leading-5 ui-text-muted">
-                {nextPriorityEvent ? `${nextPriorityEvent.tanggal}, ${nextPriorityEvent.lokasi}` : 'Adjust filters to see another schedule'}
-              </p>
-            </button>
-          </div>
-        </section>
-      )}
 
       {error && (
         <div className="ui-alert-panel flex items-center gap-3 px-5 py-3">
