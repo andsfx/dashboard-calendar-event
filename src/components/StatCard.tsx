@@ -1,15 +1,24 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 
+type StatCardVariant = 'primary' | 'slate' | 'emerald' | 'amber';
+
 interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: number;
   subtitle?: string;
-  gradient: string;
+  variant: StatCardVariant;
   delay?: number;
   pulse?: boolean;
   trend?: { value: number; label: string };
 }
+
+const VARIANT_CLASSES: Record<StatCardVariant, string> = {
+  primary: 'ui-gradient-primary',
+  slate: 'ui-gradient-slate',
+  emerald: 'ui-gradient-emerald',
+  amber: 'ui-gradient-amber',
+};
 
 function useCountUp(target: number, duration = 800, delay = 0) {
   const [count, setCount] = useState(0);
@@ -38,13 +47,14 @@ function useCountUp(target: number, duration = 800, delay = 0) {
   return count;
 }
 
-export const StatCard = memo(function StatCard({ icon, label, value, subtitle, gradient, delay = 0, pulse = false, trend }: StatCardProps) {
+export const StatCard = memo(function StatCard({ icon, label, value, subtitle, variant, delay = 0, pulse = false, trend }: StatCardProps) {
   const displayed = useCountUp(value, 900, delay);
+  const variantClass = VARIANT_CLASSES[variant];
 
   return (
     <div
-      className="fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl sm:p-5"
-      style={{ background: gradient, animationDelay: `${delay}ms`, animationFillMode: 'both' }}
+      className={`fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl sm:p-5 ${variantClass}`}
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       {/* Decorative blobs */}
       <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
