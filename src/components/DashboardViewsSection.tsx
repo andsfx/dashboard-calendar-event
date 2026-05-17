@@ -101,7 +101,7 @@ export function DashboardViewsSection(props: Props) {
   };
 
   return (
-    <>
+    <div className="space-y-4 sm:space-y-6">
       <section>
         <div className="ui-dashboard-surface p-3 sm:p-4">
           <div className="flex flex-col gap-3">
@@ -279,6 +279,6 @@ export function DashboardViewsSection(props: Props) {
           )}
         </section>
       )}
-    </>
+    </div>
   );
 }
