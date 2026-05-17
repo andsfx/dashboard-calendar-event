@@ -98,6 +98,7 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
 
+      // Re-query focusable elements on every Tab press to handle dynamic content (e.g., upload buttons added after modal opens)
       const focusableElements = Array.from(panel.querySelectorAll<HTMLElement>(focusableSelector));
       if (focusableElements.length === 0) return;
 

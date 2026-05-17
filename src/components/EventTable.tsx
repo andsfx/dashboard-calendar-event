@@ -80,8 +80,12 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
   if (events.length === 0) {
     return (
-      <div className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400">
-        <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
+      <div 
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400"
+        aria-live="polite"
+        role="status"
+      >
+        <CalendarDays className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>

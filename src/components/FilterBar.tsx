@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ChevronDown, Check, X } from 'lucide-react';
 import { EventStatus } from '../types';
 
@@ -49,6 +49,7 @@ function CustomDropdown({
 
   const selected = options.find(o => o.key === value);
   const currentIndex = options.findIndex(o => o.key === value);
+  const cleanLabel = label.replace(/\s+/g, '-').toLowerCase();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -96,17 +97,25 @@ function CustomDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={label}
-        aria-controls={open ? `listbox-${label}` : undefined}
+        aria-controls={open ? `listbox-${cleanLabel}` : undefined}
+        aria-activedescendant={open && value ? `opt-${cleanLabel}-${value}` : undefined}
       >
         <span className="truncate text-left">{selected?.label ?? label}</span>
         <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div id={`listbox-${label}`} ref={listboxRef} role="listbox" aria-label={label} className="absolute left-0 top-full z-30 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+        <div 
+          id={`listbox-${cleanLabel}`} 
+          ref={listboxRef} 
+          role="listbox" 
+          aria-label={label} 
+          className="absolute left-0 top-full z-40 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+        >
           {options.map(opt => (
             <button
               key={opt.key}
+              id={`opt-${cleanLabel}-${opt.key}`}
               type="button"
               role="option"
               aria-selected={value === opt.key}
@@ -154,6 +163,29 @@ export function FilterBar({
   const monthOptions = (months ?? []).map(m => ({ key: m, label: m === 'Semua' ? 'Semua Bulan' : m }));
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
+
+  const statusRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const handleStatusKeyDown = (e: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (index + 1) % statusTabs.length;
+      const nextTab = statusTabs[nextIndex];
+      if (nextTab) {
+        onFilterChange(nextTab.key);
+        setTimeout(() => statusRefs.current[nextIndex]?.focus(), 0);
+      }
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (index - 1 + statusTabs.length) % statusTabs.length;
+      const prevTab = statusTabs[prevIndex];
+      if (prevTab) {
+        onFilterChange(prevTab.key);
+        setTimeout(() => statusRefs.current[prevIndex]?.focus(), 0);
+      }
+    }
+  };
+
   const activeChips = [
     activeFilter !== 'Semua' ? { key: 'status', label: `Status: ${statusTabs.find(tab => tab.key === activeFilter)?.label ?? activeFilter}`, clear: () => onFilterChange('Semua') } : null,
     activeMonth !== 'Semua' ? { key: 'month', label: `Bulan: ${activeMonth}`, clear: () => onMonthChange('Semua') } : null,
@@ -164,12 +196,17 @@ export function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
-      <div className="flex w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80">
-        {statusTabs.map(tab => (
+      <div className="flex w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80" role="tablist" aria-label="Filter status acara">
+        {statusTabs.map((tab, index) => (
           <button
             key={tab.key}
+            ref={(node) => { statusRefs.current[index] = node; }}
+            type="button"
+            role="tab"
             onClick={() => onFilterChange(tab.key)}
-            aria-pressed={activeFilter === tab.key}
+            onKeyDown={(e) => handleStatusKeyDown(e, index)}
+            aria-selected={activeFilter === tab.key}
+            tabIndex={activeFilter === tab.key ? 0 : -1}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
               activeFilter === tab.key
                 ? 'bg-white shadow text-slate-800 dark:bg-slate-700 dark:text-white'
@@ -177,7 +214,7 @@ export function FilterBar({
             }`}
           >
             {tab.dot && (
-              <span className={`h-1.5 w-1.5 rounded-full ${tab.dot} ${tab.key === 'ongoing' && activeFilter === 'ongoing' ? 'animate-pulse' : ''}`} />
+              <span className={`h-1.5 w-1.5 rounded-full ${tab.dot} ${tab.key === 'ongoing' && activeFilter === 'ongoing' ? 'motion-safe:animate-pulse' : ''}`} aria-hidden="true" />
             )}
             {tab.label}
           </button>
