@@ -10,6 +10,7 @@ import { DashboardStats } from './components/dashboard/DashboardStats';
 import { AdminBanner } from './components/dashboard/AdminBanner';
 import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
+import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -721,8 +722,17 @@ export default function App() {
 
           {/* 1. Overview — Stat Cards (paling penting, pertama dilihat) */}
           {isAdmin && dashboardPath === '/' && (
-            <section id="overview" className="scroll-mt-20">
+            <section id="overview" className="scroll-mt-20 space-y-6">
               <DashboardStats stats={visibleStats} />
+              <CommandCenterSummary
+                totalEvents={visibleStats.total}
+                upcomingEvents={visibleStats.upcoming}
+                ongoingEvents={visibleStats.ongoing}
+                activeDrafts={activeDrafts}
+                annualThemes={annualThemes}
+                communityRegistrations={communityRegistrations}
+                isSuperadmin={auth.isSuperadmin}
+              />
             </section>
           )}
 
