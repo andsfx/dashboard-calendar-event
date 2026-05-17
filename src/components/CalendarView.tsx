@@ -147,7 +147,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         {/* Calendar grid */}
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:w-96 lg:shrink-0">
         {/* Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-4">
+        <div className="flex items-center justify-between ui-gradient-primary px-5 py-4">
           <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
             <ChevronLeft className="h-5 w-5" />
           </button>

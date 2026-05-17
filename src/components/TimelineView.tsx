@@ -32,10 +32,10 @@ const DOT_COLOR: Record<string, string> = {
 };
 
 const CARD_ACCENT: Record<string, string> = {
-  draft:    'border-l-purple-500 bg-purple-50/50 dark:bg-purple-900/10',
-  ongoing:  'border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10',
-  upcoming: 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/10',
-  past:     'border-l-slate-400 bg-slate-50/50 dark:bg-slate-800/20',
+  draft:    'border-purple-200 bg-purple-50/50 dark:border-purple-800/40 dark:bg-purple-900/10',
+  ongoing:  'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-900/10',
+  upcoming: 'border-amber-200 bg-amber-50/50 dark:border-amber-800/40 dark:bg-amber-900/10',
+  past:     'border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20',
 };
 
 export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
@@ -43,8 +43,12 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
   if (events.length === 0) {
     return (
-      <div className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400">
-        <CalendarDays className="mb-3 h-10 w-10 opacity-60" />
+      <div 
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400"
+        aria-live="polite"
+        role="status"
+      >
+        <CalendarDays className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>
@@ -75,7 +79,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                  className={`group cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800 ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   onClick={() => onDetail(ev)}
                   role="button"
                   tabIndex={0}

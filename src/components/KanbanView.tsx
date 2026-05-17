@@ -17,7 +17,7 @@ const COLUMNS: Array<{
     label: 'Draft',
     icon: <PenSquare className="h-4 w-4" />,
     gradient: 'from-purple-500 to-violet-500',
-    cardBorder: 'border-purple-100 dark:border-purple-800/40 hover:border-purple-300 dark:hover:border-purple-600/60',
+    cardBorder: 'border-purple-200 bg-purple-50/50 dark:border-purple-800/40 dark:bg-purple-900/10 hover:border-purple-300 dark:hover:border-purple-600/60',
     emptyMsg: 'Tidak ada event draft',
   },
   {
@@ -25,7 +25,7 @@ const COLUMNS: Array<{
     label: 'Berlangsung',
     icon: <Radio className="h-4 w-4" />,
     gradient: 'from-emerald-500 to-teal-500',
-    cardBorder: 'border-emerald-100 dark:border-emerald-800/40 hover:border-emerald-300 dark:hover:border-emerald-600/60',
+    cardBorder: 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-900/10 hover:border-emerald-300 dark:hover:border-emerald-600/60',
     emptyMsg: 'Tidak ada acara yang sedang berlangsung',
   },
   {
@@ -33,7 +33,7 @@ const COLUMNS: Array<{
     label: 'Mendatang',
     icon: <Clock3 className="h-4 w-4" />,
     gradient: 'from-amber-500 to-orange-500',
-    cardBorder: 'border-amber-100 dark:border-amber-800/40 hover:border-amber-300 dark:hover:border-amber-600/60',
+    cardBorder: 'border-amber-200 bg-amber-50/50 dark:border-amber-800/40 dark:bg-amber-900/10 hover:border-amber-300 dark:hover:border-amber-600/60',
     emptyMsg: 'Tidak ada acara mendatang',
   },
   {
@@ -41,7 +41,7 @@ const COLUMNS: Array<{
     label: 'Selesai',
     icon: <CheckCircle2 className="h-4 w-4" />,
     gradient: 'from-slate-400 to-slate-500',
-    cardBorder: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500',
+    cardBorder: 'border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20 hover:border-slate-300 dark:hover:border-slate-500',
     emptyMsg: 'Belum ada acara yang selesai',
   },
 ];
@@ -68,7 +68,7 @@ function EventCard({
 
   return (
     <div
-            className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
+            className={`group relative cursor-pointer overflow-hidden rounded-xl border shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
       onClick={() => onDetail(ev)}
       role="button"
       tabIndex={0}
@@ -83,14 +83,14 @@ function EventCard({
           <p className="text-sm font-semibold leading-snug text-slate-800 dark:text-white line-clamp-2 flex-1">{ev.acara}</p>
           {/* Action buttons */}
           <div
-            className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100"
+            className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100 focus-within:opacity-100"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => onDetail(ev)}
               title="Lihat detail"
               aria-label="Lihat detail"
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400"
+              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
@@ -101,7 +101,7 @@ function EventCard({
                   onClick={() => onEdit(ev)}
                   title="Edit"
                   aria-label="Edit acara"
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -111,7 +111,7 @@ function EventCard({
                   onClick={() => onDelete(ev)}
                   title="Hapus"
                   aria-label="Hapus acara"
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
                 >
                   <Trash2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -156,8 +156,12 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50">
-        <FileText className="mb-3 h-10 w-10 opacity-60" />
+      <div 
+        className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50"
+        aria-live="polite"
+        role="status"
+      >
+        <FileText className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
         <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
         <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
       </div>
@@ -182,8 +186,12 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             {/* Cards */}
             <div className="flex flex-col gap-2.5">
               {colEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30">
-                  <Inbox className="mb-1.5 h-6 w-6 opacity-40" />
+                <div 
+                  className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30"
+                  aria-live="polite"
+                  role="status"
+                >
+                  <Inbox className="mb-1.5 h-6 w-6 opacity-40" aria-hidden="true" />
                   <p className="text-center text-xs px-3 leading-relaxed">{col.emptyMsg}</p>
                 </div>
               ) : (
