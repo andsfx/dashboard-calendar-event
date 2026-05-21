@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lucide-react';
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/supabaseApi';
 import { GalleryHeader } from './GalleryHeader';
+import { ExportPdfModal } from './ExportPdfModal';
 import { thumbUrl } from '../utils/imageOptim';
 
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -29,6 +30,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,16 +101,28 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         </button>
 
         {/* Page title */}
-        <div className="mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
-            Gallery
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Galeri Event
-          </h1>
-          <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
-            Dokumentasi event di Metropolitan Mall Bekasi
-          </p>
+        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+              Gallery
+            </p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              Galeri Event
+            </h1>
+            <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
+              Dokumentasi event di Metropolitan Mall Bekasi
+            </p>
+          </div>
+          {albums.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowExportModal(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:bg-violet-700"
+            >
+              <FileDown className="h-4 w-4" />
+              Export PDF
+            </button>
+          )}
         </div>
 
         {/* Loading skeleton */}
@@ -257,6 +271,16 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
         </div>
       </footer>
+
+      {/* ─── Export PDF Modal ───────────────────────────────── */}
+      {showExportModal && (
+        <ExportPdfModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          albums={albums}
+          themes={themes}
+        />
+      )}
     </div>
   );
 }
