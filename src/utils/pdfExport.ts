@@ -1,9 +1,10 @@
-import { Document, Page, View, Text, Image, StyleSheet, pdf, Font } from '@react-pdf/renderer';
+import { Document, Page, View, Text, Image, StyleSheet, pdf } from '@react-pdf/renderer';
 import { createElement } from 'react';
 import type { PhotoAlbum, EventPhoto } from '../types';
 
 // ============================================================
-// PDF Export — Landscape report for event photo albums
+// PDF Export — Landscape A4 grid report for event photo albums
+// Images compressed client-side to keep PDF size small.
 // ============================================================
 
 const MONTH_LONG = [
@@ -28,13 +29,62 @@ function getDateRange(albums: PhotoAlbum[]): { start: string; end: string } {
   };
 }
 
+// ─── Image compression ────────────────────────────────────
+// Fetches image, resizes to maxDim, re-encodes as JPEG at given quality.
+// Drastically reduces PDF size: source 3000×4000 PNG → ~1200px JPEG.
+const MAX_IMAGE_DIM = 1200;
+const JPEG_QUALITY = 0.72;
+
+async function compressImage(url: string): Promise<string> {
+  if (!url) return '';
+  try {
+    const response = await fetch(url, { mode: 'cors' });
+    if (!response.ok) return url;
+    const blob = await response.blob();
+    const bitmap = await createImageBitmap(blob);
+
+    const ratio = Math.min(1, MAX_IMAGE_DIM / Math.max(bitmap.width, bitmap.height));
+    const targetWidth = Math.round(bitmap.width * ratio);
+    const targetHeight = Math.round(bitmap.height * ratio);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return url;
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+    bitmap.close();
+
+    return canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+  } catch {
+    return url;
+  }
+}
+
+async function compressInBatches<T>(items: T[], worker: (item: T) => Promise<void>, batchSize = 6): Promise<void> {
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    await Promise.all(batch.map(worker));
+  }
+}
+
+// ─── Layout config ────────────────────────────────────────
+// A4 landscape inner area ≈ 760×500 pt. Grid: 4 cols × 3 rows = 12 photos/page.
+const PHOTOS_PER_PAGE = 12;
+const GRID_COLS = 4;
+const GRID_GAP = 6;
+
 const styles = StyleSheet.create({
   page: {
-    padding: 32,
-    backgroundColor: '#fbfaf7',
+    padding: 24,
+    backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
   },
-  // Cover page
   coverPage: {
     padding: 48,
     backgroundColor: '#1e1b4b',
@@ -65,9 +115,7 @@ const styles = StyleSheet.create({
     gap: 24,
     marginTop: 'auto',
   },
-  coverMetaItem: {
-    flexDirection: 'column',
-  },
+  coverMetaItem: { flexDirection: 'column' },
   coverMetaLabel: {
     fontSize: 9,
     letterSpacing: 2,
@@ -85,56 +133,37 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     marginTop: 16,
   },
-  // Album header
   albumHeader: {
-    borderBottomWidth: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
     borderBottomColor: '#1e1b4b',
-    paddingBottom: 12,
-    marginBottom: 16,
-  },
-  albumLabel: {
-    fontSize: 8,
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-    color: '#7c3aed',
-    fontFamily: 'Helvetica-Bold',
+    paddingBottom: 6,
+    marginBottom: 10,
   },
   albumName: {
-    fontSize: 22,
+    fontSize: 14,
     fontFamily: 'Helvetica-Bold',
     color: '#0f172a',
-    marginTop: 4,
   },
-  albumMetaRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginTop: 6,
-  },
-  albumMetaText: {
-    fontSize: 10,
+  albumMeta: {
+    fontSize: 9,
     color: '#475569',
   },
-  albumDescription: {
-    fontSize: 10,
-    color: '#64748b',
-    marginTop: 6,
-    lineHeight: 1.4,
-  },
-  // Photo grid (3 columns x 2 rows on landscape A4)
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
   },
   photoCell: {
-    width: '32.5%',
-    marginBottom: 12,
+    width: `${100 / GRID_COLS}%`,
+    padding: GRID_GAP / 2,
   },
   photoFrame: {
     width: '100%',
-    height: 150,
+    aspectRatio: 4 / 3,
     backgroundColor: '#e2e8f0',
-    borderRadius: 6,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   photo: {
@@ -142,32 +171,20 @@ const styles = StyleSheet.create({
     height: '100%',
     objectFit: 'cover',
   },
-  caption: {
-    fontSize: 8,
-    color: '#475569',
-    marginTop: 4,
-    lineHeight: 1.3,
-  },
-  // Footer
   footer: {
     position: 'absolute',
-    bottom: 16,
-    left: 32,
-    right: 32,
+    bottom: 12,
+    left: 24,
+    right: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
     fontSize: 8,
     color: '#94a3b8',
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    paddingTop: 6,
   },
-  // Empty state
-  emptyAlbumNote: {
-    fontSize: 10,
+  emptyNote: {
+    fontSize: 9,
     color: '#94a3b8',
     fontStyle: 'italic',
-    marginTop: 8,
   },
 });
 
@@ -211,54 +228,42 @@ function CoverPage({ themeName, dateRange, albumCount }: { themeName?: string; d
   );
 }
 
-function AlbumPages({ album, photos }: AlbumWithPhotos) {
-  const photoChunks = chunkPhotos(photos, 6); // 3x2 per page
+function AlbumPages({ album, photos, compressedUrls }: AlbumWithPhotos & { compressedUrls: Map<string, string> }) {
+  const photoChunks = chunkPhotos(photos, PHOTOS_PER_PAGE);
 
   if (photoChunks.length === 0) {
     return createElement(Page, { size: 'A4', orientation: 'landscape', style: styles.page },
       createElement(View, { style: styles.albumHeader },
-        createElement(Text, { style: styles.albumLabel }, 'ALBUM'),
         createElement(Text, { style: styles.albumName }, album.name),
-        createElement(View, { style: styles.albumMetaRow },
-          album.eventDate ? createElement(Text, { style: styles.albumMetaText }, formatDateID(album.eventDate)) : null,
-          album.lokasi ? createElement(Text, { style: styles.albumMetaText }, album.lokasi) : null,
+        createElement(Text, { style: styles.albumMeta },
+          [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • '),
         ),
-        album.description ? createElement(Text, { style: styles.albumDescription }, album.description) : null,
       ),
-      createElement(Text, { style: styles.emptyAlbumNote }, 'Belum ada foto dalam album ini.'),
-      createElement(View, { style: styles.footer, fixed: true },
-        createElement(Text, null, album.name),
-        createElement(Text, { render: ({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `${pageNumber} / ${totalPages}` }),
-      ),
+      createElement(Text, { style: styles.emptyNote }, 'Belum ada foto.'),
     );
   }
 
   return photoChunks.map((chunk, chunkIdx) =>
     createElement(Page, { key: `${album.id}-${chunkIdx}`, size: 'A4', orientation: 'landscape', style: styles.page },
-      // Show album header only on first page of album
       chunkIdx === 0
         ? createElement(View, { style: styles.albumHeader },
-            createElement(Text, { style: styles.albumLabel }, 'ALBUM'),
             createElement(Text, { style: styles.albumName }, album.name),
-            createElement(View, { style: styles.albumMetaRow },
-              album.eventDate ? createElement(Text, { style: styles.albumMetaText }, formatDateID(album.eventDate)) : null,
-              album.lokasi ? createElement(Text, { style: styles.albumMetaText }, album.lokasi) : null,
+            createElement(Text, { style: styles.albumMeta },
+              [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • '),
             ),
-            album.description ? createElement(Text, { style: styles.albumDescription }, album.description) : null,
           )
         : null,
-      // Photo grid
       createElement(View, { style: styles.grid },
         ...chunk.map((photo) =>
           createElement(View, { key: photo.id, style: styles.photoCell },
             createElement(View, { style: styles.photoFrame },
-              photo.url ? createElement(Image, { src: photo.url, style: styles.photo }) : null,
+              photo.url
+                ? createElement(Image, { src: compressedUrls.get(photo.url) || photo.url, style: styles.photo })
+                : null,
             ),
-            photo.caption ? createElement(Text, { style: styles.caption }, photo.caption) : null,
           ),
         ),
       ),
-      // Footer
       createElement(View, { style: styles.footer, fixed: true },
         createElement(Text, null, album.name),
         createElement(Text, { render: ({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `${pageNumber} / ${totalPages}` }),
@@ -270,13 +275,34 @@ function AlbumPages({ album, photos }: AlbumWithPhotos) {
 export async function generateAlbumPdf(
   albumsWithPhotos: AlbumWithPhotos[],
   themeName?: string,
+  onProgress?: (current: number, total: number) => void,
 ): Promise<Blob> {
   const dateRange = getDateRange(albumsWithPhotos.map(a => a.album));
+
+  // Collect all unique photo URLs
+  const allUrls = new Set<string>();
+  for (const { photos } of albumsWithPhotos) {
+    for (const photo of photos) {
+      if (photo.url) allUrls.add(photo.url);
+    }
+  }
+
+  // Compress images in batches
+  const urlList = Array.from(allUrls);
+  const compressedUrls = new Map<string, string>();
+  let processed = 0;
+
+  await compressInBatches(urlList, async (url) => {
+    const compressed = await compressImage(url);
+    compressedUrls.set(url, compressed);
+    processed++;
+    if (onProgress) onProgress(processed, urlList.length);
+  });
 
   const doc = createElement(Document, null,
     createElement(CoverPage, { themeName, dateRange, albumCount: albumsWithPhotos.length }),
     ...albumsWithPhotos.map(({ album, photos }) =>
-      createElement(AlbumPages, { key: album.id, album, photos }),
+      createElement(AlbumPages, { key: album.id, album, photos, compressedUrls }),
     ),
   );
 

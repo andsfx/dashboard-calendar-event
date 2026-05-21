@@ -61,6 +61,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
   const [themeId, setThemeId] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [progressText, setProgressText] = useState('');
 
   const selectedTheme = useMemo(
     () => themes.find(theme => theme.id === themeId) || null,
@@ -92,6 +93,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
     if (!canGenerate) return;
     setIsGenerating(true);
     setErrorMessage('');
+    setProgressText('Menyiapkan foto...');
 
     try {
       const albumIds = filteredAlbums.map(album => album.id);
@@ -117,7 +119,10 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         photos: photosByAlbum.get(album.id) || [],
       }));
 
-      const blob = await generateAlbumPdf(payload, selectedTheme?.name);
+      const blob = await generateAlbumPdf(payload, selectedTheme?.name, (current, total) => {
+        setProgressText(`Mengompres foto ${current}/${total}...`);
+      });
+      setProgressText('Membuat PDF...');
       const suffix = selectedTheme?.name || [dateStart, dateEnd].filter(Boolean).join('-to-') || 'all';
       downloadBlob(blob, `${safeFileName(`dokumentasi-event-${suffix}`)}.pdf`);
     } catch (error) {
@@ -125,6 +130,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       setErrorMessage(message);
     } finally {
       setIsGenerating(false);
+      setProgressText('');
     }
   };
 
@@ -234,7 +240,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            {isGenerating ? 'Membuat PDF...' : 'Generate PDF'}
+            {isGenerating ? (progressText || 'Membuat PDF...') : 'Generate PDF'}
           </button>
         </div>
       </div>
