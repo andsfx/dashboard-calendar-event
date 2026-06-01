@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
 import { CategoryBadges } from './CategoryBadges';
-import { CATEGORY_COLORS, isRecurringEvent } from '../utils/eventUtils';
+import { CATEGORY_COLORS } from '../utils/eventUtils';
 
 const ACCENT_STYLES = {
   emerald: {
@@ -57,36 +57,7 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
 export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props) {
   if (events.length === 0) return null;
 
-  // Deduplicate recurring events: only show the next upcoming occurrence per series
-  const todayStr = new Date().toISOString().split('T')[0] ?? '';
-  const deduped = (() => {
-    const seenGroups = new Set<string>();
-    const result: EventItem[] = [];
-    for (const ev of events) {
-      if (isRecurringEvent(ev) && ev.recurrenceGroupId) {
-        if (seenGroups.has(ev.recurrenceGroupId)) continue;
-        seenGroups.add(ev.recurrenceGroupId);
-        // Find the earliest occurrence >= today from the same series in the original events array
-        const seriesEvents = events.filter(
-          e => e.recurrenceGroupId === ev.recurrenceGroupId
-        );
-        const upcoming = seriesEvents
-          .filter(e => e.dateStr >= todayStr)
-          .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
-        const nextEvent = upcoming[0];
-        if (nextEvent) {
-          result.push(nextEvent);
-        } else {
-          result.push(ev);
-        }
-      } else {
-        result.push(ev);
-      }
-    }
-    return result;
-  })();
-
-  const featured = deduped.slice(0, 3);
+  const featured = events.slice(0, 3);
   const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.amber;
 
   return (
@@ -95,7 +66,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         <span className="shrink-0">{icon}</span>
         <h2 className="min-w-0 truncate font-bold text-slate-800 dark:text-white">{title}</h2>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
-          {deduped.length}
+          {events.length}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
