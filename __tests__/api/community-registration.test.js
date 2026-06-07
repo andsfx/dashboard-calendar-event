@@ -298,6 +298,55 @@ const tests = [
     expectedStatus: 405,
     expectedSuccess: false,
   },
+  
+  {
+    name: 'Invalid email format (missing @)',
+    request: {
+      method: 'POST',
+      body: {
+        organization_type: 'komunitas',
+        organization_name: 'Test Organization',
+        pic: 'Test PIC',
+        phone: '081234567890',
+        email: 'invalidemail.com',
+      },
+    },
+    expectedStatus: 400,
+    expectedSuccess: false,
+    expectedErrorField: 'email',
+  },
+  
+  {
+    name: 'Invalid phone format (contains letters)',
+    request: {
+      method: 'POST',
+      body: {
+        organization_type: 'komunitas',
+        organization_name: 'Test Organization',
+        pic: 'Test PIC',
+        phone: '08123456789a',
+      },
+    },
+    expectedStatus: 400,
+    expectedSuccess: false,
+    expectedErrorField: 'phone',
+  },
+  
+  {
+    name: 'Organization name too long',
+    request: {
+      method: 'POST',
+      body: {
+        organization_type: 'komunitas',
+        organization_name: 'A'.repeat(201),
+        pic: 'Test PIC',
+        phone: '081234567890',
+      },
+    },
+    expectedStatus: 400,
+    expectedSuccess: false,
+    expectedErrorField: 'organization_name',
+  },
 ];
 
 // Run tests
