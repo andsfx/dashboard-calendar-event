@@ -1,123 +1,37 @@
-import { CSSProperties, useEffect, useRef, useState } from 'react';
-import {
-  ArrowRight,
-  CalendarDays,
-  Camera,
-  Clock,
-  Globe,
-  Heart,
-  Inbox,
-  Mail,
-  MapPin,
-  Menu,
-  MessageCircle,
-  Moon,
-  Phone,
-  Radio,
-  SunMedium,
-  Users,
-  X,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
 import { EventItem, PhotoAlbum } from '../types';
-import { CATEGORY_COLORS } from '../utils/eventUtils';
-import { CategoryBadges } from './CategoryBadges';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
-import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
 import { CommunityHero } from './community/CommunityHero';
 import { CommunityBenefits } from './community/CommunityBenefits';
 import { CommunityFacilities } from './community/CommunityFacilities';
 import { CommunitySteps } from './community/CommunitySteps';
 import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityFAQ } from './community/CommunityFAQ';
-import { thumbUrl } from '../utils/imageOptim';
-
-/* ─── Brand tokens (consistent with PublicLandingPage) ────── */
-const BRAND = {
-  accent: '#7c6cf2',
-  accentSoft: '#9185f7',
-  accentWarm: '#f2743e',
-};
+import { CommunitySocialProof } from './community/CommunitySocialProof';
+import { CommunityUpcomingEvents, EventShowcase } from './community/CommunityUpcomingEvents';
+import { CommunityGallery } from './community/CommunityGallery';
+import { CommunityContact } from './community/CommunityContact';
+import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
-const IG_POSTS = [
-  'https://www.instagram.com/p/DXYxAlQkXrD/',
-  'https://www.instagram.com/metmalbekasi/p/DXecp6JEaqt/',
-];
-
-/* ─── Helpers ─────────────────────────────────────────────── */
-
-/* ─── Skeleton Components ─────────────────────────────────── */
-
-function SkeletonGalleryAlbums() {
-  return (
-    <div className="mx-auto max-w-7xl">
-      <div className="text-center">
-        <div className="mx-auto h-3 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-4 h-9 w-72 rounded-lg bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-slate-100 dark:bg-slate-700/60" />
-      </div>
-      <div className="mt-10">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-700" />
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
-              <div className="aspect-[16/9] bg-slate-200 dark:bg-slate-700" />
-              <div className="p-3 sm:p-4">
-                <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-                <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="mt-14">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-          <div className="h-3 w-20 rounded bg-slate-200 dark:bg-slate-700" />
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
-              <div className="h-[300px] bg-slate-200 dark:bg-slate-700" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function SkeletonEventGrid() {
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="text-center">
-        <div className="mx-auto h-3 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-4 h-9 w-80 max-w-full rounded-lg bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-slate-100 dark:bg-slate-700/60" />
-      </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-2xl shadow-sm">
-            <div className="h-28 bg-slate-200 dark:bg-slate-700" />
-            <div className="border border-t-0 border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
-              <div className="space-y-2">
-                <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
-                <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
-              </div>
-              <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-700">
-                <div className="h-5 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
-                <div className="h-5 w-14 rounded-full bg-slate-200 dark:bg-slate-700" />
-              </div>
-            </div>
+    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
+          <div className="flex h-[120px] flex-col justify-between bg-slate-200 p-5 dark:bg-slate-700">
+            <div className="h-5 w-24 rounded-full bg-slate-300 dark:bg-slate-600" />
+            <div className="h-6 w-3/4 rounded bg-slate-300 dark:bg-slate-600" />
           </div>
-        ))}
-      </div>
+          <div className="space-y-2 p-5">
+            <div className="h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-4 h-4 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -126,503 +40,13 @@ function LogoMark({ className = '' }: { className?: string }) {
   return <img src={mallLogo} alt="Metropolitan Mall Bekasi" className={className} />;
 }
 
-function StatBadge({ number, label }: { number: string; label: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="text-2xl font-extrabold text-violet-600 dark:text-violet-400 sm:text-3xl">{number}</span>
-      <span className="text-left text-xs font-medium text-slate-600 dark:text-slate-400 leading-tight">{label}</span>
-    </div>
-  );
-}
-
-/* ─── Lazy Instagram Embed ────────────────────────────────── */
-function LazyInstagramEmbed({ url }: { url: string }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [timedOut, setTimedOut] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => { const entry = entries[0]; if (entry?.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
-      { rootMargin: '200px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  // Load Instagram embed script when visible
-  useEffect(() => {
-    if (!isVisible) return;
-    const existing = document.querySelector('script[src*="instagram.com/embed"]');
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = 'https://www.instagram.com/embed.js';
-      script.async = true;
-      document.body.appendChild(script);
-    } else if ((window as any).instgrm) {
-      (window as any).instgrm.Embeds.process();
-    }
-  }, [isVisible]);
-
-  useEffect(() => {
-    if (!isVisible || hasError) return;
-    const timer = setTimeout(() => setTimedOut(true), 10000);
-    return () => clearTimeout(timer);
-  }, [isVisible, hasError]);
-
-  const embedUrl = url.endsWith('/') ? `${url}embed` : `${url}/embed`;
-
-  return (
-    <div ref={containerRef} className="overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700">
-      {isVisible && !hasError && !timedOut ? (
-        <div className="mx-auto" style={{ maxWidth: 540 }}>
-          <iframe
-            src={embedUrl}
-            className="w-full border-0"
-            style={{ minHeight: 600 }}
-            loading="lazy"
-            title="Instagram post"
-            onError={() => setHasError(true)}
-          />
-        </div>
-      ) : (hasError || timedOut) ? (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex h-[300px] flex-col items-center justify-center bg-[#faf6ef] p-8 text-center dark:bg-slate-800"
-        >
-          <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
-          <p className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
-        </a>
-      ) : (
-        <div className="flex h-[300px] items-center justify-center bg-slate-100 dark:bg-slate-800">
-            <div className="w-full max-w-[220px] text-center" role="status" aria-live="polite">
-              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500 dark:border-slate-700 dark:border-t-violet-400" aria-hidden="true" />
-              <div className="mt-6 space-y-3" aria-hidden="true">
-                <div className="mx-auto h-3 w-32 rounded-full bg-slate-200 dark:bg-slate-700" />
-                <div className="mx-auto h-3 w-44 rounded-full bg-slate-200/80 dark:bg-slate-700/70" />
-                <div className="mx-auto h-3 w-24 rounded-full bg-slate-200/70 dark:bg-slate-700/60" />
-              </div>
-              <p className="sr-only">Memuat Instagram...</p>
-            </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 interface CachedInstagramPost {
-  postUrl: string;
-  shortCode: string;
-  cachedImageUrl: string;
-  caption: string;
-  likesCount: number;
-  commentsCount: number;
-  ownerUsername: string;
-  postTimestamp: string | null;
+  shortCode?: string;
+  postUrl?: string;
+  imageUrl?: string;
+  caption?: string;
 }
 
-function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
-  const truncatedCaption = post.caption.length > 120
-    ? post.caption.slice(0, 120) + '...'
-    : post.caption;
-
-  return (
-    <a
-      href={post.postUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg hover:-translate-y-1 dark:border-slate-700 dark:bg-slate-800"
-    >
-      {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-700">
-        <img
-          src={post.cachedImageUrl}
-          alt={truncatedCaption || 'Instagram post'}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-          loading="lazy"
-          onError={(e) => { (e.target as HTMLImageElement).src = post.cachedImageUrl; }}
-        />
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 flex items-center justify-center gap-6 bg-black/50 opacity-0 transition duration-300 group-hover:opacity-100">
-          <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
-            <Heart className="h-4 w-4 fill-white" />
-            {post.likesCount > 999 ? `${(post.likesCount / 1000).toFixed(1)}K` : post.likesCount}
-          </span>
-          <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
-            <MessageCircle className="h-4 w-4 fill-white" />
-            {post.commentsCount}
-          </span>
-        </div>
-      </div>
-      {/* Caption */}
-      <div className="p-4">
-        <p className="text-sm leading-relaxed text-slate-600 line-clamp-3 dark:text-slate-400">
-          {truncatedCaption}
-        </p>
-        <p className="mt-2 text-xs font-medium text-violet-600 dark:text-violet-400">
-          @{post.ownerUsername || 'metmalbekasi'}
-        </p>
-      </div>
-    </a>
-  );
-}
-
-function InstagramFallbackCard({ url }: { url: string }) {
-  return (
-    <a
-      href={url || 'https://instagram.com/metmalbekasi'}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
-    >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
-        <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
-      </div>
-      <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
-    </a>
-  );
-}
-
-/* ─── Event Showcase ──────────────────────────────────────── */
-
-
-
-function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (ev: EventItem) => void }) {
-  const sorted = [...events].sort((a, b) => {
-    if (a.status === 'ongoing' && b.status !== 'ongoing') return -1;
-    if (a.status !== 'ongoing' && b.status === 'ongoing') return 1;
-    return a.dateStr.localeCompare(b.dateStr);
-  }).slice(0, 6);
-
-  if (sorted.length === 0) return <EmptyEvents />;
-
-  return (
-    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sorted.map(ev => {
-        const color = CATEGORY_COLORS[ev.category] ?? '#6366f1';
-        const isOngoing = ev.status === 'ongoing';
-        return (
-          <button
-            key={ev.id}
-            type="button"
-            onClick={() => onDetail(ev)}
-            aria-label={`${ev.acara} — ${ev.tanggal}`}
-            className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl text-left shadow-sm transition hover:shadow-lg hover:-translate-y-0.5 ${focusRing}`}
-          >
-            {/* Gradient top section — fixed min-height for consistency */}
-            <div
-              className="relative flex min-h-[120px] flex-1 flex-col justify-between px-5 pb-5 pt-5"
-              style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)` }}
-            >
-              {/* Status badge */}
-              <div>
-                {isOngoing ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                    <Radio className="h-3 w-3" aria-hidden="true" /> BERLANGSUNG
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                    <CalendarDays className="h-3 w-3" aria-hidden="true" /> {ev.tanggal}
-                  </span>
-                )}
-              </div>
-              <p className="mt-3 text-base font-bold leading-snug text-white line-clamp-2 drop-shadow-sm">{ev.acara}</p>
-            </div>
-            {/* Bottom section */}
-            <div className="border border-t-0 border-slate-200/50 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                {ev.jam && <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 shrink-0" aria-hidden="true" /><span>{ev.jam}</span></div>}
-                {ev.lokasi && <div className="flex items-center gap-1.5"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.lokasi}</span></div>}
-                {ev.eo && <div className="flex items-center gap-1.5"><Users className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.eo}</span></div>}
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
-                <CategoryBadges categories={ev.categories} maxVisible={2} />
-              </div>
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Empty state ──
-
-function EmptyEvents() {
-  return (
-    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-16 text-center dark:border-slate-700 dark:bg-slate-800/30">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-900/20">
-        <CalendarDays className="h-8 w-8 text-violet-400 dark:text-violet-500" aria-hidden="true" />
-      </div>
-      <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
-      <p className="mt-2 max-w-xs text-sm text-slate-500 dark:text-slate-400">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
-      <a
-        href="#contact"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
-      >
-        Hubungi Kami <ArrowRight className="h-4 w-4" />
-      </a>
-    </div>
-  );
-}
-
-// ── Main Showcase ──
-
-function EventShowcase({ events, onDetail, onViewAll }: { events: EventItem[]; onDetail: (ev: EventItem) => void; onViewAll: () => void }) {
-  return (
-    <>
-      <GridCardsView events={events} onDetail={onDetail} />
-
-      <div className="mt-8 text-center">
-        <button
-          type="button"
-          onClick={onViewAll}
-          className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
-        >
-          <CalendarDays className="h-4 w-4" />
-          Lihat Semua Event
-          <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
-    </>
-  );
-}
-
-function getCountdown(targetDate: string, now: number) {
-  const target = new Date(`${targetDate}T00:00:00`).getTime();
-  const diff = Math.max(0, target - now);
-  const dayMs = 24 * 60 * 60 * 1000;
-  const hourMs = 60 * 60 * 1000;
-  const minuteMs = 60 * 1000;
-  return {
-    days: Math.floor(diff / dayMs),
-    hours: Math.floor((diff % dayMs) / hourMs),
-    minutes: Math.floor((diff % hourMs) / minuteMs),
-  };
-}
-
-function CountdownPill({ label, value, color }: { label: string; value: number; color?: string }) {
-  const pillStyle: CSSProperties = color
-    ? { borderColor: `${color}40`, backgroundColor: `${color}12`, color }
-    : {};
-  return (
-    <div
-      className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-center text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
-      style={pillStyle}
-    >
-      <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em]">{label}</p>
-    </div>
-  );
-}
-
-function UpcomingEventsFeature({ events, albums, onDetail }: { events: EventItem[]; albums: PhotoAlbum[]; onDetail?: (ev: EventItem) => void }) {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  if (events.length === 0) return null;
-
-  const [mainEvent, ...otherEvents] = events;
-  if (!mainEvent) return null;
-
-  // Derive category color from mainEvent
-  const mainCat = (mainEvent.categories?.length ? mainEvent.categories[0] : mainEvent.category) || 'Umum';
-  const catColor = CATEGORY_COLORS[mainCat] ?? CATEGORY_COLORS.Umum;
-
-  const countdown = getCountdown(mainEvent.dateStr, now);
-  const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
-  const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
-  const promoImageCaption = mainEvent.posterUrl
-    ? 'Poster/flyer dari detail event.'
-    : mainAlbum?.coverPhotoUrl
-      ? 'Materi promosi dari album gallery event.'
-      : 'Belum ada poster/flyer untuk event ini.';
-
-  return (
-    <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
-          {/* ── Main event card ── */}
-          <div className="rounded-[2rem] border border-black/[0.06] bg-[#faf6ef] shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:bg-slate-800 dark:border-slate-700 overflow-hidden">
-            {/* Top banner */}
-            {promoImageUrl ? (
-              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
-                <img
-                  src={thumbUrl(promoImageUrl)}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading="lazy"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" aria-hidden="true" />
-              </div>
-            ) : (
-              <div
-                className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden"
-                style={{ background: `linear-gradient(135deg, ${catColor}cc 0%, ${catColor}88 100%)` }}
-              >
-                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl" style={{ backgroundColor: `${catColor}50` }} aria-hidden="true" />
-                <div className="absolute -left-8 bottom-0 h-40 w-40 rounded-full blur-2xl" style={{ backgroundColor: `${catColor}30` }} aria-hidden="true" />
-              </div>
-            )}
-
-            {/* Content area */}
-            <div className="p-6 sm:p-8 lg:p-10">
-              <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-                {/* Left: info */}
-                <div className="flex flex-col justify-between gap-8">
-                  <div>
-                    <CommunityEyebrow className="text-xs">Upcoming Big Event</CommunityEyebrow>
-                    <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-                      {mainEvent.acara}
-                    </h2>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <CategoryBadges categories={mainEvent.categories?.length ? mainEvent.categories : [mainEvent.category]} maxVisible={3} />
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                        <CalendarDays className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.day}, {mainEvent.tanggal}
-                      </span>
-                      {mainEvent.jam && (
-                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                          <Clock className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.jam}
-                        </span>
-                      )}
-                      {mainEvent.lokasi && (
-                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                          <MapPin className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.lokasi}
-                        </span>
-                      )}
-                    </div>
-                    {mainEvent.keterangan && (
-                      <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 line-clamp-3">
-                        {mainEvent.keterangan}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Countdown menuju event</p>
-                    <div className="grid max-w-md grid-cols-3 gap-3">
-                      <CountdownPill label="Hari" value={countdown.days} color={catColor} />
-                      <CountdownPill label="Jam" value={countdown.hours} color={catColor} />
-                      <CountdownPill label="Menit" value={countdown.minutes} color={catColor} />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onDetail?.(mainEvent)}
-                      className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
-                      style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
-                    >
-                      Lihat Detail Event <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right: promo poster — visible all sizes */}
-                <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-                  <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)] dark:border-slate-600 dark:bg-slate-700 p-3">
-                    {promoImageUrl ? (
-                      <img
-                        src={thumbUrl(promoImageUrl)}
-                        alt={`Materi promosi ${mainEvent.acara}`}
-                        className="aspect-[4/5] w-full rounded-[1rem] object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div
-                        className="flex aspect-[4/5] w-full flex-col justify-between rounded-[1rem] p-5"
-                        style={{ background: `linear-gradient(135deg, ${catColor}18 0%, #ffffff 60%, #fef3c710 100%)` }}
-                      >
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: catColor }}>Metropolitan Mall Bekasi</p>
-                          <p className="mt-4 text-2xl font-bold leading-tight text-slate-950 dark:text-white">{mainEvent.acara}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{mainEvent.tanggal}</p>
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{mainEvent.lokasi}</p>
-                        </div>
-                      </div>
-                    )}
-                    <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                      {promoImageCaption}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Side panel ── */}
-          {otherEvents.length > 0 ? (
-            <div className="rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Event besar lainnya</p>
-              <div className="mt-5 space-y-3">
-                {otherEvents.slice(0, 3).map(event => {
-                  const evCat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
-                  const evColor = CATEGORY_COLORS[evCat] ?? CATEGORY_COLORS.Umum;
-                  return (
-                    <button
-                      key={event.id}
-                      type="button"
-                      onClick={() => onDetail?.(event)}
-                      className="w-full rounded-2xl border border-slate-100 bg-[#faf6ef] p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/50"
-                      style={{ '--ev-color': evColor } as CSSProperties}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${evColor}60`; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = ''; }}
-                    >
-                      <p className="text-sm font-bold text-slate-900 line-clamp-2 dark:text-white">{event.acara}</p>
-                      <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <CalendarDays className="h-3.5 w-3.5" style={{ color: evColor }} /> {event.tanggal}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-6 rounded-[2rem] border border-black/[0.06] bg-white p-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: `${catColor}18` }}>
-                <CalendarDays className="h-8 w-8" style={{ color: catColor }} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
-                <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Cari Sponsor atau Dukungan</p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
-              </div>
-              <a
-                href={`https://wa.me/6281318534823?text=${encodeURIComponent(`Halo, saya tertarik untuk menjadi sponsor atau mendukung event "${mainEvent.acara}". Mohon informasi lebih lanjut.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
-                style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
-              >
-                Hubungi Kami <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-    </RevealSection>
-  );
-}
-
-/* ─── Main Component ──────────────────────────────────────── */
 interface CommunityLandingProps {
   isDark: boolean;
   onToggleDark: () => void;
@@ -650,7 +74,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
 
-  // Fetch cached Instagram posts
   useEffect(() => {
     fetch('/api/instagram-sync')
       .then(r => r.json())
@@ -659,7 +82,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           setCachedIgPosts(data.posts);
         }
       })
-      .catch(() => { /* silent fail — fallback to iframe */ });
+      .catch(() => { /* silent fail */ });
   }, []);
 
   useEffect(() => {
@@ -680,7 +103,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [mobileNavOpen]);
 
-
   const featuredUpcomingEvents = events
     .filter(event => event.priority === 'high' && event.status === 'upcoming')
     .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
@@ -696,287 +118,74 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     : 'inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm';
   const mobilePanelClass = isHeaderPinned
     ? 'mt-3 rounded-[1.6rem] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
-    : 'mt-3 rounded-[1.6rem] border border-white/10 bg-slate-950/46 p-3 shadow-[0_18px_36px_rgba(15,23,42,0.22)] backdrop-blur-md lg:hidden';
-  const mobileNavGridClass = isHeaderPinned
-    ? 'grid grid-cols-2 gap-2 text-sm font-medium text-slate-700 dark:text-white'
-    : 'grid grid-cols-2 gap-2 text-sm font-medium text-white';
-  const mobileNavItemClass = isHeaderPinned
-    ? 'rounded-xl bg-[#f6f1ea] px-4 py-3 text-center transition hover:bg-[#efe8de] dark:bg-slate-800 dark:hover:bg-slate-700'
-    : 'rounded-xl bg-white/8 px-4 py-3 text-center transition hover:bg-white/14';
+    : 'mt-3 rounded-[1.6rem] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
-    <div className="bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
-      {/* ─── Header ─────────────────────────────────────────── */}
-      <header className={headerClassName}>
-        <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 sm:py-3">
-          <div className="flex items-center justify-between gap-4">
-            <button onClick={onBack} className={`shrink-0 flex items-center gap-2 ${focusRing}`} aria-label="Kembali ke halaman utama">
+    <div className="min-h-screen bg-[#fbfaf7] selection:bg-violet-200 selection:text-violet-900 dark:bg-slate-950 dark:selection:bg-violet-900/40 dark:selection:text-violet-100">
+      <header className={`transition-all duration-300 ${headerClassName}`}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex h-16 items-center justify-between sm:h-20">
+            <button onClick={onBack} className={`group flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors ${focusRing}`}>
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
             </button>
-            <nav className={navClassName} aria-label="Navigasi utama">
-              {NAV_ITEMS.map(item => (
-                <a key={item.href} href={item.href} className={`transition hover:opacity-80 ${focusRing}`}>{item.label}</a>
+            <nav className={navClassName}>
+              {NAV_ITEMS.map((item) => (
+                <a key={item.href} href={item.href} className={`transition hover:-translate-y-0.5 ${isHeaderPinned ? 'hover:text-violet-600 dark:hover:text-violet-400' : 'hover:text-white'}`}>
+                  {item.label}
+                </a>
               ))}
             </nav>
-            <div className="flex items-center gap-2">
-              <button onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
-                {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={onToggleDark} className={`transition-transform hover:scale-105 ${utilityButtonClass} ${focusRing}`} aria-label="Toggle dark mode">
+                {isDark ? <SunMedium className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
               </button>
-              <button
-                onClick={onBack}
-                className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] ${focusRing}`}
-                style={{ background: `linear-gradient(135deg, ${BRAND.accent} 0%, ${BRAND.accentSoft} 100%)` }}
-              >
-                <CalendarDays className="h-4 w-4" /> Event Dashboard
-              </button>
-              <button
-                type="button"
-                onClick={() => setMobileNavOpen(prev => !prev)}
-                className={`${utilityButtonClass} lg:hidden ${focusRing}`}
-                aria-label={mobileNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
-                aria-expanded={mobileNavOpen}
-                aria-controls="community-mobile-nav"
-              >
-                {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-                <span className="sr-only">{mobileNavOpen ? 'Tutup menu' : 'Buka menu'}</span>
+              <a href="#register" className={`hidden items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-bold transition hover:-translate-y-0.5 sm:flex ${focusRing} ${isHeaderPinned ? 'bg-violet-600 text-white shadow-md hover:bg-violet-700 hover:shadow-lg' : 'bg-white text-slate-900 hover:bg-slate-50'}`}>
+                Daftar Sekarang
+              </a>
+              <button type="button" onClick={() => setMobileNavOpen(!mobileNavOpen)} className={`lg:hidden transition-transform hover:scale-105 ${utilityButtonClass} ${focusRing}`} aria-label="Toggle menu">
+                {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
-          <div id="community-mobile-nav" className={`overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none ${mobileNavOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`} hidden={!mobileNavOpen}>
+          {mobileNavOpen && (
             <div className={mobilePanelClass}>
-              <nav className={mobileNavGridClass} aria-label="Navigasi mobile">
-                {NAV_ITEMS.map(item => (
-                  <a key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)} className={`${mobileNavItemClass} ${focusRing}`}>
+              <nav className="flex flex-col gap-1">
+                {NAV_ITEMS.map((item) => (
+                  <a key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)} className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${isHeaderPinned ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' : 'text-white hover:bg-white/10'}`}>
                     {item.label}
                   </a>
                 ))}
               </nav>
             </div>
-          </div>
+          )}
         </div>
       </header>
-
-      {/* Skip to register */}
       <a href="#register" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white">
         Langsung ke form pendaftaran
       </a>
-
       <main>
         <CommunityHero heroImageUrl={heroImageUrl} />
-
-        {/* ─── Social Proof Strip ─────────────────────────────── */}
-        <RevealSection className="border-b border-black/5 bg-white px-4 py-14 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-16">
-          <div className="mx-auto max-w-7xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-              Dipercaya oleh komunitas di Bekasi
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-              <StatBadge number="100+" label="Event Terlaksana" />
-              <StatBadge number="50+" label="Komunitas Bergabung" />
-              <StatBadge number="10,000+" label="Total Pengunjung" />
-            </div>
-          </div>
-        </RevealSection>
-
-        <UpcomingEventsFeature events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} />
-
+        <CommunitySocialProof />
+        <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} />
         <CommunityBenefits />
         <CommunityFacilities />
         <CommunitySteps />
         <CommunityFAQ />
         <CommunityRegistrationForm />
-
-        {/* ─── Gallery / Instagram ───────────────────────────── */}
-        <RevealSection id="gallery" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
-          <div className="mx-auto max-w-7xl">
-            <div className="text-center">
-              <CommunityEyebrow className="text-xs">Galeri</CommunityEyebrow>
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Lihat sendiri keseruannya.
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-                Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
-              </p>
-            </div>
-
-            {/* ── Dokumentasi Event ── */}
-            {albums.length > 0 && (
-              <div className="mt-10 sm:mt-14 lg:mt-16">
-                <div className="mb-6 flex items-center justify-center gap-2">
-                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
-                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
-                  {albums.slice(0, 3).map(album => (
-                    <a
-                      key={album.id}
-                      href={`/gallery/${album.slug}`}
-                      className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
-                    >
-                      <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
-                        {album.coverPhotoUrl ? (
-                          <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
-                        ) : (
-                          <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">
-                            <Camera className="h-8 w-8 text-violet-300 dark:text-violet-500" aria-hidden="true" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-                          <span className="text-sm font-semibold text-white">Lihat Foto &rarr;</span>
-                        </div>
-                      </div>
-                      <div className="p-3 sm:p-4">
-                        <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                          {album.eventDate && <span>{album.eventDate}</span>}
-                          {typeof album.photoCount === 'number' && album.photoCount > 0 && <span>{album.eventDate ? '·' : ''} {album.photoCount} foto</span>}
-                        </div>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-
-                <div className="mt-6 text-center">
-                  <a
-                    href="/gallery"
-                    className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
-                  >
-                    <Camera className="h-4 w-4" aria-hidden="true" />
-                    Lihat Semua Gallery
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {/* ── Instagram ── */}
-            <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
-              <div className="mb-6 flex items-center justify-center gap-2">
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Instagram</h3>
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-              </div>
-
-              {/* Use cached posts if available (fast, no external scripts) */}
-              {cachedIgPosts.length > 0 ? (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {cachedIgPosts.map((post) => (
-                    <InstagramCachedCard key={post.shortCode || post.postUrl} post={post} />
-                  ))}
-                </div>
-              ) : (
-                /* Fallback: iframe embed (slower, loads external scripts) */
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {(instagramPosts && instagramPosts.length > 0
-                    ? instagramPosts
-                    : IG_POSTS
-                  ).map((url, idx) => {
-                    const trimmedUrl = (url || '').trim();
-                    if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
-                      return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
-                    }
-                    return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
-                  })}
-                </div>
-              )}
-
-              <div className="mt-8 text-center">
-                <a
-                  href="https://instagram.com/metmalbekasi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
-                >
-                  <Globe className="h-4 w-4" aria-hidden="true" />
-                  Follow @metmalbekasi
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* ─── Upcoming Events ────────────────────────────────── */}
+        <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} />
         {events.length > 0 && onEventDetail && (
           <RevealSection id="events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonEventGrid />}>
             <div className="mx-auto max-w-7xl">
               <div className="text-center">
                 <CommunityEyebrow className="text-xs">Agenda Event</CommunityEyebrow>
-                <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                  Event yang sedang & akan berlangsung.
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-                  Lihat jadwal event terbaru di Metropolitan Mall Bekasi. Klik event untuk lihat detail.
-                </p>
+                <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">Event yang sedang & akan berlangsung.</h2>
+                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">Lihat jadwal event terbaru di Metropolitan Mall Bekasi. Klik event untuk lihat detail.</p>
               </div>
-              <EventShowcase
-                events={events.filter(e => e.status === 'ongoing' || e.status === 'upcoming')}
-                onDetail={onEventDetail}
-                onViewAll={onBack}
-              />
+              <EventShowcase events={events.filter(e => e.status === 'ongoing' || e.status === 'upcoming')} onDetail={onEventDetail} onViewAll={onBack} />
             </div>
           </RevealSection>
         )}
-
-        {/* ─── Contact ───────────────────────────────────────── */}
-        <RevealSection id="contact" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl">
-            <div className="text-center">
-              <CommunityEyebrow className="text-xs">Kontak</CommunityEyebrow>
-              <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-                Ada pertanyaan? Hubungi kami!
-              </h2>
-            </div>
-
-            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
-              <a
-                href="https://wa.me/6281318534823"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
-              >
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                  <Phone className="h-7 w-7" aria-hidden="true" />
-                </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">WhatsApp Andy</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">0813-1853-4823</p>
-              </a>
-
-              <a
-                href="https://wa.me/6281908142555"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
-              >
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-                  <Phone className="h-7 w-7" aria-hidden="true" />
-                </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">WhatsApp Uca</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">0819-0814-2555</p>
-              </a>
-
-              <a
-                href="mailto:marketing@malmetropolitan.com"
-                className={`group rounded-[2rem] border bg-[#faf6ef] border-black/[0.06] dark:bg-slate-800 dark:border-slate-700 p-6 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] hover:-translate-y-1 ${focusRing}`}
-              >
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                  <Mail className="h-7 w-7" aria-hidden="true" />
-                </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">Email</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">marketing@malmetropolitan.com</p>
-              </a>
-            </div>
-
-            <div className="mt-8 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Telepon kantor: <strong>021-8855555 ext 214</strong> (Senin - Jumat, jam kerja)
-              </p>
-            </div>
-          </div>
-        </RevealSection>
-        {/* Sticky Mobile CTA */}
+        <CommunityContact />
         {isHeaderPinned && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 py-3 backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
             <a href="#register" className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg">
@@ -986,28 +195,11 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
         )}
       </main>
-
-      {/* ─── Footer ──────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200/50 bg-[#fbfaf7] px-4 py-8 pb-20 sm:pb-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+      <footer className="border-t border-black/5 bg-white px-4 py-12 dark:bg-slate-950 dark:border-slate-800 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <LogoMark className="h-auto w-[102px] opacity-90" />
-            <div>
-              <p className="font-medium text-slate-700 dark:text-white">Metmal Community Space</p>
-              <p className="mt-1">Powered by You — Metropolitan Mall Bekasi</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-start gap-2 text-left sm:items-end sm:text-right">
-            <div className="flex items-center gap-3">
-              <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Instagram</a>
-              <span>·</span>
-              <a href="https://www.threads.net/@metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Threads</a>
-              <span>·</span>
-              <a href="https://www.youtube.com/@metmalbekasi" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>YouTube</a>
-              <span>·</span>
-              <a href="https://www.malmetropolitan.com" target="_blank" rel="noopener noreferrer" className={`transition hover:text-slate-700 dark:hover:text-white ${focusRing}`}>Website</a>
-            </div>
-            <p>© {new Date().getFullYear()} Metropolitan Mall Bekasi — Metland Coloring Life</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi. All rights reserved.</p>
           </div>
         </div>
       </footer>

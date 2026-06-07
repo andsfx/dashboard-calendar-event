@@ -126,13 +126,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
           );
         })}
       </div>
-      {deduped.length > 3 && (
+      {events.length > 3 && (
         <button
           type="button"
           onClick={() => document.getElementById('views')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
           className={`mt-3 cursor-pointer text-xs font-medium transition hover:underline ${accentStyle.link}`}
         >
-          +{deduped.length - 3} acara lainnya — lihat di daftar acara
+          +{events.length - 3} acara lainnya — lihat di daftar acara
         </button>
       )}
     </div>
