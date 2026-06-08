@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
+import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
 import { EventItem, PhotoAlbum } from '../types';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CommunityHero } from './community/CommunityHero';
@@ -138,6 +138,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             <div className="flex items-center gap-3">
               <button type="button" onClick={onToggleDark} className={`transition-transform hover:scale-105 ${utilityButtonClass} ${focusRing}`} aria-label="Toggle dark mode">
                 {isDark ? <SunMedium className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+              </button>
+              <button
+                type="button"
+                onClick={onBack}
+                className={`hidden items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 sm:inline-flex ${focusRing}`}
+                style={{ background: 'linear-gradient(135deg, #7c6cf2 0%, #9185f7 100%)' }}
+              >
+                <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
               </button>
               <a href="#register" className={`hidden items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-bold transition hover:-translate-y-0.5 sm:flex ${focusRing} ${isHeaderPinned ? 'bg-violet-600 text-white shadow-md hover:bg-violet-700 hover:shadow-lg' : 'bg-white text-slate-900 hover:bg-slate-50'}`}>
                 Daftar Sekarang
