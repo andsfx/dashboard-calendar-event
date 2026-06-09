@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FileText, Save, X } from 'lucide-react';
+import { AlertCircle, Check, ChevronLeft, ChevronRight, FileText, Save, X } from 'lucide-react';
 import { LetterRequestItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -27,6 +27,46 @@ const EMPTY: LetterRequestItem = {
 
 const HARI_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+const STEPS = [
+  { title: 'Data Surat', description: 'Nomor dan tanggal surat' },
+  { title: 'Data EO & Event', description: 'Informasi penyelenggara dan acara' },
+  { title: 'Loading & Review', description: 'Jadwal loading dan final check' },
+] as const;
+
+const REQUIRED_FIELDS = new Set<keyof LetterRequestItem>([
+  'tanggalSurat',
+  'nomorSurat',
+  'namaEO',
+  'penanggungJawab',
+  'alamatEO',
+  'namaEvent',
+  'lokasi',
+  'hariTanggalPelaksanaan',
+  'hariTanggalLoading',
+  'waktuLoading',
+]);
+
+const STEP_FIELDS: Array<Array<keyof LetterRequestItem>> = [
+  ['tanggalSurat', 'nomorSurat'],
+  ['namaEO', 'penanggungJawab', 'alamatEO', 'namaEvent', 'lokasi', 'hariTanggalPelaksanaan'],
+  ['hariTanggalLoading', 'waktuLoading'],
+];
+
+const REQUIRED_ERROR_MESSAGES: Record<keyof LetterRequestItem, string> = {
+  tanggalSurat: 'Tanggal surat wajib diisi',
+  nomorSurat: 'Nomor surat wajib diisi',
+  namaEO: 'Nama EO wajib diisi',
+  penanggungJawab: 'Penanggung jawab wajib diisi',
+  alamatEO: 'Alamat EO wajib diisi',
+  namaEvent: 'Nama event wajib diisi',
+  lokasi: 'Lokasi wajib diisi',
+  hariTanggalPelaksanaan: 'Hari/Tanggal pelaksanaan wajib diisi',
+  waktuPelaksanaan: '',
+  nomorTelepon: '',
+  hariTanggalLoading: 'Hari/Tanggal loading wajib diisi',
+  waktuLoading: 'Waktu loading wajib diisi',
+};
 
 function parseIsoDate(value: string) {
   const normalized = value.trim();
@@ -68,7 +108,8 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const [form, setForm] = useState<LetterRequestItem>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof LetterRequestItem, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [currentStep, setCurrentStep] = useState(0);
+  const [hasAttemptedStepSubmit, setHasAttemptedStepSubmit] = useState(false);
   const defaultData = useMemo<LetterRequestItem>(() => ({
     ...EMPTY,
     ...initialData,
@@ -79,6 +120,8 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
       setForm(defaultData);
       setErrors({});
       setIsSubmitting(false);
+      setCurrentStep(0);
+      setHasAttemptedStepSubmit(false);
     }
   }, [isOpen, defaultData]);
 
@@ -89,35 +132,72 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     setErrors(prev => ({ ...prev, [key]: '' }));
   };
 
-  const normalizeDateField = (key: 'tanggalSurat' | 'hariTanggalLoading') => {
-    setForm(prev => ({
-      ...prev,
-      [key]: key === 'tanggalSurat'
-        ? formatIndonesianDate(prev[key])
-        : formatIndonesianLongDate(prev[key]),
-    }));
+  const validateFields = (fields: Array<keyof LetterRequestItem>) => {
+    const nextErrors: Partial<Record<keyof LetterRequestItem, string>> = {};
+
+    fields.forEach(field => {
+      if (REQUIRED_FIELDS.has(field) && !form[field].trim()) {
+        nextErrors[field] = REQUIRED_ERROR_MESSAGES[field];
+      }
+    });
+
+    return nextErrors;
   };
 
-  const validate = () => {
-    const nextErrors: Partial<Record<keyof LetterRequestItem, string>> = {};
-    if (!form.tanggalSurat.trim()) nextErrors.tanggalSurat = 'Tanggal surat wajib diisi';
-    if (!form.nomorSurat.trim()) nextErrors.nomorSurat = 'Nomor surat wajib diisi';
-    if (!form.namaEO.trim()) nextErrors.namaEO = 'Nama EO wajib diisi';
-    if (!form.penanggungJawab.trim()) nextErrors.penanggungJawab = 'Penanggung jawab wajib diisi';
-    if (!form.alamatEO.trim()) nextErrors.alamatEO = 'Alamat EO wajib diisi';
-    if (!form.namaEvent.trim()) nextErrors.namaEvent = 'Nama event wajib diisi';
-    if (!form.lokasi.trim()) nextErrors.lokasi = 'Lokasi wajib diisi';
-    if (!form.hariTanggalPelaksanaan.trim()) nextErrors.hariTanggalPelaksanaan = 'Hari/Tanggal pelaksanaan wajib diisi';
-    if (!form.hariTanggalLoading.trim()) nextErrors.hariTanggalLoading = 'Hari/Tanggal loading wajib diisi';
-    if (!form.waktuLoading.trim()) nextErrors.waktuLoading = 'Waktu loading wajib diisi';
-    return nextErrors;
+  const validateAll = () => validateFields(Array.from(REQUIRED_FIELDS));
+
+  const focusFirstError = (field: keyof LetterRequestItem) => {
+    requestAnimationFrame(() => {
+      document.getElementById(String(field))?.focus();
+    });
+  };
+
+  const handleNext = () => {
+    const stepErrors = validateFields(STEP_FIELDS[currentStep] ?? []);
+    setHasAttemptedStepSubmit(true);
+
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...stepErrors }));
+      const firstErrorField = STEP_FIELDS[currentStep]?.find(field => stepErrors[field]);
+      if (firstErrorField) focusFirstError(firstErrorField);
+      return;
+    }
+
+    setErrors(prev => {
+      const next = { ...prev };
+      (STEP_FIELDS[currentStep] ?? []).forEach(field => {
+        delete next[field];
+      });
+      return next;
+    });
+    setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
+    setHasAttemptedStepSubmit(false);
+  };
+
+  const handleBack = () => {
+    if (currentStep === 0) {
+      onClose();
+      return;
+    }
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+    setHasAttemptedStepSubmit(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const nextErrors = validate();
+
+    if (currentStep < STEPS.length - 1) {
+      handleNext();
+      return;
+    }
+
+    const nextErrors = validateAll();
+    setHasAttemptedStepSubmit(true);
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      const firstErrorField = Array.from(REQUIRED_FIELDS).find(field => nextErrors[field]);
+      if (firstErrorField) focusFirstError(firstErrorField);
       return;
     }
 
@@ -127,132 +207,268 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
       tanggalSurat: formatIndonesianDate(form.tanggalSurat),
       hariTanggalLoading: formatIndonesianLongDate(form.hariTanggalLoading),
     };
-    setForm(normalizedForm);
     const success = await onSubmit(normalizedForm);
     setIsSubmitting(false);
     if (success) onClose();
   };
 
-  const inputClass = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white';
-  const errorClass = 'border-red-400 focus:ring-red-100';
+  const inputClass = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400';
+  const errorClass = 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:border-red-400 dark:focus:ring-red-900/30';
+  const visibleStepFields = STEP_FIELDS[currentStep] ?? [];
+  const visibleErrorCount = visibleStepFields.filter(field => errors[field]).length;
+  const totalErrorCount = Object.values(errors).filter(Boolean).length;
+  const footerErrorCount = currentStep === STEPS.length - 1 ? totalErrorCount : visibleErrorCount;
+  const shouldShowErrorSummary = hasAttemptedStepSubmit && footerErrorCount > 0;
+  const currentStepTitle = STEPS[currentStep]?.title ?? STEPS[0].title;
+
+  const fieldProps = (field: keyof LetterRequestItem) => ({
+    'aria-invalid': Boolean(errors[field]),
+    'aria-describedby': errors[field] ? `${String(field)}-error` : undefined,
+  });
+
+  const renderLabel = (label: string, field: keyof LetterRequestItem) => (
+    <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300" htmlFor={String(field)}>
+      {label}{REQUIRED_FIELDS.has(field) && <span className="text-red-500"> *</span>}
+    </label>
+  );
+
+  const renderError = (field: keyof LetterRequestItem) => errors[field] && (
+    <p id={`${String(field)}-error`} className="mt-1 text-xs text-red-500" role="alert">{errors[field]}</p>
+  );
+
+  const renderInput = (field: keyof LetterRequestItem, label: string, placeholder?: string, type = 'text') => (
+    <div>
+      {renderLabel(label, field)}
+      <input
+        id={String(field)}
+        type={type}
+        value={form[field]}
+        onChange={e => setField(field, e.target.value)}
+        placeholder={placeholder}
+        className={`${inputClass} ${errors[field] ? errorClass : ''}`}
+        {...fieldProps(field)}
+      />
+      {renderError(field)}
+    </div>
+  );
+
+  const renderTextarea = (field: keyof LetterRequestItem, label: string, placeholder?: string) => (
+    <div>
+      {renderLabel(label, field)}
+      <textarea
+        id={String(field)}
+        value={form[field]}
+        onChange={e => setField(field, e.target.value)}
+        rows={3}
+        placeholder={placeholder}
+        className={`${inputClass} resize-none ${errors[field] ? errorClass : ''}`}
+        {...fieldProps(field)}
+      />
+      {renderError(field)}
+    </div>
+  );
+
+  const renderStepIndicator = () => (
+    <div className="border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {STEPS.map((step, index) => {
+          const isActive = currentStep === index;
+          const isComplete = currentStep > index;
+          return (
+            <div
+              key={step.title}
+              className={`rounded-2xl border p-3 transition ${isActive
+                ? 'border-violet-200 bg-violet-50 dark:border-violet-500/50 dark:bg-violet-950/30'
+                : isComplete
+                  ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/20'
+                  : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40'
+              }`}
+              aria-current={isActive ? 'step' : undefined}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${isComplete
+                  ? 'bg-emerald-500 text-white'
+                  : isActive
+                    ? 'bg-violet-600 text-white'
+                    : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                }`}>
+                  {isComplete ? <Check className="h-4 w-4" /> : index + 1}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-800 dark:text-white">{step.title}</p>
+                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">{step.description}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderReviewItem = (label: string, value: string) => (
+    <div className="rounded-xl border border-slate-100 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-white">
+        {value.trim() || <span className="font-medium text-slate-400">Belum diisi</span>}
+      </p>
+    </div>
+  );
+
+  const renderReviewCard = () => (
+    <aside className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4 dark:border-violet-500/30 dark:bg-violet-950/20">
+      <div className="mb-4 flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/30">
+          <FileText className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white">Review Draft Surat</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Pastikan data sudah benar sebelum dikirim ke AutoCrat.</p>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {renderReviewItem('Nomor Surat', form.nomorSurat)}
+        {renderReviewItem('Tanggal Surat', formatIndonesianDate(form.tanggalSurat))}
+        {renderReviewItem('EO / PIC', [form.namaEO, form.penanggungJawab].filter(Boolean).join(' · '))}
+        {renderReviewItem('Event', [form.namaEvent, form.lokasi].filter(Boolean).join(' · '))}
+        {renderReviewItem('Pelaksanaan', [form.hariTanggalPelaksanaan, form.waktuPelaksanaan].filter(Boolean).join(' · '))}
+        {renderReviewItem('Loading', [formatIndonesianLongDate(form.hariTanggalLoading), form.waktuLoading].filter(Boolean).join(' · '))}
+        {renderReviewItem('Nomor Telepon', form.nomorTelepon)}
+      </div>
+    </aside>
+  );
+
+  const renderStepContent = () => {
+    if (currentStep === 0) {
+      return (
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">Data Surat</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Isi identitas surat utama sebelum lanjut ke detail event.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {renderInput('tanggalSurat', 'Tanggal Surat', undefined, 'date')}
+            <div>
+              {renderInput('nomorSurat', 'Nomor Surat', '090/MMB/MKT.MC/II/2026')}
+              <p className="mt-1 text-xs text-slate-400">Format contoh: 090/MMB/MKT.MC/II/2026</p>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (currentStep === 1) {
+      return (
+        <div className="space-y-4">
+          <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white">Penyelenggara</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Data EO dan PIC yang bertanggung jawab.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {renderInput('namaEO', 'Nama EO')}
+              {renderInput('penanggungJawab', 'Penanggung Jawab')}
+            </div>
+            {renderTextarea('alamatEO', 'Alamat EO', 'Alamat lengkap EO')}
+          </section>
+
+          <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white">Detail Event</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Informasi acara yang akan masuk ke surat konfirmasi.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {renderInput('namaEvent', 'Nama Event')}
+              {renderInput('lokasi', 'Lokasi')}
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {renderInput('hariTanggalPelaksanaan', 'Hari / Tanggal Pelaksanaan', 'Sabtu, 25 April 2026')}
+              {renderInput('waktuPelaksanaan', 'Waktu Pelaksanaan', '10.00 - 22.00')}
+            </div>
+            {renderInput('nomorTelepon', 'Nomor Telepon', 'Nomor PIC yang bisa dihubungi')}
+          </section>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div>
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">Jadwal Loading</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {renderInput('hariTanggalLoading', 'Hari/Tanggal Loading', undefined, 'date')}
+            <div>
+              {renderInput('waktuLoading', 'Waktu Loading', '06.00 - 20.00')}
+              <p className="mt-1 text-xs text-slate-400">Contoh: 06.00 - 20.00</p>
+            </div>
+          </div>
+        </section>
+        {renderReviewCard()}
+      </div>
+    );
+  };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl" ariaLabelledBy="draft-letter-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-5xl" ariaLabelledBy="draft-letter-title">
+      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-slate-50 shadow-2xl dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/30">
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
               <p id="draft-letter-title" className="font-bold text-slate-800 dark:text-white">Form Surat Izin Konfirmasi Event</p>
-              <p className="text-xs text-slate-400">Data akan dikirim ke spreadsheet AutoCrat untuk proses dokumen.</p>
+              <p className="text-xs text-slate-400">Data dikirim ke spreadsheet AutoCrat untuk proses dokumen.</p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700">
+          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup form surat">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 px-4 py-5 sm:px-6">
-          <section className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white">Surat Konfirmasi Event</h3>
-              <p className="text-xs text-slate-400">Lengkapi data untuk surat konfirmasi utama.</p>
-            </div>
+        {renderStepIndicator()}
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Surat <span className="text-red-500">*</span></label>
-                <input value={form.tanggalSurat} onChange={e => setField('tanggalSurat', e.target.value)} onBlur={() => normalizeDateField('tanggalSurat')} placeholder="31 Maret 2026" className={`${inputClass} ${errors.tanggalSurat ? errorClass : ''}`} />
-                {errors.tanggalSurat && <p className="mt-1 text-xs text-red-500">{errors.tanggalSurat}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Surat <span className="text-red-500">*</span></label>
-                <input value={form.nomorSurat} onChange={e => setField('nomorSurat', e.target.value)} placeholder="090/MMB/MKT.MC/II/2026" className={`${inputClass} ${errors.nomorSurat ? errorClass : ''}`} />
-                {errors.nomorSurat && <p className="mt-1 text-xs text-red-500">{errors.nomorSurat}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama EO</label>
-                <input value={form.namaEO} onChange={e => setField('namaEO', e.target.value)} className={`${inputClass} ${errors.namaEO ? errorClass : ''}`} />
-                {errors.namaEO && <p className="mt-1 text-xs text-red-500">{errors.namaEO}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Penanggung Jawab</label>
-                <input value={form.penanggungJawab} onChange={e => setField('penanggungJawab', e.target.value)} className={`${inputClass} ${errors.penanggungJawab ? errorClass : ''}`} />
-                {errors.penanggungJawab && <p className="mt-1 text-xs text-red-500">{errors.penanggungJawab}</p>}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Alamat EO <span className="text-red-500">*</span></label>
-              <textarea value={form.alamatEO} onChange={e => setField('alamatEO', e.target.value)} rows={3} placeholder="Alamat lengkap EO" className={`${inputClass} resize-none ${errors.alamatEO ? errorClass : ''}`} />
-              {errors.alamatEO && <p className="mt-1 text-xs text-red-500">{errors.alamatEO}</p>}
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event</label>
-                <input value={form.namaEvent} onChange={e => setField('namaEvent', e.target.value)} className={`${inputClass} ${errors.namaEvent ? errorClass : ''}`} />
-                {errors.namaEvent && <p className="mt-1 text-xs text-red-500">{errors.namaEvent}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
-                <input value={form.lokasi} onChange={e => setField('lokasi', e.target.value)} className={`${inputClass} ${errors.lokasi ? errorClass : ''}`} />
-                {errors.lokasi && <p className="mt-1 text-xs text-red-500">{errors.lokasi}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari / Tanggal Pelaksanaan</label>
-                <input value={form.hariTanggalPelaksanaan} onChange={e => setField('hariTanggalPelaksanaan', e.target.value)} className={`${inputClass} ${errors.hariTanggalPelaksanaan ? errorClass : ''}`} />
-                {errors.hariTanggalPelaksanaan && <p className="mt-1 text-xs text-red-500">{errors.hariTanggalPelaksanaan}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Waktu Pelaksanaan</label>
-                <input value={form.waktuPelaksanaan} onChange={e => setField('waktuPelaksanaan', e.target.value)} className={inputClass} />
-              </div>
-            </div>
-          </section>
-
-          <section className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white">Surat Izin Kerja</h3>
-              <p className="text-xs text-slate-400">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nomor Telepon</label>
-              <input value={form.nomorTelepon} onChange={e => setField('nomorTelepon', e.target.value)} className={inputClass} />
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari/Tanggal Loading <span className="text-red-500">*</span></label>
-                <input value={form.hariTanggalLoading} onChange={e => setField('hariTanggalLoading', e.target.value)} onBlur={() => normalizeDateField('hariTanggalLoading')} placeholder="Sabtu, 25 April 2026" className={`${inputClass} ${errors.hariTanggalLoading ? errorClass : ''}`} />
-                {errors.hariTanggalLoading && <p className="mt-1 text-xs text-red-500">{errors.hariTanggalLoading}</p>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Waktu Loading <span className="text-red-500">*</span></label>
-                <input value={form.waktuLoading} onChange={e => setField('waktuLoading', e.target.value)} placeholder="06.00 - 20.00" className={`${inputClass} ${errors.waktuLoading ? errorClass : ''}`} />
-                {errors.waktuLoading && <p className="mt-1 text-xs text-red-500">{errors.waktuLoading}</p>}
-              </div>
-            </div>
-          </section>
-
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
-              Batal
-            </button>
-            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30">
-              <Save className="h-4 w-4" />
-              {isSubmitting ? 'Mengirim...' : 'Kirim ke AutoCrat'}
-            </button>
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+            {renderStepContent()}
           </div>
+
+          <footer className="border-t border-slate-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-slate-700 dark:bg-slate-800/95">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-h-[2rem]">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Langkah {currentStep + 1} dari {STEPS.length}: {currentStepTitle}</p>
+                {shouldShowErrorSummary && (
+                  <div className="mt-2 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300" role="alert">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    Lengkapi {footerErrorCount} field wajib sebelum {currentStep === STEPS.length - 1 ? 'membuat draft' : 'lanjut'}.
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row lg:min-w-[360px]">
+                <button type="button" onClick={handleBack} disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+                  {currentStep > 0 && <ChevronLeft className="h-4 w-4" />}
+                  {currentStep === 0 ? 'Batal' : 'Kembali'}
+                </button>
+                <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30">
+                  {currentStep === STEPS.length - 1 ? (
+                    <>
+                      <Save className="h-4 w-4" />
+                      {isSubmitting ? 'Membuat draft...' : 'Buat Draft Surat'}
+                    </>
+                  ) : (
+                    <>
+                      Lanjut
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </footer>
         </form>
       </div>
     </ModalWrapper>
