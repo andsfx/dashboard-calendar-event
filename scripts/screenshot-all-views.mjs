@@ -10,14 +10,19 @@ async function screenshotAllViews() {
   const delayMs = 10000; // 10 detik
   const screenshotDir = './public/screenshots';
 
-  // Helper - capture by selectors
-  const captureBySelector = async (selector, name) => {
+  // Helper - capture specific element with fallback selectors
+  const captureElement = async (selectors, name) => {
     console.log(`📸 ${name}... tunggu ${delayMs/1000}s`);
     await new Promise(r => setTimeout(r, delayMs));
     
-    const element = await page.$(selector);
+    let element = null;
+    for (const selector of selectors) {
+      element = await page.$(selector);
+      if (element) break;
+    }
+    
     if (!element) {
-      console.log(`⚠️ Element not found: ${selector}`);
+      console.log(`⚠️ Element not found for: ${name}`);
       return;
     }
     
@@ -25,41 +30,53 @@ async function screenshotAllViews() {
     console.log(`✅ ${name}`);
   };
 
-  // Helper - capture by viewport (full visible area)
-  const captureByViewport = async (name) => {
-    console.log(`📸 ${name}... tunggu ${delayMs/1000}s`);
-    await new Promise(r => setTimeout(r, delayMs));
-    
-    await page.screenshot({ path: `${screenshotDir}/${name}.png` });
-    console.log(`✅ ${name}`);
-  };
-
   try {
-    // Landing Page - Hero (capture by viewport)
+    // Landing Page - Hero Section
     await page.goto(baseUrl);
-    await captureByViewport('landing-hero');
+    await captureElement([
+      '#hero',
+      'section#hero',
+      'main > section:first-child'
+    ], 'landing-hero');
 
-    // Scroll to Featured Events
+    // Landing Page - Upcoming Events
     await page.evaluate(() => {
-      const el = document.querySelector('[id="featured"]');
+      const el = document.querySelector('#upcoming-events');
       if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
     });
-    await captureByViewport('landing-featured');
+    await captureElement([
+      '#upcoming-events',
+      'section#upcoming-events',
+      '[id="upcoming-events"]'
+    ], 'landing-upcoming-events');
 
-    // Scroll to Calendar
-    await page.evaluate(() => {
-      const el = document.querySelector('[id="calendar"]');
-      if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
-    });
-    await captureByViewport('landing-calendar');
-
-    // Dashboard - Table View
+    // Dashboard - Search & Filter Bar
     await page.goto(`${baseUrl}/dashboard`);
-    await captureBySelector('section#views', 'dashboard-table-section');
-    
+    await captureElement([
+      '.ui-dashboard-surface',
+      '[class*="ui-dashboard-surface"]',
+      'div[class*="surface"]',
+      'div.p-3'
+    ], 'dashboard-search-filter');
+
+    // Dashboard - Table View (content only)
+    await captureElement([
+      'table',
+      'table[class]',
+      'div[role="table"]',
+      '.EventTable'
+    ], 'dashboard-table-content');
+
     // Switch to Timeline View
     await page.click('button[aria-label="Tampilan Timeline"]');
-    await captureBySelector('section#views', 'dashboard-timeline-section');
+    
+    // Dashboard - Timeline View (content only)
+    await captureElement([
+      '.TimelineView',
+      '[class*="TimelineView"]',
+      'div[class*="timeline"]',
+      '[id="views"] > div:last-child'
+    ], 'dashboard-timeline-content');
 
     console.log('🎉 Semua screenshot section selesai!');
   } catch (error) {
