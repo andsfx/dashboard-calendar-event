@@ -2,6 +2,16 @@
 
 Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mall Bekasi.
 
+## Screenshots
+
+### Community Hub (Landing)
+
+![Community Hub](./public/screenshots/landing.png)
+
+### Dashboard
+
+![Dashboard](./public/screenshots/dashboard.png)
+
 ## Tech Stack
 
 - **React 19** + TypeScript
