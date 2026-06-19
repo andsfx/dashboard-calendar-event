@@ -30,7 +30,9 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - **Tailwind CSS v4** - Styling
 - **Lucide React** - Icons
 - **date-fns** - Date manipulation
-- **Google Apps Script** - Backend (Google Sheets integration)
+- **Supabase** - Backend (database, auth, storage)
+- **React Router v7** - Routing
+- **@vercel/analytics** - Analytics
 
 ## Fitur
 
@@ -47,6 +49,10 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - Auto-detect kategori dari nama event
 - Statistik dashboard (total, berlangsung, mendatang, selesai)
 - Quarter timeline untuk tema tahunan
+- **Community Hub** - Landing page publik dengan hero, upcoming events, gallery
+- **Superadmin Mode** - Manajemen user, activity log, analytics
+- **Survey System** - Form feedback venue & management
+- **Venue Management** - Approval & monitoring feedback
 
 ### Admin Mode
 - Login dengan password (`admin123`)
@@ -54,6 +60,7 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - Edit event
 - Hapus event
 - Status draft untuk event yang belum dikonfirmasi
+- Draft letter generator (PDF)
 
 ## Cara Menjalankan
 
@@ -90,7 +97,12 @@ Current test coverage:
 Buat file `.env` dengan:
 
 ```env
-VITE_APPS_SCRIPT_URL=YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL
+VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+VITE_R2_ACCESS_KEY_ID=YOUR_R2_ACCESS_KEY_ID
+VITE_R2_SECRET_ACCESS_KEY=YOUR_R2_SECRET_ACCESS_KEY
+VITE_R2_BUCKET_NAME=YOUR_R2_BUCKET_NAME
+VITE_R2_ENDPOINT=YOUR_R2_ENDPOINT
 ```
 
 ## Struktur Folder
@@ -98,6 +110,10 @@ VITE_APPS_SCRIPT_URL=YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL
 ```
 src/
 ├── components/     # React components
+│   ├── admin/      # Superadmin components
+│   ├── community/  # Community hub components
+│   ├── dashboard/  # Dashboard components
+│   └── survey/     # Survey components
 ├── hooks/          # Custom hooks (useEvents, useToast, dll)
 ├── utils/          # Utility functions
 ├── types.ts        # TypeScript types
@@ -105,12 +121,10 @@ src/
 └── main.tsx        # Entry point
 ```
 
-## Google Sheets Setup
+## Demo
 
-1. Buat Google Sheet dengan nama sheet `SCHEDULE EVENT`
-2. Struktur kolom: Tanggal, Jam, Acara, Lokasi, EO, Keterangan
-3. Deploy Google Apps Script sebagai Web App
-4. Copy URL ke `.env`
+- [Live Demo](https://metmal-community-hub.vercel.app/)
+- [Admin Dashboard](https://metmal-community-hub.vercel.app/dashboard)
 
 ## Lisensi
 
