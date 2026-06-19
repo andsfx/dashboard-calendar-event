@@ -6,15 +6,22 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 
 ### Community Hub (Landing)
 
-![Community Hub](./public/screenshots/landing.png)
+#### Hero Section
+![Community Hub Hero](./public/screenshots/landing-hero.png)
 
-### Dashboard - Tabel View
+#### Featured Events
+![Featured Events](./public/screenshots/landing-featured.png)
 
-![Dashboard Tabel](./public/screenshots/dashboard-table.png)
+#### Calendar Section
+![Calendar Section](./public/screenshots/landing-calendar.png)
 
-### Dashboard - Timeline View
+### Dashboard
 
-![Dashboard Timeline](./public/screenshots/dashboard-timeline.png)
+#### Tabel View
+![Dashboard Tabel](./public/screenshots/dashboard-table-section.png)
+
+#### Timeline View
+![Dashboard Timeline](./public/screenshots/dashboard-timeline-section.png)
 
 ## Tech Stack
 

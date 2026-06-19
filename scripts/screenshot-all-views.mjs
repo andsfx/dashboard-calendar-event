@@ -10,36 +10,58 @@ async function screenshotAllViews() {
   const delayMs = 10000; // 10 detik
   const screenshotDir = './public/screenshots';
 
-  // Helper
-  const capture = async (name) => {
+  // Helper - capture by selectors
+  const captureBySelector = async (selector, name) => {
     console.log(`📸 ${name}... tunggu ${delayMs/1000}s`);
     await new Promise(r => setTimeout(r, delayMs));
-    await page.screenshot({ path: `${screenshotDir}/${name}.png`, fullPage: true });
+    
+    const element = await page.$(selector);
+    if (!element) {
+      console.log(`⚠️ Element not found: ${selector}`);
+      return;
+    }
+    
+    await element.screenshot({ path: `${screenshotDir}/${name}.png` });
+    console.log(`✅ ${name}`);
+  };
+
+  // Helper - capture by viewport (full visible area)
+  const captureByViewport = async (name) => {
+    console.log(`📸 ${name}... tunggu ${delayMs/1000}s`);
+    await new Promise(r => setTimeout(r, delayMs));
+    
+    await page.screenshot({ path: `${screenshotDir}/${name}.png` });
     console.log(`✅ ${name}`);
   };
 
   try {
-    // Landing Page
+    // Landing Page - Hero (capture by viewport)
     await page.goto(baseUrl);
-    await capture('landing');
+    await captureByViewport('landing-hero');
 
-    // Dashboard - Table View (default)
+    // Scroll to Featured Events
+    await page.evaluate(() => {
+      const el = document.querySelector('[id="featured"]');
+      if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
+    });
+    await captureByViewport('landing-featured');
+
+    // Scroll to Calendar
+    await page.evaluate(() => {
+      const el = document.querySelector('[id="calendar"]');
+      if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
+    });
+    await captureByViewport('landing-calendar');
+
+    // Dashboard - Table View
     await page.goto(`${baseUrl}/dashboard`);
-    await capture('dashboard-table');
-
-    // Switch to Timeline (available for public)
+    await captureBySelector('section#views', 'dashboard-table-section');
+    
+    // Switch to Timeline View
     await page.click('button[aria-label="Tampilan Timeline"]');
-    await capture('dashboard-timeline');
+    await captureBySelector('section#views', 'dashboard-timeline-section');
 
-    // Open Add Event Modal (if available)
-    const addEventButton = await page.$('button:has-text("Tambah Event")');
-    if (addEventButton) {
-      await addEventButton.click();
-      await capture('modal-add-event');
-      await page.keyboard.press('Escape');
-    }
-
-    console.log('🎉 Semua screenshot selesai!');
+    console.log('🎉 Semua screenshot section selesai!');
   } catch (error) {
     console.error('❌ Error:', error);
   } finally {
