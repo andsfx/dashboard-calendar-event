@@ -8,9 +8,13 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 
 ![Community Hub](./public/screenshots/landing.png)
 
-### Dashboard
+### Dashboard - Tabel View
 
-![Dashboard](./public/screenshots/dashboard.png)
+![Dashboard Tabel](./public/screenshots/dashboard-table.png)
+
+### Dashboard - Timeline View
+
+![Dashboard Timeline](./public/screenshots/dashboard-timeline.png)
 
 ## Tech Stack
 
