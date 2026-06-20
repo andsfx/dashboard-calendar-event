@@ -30,6 +30,7 @@ const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then
 const AlbumManagerModal = lazy(() => import('./components/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
 const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
 const CommunityRegistrationDetailModal = lazy(() => import('./components/CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
+const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -90,7 +91,7 @@ export default function App() {
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
   const [editingTheme, setEditingTheme] = useState<AnnualTheme | null>(null);
-  const [letterInitialData, setLetterInitialData] = useState<Partial<LetterRequestItem> | null>(null);
+  const [letterEvent, setLetterEvent] = useState<EventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
   const [showInstagramSettings, setShowInstagramSettings] = useState(false);
@@ -334,22 +335,14 @@ export default function App() {
     }
   }, [deleteTheme, showToast]);
 
-  const handleOpenLetter = useCallback((initialData: Partial<LetterRequestItem>) => {
-    setLetterInitialData(initialData);
+  const handleOpenLetter = useCallback((event: EventItem) => {
+    setLetterEvent(event);
     setShowLetterModal(true);
   }, []);
 
   const handleSelectLetterEvent = useCallback((event: EventItem) => {
     setShowLetterPickerModal(false);
-    handleOpenLetter({
-      namaEO: event.eo || '',
-      penanggungJawab: event.pic || '',
-      namaEvent: event.acara || '',
-      lokasi: event.lokasi || '',
-      hariTanggalPelaksanaan: `${event.day}, ${event.tanggal}`,
-      waktuPelaksanaan: event.jam || '',
-      nomorTelepon: event.phone || '',
-    });
+    handleOpenLetter(event);
   }, [handleOpenLetter]);
 
   const handleDeleteClick = useCallback((ev: EventItem) => {
@@ -661,6 +654,13 @@ export default function App() {
       <Route path="/survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <SurveyPage />
+        </Suspense>
+      } />
+
+      {/* Public Letter Viewer — shareable link */}
+      <Route path="/letter/:id" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <PublicLetterViewer />
         </Suspense>
       } />
 
@@ -1026,9 +1026,8 @@ export default function App() {
         publicEvents={publicEvents}
         onSelectLetterEvent={handleSelectLetterEvent}
         showLetterModal={showLetterModal}
-        onCloseLetterModal={() => { setShowLetterModal(false); setLetterInitialData(null); }}
-        letterInitialData={letterInitialData}
-        onSubmitLetter={handleSubmitLetter}
+        onCloseLetterModal={() => { setShowLetterModal(false); setLetterEvent(null); }}
+        letterEvent={letterEvent}
         showThemeModal={showThemeModal}
         onCloseThemeModal={() => { setShowThemeModal(false); setEditingTheme(null); }}
         onSaveTheme={handleSaveTheme}

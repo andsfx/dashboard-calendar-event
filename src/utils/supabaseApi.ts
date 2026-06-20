@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -754,4 +754,111 @@ export async function createLetterRequest(data: LetterRequestItem): Promise<{ ro
   const result = await response.json();
   if (!result.success) throw new SupabaseApiError(result.error || 'Create letter request failed');
   return { row: result.row || 0 };
+}
+
+// ---- Generated Letters (new - stored in Supabase) ----
+
+interface DbGeneratedLetter {
+  id: string;
+  event_id?: string;
+  draft_event_id?: string;
+  letter_data: LetterRequestItem;
+  pdf_url?: string;
+  pdf_base64?: string;
+  created_at: string;
+  created_by?: string;
+  status: 'active' | 'archived' | 'deleted';
+}
+
+function dbGeneratedLetterToGeneratedLetter(row: DbGeneratedLetter): GeneratedLetter {
+  return {
+    id: row.id,
+    eventId: row.event_id || undefined,
+    draftEventId: row.draft_event_id || undefined,
+    letterData: row.letter_data,
+    pdfUrl: row.pdf_url || undefined,
+    pdfBase64: row.pdf_base64 || undefined,
+    createdAt: row.created_at,
+    createdBy: row.created_by || undefined,
+    status: row.status,
+  };
+}
+
+export async function fetchGeneratedLetters(eventId?: string, draftEventId?: string): Promise<GeneratedLetter[]> {
+  let query = supabase
+    .from('generated_letters')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+
+  if (eventId) {
+    query = query.eq('event_id', eventId);
+  }
+  if (draftEventId) {
+    query = query.eq('draft_event_id', draftEventId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new SupabaseApiError(error.message);
+  return (data || []).map(dbGeneratedLetterToGeneratedLetter);
+}
+
+export async function createGeneratedLetter(params: {
+  eventId?: string;
+  draftEventId?: string;
+  letterData: LetterRequestItem;
+  pdfBase64?: string;
+  pdfUrl?: string;
+  createdBy?: string;
+}): Promise<GeneratedLetter> {
+  const { data, error } = await supabase
+    .from('generated_letters')
+    .insert({
+      event_id: params.eventId || null,
+      draft_event_id: params.draftEventId || null,
+      letter_data: params.letterData,
+      pdf_base64: params.pdfBase64 || null,
+      pdf_url: params.pdfUrl || null,
+      created_by: params.createdBy || null,
+      status: 'active',
+    })
+    .select()
+    .single();
+
+  if (error) throw new SupabaseApiError(error.message);
+  if (!data) throw new SupabaseApiError('No data returned after insert');
+
+  return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
+}
+
+export async function updateGeneratedLetter(
+  id: string,
+  updates: Partial<Pick<GeneratedLetter, 'letterData' | 'pdfUrl' | 'pdfBase64' | 'status'>>
+): Promise<GeneratedLetter> {
+  const dbUpdates: Record<string, unknown> = {};
+  if (updates.letterData !== undefined) dbUpdates.letter_data = updates.letterData;
+  if (updates.pdfUrl !== undefined) dbUpdates.pdf_url = updates.pdfUrl;
+  if (updates.pdfBase64 !== undefined) dbUpdates.pdf_base64 = updates.pdfBase64;
+  if (updates.status !== undefined) dbUpdates.status = updates.status;
+
+  const { data, error } = await supabase
+    .from('generated_letters')
+    .update(dbUpdates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new SupabaseApiError(error.message);
+  if (!data) throw new SupabaseApiError('No data returned after update');
+
+  return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
+}
+
+export async function deleteGeneratedLetter(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('generated_letters')
+    .update({ status: 'deleted' })
+    .eq('id', id);
+
+  if (error) throw new SupabaseApiError(error.message);
 }

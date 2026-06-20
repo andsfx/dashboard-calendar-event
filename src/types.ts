@@ -169,6 +169,18 @@ export interface LetterRequestItem {
   waktuLoading: string;
 }
 
+export interface GeneratedLetter {
+  id: string;
+  eventId?: string;
+  draftEventId?: string;
+  letterData: LetterRequestItem;
+  pdfUrl?: string;
+  pdfBase64?: string;
+  createdAt: string;
+  createdBy?: string;
+  status: 'active' | 'archived' | 'deleted';
+}
+
 export interface ToastMessage {
   id: string;
   type: 'success' | 'error' | 'info' | 'warning';

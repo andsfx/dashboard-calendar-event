@@ -5,7 +5,7 @@ import type { EventItem, DraftEventItem, LetterRequestItem, AnnualTheme, Communi
 const EventCrudModal = lazy(() => import('../EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const DraftCrudModal = lazy(() => import('../DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
 const EventLetterPickerModal = lazy(() => import('../EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
-const DraftLetterModal = lazy(() => import('../DraftLetterModal').then(m => ({ default: m.DraftLetterModal })));
+const LetterGenerator = lazy(() => import('../LetterGenerator').then(m => ({ default: m.LetterGenerator })));
 const AnnualThemeCrudModal = lazy(() => import('../AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
 const DeleteConfirmModal = lazy(() => import('../DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
 const EventDetailModal = lazy(() => import('../EventDetailModal').then(m => ({ default: m.EventDetailModal })));
@@ -44,11 +44,10 @@ interface DashboardModalsProps {
   publicEvents: EventItem[];
   onSelectLetterEvent: (event: EventItem) => void;
 
-  // Letter modal
+  // Letter generator modal
   showLetterModal: boolean;
   onCloseLetterModal: () => void;
-  letterInitialData: Partial<LetterRequestItem> | null;
-  onSubmitLetter: (data: LetterRequestItem) => Promise<boolean>;
+  letterEvent: EventItem | null;
 
   // Theme modal
   showThemeModal: boolean;
@@ -116,8 +115,7 @@ export function DashboardModals({
   onSelectLetterEvent,
   showLetterModal,
   onCloseLetterModal,
-  letterInitialData,
-  onSubmitLetter,
+  letterEvent,
   showThemeModal,
   onCloseThemeModal,
   onSaveTheme,
@@ -181,11 +179,10 @@ export function DashboardModals({
           events={publicEvents}
           onSelect={onSelectLetterEvent}
         />
-        <DraftLetterModal
+        <LetterGenerator
           isOpen={showLetterModal}
           onClose={onCloseLetterModal}
-          initialData={letterInitialData}
-          onSubmit={onSubmitLetter}
+          event={letterEvent}
         />
         <AnnualThemeCrudModal
           isOpen={showThemeModal}
