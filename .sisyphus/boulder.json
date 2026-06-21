@@ -1,0 +1,12 @@
+{
+  "active_plan": "D:\\Andy\\Antigravity\\schedule-event-v2\\.sisyphus\\plans\\fix-wave1-token-regression.md",
+  "started_at": "2026-06-21T09:40:07.032Z",
+  "completed_at": "2026-06-21T09:42:35.000Z",
+  "session_ids": ["ses_11693c1c9ffeLuzw11M7SB1luh"],
+  "plan_name": "fix-wave1-token-regression",
+  "worktree_path": "",
+  "status": "completed",
+  "commits": [
+    "1b3e2cc fix(tokens): replace raw colors with brand tokens in landing components"
+  ]
+}
