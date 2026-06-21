@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Download, Eye, EyeOff, FileText, Save, Share2, X } from 'lucide-react';
+import { Download, Eye, EyeOff, Save, Share2, X } from 'lucide-react';
 import { LetterRequestItem, GeneratedLetter, EventItem, DraftEventItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 import { EditableText, EditableArea } from './ui/Editable';
@@ -250,15 +250,106 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
           {/* Editor/Preview Panel */}
           <div className="flex flex-1 flex-col overflow-auto p-6">
             {isPreviewMode ? (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                  <FileText size={48} className="mx-auto mb-4 text-slate-400" />
-                  <h3 className="mb-2 text-lg font-medium text-slate-700 dark:text-slate-300">
-                    Pratinjau PDF
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400">
-                    Klik tombol "Pratinjau" untuk membuka PDF di tab baru
-                  </p>
+              <div className="flex h-full items-start justify-center overflow-auto bg-slate-100 dark:bg-slate-800 p-4 sm:p-8">
+                <div className="w-full max-w-[210mm] rounded-lg bg-white shadow-xl dark:bg-white">
+                  {/* Halaman surat */}
+                  <div className="mx-auto p-8 sm:p-12 md:p-16" style={{ fontFamily: 'Times New Roman, serif' }}>
+                    {/* Kop Surat */}
+                    <div className="border-b-2 border-slate-900 pb-3 mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 items-center justify-center rounded bg-slate-800 text-white text-xl font-bold shrink-0">
+                          M
+                        </div>
+                        <div>
+                          <h1 className="text-base font-bold text-slate-900" style={{ fontFamily: 'Times New Roman, serif' }}>
+                            METROPOLITAN MALL BEKASI
+                          </h1>
+                          <p className="text-[10px] font-semibold text-slate-700">
+                            Marketing &amp; Tenant Relations Division
+                          </p>
+                          <p className="text-[9px] text-slate-500 leading-tight mt-0.5">
+                            Jl. KH. Noer Ali No.1, Pekayon Jaya, Bekasi Selatan<br />
+                            Telp. (021) 8243 7000
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Meta surat */}
+                    <div className="text-[11px] mb-4 space-y-1">
+                      <div className="flex">
+                        <span className="w-16 text-slate-500">Nomor</span>
+                        <span className="w-3 text-slate-500">:</span>
+                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-400">—</span>}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="w-16 text-slate-500">Tanggal</span>
+                        <span className="w-3 text-slate-500">:</span>
+                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-400">—</span>}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="w-16 text-slate-500">Perihal</span>
+                        <span className="w-3 text-slate-500">:</span>
+                        <span className="font-semibold text-slate-900">Konfirmasi Pelaksanaan Event</span>
+                      </div>
+                    </div>
+
+                    {/* Kepada */}
+                    <div className="text-[11px] mb-5">
+                      <p className="font-semibold">Kepada Yth.</p>
+                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-400">—</span>}</p>
+                      {letter.penanggungJawab && <p className="text-slate-600">u.p. {letter.penanggungJawab}</p>}
+                      {letter.alamatEO && <p className="text-slate-600">{letter.alamatEO}</p>}
+                      {letter.nomorTelepon && <p className="text-slate-600">Telp. {letter.nomorTelepon}</p>}
+                    </div>
+
+                    {/* Body */}
+                    <div className="text-[11px] leading-relaxed text-justify space-y-3 mb-4">
+                      <p>Dengan hormat,</p>
+                      <p>
+                        Melalui surat ini kami sampaikan konfirmasi pelaksanaan event yang
+                        akan diselenggarakan di Metropolitan Mall Bekasi dengan rincian
+                        sebagai berikut:
+                      </p>
+
+                      {/* Data event box */}
+                      <div className="border-l-4 border-cyan-600 bg-cyan-50 py-2 pl-3 pr-2 space-y-1 text-[10px]">
+                        <p className="font-bold text-slate-800 text-[10px] uppercase tracking-wide">DATA EVENT</p>
+                        <div className="flex"><span className="w-36 text-slate-500">Nama Event</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.namaEvent}</span></div>
+                        <div className="flex"><span className="w-36 text-slate-500">Lokasi</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.lokasi}</span></div>
+                        <div className="flex"><span className="w-36 text-slate-500">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalPelaksanaan}</span></div>
+                        {letter.waktuPelaksanaan && <div className="flex"><span className="w-36 text-slate-500">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuPelaksanaan}</span></div>}
+
+                        {(letter.hariTanggalLoading || letter.waktuLoading) && (
+                          <>
+                            <div className="border-t border-cyan-200 my-1.5" />
+                            <p className="font-bold text-slate-800 text-[10px] uppercase tracking-wide">JADWAL LOADING</p>
+                            {letter.hariTanggalLoading && <div className="flex"><span className="w-36 text-slate-500">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalLoading}</span></div>}
+                            {letter.waktuLoading && <div className="flex"><span className="w-36 text-slate-500">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuLoading}</span></div>}
+                          </>
+                        )}
+                      </div>
+
+                      <p>
+                        Demikian surat konfirmasi ini kami sampaikan. Mohon agar seluruh
+                        persiapan dilakukan sesuai jadwal yang telah disepakati.
+                      </p>
+                      <p>Demikian, atas perhatian dan kerja samanya kami ucapkan terima kasih.</p>
+                    </div>
+
+                    {/* Tanda tangan */}
+                    <div className="flex justify-end mt-8">
+                      <div className="text-center w-48">
+                        <p className="text-[10px] text-slate-500">Hormat kami,</p>
+                        <p className="text-[9px] text-slate-500 mt-1">Marketing Manager</p>
+                        <div className="h-14" />
+                        <div className="border-t border-slate-800 pt-1">
+                          <p className="text-[11px] font-bold">{letter.penanggungJawab || <span className="italic text-slate-400">________________</span>}</p>
+                          <p className="text-[9px] text-slate-500">Metropolitan Mall Bekasi</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
