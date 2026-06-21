@@ -6,3 +6,12 @@ dist/
 *.log
 .vercel
 .env*.local
+
+# AI agent working files
+.sisyphus/
+.playwright-mcp/
+
+# Generated reports
+reports/
+FINAL_VERIFICATION_REPORT.md
+DESIGN_AUDIT_REPORT.md
