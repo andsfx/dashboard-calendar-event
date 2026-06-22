@@ -1,0 +1,119 @@
+/*
+ * Modern Animation System - Performance optimized
+ * Replaces custom reveal animations with Intersection Observer
+ */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 800ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+.fade-in-stagger {
+  animation: fadeIn 800ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+/* Slide In Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 800ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 800ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 800ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+/* Scale In Animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 600ms var(--transition-timing-function-ease-out-expo) forwards;
+  opacity: 0;
+}
+
+/* Stagger Animation Delays */
+.stagger-1 { animation-delay: 100ms; }
+.stagger-2 { animation-delay: 200ms; }
+.stagger-3 { animation-delay: 300ms; }
+.stagger-4 { animation-delay: 400ms; }
+.stagger-5 { animation-delay: 500ms; }
+.stagger-6 { animation-delay: 600ms; }
+.stagger-7 { animation-delay: 700ms; }
+.stagger-8 { animation-delay: 800ms; }
+
+/* Animation Utilities */
+.animation-slow { animation-duration: 1200ms; }
+.animation-fast { animation-duration: 400ms; }
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .slide-in-up,
+  .slide-in-left,
+  .slide-in-right,
+  .scale-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

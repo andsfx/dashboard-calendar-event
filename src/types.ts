@@ -250,3 +250,97 @@ export interface SurveyConfig {
   created_at: string;
   updated_at: string;
 }
+
+// ─── Tenant Event Surveys (EO Self-Assessment) ──────────────────
+
+export type TenantSurveyStatus = 'draft' | 'submitted' | 'reviewed';
+
+/**
+ * Tenant-facing survey ratings (1-5 scale).
+ * Maps directly to columns in tenant_event_surveys table.
+ */
+export interface TenantSurveyRatings {
+  venue_rating: number | null;
+  management_rating: number | null;
+  event_organization_rating: number | null;
+  booth_facility_rating: number | null;
+  overall_rating: number | null;
+}
+
+/** Full survey record as stored in Supabase */
+export interface TenantEventSurvey extends TenantSurveyRatings {
+  id: string;
+  event_id: string;
+  tenant_user_id: string | null;
+  tenant_name: string;
+  tenant_organization: string;
+  tenant_email: string;
+  tenant_phone: string;
+  feedback_comment: string;
+  improvement_suggestion: string;
+  status: TenantSurveyStatus;
+  submitted_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Form data for creating/editing a tenant survey.
+ * The four rating fields are required for submission; comments are optional.
+ */
+export interface TenantSurveyFormData {
+  event_id: string;
+  tenant_name: string;
+  tenant_organization?: string;
+  tenant_email?: string;
+  tenant_phone?: string;
+  venue_rating: number | null;
+  management_rating: number | null;
+  event_organization_rating: number | null;
+  booth_facility_rating: number | null;
+  overall_rating?: number | null;
+  feedback_comment?: string;
+  improvement_suggestion?: string;
+}
+
+/** Analytics row (per tenant) */
+export interface TenantSurveyAnalytics {
+  tenant_user_id: string;
+  tenant_organization: string;
+  total_surveys: number;
+  submitted_surveys: number;
+  avg_venue_rating: number | null;
+  avg_management_rating: number | null;
+  avg_event_organization_rating: number | null;
+  avg_booth_facility_rating: number | null;
+  avg_overall_rating: number | null;
+  last_survey_at: string | null;
+}
+
+/** Per-event combined summary (tenant self-assessment + visitor ratings) */
+export interface TenantSurveyEventSummary {
+  event_id: string;
+  tenant_name: string;
+  tenant_organization: string;
+  tenant_survey_status: TenantSurveyStatus | 'none';
+  venue_rating: number | null;
+  management_rating: number | null;
+  event_organization_rating: number | null;
+  booth_facility_rating: number | null;
+  overall_rating: number | null;
+  feedback_comment: string;
+  improvement_suggestion: string;
+  tenant_survey_created_at: string | null;
+  total_visitor_responses: number;
+  visitor_mall_overall: number | null;
+  visitor_eo_overall: number | null;
+}
+
+/** Result of checking if a tenant already submitted for an event */
+export interface DuplicateCheckResult {
+  alreadySubmitted: boolean;
+  existingSurveyId?: string;
+}

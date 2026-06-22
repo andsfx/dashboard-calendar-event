@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter, TenantEventSurvey, TenantSurveyFormData, TenantSurveyAnalytics, TenantSurveyEventSummary } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -861,4 +861,361 @@ export async function deleteGeneratedLetter(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) throw new SupabaseApiError(error.message);
+}
+
+// ---- Tenant Event Surveys ----
+
+interface DbTenantSurvey {
+  id: string;
+  event_id: string;
+  tenant_user_id: string | null;
+  tenant_name: string;
+  tenant_organization: string;
+  tenant_email: string;
+  tenant_phone: string;
+  venue_rating: number | null;
+  management_rating: number | null;
+  event_organization_rating: number | null;
+  booth_facility_rating: number | null;
+  overall_rating: number | null;
+  feedback_comment: string;
+  improvement_suggestion: string;
+  status: string;
+  submitted_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
+  return {
+    id: row.id,
+    event_id: row.event_id,
+    tenant_user_id: row.tenant_user_id,
+    tenant_name: row.tenant_name || '',
+    tenant_organization: row.tenant_organization || '',
+    tenant_email: row.tenant_email || '',
+    tenant_phone: row.tenant_phone || '',
+    venue_rating: row.venue_rating,
+    management_rating: row.management_rating,
+    event_organization_rating: row.event_organization_rating,
+    booth_facility_rating: row.booth_facility_rating,
+    overall_rating: row.overall_rating,
+    feedback_comment: row.feedback_comment || '',
+    improvement_suggestion: row.improvement_suggestion || '',
+    status: (row.status as TenantEventSurvey['status']) || 'draft',
+    submitted_at: row.submitted_at,
+    reviewed_by: row.reviewed_by,
+    reviewed_at: row.reviewed_at,
+    review_notes: row.review_notes || '',
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): Record<string, unknown> {
+  return {
+    event_id: data.event_id,
+    tenant_user_id: userId || null,
+    tenant_name: data.tenant_name || '',
+    tenant_organization: data.tenant_organization || '',
+    tenant_email: data.tenant_email || '',
+    tenant_phone: data.tenant_phone || '',
+    venue_rating: data.venue_rating ?? null,
+    management_rating: data.management_rating ?? null,
+    event_organization_rating: data.event_organization_rating ?? null,
+    booth_facility_rating: data.booth_facility_rating ?? null,
+    overall_rating: data.overall_rating ?? null,
+    feedback_comment: data.feedback_comment || '',
+    improvement_suggestion: data.improvement_suggestion || '',
+    status: 'draft',
+  };
+}
+
+export async function fetchTenantSurveys(eventId?: string): Promise<TenantEventSurvey[]> {
+  let query = supabase
+    .from('tenant_event_surveys')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (eventId) {
+    query = query.eq('event_id', eventId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new SupabaseApiError(error.message);
+  return (data || []).map((row) => dbTenantSurveyToTenantSurvey(row as DbTenantSurvey));
+}
+
+export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
+  const { data, error } = await supabase
+    .from('tenant_event_surveys')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw new SupabaseApiError(error.message);
+  if (!data) throw new SupabaseApiError('Survey not found');
+  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+}
+
+/**
+ * Check if a tenant has already submitted a survey for a given event.
+ * Uses the RPC function check_tenant_survey_submitted.
+ */
+export async function checkTenantSurveyDuplicate(
+  eventId: string,
+  tenantUserId: string,
+): Promise<{ alreadySubmitted: boolean; existingSurveyId?: string }> {
+  const { data, error } = await supabase.rpc('check_tenant_survey_submitted', {
+    p_event_id: eventId,
+    p_tenant_user_id: tenantUserId,
+  });
+  if (error) throw new SupabaseApiError(error.message);
+
+  // Also fetch existing survey id for redirect/edit
+  const { data: existing } = await supabase
+    .from('tenant_event_surveys')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('tenant_user_id', tenantUserId)
+    .eq('status', 'submitted')
+    .maybeSingle();
+
+  return {
+    alreadySubmitted: !!data,
+    existingSurveyId: existing?.id,
+  };
+}
+
+export async function createTenantSurvey(formData: TenantSurveyFormData): Promise<TenantEventSurvey> {
+  const { data: { user } } = await supabase.auth.getUser();
+  const row = tenantSurveyFormToDbRow(formData, user?.id);
+
+  const { data, error } = await supabase
+    .from('tenant_event_surveys')
+    .insert(row)
+    .select()
+    .single();
+
+  if (error) {
+    // Detect unique-constraint violation (duplicate submission)
+    if (error.code === '23505') {
+      throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
+    }
+    throw new SupabaseApiError(error.message);
+  }
+  if (!data) throw new SupabaseApiError('No data returned after insert');
+  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+}
+
+export async function updateTenantSurvey(
+  id: string,
+  updates: Partial<TenantSurveyFormData> & { status?: TenantEventSurvey['status'] },
+): Promise<TenantEventSurvey> {
+  const dbUpdates: Record<string, unknown> = {};
+
+  const ratingKeys = [
+    'venue_rating', 'management_rating',
+    'event_organization_rating', 'booth_facility_rating', 'overall_rating',
+  ] as const;
+
+  for (const key of ratingKeys) {
+    if (key in updates) dbUpdates[key] = (updates as Record<string, unknown>)[key] ?? null;
+  }
+
+  const textKeys = [
+    'tenant_name', 'tenant_organization', 'tenant_email', 'tenant_phone',
+    'feedback_comment', 'improvement_suggestion',
+  ] as const;
+
+  for (const key of textKeys) {
+    if (key in updates) dbUpdates[key] = (updates as Record<string, unknown>)[key] || '';
+  }
+
+  if (updates.status !== undefined) {
+    dbUpdates.status = updates.status;
+    if (updates.status === 'submitted') dbUpdates.submitted_at = new Date().toISOString();
+  }
+
+  const { data, error } = await supabase
+    .from('tenant_event_surveys')
+    .update(dbUpdates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === '23505') {
+      throw new SupabaseApiError('Survey sudah pernah dikirim untuk event ini.');
+    }
+    throw new SupabaseApiError(error.message);
+  }
+  if (!data) throw new SupabaseApiError('No data returned after update');
+  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+}
+
+/**
+ * Submit a draft survey atomically (sets status=submitted).
+ * Throws on duplicate (unique constraint).
+ */
+export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey> {
+  return updateTenantSurvey(id, { status: 'submitted' });
+}
+
+export async function reviewTenantSurvey(
+  id: string,
+  reviewNotes: string,
+): Promise<TenantEventSurvey> {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from('tenant_event_surveys')
+    .update({
+      status: 'reviewed',
+      reviewed_by: user?.id || null,
+      reviewed_at: new Date().toISOString(),
+      review_notes: reviewNotes,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new SupabaseApiError(error.message);
+  if (!data) throw new SupabaseApiError('No data returned after review');
+  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+}
+
+export async function fetchTenantSurveyAnalytics(): Promise<TenantSurveyAnalytics[]> {
+  const { data, error } = await supabase.rpc('get_tenant_survey_analytics');
+  if (error) throw new SupabaseApiError(error.message);
+  return (data || []) as TenantSurveyAnalytics[];
+}
+
+export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {
+  const { data, error } = await supabase.rpc('get_tenant_survey_event_summary', { p_event_id: eventId });
+  if (error) throw new SupabaseApiError(error.message);
+  if (!data || (data as TenantSurveyEventSummary).tenant_survey_status === 'none') return null;
+  return data as TenantSurveyEventSummary;
+}
+
+// ─── Public Tenant Survey Submission ────────────────────────────
+//
+// These functions are used by the PUBLIC route (/tenant-survey/:eventId)
+// where visitors/tenants submit surveys WITHOUT being logged in.
+// Authentication is bypassed via the service-role API endpoint
+// (/api/tenant-survey-public).
+//
+// Duplicate detection uses device_fingerprint (like the visitor survey).
+
+export interface PublicTenantSurveyEventInfo {
+  id: string;
+  acara: string;
+  tanggal: string;
+  lokasi: string;
+  eo: string;
+  status: string;
+}
+
+/**
+ * Fetch event info for the public tenant survey form.
+ * Uses the anon Supabase client — no auth required.
+ * RLS on the events table must allow public SELECT for this to work;
+ * if not, the public API endpoint provides a fallback.
+ */
+export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<PublicTenantSurveyEventInfo | null> {
+  // Try the public API endpoint first (uses service-role, bypasses RLS)
+  try {
+    const res = await fetch(`/api/tenant-survey-public?action=event-info&event_id=${encodeURIComponent(eventId)}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.event) {
+        return json.event;
+      }
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: try the anon Supabase client
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, acara, tanggal, lokasi, eo, status')
+    .eq('id', eventId)
+    .single();
+
+  if (error || !data) return null;
+  return data as PublicTenantSurveyEventInfo;
+}
+
+/**
+ * Check if a device has already submitted a public tenant survey
+ * for a given event (fingerprint-based duplicate detection).
+ */
+export async function checkPublicTenantSurveyDuplicate(
+  eventId: string,
+  deviceFingerprint: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `/api/tenant-survey-public?action=check&event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`,
+    );
+    if (res.ok) {
+      const json = await res.json();
+      return !!json.submitted;
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: try via RPC
+  const { data, error } = await supabase.rpc('check_tenant_survey_submitted_public', {
+    p_event_id: eventId,
+    p_device_fingerprint: deviceFingerprint,
+  });
+  if (error) return false;
+  return !!data;
+}
+
+/**
+ * Submit a public (anonymous) tenant survey.
+ * Always inserts as a fresh row with tenant_user_id = NULL,
+ * status = 'submitted', and the device fingerprint + IP/UA for audit.
+ */
+export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData, 'tenant_user_id'> {
+  device_fingerprint: string;
+  ip_address?: string;
+  user_agent?: string;
+}
+
+export async function submitPublicTenantSurvey(
+  data: PublicTenantSurveySubmission,
+): Promise<{ id: string; created_at: string }> {
+  const res = await fetch('/api/tenant-survey-public?action=submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    let errMsg = 'Gagal mengirim survey';
+    try {
+      const errBody = await res.json();
+      if (errBody.already_submitted) {
+        throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.');
+      }
+      errMsg = errBody.errors?.join(', ') || errBody.error || errMsg;
+    } catch (e) {
+      if (e instanceof SupabaseApiError) throw e;
+      errMsg = `Server error (${res.status})`;
+    }
+    throw new SupabaseApiError(errMsg);
+  }
+
+  const json = await res.json();
+  if (!json.success) {
+    if (json.already_submitted) {
+      throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.');
+    }
+    throw new SupabaseApiError(json.error || 'Gagal mengirim survey');
+  }
+  return { id: json.id, created_at: json.created_at };
 }

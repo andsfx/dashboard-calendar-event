@@ -53,6 +53,8 @@ const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModa
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
+const TenantSurveyPage = lazy(() => import('./components/survey/TenantSurveyPage'));
+const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
 const UserManagement = lazy(() => import('./components/admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('./components/admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const AnalyticsDashboard = lazy(() => import('./components/admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
@@ -657,6 +659,13 @@ export default function App() {
         </Suspense>
       } />
 
+      {/* Public Tenant Self-Assessment — standalone, no auth required */}
+      <Route path="/tenant-survey/:eventId" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <TenantSurveyPublicPage />
+        </Suspense>
+      } />
+
       {/* Public Letter Viewer — shareable link */}
       <Route path="/letter/:id" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
@@ -941,6 +950,21 @@ export default function App() {
             </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
               <SurveyDashboard events={events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
+            </Suspense>
+          </section>
+        )}
+
+        {/* 8b. Tenant Self-Assessment — admin + eo_tenant */}
+        {(isAdmin || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
+          <section id="tenant-surveys-section" className="scroll-mt-20">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tenant Self-Assessment</h1>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Evaluasi mandiri dari EO/Tenant untuk setiap event yang telah dilaksanakan
+              </p>
+            </div>
+            <Suspense fallback={<SectionFallback height="h-48" />}>
+              <TenantSurveyPage events={events} />
             </Suspense>
           </section>
         )}

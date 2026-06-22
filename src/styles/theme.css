@@ -1,0 +1,182 @@
+/* 
+ * Design System Theme - Tailwind CSS v4
+ * Unified design tokens following design-taste-frontend principles
+ * Metmal-like pastel aesthetic with clean data-first approach
+ */
+
+@theme {
+  /* 
+   * COLOR SYSTEM
+   * Brand colors unified across public & community sections
+   */
+  --color-brand-primary: #7c6cf2;
+  --color-brand-primary-50: #f5f3ff;
+  --color-brand-primary-100: #ede9fe;
+  --color-brand-primary-200: #ddd6fe;
+  --color-brand-primary-300: #c4b5fd;
+  --color-brand-primary-400: #a78bfa;
+  --color-brand-primary-500: #8b5cf6;
+  --color-brand-primary-600: #7c3aed;
+  --color-brand-primary-700: #6d28d9;
+  --color-brand-primary-800: #5b21b6;
+  --color-brand-primary-900: #4c1d95;
+  --color-brand-primary-950: #2e1065;
+
+  --color-brand-secondary: #f2743e;
+  --color-brand-secondary-50: #fff7ed;
+  --color-brand-secondary-100: #ffedd5;
+  --color-brand-secondary-200: #fed7aa;
+  --color-brand-secondary-300: #fdba74;
+  --color-brand-secondary-400: #fb923c;
+  --color-brand-secondary-500: #f97316;
+  --color-brand-secondary-600: #ea580c;
+  --color-brand-secondary-700: #c2410c;
+  --color-brand-secondary-800: #9a3412;
+  --color-brand-secondary-900: #7c2d12;
+  --color-brand-secondary-950: #4a1a0a;
+
+  /* Neutral palette - Metmal pastel aesthetic */
+  --color-neutral-50: #f4efe8;    /* brand-paper */
+  --color-neutral-100: #faf6ef;   /* brand-card */
+  --color-neutral-200: #fffdf9;   /* brand-card-light */
+  --color-neutral-900: #0f172a;   /* brand-ink */
+  --color-neutral-800: #1e293b;
+  --color-neutral-700: #334155;
+  --color-neutral-600: #475569;
+  --color-neutral-500: #64748b;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-250: #e2e8f0;
+  --color-neutral-150: #f1f5f9;
+
+  /*
+   * TYPOGRAPHY SYSTEM
+   * Plus Jakarta Sans with proper hierarchy
+   */
+  --font-family-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-family-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --font-size-2xs: 0.625rem;    /* 10px */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  --font-size-6xl: 3.75rem;     /* 60px */
+  --font-size-7xl: 4.5rem;      /* 72px */
+  --font-size-8xl: 6rem;        /* 96px */
+  --font-size-9xl: 8rem;        /* 128px */
+
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /*
+   * SPACING SYSTEM
+   */
+  --spacing-0: 0px;
+  --spacing-1: 0.25rem;         /* 4px */
+  --spacing-2: 0.5rem;          /* 8px */
+  --spacing-3: 0.75rem;         /* 12px */
+  --spacing-4: 1rem;            /* 16px */
+  --spacing-5: 1.25rem;         /* 20px */
+  --spacing-6: 1.5rem;          /* 24px */
+  --spacing-7: 1.75rem;         /* 28px */
+  --spacing-8: 2rem;            /* 32px */
+  --spacing-9: 2.25rem;         /* 36px */
+  --spacing-10: 2.5rem;         /* 40px */
+  --spacing-11: 2.75rem;        /* 44px */
+  --spacing-12: 3rem;           /* 48px */
+  --spacing-14: 3.5rem;         /* 56px */
+  --spacing-16: 4rem;           /* 64px */
+  --spacing-20: 5rem;           /* 80px */
+  --spacing-24: 6rem;           /* 96px */
+  --spacing-28: 7rem;           /* 112px */
+  --spacing-32: 8rem;           /* 128px */
+  --spacing-36: 9rem;           /* 144px */
+  --spacing-40: 10rem;          /* 160px */
+  --spacing-44: 11rem;          /* 176px */
+  --spacing-48: 12rem;          /* 192px */
+  --spacing-52: 13rem;          /* 208px */
+  --spacing-56: 14rem;          /* 224px */
+  --spacing-60: 15rem;          /* 240px */
+  --spacing-64: 16rem;          /* 256px */
+  --spacing-72: 18rem;          /* 288px */
+  --spacing-80: 20rem;          /* 320px */
+  --spacing-96: 24rem;          /* 384px */
+
+  /*
+   * BORDER RADIUS SYSTEM
+   */
+  --radius-none: 0px;
+  --radius-sm: 0.25rem;         /* 4px */
+  --radius: 0.5rem;             /* 8px */
+  --radius-md: 0.75rem;         /* 12px */
+  --radius-lg: 1rem;            /* 16px */
+  --radius-xl: 1.25rem;         /* 20px */
+  --radius-2xl: 1.5rem;         /* 24px */
+  --radius-3xl: 2rem;           /* 32px */
+  --radius-full: 9999px;
+
+  /*
+   * BOX SHADOW SYSTEM
+   */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /*
+   * ANIMATION & TRANSITION
+   */
+  --transition-duration-75: 75ms;
+  --transition-duration-100: 100ms;
+  --transition-duration-150: 150ms;
+  --transition-duration-200: 200ms;
+  --transition-duration-300: 300ms;
+  --transition-duration-500: 500ms;
+  --transition-duration-700: 700ms;
+  --transition-duration-1000: 1000ms;
+
+  --transition-timing-function-linear: linear;
+  --transition-timing-function-in: cubic-bezier(0.4, 0, 1, 1);
+  --transition-timing-function-out: cubic-bezier(0, 0, 0.2, 1);
+  --transition-timing-function-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-timing-function-ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /*
+   * Z-INDEX SYSTEM
+   */
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+}
+
+/*
+ * CUSTOM UTILITY CLASSES
+ * These are defined as regular CSS classes since Tailwind v4 handles utilities differently
+ */
+
+.ui-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}

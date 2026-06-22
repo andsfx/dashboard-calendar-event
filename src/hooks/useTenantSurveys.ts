@@ -1,0 +1,205 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  TenantEventSurvey,
+  TenantSurveyFormData,
+  TenantSurveyAnalytics,
+  TenantSurveyEventSummary,
+  DuplicateCheckResult,
+} from '../types';
+import {
+  fetchTenantSurveys,
+  fetchTenantSurveyById,
+  createTenantSurvey,
+  updateTenantSurvey,
+  submitTenantSurvey,
+  reviewTenantSurvey,
+  fetchTenantSurveyAnalytics,
+  fetchTenantSurveyEventSummary,
+  checkTenantSurveyDuplicate,
+} from '../utils/supabaseApi';
+import { supabase } from '../lib/supabase';
+
+/**
+ * useTenantSurveys — manages tenant (EO) self-assessment surveys.
+ *
+ * Provides CRUD, submit, review, analytics, and realtime sync.
+ * Follows the same pattern as useEvents for consistency.
+ */
+export function useTenantSurveys(eventId?: string) {
+  const [surveys, setSurveys] = useState<TenantEventSurvey[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ─── Fetch surveys ─────────────────────────────────────────────
+  const refreshSurveys = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchTenantSurveys(eventId);
+      setSurveys(data);
+    } catch (err) {
+      console.error('Fetch tenant surveys error:', err);
+      setError('Gagal memuat survey tenant.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    refreshSurveys();
+  }, [refreshSurveys]);
+
+  // ─── Realtime subscription ─────────────────────────────────────
+  useEffect(() => {
+    const channel = supabase
+      .channel('tenant-surveys-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tenant_event_surveys' },
+        () => { refreshSurveys(); },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refreshSurveys]);
+
+  // ─── CRUD operations ──────────────────────────────────────────
+  const createSurvey = useCallback(async (formData: TenantSurveyFormData): Promise<TenantEventSurvey> => {
+    const survey = await createTenantSurvey(formData);
+    setSurveys(prev => [survey, ...prev]);
+    return survey;
+  }, []);
+
+  const editSurvey = useCallback(async (
+    id: string,
+    updates: Partial<TenantSurveyFormData> & { status?: TenantEventSurvey['status'] },
+  ): Promise<TenantEventSurvey> => {
+    const updated = await updateTenantSurvey(id, updates);
+    setSurveys(prev => prev.map(s => s.id === id ? updated : s));
+    return updated;
+  }, []);
+
+  const submit = useCallback(async (id: string): Promise<TenantEventSurvey> => {
+    const submitted = await submitTenantSurvey(id);
+    setSurveys(prev => prev.map(s => s.id === id ? submitted : s));
+    return submitted;
+  }, []);
+
+  const review = useCallback(async (id: string, notes: string): Promise<TenantEventSurvey> => {
+    const reviewed = await reviewTenantSurvey(id, notes);
+    setSurveys(prev => prev.map(s => s.id === id ? reviewed : s));
+    return reviewed;
+  }, []);
+
+  const getSurveyById = useCallback(async (id: string): Promise<TenantEventSurvey> => {
+    return fetchTenantSurveyById(id);
+  }, []);
+
+  return {
+    surveys,
+    isLoading,
+    error,
+    refreshSurveys,
+    createSurvey,
+    editSurvey,
+    submit,
+    review,
+    getSurveyById,
+  };
+}
+
+/**
+ * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics.
+ */
+export function useTenantSurveyAnalytics() {
+  const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshAnalytics = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchTenantSurveyAnalytics();
+      setAnalytics(data);
+    } catch (err) {
+      console.error('Fetch tenant analytics error:', err);
+      setError('Gagal memuat analytics tenant.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshAnalytics();
+  }, [refreshAnalytics]);
+
+  return { analytics, isLoading, error, refreshAnalytics };
+}
+
+/**
+ * useTenantSurveyEventSummary — fetches combined visitor + tenant summary for one event.
+ */
+export function useTenantSurveyEventSummary(eventId: string | null) {
+  const [summary, setSummary] = useState<TenantSurveyEventSummary | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshSummary = useCallback(async () => {
+    if (!eventId) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchTenantSurveyEventSummary(eventId);
+      setSummary(data);
+    } catch (err) {
+      console.error('Fetch event summary error:', err);
+      setError('Gagal memuat ringkasan event.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    refreshSummary();
+  }, [refreshSummary]);
+
+  return { summary, isLoading, error, refreshSummary };
+}
+
+/**
+ * useTenantSurveyDuplicate — checks if a tenant has already submitted
+ * a survey for a specific event. Used by the form to show a
+ * duplicate-submission state before allowing a new submission.
+ */
+export function useTenantSurveyDuplicate(eventId: string | null, tenantUserId: string | null) {
+  const [duplicate, setDuplicate] = useState<DuplicateCheckResult>({ alreadySubmitted: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkDuplicate = useCallback(async () => {
+    if (!eventId || !tenantUserId) {
+      setDuplicate({ alreadySubmitted: false });
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await checkTenantSurveyDuplicate(eventId, tenantUserId);
+      setDuplicate(result);
+    } catch (err) {
+      console.error('Duplicate check error:', err);
+      setError('Gagal memeriksa status survey.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventId, tenantUserId]);
+
+  useEffect(() => {
+    checkDuplicate();
+  }, [checkDuplicate]);
+
+  return { duplicate, isLoading, error, recheckDuplicate: checkDuplicate };
+}

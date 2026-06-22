@@ -112,6 +112,17 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       textColor: 'text-amber-700 dark:text-amber-300',
     },
     {
+      id: 'tenant-surveys',
+      title: 'Tenant Self-Assessment',
+      value: '—',
+      subtitle: 'EO evaluations',
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      route: '/dashboard/tenant-surveys',
+      gradient: 'from-teal-500 to-emerald-600',
+      iconBg: 'bg-teal-100 dark:bg-teal-900/50',
+      textColor: 'text-teal-700 dark:text-teal-300',
+    },
+    {
       id: 'analytics',
       title: 'Analytics',
       value: <TrendingUp className="h-6 w-6" />,

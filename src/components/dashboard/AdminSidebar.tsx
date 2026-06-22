@@ -84,6 +84,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       items: [
         { id: 'registrations', label: 'Registrations', icon: <Users className="h-4 w-4" />, action: 'route', route: '/dashboard/registrations' },
         { id: 'survey', label: 'Satisfaction Survey', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/survey' },
+        { id: 'tenant-surveys', label: 'Tenant Self-Assessment', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/tenant-surveys' },
       ],
     },
     {
