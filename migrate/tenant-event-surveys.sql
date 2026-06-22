@@ -135,7 +135,7 @@ CREATE POLICY "Tenants can insert own surveys"
   WITH CHECK (auth.uid() IS NOT NULL AND tenant_user_id = auth.uid());
 
 -- Anyone can submit a public tenant survey (anonymous)
--- The serverless API (/api/tenant-survey-public) handles auth bypass
+-- The serverless API (/api/tenant-survey?mode=public) handles auth bypass
 -- via service-role key. RLS allows INSERT for anon with fingerprint.
 DROP POLICY IF EXISTS "Anyone can submit public tenant survey" ON tenant_event_surveys;
 CREATE POLICY "Anyone can submit public tenant survey"

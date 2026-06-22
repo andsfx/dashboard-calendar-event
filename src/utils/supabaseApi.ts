@@ -1106,7 +1106,7 @@ export async function fetchTenantSurveyEventSummary(eventId: string): Promise<Te
 // These functions are used by the PUBLIC route (/tenant-survey/:eventId)
 // where visitors/tenants submit surveys WITHOUT being logged in.
 // Authentication is bypassed via the service-role API endpoint
-// (/api/tenant-survey-public).
+// The public endpoint is at /api/tenant-survey?mode=public.
 //
 // Duplicate detection uses device_fingerprint (like the visitor survey).
 
@@ -1128,7 +1128,7 @@ export interface PublicTenantSurveyEventInfo {
 export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<PublicTenantSurveyEventInfo | null> {
   // Try the public API endpoint first (uses service-role, bypasses RLS)
   try {
-    const res = await fetch(`/api/tenant-survey-public?action=event-info&event_id=${encodeURIComponent(eventId)}`);
+    const res = await fetch(`/api/tenant-survey?mode=public&action=event-info&event_id=${encodeURIComponent(eventId)}`);
     if (res.ok) {
       const json = await res.json();
       if (json.success && json.event) {
@@ -1158,7 +1158,7 @@ export async function checkPublicTenantSurveyDuplicate(
 ): Promise<boolean> {
   try {
     const res = await fetch(
-      `/api/tenant-survey-public?action=check&event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`,
+      `/api/tenant-survey?mode=public&action=check&event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`,
     );
     if (res.ok) {
       const json = await res.json();
@@ -1189,7 +1189,7 @@ export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData,
 export async function submitPublicTenantSurvey(
   data: PublicTenantSurveySubmission,
 ): Promise<{ id: string; created_at: string }> {
-  const res = await fetch('/api/tenant-survey-public?action=submit', {
+  const res = await fetch('/api/tenant-survey?mode=public&action=submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
