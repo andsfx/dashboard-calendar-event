@@ -42,9 +42,9 @@ interface Props {
 }
 
 const BRAND = {
-  accent: '#7c6cf2',
-  accentSoft: '#9185f7',
-  accentWarm: '#f2743e',
+  accent: 'var(--color-brand-primary)',
+  accentSoft: 'var(--color-brand-primary-400)',
+  accentWarm: 'var(--color-brand-secondary)',
 };
 
 const FAQS = [

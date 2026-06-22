@@ -6,8 +6,6 @@ import { RevealSection } from './ui/RevealSection';
 import { eyebrow } from './PublicShared';
 
 // Design system tokens from theme.css
-// --color-brand-primary: #7c6cf2
-// --color-brand-secondary: #f2743e
 const BRAND = {
   accent: 'var(--color-brand-primary)',
   accentWarm: 'var(--color-brand-secondary)',

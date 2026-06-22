@@ -15,7 +15,7 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3">
         <button
           onClick={() => navigate('/')}
-          className="shrink-0 flex items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="shrink-0 flex items-center gap-2 rounded-lg outline-none ui-focus-ring"
           aria-label="Kembali ke halaman utama"
         >
           <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
@@ -34,7 +34,7 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
           <button
             onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-md"
-            style={{ background: 'linear-gradient(135deg, #7c6cf2 0%, #9185f7 100%)' }}
+            style={{ background: 'linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-soft) 100%)' }}
           >
             <CalendarDays className="h-4 w-4" /> Dashboard
           </button>

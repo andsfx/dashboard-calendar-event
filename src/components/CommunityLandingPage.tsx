@@ -14,7 +14,7 @@ import { CommunityGallery } from './community/CommunityGallery';
 import { CommunityContact } from './community/CommunityContact';
 import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'ui-focus-ring';
 
 function SkeletonEventGrid() {
   return (
@@ -143,7 +143,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 type="button"
                 onClick={onBack}
                 className={`hidden items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 sm:inline-flex ${focusRing}`}
-                style={{ background: 'linear-gradient(135deg, #7c6cf2 0%, #9185f7 100%)' }}
+                style={{ background: 'linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-soft) 100%)' }}
               >
                 <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
               </button>

@@ -6,8 +6,8 @@ import { parseDateStrLocal } from '../utils/eventUtils';
 import { RevealSection } from './PublicShared';
 
 const BRAND = {
-  accent: '#7c6cf2',
-  accentWarm: '#f2743e',
+  accent: 'var(--color-brand-primary)',
+  accentWarm: 'var(--color-brand-secondary)',
 };
 
 interface PublicHeroProps {

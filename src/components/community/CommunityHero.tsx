@@ -3,9 +3,9 @@ import { imgUrl } from '../../utils/imageOptim';
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const BRAND = {
-  accent: '#7c6cf2',
-  accentSoft: '#9185f7',
-  accentWarm: '#f2743e',
+  accent: 'var(--brand-violet)',
+  accentSoft: 'var(--brand-violet-soft)',
+  accentWarm: 'var(--brand-orange)',
 };
 
 const focusRing = 'ui-focus-ring';
