@@ -113,6 +113,26 @@ function validatePublicSubmission(body) {
     errors.push('tenant_name wajib diisi');
   }
 
+  // Validate new business impact fields
+  const allowedCategories = ['fnb', 'retail', 'jasa', 'other'];
+  if (!body.business_category || typeof body.business_category !== 'string' || !allowedCategories.includes(body.business_category)) {
+    errors.push('business_category harus salah satu dari: fnb, retail, jasa, other');
+  }
+
+  if (!body.business_subcategory || typeof body.business_subcategory !== 'string' || body.business_subcategory.trim().length === 0 || body.business_subcategory.trim().length > 50) {
+    errors.push('business_subcategory harus diisi dan maksimal 50 karakter');
+  }
+
+  const salesLift = parseFloat(body.sales_lift_pct);
+  if (isNaN(salesLift) || salesLift < -100 || salesLift > 1000) {
+    errors.push('sales_lift_pct harus angka antara -100 dan 1000');
+  }
+
+  const trafficLift = parseFloat(body.traffic_lift_pct);
+  if (isNaN(trafficLift) || trafficLift < -100 || trafficLift > 1000) {
+    errors.push('traffic_lift_pct harus angka antara -100 dan 1000');
+  }
+
   for (const field of RATING_FIELDS) {
     if (!isValidRating(body[field])) {
       errors.push(`${field} harus angka 1-5`);

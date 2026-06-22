@@ -170,6 +170,10 @@ export default function TenantSurveyForm({
     tenant_organization: initialData?.tenant_organization ?? '',
     tenant_email: initialData?.tenant_email ?? '',
     tenant_phone: initialData?.tenant_phone ?? '',
+    business_category: initialData?.business_category ?? 'other',
+    business_subcategory: initialData?.business_subcategory ?? '',
+    sales_lift_pct: initialData?.sales_lift_pct ?? 0,
+    traffic_lift_pct: initialData?.traffic_lift_pct ?? 0,
   });
 
   const [comments, setComments] = useState({

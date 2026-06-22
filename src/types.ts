@@ -276,6 +276,10 @@ export interface TenantEventSurvey extends TenantSurveyRatings {
   tenant_organization: string;
   tenant_email: string;
   tenant_phone: string;
+  business_category: 'fnb' | 'retail' | 'jasa' | 'other';
+  business_subcategory: string;
+  sales_lift_pct: number;
+  traffic_lift_pct: number;
   feedback_comment: string;
   improvement_suggestion: string;
   status: TenantSurveyStatus;
@@ -297,6 +301,10 @@ export interface TenantSurveyFormData {
   tenant_organization?: string;
   tenant_email?: string;
   tenant_phone?: string;
+  business_category: 'fnb' | 'retail' | 'jasa' | 'other';
+  business_subcategory: string;
+  sales_lift_pct: number;
+  traffic_lift_pct: number;
   venue_rating: number | null;
   management_rating: number | null;
   event_organization_rating: number | null;

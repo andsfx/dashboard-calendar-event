@@ -16,6 +16,20 @@ import { validateTenantSurvey } from '../../utils/validation';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
+const BUSINESS_CATEGORIES = {
+  'F&B': ['Restoran', 'Café/Kedai Kopi', 'Minuman', 'Bakery/Camilan'],
+  'Retail': ['Fashion', 'Elektronik', 'Home & Living', 'Kecantikan/Kesehatan', 'Lainnya'],
+  'Jasa': ['Salon/Barbershop', 'Laundry', 'Servis Elektronik', 'Lainnya'],
+  'Lainnya': ['Tidak Tergolong'],
+} as const;
+
+const DISPLAY_TO_INTERNAL_CATEGORY: Record<string, string> = {
+  'F&B': 'fnb',
+  'Retail': 'retail',
+  'Jasa': 'jasa',
+  'Lainnya': 'other',
+};
+
 const RATING_FIELDS = [
   {
     key: 'venue_rating' as const,
@@ -54,6 +68,17 @@ interface FieldProps {
   icon?: ReactNode;
 }
 
+interface PercentageFieldProps {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  min?: number;
+  max?: number;
+  disabled?: boolean;
+  helperText?: string;
+}
+
 function Field({ label, value, onChange, placeholder, type = 'text', required, disabled, icon }: FieldProps) {
   return (
     <div>
@@ -70,6 +95,51 @@ function Field({ label, value, onChange, placeholder, type = 'text', required, d
         disabled={disabled}
         className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
       />
+    </div>
+  );
+}
+
+function PercentageField({ 
+  label, 
+  value, 
+  onChange, 
+  placeholder, 
+  min = -100, 
+  max = 1000, 
+  disabled, 
+  helperText 
+}: PercentageFieldProps) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    // Allow empty input or numbers with optional minus sign
+    if (val === '' || /^-?\d*$/.test(val)) {
+      onChange(val);
+    }
+  };
+
+  return (
+    <div>
+      <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          value={value}
+          onChange={handleChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pl-3 pr-10 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+          %
+        </span>
+      </div>
+      {helperText && (
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {helperText}
+        </p>
+      )}
     </div>
   );
 }
@@ -188,6 +258,14 @@ export default function TenantSurveyPublicPage() {
     improvement_suggestion: '',
   });
 
+  const [impactMetrics, setImpactMetrics] = useState({
+    sales_lift_pct: '',
+    traffic_lift_pct: '',
+  });
+
+  const [businessCategory, setBusinessCategory] = useState<string>('');
+  const [businessSubcategory, setBusinessSubcategory] = useState<string>('');
+
   // ─── Initial load: event + duplicate check ─────────────────────
   useEffect(() => {
     if (!eventId) {
@@ -255,6 +333,10 @@ export default function TenantSurveyPublicPage() {
       tenant_organization: identity.tenant_organization,
       tenant_email: identity.tenant_email,
       tenant_phone: identity.tenant_phone,
+      business_category: businessCategory as 'fnb' | 'retail' | 'jasa' | 'other',
+      business_subcategory: businessSubcategory,
+      sales_lift_pct: impactMetrics.sales_lift_pct === '' ? 0 : parseFloat(impactMetrics.sales_lift_pct),
+      traffic_lift_pct: impactMetrics.traffic_lift_pct === '' ? 0 : parseFloat(impactMetrics.traffic_lift_pct),
       venue_rating: ratings.venue_rating ?? null,
       management_rating: ratings.management_rating ?? null,
       event_organization_rating: ratings.event_organization_rating ?? null,
@@ -555,6 +637,86 @@ export default function TenantSurveyPublicPage() {
               onChange={(v) => setIdentity(p => ({ ...p, tenant_phone: v }))}
               placeholder="08xxxxxxxxxx (opsional)"
               icon={<Phone className="h-3.5 w-3.5" />}
+            />
+          </div>
+
+          {/* Business category */}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                Kategori Bisnis
+                <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={businessCategory}
+                onChange={(e) => {
+                  const value = e.target.value as 'fnb' | 'retail' | 'jasa' | 'other';
+                  setBusinessCategory(value);
+                  setBusinessSubcategory(''); // Reset subcategory when category changes
+                }}
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              >
+                <option value="">Pilih kategori bisnis</option>
+                {Object.entries(BUSINESS_CATEGORIES).map(([display, subcats]) => {
+                  const value = display === 'F&B' ? 'fnb' : 
+                               display === 'Retail' ? 'retail' : 
+                               display === 'Jasa' ? 'jasa' : 'other';
+                  return <option key={value} value={value}>{display}</option>;
+                })}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                Sub-Kategori Bisnis
+                <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={businessSubcategory}
+                onChange={(e) => setBusinessSubcategory(e.target.value)}
+                disabled={!businessCategory}
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              >
+                <option value="">Pilih sub-kategori</option>
+                {businessCategory && (() => {
+                  const displayCategory = businessCategory === 'fnb' ? 'F&B' : 
+                                       businessCategory === 'retail' ? 'Retail' : 
+                                       businessCategory === 'jasa' ? 'Jasa' : 'Lainnya';
+                  return BUSINESS_CATEGORIES[displayCategory as keyof typeof BUSINESS_CATEGORIES]?.map(subcat => (
+                    <option key={subcat} value={subcat}>{subcat}</option>
+                  ));
+                })()}
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* Impact Metrics */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+          <h2 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
+            Dampak Event
+          </h2>
+          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+            Masukkan perkiraan dampak event terhadap bisnis Anda dalam persentase.
+            Skala: -100% (penurunan total) hingga +1000% (kenaikan sangat signifikan).
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PercentageField
+              label="Kenaikan Penjualan (%)"
+              value={impactMetrics.sales_lift_pct}
+              onChange={(v) => setImpactMetrics(p => ({ ...p, sales_lift_pct: v }))}
+              placeholder="-100 sampai 1000"
+              min={-100}
+              max={1000}
+              helperText="Perubahan penjualan selama/after event dibanding periode normal"
+            />
+            <PercentageField
+              label="Kenaikan Traffic (%)"
+              value={impactMetrics.traffic_lift_pct}
+              onChange={(v) => setImpactMetrics(p => ({ ...p, traffic_lift_pct: v }))}
+              placeholder="-100 sampai 1000"
+              min={-100}
+              max={1000}
+              helperText="Perubahan jumlah pengunjung selama/after event dibanding periode normal"
             />
           </div>
         </section>

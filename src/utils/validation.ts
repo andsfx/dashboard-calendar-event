@@ -180,6 +180,10 @@ export const TENANT_RATING_LABELS: Record<string, string> = {
 export const TENANT_RATING_MIN = 1;
 export const TENANT_RATING_MAX = 5;
 
+/** Min/max percentage scale for impact metrics */
+export const IMPACT_PCT_MIN = -100;
+export const IMPACT_PCT_MAX = 1000;
+
 /**
  * Validates a single rating value (1-5 scale by default).
  * Null/undefined is allowed (for draft surveys).
@@ -201,6 +205,30 @@ export function validateRating(
 }
 
 /**
+ * Validates a percentage value for impact metrics (-100 to 1000 scale).
+ * Empty string is allowed (optional field).
+ */
+export function validatePercentage(
+  value: string,
+  fieldName?: string,
+  min: number = IMPACT_PCT_MIN,
+  max: number = IMPACT_PCT_MAX,
+): ValidationResult {
+  if (value === '') return { valid: true };
+  const num = Number(value);
+  if (isNaN(num)) {
+    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus berupa angka.` };
+  }
+  if (!Number.isInteger(num)) {
+    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus bilangan bulat.` };
+  }
+  if (num < min || num > max) {
+    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus antara ${min}% dan ${max}%.` };
+  }
+  return { valid: true };
+}
+
+/**
  * Validates a tenant survey submission (all ratings + required fields).
  *
  * Rules:
@@ -210,6 +238,9 @@ export function validateRating(
  * - overall_rating is optional but must be 1-5 if provided
  * - feedback_comment & improvement_suggestion are optional (max 2000 chars each)
  * - tenant_organization max 200 chars
+ * - business_category must be one of: fnb, retail, jasa, other
+ * - business_subcategory required (max 50 chars)
+ * - sales_lift_pct and traffic_lift_pct must be numbers between -100 and 1000
  *
  * @param data - The survey form data to validate
  * @param isDraft - If true, ratings and name can be empty (draft mode)
@@ -249,6 +280,22 @@ export function validateTenantSurvey(
     if (!phoneResult.valid) errors.push(phoneResult.error || 'Format telepon tidak valid.');
   }
 
+  // Business category validation
+  const businessCategory = (data.business_category as string || '').trim();
+  const allowedCategories = ['fnb', 'retail', 'jasa', 'other'];
+  if (!isDraft && (!businessCategory || !allowedCategories.includes(businessCategory))) {
+    errors.push('Kategori bisnis harus salah satu dari: fnb, retail, jasa, other.');
+  }
+
+  // Business subcategory validation
+  const businessSubcategory = (data.business_subcategory as string || '').trim();
+  if (!isDraft && (!businessSubcategory || businessSubcategory.length === 0)) {
+    errors.push('Subkategori bisnis wajib diisi.');
+  }
+  if (businessSubcategory.length > 50) {
+    errors.push('Subkategori bisnis maksimal 50 karakter.');
+  }
+
   // Required ratings — must be 1-5 for submit, nullable for draft
   for (const key of TENANT_RATING_KEYS) {
     const val = data[key] as number | null | undefined;
@@ -268,6 +315,25 @@ export function validateTenantSurvey(
     if (!result.valid) errors.push(result.error || 'Rating keseluruhan tidak valid.');
   }
 
+  // Optional overall_rating
+  if (data.overall_rating !== undefined && data.overall_rating !== null) {
+    const result = validateRating(data.overall_rating as number, TENANT_RATING_LABELS.overall_rating);
+    if (!result.valid) errors.push(result.error || 'Rating keseluruhan tidak valid.');
+  }
+
+  // Business impact percentage validations
+  if (!isDraft) {
+    const salesLift = parseFloat(data.sales_lift_pct as string || '');
+    if (isNaN(salesLift) || salesLift < -100 || salesLift > 1000) {
+      errors.push('Persentase kenaikan penjualan harus angka antara -100 dan 1000.');
+    }
+
+    const trafficLift = parseFloat(data.traffic_lift_pct as string || '');
+    if (isNaN(trafficLift) || trafficLift < -100 || trafficLift > 1000) {
+      errors.push('Persentase kenaikan pengunjung harus angka antara -100 dan 1000.');
+    }
+  }
+
   // Text field length limits
   const textLimits: Array<[string, number]> = [
     ['feedback_comment', 2000],
@@ -280,6 +346,18 @@ export function validateTenantSurvey(
     if (val && val.length > maxLen) {
       errors.push(`Kolom "${field}" maksimal ${maxLen} karakter.`);
     }
+  }
+
+  // Percentage fields validation
+  const percentageFields: Array<[string, string]> = [
+    ['sales_lift_pct', 'Kenaikan Penjualan'],
+    ['traffic_lift_pct', 'Kenaikan Traffic'],
+  ];
+
+  for (const [field, label] of percentageFields) {
+    const val = data[field] as string;
+    const result = validatePercentage(val || '', label);
+    if (!result.valid) errors.push(result.error || `${label} tidak valid.`);
   }
 
   return { valid: errors.length === 0, errors };

@@ -873,6 +873,10 @@ interface DbTenantSurvey {
   tenant_organization: string;
   tenant_email: string;
   tenant_phone: string;
+  business_category: 'fnb' | 'retail' | 'jasa' | 'other';
+  business_subcategory: string;
+  sales_lift_pct: number;
+  traffic_lift_pct: number;
   venue_rating: number | null;
   management_rating: number | null;
   event_organization_rating: number | null;
@@ -898,6 +902,10 @@ function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
     tenant_organization: row.tenant_organization || '',
     tenant_email: row.tenant_email || '',
     tenant_phone: row.tenant_phone || '',
+    business_category: row.business_category || 'other',
+    business_subcategory: row.business_subcategory || '',
+    sales_lift_pct: row.sales_lift_pct || 0,
+    traffic_lift_pct: row.traffic_lift_pct || 0,
     venue_rating: row.venue_rating,
     management_rating: row.management_rating,
     event_organization_rating: row.event_organization_rating,
@@ -1028,11 +1036,27 @@ export async function updateTenantSurvey(
 
   const textKeys = [
     'tenant_name', 'tenant_organization', 'tenant_email', 'tenant_phone',
+    'business_category', 'business_subcategory',
     'feedback_comment', 'improvement_suggestion',
   ] as const;
 
   for (const key of textKeys) {
-    if (key in updates) dbUpdates[key] = (updates as Record<string, unknown>)[key] || '';
+    if (key in updates) {
+      if (key === 'business_category' || key === 'business_subcategory') {
+        dbUpdates[key] = (updates as Record<string, unknown>)[key] ?? '';
+      } else {
+        dbUpdates[key] = (updates as Record<string, unknown>)[key] || '';
+      }
+    }
+  }
+
+  // Handle percentage fields separately
+  const percentageKeys = ['sales_lift_pct', 'traffic_lift_pct'] as const;
+  for (const key of percentageKeys) {
+    if (key in updates) {
+      const val = (updates as Record<string, unknown>)[key];
+      dbUpdates[key] = val !== undefined ? Number(val) : 0;
+    }
   }
 
   if (updates.status !== undefined) {
