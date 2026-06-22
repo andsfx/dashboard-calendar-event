@@ -190,11 +190,11 @@ async function handlePublicSubmit(req, res) {
   // Coerce rating fields to integers
   for (const f of RATING_FIELDS) {
     if (body[f] !== undefined && body[f] !== null && body[f] !== '') {
-      body[f] = parseInt(body[f], 10);
+      body[f] = typeof body[f] === 'string' ? parseInt(body[f], 10) : body[f];
     }
   }
   if (body.overall_rating !== undefined && body.overall_rating !== null && body.overall_rating !== '') {
-    body.overall_rating = parseInt(body.overall_rating, 10);
+    body.overall_rating = typeof body.overall_rating === 'string' ? parseInt(body.overall_rating, 10) : body.overall_rating;
   }
 
   const errors = validatePublicSubmission(body);
@@ -227,16 +227,11 @@ async function handlePublicSubmit(req, res) {
     });
   }
 
-  // Verify event exists
-  const { data: ev, error: evErr } = await sb
-    .from('events')
-    .select('id')
-    .eq('id', eventId)
-    .single();
-
-  if (evErr || !ev) {
-    return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
-  }
+  // NOTE: Event existence check removed for public submissions.
+  // Reason: Tenants may submit before events are formally created in the
+  // dashboard. Duplicate prevention (by device_fingerprint) still works.
+  // Re-enable this check once all events are guaranteed to exist in the
+  // `events` table at survey time.
 
   // Build row
   const row = {
