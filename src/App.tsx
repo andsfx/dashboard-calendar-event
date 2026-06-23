@@ -21,6 +21,7 @@ import { createId, parseDateStrLocal, MONTH_NAMES } from './utils/eventUtils';
 import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
 import type { PublicEventRequestPayload } from './components/PublicLandingPage';
 import type { PhotoAlbum } from './types';
+import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
@@ -663,22 +664,39 @@ export default function App() {
       {/* Public Tenant Self-Assessment — standalone, no auth required */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/30">
+          <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-teal-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/20">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
-              <div className="mb-6 flex items-center justify-between">
-                <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">
-                  Metropolitan Mall Bekasi
+              {/* Header with logo */}
+              <div className="mb-8 flex items-center gap-3">
+                <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
+                <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  Tenant Self-Assessment
                 </span>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-                <h1 className="mb-1 text-xl font-bold text-slate-800 dark:text-slate-100">
-                  Tenant Self-Assessment
-                </h1>
-                <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">
-                  Pilih event yang ingin Anda survey.
-                </p>
-                <TenantSurveyEventPicker />
+
+              {/* Main card */}
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                {/* Card header */}
+                <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-emerald-950/30">
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Evaluasi Dampak Event
+                  </h1>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap gerai Anda.
+                  </p>
+                </div>
+
+                {/* Card body */}
+                <div className="px-6 py-5">
+                  <TenantSurveyEventPicker />
+                </div>
               </div>
+
+              {/* Footer */}
+              <p className="mt-6 text-center text-[11px] text-slate-400 dark:text-slate-500">
+                &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
+              </p>
             </div>
           </div>
         </Suspense>

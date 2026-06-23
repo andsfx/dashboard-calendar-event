@@ -2,8 +2,10 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Loader2, AlertTriangle, Calendar, MapPin, Search, ArrowRight,
+  Clock, CheckCircle2, Building2, ChevronRight,
 } from 'lucide-react';
 import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from '../../utils/supabaseApi';
+import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
 
 function formatDate(d: string) {
   try {
@@ -13,10 +15,21 @@ function formatDate(d: string) {
   }
 }
 
-function statusEmoji(s: string) {
-  if (s === 'ongoing') return '🟢';
-  if (s === 'past') return '✅';
-  return '📅';
+function StatusBadge({ status }: { status: string }) {
+  if (status === 'ongoing') {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        Berlangsung
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+      <CheckCircle2 className="h-3 w-3" />
+      Selesai
+    </span>
+  );
 }
 
 export default function TenantSurveyEventPicker() {
@@ -33,7 +46,7 @@ export default function TenantSurveyEventPicker() {
         const data = await fetchPublicTenantSurveyEvents();
         if (!cancelled) {
           setEvents(data);
-          if (data.length === 0) setError('Belum ada event yang bisa disurvey');
+          if (data.length === 0) setError('Belum ada event yang bisa disurvei');
         }
       } catch {
         if (!cancelled) setError('Gagal memuat data event');
@@ -54,73 +67,146 @@ export default function TenantSurveyEventPicker() {
     );
   }, [events, query]);
 
+  const grouped = useMemo(() => {
+    const groups: { label: string; events: PublicTenantSurveyEventInfo[] }[] = [];
+
+    const ongoing = filtered.filter(e => e.status === 'ongoing');
+    const past = filtered.filter(e => e.status !== 'ongoing');
+
+    if (ongoing.length > 0) {
+      groups.push({
+        label: `Sedang Berlangsung (${ongoing.length})`,
+        events: ongoing,
+      });
+    }
+    if (past.length > 0) {
+      groups.push({
+        label: `${query ? '' : 'Selesai'} ${query ? '' : `(${past.length})`}`,
+        events: past,
+      });
+    }
+
+    return groups;
+  }, [filtered, query]);
+
+  // Loading
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12">
-        <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Memuat daftar event...</p>
+      <div className="flex flex-col items-center justify-center py-24">
+        <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
+        <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Memuat daftar event...</p>
       </div>
     );
   }
 
+  // Error + no data
   if (error && events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800 dark:bg-amber-950/30">
-        <AlertTriangle className="h-12 w-12 text-amber-500" />
-        <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Tidak Ada Event</h2>
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-6 py-16 text-center dark:border-amber-800 dark:bg-amber-950/30">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+          <AlertTriangle className="h-8 w-8 text-amber-500" />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Tidak Ada Event</h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header description */}
+      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+        Evaluasi dampak event terhadap gerai Anda. Isi informasi tenant, traffic, dan penjualan selama event berlangsung.
+      </p>
+
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Cari event..."
-          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+          placeholder="Cari nama event, lokasi, atau penyelenggara..."
+          className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-emerald-500"
         />
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-          Tidak ada event yang cocok dengan "{query}"
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(ev => (
-            <button
-              key={ev.id}
-              type="button"
-              onClick={() => navigate(`/tenant-survey/${ev.id}`)}
-              className="group flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-violet-300 hover:bg-violet-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-violet-600 dark:hover:bg-violet-950/30"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">{statusEmoji(ev.status)}</span>
-                  <span className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{ev.acara}</span>
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(ev.tanggal)}
-                  </span>
-                  {ev.lokasi && (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {ev.lokasi}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <ArrowRight className="ml-3 h-5 w-5 shrink-0 text-slate-300 transition group-hover:text-violet-500 dark:text-slate-600" />
-            </button>
-          ))}
+      {/* Event list */}
+      <div className="space-y-6">
+        {grouped.map(group => (
+          <section key={group.label}>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              {group.label}
+            </h3>
+
+            <div className="space-y-2">
+              {group.events.map(ev => (
+                <button
+                  key={ev.id}
+                  type="button"
+                  onClick={() => navigate(`/tenant-survey/${ev.id}`)}
+                  className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600"
+                >
+                  {/* Status indicator bar */}
+                  <div
+                    className={`hidden h-12 w-1 shrink-0 rounded-full sm:block ${
+                      ev.status === 'ongoing' ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'
+                    }`}
+                  />
+
+                  {/* Content */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {ev.acara}
+                      </span>
+                      <StatusBadge status={ev.status} />
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatDate(ev.tanggal)}
+                      </span>
+                      {ev.lokasi && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {ev.lokasi}
+                        </span>
+                      )}
+                      {ev.eo && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Building2 className="h-3.5 w-3.5" />
+                          {ev.eo}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-emerald-100 group-hover:text-emerald-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-emerald-900/50 dark:group-hover:text-emerald-400">
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* No results */}
+      {!loading && filtered.length === 0 && events.length > 0 && (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-600">
+          <Search className="mb-3 h-8 w-8 text-slate-400" />
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Tidak ada event yang cocok dengan "<span className="font-semibold">{query}</span>"
+          </p>
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="mt-3 text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+          >
+            Hapus filter
+          </button>
         </div>
       )}
     </div>

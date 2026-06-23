@@ -169,9 +169,9 @@ async function handlePublicEvents(req, res) {
   const { data, error } = await sb
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
-    .in('status', ['ongoing', 'past'])
+    .neq('status', 'draft')
     .order('tanggal', { ascending: false })
-    .limit(50);
+    .limit(200);
 
   if (error) {
     console.error('[tenant-survey/public/events]', error);

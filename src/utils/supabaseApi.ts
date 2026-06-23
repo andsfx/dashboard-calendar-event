@@ -1197,9 +1197,9 @@ export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurve
   const { data, error } = await supabase
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
-    .in('status', ['ongoing', 'past'])
+    .neq('status', 'draft')
     .order('tanggal', { ascending: false })
-    .limit(50);
+    .limit(200);
 
   if (error || !data) return [];
   return data as PublicTenantSurveyEventInfo[];
