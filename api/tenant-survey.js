@@ -5,6 +5,7 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  * /api/tenant-survey — Unified tenant (EO) self-assessment survey endpoint
  *
  * Public (mode=public, no auth):
+ *   ?mode=public&action=events      GET   — List surveyable events (ongoing + past)
  *   ?mode=public&action=event-info  GET   — Fetch event details
  *   ?mode=public&action=check       GET   — Check if device already submitted (by fingerprint)
  *   ?mode=public&action=submit      POST  — Submit a new tenant survey (anonymous)
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
 
 async function handlePublic(req, res, action) {
   switch (action) {
+    case 'events':     return await handlePublicEvents(req, res);
     case 'event-info': return await handlePublicEventInfo(req, res);
     case 'check':      return await handlePublicCheck(req, res);
     case 'submit':     return await handlePublicSubmit(req, res);
@@ -157,6 +159,27 @@ function validatePublicSubmission(body) {
 // ═══════════════════════════════════════════════════════════════════
 // PUBLIC HANDLERS (mode=public, no auth)
 // ═══════════════════════════════════════════════════════════════════
+
+// ─── Public: List surveyable events ───────────────────────────────
+
+async function handlePublicEvents(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const sb = getServiceSupabase();
+  const { data, error } = await sb
+    .from('events')
+    .select('id, acara, tanggal, lokasi, eo, status')
+    .in('status', ['ongoing', 'past'])
+    .order('tanggal', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('[tenant-survey/public/events]', error);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data event' });
+  }
+
+  return res.json({ success: true, events: data || [] });
+}
 
 // ─── Public: Event info ──────────────────────────────────────────
 

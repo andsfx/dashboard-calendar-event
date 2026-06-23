@@ -55,6 +55,7 @@ const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
 const TenantSurveyPage = lazy(() => import('./components/survey/TenantSurveyPage'));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
+const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
 const UserManagement = lazy(() => import('./components/admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('./components/admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const AnalyticsDashboard = lazy(() => import('./components/admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
@@ -660,6 +661,28 @@ export default function App() {
       } />
 
       {/* Public Tenant Self-Assessment — standalone, no auth required */}
+      <Route path="/tenant-survey" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/30">
+            <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+              <div className="mb-6 flex items-center justify-between">
+                <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">
+                  Metropolitan Mall Bekasi
+                </span>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+                <h1 className="mb-1 text-xl font-bold text-slate-800 dark:text-slate-100">
+                  Tenant Self-Assessment
+                </h1>
+                <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">
+                  Pilih event yang ingin Anda survey.
+                </p>
+                <TenantSurveyEventPicker />
+              </div>
+            </div>
+          </div>
+        </Suspense>
+      } />
       <Route path="/tenant-survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <TenantSurveyPublicPage />

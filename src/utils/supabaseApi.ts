@@ -1179,6 +1179,33 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
 }
 
 /**
+ * Fetch list of surveyable events (ongoing + past) for
+ * the event picker page at /tenant-survey/ (no eventId).
+ */
+export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurveyEventInfo[]> {
+  try {
+    const res = await fetch('/api/tenant-survey?mode=public&action=events');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.events)) {
+        return json.events;
+      }
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: try via anon Supabase
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, acara, tanggal, lokasi, eo, status')
+    .in('status', ['ongoing', 'past'])
+    .order('tanggal', { ascending: false })
+    .limit(50);
+
+  if (error || !data) return [];
+  return data as PublicTenantSurveyEventInfo[];
+}
+
+/**
  * Check if a device has already submitted a public tenant survey
  * for a given event (fingerprint-based duplicate detection).
  */
