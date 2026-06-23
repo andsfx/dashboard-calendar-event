@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Camera, Globe } from 'lucide-react';
 import { PhotoAlbum } from '../../types';
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
@@ -152,7 +152,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-[#faf6ef] p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+      className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
         <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
@@ -171,10 +171,9 @@ interface Props {
 
 export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }: Props) {
   return (
-    <RevealSection id="gallery" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
+    <RevealSection id="gallery" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          <CommunityEyebrow className="text-xs">Galeri</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
@@ -188,7 +187,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
           <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="mb-6 flex items-center justify-center gap-2">
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-              <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
+              <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
             </div>
 
@@ -239,7 +238,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
         <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
           <div className="mb-6 flex items-center justify-center gap-2">
             <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Instagram</h3>
+            <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Instagram</h3>
             <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
           </div>
 

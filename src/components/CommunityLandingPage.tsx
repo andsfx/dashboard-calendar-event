@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
 import { EventItem, PhotoAlbum } from '../types';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -9,7 +9,7 @@ import { CommunitySteps } from './community/CommunitySteps';
 import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityFAQ } from './community/CommunityFAQ';
 import { CommunitySocialProof } from './community/CommunitySocialProof';
-import { CommunityUpcomingEvents, EventShowcase } from './community/CommunityUpcomingEvents';
+import { CommunityUpcomingEvents } from './community/CommunityUpcomingEvents';
 import { CommunityGallery } from './community/CommunityGallery';
 import { CommunityContact } from './community/CommunityContact';
 import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
@@ -63,7 +63,7 @@ const NAV_ITEMS = [
   { href: '#benefits', label: 'Keuntungan' },
   { href: '#facilities', label: 'Fasilitas' },
   { href: '#gallery', label: 'Galeri' },
-  { href: '#events', label: 'Event' },
+  { href: '#upcoming-events', label: 'Event' },
   { href: '#how', label: 'Cara Daftar' },
   { href: '#register', label: 'Daftar' },
   { href: '#faq', label: 'FAQ' },
@@ -73,6 +73,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetch('/api/instagram-sync')
@@ -86,10 +87,20 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setIsHeaderPinned(window.scrollY > 24);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    if (typeof window === 'undefined') return;
+    const target = sentinelRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsHeaderPinned(!entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -108,7 +119,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
 
   const headerClassName = isHeaderPinned
-    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
+    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-neutral-150/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
     : 'absolute inset-x-0 top-0 z-50 text-white';
   const navClassName = isHeaderPinned
     ? 'hidden items-center gap-7 text-[13px] font-medium text-slate-700 dark:text-slate-300 lg:flex'
@@ -121,7 +132,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     : 'mt-3 rounded-[1.6rem] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] selection:bg-violet-200 selection:text-violet-900 dark:bg-slate-950 dark:selection:bg-violet-900/40 dark:selection:text-violet-100">
+    <div className="min-h-screen bg-neutral-150 selection:bg-violet-200 selection:text-violet-900 dark:bg-slate-950 dark:selection:bg-violet-900/40 dark:selection:text-violet-100">
       <header className={`transition-all duration-300 ${headerClassName}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20">
@@ -181,18 +192,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityFAQ />
         <CommunityRegistrationForm />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} />
-        {events.length > 0 && onEventDetail && (
-          <RevealSection id="events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonEventGrid />}>
-            <div className="mx-auto max-w-7xl">
-              <div className="text-center">
-                <CommunityEyebrow className="text-xs">Agenda Event</CommunityEyebrow>
-                <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">Event yang sedang & akan berlangsung.</h2>
-                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">Lihat jadwal event terbaru di Metropolitan Mall Bekasi. Klik event untuk lihat detail.</p>
-              </div>
-              <EventShowcase events={events.filter(e => e.status === 'ongoing' || e.status === 'upcoming')} onDetail={onEventDetail} onViewAll={onBack} />
-            </div>
-          </RevealSection>
-        )}
         <CommunityContact />
         {isHeaderPinned && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 py-3 backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
@@ -202,6 +201,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             </a>
           </div>
         )}
+        <div ref={sentinelRef} className="absolute top-0 h-px w-px" aria-hidden="true" />
       </main>
       <footer className="border-t border-black/5 bg-white px-4 py-12 dark:bg-slate-950 dark:border-slate-800 sm:px-6 sm:py-16">
         <div className="mx-auto max-w-7xl">

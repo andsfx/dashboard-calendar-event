@@ -17,7 +17,7 @@ export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
-    <RevealSection id="faq" className="border-y border-black/5 bg-[#f4efe8] px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="faq" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="text-center">
           <CommunityEyebrow>FAQ</CommunityEyebrow>

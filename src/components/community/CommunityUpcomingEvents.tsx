@@ -4,6 +4,8 @@ import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { RevealSection } from './CommunityRevealPrimitives';
 
+function vv(cssVar: string): string { return `var(--brand-${cssVar})`; }
+
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 function EmptyEvents() {
@@ -36,20 +38,20 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
   return (
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map(ev => {
-        const color = CATEGORY_COLORS[ev.category] ?? '#6366f1';
+        const color = CATEGORY_COLORS[ev.category] ?? vv('violet');
         const isOngoing = ev.status === 'ongoing';
         return (
           <button
             key={ev.id}
             type="button"
             onClick={() => onDetail(ev)}
-            aria-label={`${ev.acara} — ${ev.tanggal}`}
+            aria-label={`${ev.acara} - ${ev.tanggal}`}
             className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl text-left shadow-sm transition hover:shadow-lg hover:-translate-y-0.5 ${focusRing}`}
           >
-            {/* Gradient top section — fixed min-height for consistency */}
+            {/* Gradient top section. Fixed min-height for consistency */}
             <div
               className="relative flex min-h-[120px] flex-1 flex-col justify-between px-5 pb-5 pt-5"
-              style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)` }}
+              style={{ background: `linear-gradient(135deg, ${color} 0%, color-mix(in srgb, ${color} 80%, transparent) 100%)` }}
             >
               {/* Status badge */}
               <div>
@@ -125,7 +127,7 @@ function CountdownPill({ label, value, color }: { label: string; value: number; 
       style={pillStyle}
     >
       <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em]">{label}</p>
+      <p className="mt-1 text-[10px] font-medium tracking-wider">{label}</p>
     </div>
   );
 }
@@ -167,7 +169,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
           {/* ── Main event card ── */}
-          <div className="rounded-[2rem] border border-black/[0.06] bg-[#faf6ef] shadow-[0_12px_32px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between">
+          <div className="rounded-[2rem] border border-black/[0.06] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between">
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
                 <span className="relative flex h-2 w-2 items-center justify-center">
@@ -202,7 +204,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
             </div>
 
             <div className="border-t border-black/5 bg-white/50 p-6 sm:p-10 dark:border-slate-700 dark:bg-slate-800/50 lg:rounded-b-[2rem]">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Countdown menuju event</p>
+              <p className="mb-3 text-xs font-bold tracking-wide" style={{ color: catColor }}>Countdown menuju event</p>
               <div className="grid max-w-md grid-cols-3 gap-3">
                 <CountdownPill label="Hari" value={countdown.days} color={catColor} />
                 <CountdownPill label="Jam" value={countdown.hours} color={catColor} />
@@ -221,7 +223,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
             </div>
           </div>
 
-          {/* Right: promo poster — visible all sizes */}
+          {/* Right: promo poster. Visible all sizes */}
           <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
             <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 rotate-2 transition-transform hover:rotate-0">
               {promoImageUrl ? (
@@ -284,7 +286,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
                 <CalendarDays className="h-8 w-8" style={{ color: catColor }} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: catColor }}>Sponsor & Support</p>
+                <p className="text-[11px] font-bold tracking-[0.2em]" style={{ color: catColor }}>Sponsor & Support</p>
                 <p className="mt-2 text-xl font-bold text-slate-950 dark:text-white">Cari Sponsor atau Dukungan</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
               </div>

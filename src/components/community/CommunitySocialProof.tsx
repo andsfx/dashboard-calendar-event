@@ -13,7 +13,7 @@ export function CommunitySocialProof() {
   return (
     <RevealSection className="border-b border-black/5 bg-white px-4 py-14 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-7xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+        <p className="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
           Dipercaya oleh komunitas di Bekasi
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">

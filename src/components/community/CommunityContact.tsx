@@ -1,5 +1,5 @@
 import { Mail, Phone } from 'lucide-react';
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-950';
 

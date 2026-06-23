@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { CheckCircle2, Send, ArrowLeft } from 'lucide-react';
 import { submitCommunityRegistration } from '../../utils/supabaseApi';
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
@@ -358,7 +358,6 @@ export function CommunityRegistrationForm() {
     <RevealSection id="register" intensity="strong" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
-          <CommunityEyebrow>Daftar Sekarang</CommunityEyebrow>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-neutral-950 dark:text-white sm:text-5xl">
             Yuk, gabung!
           </h2>

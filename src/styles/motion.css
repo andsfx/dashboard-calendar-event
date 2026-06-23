@@ -165,13 +165,13 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, var(--color-neutral-150) 25%, var(--color-neutral-250) 50%, var(--color-neutral-150) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
 .dark .shimmer {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background: linear-gradient(90deg, var(--color-neutral-800) 25%, var(--color-neutral-700) 50%, var(--color-neutral-800) 75%);
   background-size: 200% 100%;
 }
 

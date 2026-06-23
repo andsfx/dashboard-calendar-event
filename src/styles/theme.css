@@ -38,6 +38,7 @@
   /* Neutral palette - Metmal pastel aesthetic */
   --color-neutral-50: #f4efe8;    /* brand-paper */
   --color-neutral-100: #faf6ef;   /* brand-card */
+  --color-neutral-150: #fbfaf7;   /* brand-page */
   --color-neutral-200: #fffdf9;   /* brand-card-light */
   --color-neutral-900: #0f172a;   /* brand-ink */
   --color-neutral-800: #1e293b;
@@ -47,7 +48,6 @@
   --color-neutral-400: #94a3b8;
   --color-neutral-300: #cbd5e1;
   --color-neutral-250: #e2e8f0;
-  --color-neutral-150: #f1f5f9;
 
   /*
    * TYPOGRAPHY SYSTEM
