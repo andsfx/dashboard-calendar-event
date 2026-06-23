@@ -1205,6 +1205,40 @@ export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurve
   return data as PublicTenantSurveyEventInfo[];
 }
 
+export interface TenantDropdownOption {
+  id: string;
+  name: string;
+  floor: string;
+  lot: string;
+  category: string;
+  pic: string;
+  picTelp: string;
+  logo: string;
+  status: string;
+  participantEvoucher: string;
+}
+
+/**
+ * Fetch list of active tenants from the MID loyalty API
+ * (proxied through /api/tenant-survey?mode=public&action=tenants).
+ * Server-side env: MID_API_KEY.
+ */
+export async function fetchActiveTenants(query?: string): Promise<TenantDropdownOption[]> {
+  try {
+    const url = query
+      ? `/api/tenant-survey?mode=public&action=tenants&q=${encodeURIComponent(query)}`
+      : '/api/tenant-survey?mode=public&action=tenants';
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.tenants)) {
+        return json.tenants;
+      }
+    }
+  } catch { /* fall through */ }
+  return [];
+}
+
 /**
  * Check if a device has already submitted a public tenant survey
  * for a given event (fingerprint-based duplicate detection).

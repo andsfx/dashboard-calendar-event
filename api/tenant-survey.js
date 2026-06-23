@@ -7,6 +7,7 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  * Public (mode=public, no auth):
  *   ?mode=public&action=events      GET   — List surveyable events (ongoing + past)
  *   ?mode=public&action=event-info  GET   — Fetch event details
+ *   ?mode=public&action=tenants     GET   — List tenants from MID loyalty API (proxied)
  *   ?mode=public&action=check       GET   — Check if device already submitted (by fingerprint)
  *   ?mode=public&action=submit      POST  — Submit a new tenant survey (anonymous)
  *
@@ -41,6 +42,7 @@ async function handlePublic(req, res, action) {
   switch (action) {
     case 'events':     return await handlePublicEvents(req, res);
     case 'event-info': return await handlePublicEventInfo(req, res);
+    case 'tenants':    return await handlePublicTenants(req, res);
     case 'check':      return await handlePublicCheck(req, res);
     case 'submit':     return await handlePublicSubmit(req, res);
     default:
@@ -179,6 +181,55 @@ async function handlePublicEvents(req, res) {
   }
 
   return res.json({ success: true, events: data || [] });
+}
+
+// ─── Public: List tenants ──────────────────────────────────────────
+
+async function handlePublicTenants(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const q = (req.query?.q || '').trim().toLowerCase();
+  const API_KEY = process.env.MID_API_KEY;
+  const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
+
+  if (!API_KEY) {
+    console.error('[tenant-survey/public/tenants] MID_API_KEY not set');
+    return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  }
+
+  try {
+    const resp = await fetch(API_URL, {
+      headers: { 'mid-api-key': API_KEY },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) {
+      console.error('[tenant-survey/public/tenants] upstream', resp.status);
+      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    }
+    const json = await resp.json();
+    const list = Array.isArray(json.data) ? json.data : [];
+
+    const tenants = list
+      .filter((t: Record<string, unknown>) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
+      .map((t: Record<string, unknown>) => ({
+        id: String(t.TENANT_ID ?? ''),
+        name: String(t.TENANT_NAME ?? '').trim(),
+        floor: String(t.TENANT_FLOOR ?? '').trim(),
+        lot: String(t.TENANT_LOT ?? '').trim(),
+        category: String(t.TENANT_CATEGORY ?? '').trim(),
+        pic: String(t.PIC_NAME ?? '').trim(),
+        picTelp: String(t.PIC_Telp ?? '').trim(),
+        logo: String(t.TENANT_LOGO ?? '').trim(),
+        status: String(t.TENANT_STATUS ?? '').trim(),
+        participantEvoucher: String(t.PARTICIPANT_EVOUCHER ?? '').trim(),
+      }))
+      .filter(t => t.name && !q || t.name.toLowerCase().includes(q));
+
+    return res.json({ success: true, tenants });
+  } catch (err) {
+    console.error('[tenant-survey/public/tenants] fetch error', err);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
+  }
 }
 
 // ─── Public: Event info ──────────────────────────────────────────

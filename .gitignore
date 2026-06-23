@@ -9,6 +9,7 @@ dist/
 
 # AI agent working files
 .sisyphus/
+.omo/
 .playwright-mcp/
 
 # Generated reports
