@@ -664,7 +664,7 @@ export default function App() {
       {/* Public Tenant Self-Assessment — standalone, no auth required */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-teal-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/20">
+          <div className="min-h-screen bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
               {/* Header with logo */}
               <div className="mb-8 flex items-center gap-3">
@@ -678,7 +678,7 @@ export default function App() {
               {/* Main card */}
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
                 {/* Card header */}
-                <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-emerald-950/30">
+                <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
                   <h1 className="text-xl font-bold text-slate-900 dark:text-white">
                     Evaluasi Dampak Event
                   </h1>
@@ -794,8 +794,8 @@ export default function App() {
                   <FeaturedEvents
                     events={ongoingEvents}
                     title="Sedang Berlangsung"
-                    accent="emerald"
-                    icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                    accent="brand-primary"
+                    icon={<Radio className="h-4 w-4 animate-pulse text-brand-primary-500" />}
                     onDetail={handleDetailClick}
                   />
                 </Suspense>
@@ -884,8 +884,8 @@ export default function App() {
                 <FeaturedEvents
                   events={ongoingEvents}
                   title="Sedang Berlangsung"
-                  accent="emerald"
-                  icon={<Radio className="h-4 w-4 animate-pulse text-emerald-500" />}
+                  accent="brand-primary"
+                  icon={<Radio className="h-4 w-4 animate-pulse text-brand-primary-500" />}
                   onDetail={handleDetailClick}
                 />
               </Suspense>
@@ -1055,7 +1055,7 @@ export default function App() {
               <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
                 <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 live-dot" aria-hidden="true" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-primary-500 live-dot" aria-hidden="true" />
                     <span>{visibleStats.ongoing} berlangsung</span>
                   </span>
                 <span className="hidden sm:inline">·</span>

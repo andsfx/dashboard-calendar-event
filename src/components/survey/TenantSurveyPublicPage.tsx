@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
@@ -24,37 +24,6 @@ const TRAFFIC_LABELS: Record<string, string> = {
   'Tidak Ada': 'Tidak Ada (Kondisi sama seperti hari biasa)',
   'Menurun': 'Menurun (Toko justru lebih sepi)',
 };
-
-interface FieldProps {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  type?: 'text' | 'email' | 'tel';
-  required?: boolean;
-  disabled?: boolean;
-  icon?: ReactNode;
-}
-
-function Field({ label, value, onChange, placeholder, type = 'text', required, disabled, icon }: FieldProps) {
-  return (
-    <div>
-      <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-        {icon}
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-      />
-    </div>
-  );
-}
 
 function RadioGroup({ label, options, value, onChange, disabled, labels }: {
   label: string;
@@ -285,7 +254,6 @@ export default function TenantSurveyPublicPage() {
   const handleTenantSelect = useCallback((tenant: TenantDropdownOption | null) => {
     setSelectedTenant(tenant);
     if (!tenant) {
-      // User cleared the selection — reset autofilled flags
       setAutoFilled({ lokasi_zona: false, kategori: false });
       return;
     }
@@ -467,9 +435,9 @@ export default function TenantSurveyPublicPage() {
   if (formStatus === 'success') {
     return (
       <PageShell>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-8 text-center dark:border-brand-primary-800 dark:bg-brand-primary-950/30">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary-100 dark:bg-brand-primary-900/50">
-            <CheckCircle2 className="h-8 w-8 text-brand-primary-500" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
@@ -479,7 +447,7 @@ export default function TenantSurveyPublicPage() {
             &quot;{event.acara}&quot;
           </p>
           <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
-            Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
+            Masukan Anda sangat berharga untuk meningkatkan kerjasama dan pelayanan kami.
           </p>
           <button
             type="button"
@@ -539,7 +507,7 @@ export default function TenantSurveyPublicPage() {
   return (
     <PageShell>
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-indigo-50 p-5 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-indigo-950/40">
+      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-secondary-50 p-5 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-secondary-950/40">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
             <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
@@ -571,6 +539,26 @@ export default function TenantSurveyPublicPage() {
           Bantu kami meningkatkan pelayanan dengan memberikan penilaian dan masukan untuk event ini.
         </p>
       </div>
+
+      {/* Section stepper */}
+        <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+          {[
+            { num: 1, label: 'Informasi Gerai', filled: !!(formData.nama_gerai && formData.lokasi_zona && formData.kategori) },
+            { num: 2, label: 'Evaluasi', filled: !!(formData.kenaikan_traffic && formData.kenaikan_sales) },
+            { num: 3, label: 'Umpan Balik', filled: formData.feedback_teks.trim().length > 0 },
+          ].map(step => (
+            <div key={step.num} className="flex items-center gap-2">
+              <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition ${
+                step.filled
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+              }`}>
+                {step.filled ? '✓' : step.num}
+              </div>
+              <span className="truncate text-[11px] font-medium text-slate-600 dark:text-slate-400">{step.label}</span>
+            </div>
+          ))}
+        </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         {/* Top-level errors */}
@@ -712,7 +700,7 @@ export default function TenantSurveyPublicPage() {
             <textarea
               value={formData.feedback_teks}
               onChange={(e) => updateField('feedback_teks')(e.target.value)}
-              placeholder="Apakah profil pengunjung event ini cocok dengan produk Anda? Jenis event apa yang Anda harapkan ke depannya?"
+              placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
               className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
@@ -724,9 +712,17 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Progress indicator */}
-        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-          <span>{progress}% selesai</span>
-          <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
+        <div className="space-y-1.5">
+          <div className="overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
+              className="h-2 rounded-full bg-brand-primary-500 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+            <span>{progress}% selesai</span>
+            <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
+          </div>
         </div>
 
         {/* Submit */}
@@ -742,8 +738,13 @@ export default function TenantSurveyPublicPage() {
           </button>
           <button
             type="submit"
-            disabled={formStatus === 'submitting'}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
+            disabled={formStatus === 'submitting' || filledCount < requiredCount}
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-sm transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 ${
+              filledCount >= requiredCount
+                ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
+                : 'bg-slate-400 cursor-not-allowed'
+            }`}
+            title={filledCount < requiredCount ? `Lengkapi ${requiredCount - filledCount} field wajib` : ''}
           >
             {formStatus === 'submitting' ? (
               <Loader2 className="h-4 w-4 animate-spin" />

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Loader2, AlertTriangle, Calendar, MapPin, Search,
+  AlertTriangle, Calendar, MapPin, Search,
   Building2, ChevronRight,
 } from 'lucide-react';
 import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from '../../utils/supabaseApi';
@@ -52,9 +52,20 @@ export default function TenantSurveyEventPicker() {
   // Loading
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
-        <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Memuat daftar event...</p>
+      <div className="space-y-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+            <div className="hidden h-12 w-1 shrink-0 animate-pulse rounded-full bg-slate-200 sm:block dark:bg-slate-700" />
+            <div className="flex-1 space-y-2.5">
+              <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="flex gap-4">
+                <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-3 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
+            </div>
+            <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+          </div>
+        ))}
       </div>
     );
   }
@@ -80,15 +91,20 @@ export default function TenantSurveyEventPicker() {
       </p>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Cari nama event, lokasi, atau penyelenggara..."
-          className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-emerald-500"
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Cari nama event, lokasi, atau penyelenggara..."
+            className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500"
+          />
+        </div>
+        <span className="shrink-0 rounded-full bg-brand-primary-100 px-3 py-1.5 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
+          {events.length} event
+        </span>
       </div>
 
       {/* Event list */}
@@ -98,7 +114,7 @@ export default function TenantSurveyEventPicker() {
             key={ev.id}
             type="button"
             onClick={() => navigate(`/tenant-survey/${ev.id}`)}
-            className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600"
+            className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-brand-primary-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
           >
             {/* Status indicator bar */}
             <div className="hidden h-12 w-1 shrink-0 rounded-full bg-slate-300 sm:block dark:bg-slate-600" />
@@ -129,12 +145,19 @@ export default function TenantSurveyEventPicker() {
             </div>
 
             {/* Arrow */}
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-emerald-100 group-hover:text-emerald-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-emerald-900/50 dark:group-hover:text-emerald-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-brand-primary-100 group-hover:text-brand-primary-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-brand-primary-900/50 dark:group-hover:text-brand-primary-400">
               <ChevronRight className="h-4 w-4" />
             </div>
           </button>
         ))}
       </div>
+
+      {/* Filtered count */}
+      {query.trim() && filtered.length > 0 && (
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Menampilkan {filtered.length} dari {events.length} event
+        </p>
+      )}
 
       {/* No results */}
       {!loading && filtered.length === 0 && events.length > 0 && (
@@ -146,7 +169,7 @@ export default function TenantSurveyEventPicker() {
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="mt-3 text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            className="mt-3 text-xs font-semibold text-brand-primary-600 hover:text-brand-primary-700 dark:text-brand-primary-400"
           >
             Hapus filter
           </button>
