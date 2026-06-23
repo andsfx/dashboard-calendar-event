@@ -35,7 +35,7 @@ const STATUS_CONFIG = {
   },
 } as const;
 
-function ratingColor(n: number | null): string {
+function ratingColor(n: number | null | undefined): string {
   if (n == null) return 'text-slate-400';
   if (n >= 4) return 'text-emerald-500';
   if (n >= 3) return 'text-yellow-500';

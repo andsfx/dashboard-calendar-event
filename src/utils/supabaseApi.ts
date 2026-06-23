@@ -875,8 +875,8 @@ interface DbTenantSurvey {
   tenant_phone: string;
   business_category: 'fnb' | 'retail' | 'jasa' | 'other';
   business_subcategory: string;
-  sales_lift_pct: number;
-  traffic_lift_pct: number;
+  sales_lift_pct: number | null;
+  traffic_lift_pct: number | null;
   venue_rating: number | null;
   management_rating: number | null;
   event_organization_rating: number | null;
@@ -891,6 +891,13 @@ interface DbTenantSurvey {
   review_notes: string;
   created_at: string;
   updated_at: string;
+  nama_gerai: string | null;
+  lokasi_zona: string | null;
+  kategori: string | null;
+  kenaikan_traffic: string | null;
+  kenaikan_sales: string | null;
+  feedback_teks: string | null;
+  tenant_id: string | null;
 }
 
 function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
@@ -931,6 +938,13 @@ function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): R
     tenant_organization: data.tenant_organization || '',
     tenant_email: data.tenant_email || '',
     tenant_phone: data.tenant_phone || '',
+    nama_gerai: data.nama_gerai || '',
+    lokasi_zona: data.lokasi_zona || '',
+    kategori: data.kategori || '',
+    kenaikan_traffic: data.kenaikan_traffic || '',
+    kenaikan_sales: data.kenaikan_sales || '',
+    feedback_teks: data.feedback_teks || '',
+    tenant_id: data.tenant_id || null,
     venue_rating: data.venue_rating ?? null,
     management_rating: data.management_rating ?? null,
     event_organization_rating: data.event_organization_rating ?? null,
@@ -1036,8 +1050,9 @@ export async function updateTenantSurvey(
 
   const textKeys = [
     'tenant_name', 'tenant_organization', 'tenant_email', 'tenant_phone',
+    'nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales',
     'business_category', 'business_subcategory',
-    'feedback_comment', 'improvement_suggestion',
+    'feedback_comment', 'improvement_suggestion', 'feedback_teks',
   ] as const;
 
   for (const key of textKeys) {
@@ -1047,15 +1062,6 @@ export async function updateTenantSurvey(
       } else {
         dbUpdates[key] = (updates as Record<string, unknown>)[key] || '';
       }
-    }
-  }
-
-  // Handle percentage fields separately
-  const percentageKeys = ['sales_lift_pct', 'traffic_lift_pct'] as const;
-  for (const key of percentageKeys) {
-    if (key in updates) {
-      const val = (updates as Record<string, unknown>)[key];
-      dbUpdates[key] = val !== undefined ? Number(val) : 0;
     }
   }
 
@@ -1208,6 +1214,20 @@ export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData,
   device_fingerprint: string;
   ip_address?: string;
   user_agent?: string;
+  nama_gerai?: string | null;
+  lokasi_zona?: string | null;
+  kategori?: string | null;
+  kenaikan_traffic?: string | null;
+  kenaikan_sales?: string | null;
+  feedback_teks?: string | null;
+  tenant_id?: string | null;
+  venue_rating?: number | null;
+  management_rating?: number | null;
+  event_organization_rating?: number | null;
+  booth_facility_rating?: number | null;
+  overall_rating?: number | null;
+  sales_lift_pct?: number | null;
+  traffic_lift_pct?: number | null;
 }
 
 export async function submitPublicTenantSurvey(

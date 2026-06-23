@@ -1,4 +1,5 @@
 import { getServiceSupabase, getAnonSupabase, requireAuth } from './_lib/auth.js';
+import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
 
 /**
  * /api/tenant-survey — Unified tenant (EO) self-assessment survey endpoint
@@ -71,6 +72,7 @@ function isValidRating(val, max = 5) {
   return Number.isInteger(val) && val >= 1 && val <= max;
 }
 
+// DEPRECATED in v3 — rating fields no longer collected. Kept for reference only.
 const RATING_FIELDS = [
   'venue_rating', 'management_rating',
   'event_organization_rating', 'booth_facility_rating',
@@ -88,13 +90,31 @@ function validateSurveyBody(body, isDraft = false) {
   }
 
   if (!isDraft) {
-    if (!body.tenant_name || typeof body.tenant_name !== 'string' || !body.tenant_name.trim()) {
-      errors.push('tenant_name wajib diisi');
+    if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length || sanitize(body.nama_gerai).length > 100) {
+      errors.push('nama_gerai wajib diisi (maksimal 100 karakter)');
     }
 
-    for (const field of RATING_FIELDS) {
-      if (!isValidRating(body[field], RATING_MAX)) {
-        errors.push(`${field} harus angka 1-${RATING_MAX}`);
+    if (body.lokasi_zona !== undefined && body.lokasi_zona !== null && body.lokasi_zona !== '') {
+      if (!SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
+        errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
+      }
+    }
+
+    if (body.kategori !== undefined && body.kategori !== null && body.kategori !== '') {
+      if (!SURVEY_OPTIONS.kategori.includes(body.kategori)) {
+        errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
+      }
+    }
+
+    if (body.kenaikan_traffic !== undefined && body.kenaikan_traffic !== null && body.kenaikan_traffic !== '') {
+      if (!SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
+        errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
+      }
+    }
+
+    if (body.kenaikan_sales !== undefined && body.kenaikan_sales !== null && body.kenaikan_sales !== '') {
+      if (!SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
+        errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
       }
     }
   }
@@ -109,41 +129,26 @@ function validatePublicSubmission(body) {
     errors.push('event_id wajib diisi');
   }
 
-  if (!body.tenant_name || typeof body.tenant_name !== 'string' || !body.tenant_name.trim()) {
-    errors.push('tenant_name wajib diisi');
+  if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length) {
+    errors.push('nama_gerai wajib diisi');
+  } else if (sanitize(body.nama_gerai).length > 100) {
+    errors.push('nama_gerai maksimal 100 karakter');
   }
 
-  // Validate new business impact fields
-  const allowedCategories = ['fnb', 'retail', 'jasa', 'other'];
-  if (!body.business_category || typeof body.business_category !== 'string' || !allowedCategories.includes(body.business_category)) {
-    errors.push('business_category harus salah satu dari: fnb, retail, jasa, other');
+  if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
+    errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
   }
 
-  if (!body.business_subcategory || typeof body.business_subcategory !== 'string' || body.business_subcategory.trim().length === 0 || body.business_subcategory.trim().length > 50) {
-    errors.push('business_subcategory harus diisi dan maksimal 50 karakter');
+  if (!body.kategori || !SURVEY_OPTIONS.kategori.includes(body.kategori)) {
+    errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
   }
 
-  const salesLift = parseFloat(body.sales_lift_pct);
-  if (isNaN(salesLift) || salesLift < -100 || salesLift > 1000) {
-    errors.push('sales_lift_pct harus angka antara -100 dan 1000');
+  if (!body.kenaikan_traffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
+    errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
   }
 
-  const trafficLift = parseFloat(body.traffic_lift_pct);
-  if (isNaN(trafficLift) || trafficLift < -100 || trafficLift > 1000) {
-    errors.push('traffic_lift_pct harus angka antara -100 dan 1000');
-  }
-
-  for (const field of RATING_FIELDS) {
-    if (!isValidRating(body[field])) {
-      errors.push(`${field} harus angka 1-5`);
-    }
-  }
-
-  // Optional overall_rating
-  if (body.overall_rating !== undefined && body.overall_rating !== null && body.overall_rating !== '') {
-    if (!isValidRating(parseInt(body.overall_rating, 10))) {
-      errors.push('overall_rating harus angka 1-5');
-    }
+  if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
+    errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
   }
 
   return errors;
@@ -207,16 +212,6 @@ async function handlePublicSubmit(req, res) {
 
   const body = req.body || {};
 
-  // Coerce rating fields to integers
-  for (const f of RATING_FIELDS) {
-    if (body[f] !== undefined && body[f] !== null && body[f] !== '') {
-      body[f] = typeof body[f] === 'string' ? parseInt(body[f], 10) : body[f];
-    }
-  }
-  if (body.overall_rating !== undefined && body.overall_rating !== null && body.overall_rating !== '') {
-    body.overall_rating = typeof body.overall_rating === 'string' ? parseInt(body.overall_rating, 10) : body.overall_rating;
-  }
-
   const errors = validatePublicSubmission(body);
   if (errors.length > 0) {
     return res.status(400).json({ success: false, errors });
@@ -257,17 +252,28 @@ async function handlePublicSubmit(req, res) {
   const row = {
     event_id: eventId,
     tenant_user_id: null, // public/anonymous submission
-    tenant_name: sanitize(body.tenant_name || '', 100),
-    tenant_organization: sanitize(body.tenant_organization || '', 200),
-    tenant_email: sanitize(body.tenant_email || '', 254),
-    tenant_phone: sanitize(body.tenant_phone || '', 20),
-    venue_rating: body.venue_rating,
-    management_rating: body.management_rating,
-    event_organization_rating: body.event_organization_rating,
-    booth_facility_rating: body.booth_facility_rating,
-    overall_rating: body.overall_rating ?? null,
+    tenant_name: null,
+    tenant_organization: null,
+    tenant_email: null,
+    tenant_phone: null,
+    business_category: null,
+    business_subcategory: null,
+    venue_rating: null,
+    management_rating: null,
+    event_organization_rating: null,
+    booth_facility_rating: null,
+    overall_rating: null,
+    sales_lift_pct: null,
+    traffic_lift_pct: null,
     feedback_comment: sanitize(body.feedback_comment || '', 2000),
     improvement_suggestion: sanitize(body.improvement_suggestion || '', 2000),
+    nama_gerai: sanitize(body.nama_gerai || '', 100),
+    lokasi_zona: body.lokasi_zona || null,
+    kategori: body.kategori || null,
+    kenaikan_traffic: body.kenaikan_traffic || null,
+    kenaikan_sales: body.kenaikan_sales || null,
+    feedback_teks: sanitize(body.feedback_teks || '', 2000),
+    tenant_id: sanitize(body.tenant_id || '', 100),
     device_fingerprint: fingerprint,
     ip_address: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || '',
     user_agent: sanitize(req.headers['user-agent'] || '', 500),

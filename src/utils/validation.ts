@@ -150,9 +150,12 @@ export function validateInstagram(instagram: string): ValidationResult {
 
 // ─── Tenant Survey Validation ────────────────────────────────────
 
+import { SURVEY_OPTIONS } from '../constants/survey-options';
+
 /**
- * Required rating field keys for tenant self-assessment (1-5 scale).
- * overall_rating is optional.
+ * @deprecated Survey v3 no longer uses rating fields. Kept for legacy
+ * TenantSurveyForm rating UI pending separate form-rewrite task. Remove
+ * once the form stops importing them.
  */
 export const TENANT_RATING_KEYS = [
   'venue_rating',
@@ -161,13 +164,13 @@ export const TENANT_RATING_KEYS = [
   'booth_facility_rating',
 ] as const;
 
-/** All rating keys including optional overall */
+/** @deprecated See TENANT_RATING_KEYS. */
 export const TENANT_ALL_RATING_KEYS = [
   ...TENANT_RATING_KEYS,
   'overall_rating',
 ] as const;
 
-/** Human-readable labels for each rating key */
+/** @deprecated See TENANT_RATING_KEYS. */
 export const TENANT_RATING_LABELS: Record<string, string> = {
   venue_rating: 'Kualitas Venue',
   management_rating: 'Kualitas Manajemen',
@@ -176,74 +179,26 @@ export const TENANT_RATING_LABELS: Record<string, string> = {
   overall_rating: 'Rating Keseluruhan',
 };
 
-/** Min/max rating scale for tenant survey */
+/** @deprecated See TENANT_RATING_KEYS. */
 export const TENANT_RATING_MIN = 1;
+/** @deprecated See TENANT_RATING_KEYS. */
 export const TENANT_RATING_MAX = 5;
 
-/** Min/max percentage scale for impact metrics */
-export const IMPACT_PCT_MIN = -100;
-export const IMPACT_PCT_MAX = 1000;
-
 /**
- * Validates a single rating value (1-5 scale by default).
- * Null/undefined is allowed (for draft surveys).
- */
-export function validateRating(
-  value: number | null | undefined,
-  fieldName?: string,
-  min: number = TENANT_RATING_MIN,
-  max: number = TENANT_RATING_MAX,
-): ValidationResult {
-  if (value === null || value === undefined) return { valid: true };
-  if (!Number.isInteger(value)) {
-    return { valid: false, error: `${fieldName || 'Rating'} harus bilangan bulat.` };
-  }
-  if (value < min || value > max) {
-    return { valid: false, error: `${fieldName || 'Rating'} harus antara ${min} dan ${max}.` };
-  }
-  return { valid: true };
-}
-
-/**
- * Validates a percentage value for impact metrics (-100 to 1000 scale).
- * Empty string is allowed (optional field).
- */
-export function validatePercentage(
-  value: string,
-  fieldName?: string,
-  min: number = IMPACT_PCT_MIN,
-  max: number = IMPACT_PCT_MAX,
-): ValidationResult {
-  if (value === '') return { valid: true };
-  const num = Number(value);
-  if (isNaN(num)) {
-    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus berupa angka.` };
-  }
-  if (!Number.isInteger(num)) {
-    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus bilangan bulat.` };
-  }
-  if (num < min || num > max) {
-    return { valid: false, error: `${fieldName || 'Nilai persentase'} harus antara ${min}% dan ${max}%.` };
-  }
-  return { valid: true };
-}
-
-/**
- * Validates a tenant survey submission (all ratings + required fields).
+ * Validates a tenant survey submission (v3 schema).
  *
  * Rules:
  * - event_id is required
- * - tenant_name is required (max 100 chars) unless isDraft
- * - Four required rating fields must be 1-5 for submit; null allowed for draft
- * - overall_rating is optional but must be 1-5 if provided
+ * - nama_gerai required (1-100 chars after trim)
+ * - lokasi_zona required, must be in SURVEY_OPTIONS.lokasi_zona
+ * - kategori required, must be in SURVEY_OPTIONS.kategori
+ * - kenaikan_traffic required, must be in SURVEY_OPTIONS.kenaikan_traffic
+ * - kenaikan_sales required, must be in SURVEY_OPTIONS.kenaikan_sales
  * - feedback_comment & improvement_suggestion are optional (max 2000 chars each)
  * - tenant_organization max 200 chars
- * - business_category must be one of: fnb, retail, jasa, other
- * - business_subcategory required (max 50 chars)
- * - sales_lift_pct and traffic_lift_pct must be numbers between -100 and 1000
  *
  * @param data - The survey form data to validate
- * @param isDraft - If true, ratings and name can be empty (draft mode)
+ * @param isDraft - If true, required v3 fields can be empty (draft mode)
  * @returns Object with valid flag and array of errors
  */
 export function validateTenantSurvey(
@@ -257,81 +212,37 @@ export function validateTenantSurvey(
     errors.push('Event ID wajib diisi.');
   }
 
-  // tenant_name required for submit
-  const name = (data.tenant_name as string || '').trim();
-  if (!isDraft && !name) {
-    errors.push('Nama tenant/EO wajib diisi.');
+  // nama_gerai: required, 1-100 chars after trim
+  const namaGerai = (data.nama_gerai as string || '').trim();
+  if (!isDraft && !namaGerai) {
+    errors.push('Nama gerai wajib diisi.');
   }
-  if (name.length > 100) {
-    errors.push('Nama tenant maksimal 100 karakter.');
-  }
-
-  // Email (optional but must be valid if provided)
-  const email = (data.tenant_email as string || '').trim();
-  if (email) {
-    const emailResult = validateEmail(email);
-    if (!emailResult.valid) errors.push(emailResult.error || 'Format email tidak valid.');
+  if (namaGerai.length > 100) {
+    errors.push('Nama gerai maksimal 100 karakter.');
   }
 
-  // Phone (optional but must be valid if provided)
-  const phone = (data.tenant_phone as string || '').trim();
-  if (phone) {
-    const phoneResult = validatePhone(phone);
-    if (!phoneResult.valid) errors.push(phoneResult.error || 'Format telepon tidak valid.');
+  // lokasi_zona: required, must be in SURVEY_OPTIONS.lokasi_zona
+  const lokasiZona = (data.lokasi_zona as string || '').trim();
+  if (!isDraft && (!lokasiZona || !SURVEY_OPTIONS.lokasi_zona.includes(lokasiZona as typeof SURVEY_OPTIONS.lokasi_zona[number]))) {
+    errors.push('Lokasi zona wajib dipilih dari daftar yang tersedia.');
   }
 
-  // Business category validation
-  const businessCategory = (data.business_category as string || '').trim();
-  const allowedCategories = ['fnb', 'retail', 'jasa', 'other'];
-  if (!isDraft && (!businessCategory || !allowedCategories.includes(businessCategory))) {
-    errors.push('Kategori bisnis harus salah satu dari: fnb, retail, jasa, other.');
+  // kategori: required, must be in SURVEY_OPTIONS.kategori
+  const kategori = (data.kategori as string || '').trim();
+  if (!isDraft && (!kategori || !SURVEY_OPTIONS.kategori.includes(kategori as typeof SURVEY_OPTIONS.kategori[number]))) {
+    errors.push('Kategori wajib dipilih dari daftar yang tersedia.');
   }
 
-  // Business subcategory validation
-  const businessSubcategory = (data.business_subcategory as string || '').trim();
-  if (!isDraft && (!businessSubcategory || businessSubcategory.length === 0)) {
-    errors.push('Subkategori bisnis wajib diisi.');
-  }
-  if (businessSubcategory.length > 50) {
-    errors.push('Subkategori bisnis maksimal 50 karakter.');
+  // kenaikan_traffic: required, must be in SURVEY_OPTIONS.kenaikan_traffic
+  const kenaikanTraffic = (data.kenaikan_traffic as string || '').trim();
+  if (!isDraft && (!kenaikanTraffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(kenaikanTraffic as typeof SURVEY_OPTIONS.kenaikan_traffic[number]))) {
+    errors.push('Kenaikan traffic wajib dipilih dari daftar yang tersedia.');
   }
 
-  // Required ratings — must be 1-5 for submit, nullable for draft
-  for (const key of TENANT_RATING_KEYS) {
-    const val = data[key] as number | null | undefined;
-    const label = TENANT_RATING_LABELS[key] || key;
-
-    if (!isDraft && (val === null || val === undefined || val === 0)) {
-      errors.push(`${label} wajib diisi (${TENANT_RATING_MIN}-${TENANT_RATING_MAX}).`);
-    } else {
-      const result = validateRating(val, label);
-      if (!result.valid) errors.push(result.error || `${label} tidak valid.`);
-    }
-  }
-
-  // Optional overall_rating
-  if (data.overall_rating !== undefined && data.overall_rating !== null) {
-    const result = validateRating(data.overall_rating as number, TENANT_RATING_LABELS.overall_rating);
-    if (!result.valid) errors.push(result.error || 'Rating keseluruhan tidak valid.');
-  }
-
-  // Optional overall_rating
-  if (data.overall_rating !== undefined && data.overall_rating !== null) {
-    const result = validateRating(data.overall_rating as number, TENANT_RATING_LABELS.overall_rating);
-    if (!result.valid) errors.push(result.error || 'Rating keseluruhan tidak valid.');
-  }
-
-  // Business impact percentage validations
-  if (!isDraft) {
-    const salesLift = parseFloat(data.sales_lift_pct as string || '');
-    if (isNaN(salesLift) || salesLift < -100 || salesLift > 1000) {
-      errors.push('Persentase kenaikan penjualan harus angka antara -100 dan 1000.');
-    }
-
-    const trafficLift = parseFloat(data.traffic_lift_pct as string || '');
-    if (isNaN(trafficLift) || trafficLift < -100 || trafficLift > 1000) {
-      errors.push('Persentase kenaikan pengunjung harus angka antara -100 dan 1000.');
-    }
+  // kenaikan_sales: required, must be in SURVEY_OPTIONS.kenaikan_sales
+  const kenaikanSales = (data.kenaikan_sales as string || '').trim();
+  if (!isDraft && (!kenaikanSales || !SURVEY_OPTIONS.kenaikan_sales.includes(kenaikanSales as typeof SURVEY_OPTIONS.kenaikan_sales[number]))) {
+    errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
   }
 
   // Text field length limits
@@ -346,18 +257,6 @@ export function validateTenantSurvey(
     if (val && val.length > maxLen) {
       errors.push(`Kolom "${field}" maksimal ${maxLen} karakter.`);
     }
-  }
-
-  // Percentage fields validation
-  const percentageFields: Array<[string, string]> = [
-    ['sales_lift_pct', 'Kenaikan Penjualan'],
-    ['traffic_lift_pct', 'Kenaikan Traffic'],
-  ];
-
-  for (const [field, label] of percentageFields) {
-    const val = data[field] as string;
-    const result = validatePercentage(val || '', label);
-    if (!result.valid) errors.push(result.error || `${label} tidak valid.`);
   }
 
   return { valid: errors.length === 0, errors };

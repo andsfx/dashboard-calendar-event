@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
-  Send, ArrowLeft, MapPin, Calendar, Briefcase, Mail, Phone,
-  Star, MessageSquare, Lightbulb, ChevronLeft, RefreshCw,
-  CheckCircle2, Sparkles,
+  Send, ArrowLeft, MapPin, Calendar,
+  ChevronLeft, RefreshCw, CheckCircle2, Sparkles,
 } from 'lucide-react';
 import {
   fetchPublicTenantSurveyEvent,
@@ -13,49 +12,16 @@ import {
 } from '../../utils/supabaseApi';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateTenantSurvey } from '../../utils/validation';
+import { SURVEY_OPTIONS } from '../../constants/survey-options';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
-const BUSINESS_CATEGORIES = {
-  'F&B': ['Restoran', 'Café/Kedai Kopi', 'Minuman', 'Bakery/Camilan'],
-  'Retail': ['Fashion', 'Elektronik', 'Home & Living', 'Kecantikan/Kesehatan', 'Lainnya'],
-  'Jasa': ['Salon/Barbershop', 'Laundry', 'Servis Elektronik', 'Lainnya'],
-  'Lainnya': ['Tidak Tergolong'],
-} as const;
-
-const DISPLAY_TO_INTERNAL_CATEGORY: Record<string, string> = {
-  'F&B': 'fnb',
-  'Retail': 'retail',
-  'Jasa': 'jasa',
-  'Lainnya': 'other',
+const TRAFFIC_LABELS: Record<string, string> = {
+  'Signifikan': 'Signifikan (Toko jauh lebih ramai)',
+  'Sedikit Naik': 'Sedikit Naik (Ada tambahan pengunjung tapi tidak terlalu padat)',
+  'Tidak Ada': 'Tidak Ada (Kondisi sama seperti hari biasa)',
+  'Menurun': 'Menurun (Toko justru lebih sepi)',
 };
-
-const RATING_FIELDS = [
-  {
-    key: 'venue_rating' as const,
-    label: 'Kualitas Venue',
-    description: 'Kondisi venue, lokasi, akses, dan fasilitas',
-    icon: <Building2 className="h-4 w-4" />,
-  },
-  {
-    key: 'management_rating' as const,
-    label: 'Kualitas Manajemen',
-    description: 'Kualitas komunikasi dan dukungan tim manajemen',
-    icon: <Briefcase className="h-4 w-4" />,
-  },
-  {
-    key: 'event_organization_rating' as const,
-    label: 'Organisasi Event',
-    description: 'Kelancaran organisasi event secara keseluruhan',
-    icon: <Star className="h-4 w-4" />,
-  },
-  {
-    key: 'booth_facility_rating' as const,
-    label: 'Fasilitas Booth',
-    description: 'Fasilitas booth (listrik, signage, area)',
-    icon: <MapPin className="h-4 w-4" />,
-  },
-] as const;
 
 interface FieldProps {
   label: string;
@@ -66,17 +32,6 @@ interface FieldProps {
   required?: boolean;
   disabled?: boolean;
   icon?: ReactNode;
-}
-
-interface PercentageFieldProps {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  min?: number;
-  max?: number;
-  disabled?: boolean;
-  helperText?: string;
 }
 
 function Field({ label, value, onChange, placeholder, type = 'text', required, disabled, icon }: FieldProps) {
@@ -99,124 +54,52 @@ function Field({ label, value, onChange, placeholder, type = 'text', required, d
   );
 }
 
-function PercentageField({ 
-  label, 
-  value, 
-  onChange, 
-  placeholder, 
-  min = -100, 
-  max = 1000, 
-  disabled, 
-  helperText 
-}: PercentageFieldProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value;
-    // Allow empty input or numbers with optional minus sign
-    if (val === '' || /^-?\d*$/.test(val)) {
-      onChange(val);
-    }
-  };
-
-  return (
-    <div>
-      <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          type="text"
-          value={value}
-          onChange={handleChange}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pl-3 pr-10 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-        />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-          %
-        </span>
-      </div>
-      {helperText && (
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          {helperText}
-        </p>
-      )}
-    </div>
-  );
-}
-
-interface RatingStarsProps {
+function RadioGroup({ label, options, value, onChange, disabled, labels }: {
   label: string;
-  description?: string;
-  value: number | null;
-  onChange: (v: number) => void;
-  error?: string;
-  icon?: ReactNode;
+  options: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
   disabled?: boolean;
-}
-
-function RatingStars({ label, description, value, onChange, error, icon, disabled }: RatingStarsProps) {
-  const stars = Array.from({ length: 5 }, (_, i) => i + 1);
-
+  labels?: Record<string, string>;
+}) {
   return (
-    <fieldset className="space-y-1.5" disabled={disabled}>
-      <legend className="flex w-full items-center gap-2">
-        {icon && <span className="text-violet-500 dark:text-violet-400">{icon}</span>}
-        <div className="flex-1">
-          <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
-            {label}
-          </span>
-          {description && (
-            <span className="block text-xs text-slate-500 dark:text-slate-400">
-              {description}
-            </span>
-          )}
-        </div>
-        <span className={`min-w-[2.5rem] text-right text-sm font-bold ${
-          value != null && value >= 4 ? 'text-emerald-500'
-          : value != null && value >= 3 ? 'text-yellow-500'
-          : value != null ? 'text-red-500'
-          : 'text-slate-400'
-        }`}>
-          {value != null ? `${value}/5` : '—/—'}
-        </span>
+    <fieldset className="space-y-2" disabled={disabled}>
+      <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        {label}
+        <span className="ml-1 text-red-500">*</span>
       </legend>
-
-      <div className="flex items-center gap-1.5" role="radiogroup" aria-label={label}>
-        {stars.map(n => {
-          const selected = value === n;
-          const filled = value != null && n <= value;
+      <div className="space-y-2" role="radiogroup" aria-label={label}>
+        {options.map((opt) => {
+          const selected = value === opt;
           return (
-            <button
-              key={n}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              aria-label={`${n} dari 5`}
-              disabled={disabled}
-              onClick={() => onChange(n)}
+            <label
+              key={opt}
               className={`
-                flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold
-                transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500
+                flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
+                transition focus-within:ring-2 focus-within:ring-violet-500
                 ${selected
-                  ? 'scale-110 bg-violet-600 text-white shadow-md ring-2 ring-violet-300'
-                  : filled
-                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300'
-                    : 'bg-slate-100 text-slate-400 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:hover:bg-slate-700'
+                  ? 'border-violet-400 bg-violet-50 dark:border-violet-500 dark:bg-violet-950/40'
+                  : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                 }
               `}
             >
-              {n}
-            </button>
+              <input
+                type="radio"
+                name={label}
+                value={opt}
+                checked={selected}
+                onChange={() => onChange(opt)}
+                disabled={disabled}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-violet-600"
+                aria-label={labels?.[opt] || opt}
+              />
+              <span className="text-sm text-slate-700 dark:text-slate-300">
+                {labels?.[opt] || opt}
+              </span>
+            </label>
           );
         })}
       </div>
-
-      {error && (
-        <p className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
-          <AlertTriangle className="h-3 w-3" />
-          {error}
-        </p>
-      )}
     </fieldset>
   );
 }
@@ -225,7 +108,6 @@ export default function TenantSurveyPublicPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
 
-  // ─── State ──────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<{
     id: string; acara: string; tanggal: string; lokasi: string; eo: string;
@@ -235,38 +117,20 @@ export default function TenantSurveyPublicPage() {
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
   const [submitError, setSubmitError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
-  const [fieldLevelErrors, setFieldLevelErrors] = useState<Record<string, string>>({});
 
-  // Form state
-  const [ratings, setRatings] = useState<Record<string, number | null>>({
-    venue_rating: null,
-    management_rating: null,
-    event_organization_rating: null,
-    booth_facility_rating: null,
-    overall_rating: null,
+  const [formData, setFormData] = useState({
+    nama_gerai: '',
+    lokasi_zona: '',
+    kategori: '',
+    kenaikan_traffic: '',
+    kenaikan_sales: '',
+    feedback_teks: '',
   });
 
-  const [identity, setIdentity] = useState({
-    tenant_name: '',
-    tenant_organization: '',
-    tenant_email: '',
-    tenant_phone: '',
-  });
+  const updateField = (field: keyof typeof formData) => (value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-  const [comments, setComments] = useState({
-    feedback_comment: '',
-    improvement_suggestion: '',
-  });
-
-  const [impactMetrics, setImpactMetrics] = useState({
-    sales_lift_pct: '',
-    traffic_lift_pct: '',
-  });
-
-  const [businessCategory, setBusinessCategory] = useState<string>('');
-  const [businessSubcategory, setBusinessSubcategory] = useState<string>('');
-
-  // ─── Initial load: event + duplicate check ─────────────────────
   useEffect(() => {
     if (!eventId) {
       setError('Event ID tidak ditemukan di URL');
@@ -277,7 +141,6 @@ export default function TenantSurveyPublicPage() {
     let cancelled = false;
     (async () => {
       try {
-        // Fetch event
         const ev = await fetchPublicTenantSurveyEvent(eventId);
         if (cancelled) return;
         if (!ev) {
@@ -287,13 +150,6 @@ export default function TenantSurveyPublicPage() {
         }
         setEvent(ev);
 
-        // Pre-fill tenant_name from event.eo if available
-        setIdentity(prev => ({
-          ...prev,
-          tenant_name: prev.tenant_name || ev.eo || '',
-        }));
-
-        // Check duplicate by fingerprint
         const fp = getDeviceFingerprint();
         const dup = await checkPublicTenantSurveyDuplicate(eventId, fp);
         if (!cancelled && dup) setAlreadySubmitted(true);
@@ -307,16 +163,6 @@ export default function TenantSurveyPublicPage() {
     return () => { cancelled = true; };
   }, [eventId]);
 
-  // ─── Handlers ──────────────────────────────────────────────────
-  const setRating = useCallback((key: string, val: number) => {
-    setRatings(prev => ({ ...prev, [key]: val }));
-    setFieldLevelErrors(prev => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  }, []);
-
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventId || !event) return;
@@ -324,48 +170,27 @@ export default function TenantSurveyPublicPage() {
     setFormStatus('submitting');
     setSubmitError('');
     setFieldErrors([]);
-    setFieldLevelErrors({});
 
-    // Build submission object
-    const submission = {
+    const submission: Record<string, unknown> = {
       event_id: eventId,
-      tenant_name: identity.tenant_name,
-      tenant_organization: identity.tenant_organization,
-      tenant_email: identity.tenant_email,
-      tenant_phone: identity.tenant_phone,
-      business_category: businessCategory as 'fnb' | 'retail' | 'jasa' | 'other',
-      business_subcategory: businessSubcategory,
-      sales_lift_pct: impactMetrics.sales_lift_pct === '' ? 0 : parseFloat(impactMetrics.sales_lift_pct),
-      traffic_lift_pct: impactMetrics.traffic_lift_pct === '' ? 0 : parseFloat(impactMetrics.traffic_lift_pct),
-      venue_rating: ratings.venue_rating ?? null,
-      management_rating: ratings.management_rating ?? null,
-      event_organization_rating: ratings.event_organization_rating ?? null,
-      booth_facility_rating: ratings.booth_facility_rating ?? null,
-      overall_rating: ratings.overall_rating ?? null,
-      feedback_comment: comments.feedback_comment,
-      improvement_suggestion: comments.improvement_suggestion,
+      nama_gerai: formData.nama_gerai.trim(),
+      lokasi_zona: formData.lokasi_zona,
+      kategori: formData.kategori,
+      kenaikan_traffic: formData.kenaikan_traffic,
+      kenaikan_sales: formData.kenaikan_sales,
+      feedback_teks: formData.feedback_teks.trim(),
       device_fingerprint: getDeviceFingerprint(),
     };
 
-    // Client-side validation
-    const validation = validateTenantSurvey(submission as unknown as Record<string, unknown>, false);
+    const validation = validateTenantSurvey(submission);
     if (!validation.valid) {
-      const fieldErrs: Record<string, string> = {};
-      for (const err of validation.errors) {
-        for (const f of RATING_FIELDS) {
-          if (err.startsWith(f.label) && !fieldErrs[f.key]) {
-            fieldErrs[f.key] = err;
-          }
-        }
-      }
-      setFieldLevelErrors(fieldErrs);
       setFieldErrors(validation.errors);
       setFormStatus('idle');
       return;
     }
 
     try {
-      await submitPublicTenantSurvey(submission);
+      await submitPublicTenantSurvey(submission as never);
       setFormStatus('success');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Gagal mengirim survey';
@@ -377,7 +202,7 @@ export default function TenantSurveyPublicPage() {
         setSubmitError(msg);
       }
     }
-  }, [eventId, event, identity, ratings, comments]);
+  }, [eventId, event, formData]);
 
   const goBack = useCallback(() => {
     if (window.history.length > 1) {
@@ -392,11 +217,9 @@ export default function TenantSurveyPublicPage() {
     setSubmitError('');
   }, []);
 
-  // ─── Page Shell ─────────────────────────────────────────────────
   const PageShell = ({ children }: { children: ReactNode }) => (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/30">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
@@ -415,9 +238,6 @@ export default function TenantSurveyPublicPage() {
     </div>
   );
 
-  // ─── Render states ─────────────────────────────────────────────
-
-  // Loading
   if (loading) {
     return (
       <PageShell>
@@ -429,7 +249,6 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  // Error (event not found)
   if (error || !event) {
     return (
       <PageShell>
@@ -452,7 +271,6 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  // Duplicate
   if (alreadySubmitted || formStatus === 'duplicate') {
     return (
       <PageShell>
@@ -466,7 +284,7 @@ export default function TenantSurveyPublicPage() {
           <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
             Anda sudah pernah mengirimkan self-assessment untuk event
             <span className="mx-1 font-semibold text-violet-600 dark:text-violet-400">
-              "{event.acara}"
+              &quot;{event.acara}&quot;
             </span>
             dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survey per event.
           </p>
@@ -478,7 +296,6 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  // Success
   if (formStatus === 'success') {
     return (
       <PageShell>
@@ -491,7 +308,7 @@ export default function TenantSurveyPublicPage() {
             Terima kasih telah mengirimkan self-assessment untuk event
           </p>
           <p className="mt-0.5 text-sm font-semibold text-violet-600 dark:text-violet-400">
-            "{event.acara}"
+            &quot;{event.acara}&quot;
           </p>
           <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
             Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
@@ -509,7 +326,6 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  // Error (after submit)
   if (formStatus === 'error') {
     return (
       <PageShell>
@@ -542,9 +358,15 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  // ─── Form ───────────────────────────────────────────────────────
-  const filledCount = RATING_FIELDS.filter(f => ratings[f.key] != null).length;
-  const progress = Math.round((filledCount / RATING_FIELDS.length) * 100);
+  const requiredCount = 5; // nama_gerai, lokasi_zona, kategori, kenaikan_traffic, kenaikan_sales
+  const filledCount = [
+    formData.nama_gerai.trim() ? 1 : 0,
+    formData.lokasi_zona ? 1 : 0,
+    formData.kategori ? 1 : 0,
+    formData.kenaikan_traffic ? 1 : 0,
+    formData.kenaikan_sales ? 1 : 0,
+  ].reduce((a, b) => a + b, 0) as number;
+  const progress = Math.round((filledCount / requiredCount) * 100);
 
   return (
     <PageShell>
@@ -602,195 +424,108 @@ export default function TenantSurveyPublicPage() {
           </div>
         )}
 
-        {/* Tenant identity */}
+        {/* Section 1: Informasi Gerai */}
         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
-            Identitas Tenant/EO
+          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+            Bagian 1: Informasi Gerai
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+            Isi informasi dasar tenant dan lokasi gerai Anda di Metropolitan Mall Bekasi.
+          </p>
+
+          <div className="space-y-4">
             <Field
-              label="Nama Tenant/EO"
+              label="Nama Gerai"
               required
-              value={identity.tenant_name}
-              onChange={(v) => setIdentity(p => ({ ...p, tenant_name: v }))}
-              placeholder="Nama organisasi"
-              icon={<Briefcase className="h-3.5 w-3.5" />}
+              value={formData.nama_gerai}
+              onChange={updateField('nama_gerai')}
+              placeholder="Nama toko atau brand Anda"
+              icon={<Building2 className="h-3.5 w-3.5" />}
             />
-            <Field
-              label="Organisasi"
-              value={identity.tenant_organization}
-              onChange={(v) => setIdentity(p => ({ ...p, tenant_organization: v }))}
-              placeholder="Nama perusahaan (opsional)"
-            />
-            <Field
-              label="Email"
-              type="email"
-              value={identity.tenant_email}
-              onChange={(v) => setIdentity(p => ({ ...p, tenant_email: v }))}
-              placeholder="email@contoh.com (opsional)"
-              icon={<Mail className="h-3.5 w-3.5" />}
-            />
-            <Field
-              label="Telepon"
-              type="tel"
-              value={identity.tenant_phone}
-              onChange={(v) => setIdentity(p => ({ ...p, tenant_phone: v }))}
-              placeholder="08xxxxxxxxxx (opsional)"
-              icon={<Phone className="h-3.5 w-3.5" />}
-            />
-          </div>
 
-          {/* Business category */}
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                Kategori Bisnis
+                <MapPin className="h-3.5 w-3.5" />
+                Lokasi / Zona
                 <span className="text-red-500">*</span>
               </label>
               <select
-                value={businessCategory}
-                onChange={(e) => {
-                  const value = e.target.value as 'fnb' | 'retail' | 'jasa' | 'other';
-                  setBusinessCategory(value);
-                  setBusinessSubcategory(''); // Reset subcategory when category changes
-                }}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                value={formData.lokasi_zona}
+                onChange={(e) => updateField('lokasi_zona')(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               >
-                <option value="">Pilih kategori bisnis</option>
-                {Object.entries(BUSINESS_CATEGORIES).map(([display, subcats]) => {
-                  const value = display === 'F&B' ? 'fnb' : 
-                               display === 'Retail' ? 'retail' : 
-                               display === 'Jasa' ? 'jasa' : 'other';
-                  return <option key={value} value={value}>{display}</option>;
-                })}
+                <option value="">Pilih lokasi / zona</option>
+                {SURVEY_OPTIONS.lokasi_zona.map((z) => (
+                  <option key={z} value={z}>{z}</option>
+                ))}
               </select>
             </div>
-            <div>
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                Sub-Kategori Bisnis
-                <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={businessSubcategory}
-                onChange={(e) => setBusinessSubcategory(e.target.value)}
-                disabled={!businessCategory}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-              >
-                <option value="">Pilih sub-kategori</option>
-                {businessCategory && (() => {
-                  const displayCategory = businessCategory === 'fnb' ? 'F&B' : 
-                                       businessCategory === 'retail' ? 'Retail' : 
-                                       businessCategory === 'jasa' ? 'Jasa' : 'Lainnya';
-                  return BUSINESS_CATEGORIES[displayCategory as keyof typeof BUSINESS_CATEGORIES]?.map(subcat => (
-                    <option key={subcat} value={subcat}>{subcat}</option>
-                  ));
-                })()}
-              </select>
-            </div>
+
+            <RadioGroup
+              label="Kategori Gerai"
+              options={SURVEY_OPTIONS.kategori}
+              value={formData.kategori}
+              onChange={updateField('kategori')}
+            />
           </div>
         </section>
 
-        {/* Impact Metrics */}
+        {/* Section 2: Evaluasi Traffic & Sales */}
         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
-            Dampak Event
+          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+            Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
           <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-            Masukkan perkiraan dampak event terhadap bisnis Anda dalam persentase.
-            Skala: -100% (penurunan total) hingga +1000% (kenaikan sangat signifikan).
+            Bandingkan kondisi traffic pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
           </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <PercentageField
-              label="Kenaikan Penjualan (%)"
-              value={impactMetrics.sales_lift_pct}
-              onChange={(v) => setImpactMetrics(p => ({ ...p, sales_lift_pct: v }))}
-              placeholder="-100 sampai 1000"
-              min={-100}
-              max={1000}
-              helperText="Perubahan penjualan selama/after event dibanding periode normal"
-            />
-            <PercentageField
-              label="Kenaikan Traffic (%)"
-              value={impactMetrics.traffic_lift_pct}
-              onChange={(v) => setImpactMetrics(p => ({ ...p, traffic_lift_pct: v }))}
-              placeholder="-100 sampai 1000"
-              min={-100}
-              max={1000}
-              helperText="Perubahan jumlah pengunjung selama/after event dibanding periode normal"
-            />
-          </div>
-        </section>
 
-        {/* Ratings */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <div className="mb-1 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Penilaian Event
-            </h2>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              {progress}% selesai
-            </span>
-          </div>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-            Beri nilai dari 1 (sangat kurang) sampai 5 (sangat baik)
-          </p>
           <div className="space-y-5">
-            {RATING_FIELDS.map(field => (
-              <RatingStars
-                key={field.key}
-                label={field.label}
-                description={field.description}
-                value={ratings[field.key] ?? null}
-                onChange={(v) => setRating(field.key, v)}
-                error={fieldLevelErrors[field.key]}
-                icon={field.icon}
-              />
-            ))}
+            <RadioGroup
+              label="Kenaikan Traffic Pengunjung"
+              options={SURVEY_OPTIONS.kenaikan_traffic}
+              value={formData.kenaikan_traffic}
+              onChange={updateField('kenaikan_traffic')}
+              labels={TRAFFIC_LABELS}
+            />
+
+            <RadioGroup
+              label="Kenaikan Sales / Penjualan"
+              options={SURVEY_OPTIONS.kenaikan_sales}
+              value={formData.kenaikan_sales}
+              onChange={updateField('kenaikan_sales')}
+            />
           </div>
         </section>
 
-        {/* Comments */}
+        {/* Section 3: Umpan Balik */}
         <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
-            Feedback (Opsional)
+          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+            Bagian 3: Umpan Balik
           </h2>
-          <div className="space-y-3">
-            <div>
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                <MessageSquare className="h-3.5 w-3.5" />
-                Komentar / Feedback
-              </label>
-              <textarea
-                value={comments.feedback_comment}
-                onChange={(e) => setComments(p => ({ ...p, feedback_comment: e.target.value }))}
-                placeholder="Bagikan komentar, kesan, atau masukan Anda tentang event ini..."
-                rows={3}
-                maxLength={2000}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-              />
-              <p className="mt-1 text-right text-[10px] text-slate-400">
-                {2000 - comments.feedback_comment.length} karakter tersisa
-              </p>
-            </div>
-            <div>
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                <Lightbulb className="h-3.5 w-3.5" />
-                Saran Perbaikan
-              </label>
-              <textarea
-                value={comments.improvement_suggestion}
-                onChange={(e) => setComments(p => ({ ...p, improvement_suggestion: e.target.value }))}
-                placeholder="Saran atau ide perbaikan untuk event selanjutnya..."
-                rows={3}
-                maxLength={2000}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-              />
-              <p className="mt-1 text-right text-[10px] text-slate-400">
-                {2000 - comments.improvement_suggestion.length} karakter tersisa
-              </p>
-            </div>
+          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+            Sampaikan masukan Anda tentang event ini secara bebas (opsional).
+          </p>
+
+          <div>
+            <textarea
+              value={formData.feedback_teks}
+              onChange={(e) => updateField('feedback_teks')(e.target.value)}
+              placeholder="Apakah profil pengunjung event ini cocok dengan produk Anda? Jenis event apa yang Anda harapkan ke depannya?"
+              rows={5}
+              maxLength={2000}
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+            />
+            <p className="mt-1 text-right text-[10px] text-slate-400">
+              {2000 - formData.feedback_teks.length} karakter tersisa
+            </p>
           </div>
         </section>
+
+        {/* Progress indicator */}
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <span>{progress}% selesai</span>
+          <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
+        </div>
 
         {/* Submit */}
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

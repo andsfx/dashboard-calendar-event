@@ -260,11 +260,11 @@ export type TenantSurveyStatus = 'draft' | 'submitted' | 'reviewed';
  * Maps directly to columns in tenant_event_surveys table.
  */
 export interface TenantSurveyRatings {
-  venue_rating: number | null;
-  management_rating: number | null;
-  event_organization_rating: number | null;
-  booth_facility_rating: number | null;
-  overall_rating: number | null;
+  venue_rating?: number | null;
+  management_rating?: number | null;
+  event_organization_rating?: number | null;
+  booth_facility_rating?: number | null;
+  overall_rating?: number | null;
 }
 
 /** Full survey record as stored in Supabase */
@@ -278,8 +278,8 @@ export interface TenantEventSurvey extends TenantSurveyRatings {
   tenant_phone: string;
   business_category: 'fnb' | 'retail' | 'jasa' | 'other';
   business_subcategory: string;
-  sales_lift_pct: number;
-  traffic_lift_pct: number;
+  sales_lift_pct?: number | null;
+  traffic_lift_pct?: number | null;
   feedback_comment: string;
   improvement_suggestion: string;
   status: TenantSurveyStatus;
@@ -289,6 +289,13 @@ export interface TenantEventSurvey extends TenantSurveyRatings {
   review_notes: string;
   created_at: string;
   updated_at: string;
+  nama_gerai?: string | null;
+  lokasi_zona?: string | null;
+  kategori?: string | null;
+  kenaikan_traffic?: string | null;
+  kenaikan_sales?: string | null;
+  feedback_teks?: string | null;
+  tenant_id?: string | null;
 }
 
 /**
@@ -303,15 +310,22 @@ export interface TenantSurveyFormData {
   tenant_phone?: string;
   business_category: 'fnb' | 'retail' | 'jasa' | 'other';
   business_subcategory: string;
-  sales_lift_pct: number;
-  traffic_lift_pct: number;
-  venue_rating: number | null;
-  management_rating: number | null;
-  event_organization_rating: number | null;
-  booth_facility_rating: number | null;
+  sales_lift_pct?: number | null;
+  traffic_lift_pct?: number | null;
+  venue_rating?: number | null;
+  management_rating?: number | null;
+  event_organization_rating?: number | null;
+  booth_facility_rating?: number | null;
   overall_rating?: number | null;
   feedback_comment?: string;
   improvement_suggestion?: string;
+  nama_gerai?: string | null;
+  lokasi_zona?: string | null;
+  kategori?: string | null;
+  kenaikan_traffic?: string | null;
+  kenaikan_sales?: string | null;
+  feedback_teks?: string | null;
+  tenant_id?: string | null;
 }
 
 /** Analytics row (per tenant) */
