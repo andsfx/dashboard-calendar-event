@@ -210,8 +210,8 @@ async function handlePublicTenants(req, res) {
     const list = Array.isArray(json.data) ? json.data : [];
 
     const tenants = list
-      .filter((t: Record<string, unknown>) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
-      .map((t: Record<string, unknown>) => ({
+      .filter((t) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
+      .map((t) => ({
         id: String(t.TENANT_ID ?? ''),
         name: String(t.TENANT_NAME ?? '').trim(),
         floor: String(t.TENANT_FLOOR ?? '').trim(),
