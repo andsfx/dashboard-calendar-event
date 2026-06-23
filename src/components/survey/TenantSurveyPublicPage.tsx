@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   Send, ArrowLeft, MapPin, Calendar, Search,
-  ChevronLeft, RefreshCw, CheckCircle2, Sparkles, X,
+  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, X,
 } from 'lucide-react';
 import {
   fetchPublicTenantSurveyEvent,
@@ -49,8 +49,8 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
                 flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
                 transition focus-within:ring-2 focus-within:ring-brand-primary-500
                 ${selected
-                  ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
-                  : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
+                  ? 'border-brand-primary-400 bg-brand-primary-50 shadow-sm dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
+                  : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                 }
               `}
             >
@@ -158,7 +158,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
         placeholder="Ketik nama gerai Anda..."
         disabled={disabled}
         autoComplete="off"
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
       />
       {query && !disabled && (
         <button
@@ -507,7 +507,7 @@ export default function TenantSurveyPublicPage() {
   return (
     <PageShell>
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-secondary-50 p-5 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-secondary-950/40">
+      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-secondary-50 p-5 transition hover:shadow-sm dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-secondary-950/40">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
             <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
@@ -581,7 +581,7 @@ export default function TenantSurveyPublicPage() {
         )}
 
         {/* Section 1: Informasi Gerai */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 1: Informasi Gerai
           </h2>
@@ -622,7 +622,7 @@ export default function TenantSurveyPublicPage() {
             </div>
 
             {/* Lokasi with auto-filled indicator */}
-            <div>
+            <div className="relative">
               <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <MapPin className="h-3.5 w-3.5" />
                 Lokasi / Zona
@@ -634,13 +634,14 @@ export default function TenantSurveyPublicPage() {
               <select
                 value={formData.lokasi_zona}
                 onChange={(e) => updateField('lokasi_zona')(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
               >
                 <option value="">Pilih lokasi / zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
                   <option key={z} value={z}>{z}</option>
                 ))}
               </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 text-slate-400" />
             </div>
 
             {/* Kategori with auto-filled indicator */}
@@ -661,7 +662,7 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 2: Evaluasi Traffic & Sales */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
@@ -688,7 +689,7 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 3: Umpan Balik */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 3: Umpan Balik
           </h2>
@@ -703,11 +704,30 @@ export default function TenantSurveyPublicPage() {
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
             />
-            <p className="mt-1 text-right text-[10px] text-slate-400">
-              {2000 - formData.feedback_teks.length} karakter tersisa
-            </p>
+            {/* Character counter */}
+            <div className="mt-1.5 flex items-center gap-2">
+              <div className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    formData.feedback_teks.length > 1800
+                      ? 'bg-red-400'
+                      : formData.feedback_teks.length > 1500
+                        ? 'bg-amber-400'
+                        : 'bg-brand-primary-400'
+                  }`}
+                  style={{ width: `${(formData.feedback_teks.length / 2000) * 100}%` }}
+                />
+              </div>
+              <span className={`text-[10px] tabular-nums ${
+                formData.feedback_teks.length > 1800
+                  ? 'font-bold text-red-500'
+                  : 'text-slate-400'
+              }`}>
+                {2000 - formData.feedback_teks.length}
+              </span>
+            </div>
           </div>
         </section>
 
@@ -756,7 +776,7 @@ export default function TenantSurveyPublicPage() {
         </div>
 
         <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">
-          <Sparkles className="mr-1 inline h-3 w-3" />
+          <Shield className="mr-1 inline h-3 w-3" />
           Survey ini dapat diakses tanpa login. Identitas Anda akan disimpan secara anonim.
         </p>
       </form>

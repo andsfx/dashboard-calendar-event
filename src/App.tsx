@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { List, Kanban, Clock4, Radio, Clock3 } from 'lucide-react';
+import { List, Kanban, Clock4, Radio, Clock3, ArrowLeft } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { SectionNav } from './components/SectionNav';
@@ -666,13 +666,23 @@ export default function App() {
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="min-h-screen bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
-              {/* Header with logo */}
-              <div className="mb-8 flex items-center gap-3">
-                <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
-                <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
-                <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                  Tenant Self-Assessment
-                </span>
+              {/* Header with logo + back button */}
+              <div className="mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
+                  <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    Tenant Self-Assessment
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/')}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Kembali
+                </button>
               </div>
 
               {/* Main card */}
