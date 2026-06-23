@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
-  Send, ArrowLeft, MapPin, Calendar,
-  ChevronLeft, RefreshCw, CheckCircle2, Sparkles,
+  Send, ArrowLeft, MapPin, Calendar, Search,
+  ChevronLeft, RefreshCw, CheckCircle2, Sparkles, X,
 } from 'lucide-react';
 import {
   fetchPublicTenantSurveyEvent,
   checkPublicTenantSurveyDuplicate,
   submitPublicTenantSurvey,
+  fetchActiveTenants,
+  type TenantDropdownOption,
 } from '../../utils/supabaseApi';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateTenantSurvey } from '../../utils/validation';
@@ -101,6 +103,123 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
         })}
       </div>
     </fieldset>
+  );
+}
+
+function TenantSearchSelect({ value, onChange, disabled }: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const containerRef = useState<HTMLDivElement | null>(null);
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const container = containerRef[0];
+  const setContainer = containerRef[1];
+
+  // Sync query when value changes externally (e.g., reset)
+  useEffect(() => { setQuery(value); }, [value]);
+
+  // Debounced search
+  useEffect(() => {
+    if (disabled) return;
+    let cancelled = false;
+    setLoading(true);
+    const t = setTimeout(async () => {
+      const result = await fetchActiveTenants(query);
+      if (!cancelled) {
+        setTenants(result);
+        setLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [query, disabled]);
+
+  // Close on outside click + ESC
+  useEffect(() => {
+    if (!open) return;
+    function onClick(e: MouseEvent) {
+      if (container && !container.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, container]);
+
+  return (
+    <div ref={setContainer} className="relative">
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        placeholder="Ketik nama gerai Anda..."
+        disabled={disabled}
+        autoComplete="off"
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+      />
+      {query && !disabled && (
+        <button
+          type="button"
+          onClick={() => { setQuery(''); onChange(''); setOpen(false); }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          aria-label="Hapus"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+
+      {open && !disabled && (
+        <div className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-800">
+          {loading ? (
+            <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+              Memuat tenant...
+            </div>
+          ) : tenants.length === 0 ? (
+            <div className="px-4 py-3 text-xs text-slate-500">
+              {query ? `Tidak ada tenant cocok "${query}"` : 'Ketik untuk mencari tenant'}
+            </div>
+          ) : (
+            tenants.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => { onChange(t.name); setQuery(t.name); setOpen(false); }}
+                className="flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 hover:bg-violet-50 dark:border-slate-700 dark:hover:bg-violet-950/30"
+              >
+                {t.logo ? (
+                  <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
+                ) : (
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-400 dark:bg-slate-700">
+                    {t.name.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                    {t.name}
+                  </p>
+                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                    {t.category || '—'}
+                    {t.floor ? ` • ${t.floor}` : ''}
+                    {t.lot ? ` • Lot ${t.lot}` : ''}
+                  </p>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -434,14 +553,17 @@ export default function TenantSurveyPublicPage() {
           </p>
 
           <div className="space-y-4">
-            <Field
-              label="Nama Gerai"
-              required
-              value={formData.nama_gerai}
-              onChange={updateField('nama_gerai')}
-              placeholder="Nama toko atau brand Anda"
-              icon={<Building2 className="h-3.5 w-3.5" />}
-            />
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                <Building2 className="h-3.5 w-3.5" />
+                Nama Gerai
+                <span className="text-red-500">*</span>
+              </label>
+              <TenantSearchSelect
+                value={formData.nama_gerai}
+                onChange={updateField('nama_gerai')}
+              />
+            </div>
 
             <div>
               <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
