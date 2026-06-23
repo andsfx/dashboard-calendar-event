@@ -1,0 +1,21 @@
+Task 7 - Community Landing Page Refactor
+=========================================
+Date: 2026-06-07
+
+Status: COMPLETE
+
+Changes:
+1. src/components/community/CommunitySocialProof.tsx - Extracted social proof strip (StatBadge + RevealSection)
+2. src/components/community/CommunityUpcomingEvents.tsx - Extracted UpcomingEventsFeature, EventShowcase, GridCardsView, EmptyEvents, getCountdown, CountdownPill
+3. src/components/community/CommunityGallery.tsx - Extracted gallery + instagram section (incl. SkeletonGalleryAlbums, LazyInstagramEmbed, InstagramCachedCard, InstagramFallbackCard, CachedInstagramPost)
+4. src/components/community/CommunityContact.tsx - Extracted contact/CTA section
+5. src/components/CommunityLandingPage.tsx - Reduced from ~1016 to 208 lines. Imports extracted components. Removed unused imports.
+
+Build: PASS
+
+Line counts:
+- CommunityLandingPage.tsx: 208 lines (< 400 target ✓)
+- CommunitySocialProof.tsx: 29 lines
+- CommunityUpcomingEvents.tsx: 362 lines
+- CommunityGallery.tsx: 290 lines
+- CommunityContact.tsx: 74 lines

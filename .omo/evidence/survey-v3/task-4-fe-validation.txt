@@ -1,0 +1,39 @@
+Task: T4 — Survey v3 Frontend Validation Rewrite
+File: src/utils/validation.ts
+Date: 2026-06-23
+
+=== CHANGES MADE ===
+
+1. REMOVED from validateTenantSurvey():
+   - Rating field validation (venue_rating, management_rating, event_organization_rating, booth_facility_rating, overall_rating)
+   - Percentage field validation (sales_lift_pct, traffic_lift_pct)
+   - Business category + subcategory validation (business_category, business_subcategory)
+   - validateRating() and validatePercentage() functions
+
+2. ADDED new validation fields in validateTenantSurvey():
+   - nama_gerai: required (non-draft), 1-100 chars after trim
+   - lokasi_zona: required (non-draft), must be in SURVEY_OPTIONS.lokasi_zona
+   - kategori: required (non-draft), must be in SURVEY_OPTIONS.kategori
+   - kenaikan_traffic: required (non-draft), must be in SURVEY_OPTIONS.kenaikan_traffic
+   - kenaikan_sales: required (non-draft), must be in SURVEY_OPTIONS.kenaikan_sales
+
+3. ADDED import: import { SURVEY_OPTIONS } from '../constants/survey-options'
+
+4. KEPT (unchanged):
+   - event_id validation
+   - Text field length limits (feedback_comment, improvement_suggestion, tenant_organization)
+   - Community registration validation (validateEmail, validatePhone, validateInstagram)
+
+5. LEGACY EXPORTS PRESERVED (deprecated, not removed):
+   - TENANT_RATING_KEYS, TENANT_ALL_RATING_KEYS, TENANT_RATING_LABELS
+   - TENANT_RATING_MIN, TENANT_RATING_MAX
+   - Needed by TenantSurveyForm.tsx rating UI (separate rewrite)
+
+=== VERIFICATION ===
+
+- npx tsc --noEmit: PASS (zero errors)
+- npm run build: PASS (tsc + vite build succeeds)
+- SURVEY_OPTIONS imported from ../constants/survey-options: CONFIRMED
+- All new fields validate against SURVEY_OPTIONS values: CONFIRMED
+- Error messages in Indonesian: CONFIRMED
+- Draft mode respected (isDraft skips required checks): CONFIRMED

@@ -1,0 +1,86 @@
+src/components/EventCrudModal.tsx(228,7): error TS2322: Type '{ jam: string; date?: string | undefined; }' is not assignable to type 'DayTimeSlot'.
+  Types of property 'date' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/EventCrudModal.tsx(237,7): error TS2322: Type '{ jam: string; date?: string | undefined; }' is not assignable to type 'DayTimeSlot'.
+  Types of property 'date' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/EventCrudModal.tsx(237,60): error TS2532: Object is possibly 'undefined'.
+src/components/EventCrudModal.tsx(361,43): error TS18048: 'now' is possibly 'undefined'.
+src/components/EventTable.tsx(34,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/FeaturedEvents.tsx(74,37): error TS18048: 'todayStr' is possibly 'undefined'.
+src/components/FeaturedEvents.tsx(76,21): error TS2345: Argument of type 'EventItem | undefined' is not assignable to parameter of type 'EventItem'.
+  Type 'undefined' is not assignable to type 'EventItem'.
+src/components/FilterBar.tsx(68,18): error TS2532: Object is possibly 'undefined'.
+src/components/FilterBar.tsx(73,18): error TS2532: Object is possibly 'undefined'.
+src/components/GalleryAlbumPage.tsx(48,69): error TS18048: 'last' is possibly 'undefined'.
+src/components/GalleryAlbumPage.tsx(50,68): error TS18048: 'first' is possibly 'undefined'.
+src/components/GalleryIndexPage.tsx(13,22): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/GalleryIndexPage.tsx(13,49): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/InstagramSettingsModal.tsx(73,19): error TS2532: Object is possibly 'undefined'.
+src/components/ModalWrapper.tsx(96,11): error TS18048: 'last' is possibly 'undefined'.
+src/components/ModalWrapper.tsx(101,11): error TS18048: 'first' is possibly 'undefined'.
+src/components/PublicLandingPage.tsx(355,12): error TS18048: 'today' is possibly 'undefined'.
+src/components/PublicLandingPage.tsx(355,40): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(17,38): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/QuarterTimeline.tsx(34,28): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(34,52): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(53,33): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(53,57): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(86,21): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(86,57): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(108,92): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/QuarterTimeline.tsx(120,28): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(120,56): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(121,28): error TS18048: 'today' is possibly 'undefined'.
+src/components/QuarterTimeline.tsx(122,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/SectionNav.tsx(19,17): error TS2532: Object is possibly 'undefined'.
+src/data/mockEvents.ts(33,3): error TS2322: Type '{ jam: string; acara: string; lokasi: string; eo: string; pic: string; phone: string; keterangan: string; categories: string[]; category: string; priority: "high" | "medium" | "low"; status: "upcoming" | "ongoing" | "past"; ... 8 more ...; rowIndex: number; }' is not assignable to type 'EventItem'.
+  Types of property 'dateStr' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/data/mockEvents.ts(60,18): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/data/mockEvents.ts(100,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/data/mockEvents.ts(102,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/data/mockEvents.ts(104,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/hooks/useEvents.ts(8,3): error TS2322: Type 'EventItem | undefined' is not assignable to type 'EventItem'.
+  Type 'undefined' is not assignable to type 'EventItem'.
+src/utils/eventInput.ts(35,21): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventInput.ts(35,26): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(61,19): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(61,49): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(96,7): error TS2532: Object is possibly 'undefined'.
+src/utils/eventUtils.ts(231,46): error TS2532: Object is possibly 'undefined'.
+src/utils/eventUtils.ts(234,15): error TS2532: Object is possibly 'undefined'.
+src/utils/eventUtils.ts(238,20): error TS2532: Object is possibly 'undefined'.
+src/utils/eventUtils.ts(239,19): error TS2532: Object is possibly 'undefined'.
+src/utils/eventUtils.ts(295,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(296,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(302,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/eventUtils.ts(303,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/sheetsApi.ts(144,39): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/sheetsApi.ts(155,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/sheetsApi.ts(156,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/sheetsApi.ts(262,17): error TS18048: 'today' is possibly 'undefined'.

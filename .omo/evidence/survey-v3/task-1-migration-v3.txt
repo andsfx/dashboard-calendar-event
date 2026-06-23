@@ -1,0 +1,126 @@
+TASK: Database migration v3 for tenant_event_surveys
+DATE: 2026-06-22
+FILE: D:\Andy\Antigravity\schedule-event-v2\migrate\tenant-event-surveys-v3.sql
+
+==========================================================================
+FILE VERIFICATION
+==========================================================================
+
+File path: D:\Andy\Antigravity\schedule-event-v2\migrate\tenant-event-surveys-v3.sql
+File exists: YES
+
+Command: Get-Content "D:\Andy\Antigravity\schedule-event-v2\migrate\tenant-event-surveys-v3.sql" | Select-Object -First 30
+
+Output (first 30 lines):
+----------------------------------------
+-- ============================================================================
+-- TENANT EVENT SURVEYS V3 - Tenant Identity & Survey Expansion
+-- Metropolitan Mall Bekasi
+-- ============================================================================
+--
+-- PURPOSE: Extend tenant_event_surveys with richer tenant identity fields
+--          (nama_gerai, lokasi_zona, kategori, tenant_id) and business impact
+--          metrics (kenaikan_traffic, kenaikan_sales, feedback_teks).
+--          Also make existing NOT NULL fields nullable for flexible partial
+--          submissions and mark deprecated columns.
+--
+-- IDEMPOTENCY: Safe to run multiple times (IF NOT EXISTS / DO blocks)
+--
+-- New Fields:
+--   - nama_gerai            (VARCHAR 100)  - booth/store name
+--   - lokasi_zona           (VARCHAR 50)   - zone/location within mall
+--   - kategori              (VARCHAR 50)   - category label
+--   - kenaikan_traffic      (VARCHAR 50)   - traffic increase description
+--   - kenaikan_sales        (VARCHAR 50)   - sales increase description
+--   - feedback_teks         (TEXT)         - free-form feedback text
+--   - tenant_id             (VARCHAR 100)  - future FK to tenants table
+--
+-- Schema Changes:
+--   - DROP NOT NULL on rating fields (venue, management, org, booth, overall)
+--   - DROP NOT NULL on percentage fields (sales_lift_pct, traffic_lift_pct)
+--   - DROP NOT NULL on old optional fields (tenant_name, tenant_organization,
+--     tenant_email, tenant_phone, business_category, business_subcategory,
+--     feedback_comment, improvement_suggestion)
+--   - Mark business_category + business_subcategory as DEPRECATED via SQL COMMENT
+--
+----------------------------------------
+
+==========================================================================
+VERIFICATION CHECKLIST
+==========================================================================
+
+[X] Header comment explaining purpose and why this migration exists
+[X] All 7 new columns added with ADD COLUMN IF NOT EXISTS:
+    - nama_gerai VARCHAR(100) NULL
+    - lokasi_zona VARCHAR(50) NULL
+    - kategori VARCHAR(50) NULL
+    - kenaikan_traffic VARCHAR(50) NULL
+    - kenaikan_sales VARCHAR(50) NULL
+    - feedback_teks TEXT NULL
+    - tenant_id VARCHAR(100) NULL
+
+[X] DROP NOT NULL on 5 rating fields:
+    - venue_rating
+    - management_rating
+    - event_organization_rating
+    - booth_facility_rating
+    - overall_rating
+
+[X] DROP NOT NULL on 2 percentage fields:
+    - sales_lift_pct
+    - traffic_lift_pct
+
+[X] DROP NOT NULL on 8 old optional fields:
+    - tenant_name
+    - tenant_organization
+    - tenant_email
+    - tenant_phone
+    - business_category
+    - business_subcategory
+    - feedback_comment
+    - improvement_suggestion
+
+[X] SQL COMMENT marking business_category as DEPRECATED
+[X] SQL COMMENT marking business_subcategory as DEPRECATED
+
+[X] No DROP COLUMN statements used
+[X] No DELETE/UPDATE on existing rows
+[X] All ADD COLUMN uses IF NOT EXISTS (idempotent)
+[X] ALTER COLUMN DROP NOT NULL is inherently idempotent in PostgreSQL
+[X] Inline SQL comments on each ALTER statement
+
+==========================================================================
+SYNTAX VERIFICATION
+==========================================================================
+
+PostgreSQL syntax check:
+- ALTER TABLE ... ADD COLUMN IF NOT EXISTS [col] [type]  -> VALID
+- ALTER TABLE ... ALTER COLUMN [col] DROP NOT NULL       -> VALID (idempotent)
+- COMMENT ON COLUMN [table].[col] IS '...'              -> VALID
+
+Idempotency notes:
+- ADD COLUMN IF NOT EXISTS: safe to re-run
+- ALTER COLUMN DROP NOT NULL: PostgreSQL allows re-running (no-op if already nullable)
+- COMMENT ON COLUMN: replacing existing comment (safe to re-run)
+
+==========================================================================
+REFERENCES USED
+==========================================================================
+
+- D:\Andy\Antigravity\schedule-event-v2\migrate\tenant-event-surveys-v2.sql (style reference)
+- D:\Andy\Antigravity\schedule-event-v2\migrate\tenant-event-surveys.sql (v1 base schema)
+- D:\Andy\Antigravity\schedule-event-v2\api\tenant-survey.js:257-276 (current row builder)
+- D:\Andy\Antigravity\schedule-event-v2\src\types.ts:258-315 (TypeScript types)
+
+==========================================================================
+RUN COMMAND
+==========================================================================
+
+To apply migration in Supabase SQL editor or psql:
+\i D:/Andy/Antigravity/schedule-event-v2/migrate/tenant-event-surveys-v3.sql
+
+Or via psql:
+psql -h <host> -U postgres -d postgres -f migrate/tenant-event-surveys-v3.sql
+
+Or via Supabase CLI:
+supabase db push

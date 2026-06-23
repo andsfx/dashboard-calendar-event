@@ -1,11 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Loader2, AlertTriangle, Calendar, MapPin, Search, ArrowRight,
-  Clock, CheckCircle2, Building2, ChevronRight,
+  Loader2, AlertTriangle, Calendar, MapPin, Search,
+  Building2, ChevronRight,
 } from 'lucide-react';
 import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from '../../utils/supabaseApi';
-import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
 
 function formatDate(d: string) {
   try {
@@ -13,23 +12,6 @@ function formatDate(d: string) {
   } catch {
     return d;
   }
-}
-
-function StatusBadge({ status }: { status: string }) {
-  if (status === 'ongoing') {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        Berlangsung
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-      <CheckCircle2 className="h-3 w-3" />
-      Selesai
-    </span>
-  );
 }
 
 export default function TenantSurveyEventPicker() {
@@ -66,28 +48,6 @@ export default function TenantSurveyEventPicker() {
       e.eo?.toLowerCase().includes(q),
     );
   }, [events, query]);
-
-  const grouped = useMemo(() => {
-    const groups: { label: string; events: PublicTenantSurveyEventInfo[] }[] = [];
-
-    const ongoing = filtered.filter(e => e.status === 'ongoing');
-    const past = filtered.filter(e => e.status !== 'ongoing');
-
-    if (ongoing.length > 0) {
-      groups.push({
-        label: `Sedang Berlangsung (${ongoing.length})`,
-        events: ongoing,
-      });
-    }
-    if (past.length > 0) {
-      groups.push({
-        label: `${query ? '' : 'Selesai'} ${query ? '' : `(${past.length})`}`,
-        events: past,
-      });
-    }
-
-    return groups;
-  }, [filtered, query]);
 
   // Loading
   if (loading) {
@@ -132,64 +92,47 @@ export default function TenantSurveyEventPicker() {
       </div>
 
       {/* Event list */}
-      <div className="space-y-6">
-        {grouped.map(group => (
-          <section key={group.label}>
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              {group.label}
-            </h3>
+      <div className="space-y-2">
+        {filtered.map(ev => (
+          <button
+            key={ev.id}
+            type="button"
+            onClick={() => navigate(`/tenant-survey/${ev.id}`)}
+            className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600"
+          >
+            {/* Status indicator bar */}
+            <div className="hidden h-12 w-1 shrink-0 rounded-full bg-slate-300 sm:block dark:bg-slate-600" />
 
-            <div className="space-y-2">
-              {group.events.map(ev => (
-                <button
-                  key={ev.id}
-                  type="button"
-                  onClick={() => navigate(`/tenant-survey/${ev.id}`)}
-                  className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600"
-                >
-                  {/* Status indicator bar */}
-                  <div
-                    className={`hidden h-12 w-1 shrink-0 rounded-full sm:block ${
-                      ev.status === 'ongoing' ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'
-                    }`}
-                  />
-
-                  {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        {ev.acara}
-                      </span>
-                      <StatusBadge status={ev.status} />
-                    </div>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {formatDate(ev.tanggal)}
-                      </span>
-                      {ev.lokasi && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {ev.lokasi}
-                        </span>
-                      )}
-                      {ev.eo && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <Building2 className="h-3.5 w-3.5" />
-                          {ev.eo}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-emerald-100 group-hover:text-emerald-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-emerald-900/50 dark:group-hover:text-emerald-400">
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </button>
-              ))}
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+              <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                {ev.acara}
+              </span>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {formatDate(ev.tanggal)}
+                </span>
+                {ev.lokasi && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {ev.lokasi}
+                  </span>
+                )}
+                {ev.eo && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Building2 className="h-3.5 w-3.5" />
+                    {ev.eo}
+                  </span>
+                )}
+              </div>
             </div>
-          </section>
+
+            {/* Arrow */}
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-emerald-100 group-hover:text-emerald-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-emerald-900/50 dark:group-hover:text-emerald-400">
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </button>
         ))}
       </div>
 

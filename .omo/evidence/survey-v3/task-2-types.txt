@@ -1,0 +1,34 @@
+=== TASK 2 EVIDENCE: SURVEY_OPTIONS Constant + Updated Types ===
+
+FILES MODIFIED:
+1. Created: src/constants/survey-options.ts
+   - Exports SURVEY_OPTIONS (as const) with lokasi_zona, kategori, kenaikan_traffic, kenaikan_sales
+   - Exports type SurveyOptionKey = keyof typeof SURVEY_OPTIONS
+
+2. Updated: src/types.ts
+   - TenantSurveyRatings: all rating fields made optional (venue_rating?, management_rating?, etc.)
+   - TenantEventSurvey: added 7 new fields (nama_gerai?, lokasi_zona?, kategori?, kenaikan_traffic?, kenaikan_sales?, feedback_teks?, tenant_id?); sales_lift_pct and traffic_lift_pct made optional
+   - TenantSurveyFormData: added 7 new fields; rating fields made optional; sales_lift_pct and traffic_lift_pct made optional
+
+3. Updated: src/utils/supabaseApi.ts
+   - DbTenantSurvey: added 7 new fields; sales_lift_pct and traffic_lift_pct changed to number | null
+   - PublicTenantSurveySubmission: added new fields, rating fields made optional, percentage fields made optional
+
+4. Updated (necessary fix): src/components/survey/TenantSurveyList.tsx:38
+   - ratingColor signature: changed from (number | null) to (number | null | undefined) to match new optional rating types
+
+VERIFICATION RESULTS:
+- npx tsc --noEmit: PASS (zero errors)
+- npm run build: PASS
+
+SURVEY_OPTIONS shape validation:
+- lokasi_zona: 6 items ['Atrium Utama', 'Pintu Utara 2', 'Lantai Dasar', 'Lantai 1', 'Lantai 2', 'Lantai 3']
+- kategori: 6 items ['Food & Beverage (F&B)', 'Fashion & Aksesoris', 'Lifestyle & Hobi', 'Hiburan / Mainan Anak', 'Servis / Jasa', 'Supermarket / Department Store']
+- kenaikan_traffic: 4 items ['Signifikan', 'Sedikit Naik', 'Tidak Ada', 'Menurun']
+- kenaikan_sales: 5 items ['Tidak ada kenaikan / Sama saja', '< 10%', '10% - 30%', '30% - 50%', '> 50%']
+
+EXISTING FIELDS PRESERVED:
+- All original fields retained, only made optional where specified
+- No field types changed
+- No fields removed
+- PublicTenantSurveyEventInfo left as-is (lines 1137-1144)

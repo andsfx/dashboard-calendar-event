@@ -169,7 +169,7 @@ async function handlePublicEvents(req, res) {
   const { data, error } = await sb
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
-    .neq('status', 'draft')
+    .eq('status', 'past')
     .order('tanggal', { ascending: false })
     .limit(200);
 

@@ -1,0 +1,36 @@
+{
+  "consoleLogs": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": {
+        "url": "https://metmal-community-hub.vercel.app/gallery",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "networkRequests": [
+    {
+      "url": "https://metmal-community-hub.vercel.app/gallery",
+      "method": "GET",
+      "resourceType": "document",
+      "status": 404,
+      "statusText": ""
+    }
+  ],
+  "albumsData": {
+    "windowAlbums": null,
+    "domAlbums": null,
+    "reactState": null
+  },
+  "themesData": null,
+  "timestamp": "2026-04-26T12:05:48.040Z",
+  "errors": [],
+  "pageInfo": {
+    "title": "404: NOT_FOUND",
+    "url": "https://metmal-community-hub.vercel.app/gallery",
+    "bodyText": "404: NOT_FOUND\nCode: NOT_FOUND\nID: sin1::wmwnt-1777205148565-f9796d1a47a1\n\nRead our documentation to learn more about this error.",
+    "albumCount": 0
+  }
+}

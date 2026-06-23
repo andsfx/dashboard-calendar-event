@@ -1,0 +1,21 @@
+# Task 5: Remove unused GAS parts
+Date: 2026-06-07
+
+## Files Deleted
+1. `api/apps-script-public.js`
+2. `src/utils/sheetsApi.ts`
+
+## Import Check Results
+- `src/` and `api/` source files: **NO active imports** from either file
+  - Only comment in `src/utils/supabaseApi.ts` line 5: `// Supabase API — Replaces sheetsApi.ts` (harmless comment, not an import)
+- `deployed-bundle.js`: contains bundled reference from old build (not a source import)
+- `.md` files: GITHUB-ISSUE-*, MULTIDAY_IMPLEMENTATION.md mention sheetsApi in docs only
+- `migrate/check-*.mjs` scripts: reference string "sheetsApi" for bundle checks (no import)
+
+## Verification
+- Both files confirmed deleted (Test-Path returns False)
+- `api/apps-script-admin.js` — NOT touched (kept for letter request)
+- No dangling imports to fix
+
+## Task 2 Reference
+- Previous evidence: `.sisyphus/evidence/task-2-gas-audit.txt`

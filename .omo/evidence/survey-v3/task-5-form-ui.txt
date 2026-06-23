@@ -1,0 +1,32 @@
+Task 5: Rewrite TenantSurveyPublicPage.tsx form UI
+==================================================
+Date: 2026-06-23
+File: src/components/survey/TenantSurveyPublicPage.tsx
+
+Changes Made:
+- Removed: BUSINESS_CATEGORIES constant, DISPLAY_TO_INTERNAL_CATEGORY constant, RATING_FIELDS constant
+- Removed: PercentageFieldProps interface, PercentageField component
+- Removed: RatingStarsProps interface, RatingStars component
+- Removed: Old fieldErrors field-level tracking (setFieldLevelErrors etc.)
+- Removed: Rating stars section, percentage inputs, business category dropdowns
+- Removed: Old form state (ratings, identity, comments, impactMetrics, businessCategory, businessSubcategory)
+- Removed: Unused lucide imports (Briefcase, Mail, Phone, Star, MessageSquare, Lightbulb)
+
+Added:
+- Import: SURVEY_OPTIONS from constants/survey-options
+- Import: Building2 icon (reused for gerai section)
+- New formData state with 6 v3 fields: nama_gerai, lokasi_zona, kategori, kenaikan_traffic, kenaikan_sales, feedback_teks
+- TRAFFIC_LABELS mapping for verbose radio option display
+- RadioGroup component with proper accessibility (fieldset/legend/radiogroup aria-label)
+- Field component kept, adapted for new fields
+- Section 1: Informasi Gerai (nama_gerai text input, lokasi_zona select dropdown, kategori radio buttons)
+- Section 2: Evaluasi Traffic & Sales (kenaikan_traffic radio group with verbose labels, kenaikan_sales radio group)
+- Section 3: Umpan Balik (feedback_teks textarea with char counter)
+- Progress indicator adapted for 5 required v3 fields
+- handleSubmit maps formData → Record<string, unknown> for validation + submitPublicTenantSurvey
+
+Verified:
+- npx tsc --noEmit: PASS (zero errors)
+- npm run build: PASS
+- No RatingStars, PercentageField, BUSINESS_CATEGORIES, DISPLAY_TO_INTERNAL_CATEGORY remain
+- 3 new sections present with correct labels

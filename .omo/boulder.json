@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "active_work_id": "landing-page-v2-ad7db9c7",
+  "works": {
+    "landing-page-v2-ad7db9c7": {
+      "work_id": "landing-page-v2-ad7db9c7",
+      "active_plan": "D:\\Andy\\Antigravity\\schedule-event-v2\\.omo\\plans\\landing-page-v2.md",
+      "plan_name": "landing-page-v2",
+      "status": "active",
+      "started_at": "2026-06-23T02:51:27.475Z",
+      "updated_at": "2026-06-23T02:51:27.475Z",
+      "session_ids": [
+        "opencode:ses_10de3f200ffeod6GliYLFQ6sms"
+      ],
+      "session_origins": {
+        "opencode:ses_10de3f200ffeod6GliYLFQ6sms": "direct"
+      },
+      "agent": "atlas",
+      "task_sessions": {}
+    }
+  },
+  "active_plan": "D:\\Andy\\Antigravity\\schedule-event-v2\\.omo\\plans\\landing-page-v2.md",
+  "started_at": "2026-06-23T02:51:27.475Z",
+  "status": "active",
+  "updated_at": "2026-06-23T02:51:27.475Z",
+  "session_ids": [
+    "opencode:ses_10de3f200ffeod6GliYLFQ6sms"
+  ],
+  "session_origins": {
+    "opencode:ses_10de3f200ffeod6GliYLFQ6sms": "direct"
+  },
+  "plan_name": "landing-page-v2",
+  "task_sessions": {},
+  "agent": "atlas"
+}

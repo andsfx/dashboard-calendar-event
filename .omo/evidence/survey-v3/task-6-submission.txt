@@ -1,0 +1,19 @@
+Task 6: Update submission payload handling to use new v3 fields
+===============================================================
+
+Files changed:
+  1. src/utils/supabaseApi.ts
+     - tenantSurveyFormToDbRow: added nama_gerai, lokasi_zona, kategori,
+       kenaikan_traffic, kenaikan_sales, feedback_teks, tenant_id
+     - updateTenantSurvey: added new fields to textKeys array,
+       removed percentageKeys (sales_lift_pct, traffic_lift_pct) block
+
+  2. api/tenant-survey.js — already updated by T3 (verified, row builder
+     at lines 252-282 already includes all v3 fields)
+
+Verification results (all PASS):
+  1. node --check api/tenant-survey.js .......... OK (no output)
+  2. npx tsc --noEmit ............................ OK (no output)
+  3. npm run build ............................... OK (tsc + vite build success)
+
+Date: 2026-06-23

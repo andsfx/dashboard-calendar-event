@@ -1,0 +1,1 @@
+Title and meta tags fixed in index.html. Replaced em dash (–) with regular dash (-) to resolve encoding corruption. Verified description meta tags have no broken characters.

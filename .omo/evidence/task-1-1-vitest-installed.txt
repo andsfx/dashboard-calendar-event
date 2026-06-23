@@ -1,0 +1,11 @@
+dashboard-calendar-event@0.0.0 D:\Andy\Antigravity\schedule-event-v2
++-- @testing-library/jest-dom@6.9.1
++-- @testing-library/react@16.3.2
++-- @testing-library/user-event@14.6.1
++-- @vitest/ui@4.1.5
+| `-- vitest@4.1.5 deduped
++-- jsdom@29.0.2
+`-- vitest@4.1.5
+  +-- @vitest/ui@4.1.5 deduped
+  `-- jsdom@29.0.2 deduped
+

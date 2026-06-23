@@ -1,0 +1,1497 @@
+﻿
+> dashboard-calendar-event@0.0.0 test
+> vitest
+
+
+ RUN  v4.1.5 D:/Andy/Antigravity/schedule-event-v2
+
+stdout | __tests__/api/community-registration.test.js
+≡ƒº¬ Running community-registration API tests...
+
+Test 1/16: Valid registration (required fields only)
+  Γ£à Test structure valid
+  Expected: 200 success
+
+Test 2/16: Valid registration (with optional fields)
+  Γ£à Test structure valid
+  Expected: 200 success
+
+Test 3/16: Missing required field: organization_type
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: organization_type
+
+Test 4/16: Missing required field: organization_name
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: organization_name
+
+Test 5/16: Missing required field: pic
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: pic
+
+Test 6/16: Missing required field: phone
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: phone
+
+Test 7/16: Invalid organization_type
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: organization_type
+
+Test 8/16: Invalid email format
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: email
+
+Test 9/16: Invalid phone format (too short)
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: phone
+
+Test 10/16: Invalid phone format (wrong prefix)
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: phone
+
+Test 11/16: Invalid Instagram format (non-Instagram URL)
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: instagram
+
+Test 12/16: Organization name too short
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: organization_name
+
+Test 13/16: PIC name too short
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: pic
+
+Test 14/16: Description too long
+  Γ£à Test structure valid
+  Expected: 400 error
+  Expected error field: description
+
+Test 15/16: Method not allowed (GET)
+  Γ£à Test structure valid
+  Expected: 405 error
+
+Test 16/16: Method not allowed (PUT)
+  Γ£à Test structure valid
+  Expected: 405 error
+
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+≡ƒôè Test Results: 16 passed, 0 failed
+
+Γ£à All tests passed!
+
+≡ƒô¥ Note: These are structure validation tests only.
+   To test actual API functionality:
+   1. Deploy to Vercel or run locally with vercel dev
+   2. Set up environment variables
+   3. Use curl or Postman to test the endpoint
+
+
+ Γ¥» __tests__/api/community-registration.test.js (0 test)
+ Γ¥» src/components/community/__tests__/CommunitySteps.test.tsx (5 tests | 1 failed) 251ms
+     ├ù renders step descriptions 38ms
+ Γ¥» src/components/dashboard/__tests__/DashboardHeader.test.tsx (7 tests | 3 failed) 238ms
+     ├ù shows admin controls when isAdmin is true 36ms
+     ├ù toggles settings menu 20ms
+     ├ù shows settings menu items when open 10ms
+ Γ¥» src/components/community/__tests__/CommunityBenefits.test.tsx (4 tests | 1 failed) 348ms
+     ├ù renders all 4 benefit cards 53ms
+ Γ¥» src/components/community/__tests__/CommunityRegistrationForm.test.tsx (5 tests | 3 failed) 330ms
+     ├ù renders all required form fields 70ms
+     ├ù submits form successfully 34ms
+     ├ù shows error on submission failure 25ms
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Suites 1 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  __tests__/api/community-registration.test.js [ __tests__/api/community-registration.test.js ]
+Error: No test suite found in file D:/Andy/Antigravity/schedule-event-v2/__tests__/api/community-registration.test.js
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/9]ΓÄ»
+
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 8 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  src/components/community/__tests__/CommunityBenefits.test.tsx > CommunityBenefits > renders all 4 benefit cards
+TestingLibraryElementError: Unable to find an element with the text: Sponsorship Opportunities. This could be because 
+the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make 
+your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"reveal-on-scroll reveal-strong  px-4 py-20 sm:px-6"[39m
+      [33mid[39m=[32m"benefits"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"reveal-stage"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-7xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-center"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600"[39m
+            [36m>[39m
+              [0mKenapa Gabung[0m
+            [36m</p>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white 
+sm:text-5xl"[39m
+            [36m>[39m
+              [0mBukan cuma dikasih space.[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mKamu juga dipush buat berkembang. Dari sponsorship sampai marketing support ΓÇö semua buat komunitas 
+kamu makin besar.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"group relative overflow-hidden rounded-[2rem] border border-slate-200/50 
+bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 
+dark:bg-slate-800"[39m
+              [33mstyle[39m=[32m"--accent-color: #f59e0b;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute left-0 right-0 top-0 h-1 transition-all duration-300 
+group-hover:h-2"[39m
+                [33mstyle[39m=[32m"background: rgb(245, 158, 11);"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex h-14 w-14 items-center justify-center rounded-xl transition-transform 
+duration-300 group-hover:scale-110"[39m
+                [33mstyle[39m=[32m"background: rgba(245, 158, 11, 0.082); color: rgb(245, 158, 11);"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-trophy h-7 w-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M6 9H4.5a2.5 2.5 0 0 1 0-5H6"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M18 9h1.5a2.5 2.5 0 0 0 0-5H18"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M4 22h16"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M18 2H6v7a6 6 0 0 0 12 0V2Z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</div>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"mt-5 text-lg font-bold text-slate-900 dark:text-white"[39m
+              [36m>[39m
+                [0mDukungan Sponsorship[0m
+              [36m</h3>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+              [36m>[39m
+                [0mDapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu connect dengan brand dan tenant 
+yang relevan.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl 
+opacity-0 transition-opacity duration-300 group-hover:opacity-20"[39m
+                [33mstyle[39m=[32m"background: rgb(245, 158, 11);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"group relative overflow-hidden rounded-[2rem] border border-slate-200/50 
+bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 
+dark:bg-slate-800"[39m
+              [33mstyle[39m=[32m"--accent-color: #ec4899;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute left-0 right-0 top-0 h-1 transition-all duration-300 
+group-hover:h-2"[39m
+                [33mstyle[39m=[32m"background: rgb(236, 72, 153);"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex h-14 w-14 items-center justify-center rounded-xl transition-transform 
+duration-300 group-hover:scale-110"[39m
+                [33mstyle[39m=[32m"background: rgba(236, 72, 153, 0.082); color: rgb(236, 72, 153);"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-megaphone h-7 w-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m3 11 18-5v12L3 14v-3z"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M11.6 16.8a3 3 0 1 1-5.8-1.6"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</div>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"mt-5 text-lg font-bold text-slate-900 dark:text-white"[39m
+              [36m>[39m
+                [0mPromosi & Marketing[0m
+              [36m</h3>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+              [36m>[39m
+                [0mTim marketing kami bantu promosiin event kamu lewat social media, digital signage, dan channel 
+mall lainnya.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl 
+opacity-0 transition-opacity duration-300 group-hover:opacity-20"[39m
+                [33mstyle[39m=[32m"background: rgb(236, 72, 153);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"group relative overflow-hidden rounded-[2rem] border border-slate-200/50 
+bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 
+dark:bg-slate-800"[39m
+              [33mstyle[39m=[32m"--accent-color: #8b5cf6;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute left-0 right-0 top-0 h-1 transition-all duration-300 
+group-hover:h-2"[39m
+                [33mstyle[39m=[32m"background: rgb(139, 92, 246);"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex h-14 w-14 items-center justify-center rounded-xl transition-transform 
+duration-300 group-hover:scale-110"[39m
+                [33mstyle[39m=[32m"background: rgba(139, 92, 246, 0.082); color: rgb(139, 92, 246);"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-rocket h-7 w-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 
+0-2.91-.09z"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 
+22.35 0 0 1-4 2z"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</div>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"mt-5 text-lg font-bold text-slate-900 dark:text-white"[39m
+              [36m>[39m
+                [0mKembangkan Komunitas[0m
+              [36m</h3>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+              [36m>[39m
+                [0mEksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang 
+udah bergabung.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl 
+opacity-0 transition-opacity duration-300 group-hover:opacity-20"[39m
+                [33mstyle[39m=[32m"background: rgb(139, 92, 246);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"group relative overflow-hidden rounded-[2rem] border border-slate-200/50 
+bg-[#faf6ef] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 
+dark:bg-slate-800"[39m
+              [33mstyle[39m=[32m"--accent-color: #10b981;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute left-0 right-0 top-0 h-1 transition-all duration-300 
+group-hover:h-2"[39m
+                [33mstyle[39m=[32m"background: rgb(16, 185, 129);"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex h-14 w-14 items-center justify-center rounded-xl transition-transform 
+duration-300 group-hover:scale-110"[39m
+                [33mstyle[39m=[32m"background: rgba(16, 185, 129, 0.082); color: rgb(16, 185, 129);"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-zap h-7 w-7"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 
+10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</div>[39m
+              [36m<h3[39m
+                [33mclass[39m=[32m"mt-5 text-lg font-bold text-slate-900 dark:text-white"[39m
+              [36m>[39m
+                [0mVenue & Peralatan Gratis[0m
+              [36m</h3>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+              [36m>[39m
+                [0mPanggung, sound system, lighting, kursi penonton ΓÇö semua GRATIS. Kamu tinggal fokus bikin acara 
+yang seru.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"pointer-events-none absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl 
+opacity-0 transition-opacity duration-300 group-hover:opacity-20"[39m
+                [33mstyle[39m=[32m"background: rgb(16, 185, 129);"[39m
+              [36m/>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/community/__tests__/CommunityBenefits.test.tsx:14:19
+     12|   it('renders all 4 benefit cards', () => {
+     13|     render(<CommunityBenefits />)
+     14|     expect(screen.getByText('Sponsorship Opportunities')).toBeInTheDocΓÇª
+       |                   ^
+     15|     expect(screen.getByText('Marketing Support')).toBeInTheDocument()
+     16|     expect(screen.getByText('Grow Your Community')).toBeInTheDocument()
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/9]ΓÄ»
+
+ FAIL  src/components/community/__tests__/CommunityRegistrationForm.test.tsx > CommunityRegistrationForm > renders all 
+required form fields
+TestingLibraryElementError: Unable to find a label with the text of: /Nama Komunitas/
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"reveal-on-scroll reveal-strong  px-4 py-20 sm:px-6"[39m
+      [33mid[39m=[32m"register"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"reveal-stage"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] 
+lg:items-start"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"max-w-md"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600"[39m
+            [36m>[39m
+              [0mDaftar Sekarang[0m
+            [36m</p>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white 
+sm:text-5xl"[39m
+            [36m>[39m
+              [0mYuk, gabung![0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mIsi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu 
+secepatnya.[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-3 text-sm text-slate-500 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mMau tanya-tanya dulu?[0m
+              [0m [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"font-semibold text-emerald-600 hover:underline dark:text-emerald-400"[39m
+                [33mhref[39m=[32m"https://wa.me/6281318534823"[39m
+                [33mrel[39m=[32m"noopener noreferrer"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0mChat via WhatsApp[0m
+              [36m</a>[39m
+            [36m</p>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-8 space-y-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mProses review 3-5 hari kerja[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mSemua fasilitas 100% gratis[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+        ...
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/community/__tests__/CommunityRegistrationForm.test.tsx:19:19
+     17|   it('renders all required form fields', () => {
+     18|     render(<CommunityRegistrationForm />)
+     19|     expect(screen.getByLabelText(/Nama Komunitas/)).toBeInTheDocument()
+       |                   ^
+     20|     expect(screen.getByLabelText(/Tipe Komunitas/)).toBeInTheDocument()
+     21|     expect(screen.getByLabelText(/Nama PIC/)).toBeInTheDocument()
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/9]ΓÄ»
+
+ FAIL  src/components/community/__tests__/CommunityRegistrationForm.test.tsx > CommunityRegistrationForm > submits 
+form successfully
+TestingLibraryElementError: Unable to find a label with the text of: /Nama Komunitas/
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"reveal-on-scroll reveal-strong  px-4 py-20 sm:px-6"[39m
+      [33mid[39m=[32m"register"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"reveal-stage"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] 
+lg:items-start"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"max-w-md"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600"[39m
+            [36m>[39m
+              [0mDaftar Sekarang[0m
+            [36m</p>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white 
+sm:text-5xl"[39m
+            [36m>[39m
+              [0mYuk, gabung![0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mIsi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu 
+secepatnya.[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-3 text-sm text-slate-500 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mMau tanya-tanya dulu?[0m
+              [0m [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"font-semibold text-emerald-600 hover:underline dark:text-emerald-400"[39m
+                [33mhref[39m=[32m"https://wa.me/6281318534823"[39m
+                [33mrel[39m=[32m"noopener noreferrer"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0mChat via WhatsApp[0m
+              [36m</a>[39m
+            [36m</p>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-8 space-y-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mProses review 3-5 hari kerja[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mSemua fasilitas 100% gratis[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+        ...
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/community/__tests__/CommunityRegistrationForm.test.tsx:36:29
+     34|     render(<CommunityRegistrationForm />)
+     35|
+     36|     fireEvent.change(screen.getByLabelText(/Nama Komunitas/), { targetΓÇª
+       |                             ^
+     37|     fireEvent.change(screen.getByLabelText(/Tipe Komunitas/), { targetΓÇª
+     38|     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { vaΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/9]ΓÄ»
+
+ FAIL  src/components/community/__tests__/CommunityRegistrationForm.test.tsx > CommunityRegistrationForm > shows error 
+on submission failure
+TestingLibraryElementError: Unable to find a label with the text of: /Nama Komunitas/
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"reveal-on-scroll reveal-strong  px-4 py-20 sm:px-6"[39m
+      [33mid[39m=[32m"register"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"reveal-stage"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] 
+lg:items-start"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"max-w-md"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600"[39m
+            [36m>[39m
+              [0mDaftar Sekarang[0m
+            [36m</p>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white 
+sm:text-5xl"[39m
+            [36m>[39m
+              [0mYuk, gabung![0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mIsi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu 
+secepatnya.[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-3 text-sm text-slate-500 dark:text-slate-400"[39m
+            [36m>[39m
+              [0mMau tanya-tanya dulu?[0m
+              [0m [0m
+              [36m<a[39m
+                [33mclass[39m=[32m"font-semibold text-emerald-600 hover:underline dark:text-emerald-400"[39m
+                [33mhref[39m=[32m"https://wa.me/6281318534823"[39m
+                [33mrel[39m=[32m"noopener noreferrer"[39m
+                [33mtarget[39m=[32m"_blank"[39m
+              [36m>[39m
+                [0mChat via WhatsApp[0m
+              [36m</a>[39m
+            [36m</p>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-8 space-y-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mProses review 3-5 hari kerja[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm leading-6 text-slate-600 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mSemua fasilitas 100% gratis[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start gap-3"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 
+dark:bg-emerald-900/30"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"lucide lucide-circle-check h-4 w-4 text-emerald-600 
+dark:text-emerald-400"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"10"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m9 12 2 2 4-4"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+        ...
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/community/__tests__/CommunityRegistrationForm.test.tsx:53:29
+     51|     render(<CommunityRegistrationForm />)
+     52|
+     53|     fireEvent.change(screen.getByLabelText(/Nama Komunitas/), { targetΓÇª
+       |                             ^
+     54|     fireEvent.change(screen.getByLabelText(/Tipe Komunitas/), { targetΓÇª
+     55|     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { vaΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/9]ΓÄ»
+
+ FAIL  src/components/community/__tests__/CommunitySteps.test.tsx > CommunitySteps > renders step descriptions
+TestingLibraryElementError: Unable to find an element with the text: /Isi form pendaftaran komunitas/. This could be 
+because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to 
+make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"reveal-on-scroll reveal-strong  border-y border-black/5 bg-[#f4efe8] px-4 py-20 
+dark:bg-slate-900 dark:border-slate-800 sm:px-6"[39m
+      [33mid[39m=[32m"how"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"reveal-stage"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-7xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-center"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-600"[39m
+            [36m>[39m
+              [0mCara Daftar[0m
+            [36m</p>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white 
+sm:text-5xl"[39m
+            [36m>[39m
+              [0mGampang banget, cuma 4 langkah.[0m
+            [36m</h2>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r 
+from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 
+shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex h-10 w-10 items-center justify-center rounded-full 
+bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white"[39m
+                [36m>[39m
+                  [0m01[0m
+                [36m</span>[39m
+                [36m<h3[39m
+                  [33mclass[39m=[32m"mt-4 text-lg font-bold text-slate-900 dark:text-white"[39m
+                [36m>[39m
+                  [0mDaftar & Submit[0m
+                [36m</h3>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mPilih tipe organisasi, isi form pendaftaran, dan ceritain rencana event kamu.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r 
+from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 
+shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex h-10 w-10 items-center justify-center rounded-full 
+bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white"[39m
+                [36m>[39m
+                  [0m02[0m
+                [36m</span>[39m
+                [36m<h3[39m
+                  [33mclass[39m=[32m"mt-4 text-lg font-bold text-slate-900 dark:text-white"[39m
+                [36m>[39m
+                  [0mReview Tim Mall[0m
+                [36m</h3>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mTim kami review proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r 
+from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block"[39m
+              [36m/>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 
+shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex h-10 w-10 items-center justify-center rounded-full 
+bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white"[39m
+                [36m>[39m
+                  [0m03[0m
+                [36m</span>[39m
+                [36m<h3[39m
+                  [33mclass[39m=[32m"mt-4 text-lg font-bold text-slate-900 dark:text-white"[39m
+                [36m>[39m
+                  [0mKonfirmasi & Prep[0m
+                [36m</h3>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mSetelah deal, kita siapin venue dan semua tools yang kamu butuhkan.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative rounded-[2rem] border border-slate-200/50 bg-[#fcfaf6] p-6 
+shadow-[0_12px_28px_rgba(15,23,42,0.04)] dark:bg-slate-800 dark:border-slate-700"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex h-10 w-10 items-center justify-center rounded-full 
+bg-gradient-to-br from-orange-500 to-violet-500 text-lg font-extrabold text-white"[39m
+                [36m>[39m
+                  [0m04[0m
+                [36m</span>[39m
+                [36m<h3[39m
+                  [33mclass[39m=[32m"mt-4 text-lg font-bold text-slate-900 dark:text-white"[39m
+                [36m>[39m
+                  [0mEvent Day![0m
+                [36m</h3>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"[39m
+                [36m>[39m
+                  [0mHari H tiba! Kamu fokus bikin acara seru, sisanya biar tim mall yang handle.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/community/__tests__/CommunitySteps.test.tsx:30:19
+     28|   it('renders step descriptions', () => {
+     29|     render(<CommunitySteps />)
+     30|     expect(screen.getByText(/Isi form pendaftaran komunitas/)).toBeInTΓÇª
+       |                   ^
+     31|     expect(screen.getByText(/Tim kami review proposal/)).toBeInTheDocuΓÇª
+     32|   })
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/9]ΓÄ»
+
+ FAIL  src/components/dashboard/__tests__/DashboardHeader.test.tsx > DashboardHeader > shows admin controls when 
+isAdmin is true
+TestingLibraryElementError: Unable to find an element with the text: Buat Surat. This could be because the text is 
+broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher 
+more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-xl sm:text-2xl font-bold text-slate-900 dark:text-white"[39m
+        [36m>[39m
+          [0mDashboard Event[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-0.5 text-sm text-slate-500 dark:text-slate-400"[39m
+        [36m>[39m
+          [0mPantau & kelola semua acara[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"w-full sm:w-[320px]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-search absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 
+transition-colors text-slate-400 group-focus-within:text-violet-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"11"[39m
+                [33mcy[39m=[32m"11"[39m
+                [33mr[39m=[32m"8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m21 21-4.3-4.3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Cari acara"[39m
+              [33mclass[39m=[32m"h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm 
+text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 
+dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 
+dark:focus:ring-violet-900/30"[39m
+              [33mmaxlength[39m=[32m"100"[39m
+              [33mplaceholder[39m=[32m"Cari acara, lokasi, EO..."[39m
+              [33mtype[39m=[32m"search"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1"[39m
+            [36m>[39m
+              [36m<kbd[39m
+                [33mclass[39m=[32m"hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-100 px-1.5 
+py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 
+select-none"[39m
+              [36m>[39m
+                [0m/[0m
+              [36m</kbd>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 
+to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition 
+hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 
+focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 
+dark:focus-visible:ring-offset-slate-950 shrink-0"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-plus h-4 w-4"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M5 12h14"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 5v14"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0m [0m
+          [36m<span>[39m
+            [0mTambah[0m
+          [36m</span>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/dashboard/__tests__/DashboardHeader.test.tsx:35:19
+     33|     render(<DashboardHeader {...mockProps} />)
+     34|     expect(screen.getByText('Tambah')).toBeInTheDocument()
+     35|     expect(screen.getByText('Buat Surat')).toBeInTheDocument()
+       |                   ^
+     36|   })
+     37|
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/9]ΓÄ»
+
+ FAIL  src/components/dashboard/__tests__/DashboardHeader.test.tsx > DashboardHeader > toggles settings menu
+TestingLibraryElementError: Unable to find a label with the text of: Menu pengaturan
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-xl sm:text-2xl font-bold text-slate-900 dark:text-white"[39m
+        [36m>[39m
+          [0mDashboard Event[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-0.5 text-sm text-slate-500 dark:text-slate-400"[39m
+        [36m>[39m
+          [0mPantau & kelola semua acara[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"w-full sm:w-[320px]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-search absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 
+transition-colors text-slate-400 group-focus-within:text-violet-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"11"[39m
+                [33mcy[39m=[32m"11"[39m
+                [33mr[39m=[32m"8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m21 21-4.3-4.3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Cari acara"[39m
+              [33mclass[39m=[32m"h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm 
+text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 
+dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 
+dark:focus:ring-violet-900/30"[39m
+              [33mmaxlength[39m=[32m"100"[39m
+              [33mplaceholder[39m=[32m"Cari acara, lokasi, EO..."[39m
+              [33mtype[39m=[32m"search"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1"[39m
+            [36m>[39m
+              [36m<kbd[39m
+                [33mclass[39m=[32m"hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-100 px-1.5 
+py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 
+select-none"[39m
+              [36m>[39m
+                [0m/[0m
+              [36m</kbd>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 
+to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition 
+hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 
+focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 
+dark:focus-visible:ring-offset-slate-950 shrink-0"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-plus h-4 w-4"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M5 12h14"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 5v14"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0m [0m
+          [36m<span>[39m
+            [0mTambah[0m
+          [36m</span>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/dashboard/__tests__/DashboardHeader.test.tsx:52:32
+     50|   it('toggles settings menu', () => {
+     51|     render(<DashboardHeader {...mockProps} />)
+     52|     const settingsBtn = screen.getByLabelText('Menu pengaturan')
+       |                                ^
+     53|     fireEvent.click(settingsBtn)
+     54|     expect(mockProps.onToggleSettingsMenu).toHaveBeenCalled()
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/9]ΓÄ»
+
+ FAIL  src/components/dashboard/__tests__/DashboardHeader.test.tsx > DashboardHeader > shows settings menu items when 
+open
+TestingLibraryElementError: Unable to find an element with the text: Landing Page. This could be because the text is 
+broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher 
+more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-xl sm:text-2xl font-bold text-slate-900 dark:text-white"[39m
+        [36m>[39m
+          [0mDashboard Event[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-0.5 text-sm text-slate-500 dark:text-slate-400"[39m
+        [36m>[39m
+          [0mPantau & kelola semua acara[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"w-full sm:w-[320px]"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"relative group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-search absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 
+transition-colors text-slate-400 group-focus-within:text-violet-500"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"11"[39m
+                [33mcy[39m=[32m"11"[39m
+                [33mr[39m=[32m"8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m21 21-4.3-4.3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+
+ Test Files  5 failed | 24 passed (29)
+      Tests  8 failed | 221 passed (229)
+   Start at  13:47:42
+   Duration  6.41s (transform 5.55s, setup 5.69s, import 41.31s, tests 6.09s, environment 50.31s)
+
+              [33maria-label[39m=[32m"Cari acara"[39m
+              [33mclass[39m=[32m"h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm 
+text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 
+dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 
+dark:focus:ring-violet-900/30"[39m
+              [33mmaxlength[39m=[32m"100"[39m
+              [33mplaceholder[39m=[32m"Cari acara, lokasi, EO..."[39m
+              [33mtype[39m=[32m"search"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1"[39m
+            [36m>[39m
+              [36m<kbd[39m
+                [33mclass[39m=[32m"hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-100 px-1.5 
+py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 
+select-none"[39m
+              [36m>[39m
+                [0m/[0m
+              [36m</kbd>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 
+to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition 
+hover:from-violet-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 
+focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:shadow-violet-900/30 
+dark:focus-visible:ring-offset-slate-950 shrink-0"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-plus h-4 w-4"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M5 12h14"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 5v14"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0m [0m
+          [36m<span>[39m
+            [0mTambah[0m
+          [36m</span>[39m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ Γ¥» Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ Γ¥» node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ Γ¥» src/components/dashboard/__tests__/DashboardHeader.test.tsx:59:19
+     57|   it('shows settings menu items when open', () => {
+     58|     render(<DashboardHeader {...mockProps} showSettingsMenu={true} />)
+     59|     expect(screen.getByText('Landing Page')).toBeInTheDocument()
+       |                   ^
+     60|     expect(screen.getByText('Album Gallery')).toBeInTheDocument()
+     61|   })
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/9]ΓÄ»
+

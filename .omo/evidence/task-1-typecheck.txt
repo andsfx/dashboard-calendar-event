@@ -1,0 +1,471 @@
+﻿node_modules/lucide-react/dist/lucide-react.d.ts(2,10): error TS2305: Module '"react"' has no exported member 'ReactSVG'.
+src/components/CommunityLandingPage.tsx(21,32): error TS6142: Module './CategoryBadges' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CategoryBadges.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(22,22): error TS2307: Cannot find module '../assets/brand/LOGOMETMAL2016-01.svg' or its corresponding type declarations.
+src/components/CommunityLandingPage.tsx(24,31): error TS6142: Module './community/CommunityHero' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunityHero.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(25,35): error TS6142: Module './community/CommunityBenefits' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunityBenefits.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(26,37): error TS6142: Module './community/CommunityFacilities' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunityFacilities.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(27,32): error TS6142: Module './community/CommunitySteps' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunitySteps.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(28,43): error TS6142: Module './community/CommunityRegistrationForm' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunityRegistrationForm.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(29,30): error TS6142: Module './community/CommunityFAQ' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/community/CommunityFAQ.tsx', but '--jsx' is not set.
+src/components/CommunityLandingPage.tsx(66,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(71,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(77,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(82,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(91,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(92,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(93,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(94,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(95,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(97,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(98,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(99,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(100,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(101,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(103,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(105,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(106,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(107,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(108,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(109,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(115,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(116,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(117,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(118,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(119,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(121,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(123,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(124,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(135,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(136,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(137,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(138,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(139,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(141,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(143,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(144,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(145,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(146,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(147,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(148,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(150,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(151,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(152,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(163,10): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(168,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(215,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(217,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(218,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(228,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(234,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(235,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(236,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(239,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(240,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(241,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(242,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(252,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(258,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(259,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(261,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(262,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(278,35): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(281,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(286,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(294,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(299,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(301,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(302,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(305,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(306,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(310,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(313,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(314,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(315,28): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(315,71): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(315,128): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(316,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(316,74): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(316,132): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(317,27): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(317,70): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(317,127): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(319,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(320,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(334,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(335,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(336,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(337,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(346,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(347,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(349,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(350,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(355,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(357,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(418,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(420,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(421,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(422,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(423,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(424,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(426,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(428,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(431,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(432,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(433,27): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(433,63): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(435,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(440,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(442,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(448,34): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(448,62): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(452,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(453,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(454,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(456,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(466,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(467,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(468,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(469,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(472,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(472,78): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(473,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(474,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(476,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(479,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(486,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(487,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(488,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(489,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(490,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(493,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(495,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(500,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(502,27): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(504,27): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(505,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(508,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(509,27): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(512,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(513,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(514,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(515,47): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(516,92): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(523,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(524,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(528,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(530,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(537,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(538,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(539,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(540,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(541,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(544,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(551,28): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(553,26): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(557,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(558,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(564,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(566,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(575,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(575,175): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(576,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(577,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(579,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(582,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(586,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(595,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(596,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(597,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(600,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(601,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(602,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(604,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(609,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(610,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(616,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(617,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(619,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(620,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(623,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(629,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(630,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(632,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(633,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(636,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(640,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(641,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(643,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(644,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(648,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(649,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(650,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(658,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(659,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(660,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(661,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(662,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(663,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(664,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(667,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(668,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(669,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(670,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(671,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(672,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(673,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(674,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(675,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/CommunityLandingPage.tsx(677,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+node_modules/lucide-react/dist/lucide-react.d.ts(2,10): error TS2305: Module '"react"' has no exported member 'ReactSVG'.
+node_modules/react-router-dom/dist/index.d.ts(1,69): error TS2307: Cannot find module 'react-router/dom' or its corresponding type declarations.
+  There are types at 'D:/Andy/Antigravity/schedule-event-v2/node_modules/react-router/dist/development/dom-export.d.mts', but this result could not be resolved under your current 'moduleResolution' setting. Consider updating to 'node16', 'nodenext', or 'bundler'.
+node_modules/react-router/dist/development/index.d.ts(8,8): error TS1259: Module '"D:/Andy/Antigravity/schedule-event-v2/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/react-router/dist/development/routeModules-7rtk67cd.d.ts(413,5): error TS18028: Private identifiers are only available when targeting ECMAScript 2015 and higher.
+src/components/GalleryAlbumPage.tsx(6,31): error TS6142: Module './GalleryHeader' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/GalleryHeader.tsx', but '--jsx' is not set.
+src/components/GalleryAlbumPage.tsx(60,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(69,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(75,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(80,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(81,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(86,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(88,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(93,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(99,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(100,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(105,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(106,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(107,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(108,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(176,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(177,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(180,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(182,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(186,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(192,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(193,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(194,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(195,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(196,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(198,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(206,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(207,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(208,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(210,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(213,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(216,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(220,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(228,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(229,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(230,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(232,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(235,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(238,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(242,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(250,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(252,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(253,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(256,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(259,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(261,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(262,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(267,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(268,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(272,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(273,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(278,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(286,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(287,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(288,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(293,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(295,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(301,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(308,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(309,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(310,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(311,45): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(323,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(324,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(325,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/GalleryAlbumPage.tsx(331,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/lib/supabase.ts(5,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(5,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(6,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(6,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(11,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(11,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(12,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(12,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(13,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(13,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/utils/supabaseApi.ts(611,26): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/utils/supabaseApi.ts(611,38): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+node_modules/lucide-react/dist/lucide-react.d.ts(2,10): error TS2305: Module '"react"' has no exported member 'ReactSVG'.
+node_modules/react-router-dom/dist/index.d.ts(1,69): error TS2307: Cannot find module 'react-router/dom' or its corresponding type declarations.
+  There are types at 'D:/Andy/Antigravity/schedule-event-v2/node_modules/react-router/dist/development/dom-export.d.mts', but this result could not be resolved under your current 'moduleResolution' setting. Consider updating to 'node16', 'nodenext', or 'bundler'.
+node_modules/react-router/dist/development/index.d.ts(8,8): error TS1259: Module '"D:/Andy/Antigravity/schedule-event-v2/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/react-router/dist/development/routeModules-7rtk67cd.d.ts(413,5): error TS18028: Private identifiers are only available when targeting ECMAScript 2015 and higher.
+src/App.tsx(4,24): error TS6142: Module './components/Navbar' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/Navbar.tsx', but '--jsx' is not set.
+src/App.tsx(5,35): error TS6142: Module './components/DashboardSkeleton' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/DashboardSkeleton.tsx', but '--jsx' is not set.
+src/App.tsx(6,28): error TS6142: Module './components/SectionNav' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/SectionNav.tsx', but '--jsx' is not set.
+src/App.tsx(7,32): error TS6142: Module './components/ToastContainer' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/ToastContainer.tsx', but '--jsx' is not set.
+src/App.tsx(8,33): error TS6142: Module './components/dashboard/DashboardHeader' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/dashboard/DashboardHeader.tsx', but '--jsx' is not set.
+src/App.tsx(9,32): error TS6142: Module './components/dashboard/DashboardStats' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/dashboard/DashboardStats.tsx', but '--jsx' is not set.
+src/App.tsx(10,29): error TS6142: Module './components/dashboard/AdminBanner' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/dashboard/AdminBanner.tsx', but '--jsx' is not set.
+src/App.tsx(11,33): error TS6142: Module './components/dashboard/DashboardModals' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/dashboard/DashboardModals.tsx', but '--jsx' is not set.
+src/App.tsx(18,48): error TS6142: Module './components/PublicLandingPage' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/PublicLandingPage.tsx', but '--jsx' is not set.
+src/App.tsx(22,48): error TS6142: Module './components/CommunityLandingPage' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CommunityLandingPage.tsx', but '--jsx' is not set.
+src/App.tsx(23,50): error TS6142: Module './components/InstagramSettingsModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/InstagramSettingsModal.tsx', but '--jsx' is not set.
+src/App.tsx(24,44): error TS6142: Module './components/GalleryIndexPage' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/GalleryIndexPage.tsx', but '--jsx' is not set.
+src/App.tsx(25,44): error TS6142: Module './components/GalleryAlbumPage' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/GalleryAlbumPage.tsx', but '--jsx' is not set.
+src/App.tsx(26,45): error TS6142: Module './components/AlbumManagerModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/AlbumManagerModal.tsx', but '--jsx' is not set.
+src/App.tsx(27,56): error TS6142: Module './components/CommunityRegistrationSection' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CommunityRegistrationSection.tsx', but '--jsx' is not set.
+src/App.tsx(28,60): error TS6142: Module './components/CommunityRegistrationDetailModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CommunityRegistrationDetailModal.tsx', but '--jsx' is not set.
+src/App.tsx(31,47): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(32,47): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(33,47): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(34,47): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(37,42): error TS6142: Module './components/FeaturedEvents' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/FeaturedEvents.tsx', but '--jsx' is not set.
+src/App.tsx(38,43): error TS6142: Module './components/QuarterTimeline' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/QuarterTimeline.tsx', but '--jsx' is not set.
+src/App.tsx(39,41): error TS6142: Module './components/CategoryChart' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CategoryChart.tsx', but '--jsx' is not set.
+src/App.tsx(40,40): error TS6142: Module './components/CalendarView' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/CalendarView.tsx', but '--jsx' is not set.
+src/App.tsx(41,42): error TS6142: Module './components/EventCrudModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/EventCrudModal.tsx', but '--jsx' is not set.
+src/App.tsx(42,44): error TS6142: Module './components/EventDetailModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/EventDetailModal.tsx', but '--jsx' is not set.
+src/App.tsx(43,46): error TS6142: Module './components/DeleteConfirmModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/DeleteConfirmModal.tsx', but '--jsx' is not set.
+src/App.tsx(44,42): error TS6142: Module './components/DraftCrudModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/DraftCrudModal.tsx', but '--jsx' is not set.
+src/App.tsx(45,44): error TS6142: Module './components/DraftLetterModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/DraftLetterModal.tsx', but '--jsx' is not set.
+src/App.tsx(46,50): error TS6142: Module './components/EventLetterPickerModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/EventLetterPickerModal.tsx', but '--jsx' is not set.
+src/App.tsx(47,48): error TS6142: Module './components/AnnualThemeCrudModal' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/AnnualThemeCrudModal.tsx', but '--jsx' is not set.
+src/App.tsx(48,45): error TS6142: Module './components/AdminDraftSection' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/AdminDraftSection.tsx', but '--jsx' is not set.
+src/App.tsx(49,49): error TS6142: Module './components/DashboardViewsSection' was resolved to 'D:/Andy/Antigravity/schedule-event-v2/src/components/DashboardViewsSection.tsx', but '--jsx' is not set.
+src/App.tsx(52,10): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(534,25): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+src/App.tsx(538,25): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+src/App.tsx(594,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(596,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(597,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(597,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(602,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(603,13): error TS2322: Type '{ isDark: boolean; onToggleDark: () => void; onBack: () => void | Promise<void>; instagramPosts: string[]; events: EventItem[]; onEventDetail: (ev: EventItem) => void; heroImageUrl: string; albums: PhotoAlbum[]; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'isDark' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(612,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(613,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(614,15): error TS2322: Type '{ isOpen: boolean; event: EventItem; onClose: () => void; events: EventItem[]; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'isOpen' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(620,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(625,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(626,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(626,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(627,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(627,29): error TS2322: Type '{ isDark: boolean; onToggleDark: () => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'isDark' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(630,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(631,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(631,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(632,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(632,29): error TS2322: Type '{ isDark: boolean; onToggleDark: () => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'isDark' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(637,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(638,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(640,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(646,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(655,34): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(658,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(661,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(664,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(678,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(681,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(681,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(682,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(683,15): error TS2322: Type '{ activeDrafts: DraftEventItem[]; draftHistory: DraftEventItem[]; draftError: string; isDraftLoading: boolean; showDraftHistory: boolean; setShowDraftHistory: Dispatch<...>; ... 5 more ...; onRestoreDraft: (draft: DraftEventItem) => Promise<...>; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'activeDrafts' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(700,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(700,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(701,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(702,15): error TS2322: Type '{ registrations: CommunityRegistration[]; isLoading: boolean; onDetail: (reg: CommunityRegistration) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'registrations' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(710,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(714,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(714,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(715,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(715,30): error TS2322: Type '{ themes: AnnualTheme[]; isAdmin: true; onAddTheme: () => void; onEditTheme: (theme: AnnualTheme) => void; onDeleteTheme: (theme: AnnualTheme) => Promise<...>; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'themes' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(721,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(722,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(722,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(723,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(724,17): error TS2322: Type '{ events: EventItem[]; title: string; accent: string; icon: Element; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(727,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(731,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(731,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(732,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(733,17): error TS2322: Type '{ events: EventItem[]; title: string; accent: string; icon: Element; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(736,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(745,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(747,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(747,35): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(748,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(749,19): error TS2322: Type '{ events: EventItem[]; title: string; accent: string; icon: Element; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(752,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(757,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(757,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(758,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(759,17): error TS2322: Type '{ events: EventItem[]; title: string; accent: string; icon: Element; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(762,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(771,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(772,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(773,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(774,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(776,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(776,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(777,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(777,29): error TS2322: Type '{ events: EventItem[]; holidays: HolidayItem[]; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(784,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(785,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(785,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(786,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(786,30): error TS2322: Type '{ events: EventItem[]; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'events' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(791,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(792,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(792,31): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(793,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(794,15): error TS2322: Type '{ viewMode: ViewMode; availableViewTabs: { key: ViewMode; label: string; icon: ReactNode; }[]; setViewMode: Dispatch<SetStateAction<ViewMode>>; ... 19 more ...; onDetail: (ev: EventItem) => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'viewMode' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(822,22): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(825,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(826,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(826,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(827,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(827,32): error TS2322: Type '{ themes: AnnualTheme[]; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'themes' does not exist on type 'IntrinsicAttributes'.
+src/App.tsx(833,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(834,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(835,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(836,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(837,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(838,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(839,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(841,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(842,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(850,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/App.tsx(905,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/hooks/useEvents.ts(76,24): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+src/hooks/useEvents.ts(81,24): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+src/lib/supabase.ts(5,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(5,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(6,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(6,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(11,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(11,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(12,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(12,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(13,3): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/lib/supabase.ts(13,15): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/utils/draftUtils.ts(29,14): error TS2802: Type 'MapIterator<[string, number]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+src/utils/supabaseApi.ts(611,26): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', or 'nodenext'.
+src/utils/supabaseApi.ts(611,38): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
