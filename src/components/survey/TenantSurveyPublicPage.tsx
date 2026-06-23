@@ -50,7 +50,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', required, d
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
       />
     </div>
   );
@@ -78,9 +78,9 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
               key={opt}
               className={`
                 flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
-                transition focus-within:ring-2 focus-within:ring-emerald-500
+                transition focus-within:ring-2 focus-within:ring-brand-primary-500
                 ${selected
-                  ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/40'
+                  ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
                   : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                 }
               `}
@@ -92,7 +92,7 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
                 checked={selected}
                 onChange={() => onChange(opt)}
                 disabled={disabled}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-600"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
                 aria-label={labels?.[opt] || opt}
               />
               <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -189,7 +189,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
         placeholder="Ketik nama gerai Anda..."
         disabled={disabled}
         autoComplete="off"
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
       />
       {query && !disabled && (
         <button
@@ -219,7 +219,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
                 key={t.id}
                 type="button"
                 onClick={() => { onChange(t.name); setQuery(t.name); setOpen(false); onTenantSelect?.(t); }}
-                className="flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 hover:bg-emerald-50 dark:border-slate-700 dark:hover:bg-emerald-950/30"
+                className="flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 hover:bg-brand-primary-50 dark:border-slate-700 dark:hover:bg-brand-primary-950/30"
               >
                 {t.logo ? (
                   <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
@@ -386,18 +386,18 @@ export default function TenantSurveyPublicPage() {
   }, []);
 
   const PageShell = ({ children }: { children: ReactNode }) => (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-teal-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/20">
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
             onClick={goBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400"
+            className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400"
           >
             <ArrowLeft className="h-4 w-4" />
             Kembali
           </button>
-          <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
             Metropolitan Mall Bekasi
           </span>
         </div>
@@ -410,7 +410,7 @@ export default function TenantSurveyPublicPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Memuat survey...</p>
         </div>
       </PageShell>
@@ -429,7 +429,7 @@ export default function TenantSurveyPublicPage() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />
             Ke Beranda
@@ -451,7 +451,7 @@ export default function TenantSurveyPublicPage() {
           </h2>
           <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
             Anda sudah pernah mengirimkan self-assessment untuk event
-            <span className="mx-1 font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
               &quot;{event.acara}&quot;
             </span>
             dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survey per event.
@@ -467,15 +467,15 @@ export default function TenantSurveyPublicPage() {
   if (formStatus === 'success') {
     return (
       <PageShell>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-8 text-center dark:border-brand-primary-800 dark:bg-brand-primary-950/30">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary-100 dark:bg-brand-primary-900/50">
+            <CheckCircle2 className="h-8 w-8 text-brand-primary-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Terima kasih telah mengirimkan self-assessment untuk event
           </p>
-          <p className="mt-0.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
             &quot;{event.acara}&quot;
           </p>
           <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
@@ -484,7 +484,7 @@ export default function TenantSurveyPublicPage() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />
             Kembali ke Beranda
@@ -515,7 +515,7 @@ export default function TenantSurveyPublicPage() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
             >
               <ChevronLeft className="h-4 w-4" />
               Ke Beranda
@@ -539,19 +539,19 @@ export default function TenantSurveyPublicPage() {
   return (
     <PageShell>
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-indigo-50 p-5 dark:border-emerald-800 dark:from-emerald-950/40 dark:to-indigo-950/40">
+      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-indigo-50 p-5 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-indigo-950/40">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
-            <ClipboardCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
+            <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
               Self-Assessment Tenant
             </span>
-            <h1 className="mt-0.5 truncate text-lg font-bold text-emerald-900 dark:text-emerald-100">
+            <h1 className="mt-0.5 truncate text-lg font-bold text-brand-primary-900 dark:text-brand-primary-100">
               {event.acara}
             </h1>
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-emerald-700 dark:text-emerald-300">
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
               {event.tanggal && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -567,7 +567,7 @@ export default function TenantSurveyPublicPage() {
             </div>
           </div>
         </div>
-        <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-300">
+        <p className="mt-3 text-xs text-brand-primary-700 dark:text-brand-primary-300">
           Bantu kami meningkatkan pelayanan dengan memberikan penilaian dan masukan untuk event ini.
         </p>
       </div>
@@ -646,7 +646,7 @@ export default function TenantSurveyPublicPage() {
               <select
                 value={formData.lokasi_zona}
                 onChange={(e) => updateField('lokasi_zona')(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               >
                 <option value="">Pilih lokasi / zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -715,7 +715,7 @@ export default function TenantSurveyPublicPage() {
               placeholder="Apakah profil pengunjung event ini cocok dengan produk Anda? Jenis event apa yang Anda harapkan ke depannya?"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
             />
             <p className="mt-1 text-right text-[10px] text-slate-400">
               {2000 - formData.feedback_teks.length} karakter tersisa
@@ -743,7 +743,7 @@ export default function TenantSurveyPublicPage() {
           <button
             type="submit"
             disabled={formStatus === 'submitting'}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
           >
             {formStatus === 'submitting' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
