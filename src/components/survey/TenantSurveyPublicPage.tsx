@@ -117,6 +117,18 @@ function floorToZona(floor: string): string {
   return map[floor.toUpperCase().trim()] || '';
 }
 
+/** Map MID tenant category to SURVEY_OPTIONS.kategori value */
+function apiCategoryToKategori(apiCat: string): string {
+  const c = apiCat.toUpperCase().trim();
+  if (/FOOD|FOOD\s*&\s*BEVERAGE|F\s*&\s*B|RESTAURANT|CAFE|KULINER|MINUMAN/.test(c)) return 'Food & Beverage (F&B)';
+  if (/FASHION|PAKAIAN|CLOTHING|APPAREL|ACCESSORIES|TAS|SEPATU|JAM|TENANT_FASHION/.test(c)) return 'Fashion & Aksesoris';
+  if (/LIFESTYLE|HOBBY|HOBI|GADGET|HP|COMPUTER|ELEKTRONIK|BUKU/.test(c)) return 'Lifestyle & Hobi';
+  if (/HIBURAN|MAINAN|TOYS|KIDS|ANAK|PLAY/.test(c)) return 'Hiburan / Mainan Anak';
+  if (/SERVICE|JASA|SERVIS/.test(c)) return 'Servis / Jasa';
+  if (/SUPERMARKET|DEPARTMENT|MATRAI|RETAIL/.test(c)) return 'Supermarket / Department Store';
+  return '';
+}
+
 function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
   value: string;
   onChange: (v: string) => void;
@@ -262,12 +274,15 @@ export default function TenantSurveyPublicPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Auto-fill lokasi_zona when a tenant is picked from the dropdown
+  // Auto-fill lokasi_zona + kategori when a tenant is picked
   const handleTenantSelect = useCallback((tenant: TenantDropdownOption) => {
     const zona = floorToZona(tenant.floor);
-    if (zona) {
-      setFormData(prev => (prev.lokasi_zona ? prev : { ...prev, lokasi_zona: zona }));
-    }
+    const kat = apiCategoryToKategori(tenant.category);
+    setFormData(prev => ({
+      ...prev,
+      lokasi_zona: zona || prev.lokasi_zona,
+      kategori: kat || prev.kategori,
+    }));
   }, []);
 
   useEffect(() => {
