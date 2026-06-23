@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
@@ -105,15 +105,22 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
   disabled?: boolean;
 }) {
   const containerRef = useState<HTMLDivElement | null>(null);
+  const inputRef = useState<HTMLInputElement | null>(null);
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [highlighted, setHighlighted] = useState(-1);
   const container = containerRef[0];
   const setContainer = containerRef[1];
+  const inputEl = inputRef[0];
+  const setInputEl = inputRef[1];
 
   // Sync query when value changes externally (e.g., reset)
   useEffect(() => { setQuery(value); }, [value]);
+
+  // Reset highlight when tenants change
+  useEffect(() => { setHighlighted(-1); }, [tenants]);
 
   // Debounced search
   useEffect(() => {
@@ -147,17 +154,45 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
     };
   }, [open, container]);
 
+  function selectTenant(t: TenantDropdownOption) {
+    onChange(t.name);
+    setQuery(t.name);
+    setOpen(false);
+    setHighlighted(-1);
+    onTenantSelect?.(t);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (!open || tenants.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlighted(prev => (prev < tenants.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlighted(prev => (prev > 0 ? prev - 1 : tenants.length - 1));
+    } else if (e.key === 'Enter' && highlighted >= 0 && tenants[highlighted]) {
+      e.preventDefault();
+      selectTenant(tenants[highlighted]);
+    }
+  }
+
   return (
     <div ref={setContainer} className="relative">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       <input
+        ref={setInputEl}
         type="text"
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
+        onKeyDown={handleKeyDown}
         placeholder="Ketik nama gerai Anda..."
         disabled={disabled}
         autoComplete="off"
+        role="combobox"
+        aria-expanded={open}
+        aria-autocomplete="list"
+        aria-activedescendant={highlighted >= 0 ? `tenant-opt-${highlighted}` : undefined}
         className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
       />
       {query && !disabled && (
@@ -172,7 +207,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
       )}
 
       {open && !disabled && (
-        <div className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-800">
+        <div role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-800">
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -183,12 +218,20 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
               {query ? `Tidak ada tenant cocok "${query}"` : 'Ketik untuk mencari tenant'}
             </div>
           ) : (
-            tenants.map((t) => (
+            tenants.map((t, i) => (
               <button
                 key={t.id}
+                id={`tenant-opt-${i}`}
                 type="button"
-                onClick={() => { onChange(t.name); setQuery(t.name); setOpen(false); onTenantSelect?.(t); }}
-                className="flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 hover:bg-brand-primary-50 dark:border-slate-700 dark:hover:bg-brand-primary-950/30"
+                role="option"
+                aria-selected={i === highlighted}
+                onClick={() => selectTenant(t)}
+                onMouseEnter={() => setHighlighted(i)}
+                className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 dark:border-slate-700 ${
+                  i === highlighted
+                    ? 'bg-brand-primary-50 dark:bg-brand-primary-950/30'
+                    : 'hover:bg-brand-primary-50 dark:hover:bg-brand-primary-950/30'
+                }`}
               >
                 {t.logo ? (
                   <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
@@ -243,6 +286,7 @@ export default function TenantSurveyPublicPage() {
     lokasi_zona: false,
     kategori: false,
   });
+  const errorAlertRef = useRef<HTMLDivElement | null>(null);
 
   const updateField = (field: keyof typeof formData) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -322,6 +366,10 @@ export default function TenantSurveyPublicPage() {
     if (!validation.valid) {
       setFieldErrors(validation.errors);
       setFormStatus('idle');
+      // Scroll to error alert after render
+      requestAnimationFrame(() => {
+        errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
       return;
     }
 
@@ -354,7 +402,7 @@ export default function TenantSurveyPublicPage() {
   }, []);
 
   const PageShell = ({ children }: { children: ReactNode }) => (
-    <div className="min-h-screen bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
+    <div className="min-h-screen scroll-smooth bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
@@ -563,7 +611,7 @@ export default function TenantSurveyPublicPage() {
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         {/* Top-level errors */}
         {fieldErrors.length > 0 && (
-          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+          <div ref={errorAlertRef} role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
             <div className="flex items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 text-red-500" />
               <div>
