@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
@@ -106,9 +106,21 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
   );
 }
 
-function TenantSearchSelect({ value, onChange, disabled }: {
+/** Map MID floor code to SURVEY_OPTIONS.lokasi_zona value */
+function floorToZona(floor: string): string {
+  const map: Record<string, string> = {
+    'LTB': 'Lantai Dasar',
+    'LT1': 'Lantai 1',
+    'LT2': 'Lantai 2',
+    'LT3': 'Lantai 3',
+  };
+  return map[floor.toUpperCase().trim()] || '';
+}
+
+function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
   value: string;
   onChange: (v: string) => void;
+  onTenantSelect?: (tenant: TenantDropdownOption) => void;
   disabled?: boolean;
 }) {
   const containerRef = useState<HTMLDivElement | null>(null);
@@ -194,7 +206,7 @@ function TenantSearchSelect({ value, onChange, disabled }: {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => { onChange(t.name); setQuery(t.name); setOpen(false); }}
+                onClick={() => { onChange(t.name); setQuery(t.name); setOpen(false); onTenantSelect?.(t); }}
                 className="flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 hover:bg-violet-50 dark:border-slate-700 dark:hover:bg-violet-950/30"
               >
                 {t.logo ? (
@@ -249,6 +261,14 @@ export default function TenantSurveyPublicPage() {
   const updateField = (field: keyof typeof formData) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  // Auto-fill lokasi_zona when a tenant is picked from the dropdown
+  const handleTenantSelect = useCallback((tenant: TenantDropdownOption) => {
+    const zona = floorToZona(tenant.floor);
+    if (zona) {
+      setFormData(prev => (prev.lokasi_zona ? prev : { ...prev, lokasi_zona: zona }));
+    }
+  }, []);
 
   useEffect(() => {
     if (!eventId) {
@@ -562,6 +582,7 @@ export default function TenantSurveyPublicPage() {
               <TenantSearchSelect
                 value={formData.nama_gerai}
                 onChange={updateField('nama_gerai')}
+                onTenantSelect={handleTenantSelect}
               />
             </div>
 
