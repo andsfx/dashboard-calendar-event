@@ -664,7 +664,7 @@ export default function App() {
       {/* Public Tenant Self-Assessment — standalone, no auth required */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="min-h-screen bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
+          <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
               {/* Header with logo + back button */}
               <div className="mb-8 flex items-center justify-between">

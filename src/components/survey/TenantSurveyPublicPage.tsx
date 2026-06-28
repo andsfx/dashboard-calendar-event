@@ -193,7 +193,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
         aria-expanded={open}
         aria-autocomplete="list"
         aria-activedescendant={highlighted >= 0 ? `tenant-opt-${highlighted}` : undefined}
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
       />
       {query && !disabled && (
         <button
@@ -402,7 +402,7 @@ export default function TenantSurveyPublicPage() {
   }, []);
 
   const PageShell = ({ children }: { children: ReactNode }) => (
-    <div className="min-h-screen scroll-smooth bg-gradient-to-br from-brand-primary-50/40 via-white to-brand-secondary-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-brand-primary-950/20">
+    <div className="min-h-screen scroll-smooth bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
@@ -445,7 +445,7 @@ export default function TenantSurveyPublicPage() {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />
             Ke Beranda
@@ -531,7 +531,7 @@ export default function TenantSurveyPublicPage() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <ChevronLeft className="h-4 w-4" />
               Ke Beranda
@@ -682,7 +682,7 @@ export default function TenantSurveyPublicPage() {
               <select
                 value={formData.lokasi_zona}
                 onChange={(e) => updateField('lokasi_zona')(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
               >
                 <option value="">Pilih lokasi / zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -752,7 +752,7 @@ export default function TenantSurveyPublicPage() {
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
             />
             {/* Character counter */}
             <div className="mt-1.5 flex items-center gap-2">
@@ -807,7 +807,7 @@ export default function TenantSurveyPublicPage() {
           <button
             type="submit"
             disabled={formStatus === 'submitting' || filledCount < requiredCount}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-sm transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 ${
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
               filledCount >= requiredCount
                 ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
                 : 'bg-slate-400 cursor-not-allowed'

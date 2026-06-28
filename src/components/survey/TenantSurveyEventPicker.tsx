@@ -99,7 +99,7 @@ export default function TenantSurveyEventPicker() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Cari nama event, lokasi, atau penyelenggara..."
-            className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500"
+            className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-800"
           />
         </div>
         <span className="shrink-0 rounded-full bg-brand-primary-100 px-3 py-1.5 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
