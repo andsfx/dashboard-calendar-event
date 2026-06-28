@@ -633,7 +633,7 @@ export default function TenantSurveyPublicPage() {
         )}
 
         {/* Section 1: Informasi Gerai */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 1: Informasi Gerai
           </h2>
@@ -680,7 +680,7 @@ export default function TenantSurveyPublicPage() {
                 Lokasi / Zona
                 <span className="text-red-500">*</span>
                 {autoFilled.lokasi_zona && (
-                  <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">Auto</span>
+                    <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto</span>
                 )}
               </label>
               <select
@@ -700,7 +700,7 @@ export default function TenantSurveyPublicPage() {
             <div>
               {autoFilled.kategori && (
                 <div className="mb-1">
-                  <span className="rounded-full bg-emerald-100 px-1.5 py-0 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">Auto — terdeteksi dari data tenant</span>
+                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto — terdeteksi dari data tenant</span>
                 </div>
               )}
               <RadioGroup
@@ -714,7 +714,7 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 2: Evaluasi Traffic & Sales */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
@@ -722,7 +722,7 @@ export default function TenantSurveyPublicPage() {
             Bandingkan kondisi traffic pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
           </p>
 
-          <div className="space-y-5">
+          <div className="space-y-4">
             <RadioGroup
               label="Kenaikan Traffic Pengunjung"
               options={SURVEY_OPTIONS.kenaikan_traffic}
@@ -741,7 +741,7 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 3: Umpan Balik */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 3: Umpan Balik
           </h2>

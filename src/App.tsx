@@ -667,7 +667,7 @@ export default function App() {
           <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
               {/* Header with logo + back button */}
-              <div className="mb-8 flex items-center justify-between">
+              <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
                   <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
