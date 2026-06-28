@@ -437,8 +437,10 @@ export default function TenantSurveyPublicPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
-          <AlertTriangle className="h-12 w-12 text-red-500" />
-          <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Event Tidak Ditemukan</h2>
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Event Tidak Ditemukan</h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
             {error || 'Event yang Anda cari tidak tersedia.'}
           </p>
@@ -514,8 +516,10 @@ export default function TenantSurveyPublicPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
-          <AlertTriangle className="h-12 w-12 text-red-500" />
-          <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
           <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
             {submitError}
           </p>
@@ -570,13 +574,13 @@ export default function TenantSurveyPublicPage() {
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
               {event.tanggal && (
                 <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
+                  <Calendar className="h-3.5 w-3.5" />
                   {event.tanggal}
                 </span>
               )}
               {event.lokasi && (
                 <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
+                  <MapPin className="h-3.5 w-3.5" />
                   {event.lokasi}
                 </span>
               )}
@@ -651,7 +655,7 @@ export default function TenantSurveyPublicPage() {
                 onTenantSelect={handleTenantSelect}
               />
               {selectedTenant && (
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-950/30">
+                <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-950/30">
                   {selectedTenant.logo ? (
                     <img src={selectedTenant.logo} alt="" className="h-8 w-8 shrink-0 rounded-md border border-emerald-200 object-cover dark:border-emerald-700" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
                   ) : (
@@ -823,7 +827,7 @@ export default function TenantSurveyPublicPage() {
           </button>
         </div>
 
-        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">
+        <p className="text-center text-[11px] text-slate-500 dark:text-slate-400">
           <Shield className="mr-1 inline h-3 w-3" />
           Survey ini dapat diakses tanpa login. Identitas Anda akan disimpan secara anonim.
         </p>
