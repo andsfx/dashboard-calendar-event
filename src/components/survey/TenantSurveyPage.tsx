@@ -459,7 +459,11 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         <TenantSurveyDuplicate
           eventName={selectedEvent.acara}
           onBack={handleStartNewAfterSuccess}
-          onViewExisting={duplicate.existingSurveyId ? undefined : undefined}
+          onViewExisting={duplicate.existingSurveyId ? () => {
+            handleStartNewAfterSuccess();
+            const existing = surveys.find(s => s.id === duplicate.existingSurveyId);
+            if (existing) handleViewDetail(existing);
+          } : undefined}
         />
         {duplicateError && (
           <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
