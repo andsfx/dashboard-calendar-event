@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import {
   ClipboardCheck, Clock, CheckCircle, Eye, Edit, Send,
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Store, MapPin, Tag, TrendingUp, DollarSign, MessageSquare, User, Phone,
+  Store, MapPin, Tag, TrendingUp, DollarSign, User, Phone,
 } from 'lucide-react';
 import type { TenantEventSurvey, EventItem } from '../../types';
 

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft, Star, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode } from 'lucide-react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -339,12 +339,12 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_sales || '-'}</span>
               </div>
               <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
-                <Store className="mb-1 h-4 w-4 text-slate-400" />
+                <User className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_name || '-'}</span>
               </div>
               <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
-                <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
+                <Phone className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Telepon PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_phone || '-'}</span>
               </div>

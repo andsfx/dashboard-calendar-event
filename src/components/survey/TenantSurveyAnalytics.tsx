@@ -14,8 +14,8 @@ interface TenantSurveyAnalyticsProps {
 
 function ratingColor(n: number | null | undefined): string {
   if (n == null) return 'text-slate-400 dark:text-slate-500';
-  if (n >= 8) return 'text-emerald-500';
-  if (n >= 5) return 'text-yellow-500';
+  if (n >= 4) return 'text-emerald-500';
+  if (n >= 3) return 'text-yellow-500';
   return 'text-red-500';
 }
 
