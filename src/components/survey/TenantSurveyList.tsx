@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import {
   ClipboardCheck, Clock, CheckCircle, Eye, Edit, Send,
   ChevronDown, ChevronUp, AlertCircle, Star,
+  Store, MapPin, Tag, TrendingUp, DollarSign, MessageSquare, User, Phone,
 } from 'lucide-react';
 import type { TenantEventSurvey, EventItem } from '../../types';
 
@@ -40,6 +41,10 @@ function ratingColor(n: number | null | undefined): string {
   if (n >= 4) return 'text-emerald-500';
   if (n >= 3) return 'text-yellow-500';
   return 'text-red-500';
+}
+
+function isV3(survey: TenantEventSurvey): boolean {
+  return !!(survey.nama_gerai && survey.venue_rating == null);
 }
 
 export default function TenantSurveyList({
@@ -188,16 +193,38 @@ export default function TenantSurveyList({
                         {statusCfg.icon}
                         {statusCfg.label}
                       </span>
+                      {isV3(survey) && (
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                          Publik
+                        </span>
+                      )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                       <span>{ev?.dateStr || '-'}</span>
-                      {survey.overall_rating != null && (
-                        <span className={`flex items-center gap-1 font-semibold ${ratingColor(survey.overall_rating)}`}>
-                          <Star className="h-3 w-3 fill-current" />
-                          {survey.overall_rating}/5
-                        </span>
+                      {isV3(survey) ? (
+                        <>
+                          <span className="flex items-center gap-1">
+                            <Store className="h-3 w-3" />
+                            {survey.nama_gerai}
+                          </span>
+                          {survey.kategori && (
+                            <span className="flex items-center gap-1">
+                              <Tag className="h-3 w-3" />
+                              {survey.kategori}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {survey.overall_rating != null && (
+                            <span className={`flex items-center gap-1 font-semibold ${ratingColor(survey.overall_rating)}`}>
+                              <Star className="h-3 w-3 fill-current" />
+                              {survey.overall_rating}/5
+                            </span>
+                          )}
+                          <span>{survey.tenant_name || survey.tenant_organization}</span>
+                        </>
                       )}
-                      <span>{survey.tenant_name || survey.tenant_organization}</span>
                     </div>
                   </div>
                   {isExpanded
@@ -209,44 +236,111 @@ export default function TenantSurveyList({
                 {/* Expanded detail */}
                 {isExpanded && (
                   <div className="border-t border-slate-200 p-4 dark:border-slate-700">
-                    {/* Rating grid */}
-                    <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {([
-                        ['venue_rating', 'Venue'],
-                        ['management_rating', 'Manajemen'],
-                        ['event_organization_rating', 'Organisasi'],
-                        ['booth_facility_rating', 'Fasilitas Booth'],
-                      ] as const).map(([key, label]) => {
-                        const val = survey[key];
-                        return (
-                          <div
-                            key={key}
-                            className="flex flex-col items-center rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-                          >
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
-                            <span className={`text-sm font-bold ${ratingColor(val)}`}>
-                              {val != null ? `${val}/5` : '-'}
-                            </span>
+                    {isV3(survey) ? (
+                      <>
+                        {/* V3: Info grid */}
+                        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-7">
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <Store className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Gerai</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.nama_gerai || '-'}</p>
+                            </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <MapPin className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Lokasi</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.lokasi_zona || '-'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <Tag className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Kategori</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.kategori || '-'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <TrendingUp className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Traffic</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.kenaikan_traffic || '-'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <DollarSign className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Sales</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.kenaikan_sales || '-'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <User className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">PIC</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.pic_name || '-'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                            <Phone className="h-3 w-3 text-slate-400" />
+                            <div>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400">Telp PIC</p>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{survey.pic_phone || '-'}</p>
+                            </div>
+                          </div>
+                        </div>
 
-                    {/* Qualitative highlights */}
-                    <div className="mb-4 space-y-2">
-                      {survey.feedback_comment && (
-                        <div className="text-xs">
-                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">Feedback: </span>
-                          <span className="text-slate-600 dark:text-slate-300">{survey.feedback_comment}</span>
+                        {/* V3: Feedback */}
+                        {survey.feedback_teks && (
+                          <div className="mb-4 text-xs">
+                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">Feedback: </span>
+                            <span className="text-slate-600 dark:text-slate-300">{survey.feedback_teks}</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {/* V2: Rating grid */}
+                        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                          {([
+                            ['venue_rating', 'Venue'],
+                            ['management_rating', 'Manajemen'],
+                            ['event_organization_rating', 'Organisasi'],
+                            ['booth_facility_rating', 'Fasilitas Booth'],
+                          ] as const).map(([key, label]) => {
+                            const val = survey[key];
+                            return (
+                              <div
+                                key={key}
+                                className="flex flex-col items-center rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
+                              >
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
+                                <span className={`text-sm font-bold ${ratingColor(val)}`}>
+                                  {val != null ? `${val}/5` : '-'}
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
-                      )}
-                      {survey.improvement_suggestion && (
-                        <div className="text-xs">
-                          <span className="font-semibold text-violet-600 dark:text-violet-400">Saran: </span>
-                          <span className="text-slate-600 dark:text-slate-300">{survey.improvement_suggestion}</span>
+
+                        {/* V2: Qualitative highlights */}
+                        <div className="mb-4 space-y-2">
+                          {survey.feedback_comment && (
+                            <div className="text-xs">
+                              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Feedback: </span>
+                              <span className="text-slate-600 dark:text-slate-300">{survey.feedback_comment}</span>
+                            </div>
+                          )}
+                          {survey.improvement_suggestion && (
+                            <div className="text-xs">
+                              <span className="font-semibold text-violet-600 dark:text-violet-400">Saran: </span>
+                              <span className="text-slate-600 dark:text-slate-300">{survey.improvement_suggestion}</span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </>
+                    )}
 
                     {/* Review notes */}
                     {survey.status === 'reviewed' && survey.review_notes && (

@@ -20,6 +20,9 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  *   ?action=review      POST  — Admin review a submitted survey
  *   ?action=analytics   GET   — Get aggregated analytics
  *   ?action=summary     GET   — Get per-event combined summary
+ *   ?action=config-get  GET   — Get survey config for event
+ *   ?action=config-set  POST  — Create/update survey config
+ *   ?action=export      GET   — Export responses as CSV
  */
 export default async function handler(req, res) {
   const mode = String(req.query?.mode || 'auth').trim();
@@ -60,6 +63,9 @@ async function handleAuth(req, res, action) {
     case 'review':    return await handleReview(req, res);
     case 'analytics': return await handleAnalytics(req, res);
     case 'summary':   return await handleSummary(req, res);
+    case 'config-get': return await handleConfigGet(req, res);
+    case 'config-set': return await handleConfigSet(req, res);
+    case 'export':    return await handleExport(req, res);
     default:
       return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
   }
@@ -348,6 +354,8 @@ async function handlePublicSubmit(req, res) {
     kenaikan_sales: body.kenaikan_sales || null,
     feedback_teks: sanitize(body.feedback_teks || '', 2000),
     tenant_id: sanitize(body.tenant_id || '', 100),
+    pic_name: sanitize(body.pic_name || '', 100),
+    pic_phone: sanitize(body.pic_phone || '', 20),
     device_fingerprint: fingerprint,
     ip_address: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || '',
     user_agent: sanitize(req.headers['user-agent'] || '', 500),
@@ -477,6 +485,8 @@ async function handleCreate(req, res) {
     tenant_organization: sanitize(body.tenant_organization || '', 200),
     tenant_email: sanitize(body.tenant_email || '', 254),
     tenant_phone: sanitize(body.tenant_phone || '', 20),
+    pic_name: sanitize(body.pic_name || '', 100),
+    pic_phone: sanitize(body.pic_phone || '', 20),
     status: 'draft',
   };
 
@@ -556,6 +566,7 @@ async function handleUpdate(req, res) {
   const updateableTextFields = [
     'tenant_name', 'tenant_organization', 'tenant_email', 'tenant_phone',
     'feedback_comment', 'improvement_suggestion',
+    'pic_name', 'pic_phone',
   ];
   for (const f of updateableTextFields) {
     if (body[f] !== undefined) {
@@ -723,4 +734,155 @@ async function handleSummary(req, res) {
   }
 
   return res.json({ success: true, data });
+}
+
+
+// ─── Config: Get survey config ────────────────────────────────────
+
+async function handleConfigGet(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const auth = await requireAuth(req, res);
+  if (!auth) return;
+
+  const eventId = String(req.query?.event_id || '').trim();
+  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+
+  const sb = getServiceSupabase();
+  const { data } = await sb
+    .from('tenant_survey_config')
+    .select('*')
+    .eq('event_id', eventId)
+    .single();
+
+  return res.json({
+    success: true,
+    config: data || {
+      event_id: eventId,
+      is_active: true,
+      activated_at: null,
+      deactivated_at: null,
+    },
+  });
+}
+
+
+// ─── Config: Set survey config ────────────────────────────────────
+
+async function handleConfigSet(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const auth = await requireAuth(req, res);
+  if (!auth) return;
+
+  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin only' });
+  }
+
+  const body = req.body || {};
+  const eventId = sanitize(body.event_id || '', 200);
+  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+
+  const now = new Date().toISOString();
+  const isActive = !!body.is_active;
+
+  const sb = getServiceSupabase();
+  const { data, error } = await sb
+    .from('tenant_survey_config')
+    .upsert({
+      event_id: eventId,
+      is_active: isActive,
+      activated_at: isActive ? now : null,
+      deactivated_at: !isActive ? now : null,
+      updated_at: now,
+    }, { onConflict: 'event_id' })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[tenant-survey/config-set]', error);
+    return res.status(500).json({ success: false, error: 'Gagal menyimpan konfigurasi survey' });
+  }
+
+  return res.json({ success: true, config: data });
+}
+
+
+// ─── Export CSV ───────────────────────────────────────────────────
+
+async function handleExport(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const auth = await requireAuth(req, res);
+  if (!auth) return;
+
+  const eventId = String(req.query?.event_id || '').trim();
+  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+
+  const sb = getServiceSupabase();
+  const { data, error } = await sb
+    .from('tenant_event_surveys')
+    .select('*')
+    .eq('event_id', eventId)
+    .eq('status', 'submitted')
+    .order('created_at', { ascending: true })
+    .limit(5000);
+
+  if (error) {
+    console.error('[tenant-survey/export]', error);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data survey' });
+  }
+
+  if (!data || data.length === 0) {
+    return res.status(404).json({ success: false, error: 'Tidak ada data survey untuk event ini' });
+  }
+
+  const headers = [
+    'ID', 'Nama Gerai', 'Lokasi', 'Kategori', 'Traffic', 'Sales', 'Feedback',
+    'PIC Name', 'PIC Phone',
+    'Venue', 'Manajemen', 'Organisasi', 'Fasilitas', 'Overall',
+    'Feedback V2', 'Saran', 'Status', 'Tanggal',
+  ];
+
+  const csvRows = [headers.join(',')];
+
+  for (const r of data) {
+    const row = [
+      r.id,
+      csvEscape(r.nama_gerai || r.tenant_name || ''),
+      csvEscape(r.lokasi_zona || ''),
+      csvEscape(r.kategori || ''),
+      csvEscape(r.kenaikan_traffic || ''),
+      csvEscape(r.kenaikan_sales || ''),
+      csvEscape(r.feedback_teks || ''),
+      csvEscape(r.pic_name || ''),
+      csvEscape(r.pic_phone || ''),
+      r.venue_rating ?? '',
+      r.management_rating ?? '',
+      r.event_organization_rating ?? '',
+      r.booth_facility_rating ?? '',
+      r.overall_rating ?? '',
+      csvEscape(r.feedback_comment || ''),
+      csvEscape(r.improvement_suggestion || ''),
+      r.status,
+      r.created_at,
+    ];
+    csvRows.push(row.join(','));
+  }
+
+  const csv = csvRows.join('\n');
+  const filename = `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  return res.status(200).send('\uFEFF' + csv);
+}
+
+function csvEscape(val) {
+  if (!val) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
 }

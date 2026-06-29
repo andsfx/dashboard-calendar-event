@@ -898,6 +898,8 @@ interface DbTenantSurvey {
   kenaikan_sales: string | null;
   feedback_teks: string | null;
   tenant_id: string | null;
+  pic_name: string | null;
+  pic_phone: string | null;
 }
 
 function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
@@ -927,6 +929,15 @@ function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
     review_notes: row.review_notes || '',
     created_at: row.created_at,
     updated_at: row.updated_at,
+    nama_gerai: row.nama_gerai,
+    lokasi_zona: row.lokasi_zona,
+    kategori: row.kategori,
+    kenaikan_traffic: row.kenaikan_traffic,
+    kenaikan_sales: row.kenaikan_sales,
+    feedback_teks: row.feedback_teks,
+    tenant_id: row.tenant_id,
+    pic_name: row.pic_name,
+    pic_phone: row.pic_phone,
   };
 }
 
@@ -945,6 +956,8 @@ function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): R
     kenaikan_sales: data.kenaikan_sales || '',
     feedback_teks: data.feedback_teks || '',
     tenant_id: data.tenant_id || null,
+    pic_name: data.pic_name || '',
+    pic_phone: data.pic_phone || '',
     venue_rating: data.venue_rating ?? null,
     management_rating: data.management_rating ?? null,
     event_organization_rating: data.event_organization_rating ?? null,
@@ -1053,6 +1066,7 @@ export async function updateTenantSurvey(
     'nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales',
     'business_category', 'business_subcategory',
     'feedback_comment', 'improvement_suggestion', 'feedback_teks',
+    'pic_name', 'pic_phone',
   ] as const;
 
   for (const key of textKeys) {
@@ -1282,6 +1296,8 @@ export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData,
   kenaikan_sales?: string | null;
   feedback_teks?: string | null;
   tenant_id?: string | null;
+  pic_name?: string | null;
+  pic_phone?: string | null;
   venue_rating?: number | null;
   management_rating?: number | null;
   event_organization_rating?: number | null;

@@ -296,6 +296,8 @@ export interface TenantEventSurvey extends TenantSurveyRatings {
   kenaikan_sales?: string | null;
   feedback_teks?: string | null;
   tenant_id?: string | null;
+  pic_name?: string | null;
+  pic_phone?: string | null;
 }
 
 /**
@@ -326,6 +328,8 @@ export interface TenantSurveyFormData {
   kenaikan_sales?: string | null;
   feedback_teks?: string | null;
   tenant_id?: string | null;
+  pic_name?: string | null;
+  pic_phone?: string | null;
 }
 
 /** Analytics row (per tenant) */
@@ -365,4 +369,13 @@ export interface TenantSurveyEventSummary {
 export interface DuplicateCheckResult {
   alreadySubmitted: boolean;
   existingSurveyId?: string;
+}
+
+/** Per-event tenant survey config */
+export interface TenantSurveyConfig {
+  id?: string;
+  event_id: string;
+  is_active: boolean;
+  activated_at?: string | null;
+  deactivated_at?: string | null;
 }

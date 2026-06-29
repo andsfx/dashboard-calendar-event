@@ -9,14 +9,30 @@ interface SurveyQRCodeProps {
   surveyType?: 'organizer' | 'public';
   /** Compact mode — just the QR code, no controls */
   compact?: boolean;
+  /** Base path for survey URL (default: '/survey') */
+  basePath?: string;
+  /** Label shown on downloaded PNG (default: 'Survey Kepuasan') */
+  label?: string;
+  /** Show type tabs (Peserta/Penyelenggara) — set false for single-type surveys */
+  showTypeTabs?: boolean;
 }
 
-export default function SurveyQRCode({ eventId, eventName, surveyType, compact = false }: SurveyQRCodeProps) {
+export default function SurveyQRCode({
+  eventId,
+  eventName,
+  surveyType,
+  compact = false,
+  basePath = '/survey',
+  label = 'Survey Kepuasan',
+  showTypeTabs = true,
+}: SurveyQRCodeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
   const [activeType, setActiveType] = useState<'organizer' | 'public'>(surveyType || 'public');
 
-  const surveyUrl = `${window.location.origin}/survey/${eventId}?type=${activeType}`;
+  const surveyUrl = showTypeTabs
+    ? `${window.location.origin}${basePath}/${eventId}?type=${activeType}`
+    : `${window.location.origin}${basePath}/${eventId}`;
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -60,7 +76,7 @@ export default function SurveyQRCode({ eventId, eventName, surveyType, compact =
         ctx.fillStyle = '#1e1b4b';
         ctx.font = 'bold 16px Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Survey Kepuasan', downloadCanvas.width / 2, size + padding + 30);
+        ctx.fillText(label, downloadCanvas.width / 2, size + padding + 30);
 
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#64748b';
@@ -72,13 +88,13 @@ export default function SurveyQRCode({ eventId, eventName, surveyType, compact =
 
         // Download
         const link = document.createElement('a');
-        link.download = `survey-qr-${eventId}-${activeType}.png`;
+        link.download = `survey-qr-${eventId}${showTypeTabs ? `-${activeType}` : ''}.png`;
         link.href = downloadCanvas.toDataURL('image/png');
         link.click();
       };
       img.src = qrDataUrl;
     } catch { /* ignore */ }
-  }, [surveyUrl, eventId, eventName, activeType]);
+  }, [surveyUrl, eventId, eventName, activeType, label]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -99,8 +115,8 @@ export default function SurveyQRCode({ eventId, eventName, surveyType, compact =
 
   return (
     <div className="space-y-3">
-      {/* Type tabs (only if no fixed type) */}
-      {!surveyType && (
+      {/* Type tabs (only if no fixed type and showTypeTabs is true) */}
+      {showTypeTabs && !surveyType && (
         <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-700">
           <TabBtn active={activeType === 'public'} onClick={() => setActiveType('public')}>
             Peserta

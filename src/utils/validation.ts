@@ -250,6 +250,8 @@ export function validateTenantSurvey(
     ['feedback_comment', 2000],
     ['improvement_suggestion', 2000],
     ['tenant_organization', 200],
+    ['pic_name', 100],
+    ['pic_phone', 20],
   ];
 
   for (const [field, maxLen] of textLimits) {

@@ -174,6 +174,8 @@ export default function TenantSurveyForm({
     business_subcategory: initialData?.business_subcategory ?? '',
     sales_lift_pct: initialData?.sales_lift_pct ?? 0,
     traffic_lift_pct: initialData?.traffic_lift_pct ?? 0,
+    pic_name: initialData?.pic_name ?? '',
+    pic_phone: initialData?.pic_phone ?? '',
   });
 
   const [comments, setComments] = useState({
@@ -353,6 +355,22 @@ export default function TenantSurveyForm({
             value={identity.tenant_phone}
             onChange={(v) => setIdentity(p => ({ ...p, tenant_phone: v }))}
             placeholder="08xxxxxxxxxx (opsional)"
+            icon={<Phone className="h-3.5 w-3.5" />}
+            disabled={disabled}
+          />
+          <Field
+            label="Nama PIC"
+            value={identity.pic_name}
+            onChange={(v) => setIdentity(p => ({ ...p, pic_name: v }))}
+            placeholder="Nama penanggung jawab (opsional)"
+            disabled={disabled}
+          />
+          <Field
+            label="No. Telepon PIC"
+            type="tel"
+            value={identity.pic_phone}
+            onChange={(v) => setIdentity(p => ({ ...p, pic_phone: v }))}
+            placeholder="08xxx (opsional)"
             icon={<Phone className="h-3.5 w-3.5" />}
             disabled={disabled}
           />

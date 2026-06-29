@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft } from 'lucide-react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, Star, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -20,9 +20,15 @@ import TenantSurveyForm, {
 import TenantSurveyList from './TenantSurveyList';
 import TenantSurveyAnalyticsPanel from './TenantSurveyAnalytics';
 
+const SurveyQRCode = lazy(() => import('./SurveyQRCode'));
+
 type TabKey = 'list' | 'analytics';
 type ViewMode = 'list' | 'form' | 'detail';
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
+
+function isV3Survey(survey: TenantEventSurvey): boolean {
+  return !!(survey.nama_gerai && survey.venue_rating == null);
+}
 
 interface TenantSurveyPageProps {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'tanggal' | 'dateStr' | 'lokasi' | 'eo' | 'status'>>;
@@ -40,6 +46,11 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // ─── Event Management State ─────────────────────────────────────
+  const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
+  const [configLoading, setConfigLoading] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState('');
 
   // ─── Hooks ─────────────────────────────────────────────────────
   const { surveys, isLoading, error, refreshSurveys, createSurvey, editSurvey, submit } = useTenantSurveys();
@@ -150,6 +161,63 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
     setSelectedEventId(null);
   }, []);
 
+  // ─── Event Management Handlers ──────────────────────────────────
+  const getAccessToken = useCallback(() => {
+    try {
+      const keys = Object.keys(localStorage);
+      const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+      if (sbKey) {
+        const data = JSON.parse(localStorage.getItem(sbKey) || '{}');
+        return data.access_token || '';
+      }
+    } catch { /* ignore */ }
+    return '';
+  }, []);
+
+  const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
+    setConfigLoading(eventId);
+    try {
+      const res = await fetch('/api/tenant-survey?action=config-set', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAccessToken()}`,
+        },
+        body: JSON.stringify({ event_id: eventId, is_active: !currentActive }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
+      }
+    } catch { /* ignore */ }
+    finally { setConfigLoading(null); }
+  }, [getAccessToken]);
+
+  const handleCopyLink = useCallback(async (eventId: string) => {
+    const url = `${window.location.origin}/tenant-survey/${eventId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(eventId);
+      setTimeout(() => setCopiedId(''), 2000);
+    } catch { /* ignore */ }
+  }, []);
+
+  const handleExport = useCallback(async (eventId: string) => {
+    try {
+      const res = await fetch(`/api/tenant-survey?action=export&event_id=${encodeURIComponent(eventId)}`, {
+        headers: { 'Authorization': `Bearer ${getAccessToken()}` },
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* ignore */ }
+  }, [getAccessToken]);
+
   // ─── Derived ───────────────────────────────────────────────────
   const selectedEvent = events.find(e => e.id === selectedEventId) ?? null;
 
@@ -208,6 +276,16 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
             isLoading={analyticsLoading}
           />
         )}
+
+        <TenantSurveyManagementSection
+          events={events}
+          copiedId={copiedId}
+          onCopyLink={handleCopyLink}
+          onExport={handleExport}
+          onToggleConfig={handleToggleConfig}
+          configLoading={configLoading}
+          activeConfigs={activeConfigs}
+        />
       </div>
     );
   }
@@ -232,53 +310,104 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
             {selectedEvent.tanggal} &bull; {selectedEvent.lokasi}
           </p>
 
-          {/* Ratings grid */}
-          <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {([
-              ['venue_rating', 'Venue'],
-              ['management_rating', 'Manajemen'],
-              ['event_organization_rating', 'Organisasi'],
-              ['booth_facility_rating', 'Fasilitas Booth'],
-            ] as const).map(([key, label]) => {
-              const val = editingSurvey[key];
-              return (
-                <div
-                  key={key}
-                  className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900"
-                >
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
-                  <span className={`mt-1 text-xl font-bold ${
-                    val != null && val >= 4 ? 'text-emerald-500'
-                    : val != null && val >= 3 ? 'text-yellow-500'
-                    : 'text-red-500'
-                  }`}>
-                    {val ?? '-'}/5
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Comments */}
-          {(editingSurvey.feedback_comment || editingSurvey.improvement_suggestion) && (
-            <div className="space-y-3">
-              {editingSurvey.feedback_comment && (
-                <div>
-                  <h4 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Feedback</h4>
-                  <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
-                    {editingSurvey.feedback_comment}
-                  </p>
-                </div>
-              )}
-              {editingSurvey.improvement_suggestion && (
-                <div>
-                  <h4 className="text-xs font-semibold text-violet-600 dark:text-violet-400">Saran Perbaikan</h4>
-                  <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
-                    {editingSurvey.improvement_suggestion}
-                  </p>
-                </div>
-              )}
+          {/* Ratings grid (v2) / Info grid (v3) */}
+          {isV3Survey(editingSurvey) ? (
+            <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-7">
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <Store className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Gerai</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.nama_gerai || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <MapPin className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Lokasi</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.lokasi_zona || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <Tag className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Kategori</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kategori || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <TrendingUp className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Traffic</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_traffic || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Sales</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_sales || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <Store className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">PIC</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_name || '-'}</span>
+              </div>
+              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">Telepon PIC</span>
+                <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_phone || '-'}</span>
+              </div>
             </div>
+          ) : (
+            <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {([
+                ['venue_rating', 'Venue'],
+                ['management_rating', 'Manajemen'],
+                ['event_organization_rating', 'Organisasi'],
+                ['booth_facility_rating', 'Fasilitas Booth'],
+              ] as const).map(([key, label]) => {
+                const val = editingSurvey[key];
+                return (
+                  <div
+                    key={key}
+                    className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900"
+                  >
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
+                    <span className={`mt-1 text-xl font-bold ${
+                      val != null && val >= 4 ? 'text-emerald-500'
+                      : val != null && val >= 3 ? 'text-yellow-500'
+                      : 'text-red-500'
+                    }`}>
+                      {val ?? '-'}/5
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Comments (v2) / Feedback (v3) */}
+          {isV3Survey(editingSurvey) ? (
+            editingSurvey.feedback_teks && (
+              <div>
+                <h4 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Feedback</h4>
+                <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
+                  {editingSurvey.feedback_teks}
+                </p>
+              </div>
+            )
+          ) : (
+            (editingSurvey.feedback_comment || editingSurvey.improvement_suggestion) && (
+              <div className="space-y-3">
+                {editingSurvey.feedback_comment && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Feedback</h4>
+                    <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
+                      {editingSurvey.feedback_comment}
+                    </p>
+                  </div>
+                )}
+                {editingSurvey.improvement_suggestion && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-violet-600 dark:text-violet-400">Saran Perbaikan</h4>
+                    <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
+                      {editingSurvey.improvement_suggestion}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )
           )}
 
           {/* Review notes */}
@@ -431,11 +560,148 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
           overall_rating: editingSurvey.overall_rating,
           feedback_comment: editingSurvey.feedback_comment,
           improvement_suggestion: editingSurvey.improvement_suggestion,
+          pic_name: editingSurvey.pic_name,
+          pic_phone: editingSurvey.pic_phone,
         } : undefined}
         onSubmit={handleFormSubmit}
         onCancel={handleCancelForm}
         isSubmitting={formStatus === 'submitting'}
       />
+    </div>
+  );
+}
+
+
+function TenantSurveyEventRow({
+  event,
+  copiedId,
+  onCopyLink,
+  onExport,
+  onToggleConfig,
+  configLoading,
+  activeConfigs,
+}: {
+  event: Pick<EventItem, 'id' | 'acara' | 'status'>;
+  copiedId: string;
+  onCopyLink: (id: string) => void;
+  onExport: (id: string) => void;
+  onToggleConfig: (id: string, active: boolean) => void;
+  configLoading: string | null;
+  activeConfigs: Record<string, boolean>;
+}) {
+  const [showQR, setShowQR] = useState(false);
+  const isActive = activeConfigs[event.id] ?? true;
+  const isCopied = copiedId === event.id;
+  const isToggling = configLoading === event.id;
+
+  return (
+    <div className="px-4 py-2.5">
+      <div className="flex items-center gap-2">
+        <p className="min-w-0 flex-1 truncate text-xs text-slate-700 dark:text-slate-300">{event.acara}</p>
+
+        <button
+          onClick={() => onToggleConfig(event.id, isActive)}
+          disabled={isToggling}
+          className={`shrink-0 transition ${isActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`}
+          title={isActive ? 'Survey aktif — klik untuk nonaktifkan' : 'Survey nonaktif — klik untuk aktifkan'}
+        >
+          {isToggling ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : isActive ? (
+            <ToggleRight className="h-5 w-5" />
+          ) : (
+            <ToggleLeft className="h-5 w-5" />
+          )}
+        </button>
+
+        <button
+          onClick={() => onCopyLink(event.id)}
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          title="Copy survey link"
+        >
+          {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
+          {isCopied ? 'Copied!' : 'Link'}
+        </button>
+
+        <button
+          onClick={() => onExport(event.id)}
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-900/30"
+          title="Export CSV"
+        >
+          <Download className="h-3 w-3" />
+          CSV
+        </button>
+
+        <button
+          onClick={() => setShowQR(!showQR)}
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          title="QR Code"
+        >
+          <QrCode className="h-3 w-3" />
+          QR
+        </button>
+      </div>
+
+      {showQR && (
+        <div className="mt-3">
+          <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" /></div>}>
+            <SurveyQRCode
+              eventId={event.id}
+              eventName={event.acara}
+              basePath="/tenant-survey"
+              label="Self-Assessment Tenant"
+              showTypeTabs={false}
+              compact
+            />
+          </Suspense>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function TenantSurveyManagementSection({
+  events,
+  copiedId,
+  onCopyLink,
+  onExport,
+  onToggleConfig,
+  configLoading,
+  activeConfigs,
+}: {
+  events: Array<Pick<EventItem, 'id' | 'acara' | 'status'>>;
+  copiedId: string;
+  onCopyLink: (id: string) => void;
+  onExport: (id: string) => void;
+  onToggleConfig: (id: string, active: boolean) => void;
+  configLoading: string | null;
+  activeConfigs: Record<string, boolean>;
+}) {
+  const pastEvents = events.filter(e => e.status === 'past').slice(0, 30);
+
+  if (pastEvents.length === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-700">
+        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
+        <p className="text-[10px] text-slate-400">Copy link, aktifkan/nonaktifkan, QR code, atau export data</p>
+      </div>
+      <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
+        {pastEvents.map((ev) => (
+          <TenantSurveyEventRow
+            key={ev.id}
+            event={ev}
+            copiedId={copiedId}
+            onCopyLink={onCopyLink}
+            onExport={onExport}
+            onToggleConfig={onToggleConfig}
+            configLoading={configLoading}
+            activeConfigs={activeConfigs}
+          />
+        ))}
+      </div>
     </div>
   );
 }

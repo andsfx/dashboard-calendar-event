@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   Send, ArrowLeft, MapPin, Calendar, Search,
-  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, X,
+  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, X, Phone,
 } from 'lucide-react';
 import {
   fetchPublicTenantSurveyEvent,
@@ -280,6 +280,8 @@ export default function TenantSurveyPublicPage() {
     kenaikan_traffic: '',
     kenaikan_sales: '',
     feedback_teks: '',
+    pic_name: '',
+    pic_phone: '',
   });
   const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
   const [autoFilled, setAutoFilled] = useState<{ lokasi_zona: boolean; kategori: boolean }>({
@@ -307,6 +309,8 @@ export default function TenantSurveyPublicPage() {
       ...prev,
       lokasi_zona: zona || prev.lokasi_zona,
       kategori: kat || prev.kategori,
+      pic_name: tenant.pic || prev.pic_name,
+      pic_phone: tenant.picTelp || prev.pic_phone,
     }));
     setAutoFilled({ lokasi_zona: !!zona, kategori: !!kat });
   }, []);
@@ -360,6 +364,9 @@ export default function TenantSurveyPublicPage() {
       kenaikan_sales: formData.kenaikan_sales,
       feedback_teks: formData.feedback_teks.trim(),
       device_fingerprint: getDeviceFingerprint(),
+      tenant_id: selectedTenant?.id || '',
+      pic_name: formData.pic_name.trim(),
+      pic_phone: formData.pic_phone.trim(),
     };
 
     const validation = validateTenantSurvey(submission);
@@ -673,6 +680,24 @@ export default function TenantSurveyPublicPage() {
               )}
             </div>
 
+            {/* Auto-detect warnings */}
+            {selectedTenant && !formData.lokasi_zona && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <span>Lokasi tidak terdeteksi otomatis — silakan pilih manual dari dropdown.</span>
+                </div>
+              </div>
+            )}
+            {selectedTenant && !formData.kategori && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <span>Kategori tidak terdeteksi otomatis — silakan pilih manual.</span>
+                </div>
+              </div>
+            )}
+
             {/* Lokasi with auto-filled indicator */}
             <div className="relative">
               <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
@@ -709,6 +734,40 @@ export default function TenantSurveyPublicPage() {
                 value={formData.kategori}
                 onChange={updateField('kategori')}
               />
+            </div>
+
+            {/* PIC fields (optional) */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <Building2 className="h-3.5 w-3.5" />
+                  Nama PIC
+                  <span className="text-slate-400 text-[10px]">(opsional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.pic_name}
+                  onChange={(e) => updateField('pic_name')(e.target.value)}
+                  placeholder="Nama penanggung jawab"
+                  maxLength={100}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+                />
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <Phone className="h-3.5 w-3.5" />
+                  No. Telepon PIC
+                  <span className="text-slate-400 text-[10px]">(opsional)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={formData.pic_phone}
+                  onChange={(e) => updateField('pic_phone')(e.target.value)}
+                  placeholder="08xxx"
+                  maxLength={20}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+                />
+              </div>
             </div>
           </div>
         </section>

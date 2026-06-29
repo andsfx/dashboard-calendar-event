@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import {
   BarChart3, TrendingUp, Users, Star, ThumbsUp,
   Building2, ArrowUpRight, ArrowDownRight, Minus,
+  Store, Tag, DollarSign, MapPin,
 } from 'lucide-react';
 import type { TenantSurveyAnalytics, TenantEventSurvey } from '../../types';
 
@@ -16,6 +17,20 @@ function ratingColor(n: number | null | undefined): string {
   if (n >= 8) return 'text-emerald-500';
   if (n >= 5) return 'text-yellow-500';
   return 'text-red-500';
+}
+
+function isV3(survey: TenantEventSurvey): boolean {
+  return !!(survey.nama_gerai && survey.venue_rating == null);
+}
+
+function countDist(items: (string | null | undefined)[], labels: string[]): Record<string, number> {
+  const dist: Record<string, number> = {};
+  for (const l of labels) dist[l] = 0;
+  for (const item of items) {
+    if (!item) continue;
+    dist[item] = (dist[item] || 0) + 1;
+  }
+  return dist;
 }
 
 function StatCard({
@@ -98,6 +113,21 @@ export default function TenantSurveyAnalyticsPanel({
       .slice(0, 5);
   }, [analytics]);
 
+  // ─── V3 public survey distributions ────────────────────────────
+  const v3Data = useMemo(() => {
+    const v3Surveys = surveys.filter(isV3);
+    const trafficLabels = ['Signifikan', 'Sedikit Naik', 'Tidak Ada', 'Menurun'];
+    const salesLabels = ['Tidak ada kenaikan / Sama saja', '< 10%', '10% - 30%', '30% - 50%', '> 50%'];
+    const kategoriLabels = ['Food & Beverage (F&B)', 'Fashion & Aksesoris', 'Lifestyle & Hobi', 'Hiburan / Mainan Anak', 'Servis / Jasa', 'Supermarket / Department Store'];
+
+    return {
+      v3Surveys,
+      trafficDist: countDist(v3Surveys.map(s => s.kenaikan_traffic), trafficLabels),
+      salesDist: countDist(v3Surveys.map(s => s.kenaikan_sales), salesLabels),
+      kategoriDist: countDist(v3Surveys.map(s => s.kategori), kategoriLabels),
+    };
+  }, [surveys]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -110,6 +140,27 @@ export default function TenantSurveyAnalyticsPanel({
   }
 
   if (!aggregate || analytics.length === 0) {
+    if (v3Data.v3Surveys.length > 0) {
+      // Show v3 analytics only
+      return (
+        <div className="space-y-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <StatCard
+              label="Submisi Publik"
+              value={v3Data.v3Surveys.length}
+              icon={<Store className="h-4 w-4" />}
+            />
+          </div>
+          <V3DistributionSection
+            trafficDist={v3Data.trafficDist}
+            salesDist={v3Data.salesDist}
+            kategoriDist={v3Data.kategoriDist}
+            total={v3Data.v3Surveys.length}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
         <BarChart3 className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
@@ -217,6 +268,151 @@ export default function TenantSurveyAnalyticsPanel({
           </div>
         </div>
       )}
+
+      {/* V3 Public survey analytics */}
+      {v3Data.v3Surveys.length > 0 && (
+        <V3DistributionSection
+          trafficDist={v3Data.trafficDist}
+          salesDist={v3Data.salesDist}
+          kategoriDist={v3Data.kategoriDist}
+          total={v3Data.v3Surveys.length}
+        />
+      )}
+    </div>
+  );
+}
+
+function V3DistributionSection({
+  trafficDist,
+  salesDist,
+  kategoriDist,
+  total,
+}: {
+  trafficDist: Record<string, number>;
+  salesDist: Record<string, number>;
+  kategoriDist: Record<string, number>;
+  total: number;
+}) {
+  const trafficColors: Record<string, string> = {
+    'Signifikan': 'bg-emerald-500',
+    'Sedikit Naik': 'bg-green-400',
+    'Tidak Ada': 'bg-yellow-400',
+    'Menurun': 'bg-red-500',
+  };
+
+  const salesColors: Record<string, string> = {
+    '> 50%': 'bg-emerald-500',
+    '30% - 50%': 'bg-green-400',
+    '10% - 30%': 'bg-lime-400',
+    '< 10%': 'bg-yellow-400',
+    'Tidak ada kenaikan / Sama saja': 'bg-orange-400',
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* V3 stat card */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          label="Submisi Publik"
+          value={total}
+          icon={<Store className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Kategori Unik"
+          value={Object.keys(kategoriDist).filter(k => (kategoriDist[k] ?? 0) > 0).length}
+          icon={<Tag className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Traffic Positif"
+          value={(() => {
+            const pos = (trafficDist['Signifikan'] || 0) + (trafficDist['Sedikit Naik'] || 0);
+            return total > 0 ? `${Math.round((pos / total) * 100)}%` : '-';
+          })()}
+          icon={<TrendingUp className="h-4 w-4" />}
+          color={(() => {
+            const pos = (trafficDist['Signifikan'] || 0) + (trafficDist['Sedikit Naik'] || 0);
+            const pct = total > 0 ? (pos / total) * 100 : 0;
+            return pct >= 60 ? 'text-emerald-500' : pct >= 30 ? 'text-yellow-500' : 'text-red-500';
+          })()}
+        />
+      </div>
+
+      {/* Distribution bars */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <DistCard
+          title="Evaluasi Traffic"
+          icon={<TrendingUp className="h-4 w-4" />}
+          dist={trafficDist}
+          colors={trafficColors}
+          total={total}
+        />
+        <DistCard
+          title="Evaluasi Sales"
+          icon={<DollarSign className="h-4 w-4" />}
+          dist={salesDist}
+          colors={salesColors}
+          total={total}
+        />
+        <DistCard
+          title="Distribusi Kategori"
+          icon={<Tag className="h-4 w-4" />}
+          dist={kategoriDist}
+          colors={{}}
+          total={total}
+        />
+      </div>
+    </div>
+  );
+}
+
+function DistCard({
+  title,
+  icon,
+  dist,
+  colors,
+  total,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  dist: Record<string, number>;
+  colors: Record<string, string>;
+  total: number;
+}) {
+  const entries = Object.entries(dist).filter(([, count]) => count > 0);
+  const maxCount = Math.max(...entries.map(([, c]) => c), 1);
+  const defaultColors = ['bg-violet-500', 'bg-indigo-500', 'bg-blue-500', 'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500'];
+
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-violet-500 dark:text-violet-400">{icon}</span>
+        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">{title}</h4>
+      </div>
+      <div className="space-y-2">
+        {entries.map(([label, count], i) => {
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          const barWidth = (count / maxCount) * 100;
+          const barColor = colors[label] || defaultColors[i % defaultColors.length];
+          return (
+            <div key={label}>
+              <div className="mb-0.5 flex items-center justify-between">
+                <span className="truncate text-[10px] text-slate-600 dark:text-slate-400">{label}</span>
+                <span className="ml-2 shrink-0 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                  {count} <span className="font-normal text-slate-400">({pct}%)</span>
+                </span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                  style={{ width: `${barWidth}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
