@@ -3,6 +3,7 @@ import {
   TenantEventSurvey,
   TenantSurveyFormData,
   TenantSurveyAnalytics,
+  TenantSurveyMonthlyTrend,
   TenantSurveyEventSummary,
   DuplicateCheckResult,
 } from '../types';
@@ -14,6 +15,7 @@ import {
   submitTenantSurvey,
   reviewTenantSurvey,
   fetchTenantSurveyAnalytics,
+  fetchTenantSurveyMonthlyTrend,
   fetchTenantSurveyEventSummary,
   checkTenantSurveyDuplicate,
 } from '../utils/supabaseApi';
@@ -111,7 +113,8 @@ export function useTenantSurveys(eventId?: string) {
 }
 
 /**
- * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics.
+ * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics
+ * with realtime auto-refresh on data changes.
  */
 export function useTenantSurveyAnalytics() {
   const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
@@ -123,7 +126,7 @@ export function useTenantSurveyAnalytics() {
     setError(null);
     try {
       const data = await fetchTenantSurveyAnalytics();
-      setAnalytics(data);
+      setAnalytics(data as TenantSurveyAnalytics[]);
     } catch (err) {
       console.error('Fetch tenant analytics error:', err);
       setError('Gagal memuat analytics tenant.');
@@ -134,6 +137,22 @@ export function useTenantSurveyAnalytics() {
 
   useEffect(() => {
     refreshAnalytics();
+  }, [refreshAnalytics]);
+
+  // Realtime subscription — auto-refresh on any survey change
+  useEffect(() => {
+    const channel = supabase
+      .channel('tenant-survey-analytics-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tenant_event_surveys' },
+        () => { refreshAnalytics(); },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [refreshAnalytics]);
 
   return { analytics, isLoading, error, refreshAnalytics };
@@ -167,6 +186,36 @@ export function useTenantSurveyEventSummary(eventId: string | null) {
   }, [refreshSummary]);
 
   return { summary, isLoading, error, refreshSummary };
+}
+
+/**
+ * useTenantSurveyMonthlyTrend — fetches monthly aggregated trend data
+ * for the last 12 months. Used for the trend chart in analytics tab.
+ */
+export function useTenantSurveyMonthlyTrend() {
+  const [trend, setTrend] = useState<TenantSurveyMonthlyTrend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshTrend = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchTenantSurveyMonthlyTrend();
+      setTrend(data);
+    } catch (err) {
+      console.error('Fetch monthly trend error:', err);
+      setError('Gagal memuat trend bulanan.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshTrend();
+  }, [refreshTrend]);
+
+  return { trend, isLoading, error, refreshTrend };
 }
 
 /**

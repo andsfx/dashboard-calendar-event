@@ -5,6 +5,7 @@ import {
   Store, MapPin, Tag, TrendingUp, DollarSign, User, Phone,
 } from 'lucide-react';
 import type { TenantEventSurvey, EventItem } from '../../types';
+import { isV3Survey } from '../../utils/surveyUtils';
 
 interface TenantSurveyListProps {
   surveys: TenantEventSurvey[];
@@ -41,10 +42,6 @@ function ratingColor(n: number | null | undefined): string {
   if (n >= 4) return 'text-emerald-500';
   if (n >= 3) return 'text-yellow-500';
   return 'text-red-500';
-}
-
-function isV3(survey: TenantEventSurvey): boolean {
-  return !!(survey.nama_gerai && survey.venue_rating == null);
 }
 
 export default function TenantSurveyList({
@@ -193,7 +190,7 @@ export default function TenantSurveyList({
                         {statusCfg.icon}
                         {statusCfg.label}
                       </span>
-                      {isV3(survey) && (
+                      {isV3Survey(survey) && (
                         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                           Publik
                         </span>
@@ -201,7 +198,7 @@ export default function TenantSurveyList({
                     </div>
                     <div className="mt-0.5 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                       <span>{ev?.dateStr || '-'}</span>
-                      {isV3(survey) ? (
+                      {isV3Survey(survey) ? (
                         <>
                           <span className="flex items-center gap-1">
                             <Store className="h-3 w-3" />
@@ -236,7 +233,7 @@ export default function TenantSurveyList({
                 {/* Expanded detail */}
                 {isExpanded && (
                   <div className="border-t border-slate-200 p-4 dark:border-slate-700">
-                    {isV3(survey) ? (
+                    {isV3Survey(survey) ? (
                       <>
                         {/* V3: Info grid */}
                         <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-7">

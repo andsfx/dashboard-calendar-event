@@ -25,19 +25,22 @@ const TRAFFIC_LABELS: Record<string, string> = {
   'Menurun': 'Menurun (Toko justru lebih sepi)',
 };
 
-function RadioGroup({ label, options, value, onChange, disabled, labels }: {
+function RadioGroup({ label, options, value, onChange, disabled, labels, required, error }: {
   label: string;
   options: readonly string[];
   value: string;
   onChange: (v: string) => void;
   disabled?: boolean;
   labels?: Record<string, string>;
+  required?: boolean;
+  error?: string;
 }) {
+  const errorId = error ? `${label.replace(/\s+/g, '-').toLowerCase()}-error` : undefined;
   return (
-    <fieldset className="space-y-2" disabled={disabled}>
+    <fieldset className="space-y-2" disabled={disabled} aria-required={required || undefined} aria-invalid={!!error || undefined} aria-describedby={errorId}>
       <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
         {label}
-        <span className="ml-1 text-red-500">*</span>
+        {required && <span className="ml-1 text-red-500">*</span>}
       </legend>
       <div className="space-y-2" role="radiogroup" aria-label={label}>
         {options.map((opt) => {
@@ -71,6 +74,12 @@ function RadioGroup({ label, options, value, onChange, disabled, labels }: {
           );
         })}
       </div>
+      {error && (
+        <p id={errorId} className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
+          <AlertTriangle className="h-3 w-3" />
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }
@@ -98,23 +107,22 @@ function apiCategoryToKategori(apiCat: string): string {
   return '';
 }
 
-function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
+function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, id, required, error }: {
   value: string;
   onChange: (v: string) => void;
   onTenantSelect?: (tenant: TenantDropdownOption | null) => void;
   disabled?: boolean;
+  id: string;
+  required?: boolean;
+  error?: string;
 }) {
-  const containerRef = useState<HTMLDivElement | null>(null);
-  const inputRef = useState<HTMLInputElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [highlighted, setHighlighted] = useState(-1);
-  const container = containerRef[0];
-  const setContainer = containerRef[1];
-  const inputEl = inputRef[0];
-  const setInputEl = inputRef[1];
 
   // Sync query when value changes externally (e.g., reset)
   useEffect(() => { setQuery(value); }, [value]);
@@ -141,7 +149,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
-      if (container && !container.contains(e.target as Node)) setOpen(false);
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false);
@@ -152,7 +160,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
       document.removeEventListener('mousedown', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open, container]);
+  }, [open]);
 
   function selectTenant(t: TenantDropdownOption) {
     onChange(t.name);
@@ -177,10 +185,11 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
   }
 
   return (
-    <div ref={setContainer} className="relative">
+    <div ref={containerRef} className="relative">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       <input
-        ref={setInputEl}
+        ref={inputRef}
+        id={id}
         type="text"
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
@@ -193,7 +202,10 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
         aria-expanded={open}
         aria-autocomplete="list"
         aria-activedescendant={highlighted >= 0 ? `tenant-opt-${highlighted}` : undefined}
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+        aria-required={required || undefined}
+        aria-invalid={!!error || undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
       />
       {query && !disabled && (
         <button
@@ -207,7 +219,7 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
       )}
 
       {open && !disabled && (
-        <div role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-800">
+        <div role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -254,6 +266,12 @@ function TenantSearchSelect({ value, onChange, onTenantSelect, disabled }: {
             ))
           )}
         </div>
+      )}
+      {error && (
+        <p id={`${id}-error`} className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
+          <AlertTriangle className="h-3 w-3" />
+          {error}
+        </p>
       )}
     </div>
   );
@@ -408,14 +426,15 @@ export default function TenantSurveyPublicPage() {
     setSubmitError('');
   }, []);
 
-  const PageShell = ({ children }: { children: ReactNode }) => (
+function PageShell({ children, onBack }: { children: ReactNode; onBack: () => void }) {
+  return (
     <div className="min-h-screen scroll-smooth bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
-            onClick={goBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400"
+            onClick={onBack}
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
           >
             <ArrowLeft className="h-4 w-4" />
             Kembali
@@ -428,10 +447,11 @@ export default function TenantSurveyPublicPage() {
       </div>
     </div>
   );
+}
 
   if (loading) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
           <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Memuat survey...</p>
@@ -442,7 +462,7 @@ export default function TenantSurveyPublicPage() {
 
   if (error || !event) {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -466,7 +486,7 @@ export default function TenantSurveyPublicPage() {
 
   if (alreadySubmitted || formStatus === 'duplicate') {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800 dark:bg-amber-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
             <CheckCircle2 className="h-8 w-8 text-amber-500" />
@@ -491,7 +511,7 @@ export default function TenantSurveyPublicPage() {
 
   if (formStatus === 'success') {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
@@ -521,7 +541,7 @@ export default function TenantSurveyPublicPage() {
 
   if (formStatus === 'error') {
     return (
-      <PageShell>
+      <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -553,20 +573,47 @@ export default function TenantSurveyPublicPage() {
     );
   }
 
-  const requiredCount = 5; // nama_gerai, lokasi_zona, kategori, kenaikan_traffic, kenaikan_sales
-  const filledCount = [
-    formData.nama_gerai.trim() ? 1 : 0,
-    formData.lokasi_zona ? 1 : 0,
-    formData.kategori ? 1 : 0,
-    formData.kenaikan_traffic ? 1 : 0,
-    formData.kenaikan_sales ? 1 : 0,
-  ].reduce((a, b) => a + b, 0) as number;
-  const progress = Math.round((filledCount / requiredCount) * 100);
+const REQUIRED_FIELDS = ['nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'] as const;
+const requiredCount = REQUIRED_FIELDS.length;
+const filledCount = REQUIRED_FIELDS.filter(f => formData[f].trim()).length;
+const progress = Math.round((filledCount / requiredCount) * 100);
+
+  const fieldErrorMap = (() => {
+    const map: Record<string, string> = {};
+    const patterns: Array<[RegExp, string]> = [
+      [/[Nn]ama gerai/i, 'nama_gerai'],
+      [/[Ll]okasi/i, 'lokasi_zona'],
+      [/[Kk]ategori/i, 'kategori'],
+      [/traffic/i, 'kenaikan_traffic'],
+      [/sales/i, 'kenaikan_sales'],
+    ];
+    for (const err of fieldErrors) {
+      for (const [re, field] of patterns) {
+        if (re.test(err)) { map[field] = err; break; }
+      }
+    }
+    return map;
+  })();
 
   return (
-    <PageShell>
+    <div className="min-h-screen scroll-smooth bg-slate-50 dark:bg-slate-950">
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={goBack}
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali
+          </button>
+          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+            Metropolitan Mall Bekasi
+          </span>
+        </div>
+
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-secondary-50 p-5 transition hover:shadow-sm dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-secondary-950/40">
+      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-indigo-50 p-4 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-indigo-950/40">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
             <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
@@ -614,7 +661,7 @@ export default function TenantSurveyPublicPage() {
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
-              <span className="truncate text-[11px] font-medium text-slate-600 dark:text-slate-400">{step.label}</span>
+              <span className="hidden truncate text-[11px] font-medium text-slate-600 dark:text-slate-400 sm:block">{step.label}</span>
             </div>
           ))}
         </div>
@@ -640,7 +687,7 @@ export default function TenantSurveyPublicPage() {
         )}
 
         {/* Section 1: Informasi Gerai */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 1: Informasi Gerai
           </h2>
@@ -651,15 +698,18 @@ export default function TenantSurveyPublicPage() {
           <div className="space-y-4">
             {/* Tenant search + badge */}
             <div>
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="tenant-survey-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama Gerai
                 <span className="text-red-500">*</span>
               </label>
               <TenantSearchSelect
+                id="tenant-survey-gerai"
                 value={formData.nama_gerai}
                 onChange={updateField('nama_gerai')}
                 onTenantSelect={handleTenantSelect}
+                required
+                error={fieldErrorMap.nama_gerai}
               />
               {selectedTenant && (
                 <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-950/30">
@@ -700,7 +750,7 @@ export default function TenantSurveyPublicPage() {
 
             {/* Lokasi with auto-filled indicator */}
             <div className="relative">
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                 <MapPin className="h-3.5 w-3.5" />
                 Lokasi / Zona
                 <span className="text-red-500">*</span>
@@ -709,9 +759,13 @@ export default function TenantSurveyPublicPage() {
                 )}
               </label>
               <select
+                id="tenant-survey-lokasi"
                 value={formData.lokasi_zona}
                 onChange={(e) => updateField('lokasi_zona')(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+                aria-required="true"
+                aria-invalid={!!fieldErrorMap.lokasi_zona || undefined}
+                aria-describedby={fieldErrorMap.lokasi_zona ? 'tenant-survey-lokasi-error' : undefined}
+                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
               >
                 <option value="">Pilih lokasi / zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -719,6 +773,12 @@ export default function TenantSurveyPublicPage() {
                 ))}
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 text-slate-400" />
+              {fieldErrorMap.lokasi_zona && (
+                <p id="tenant-survey-lokasi-error" className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
+                  <AlertTriangle className="h-3 w-3" />
+                  {fieldErrorMap.lokasi_zona}
+                </p>
+              )}
             </div>
 
             {/* Kategori with auto-filled indicator */}
@@ -733,47 +793,57 @@ export default function TenantSurveyPublicPage() {
                 options={SURVEY_OPTIONS.kategori}
                 value={formData.kategori}
                 onChange={updateField('kategori')}
+                required
+                error={fieldErrorMap.kategori}
               />
             </div>
 
             {/* PIC fields (optional) */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                  <Building2 className="h-3.5 w-3.5" />
-                  Nama PIC
-                  <span className="text-slate-400 text-[10px]">(opsional)</span>
-                </label>
+            <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
+              <p className="mb-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+                Informasi PIC (opsional)
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    <Building2 className="h-3.5 w-3.5" />
+                    Nama PIC
+                  </label>
+                  <input
+                    id="tenant-survey-pic-name"
+                    type="text"
+                    value={formData.pic_name}
+                    onChange={(e) => updateField('pic_name')(e.target.value)}
+                    placeholder="Nama penanggung jawab"
+                    maxLength={100}
+                    autoComplete="name"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    <Phone className="h-3.5 w-3.5" />
+                    No. Telepon PIC
+                  </label>
                 <input
-                  type="text"
-                  value={formData.pic_name}
-                  onChange={(e) => updateField('pic_name')(e.target.value)}
-                  placeholder="Nama penanggung jawab"
-                  maxLength={100}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
-                />
-              </div>
-              <div>
-                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                  <Phone className="h-3.5 w-3.5" />
-                  No. Telepon PIC
-                  <span className="text-slate-400 text-[10px]">(opsional)</span>
-                </label>
-                <input
+                  id="tenant-survey-pic-phone"
                   type="tel"
+                  inputMode="tel"
                   value={formData.pic_phone}
                   onChange={(e) => updateField('pic_phone')(e.target.value)}
                   placeholder="08xxx"
                   maxLength={20}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+                  autoComplete="tel"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
                 />
               </div>
+            </div>
             </div>
           </div>
         </section>
 
         {/* Section 2: Evaluasi Traffic & Sales */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
@@ -788,6 +858,8 @@ export default function TenantSurveyPublicPage() {
               value={formData.kenaikan_traffic}
               onChange={updateField('kenaikan_traffic')}
               labels={TRAFFIC_LABELS}
+              required
+              error={fieldErrorMap.kenaikan_traffic}
             />
 
             <RadioGroup
@@ -795,12 +867,14 @@ export default function TenantSurveyPublicPage() {
               options={SURVEY_OPTIONS.kenaikan_sales}
               value={formData.kenaikan_sales}
               onChange={updateField('kenaikan_sales')}
+              required
+              error={fieldErrorMap.kenaikan_sales}
             />
           </div>
         </section>
 
         {/* Section 3: Umpan Balik */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 3: Umpan Balik
           </h2>
@@ -810,53 +884,41 @@ export default function TenantSurveyPublicPage() {
 
           <div>
             <textarea
+              id="tenant-survey-feedback"
+              aria-label="Masukan / Feedback"
               value={formData.feedback_teks}
               onChange={(e) => updateField('feedback_teks')(e.target.value)}
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:focus:ring-brand-primary-800"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
             />
-            {/* Character counter */}
-            <div className="mt-1.5 flex items-center gap-2">
-              <div className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    formData.feedback_teks.length > 1800
-                      ? 'bg-red-400'
-                      : formData.feedback_teks.length > 1500
-                        ? 'bg-amber-400'
-                        : 'bg-brand-primary-400'
-                  }`}
-                  style={{ width: `${(formData.feedback_teks.length / 2000) * 100}%` }}
-                />
-              </div>
-              <span className={`text-[10px] tabular-nums ${
-                formData.feedback_teks.length > 1800
-                  ? 'font-bold text-red-500'
-                  : 'text-slate-400'
-              }`}>
-                {2000 - formData.feedback_teks.length}
-              </span>
-            </div>
+            <p className="mt-1 text-right text-[10px] text-slate-400">
+              {2000 - formData.feedback_teks.length} karakter tersisa
+            </p>
           </div>
         </section>
 
         {/* Progress indicator */}
         <div className="space-y-1.5">
-          <div className="overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div className="overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
             <div
               className="h-2 rounded-full bg-brand-primary-500 transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-            <span>{progress}% selesai</span>
+            <span role="status" aria-live="polite">{progress}% selesai</span>
             <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
           </div>
         </div>
 
         {/* Submit */}
+        {filledCount < requiredCount && (
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400 sm:text-right">
+            Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
+          </p>
+        )}
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
@@ -875,7 +937,6 @@ export default function TenantSurveyPublicPage() {
                 ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
                 : 'bg-slate-400 cursor-not-allowed'
             }`}
-            title={filledCount < requiredCount ? `Lengkapi ${requiredCount - filledCount} field wajib` : ''}
           >
             {formStatus === 'submitting' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -891,6 +952,7 @@ export default function TenantSurveyPublicPage() {
           Survey ini dapat diakses tanpa login. Identitas Anda akan disimpan secara anonim.
         </p>
       </form>
-    </PageShell>
+      </div>
+    </div>
   );
 }

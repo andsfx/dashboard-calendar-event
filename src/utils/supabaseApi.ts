@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter, TenantEventSurvey, TenantSurveyFormData, TenantSurveyAnalytics, TenantSurveyEventSummary } from '../types';
+import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter, TenantEventSurvey, TenantSurveyFormData, TenantSurveyAnalytics, TenantSurveyEventSummary, TenantSurveyEventAnalytics, TenantSurveyMonthlyTrend } from '../types';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -974,6 +974,18 @@ function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): R
 }
 
 export async function fetchTenantSurveys(eventId?: string): Promise<TenantEventSurvey[]> {
+  try {
+    const params = new URLSearchParams({ action: 'list' });
+    if (eventId) params.set('event_id', eventId);
+    const res = await fetch(`/api/tenant-survey?${params}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        return json.data.map((row: DbTenantSurvey) => dbTenantSurveyToTenantSurvey(row));
+      }
+    }
+  } catch { /* fall through to anon client */ }
+
   let query = supabase
     .from('tenant_event_surveys')
     .select('*')
@@ -1136,13 +1148,55 @@ export async function reviewTenantSurvey(
   return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
 }
 
-export async function fetchTenantSurveyAnalytics(): Promise<TenantSurveyAnalytics[]> {
+type AnalyticsGroupMode = 'tenant' | 'event' | 'month';
+
+interface AnalyticsFetchOptions {
+  group?: AnalyticsGroupMode;
+  eventId?: string;
+}
+
+export async function fetchTenantSurveyAnalytics(
+  opts?: AnalyticsFetchOptions,
+): Promise<TenantSurveyAnalytics[] | TenantSurveyEventAnalytics[] | TenantSurveyMonthlyTrend[]> {
+  const params = new URLSearchParams({ action: 'analytics' });
+  if (opts?.group) params.set('group', opts.group);
+  if (opts?.eventId) params.set('event_id', opts.eventId);
+
+  try {
+    const res = await fetch(`/api/tenant-survey?${params}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        return json.data;
+      }
+    }
+  } catch { /* fall through to anon client */ }
+
+  // Fallback: direct RPC (old v3 function, no group/event filter)
   const { data, error } = await supabase.rpc('get_tenant_survey_analytics');
   if (error) throw new SupabaseApiError(error.message);
   return (data || []) as TenantSurveyAnalytics[];
 }
 
+export function fetchTenantSurveyEventAnalytics(eventId?: string): Promise<TenantSurveyEventAnalytics[]> {
+  return fetchTenantSurveyAnalytics({ group: 'event', eventId }) as Promise<TenantSurveyEventAnalytics[]>;
+}
+
+export function fetchTenantSurveyMonthlyTrend(): Promise<TenantSurveyMonthlyTrend[]> {
+  return fetchTenantSurveyAnalytics({ group: 'month' }) as Promise<TenantSurveyMonthlyTrend[]>;
+}
+
 export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {
+  try {
+    const res = await fetch(`/api/tenant-survey?action=summary&event_id=${encodeURIComponent(eventId)}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        return json.data as TenantSurveyEventSummary;
+      }
+    }
+  } catch { /* fall through */ }
+
   const { data, error } = await supabase.rpc('get_tenant_survey_event_summary', { p_event_id: eventId });
   if (error) throw new SupabaseApiError(error.message);
   if (!data || (data as TenantSurveyEventSummary).tenant_survey_status === 'none') return null;

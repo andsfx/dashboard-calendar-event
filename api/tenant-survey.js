@@ -688,7 +688,7 @@ async function handleReview(req, res) {
 }
 
 
-// ─── Analytics ───────────────────────────────────────────────────
+// ─── Analytics (v4: explicit auth, group by tenant/event/month) ──
 
 async function handleAnalytics(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
@@ -697,9 +697,16 @@ async function handleAnalytics(req, res) {
   if (!auth) return;
 
   const sb = getServiceSupabase();
+  const isAdmin = auth.role === 'superadmin' || auth.role === 'admin';
+  const group = String(req.query?.group || 'tenant').trim();
+  const eventId = String(req.query?.event_id || '').trim() || null;
 
-  const { data, error } = await sb.rpc('get_tenant_survey_analytics', {
-    p_user_id: (auth.role === 'superadmin' || auth.role === 'admin') ? null : auth.userId,
+  // Use v4 RPC with explicit auth params (no auth.uid() dependency)
+  const { data, error } = await sb.rpc('get_tenant_survey_analytics_v4', {
+    p_is_admin: isAdmin,
+    p_tenant_user_id: isAdmin ? null : auth.userId,
+    p_event_id: eventId,
+    p_group_by: group,
   });
 
   if (error) {

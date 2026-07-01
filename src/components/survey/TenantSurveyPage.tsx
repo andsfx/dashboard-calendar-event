@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone } from 'lucide-react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -11,6 +11,7 @@ import {
   useTenantSurveyDuplicate,
 } from '../../hooks/useTenantSurveys';
 import { supabase } from '../../lib/supabase';
+import { isV3Survey } from '../../utils/surveyUtils';
 import TenantSurveyForm, {
   TenantSurveySuccess,
   TenantSurveyDuplicate,
@@ -25,10 +26,6 @@ const SurveyQRCode = lazy(() => import('./SurveyQRCode'));
 type TabKey = 'list' | 'analytics';
 type ViewMode = 'list' | 'form' | 'detail';
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
-
-function isV3Survey(survey: TenantEventSurvey): boolean {
-  return !!(survey.nama_gerai && survey.venue_rating == null);
-}
 
 interface TenantSurveyPageProps {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'tanggal' | 'dateStr' | 'lokasi' | 'eo' | 'status'>>;
@@ -51,6 +48,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
   const [configLoading, setConfigLoading] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState('');
+  const [analyticsEventFilter, setAnalyticsEventFilter] = useState<string>('all');
 
   // ─── Hooks ─────────────────────────────────────────────────────
   const { surveys, isLoading, error, refreshSurveys, createSurvey, editSurvey, submit } = useTenantSurveys();
@@ -270,11 +268,34 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         )}
 
         {activeTab === 'analytics' && (
-          <TenantSurveyAnalyticsPanel
-            analytics={analytics}
-            surveys={surveys}
-            isLoading={analyticsLoading}
-          />
+          <div className="space-y-3">
+            {/* Event filter */}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              <select
+                value={analyticsEventFilter}
+                onChange={(e) => setAnalyticsEventFilter(e.target.value)}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              >
+                <option value="all">Semua Event</option>
+                {events
+                  .filter(ev => ev.status === 'past')
+                  .map(ev => (
+                    <option key={ev.id} value={ev.id}>{ev.acara}</option>
+                  ))}
+              </select>
+            </div>
+
+            <TenantSurveyAnalyticsPanel
+              analytics={analytics}
+              surveys={
+                analyticsEventFilter === 'all'
+                  ? surveys
+                  : surveys.filter(s => s.event_id === analyticsEventFilter)
+              }
+              isLoading={analyticsLoading}
+            />
+          </div>
         )}
 
         <TenantSurveyManagementSection

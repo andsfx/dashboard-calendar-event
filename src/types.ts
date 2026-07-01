@@ -332,9 +332,9 @@ export interface TenantSurveyFormData {
   pic_phone?: string | null;
 }
 
-/** Analytics row (per tenant) */
+/** Analytics row (per tenant) — includes v3 bucket counts from RPC v4 */
 export interface TenantSurveyAnalytics {
-  tenant_user_id: string;
+  tenant_user_id: string | null;
   tenant_organization: string;
   total_surveys: number;
   submitted_surveys: number;
@@ -344,6 +344,61 @@ export interface TenantSurveyAnalytics {
   avg_booth_facility_rating: number | null;
   avg_overall_rating: number | null;
   last_survey_at: string | null;
+  traffic_signifikan: number;
+  traffic_sedikit_naik: number;
+  traffic_tidak_ada: number;
+  traffic_menurun: number;
+  sales_no_change: number;
+  sales_lt_10: number;
+  sales_10_30: number;
+  sales_30_50: number;
+  sales_gt_50: number;
+}
+
+/** Per-event analytics row (group=event from RPC v4) */
+export interface TenantSurveyEventAnalytics {
+  event_id: string;
+  total_surveys: number;
+  submitted_surveys: number;
+  unique_tenants: number;
+  unique_categories: number;
+  avg_venue_rating: number | null;
+  avg_management_rating: number | null;
+  avg_event_organization_rating: number | null;
+  avg_booth_facility_rating: number | null;
+  avg_overall_rating: number | null;
+  last_survey_at: string | null;
+  traffic_signifikan: number;
+  traffic_sedikit_naik: number;
+  traffic_tidak_ada: number;
+  traffic_menurun: number;
+  sales_no_change: number;
+  sales_lt_10: number;
+  sales_10_30: number;
+  sales_30_50: number;
+  sales_gt_50: number;
+}
+
+/** Monthly trend row (group=month from RPC v4, last 12 months) */
+export interface TenantSurveyMonthlyTrend {
+  period: string;
+  total_submissions: number;
+  v2_count: number;
+  v3_count: number;
+  avg_venue_rating: number | null;
+  avg_management_rating: number | null;
+  avg_event_organization_rating: number | null;
+  avg_booth_facility_rating: number | null;
+  avg_overall_rating: number | null;
+  traffic_signifikan: number;
+  traffic_sedikit_naik: number;
+  traffic_tidak_ada: number;
+  traffic_menurun: number;
+  sales_no_change: number;
+  sales_lt_10: number;
+  sales_10_30: number;
+  sales_30_50: number;
+  sales_gt_50: number;
 }
 
 /** Per-event combined summary (tenant self-assessment + visitor ratings) */
