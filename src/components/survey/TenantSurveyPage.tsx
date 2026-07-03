@@ -52,7 +52,9 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
 
   // ─── Hooks ─────────────────────────────────────────────────────
   const { surveys, isLoading, error, refreshSurveys, createSurvey, editSurvey, submit } = useTenantSurveys();
-  const { analytics, isLoading: analyticsLoading } = useTenantSurveyAnalytics();
+  const { analytics, isLoading: analyticsLoading } = useTenantSurveyAnalytics(
+    analyticsEventFilter !== 'all' ? analyticsEventFilter : null,
+  );
   const {
     duplicate,
     isLoading: duplicateLoading,
@@ -294,6 +296,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
                   : surveys.filter(s => s.event_id === analyticsEventFilter)
               }
               isLoading={analyticsLoading}
+              eventFilter={analyticsEventFilter !== 'all' ? analyticsEventFilter : null}
             />
           </div>
         )}
@@ -574,21 +577,12 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         event={selectedEvent}
         initialData={editingSurvey ? {
           event_id: editingSurvey.event_id,
-          tenant_name: editingSurvey.tenant_name,
-          tenant_organization: editingSurvey.tenant_organization,
-          tenant_email: editingSurvey.tenant_email,
-          tenant_phone: editingSurvey.tenant_phone,
-          business_category: editingSurvey.business_category,
-          business_subcategory: editingSurvey.business_subcategory,
-          sales_lift_pct: editingSurvey.sales_lift_pct,
-          traffic_lift_pct: editingSurvey.traffic_lift_pct,
-          venue_rating: editingSurvey.venue_rating,
-          management_rating: editingSurvey.management_rating,
-          event_organization_rating: editingSurvey.event_organization_rating,
-          booth_facility_rating: editingSurvey.booth_facility_rating,
-          overall_rating: editingSurvey.overall_rating,
-          feedback_comment: editingSurvey.feedback_comment,
-          improvement_suggestion: editingSurvey.improvement_suggestion,
+          nama_gerai: editingSurvey.nama_gerai,
+          lokasi_zona: editingSurvey.lokasi_zona,
+          kategori: editingSurvey.kategori,
+          kenaikan_traffic: editingSurvey.kenaikan_traffic,
+          kenaikan_sales: editingSurvey.kenaikan_sales,
+          feedback_teks: editingSurvey.feedback_teks,
           pic_name: editingSurvey.pic_name,
           pic_phone: editingSurvey.pic_phone,
         } : undefined}

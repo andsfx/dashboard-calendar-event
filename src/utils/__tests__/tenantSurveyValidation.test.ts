@@ -1,182 +1,171 @@
 import { describe, it, expect } from 'vitest';
-import {
-  validateRating,
-  validateTenantSurvey,
-  TENANT_RATING_KEYS,
-  TENANT_RATING_LABELS,
-  TENANT_RATING_MIN,
-  TENANT_RATING_MAX,
-} from '../validation';
+import { validateTenantSurvey } from '../validation';
+import { SURVEY_OPTIONS } from '../../constants/survey-options';
 
-// ─── validateRating ─────────────────────────────────────────────
-
-describe('validateRating (1-5 scale)', () => {
-  it('should accept valid ratings 1-5', () => {
-    for (let i = TENANT_RATING_MIN; i <= TENANT_RATING_MAX; i++) {
-      const result = validateRating(i);
-      expect(result.valid).toBe(true);
-    }
-  });
-
-  it('should accept null and undefined (nullable for drafts)', () => {
-    expect(validateRating(null).valid).toBe(true);
-    expect(validateRating(undefined).valid).toBe(true);
-  });
-
-  it('should reject 0', () => {
-    const result = validateRating(0);
-    expect(result.valid).toBe(false);
-    expect(result.error).toContain('1 dan 5');
-  });
-
-  it('should reject 6', () => {
-    const result = validateRating(6);
-    expect(result.valid).toBe(false);
-    expect(result.error).toContain('1 dan 5');
-  });
-
-  it('should reject negative numbers', () => {
-    const result = validateRating(-1);
-    expect(result.valid).toBe(false);
-  });
-
-  it('should reject non-integer numbers', () => {
-    const result = validateRating(3.5);
-    expect(result.valid).toBe(false);
-    expect(result.error).toContain('bilangan bulat');
-  });
-
-  it('should include field name in error message', () => {
-    const result = validateRating(15, 'Venue');
-    expect(result.valid).toBe(false);
-    expect(result.error).toContain('Venue');
-  });
-
-  it('should respect custom min/max', () => {
-    expect(validateRating(5, 'X', 1, 10).valid).toBe(true);
-    expect(validateRating(11, 'X', 1, 10).valid).toBe(false);
-    expect(validateRating(0, 'X', 1, 10).valid).toBe(false);
-  });
-});
-
-// ─── validateTenantSurvey ───────────────────────────────────────
+// ─── validateTenantSurvey (v3 schema) ────────────────────────────
 
 describe('validateTenantSurvey', () => {
-  const validData = (): Record<string, unknown> => {
-    const data: Record<string, unknown> = {
-      event_id: 'evt_test123',
-      tenant_name: 'Test EO',
-      tenant_organization: 'Test Org',
-      tenant_email: 'test@example.com',
-      tenant_phone: '081234567890',
-      feedback_comment: 'Great event',
-      improvement_suggestion: 'More parking',
-    };
-    for (const key of TENANT_RATING_KEYS) {
-      data[key] = 4;
-    }
-    return data;
-  };
+  const validData = (): Record<string, unknown> => ({
+    event_id: 'evt_test123',
+    nama_gerai: 'Kopi Metmal',
+    lokasi_zona: SURVEY_OPTIONS.lokasi_zona[0],
+    kategori: SURVEY_OPTIONS.kategori[0],
+    kenaikan_traffic: SURVEY_OPTIONS.kenaikan_traffic[0],
+    kenaikan_sales: SURVEY_OPTIONS.kenaikan_sales[0],
+    feedback_teks: 'Event bagus',
+    pic_name: 'Budi',
+    pic_phone: '081234567890',
+  });
 
   describe('Valid submissions', () => {
-    it('should accept a fully valid survey with all required ratings', () => {
+    it('should accept a fully valid v3 survey', () => {
       const result = validateTenantSurvey(validData());
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should accept survey with optional overall_rating', () => {
+    it('should accept survey without optional feedback_teks', () => {
       const data = validData();
-      data.overall_rating = 5;
+      delete data.feedback_teks;
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(true);
     });
 
-    it('should accept survey without optional email/phone', () => {
+    it('should accept survey without optional pic fields', () => {
       const data = validData();
-      data.tenant_email = '';
-      data.tenant_phone = '';
+      delete data.pic_name;
+      delete data.pic_phone;
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(true);
     });
   });
 
-  describe('Required fields', () => {
+  describe('Required fields (non-draft)', () => {
     it('should reject missing event_id', () => {
       const data = validData();
       data.event_id = '';
-      const result = validateTenantSurvey(data);
+      const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
       expect(result.errors.some(e => e.includes('Event ID'))).toBe(true);
     });
 
-    it('should reject missing tenant_name for submit', () => {
+    it('should reject missing nama_gerai for submit', () => {
       const data = validData();
-      data.tenant_name = '';
+      data.nama_gerai = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('nama tenant'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('nama gerai'))).toBe(true);
     });
 
-    it('should allow empty tenant_name for draft', () => {
+    it('should reject nama_gerai exceeding 100 chars', () => {
       const data = validData();
-      data.tenant_name = '';
-      for (const key of TENANT_RATING_KEYS) {
-        data[key] = null;
-      }
-      const result = validateTenantSurvey(data, true);
-      expect(result.valid).toBe(true);
+      data.nama_gerai = 'x'.repeat(101);
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('100 karakter'))).toBe(true);
+    });
+
+    it('should reject missing lokasi_zona for submit', () => {
+      const data = validData();
+      data.lokasi_zona = '';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('lokasi zona'))).toBe(true);
+    });
+
+    it('should reject invalid lokasi_zona not in options', () => {
+      const data = validData();
+      data.lokasi_zona = 'Zona Palsu';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('lokasi zona'))).toBe(true);
+    });
+
+    it('should reject missing kategori for submit', () => {
+      const data = validData();
+      data.kategori = '';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('kategori'))).toBe(true);
+    });
+
+    it('should reject invalid kategori not in options', () => {
+      const data = validData();
+      data.kategori = 'Kategori Palsu';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('kategori'))).toBe(true);
+    });
+
+    it('should reject missing kenaikan_traffic for submit', () => {
+      const data = validData();
+      data.kenaikan_traffic = '';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('traffic'))).toBe(true);
+    });
+
+    it('should reject invalid kenaikan_traffic not in options', () => {
+      const data = validData();
+      data.kenaikan_traffic = 'Naik Banget';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('traffic'))).toBe(true);
+    });
+
+    it('should reject missing kenaikan_sales for submit', () => {
+      const data = validData();
+      data.kenaikan_sales = '';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('sales'))).toBe(true);
+    });
+
+    it('should reject invalid kenaikan_sales not in options', () => {
+      const data = validData();
+      data.kenaikan_sales = 'Laris Manis';
+      const result = validateTenantSurvey(data, false);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.toLowerCase().includes('sales'))).toBe(true);
     });
   });
 
-  describe('Rating validation (1-5 scale)', () => {
-    it('should reject missing required rating for submit', () => {
-      const data = validData();
-      data.venue_rating = 0;
-      const result = validateTenantSurvey(data, false);
-      expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('Venue'))).toBe(true);
-    });
-
-    it('should reject rating > 5', () => {
-      const data = validData();
-      data.management_rating = 6;
-      const result = validateTenantSurvey(data);
-      expect(result.valid).toBe(false);
-    });
-
-    it('should reject rating < 1', () => {
-      const data = validData();
-      data.booth_facility_rating = 0;
-      const result = validateTenantSurvey(data);
-      expect(result.valid).toBe(false);
-    });
-
-    it('should accept null ratings in draft mode', () => {
-      const data = validData();
-      for (const key of TENANT_RATING_KEYS) {
-        data[key] = null;
-      }
+  describe('Draft mode (isDraft=true)', () => {
+    it('should accept empty required fields in draft mode', () => {
+      const data: Record<string, unknown> = {
+        event_id: 'evt_test123',
+        nama_gerai: '',
+        lokasi_zona: '',
+        kategori: '',
+        kenaikan_traffic: '',
+        kenaikan_sales: '',
+      };
       const result = validateTenantSurvey(data, true);
       expect(result.valid).toBe(true);
     });
 
-    it('should reject invalid overall_rating if provided', () => {
-      const data = validData();
-      data.overall_rating = 10;
-      const result = validateTenantSurvey(data);
+    it('should still require event_id in draft mode', () => {
+      const data: Record<string, unknown> = {
+        event_id: '',
+        nama_gerai: '',
+      };
+      const result = validateTenantSurvey(data, true);
       expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('Event ID'))).toBe(true);
     });
 
-    it('should allow null overall_rating', () => {
-      const data = validData();
-      data.overall_rating = null;
-      const result = validateTenantSurvey(data);
-      expect(result.valid).toBe(true);
+    it('should still validate nama_gerai length in draft mode', () => {
+      const data: Record<string, unknown> = {
+        event_id: 'evt_test123',
+        nama_gerai: 'x'.repeat(101),
+      };
+      const result = validateTenantSurvey(data, true);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('100 karakter'))).toBe(true);
     });
   });
 
-  describe('Text length limits', () => {
+  describe('Text field length limits', () => {
     it('should reject overly long feedback_comment', () => {
       const data = validData();
       data.feedback_comment = 'a'.repeat(2001);
@@ -199,6 +188,22 @@ describe('validateTenantSurvey', () => {
       expect(result.valid).toBe(false);
     });
 
+    it('should reject overly long pic_name', () => {
+      const data = validData();
+      data.pic_name = 'p'.repeat(101);
+      const result = validateTenantSurvey(data);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('pic_name'))).toBe(true);
+    });
+
+    it('should reject overly long pic_phone', () => {
+      const data = validData();
+      data.pic_phone = '0'.repeat(21);
+      const result = validateTenantSurvey(data);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('pic_phone'))).toBe(true);
+    });
+
     it('should accept empty comment fields', () => {
       const data = validData();
       data.feedback_comment = '';
@@ -208,57 +213,20 @@ describe('validateTenantSurvey', () => {
     });
   });
 
-  describe('Email and phone validation', () => {
-    it('should reject invalid email format', () => {
-      const data = validData();
-      data.tenant_email = 'not-an-email';
-      const result = validateTenantSurvey(data);
-      expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('email'))).toBe(true);
-    });
-
-    it('should reject invalid phone format', () => {
-      const data = validData();
-      data.tenant_phone = '12345';
-      const result = validateTenantSurvey(data);
-      expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('telepon'))).toBe(true);
-    });
-  });
-
   describe('Multiple errors', () => {
     it('should collect all errors at once', () => {
       const data: Record<string, unknown> = {
         event_id: '',
-        tenant_name: '',
+        nama_gerai: '',
+        lokasi_zona: '',
+        kategori: '',
+        kenaikan_traffic: '',
+        kenaikan_sales: '',
       };
-      for (const key of TENANT_RATING_KEYS) {
-        data[key] = 0;
-      }
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      // Should have at least event_id + tenant_name + 4 ratings = 6 errors
+      // event_id + 5 required v3 fields = 6 errors
       expect(result.errors.length).toBeGreaterThanOrEqual(6);
     });
-  });
-});
-
-// ─── TENANT_RATING_LABELS completeness ──────────────────────────
-
-describe('TENANT_RATING_LABELS', () => {
-  it('should have a label for every required rating key', () => {
-    for (const key of TENANT_RATING_KEYS) {
-      expect(TENANT_RATING_LABELS[key]).toBeDefined();
-      expect(typeof TENANT_RATING_LABELS[key]).toBe('string');
-      expect(TENANT_RATING_LABELS[key].length).toBeGreaterThan(0);
-    }
-  });
-
-  it('should have exactly 4 required rating keys (tenant spec)', () => {
-    expect(TENANT_RATING_KEYS).toHaveLength(4);
-    expect(TENANT_RATING_KEYS).toContain('venue_rating');
-    expect(TENANT_RATING_KEYS).toContain('management_rating');
-    expect(TENANT_RATING_KEYS).toContain('event_organization_rating');
-    expect(TENANT_RATING_KEYS).toContain('booth_facility_rating');
   });
 });

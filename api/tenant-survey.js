@@ -104,28 +104,20 @@ function validateSurveyBody(body, isDraft = false) {
       errors.push('nama_gerai wajib diisi (maksimal 100 karakter)');
     }
 
-    if (body.lokasi_zona !== undefined && body.lokasi_zona !== null && body.lokasi_zona !== '') {
-      if (!SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
-        errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
-      }
+    if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
+      errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
     }
 
-    if (body.kategori !== undefined && body.kategori !== null && body.kategori !== '') {
-      if (!SURVEY_OPTIONS.kategori.includes(body.kategori)) {
-        errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
-      }
+    if (!body.kategori || !SURVEY_OPTIONS.kategori.includes(body.kategori)) {
+      errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
     }
 
-    if (body.kenaikan_traffic !== undefined && body.kenaikan_traffic !== null && body.kenaikan_traffic !== '') {
-      if (!SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
-        errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
-      }
+    if (!body.kenaikan_traffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
+      errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
     }
 
-    if (body.kenaikan_sales !== undefined && body.kenaikan_sales !== null && body.kenaikan_sales !== '') {
-      if (!SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
-        errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
-      }
+    if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
+      errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
     }
   }
 
@@ -472,6 +464,9 @@ async function handleCreate(req, res) {
       body[f] = parseInt(body[f], 10);
     }
   }
+  if (body.overall_rating !== undefined && body.overall_rating !== null && body.overall_rating !== '') {
+    body.overall_rating = parseInt(body.overall_rating, 10);
+  }
 
   const errors = validateSurveyBody(body, false);
   if (errors.length > 0) {
@@ -493,9 +488,12 @@ async function handleCreate(req, res) {
   for (const f of RATING_FIELDS) {
     row[f] = body[f] ?? null;
   }
+  row.overall_rating = body.overall_rating ?? null;
 
   const textFields = [
     'feedback_comment', 'improvement_suggestion',
+    'nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales',
+    'feedback_teks', 'tenant_id',
   ];
   for (const f of textFields) {
     row[f] = sanitize(body[f] || '', 3000);
@@ -567,6 +565,8 @@ async function handleUpdate(req, res) {
     'tenant_name', 'tenant_organization', 'tenant_email', 'tenant_phone',
     'feedback_comment', 'improvement_suggestion',
     'pic_name', 'pic_phone',
+    'nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales',
+    'feedback_teks', 'tenant_id',
   ];
   for (const f of updateableTextFields) {
     if (body[f] !== undefined) {

@@ -1182,8 +1182,8 @@ export function fetchTenantSurveyEventAnalytics(eventId?: string): Promise<Tenan
   return fetchTenantSurveyAnalytics({ group: 'event', eventId }) as Promise<TenantSurveyEventAnalytics[]>;
 }
 
-export function fetchTenantSurveyMonthlyTrend(): Promise<TenantSurveyMonthlyTrend[]> {
-  return fetchTenantSurveyAnalytics({ group: 'month' }) as Promise<TenantSurveyMonthlyTrend[]>;
+export function fetchTenantSurveyMonthlyTrend(eventId?: string): Promise<TenantSurveyMonthlyTrend[]> {
+  return fetchTenantSurveyAnalytics({ group: 'month', eventId }) as Promise<TenantSurveyMonthlyTrend[]>;
 }
 
 export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {

@@ -116,7 +116,7 @@ export function useTenantSurveys(eventId?: string) {
  * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics
  * with realtime auto-refresh on data changes.
  */
-export function useTenantSurveyAnalytics() {
+export function useTenantSurveyAnalytics(eventId?: string | null) {
   const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +125,9 @@ export function useTenantSurveyAnalytics() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchTenantSurveyAnalytics();
+      const data = await fetchTenantSurveyAnalytics(
+        eventId ? { eventId } : undefined,
+      );
       setAnalytics(data as TenantSurveyAnalytics[]);
     } catch (err) {
       console.error('Fetch tenant analytics error:', err);
@@ -133,13 +135,12 @@ export function useTenantSurveyAnalytics() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     refreshAnalytics();
   }, [refreshAnalytics]);
 
-  // Realtime subscription — auto-refresh on any survey change
   useEffect(() => {
     const channel = supabase
       .channel('tenant-survey-analytics-realtime')
@@ -192,7 +193,7 @@ export function useTenantSurveyEventSummary(eventId: string | null) {
  * useTenantSurveyMonthlyTrend — fetches monthly aggregated trend data
  * for the last 12 months. Used for the trend chart in analytics tab.
  */
-export function useTenantSurveyMonthlyTrend() {
+export function useTenantSurveyMonthlyTrend(eventId?: string | null) {
   const [trend, setTrend] = useState<TenantSurveyMonthlyTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -201,7 +202,7 @@ export function useTenantSurveyMonthlyTrend() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchTenantSurveyMonthlyTrend();
+      const data = await fetchTenantSurveyMonthlyTrend(eventId ?? undefined);
       setTrend(data);
     } catch (err) {
       console.error('Fetch monthly trend error:', err);
@@ -209,7 +210,7 @@ export function useTenantSurveyMonthlyTrend() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     refreshTrend();

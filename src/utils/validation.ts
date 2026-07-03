@@ -153,38 +153,6 @@ export function validateInstagram(instagram: string): ValidationResult {
 import { SURVEY_OPTIONS } from '../constants/survey-options';
 
 /**
- * @deprecated Survey v3 no longer uses rating fields. Kept for legacy
- * TenantSurveyForm rating UI pending separate form-rewrite task. Remove
- * once the form stops importing them.
- */
-export const TENANT_RATING_KEYS = [
-  'venue_rating',
-  'management_rating',
-  'event_organization_rating',
-  'booth_facility_rating',
-] as const;
-
-/** @deprecated See TENANT_RATING_KEYS. */
-export const TENANT_ALL_RATING_KEYS = [
-  ...TENANT_RATING_KEYS,
-  'overall_rating',
-] as const;
-
-/** @deprecated See TENANT_RATING_KEYS. */
-export const TENANT_RATING_LABELS: Record<string, string> = {
-  venue_rating: 'Kualitas Venue',
-  management_rating: 'Kualitas Manajemen',
-  event_organization_rating: 'Organisasi Event',
-  booth_facility_rating: 'Fasilitas Booth',
-  overall_rating: 'Rating Keseluruhan',
-};
-
-/** @deprecated See TENANT_RATING_KEYS. */
-export const TENANT_RATING_MIN = 1;
-/** @deprecated See TENANT_RATING_KEYS. */
-export const TENANT_RATING_MAX = 5;
-
-/**
  * Validates a tenant survey submission (v3 schema).
  *
  * Rules:

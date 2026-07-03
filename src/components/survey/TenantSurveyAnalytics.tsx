@@ -11,6 +11,7 @@ interface TenantSurveyAnalyticsProps {
   analytics: TenantSurveyAnalytics[];
   surveys: TenantEventSurvey[];
   isLoading: boolean;
+  eventFilter?: string | null;
 }
 
 function ratingColor(n: number | null | undefined): string {
@@ -87,6 +88,7 @@ export default function TenantSurveyAnalyticsPanel({
   analytics,
   surveys,
   isLoading,
+  eventFilter,
 }: TenantSurveyAnalyticsProps) {
 
   // ─── V3 aggregate (from raw surveys — supports event filtering) ─
@@ -371,7 +373,7 @@ export default function TenantSurveyAnalyticsPanel({
       )}
 
       {/* ── Monthly Trend ──────────────────────────────────────── */}
-      {(hasV3 || hasV2) && <TenantSurveyTrendChart />}
+      {(hasV3 || hasV2) && <TenantSurveyTrendChart eventFilter={eventFilter} />}
     </div>
   );
 }
