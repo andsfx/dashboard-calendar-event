@@ -221,6 +221,9 @@ export async function setupSurveyApiMocks(
 /**
  * Inject a fake Supabase auth session into localStorage so the app
  * thinks the user is logged in as admin.
+ * 
+ * IMPORTANT: Must match the projectRef in SUPABASE_URL env var.
+ * We use 'test-project' as the projectRef, so the key becomes 'sb-test-project-auth-token'.
  */
 export async function mockAdminAuth(page: Page) {
   const fakeSession = {
@@ -241,15 +244,83 @@ export async function mockAdminAuth(page: Page) {
   };
 
   await page.addInitScript((session) => {
-    // Supabase stores session under sb-<ref>-auth-token key
+    // Clear any existing Supabase sessions
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
         localStorage.removeItem(key);
       }
     }
-    // Set with a generic key; the client will pick it up
-    const keys = Object.keys(localStorage).filter(k => k.startsWith('sb-'));
-    const targetKey = keys[0] || 'sb-localhost-auth-token';
-    localStorage.setItem(targetKey, JSON.stringify(session));
+    // Set with the test-project key pattern
+    localStorage.setItem('sb-test-project-auth-token', JSON.stringify(session));
   }, fakeSession);
+}
+
+/**
+ * Mock Supabase API calls + auth endpoint (used by admin dashboard).
+ */
+export async function setupSupabaseMocks(page: Page) {
+  // Auth check — returns admin user
+  await page.route(/.*api\/auth.*action=me.*/, async (route) => {
+    await route.fulfill({
+      json: {
+        user: {
+          id: 'user_admin_001',
+          email: 'admin@metmal.test',
+          role: 'superadmin',
+          aud: 'authenticated',
+          app_metadata: { role: 'superadmin' },
+          user_metadata: {},
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      },
+    });
+  });
+
+  // Fallback: catch-all for any /api/auth request
+  await page.route('**/api/auth', async (route) => {
+    await route.fulfill({
+      json: {
+        user: {
+          id: 'user_admin_001',
+          email: 'admin@metmal.test',
+          role: 'superadmin',
+        },
+      },
+    });
+  });
+
+  // Supabase Auth API
+  await page.route('**/auth/v1/**', async (route) => {
+    await route.fulfill({
+      json: {
+        id: 'user_admin_001',
+        aud: 'authenticated',
+        role: 'authenticated',
+        email: 'admin@metmal.test',
+      },
+    });
+  });
+
+  // Events (for dashboard sidebar + event list)
+  await page.route('**/rest/v1/events*', async (route) => {
+    await route.fulfill({
+      json: [
+        {
+          id: 'evt_test123',
+          acara: 'Pameran Otomotif Bekasi 2026',
+          tanggal: '2026-07-15',
+          lokasi: 'Atrium Utama',
+          eo: 'PT Otomotif Indonesia',
+          status: 'past',
+        },
+      ],
+    });
+  });
+
+  // Other Supabase tables (empty)
+  for (const table of ['annual_themes', 'holidays', 'gallery_albums', 'draft_events', 'community_registrations', 'letter_requests', 'photo_albums']) {
+    await page.route(`**/rest/v1/${table}*`, async (route) => {
+      await route.fulfill({ json: [] });
+    });
+  }
 }
