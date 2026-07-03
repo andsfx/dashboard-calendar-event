@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import type { TenantSurveyAnalytics, TenantEventSurvey } from '../../types';
 import { isV3Survey } from '../../utils/surveyUtils';
+import { SURVEY_OPTIONS } from '../../constants/survey-options';
 import TenantSurveyTrendChart from './TenantSurveyTrendChart';
 
 interface TenantSurveyAnalyticsProps {
@@ -94,22 +95,9 @@ export default function TenantSurveyAnalyticsPanel({
   // ─── V3 aggregate (from raw surveys — supports event filtering) ─
   const v3Data = useMemo(() => {
     const v3Surveys = surveys.filter(isV3Survey);
-    const trafficLabels = ['Signifikan', 'Sedikit Naik', 'Tidak Ada', 'Menurun'];
-    const salesLabels = [
-      'Tidak ada kenaikan / Sama saja',
-      '< 10%',
-      '10% - 30%',
-      '30% - 50%',
-      '> 50%',
-    ];
-    const kategoriLabels = [
-      'Food & Beverage (F&B)',
-      'Fashion & Aksesoris',
-      'Lifestyle & Hobi',
-      'Hiburan / Mainan Anak',
-      'Servis / Jasa',
-      'Supermarket / Department Store',
-    ];
+    const trafficLabels = [...SURVEY_OPTIONS.kenaikan_traffic];
+    const salesLabels = [...SURVEY_OPTIONS.kenaikan_sales];
+    const kategoriLabels = [...SURVEY_OPTIONS.kategori];
 
     const trafficDist = countDist(v3Surveys.map(s => s.kenaikan_traffic), trafficLabels);
     const salesDist = countDist(v3Surveys.map(s => s.kenaikan_sales), salesLabels);

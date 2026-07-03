@@ -950,10 +950,10 @@ function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): R
     tenant_email: data.tenant_email || '',
     tenant_phone: data.tenant_phone || '',
     nama_gerai: data.nama_gerai || '',
-    lokasi_zona: data.lokasi_zona || '',
-    kategori: data.kategori || '',
-    kenaikan_traffic: data.kenaikan_traffic || '',
-    kenaikan_sales: data.kenaikan_sales || '',
+    lokasi_zona: data.lokasi_zona || null,
+    kategori: data.kategori || null,
+    kenaikan_traffic: data.kenaikan_traffic || null,
+    kenaikan_sales: data.kenaikan_sales || null,
     feedback_teks: data.feedback_teks || '',
     tenant_id: data.tenant_id || null,
     pic_name: data.pic_name || '',
@@ -1014,20 +1014,13 @@ export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurv
 
 /**
  * Check if a tenant has already submitted a survey for a given event.
- * Uses the RPC function check_tenant_survey_submitted.
+ * Returns existingSurveyId if found (for redirect/edit).
  */
 export async function checkTenantSurveyDuplicate(
   eventId: string,
   tenantUserId: string,
 ): Promise<{ alreadySubmitted: boolean; existingSurveyId?: string }> {
-  const { data, error } = await supabase.rpc('check_tenant_survey_submitted', {
-    p_event_id: eventId,
-    p_tenant_user_id: tenantUserId,
-  });
-  if (error) throw new SupabaseApiError(error.message);
-
-  // Also fetch existing survey id for redirect/edit
-  const { data: existing } = await supabase
+  const { data, error } = await supabase
     .from('tenant_event_surveys')
     .select('id')
     .eq('event_id', eventId)
@@ -1035,9 +1028,11 @@ export async function checkTenantSurveyDuplicate(
     .eq('status', 'submitted')
     .maybeSingle();
 
+  if (error) throw new SupabaseApiError(error.message);
+
   return {
     alreadySubmitted: !!data,
-    existingSurveyId: existing?.id,
+    existingSurveyId: data?.id,
   };
 }
 
@@ -1125,29 +1120,6 @@ export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey>
   return updateTenantSurvey(id, { status: 'submitted' });
 }
 
-export async function reviewTenantSurvey(
-  id: string,
-  reviewNotes: string,
-): Promise<TenantEventSurvey> {
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const { data, error } = await supabase
-    .from('tenant_event_surveys')
-    .update({
-      status: 'reviewed',
-      reviewed_by: user?.id || null,
-      reviewed_at: new Date().toISOString(),
-      review_notes: reviewNotes,
-    })
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('No data returned after review');
-  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
-}
-
 type AnalyticsGroupMode = 'tenant' | 'event' | 'month';
 
 interface AnalyticsFetchOptions {
@@ -1155,6 +1127,11 @@ interface AnalyticsFetchOptions {
   eventId?: string;
 }
 
+// Overloads narrow return type by group param; RPC shape is server contract.
+export function fetchTenantSurveyAnalytics(): Promise<TenantSurveyAnalytics[]>;
+export function fetchTenantSurveyAnalytics(opts: { group: 'event'; eventId?: string }): Promise<TenantSurveyEventAnalytics[]>;
+export function fetchTenantSurveyAnalytics(opts: { group: 'month'; eventId?: string }): Promise<TenantSurveyMonthlyTrend[]>;
+export function fetchTenantSurveyAnalytics(opts?: AnalyticsFetchOptions): Promise<TenantSurveyAnalytics[] | TenantSurveyEventAnalytics[] | TenantSurveyMonthlyTrend[]>;
 export async function fetchTenantSurveyAnalytics(
   opts?: AnalyticsFetchOptions,
 ): Promise<TenantSurveyAnalytics[] | TenantSurveyEventAnalytics[] | TenantSurveyMonthlyTrend[]> {
@@ -1179,11 +1156,11 @@ export async function fetchTenantSurveyAnalytics(
 }
 
 export function fetchTenantSurveyEventAnalytics(eventId?: string): Promise<TenantSurveyEventAnalytics[]> {
-  return fetchTenantSurveyAnalytics({ group: 'event', eventId }) as Promise<TenantSurveyEventAnalytics[]>;
+  return fetchTenantSurveyAnalytics({ group: 'event', eventId });
 }
 
 export function fetchTenantSurveyMonthlyTrend(eventId?: string): Promise<TenantSurveyMonthlyTrend[]> {
-  return fetchTenantSurveyAnalytics({ group: 'month', eventId }) as Promise<TenantSurveyMonthlyTrend[]>;
+  return fetchTenantSurveyAnalytics({ group: 'month', eventId });
 }
 
 export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {

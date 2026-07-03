@@ -58,21 +58,26 @@ export default function TenantSurveyList({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [showEventPicker, setShowEventPicker] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
 
   const eventMap = new Map(events.map(e => [e.id, e]));
 
   const handleSubmitDraft = useCallback(async (id: string) => {
     setSubmittingId(id);
+    setDraftError(null);
     try {
       await onSubmitDraft(id);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengirim draft';
+      setDraftError(msg);
     } finally {
       setSubmittingId(null);
     }
   }, [onSubmitDraft]);
 
-  // Events that don't have a submitted survey yet
+  // Events that don't have any survey yet (prevents duplicate creation)
   const availableEvents = events.filter(ev => {
-    const existing = surveys.find(s => s.event_id === ev.id && s.status !== 'draft');
+    const existing = surveys.find(s => s.event_id === ev.id);
     return !existing;
   });
 
@@ -348,6 +353,13 @@ export default function TenantSurveyList({
                         <p className="mt-0.5 text-xs text-violet-600 dark:text-violet-400">
                           {survey.review_notes}
                         </p>
+                      </div>
+                    )}
+
+                    {/* Draft error */}
+                    {draftError && submittingId !== survey.id && (
+                      <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+                        {draftError}
                       </div>
                     )}
 
