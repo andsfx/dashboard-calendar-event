@@ -12,6 +12,11 @@ dist/
 .omo/
 .opencode/
 .playwright-mcp/
+.playwright-cli/
+
+# Playwright E2E
+test-results/
+playwright-report/
 
 # Generated reports
 reports/
