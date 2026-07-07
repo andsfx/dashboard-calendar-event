@@ -101,6 +101,49 @@ export const MOCK_ANALYTICS = [
   },
 ];
 
+export const MOCK_MONTHLY_TREND = [
+  {
+    period: '2026-07',
+    total_submissions: 2,
+    v2_count: 0,
+    v3_count: 2,
+    avg_venue_rating: null,
+    avg_management_rating: null,
+    avg_event_organization_rating: null,
+    avg_booth_facility_rating: null,
+    avg_overall_rating: null,
+    traffic_signifikan: 1,
+    traffic_sedikit_naik: 1,
+    traffic_tidak_ada: 0,
+    traffic_menurun: 0,
+    sales_no_change: 0,
+    sales_lt_10: 0,
+    sales_10_30: 2,
+    sales_30_50: 0,
+    sales_gt_50: 0,
+  },
+  {
+    period: '2026-06',
+    total_submissions: 1,
+    v2_count: 0,
+    v3_count: 1,
+    avg_venue_rating: null,
+    avg_management_rating: null,
+    avg_event_organization_rating: null,
+    avg_booth_facility_rating: null,
+    avg_overall_rating: null,
+    traffic_signifikan: 0,
+    traffic_sedikit_naik: 1,
+    traffic_tidak_ada: 0,
+    traffic_menurun: 0,
+    sales_no_change: 0,
+    sales_lt_10: 1,
+    sales_10_30: 0,
+    sales_30_50: 0,
+    sales_gt_50: 0,
+  },
+];
+
 // ─── API Mock Handler ────────────────────────────────────────────
 
 /**
@@ -178,8 +221,11 @@ export async function setupSurveyApiMocks(
       case 'list':
         return route.fulfill({ json: { success: true, data: [MOCK_SURVEY_V3] } });
 
-      case 'analytics':
-        return route.fulfill({ json: { success: true, data: MOCK_ANALYTICS } });
+      case 'analytics': {
+        const group = url.searchParams.get('group') || '';
+        const data = group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS;
+        return route.fulfill({ json: { success: true, data } });
+      }
 
       case 'summary':
         return route.fulfill({
@@ -289,7 +335,7 @@ export async function setupSupabaseMocks(page: Page) {
     });
   });
 
-  // Supabase Auth API
+  // Supabase Auth API (getUser)
   await page.route('**/auth/v1/**', async (route) => {
     await route.fulfill({
       json: {
@@ -297,24 +343,62 @@ export async function setupSupabaseMocks(page: Page) {
         aud: 'authenticated',
         role: 'authenticated',
         email: 'admin@metmal.test',
+        app_metadata: { role: 'superadmin' },
+        user_metadata: {},
+        created_at: '2026-01-01T00:00:00Z',
       },
     });
   });
 
-  // Events (for dashboard sidebar + event list)
+  // Events (for dashboard — must match DbEvent shape)
   await page.route('**/rest/v1/events*', async (route) => {
     await route.fulfill({
       json: [
         {
           id: 'evt_test123',
+          date_str: '2026-07-15',
+          date_end: null,
+          day: 'Selasa',
+          tanggal: '15 Jul 2026',
+          jam: '10:00 - 22:00',
           acara: 'Pameran Otomotif Bekasi 2026',
-          tanggal: '2026-07-15',
           lokasi: 'Atrium Utama',
           eo: 'PT Otomotif Indonesia',
+          pic: 'Andi',
+          phone: '081234567890',
+          keterangan: '',
+          month: 'Juli',
           status: 'past',
+          category: 'Exhibition',
+          categories: ['Exhibition'],
+          priority: 'medium',
+          event_model: '',
+          event_nominal: '',
+          event_model_notes: '',
+          source_draft_id: '',
+          is_multi_day: false,
+          day_time_slots: null,
+          event_type: 'single',
+          recurrence_group_id: '',
+          is_recurring: false,
+          poster_url: null,
         },
       ],
     });
+  });
+
+  // Tenant event surveys (for duplicate check — return empty = no duplicate)
+  await page.route('**/rest/v1/tenant_event_surveys*', async (route) => {
+    await route.fulfill({ json: [] });
+  });
+
+  // Site settings, event photos (dashboard widgets)
+  await page.route('**/rest/v1/site_settings*', async (route) => {
+    await route.fulfill({ json: [] });
+  });
+
+  await page.route('**/rest/v1/event_photos*', async (route) => {
+    await route.fulfill({ json: [] });
   });
 
   // Other Supabase tables (empty)
