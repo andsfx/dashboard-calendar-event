@@ -7,7 +7,6 @@ import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { DashboardStats } from './components/dashboard/DashboardStats';
-import { AdminBanner } from './components/dashboard/AdminBanner';
 import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
@@ -26,13 +25,10 @@ import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
-const InstagramSettingsModal = lazy(() => import('./components/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
 const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
-const AlbumManagerModal = lazy(() => import('./components/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
-const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
-const CommunityRegistrationDetailModal = lazy(() => import('./components/CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
+const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
@@ -43,15 +39,8 @@ const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> 
 
 const FeaturedEvents = lazy(() => import('./components/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
 const QuarterTimeline = lazy(() => import('./components/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
-const CategoryChart = lazy(() => import('./components/CategoryChart').then(m => ({ default: m.CategoryChart })));
 const CalendarView = lazy(() => import('./components/CalendarView').then(m => ({ default: m.CalendarView })));
-const EventCrudModal = lazy(() => import('./components/EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
-const DeleteConfirmModal = lazy(() => import('./components/DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
-const DraftCrudModal = lazy(() => import('./components/DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
-const DraftLetterModal = lazy(() => import('./components/DraftLetterModal').then(m => ({ default: m.DraftLetterModal })));
-const EventLetterPickerModal = lazy(() => import('./components/EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
-const AnnualThemeCrudModal = lazy(() => import('./components/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
 const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));

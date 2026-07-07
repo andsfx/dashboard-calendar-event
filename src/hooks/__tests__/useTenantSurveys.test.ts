@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 // Mock supabase client
 vi.mock('../../lib/supabase', () => ({
@@ -107,13 +107,15 @@ describe('useTenantSurveys', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    await result.current.createSurvey({
-      event_id: 'evt-1',
-      tenant_name: 'Test EO',
-      venue_rating: 4,
-      management_rating: 4,
-      event_organization_rating: 4,
-      booth_facility_rating: 4,
+    await act(async () => {
+      await result.current.createSurvey({
+        event_id: 'evt-1',
+        tenant_name: 'Test EO',
+        venue_rating: 4,
+        management_rating: 4,
+        event_organization_rating: 4,
+        booth_facility_rating: 4,
+      });
     });
 
     await waitFor(() => {
@@ -135,7 +137,9 @@ describe('useTenantSurveys', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    await result.current.submit('survey-1');
+    await act(async () => {
+      await result.current.submit('survey-1');
+    });
 
     await waitFor(() => {
       expect(result.current.surveys[0].status).toBe('submitted');
@@ -154,7 +158,9 @@ describe('useTenantSurveys', () => {
 
     vi.mocked(fetchTenantSurveys).mockResolvedValueOnce([mockSurvey, { ...mockSurvey, id: 'survey-2' }]);
 
-    await result.current.refreshSurveys();
+    await act(async () => {
+      await result.current.refreshSurveys();
+    });
 
     await waitFor(() => {
       expect(result.current.surveys).toHaveLength(2);
