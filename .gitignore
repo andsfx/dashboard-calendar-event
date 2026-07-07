@@ -11,6 +11,7 @@ dist/
 .sisyphus/
 .omo/
 .opencode/
+.zcode/
 .playwright-mcp/
 .playwright-cli/
 
