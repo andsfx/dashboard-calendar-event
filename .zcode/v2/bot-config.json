@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "bots": [
+    {
+      "id": "bot-0ad6753a-c0f3-4f46-bee4-1194097394cd",
+      "name": "Evonic Admin",
+      "provider": "telegram",
+      "enabled": true,
+      "credentialRef": "bot:bot-0ad6753a-c0f3-4f46-bee4-1194097394cd:credential",
+      "providerUserId": "7791584025",
+      "displayName": "andotherstori",
+      "allowedWorkspaces": [
+        "*"
+      ],
+      "allowedCommands": {
+        "status": true,
+        "new": true,
+        "workspace": true,
+        "model": true,
+        "mode": true,
+        "thoughtLevel": true,
+        "reply": true
+      },
+      "currentOptions": {},
+      "replyMode": "assistant_toolcalls_changes"
+    }
+  ]
+}

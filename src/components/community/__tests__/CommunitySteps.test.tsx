@@ -27,7 +27,7 @@ describe('CommunitySteps', () => {
 
   it('renders step descriptions', () => {
     render(<CommunitySteps />)
-    expect(screen.getByText(/Isi form pendaftaran komunitas/)).toBeInTheDocument()
+    expect(screen.getByText(/Pilih tipe organisasi/)).toBeInTheDocument()
     expect(screen.getByText(/Tim kami review proposal/)).toBeInTheDocument()
   })
 

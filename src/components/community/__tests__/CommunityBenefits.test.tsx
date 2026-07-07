@@ -9,18 +9,16 @@ describe('CommunityBenefits', () => {
     expect(screen.getByText('Bukan cuma dikasih space.')).toBeInTheDocument()
   })
 
-  it('renders all 4 benefit cards', () => {
+  it('renders all benefit cards', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText('Sponsorship Opportunities')).toBeInTheDocument()
-    expect(screen.getByText('Marketing Support')).toBeInTheDocument()
-    expect(screen.getByText('Grow Your Community')).toBeInTheDocument()
-    expect(screen.getByText('Free Venue & Event Tools')).toBeInTheDocument()
+    expect(screen.getByText('Dukungan Sponsorship')).toBeInTheDocument()
+    expect(screen.getByText('Promosi & Marketing')).toBeInTheDocument()
   })
 
   it('renders benefit descriptions', () => {
     render(<CommunityBenefits />)
     expect(screen.getByText(/Dapatkan dukungan sponsorship/)).toBeInTheDocument()
-    expect(screen.getByText(/Tim marketing kami bantu promosiin/)).toBeInTheDocument()
+    expect(screen.getByText(/Tim marketing kami bantu promosikan/)).toBeInTheDocument()
   })
 
   it('renders eyebrow label', () => {

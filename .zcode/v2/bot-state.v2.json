@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "bots": {
+    "bot-0ad6753a-c0f3-4f46-bee4-1194097394cd": {
+      "botId": "bot-0ad6753a-c0f3-4f46-bee4-1194097394cd",
+      "workspacePath": "D:\\Andy\\Antigravity\\schedule-event-v2",
+      "workspaceId": "D:\\Andy\\Antigravity\\schedule-event-v2",
+      "mode": "draft",
+      "activeTaskId": null,
+      "draftOptions": {
+        "provider": "glm",
+        "model": "custom:builtin%3Azai-start-plan:GLM-5.2",
+        "mode": "yolo",
+        "thoughtLevel": "max"
+      },
+      "telegramOffset": 239219315,
+      "updatedAt": 1783043478546
+    }
+  }
+}

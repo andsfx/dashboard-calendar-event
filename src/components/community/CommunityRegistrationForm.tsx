@@ -92,6 +92,10 @@ function RegistrationForm() {
 
     if (!form.organizationName.trim()) {
       errors.organizationName = `${form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi'} wajib diisi.`;
+    } else if (form.organizationName.trim().length < 3) {
+      errors.organizationName = `${form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi'} terlalu pendek (minimal 3 karakter).`;
+    } else if (form.organizationName.trim().length > 200) {
+      errors.organizationName = `${form.organizationType === 'community' ? 'Nama komunitas' : 'Nama organisasi'} terlalu panjang (maksimal 200 karakter).`;
     }
 
     if (!form.pic.trim()) {

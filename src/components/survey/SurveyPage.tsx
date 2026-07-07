@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
+import { validateEmail } from '../../utils/validation';
 import type { SurveyType } from '../../types';
 import RatingSlider from './RatingSlider';
 import SurveySuccess from './SurveySuccess';
@@ -121,8 +122,13 @@ export default function SurveyPage() {
         if (ratings[a.key] === 0) return false;
       }
     }
+    // Validate email format if provided
+    if (identity.email) {
+      const emailResult = validateEmail(identity.email);
+      if (!emailResult.valid) return false;
+    }
     return true;
-  }, [surveyType, ratings]);
+  }, [surveyType, ratings, identity.email]);
 
   /* ─── Submit ─────────────────────────────────────────────────── */
   const handleSubmit = useCallback(async () => {
