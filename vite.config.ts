@@ -19,9 +19,19 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
-          if (id.includes("react") || id.includes("scheduler")) return "react-vendor";
-          if (id.includes("lucide-react")) return "icons-vendor";
-          if (id.includes("date-fns")) return "date-vendor";
+          // More specific matches first
+          if (id.includes("@supabase/supabase-js")) return "supabase";
+          if (id.includes("@aws-sdk")) return "aws-sdk";
+          if (id.includes("react-router")) return "router";
+          if (id.includes("@react-pdf") || id.includes("pdfkit") || id.includes("fontkit") || id.includes("yoga-layout") || id.includes("linebreak") || id.includes("unicode-properties")) return "pdf";
+          if (id.includes("@vercel/analytics") || id.includes("@vercel/speed-insights")) return "vercel";
+          if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
+          if (id.includes("lucide-react")) return "icons";
+          if (id.includes("date-fns")) return "dates";
+          if (id.includes("qrcode")) return "qrcode";
+          // Core framework
+          if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
+          if (id.includes("react")) return "react-core";
           return "vendor";
         },
       },
