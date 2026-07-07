@@ -11,6 +11,7 @@ import { AdminBanner } from './components/dashboard/AdminBanner';
 import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
+import { getAllowedDashboardPaths, getDefaultDashboardPath } from './components/dashboard/dashboardNavigation';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -585,29 +586,8 @@ export default function App() {
     ],
     [ongoingEvents.length, upcomingEvents.length]
   );
-  const allowedDashboardPaths = useMemo(() => {
-    const paths = new Set<string>(['/']);
-    if (permissions.canViewDashboard) paths.add('/events');
-    if (permissions.canEditEvents) paths.add('/drafts');
-    if (permissions.canViewRegistrations) paths.add('/registrations');
-    if (permissions.canManageThemes) paths.add('/themes');
-    if (permissions.canViewSurvey) {
-      paths.add('/analytics');
-      paths.add('/survey');
-    }
-    if (permissions.canViewSurvey || permissions.isEoTenant) paths.add('/tenant-surveys');
-    if (permissions.canManageUsers) paths.add('/users');
-    if (permissions.canViewActivityLog) paths.add('/activity-log');
-    return paths;
-  }, [permissions]);
-  const defaultDashboardPath = useMemo(() => {
-    if (permissions.isEoTenant) return '/tenant-surveys';
-    if (permissions.canEditEvents || permissions.canViewRegistrations || permissions.canManageThemes || permissions.canViewSurvey || permissions.canManageUsers || permissions.canViewActivityLog) {
-      return '/';
-    }
-    if (permissions.canViewDashboard) return '/events';
-    return '/';
-  }, [permissions]);
+  const allowedDashboardPaths = useMemo(() => new Set(getAllowedDashboardPaths(permissions)), [permissions]);
+  const defaultDashboardPath = useMemo(() => getDefaultDashboardPath(permissions), [permissions]);
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
       setActiveFilter('Semua');

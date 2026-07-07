@@ -1,21 +1,9 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  CalendarDays,
-  FileEdit,
-  Palette,
-  Users,
-  ClipboardCheck,
-  BarChart3,
-  Activity,
-  UserCog,
-  ArrowRight,
-  TrendingUp,
-  Clock,
-  CheckCircle2,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { DraftEventItem, AnnualTheme, CommunityRegistration } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
+import { getCommandCenterCards } from './dashboardNavigation';
 
 interface CommandCenterSummaryProps {
   totalEvents: number;
@@ -28,18 +16,6 @@ interface CommandCenterSummaryProps {
   isSuperadmin?: boolean;
 }
 
-interface SummaryCard {
-  id: string;
-  title: string;
-  value: React.ReactNode;
-  subtitle: string;
-  icon: React.ReactNode;
-  route: string;
-  gradient: string;
-  iconBg: string;
-  textColor: string;
-}
-
 export const CommandCenterSummary = memo(function CommandCenterSummary({
   totalEvents,
   upcomingEvents,
@@ -50,128 +26,15 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   permissions,
   isSuperadmin,
 }: CommandCenterSummaryProps) {
-  const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
-  const currentTheme = annualThemes.find(t => {
-    const now = new Date();
-    const start = new Date(t.dateStart);
-    const end = new Date(t.dateEnd);
-    return now >= start && now <= end;
-  });
-
-  const cards: SummaryCard[] = [
-    {
-      id: 'events',
-      title: 'Event Schedule',
-      value: totalEvents,
-      subtitle: `${upcomingEvents} upcoming, ${ongoingEvents} live`,
-      icon: <CalendarDays className="h-5 w-5" />,
-      route: '/dashboard/events',
-      gradient: 'from-violet-500 to-indigo-600',
-      iconBg: 'bg-violet-100 dark:bg-violet-900/50',
-      textColor: 'text-violet-700 dark:text-violet-300',
-    },
-    {
-      id: 'drafts',
-      title: 'Draft Queue',
-      value: activeDrafts.length,
-      subtitle: activeDrafts.length === 0 ? 'All clear' : 'Needs review',
-      icon: <FileEdit className="h-5 w-5" />,
-      route: '/dashboard/drafts',
-      gradient: 'from-purple-500 to-violet-600',
-      iconBg: 'bg-purple-100 dark:bg-purple-900/50',
-      textColor: 'text-purple-700 dark:text-purple-300',
-    },
-    {
-      id: 'themes',
-      title: 'Annual Themes',
-      value: annualThemes.length,
-      subtitle: currentTheme ? `Active: ${currentTheme.name}` : 'No active theme',
-      icon: <Palette className="h-5 w-5" />,
-      route: '/dashboard/themes',
-      gradient: 'from-pink-500 to-rose-600',
-      iconBg: 'bg-pink-100 dark:bg-pink-900/50',
-      textColor: 'text-pink-700 dark:text-pink-300',
-    },
-    {
-      id: 'registrations',
-      title: 'Registrations',
-      value: communityRegistrations.length,
-      subtitle: pendingRegistrations > 0 ? `${pendingRegistrations} pending review` : 'All reviewed',
-      icon: <Users className="h-5 w-5" />,
-      route: '/dashboard/registrations',
-      gradient: 'from-emerald-500 to-teal-600',
-      iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
-      textColor: 'text-emerald-700 dark:text-emerald-300',
-    },
-    {
-      id: 'survey',
-      title: 'Satisfaction Survey',
-      value: '—',
-      subtitle: 'View responses',
-      icon: <ClipboardCheck className="h-5 w-5" />,
-      route: '/dashboard/survey',
-      gradient: 'from-amber-500 to-orange-600',
-      iconBg: 'bg-amber-100 dark:bg-amber-900/50',
-      textColor: 'text-amber-700 dark:text-amber-300',
-    },
-    {
-      id: 'tenant-surveys',
-      title: 'Tenant Self-Assessment',
-      value: '—',
-      subtitle: 'EO evaluations',
-      icon: <ClipboardCheck className="h-5 w-5" />,
-      route: '/dashboard/tenant-surveys',
-      gradient: 'from-teal-500 to-emerald-600',
-      iconBg: 'bg-teal-100 dark:bg-teal-900/50',
-      textColor: 'text-teal-700 dark:text-teal-300',
-    },
-    {
-      id: 'analytics',
-      title: 'Analytics',
-      value: <TrendingUp className="h-6 w-6" />,
-      subtitle: 'View trends & insights',
-      icon: <BarChart3 className="h-5 w-5" />,
-      route: '/dashboard/analytics',
-      gradient: 'from-blue-500 to-cyan-600',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
-      textColor: 'text-blue-700 dark:text-blue-300',
-    },
-    {
-      id: 'activity-log',
-      title: 'Activity Log',
-      value: <Activity className="h-6 w-6" />,
-      subtitle: 'View recent activity',
-      icon: <Activity className="h-5 w-5" />,
-      route: '/dashboard/activity-log',
-      gradient: 'from-slate-500 to-slate-700',
-      iconBg: 'bg-slate-100 dark:bg-slate-900/50',
-      textColor: 'text-slate-700 dark:text-slate-300',
-    },
-  ];
-
-  if (isSuperadmin) {
-    cards.push({
-      id: 'users',
-      title: 'User Management',
-      value: <UserCog className="h-6 w-6" />,
-      subtitle: 'Manage admin users',
-      icon: <UserCog className="h-5 w-5" />,
-      route: '/dashboard/users',
-      gradient: 'from-red-500 to-rose-600',
-      iconBg: 'bg-red-100 dark:bg-red-900/50',
-      textColor: 'text-red-700 dark:text-red-300',
-    });
-  }
-
-  const visibleCards = cards.filter(card => {
-    if (card.id === 'drafts') return permissions.canEditEvents;
-    if (card.id === 'themes') return permissions.canManageThemes;
-    if (card.id === 'registrations') return permissions.canViewRegistrations;
-    if (card.id === 'survey' || card.id === 'analytics') return permissions.canViewSurvey;
-    if (card.id === 'tenant-surveys') return permissions.canViewSurvey || permissions.isEoTenant;
-    if (card.id === 'activity-log') return permissions.canViewActivityLog;
-    if (card.id === 'users') return permissions.canManageUsers;
-    return true;
+  const cards = getCommandCenterCards({
+    totalEvents,
+    upcomingEvents,
+    ongoingEvents,
+    activeDrafts,
+    annualThemes,
+    communityRegistrations,
+    permissions,
+    isSuperadmin,
   });
 
   return (
@@ -186,7 +49,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {visibleCards.map(card => (
+        {cards.map(card => (
           <Link
             key={card.id}
             to={card.route}

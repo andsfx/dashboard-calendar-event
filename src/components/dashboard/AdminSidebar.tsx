@@ -2,14 +2,6 @@ import { memo, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
-  BarChart3,
-  CalendarDays,
-  FileEdit,
-  Palette,
-  Users,
-  Globe,
-  Image,
-  FileText,
   Moon,
   Sun,
   LogOut,
@@ -17,26 +9,11 @@ import {
   Crown,
   Menu,
   X,
-  ClipboardCheck,
-  UserCog,
-  Activity,
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-
-interface NavItem {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  action: 'route' | 'callback';
-  route?: string;
-  callback?: () => void;
-}
-
-interface NavGroup {
-  label: string;
-  items: NavItem[];
-}
+import { getDashboardNavGroups } from './dashboardNavigation';
+import type { DashboardNavItem } from './dashboardNavigation';
 
 interface AdminSidebarProps {
   isDark: boolean;
@@ -66,50 +43,13 @@ export const AdminSidebar = memo(function AdminSidebar({
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const navGroups: NavGroup[] = useMemo(() => [
-    {
-      label: 'Overview',
-      items: [
-        { id: 'overview', label: 'Command Center', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route', route: '/dashboard' },
-        ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
-      ],
-    },
-    {
-      label: 'Event Management',
-      items: [
-        { id: 'events', label: 'Event Schedule', icon: <CalendarDays className="h-4 w-4" />, action: 'route', route: '/dashboard/events' },
-        ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
-        ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Annual Themes', icon: <Palette className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/themes' }] : []),
-      ],
-    },
-    {
-      label: 'Engagement',
-      items: [
-        ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Registrations', icon: <Users className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
-        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Satisfaction Survey', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...(permissions.canViewSurvey || permissions.isEoTenant ? [{ id: 'tenant-surveys', label: 'Tenant Self-Assessment', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
-      ],
-    },
-    {
-      label: 'System',
-      items: [
-        ...(permissions.canManageUsers ? [{ id: 'users', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/users' }] : []),
-        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
-      ],
-    },
-    {
-      label: 'Content Settings',
-      items: [
-        ...(permissions.canManageSettings ? [
-          { id: 'landing-page', label: 'Landing Page', icon: <Globe className="h-4 w-4" />, action: 'callback' as const, callback: onOpenInstagramSettings },
-          { id: 'album-gallery', label: 'Album Gallery', icon: <Image className="h-4 w-4" />, action: 'callback' as const, callback: onOpenAlbumManager },
-          { id: 'letter', label: 'Create Letter', icon: <FileText className="h-4 w-4" />, action: 'callback' as const, callback: onOpenLetterPicker },
-        ] : []),
-      ],
-    },
-  ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, permissions]);
+  const navGroups = useMemo(() => getDashboardNavGroups(permissions, {
+    onOpenInstagramSettings,
+    onOpenAlbumManager,
+    onOpenLetterPicker,
+  }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, permissions]);
 
-  const handleNavClick = (item: NavItem) => {
+  const handleNavClick = (item: DashboardNavItem) => {
     if (item.action === 'callback' && item.callback) {
       item.callback();
       setIsMobileOpen(false);
@@ -118,7 +58,7 @@ export const AdminSidebar = memo(function AdminSidebar({
     setIsMobileOpen(false);
   };
 
-  const isActive = (item: NavItem) => {
+  const isActive = (item: DashboardNavItem) => {
     if (item.action === 'route' && item.route) {
       return location.pathname === item.route;
     }
