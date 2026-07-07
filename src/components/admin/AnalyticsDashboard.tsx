@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   TrendingUp, PieChart, MapPin, Calendar, DollarSign,
   Clock, BarChart3, ArrowUpRight, ArrowDownRight, Minus,
@@ -11,8 +11,6 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
-  const [compareYear, setCompareYear] = useState<number | null>(null);
-
   const analytics = useMemo(() => computeAnalytics(events), [events]);
   const years = useMemo(() => {
     const set = new Set(events.map(e => new Date(e.dateStr).getFullYear()));

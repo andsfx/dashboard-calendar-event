@@ -667,6 +667,7 @@ export default function App() {
           user={auth.user}
           isSuperadmin={auth.isSuperadmin}
           isLegacy={auth.isLegacy}
+          permissions={permissions}
           onOpenInstagramSettings={() => setShowInstagramSettings(true)}
           onOpenAlbumManager={() => setShowAlbumManager(true)}
           onOpenLetterPicker={handleOpenLetterPicker}

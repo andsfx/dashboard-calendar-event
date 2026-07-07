@@ -81,8 +81,8 @@ export default function App() {
   });
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
-  const isAdmin = auth.isAdmin;
   const permissions = usePermission(auth.user, auth.isLegacy);
+  const isAdmin = permissions.canViewDashboard;
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
@@ -141,7 +141,7 @@ export default function App() {
   } = useDraftEvents(isAdmin);
 
   const refreshRegistrations = useCallback(async (showError = true) => {
-    if (!isAdmin) return;
+    if (!permissions.canViewRegistrations) return;
     setIsRegLoading(true);
     try {
       const regs = await fetchCommunityRegistrations();
@@ -154,13 +154,13 @@ export default function App() {
     } finally {
       setIsRegLoading(false);
     }
-  }, [isAdmin, showToast]);
+  }, [permissions.canViewRegistrations, showToast]);
 
   useEffect(() => {
-    if (isAdmin && dashboardPath === '/registrations') {
+    if (permissions.canViewRegistrations && dashboardPath === '/registrations') {
       refreshRegistrations();
     }
-  }, [dashboardPath, isAdmin, refreshRegistrations]);
+  }, [dashboardPath, permissions.canViewRegistrations, refreshRegistrations]);
 
   useEffect(() => {
     if (draftError && dashboardPath === '/drafts') {
@@ -585,6 +585,29 @@ export default function App() {
     ],
     [ongoingEvents.length, upcomingEvents.length]
   );
+  const allowedDashboardPaths = useMemo(() => {
+    const paths = new Set<string>(['/']);
+    if (permissions.canViewDashboard) paths.add('/events');
+    if (permissions.canEditEvents) paths.add('/drafts');
+    if (permissions.canViewRegistrations) paths.add('/registrations');
+    if (permissions.canManageThemes) paths.add('/themes');
+    if (permissions.canViewSurvey) {
+      paths.add('/analytics');
+      paths.add('/survey');
+    }
+    if (permissions.canViewSurvey || permissions.isEoTenant) paths.add('/tenant-surveys');
+    if (permissions.canManageUsers) paths.add('/users');
+    if (permissions.canViewActivityLog) paths.add('/activity-log');
+    return paths;
+  }, [permissions]);
+  const defaultDashboardPath = useMemo(() => {
+    if (permissions.isEoTenant) return '/tenant-surveys';
+    if (permissions.canEditEvents || permissions.canViewRegistrations || permissions.canManageThemes || permissions.canViewSurvey || permissions.canManageUsers || permissions.canViewActivityLog) {
+      return '/';
+    }
+    if (permissions.canViewDashboard) return '/events';
+    return '/';
+  }, [permissions]);
   useEffect(() => {
     if (!isAdmin && activeFilter === 'draft') {
       setActiveFilter('Semua');
@@ -614,6 +637,18 @@ export default function App() {
       setActiveMonth('Semua');
     }
   }, [visibleMonths, activeMonth, setActiveMonth]);
+
+  useEffect(() => {
+    if (!location.pathname.startsWith('/dashboard')) return;
+    if (isLoading) return;
+    if (!permissions.canViewDashboard) {
+      if (location.pathname !== '/') navigate('/', { replace: true });
+      return;
+    }
+    if (!allowedDashboardPaths.has(dashboardPath)) {
+      navigate(`/dashboard${defaultDashboardPath === '/' ? '' : defaultDashboardPath}`, { replace: true });
+    }
+  }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions.canViewDashboard]);
 
   return (
     <Routes>
@@ -744,6 +779,7 @@ export default function App() {
           user={auth.user}
           isSuperadmin={auth.isSuperadmin}
           isLegacy={auth.isLegacy}
+          permissions={permissions}
           onOpenInstagramSettings={() => setShowInstagramSettings(true)}
           onOpenAlbumManager={() => setShowAlbumManager(true)}
           onOpenLetterPicker={handleOpenLetterPicker}
@@ -791,6 +827,7 @@ export default function App() {
                 activeDrafts={activeDrafts}
                 annualThemes={annualThemes}
                 communityRegistrations={communityRegistrations}
+                permissions={permissions}
                 isSuperadmin={auth.isSuperadmin}
               />
             </section>
@@ -825,7 +862,7 @@ export default function App() {
           )}
 
           {/* 3. Draft Queue — event yang perlu di-review/publish */}
-          {isAdmin && dashboardPath === '/drafts' && (
+          {permissions.canEditEvents && dashboardPath === '/drafts' && (
             <section id="draft-section" className="scroll-mt-20">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Draft Queue</h1>
@@ -853,7 +890,7 @@ export default function App() {
           )}
 
           {/* 4. Community Registrations — pendaftaran masuk */}
-          {isAdmin && dashboardPath === '/registrations' && (
+          {permissions.canViewRegistrations && dashboardPath === '/registrations' && (
             <section id="registrations" className="scroll-mt-20">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Community</h1>
@@ -872,7 +909,7 @@ export default function App() {
           )}
 
           {/* 5. Tema Tahunan — perencanaan jangka panjang */}
-          {isAdmin && dashboardPath === '/themes' && (
+          {permissions.canManageThemes && dashboardPath === '/themes' && (
             <section id="themes" className="scroll-mt-20">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tema Tahunan</h1>
@@ -976,7 +1013,7 @@ export default function App() {
         )}
 
         {/* 7. Analytics — statistik lanjutan */}
-          {isAdmin && dashboardPath === '/analytics' && (
+          {permissions.canViewSurvey && dashboardPath === '/analytics' && (
             <section id="category-chart" className="scroll-mt-20">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Analytics</h1>
@@ -991,7 +1028,7 @@ export default function App() {
           )}
 
         {/* 8. Survey Kepuasan — admin only */}
-        {isAdmin && dashboardPath === '/survey' && (
+        {permissions.canViewSurvey && dashboardPath === '/survey' && (
           <section id="survey-section" className="scroll-mt-20">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
@@ -1021,7 +1058,7 @@ export default function App() {
         )}
 
         {/* 9. User Management — superadmin only */}
-        {auth.isSuperadmin && dashboardPath === '/users' && (
+        {permissions.canManageUsers && dashboardPath === '/users' && (
           <section id="user-management" className="scroll-mt-20">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
@@ -1036,7 +1073,7 @@ export default function App() {
         )}
 
         {/* 10. Activity Log — admin + superadmin */}
-        {isAdmin && dashboardPath === '/activity-log' && (
+        {permissions.canViewActivityLog && dashboardPath === '/activity-log' && (
           <section id="activity-log" className="scroll-mt-20">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Log</h1>

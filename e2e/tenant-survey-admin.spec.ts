@@ -1,10 +1,32 @@
 import { test, expect } from '@playwright/test';
-import { setupSurveyApiMocks, setupSupabaseMocks, mockAdminAuth, MOCK_EVENT, MOCK_SURVEY_V3 } from './helpers';
+import { setupSurveyApiMocks, setupSupabaseMocks, mockAdminAuth, mockAuth, MOCK_EVENT, MOCK_SURVEY_V3 } from './helpers';
 
 test.describe('Tenant Survey — Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await mockAdminAuth(page);
     await setupSupabaseMocks(page);
+  });
+
+  test('viewer unauthorized route redirects to allowed dashboard page', async ({ page }) => {
+    await mockAuth(page, 'viewer');
+    await setupSupabaseMocks(page, 'viewer');
+    await page.goto('/dashboard/drafts');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.getByRole('heading', { name: 'Dashboard Event' })).toBeVisible();
+    await expect(page.getByText('Draft Queue')).not.toBeVisible();
+  });
+
+  test('eo tenant unauthorized route redirects to tenant surveys', async ({ page }) => {
+    await mockAuth(page, 'eo_tenant');
+    await setupSupabaseMocks(page, 'eo_tenant');
+    await setupSurveyApiMocks(page);
+    await page.goto('/dashboard/users');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page).toHaveURL(/\/dashboard\/tenant-surveys$/);
+    await expect(page.getByRole('heading', { name: 'Tenant Self-Assessment' })).toBeVisible();
   });
 
   test('list view — render survey list with tabs', async ({ page }) => {

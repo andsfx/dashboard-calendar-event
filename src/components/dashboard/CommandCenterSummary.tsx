@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import type { DraftEventItem, AnnualTheme, CommunityRegistration } from '../../types';
+import type { Permissions } from '../../hooks/usePermission';
 
 interface CommandCenterSummaryProps {
   totalEvents: number;
@@ -23,6 +24,7 @@ interface CommandCenterSummaryProps {
   activeDrafts: DraftEventItem[];
   annualThemes: AnnualTheme[];
   communityRegistrations: CommunityRegistration[];
+  permissions: Permissions;
   isSuperadmin?: boolean;
 }
 
@@ -45,6 +47,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   activeDrafts,
   annualThemes,
   communityRegistrations,
+  permissions,
   isSuperadmin,
 }: CommandCenterSummaryProps) {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
@@ -160,6 +163,17 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     });
   }
 
+  const visibleCards = cards.filter(card => {
+    if (card.id === 'drafts') return permissions.canEditEvents;
+    if (card.id === 'themes') return permissions.canManageThemes;
+    if (card.id === 'registrations') return permissions.canViewRegistrations;
+    if (card.id === 'survey' || card.id === 'analytics') return permissions.canViewSurvey;
+    if (card.id === 'tenant-surveys') return permissions.canViewSurvey || permissions.isEoTenant;
+    if (card.id === 'activity-log') return permissions.canViewActivityLog;
+    if (card.id === 'users') return permissions.canManageUsers;
+    return true;
+  });
+
   return (
     <section aria-labelledby="command-center-title">
       <div className="mb-6">
@@ -172,7 +186,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {cards.map(card => (
+        {visibleCards.map(card => (
           <Link
             key={card.id}
             to={card.route}

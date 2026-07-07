@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
-import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES, createRecurringEvents, getStatus } from '../utils/eventUtils';
+import { parseDateStrLocal, getDateRange, createRecurringEvents } from '../utils/eventUtils';
 import { uploadToR2 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { EventFormBasicFields } from './forms/EventFormBasicFields';
@@ -440,7 +440,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
     setIsSubmitting(true);
     const success = await onSave({
-      ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : { id: createId(), rowIndex: 0 }),
+      ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : {}),
       ...normalizedFormData,
       ...meta,
       status: finalStatus,

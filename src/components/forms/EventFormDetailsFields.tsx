@@ -41,15 +41,19 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
   isDraft = false,
 }: EventFormDetailsFieldsProps) {
   const datalistId = isDraft ? 'draft' : 'event';
+  const picErrorId = `${datalistId}-pic-error`;
+  const phoneErrorId = `${datalistId}-phone-error`;
+  const categoriesErrorId = `${datalistId}-categories-error`;
 
   return (
     <>
       {/* EO */}
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <label htmlFor={`${datalistId}-eo`} className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
           {isDraft ? 'Nama EO' : 'Event Organizer (EO)'}
         </label>
         <input
+          id={`${datalistId}-eo`}
           value={eo}
           onChange={e => onFieldChange('eo', e.target.value)}
           placeholder={eoPlaceholder}
@@ -64,12 +68,15 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       {/* PIC + Phone */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <label htmlFor={`${datalistId}-pic`} className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
             Penanggung Jawab {isDraft && <span className="text-red-500">*</span>}
           </label>
           <input
+            id={`${datalistId}-pic`}
             value={pic}
             onChange={e => onFieldChange('pic', e.target.value)}
+            aria-invalid={!!errors.pic}
+            aria-describedby={errors.pic ? picErrorId : undefined}
             placeholder={picPlaceholder}
             list={picSuggestions.length > 0 ? `${datalistId}-pic-suggestions` : undefined}
             className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
@@ -83,15 +90,18 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {picSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.pic && <p className="mt-1 text-xs text-red-500">{errors.pic}</p>}
+          {errors.pic && <p id={picErrorId} className="mt-1 text-xs text-red-500">{errors.pic}</p>}
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <label htmlFor={`${datalistId}-phone`} className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
             Nomor {isDraft ? 'Telepon' : 'Handphone'} {isDraft && <span className="text-red-500">*</span>}
           </label>
           <input
+            id={`${datalistId}-phone`}
             value={phone}
             onChange={e => onFieldChange('phone', e.target.value)}
+            aria-invalid={!!errors.phone}
+            aria-describedby={errors.phone ? phoneErrorId : undefined}
             placeholder={phonePlaceholder}
             list={phoneSuggestions.length > 0 ? `${datalistId}-phone-suggestions` : undefined}
             className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
@@ -105,16 +115,19 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {phoneSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+          {errors.phone && <p id={phoneErrorId} className="mt-1 text-xs text-red-500">{errors.phone}</p>}
         </div>
       </div>
 
       {/* Categories + Priority */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
+          <label htmlFor={`${datalistId}-category`} className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jenis Acara</label>
           <select
+            id={`${datalistId}-category`}
             value=""
+            aria-invalid={!!errors.categories}
+            aria-describedby={errors.categories ? categoriesErrorId : undefined}
             onChange={e => {
               onAddCategory(e.target.value);
               e.target.value = '';
@@ -139,11 +152,12 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               </span>
             ))}
           </div>
-          {errors.categories && <p className="mt-1 text-xs text-red-500">{errors.categories}</p>}
+          {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-500">{errors.categories}</p>}
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>
+          <label htmlFor={`${datalistId}-priority`} className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>
           <select
+            id={`${datalistId}-priority`}
             value={priority}
             onChange={e => onFieldChange('priority', e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"

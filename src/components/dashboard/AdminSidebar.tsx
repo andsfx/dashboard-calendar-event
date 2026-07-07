@@ -22,6 +22,7 @@ import {
   Activity,
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
+import type { Permissions } from '../../hooks/usePermission';
 
 interface NavItem {
   id: string;
@@ -44,6 +45,7 @@ interface AdminSidebarProps {
   user?: AuthUser | null;
   isSuperadmin?: boolean;
   isLegacy?: boolean;
+  permissions: Permissions;
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
@@ -56,6 +58,7 @@ export const AdminSidebar = memo(function AdminSidebar({
   user,
   isSuperadmin,
   isLegacy,
+  permissions,
   onOpenInstagramSettings,
   onOpenAlbumManager,
   onOpenLetterPicker,
@@ -68,41 +71,43 @@ export const AdminSidebar = memo(function AdminSidebar({
       label: 'Overview',
       items: [
         { id: 'overview', label: 'Command Center', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route', route: '/dashboard' },
-        { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'route', route: '/dashboard/analytics' },
+        ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
       ],
     },
     {
       label: 'Event Management',
       items: [
         { id: 'events', label: 'Event Schedule', icon: <CalendarDays className="h-4 w-4" />, action: 'route', route: '/dashboard/events' },
-        { id: 'drafts', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'route', route: '/dashboard/drafts' },
-        { id: 'themes', label: 'Annual Themes', icon: <Palette className="h-4 w-4" />, action: 'route', route: '/dashboard/themes' },
+        ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Draft Queue', icon: <FileEdit className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
+        ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Annual Themes', icon: <Palette className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/themes' }] : []),
       ],
     },
     {
       label: 'Engagement',
       items: [
-        { id: 'registrations', label: 'Registrations', icon: <Users className="h-4 w-4" />, action: 'route', route: '/dashboard/registrations' },
-        { id: 'survey', label: 'Satisfaction Survey', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/survey' },
-        { id: 'tenant-surveys', label: 'Tenant Self-Assessment', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route', route: '/dashboard/tenant-surveys' },
+        ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Registrations', icon: <Users className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
+        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Satisfaction Survey', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/survey' }] : []),
+        ...(permissions.canViewSurvey || permissions.isEoTenant ? [{ id: 'tenant-surveys', label: 'Tenant Self-Assessment', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
     },
     {
       label: 'System',
       items: [
-        ...(isSuperadmin ? [{ id: 'users', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/users' }] : []),
-        { id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/activity-log' },
+        ...(permissions.canManageUsers ? [{ id: 'users', label: 'User Management', icon: <UserCog className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/users' }] : []),
+        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Activity Log', icon: <Activity className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
       ],
     },
     {
       label: 'Content Settings',
       items: [
-        { id: 'landing-page', label: 'Landing Page', icon: <Globe className="h-4 w-4" />, action: 'callback', callback: onOpenInstagramSettings },
-        { id: 'album-gallery', label: 'Album Gallery', icon: <Image className="h-4 w-4" />, action: 'callback', callback: onOpenAlbumManager },
-        { id: 'letter', label: 'Create Letter', icon: <FileText className="h-4 w-4" />, action: 'callback', callback: onOpenLetterPicker },
+        ...(permissions.canManageSettings ? [
+          { id: 'landing-page', label: 'Landing Page', icon: <Globe className="h-4 w-4" />, action: 'callback' as const, callback: onOpenInstagramSettings },
+          { id: 'album-gallery', label: 'Album Gallery', icon: <Image className="h-4 w-4" />, action: 'callback' as const, callback: onOpenAlbumManager },
+          { id: 'letter', label: 'Create Letter', icon: <FileText className="h-4 w-4" />, action: 'callback' as const, callback: onOpenLetterPicker },
+        ] : []),
       ],
     },
-  ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, isSuperadmin]);
+  ], [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, permissions]);
 
   const handleNavClick = (item: NavItem) => {
     if (item.action === 'callback' && item.callback) {

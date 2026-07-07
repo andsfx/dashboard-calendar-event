@@ -271,7 +271,7 @@ export async function setupSurveyApiMocks(
  * IMPORTANT: Must match the projectRef in SUPABASE_URL env var.
  * We use 'test-project' as the projectRef, so the key becomes 'sb-test-project-auth-token'.
  */
-export async function mockAdminAuth(page: Page) {
+export async function mockAuth(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' = 'superadmin') {
   const fakeSession = {
     access_token: 'fake-access-token',
     refresh_token: 'fake-refresh-token',
@@ -279,75 +279,51 @@ export async function mockAdminAuth(page: Page) {
     expires_in: 3600,
     expires_at: Math.floor(Date.now() / 1000) + 3600,
     user: {
-      id: 'user_admin_001',
+      id: `user_${role}_001`,
       aud: 'authenticated',
       role: 'authenticated',
-      email: 'admin@metmal.test',
-      app_metadata: { role: 'superadmin' },
+      email: `${role}@metmal.test`,
+      app_metadata: { role },
       user_metadata: {},
       created_at: '2026-01-01T00:00:00Z',
     },
   };
 
   await page.addInitScript((session) => {
-    // Clear any existing Supabase sessions
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
         localStorage.removeItem(key);
       }
     }
-    // Set with the test-project key pattern
     localStorage.setItem('sb-test-project-auth-token', JSON.stringify(session));
   }, fakeSession);
 }
 
-/**
- * Mock Supabase API calls + auth endpoint (used by admin dashboard).
- */
-export async function setupSupabaseMocks(page: Page) {
-  // Auth check — returns admin user
+export async function mockAdminAuth(page: Page) {
+  await mockAuth(page, 'superadmin');
+}
+
+export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' = 'superadmin') {
+  const user = {
+    id: `user_${role}_001`,
+    email: `${role}@metmal.test`,
+    role,
+    aud: 'authenticated',
+    app_metadata: { role },
+    user_metadata: {},
+    created_at: '2026-01-01T00:00:00Z',
+  };
+
   await page.route(/.*api\/auth.*action=me.*/, async (route) => {
-    await route.fulfill({
-      json: {
-        user: {
-          id: 'user_admin_001',
-          email: 'admin@metmal.test',
-          role: 'superadmin',
-          aud: 'authenticated',
-          app_metadata: { role: 'superadmin' },
-          user_metadata: {},
-          created_at: '2026-01-01T00:00:00Z',
-        },
-      },
-    });
+    await route.fulfill({ json: { user } });
   });
 
-  // Fallback: catch-all for any /api/auth request
   await page.route('**/api/auth', async (route) => {
-    await route.fulfill({
-      json: {
-        user: {
-          id: 'user_admin_001',
-          email: 'admin@metmal.test',
-          role: 'superadmin',
-        },
-      },
-    });
+    await route.fulfill({ json: { user } });
   });
 
-  // Supabase Auth API (getUser)
   await page.route('**/auth/v1/**', async (route) => {
-    await route.fulfill({
-      json: {
-        id: 'user_admin_001',
-        aud: 'authenticated',
-        role: 'authenticated',
-        email: 'admin@metmal.test',
-        app_metadata: { role: 'superadmin' },
-        user_metadata: {},
-        created_at: '2026-01-01T00:00:00Z',
-      },
-    });
+    await route.fulfill({ json: user });
   });
 
   // Events (for dashboard — must match DbEvent shape)
