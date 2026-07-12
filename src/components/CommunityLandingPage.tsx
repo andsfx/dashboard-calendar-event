@@ -174,6 +174,23 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                     {item.label}
                   </a>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    onBack();
+                  }}
+                  className={`mt-1 flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${isHeaderPinned ? 'bg-violet-600 text-white hover:bg-violet-700' : 'bg-white text-slate-900 hover:bg-slate-50'}`}
+                >
+                  <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
+                </button>
+                <a
+                  href="#register"
+                  onClick={() => setMobileNavOpen(false)}
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${isHeaderPinned ? 'border border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-300 dark:hover:bg-violet-900/20' : 'border border-white/30 text-white hover:bg-white/10'}`}
+                >
+                  Daftar Sekarang
+                </a>
               </nav>
             </div>
           )}
