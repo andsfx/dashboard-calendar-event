@@ -611,7 +611,9 @@ export default function App() {
     if (!location.pathname.startsWith('/dashboard')) return;
     if (isLoading) return;
     if (!permissions.canViewDashboard) {
-      if (location.pathname !== '/') navigate('/', { replace: true });
+      if (dashboardPath !== '/') {
+        navigate('/dashboard', { replace: true });
+      }
       return;
     }
     if (!allowedDashboardPaths.has(dashboardPath)) {
