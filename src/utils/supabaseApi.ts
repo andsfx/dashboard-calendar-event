@@ -1235,8 +1235,8 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
 }
 
 /**
- * Fetch list of surveyable events (ongoing + past) for
- * the event picker page at /tenant-survey/ (no eventId).
+ * Fetch list of surveyable events (ongoing + past, is_active only via API)
+ * for the event picker page at /tenant-survey/ (no eventId).
  */
 export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurveyEventInfo[]> {
   try {
@@ -1249,11 +1249,11 @@ export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurve
     }
   } catch { /* fall through */ }
 
-  // Fallback: try via anon Supabase
+  // Fallback: anon client — no is_active filter (API path preferred)
   const { data, error } = await supabase
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
-    .eq('status', 'past')
+    .in('status', ['past', 'ongoing'])
     .order('tanggal', { ascending: false })
     .limit(200);
 

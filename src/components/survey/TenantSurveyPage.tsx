@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -88,15 +88,18 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   }, []);
 
   // ─── Hydrate is_active per event (config-get) ──────────────────
+  // past + ongoing: survey self-assessment biasanya pasca/saat event selesai
   useEffect(() => {
-    const pastIds = events.filter((e) => e.status === 'past').map((e) => e.id);
-    if (pastIds.length === 0) return;
+    const surveyableIds = events
+      .filter((e) => e.status === 'past' || e.status === 'ongoing')
+      .map((e) => e.id);
+    if (surveyableIds.length === 0) return;
 
     let cancelled = false;
     (async () => {
       const token = getAccessToken();
       const entries = await Promise.all(
-        pastIds.map(async (id) => {
+        surveyableIds.map(async (id) => {
           try {
             const res = await fetch(
               `/api/tenant-survey?action=config-get&event_id=${encodeURIComponent(id)}`,
@@ -314,7 +317,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
               >
                 <option value="all">Semua Event</option>
                 {events
-                  .filter(ev => ev.status === 'past')
+                  .filter(ev => ev.status === 'past' || ev.status === 'ongoing')
                   .map(ev => (
                     <option key={ev.id} value={ev.id}>{ev.acara}</option>
                   ))}
@@ -653,7 +656,13 @@ function TenantSurveyEventRow({
   return (
     <div className="px-4 py-2.5">
       <div className="flex items-center gap-2">
-        <p className="min-w-0 flex-1 truncate text-xs text-slate-700 dark:text-slate-300">{event.acara}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{event.acara}</p>
+          <p className="text-[10px] text-slate-400">
+            {event.status === 'ongoing' ? 'Berlangsung' : 'Selesai'}
+            {isActive ? ' · Survey aktif' : ' · Survey mati'}
+          </p>
+        </div>
 
         <button
           onClick={() => onToggleConfig(event.id, isActive)}
@@ -734,29 +743,75 @@ function TenantSurveyManagementSection({
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
 }) {
-  const pastEvents = events.filter(e => e.status === 'past').slice(0, 30);
+  const [query, setQuery] = useState('');
 
-  if (pastEvents.length === 0) return null;
+  // past + ongoing (bukan cuma past, tanpa hard-limit 30)
+  const surveyableEvents = useMemo(() => {
+    const base = events.filter((e) => e.status === 'past' || e.status === 'ongoing');
+    // ongoing dulu, lalu past — biar event baru gampang ketemu
+    return [...base].sort((a, b) => {
+      if (a.status === b.status) return a.acara.localeCompare(b.acara, 'id');
+      return a.status === 'ongoing' ? -1 : 1;
+    });
+  }, [events]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return surveyableEvents;
+    return surveyableEvents.filter((e) => e.acara.toLowerCase().includes(q));
+  }, [surveyableEvents, query]);
+
+  if (surveyableEvents.length === 0) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survey tenant.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
       <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-700">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
-        <p className="text-[10px] text-slate-400">Copy link, aktifkan/nonaktifkan, QR code, atau export data</p>
-      </div>
-      <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
-        {pastEvents.map((ev) => (
-          <TenantSurveyEventRow
-            key={ev.id}
-            event={ev}
-            copiedId={copiedId}
-            onCopyLink={onCopyLink}
-            onExport={onExport}
-            onToggleConfig={onToggleConfig}
-            configLoading={configLoading}
-            activeConfigs={activeConfigs}
+        <p className="text-[10px] text-slate-400">
+          Cari event, aktifkan toggle, copy link/QR. Default nonaktif — nyalakan dulu agar form public buka.
+        </p>
+        <div className="relative mt-2">
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari event (contoh: Bekasi Criterium)..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
           />
-        ))}
+        </div>
+        <p className="mt-1.5 text-[10px] text-slate-400">
+          {filtered.length} dari {surveyableEvents.length} event (ongoing + past)
+        </p>
+      </div>
+      <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
+        {filtered.length === 0 ? (
+          <p className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+            Tidak ada event cocok &quot;{query}&quot;. Cek ejaan atau status event (harus ongoing/past).
+          </p>
+        ) : (
+          filtered.map((ev) => (
+            <TenantSurveyEventRow
+              key={ev.id}
+              event={ev}
+              copiedId={copiedId}
+              onCopyLink={onCopyLink}
+              onExport={onExport}
+              onToggleConfig={onToggleConfig}
+              configLoading={configLoading}
+              activeConfigs={activeConfigs}
+            />
+          ))
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  * /api/tenant-survey — Unified tenant (EO) self-assessment survey endpoint
  *
  * Public (mode=public, no auth):
- *   ?mode=public&action=events      GET   — List surveyable events (ongoing + past)
+ *   ?mode=public&action=events      GET   — List active survey events (status past|ongoing + is_active)
  *   ?mode=public&action=event-info  GET   — Fetch event details
  *   ?mode=public&action=tenants     GET   — List tenants from MID loyalty API (proxied)
  *   ?mode=public&action=check       GET   — Check if device already submitted (by fingerprint)
@@ -211,10 +211,11 @@ async function handlePublicEvents(req, res) {
     return res.json({ success: true, events: [] });
   }
 
+  // past + ongoing (survey boleh dibuka saat/setelah event)
   const { data, error } = await sb
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
-    .eq('status', 'past')
+    .in('status', ['past', 'ongoing'])
     .in('id', activeIds)
     .order('tanggal', { ascending: false })
     .limit(200);

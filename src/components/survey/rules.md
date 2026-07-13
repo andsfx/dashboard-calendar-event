@@ -77,9 +77,9 @@ Aturan public:
 4. `tenant_user_id` public = `null`.
 5. Sebelum buka/submit: event harus exist; hormati `tenant_survey_config.is_active` (**default off** jika row config tidak ada).
    - Public `event-info` return `is_active`; FE tampil “Survey Ditutup” bila false.
-   - Public `events` list hanya event aktif.
+   - Public `events` list hanya event **aktif** + status `past|ongoing`.
    - Public `submit` 403 bila inactive; 404 bila event hilang.
-   - Dashboard hydrate `config-get` per past event; toggle `?? true` dilarang.
+   - Dashboard kelola: past + ongoing, **search by name**, no hard-limit 30; hydrate config-get; toggle default off.
 6. `action=tenants`: proxy MID server-side (`MID_API_KEY` env only).
    - Wajib `q` min 2 karakter (tanpa full dump).
    - Response minimal: `id,name,floor,lot,category,logo` — **tanpa** PIC/telp massal.

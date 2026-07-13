@@ -75,11 +75,18 @@ export default function TenantSurveyList({
     }
   }, [onSubmitDraft]);
 
-  // Events that don't have any survey yet (prevents duplicate creation)
-  const availableEvents = events.filter(ev => {
-    const existing = surveys.find(s => s.event_id === ev.id);
-    return !existing;
-  });
+  // Events without survey yet (draft admin path). Prefer past/ongoing, all statuses OK for admin draft.
+  const [eventQuery, setEventQuery] = useState('');
+  const availableEvents = events
+    .filter(ev => {
+      const existing = surveys.find(s => s.event_id === ev.id);
+      return !existing;
+    })
+    .filter(ev => {
+      const q = eventQuery.trim().toLowerCase();
+      if (!q) return true;
+      return (ev.acara || '').toLowerCase().includes(q) || (ev.dateStr || '').toLowerCase().includes(q);
+    });
 
   if (isLoading) {
     return (
@@ -129,28 +136,42 @@ export default function TenantSurveyList({
 
           {/* Event picker dropdown */}
           {showEventPicker && (
-            <div className="absolute right-0 z-20 mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+            <div className="absolute right-0 z-20 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+              <input
+                type="search"
+                value={eventQuery}
+                onChange={(e) => setEventQuery(e.target.value)}
+                placeholder="Cari event..."
+                className="mb-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              />
               {availableEvents.length === 0 ? (
                 <p className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
-                  Semua event sudah memiliki self-assessment
+                  {eventQuery.trim()
+                    ? `Tidak ada event cocok "${eventQuery}"`
+                    : 'Semua event sudah memiliki self-assessment'}
                 </p>
               ) : (
-                availableEvents.slice(0, 10).map(ev => (
-                  <button
-                    key={ev.id}
-                    type="button"
-                    onClick={() => {
-                      onNewSurvey(ev.id);
-                      setShowEventPicker(false);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-slate-50 dark:hover:bg-slate-700"
-                  >
-                    <span className="flex-1 truncate text-slate-800 dark:text-slate-200">
-                      {ev.acara}
-                    </span>
-                    <span className="text-xs text-slate-400">{ev.dateStr}</span>
-                  </button>
-                ))
+                <div className="max-h-64 overflow-y-auto">
+                  {availableEvents.map(ev => (
+                    <button
+                      key={ev.id}
+                      type="button"
+                      onClick={() => {
+                        onNewSurvey(ev.id);
+                        setShowEventPicker(false);
+                        setEventQuery('');
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-slate-50 dark:hover:bg-slate-700"
+                    >
+                      <span className="flex-1 truncate text-slate-800 dark:text-slate-200">
+                        {ev.acara}
+                      </span>
+                      <span className="shrink-0 text-[10px] text-slate-400">
+                        {ev.status === 'past' ? 'past' : ev.status === 'ongoing' ? 'live' : ev.status}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           )}
