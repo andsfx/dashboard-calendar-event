@@ -162,13 +162,14 @@ import { SURVEY_OPTIONS } from '../constants/survey-options';
  * - kategori required, must be in SURVEY_OPTIONS.kategori
  * - kenaikan_traffic required, must be in SURVEY_OPTIONS.kenaikan_traffic
  * - kenaikan_sales required, must be in SURVEY_OPTIONS.kenaikan_sales
- * - feedback_comment & improvement_suggestion are optional (max 2000 chars each)
- * - tenant_organization max 200 chars
- *
- * @param data - The survey form data to validate
- * @param isDraft - If true, required v3 fields can be empty (draft mode)
- * @returns Object with valid flag and array of errors
- */
+  * - feedback_teks optional (max 2000 chars) — v3 primary free-text
+  * - legacy: feedback_comment / improvement_suggestion optional (max 2000 each)
+  * - pic_name max 100, pic_phone max 20
+  *
+  * @param data - The survey form data to validate
+  * @param isDraft - If true, required v3 fields can be empty (draft mode)
+  * @returns Object with valid flag and array of errors
+  */
 export function validateTenantSurvey(
   data: Record<string, unknown>,
   isDraft = false,
@@ -213,8 +214,9 @@ export function validateTenantSurvey(
     errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
   }
 
-  // Text field length limits
+  // Text field length limits (v3 + legacy)
   const textLimits: Array<[string, number]> = [
+    ['feedback_teks', 2000],
     ['feedback_comment', 2000],
     ['improvement_suggestion', 2000],
     ['tenant_organization', 200],

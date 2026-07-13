@@ -73,13 +73,25 @@ export default function TenantSurveyForm({
   const handleTenantSelect = useCallback((tenant: TenantDropdownOption | null) => {
     setSelectedTenant(tenant);
     if (!tenant) {
-      setAutoFilled({ lokasi_zona: false, kategori: false });
+      // Retype/clear: drop auto-filled fields so stale MID data tidak nempel
+      setAutoFilled(prevAuto => {
+        setFormData(prev => ({
+          ...prev,
+          nama_gerai: '',
+          lokasi_zona: prevAuto.lokasi_zona ? '' : prev.lokasi_zona,
+          kategori: prevAuto.kategori ? '' : prev.kategori,
+          pic_name: '',
+          pic_phone: '',
+        }));
+        return { lokasi_zona: false, kategori: false };
+      });
       return;
     }
     const zona = floorToZona(tenant.floor);
     const kat = apiCategoryToKategori(tenant.category);
     setFormData(prev => ({
       ...prev,
+      nama_gerai: tenant.name,
       lokasi_zona: zona || prev.lokasi_zona,
       kategori: kat || prev.kategori,
       pic_name: tenant.pic || prev.pic_name,
@@ -105,7 +117,7 @@ export default function TenantSurveyForm({
     overall_rating: null,
     feedback_comment: '',
     improvement_suggestion: '',
-    nama_gerai: formData.nama_gerai.trim(),
+    nama_gerai: (selectedTenant?.name || formData.nama_gerai).trim(),
     lokasi_zona: formData.lokasi_zona,
     kategori: formData.kategori,
     kenaikan_traffic: formData.kenaikan_traffic,
@@ -120,14 +132,21 @@ export default function TenantSurveyForm({
     setErrors([]);
     setFieldLevelErrors({});
 
+    // Pick-from-list: submit non-draft wajib selectedTenant (bukan free-text)
+    if (!isDraft && !selectedTenant) {
+      const msg = 'Pilih gerai dari daftar, bukan ketik bebas.';
+      setFieldLevelErrors({ nama_gerai: msg });
+      setErrors([msg]);
+      return;
+    }
+
     const data = buildFormData();
     const validation = validateTenantSurvey(data as unknown as Record<string, unknown>, isDraft);
 
     if (!validation.valid) {
-      // Map errors to fields for inline display
       const fieldErrs: Record<string, string> = {};
       const patterns: Array<[RegExp, string]> = [
-        [/[Nn]ama gerai/i, 'nama_gerai'],
+        [/[Nn]ama gerai|[Pp]ilih gerai/i, 'nama_gerai'],
         [/[Ll]okasi/i, 'lokasi_zona'],
         [/[Kk]ategori/i, 'kategori'],
         [/traffic/i, 'kenaikan_traffic'],
@@ -148,12 +167,14 @@ export default function TenantSurveyForm({
     }
 
     await onSubmit(data, isDraft);
-  }, [buildFormData, onSubmit]);
+  }, [buildFormData, onSubmit, selectedTenant]);
 
   // ─── Progress ───────────────────────────────────────────────────
-  const REQUIRED_FIELDS = ['nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'] as const;
-  const requiredCount = REQUIRED_FIELDS.length;
-  const filledCount = REQUIRED_FIELDS.filter(f => (formData[f] ?? '').toString().trim()).length;
+  // nama_gerai terhitung isi hanya jika tenant dipilih dari list
+  const geraiFilled = !!selectedTenant;
+  const otherRequired = ['lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'] as const;
+  const requiredCount = 1 + otherRequired.length;
+  const filledCount = (geraiFilled ? 1 : 0) + otherRequired.filter(f => (formData[f] ?? '').toString().trim()).length;
   const progress = Math.round((filledCount / requiredCount) * 100);
 
   return (
@@ -244,7 +265,7 @@ export default function TenantSurveyForm({
             </label>
             <TenantSearchSelect
               id="ts-form-gerai"
-              value={formData.nama_gerai}
+              value={selectedTenant?.name || formData.nama_gerai}
               onChange={updateField('nama_gerai')}
               onTenantSelect={handleTenantSelect}
               disabled={disabled}

@@ -92,6 +92,22 @@ const RATING_MAX = 5;
 
 // ─── Validators ───────────────────────────────────────────────────
 
+function pushTextLimitErrors(body, errors) {
+  const limits = [
+    ['feedback_teks', 2000],
+    ['feedback_comment', 2000],
+    ['improvement_suggestion', 2000],
+    ['pic_name', 100],
+    ['pic_phone', 20],
+  ];
+  for (const [field, max] of limits) {
+    const raw = body[field];
+    if (raw != null && String(raw).length > max) {
+      errors.push(`${field} maksimal ${max} karakter`);
+    }
+  }
+}
+
 function validateSurveyBody(body, isDraft = false) {
   const errors = [];
 
@@ -121,6 +137,7 @@ function validateSurveyBody(body, isDraft = false) {
     }
   }
 
+  pushTextLimitErrors(body, errors);
   return errors;
 }
 
@@ -153,7 +170,18 @@ function validatePublicSubmission(body) {
     errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
   }
 
+  pushTextLimitErrors(body, errors);
   return errors;
+}
+
+/** Config missing row = inactive (safe default for public). */
+async function isTenantSurveyActive(sb, eventId) {
+  const { data } = await sb
+    .from('tenant_survey_config')
+    .select('is_active')
+    .eq('event_id', eventId)
+    .maybeSingle();
+  return data?.is_active === true;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -166,10 +194,28 @@ async function handlePublicEvents(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
   const sb = getServiceSupabase();
+
+  // Hanya event dengan config is_active=true (no row = inactive)
+  const { data: configs, error: cfgErr } = await sb
+    .from('tenant_survey_config')
+    .select('event_id')
+    .eq('is_active', true);
+
+  if (cfgErr) {
+    console.error('[tenant-survey/public/events] config', cfgErr);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data event' });
+  }
+
+  const activeIds = (configs || []).map((c) => c.event_id).filter(Boolean);
+  if (activeIds.length === 0) {
+    return res.json({ success: true, events: [] });
+  }
+
   const { data, error } = await sb
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
     .eq('status', 'past')
+    .in('id', activeIds)
     .order('tanggal', { ascending: false })
     .limit(200);
 
@@ -187,6 +233,14 @@ async function handlePublicTenants(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
   const q = (req.query?.q || '').trim().toLowerCase();
+  if (q.length < 2) {
+    return res.status(400).json({
+      success: false,
+      error: 'Query pencarian minimal 2 karakter',
+      tenants: [],
+    });
+  }
+
   const API_KEY = process.env.MID_API_KEY;
   const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
 
@@ -207,6 +261,7 @@ async function handlePublicTenants(req, res) {
     const json = await resp.json();
     const list = Array.isArray(json.data) ? json.data : [];
 
+    // Minimal fields only — no PIC/telp/evoucher mass dump to anon clients
     const tenants = list
       .filter((t) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
       .map((t) => ({
@@ -215,13 +270,14 @@ async function handlePublicTenants(req, res) {
         floor: String(t.TENANT_FLOOR ?? '').trim(),
         lot: String(t.TENANT_LOT ?? '').trim(),
         category: String(t.TENANT_CATEGORY ?? '').trim(),
-        pic: String(t.PIC_NAME ?? '').trim(),
-        picTelp: String(t.PIC_Telp ?? '').trim(),
         logo: String(t.TENANT_LOGO ?? '').trim(),
-        status: String(t.TENANT_STATUS ?? '').trim(),
-        participantEvoucher: String(t.PARTICIPANT_EVOUCHER ?? '').trim(),
+        pic: '',
+        picTelp: '',
+        status: 'active',
+        participantEvoucher: '',
       }))
-      .filter(t => t.name && !q || t.name.toLowerCase().includes(q));
+      .filter((t) => t.name && t.name.toLowerCase().includes(q))
+      .slice(0, 50);
 
     return res.json({ success: true, tenants });
   } catch (err) {
@@ -249,7 +305,8 @@ async function handlePublicEventInfo(req, res) {
     return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
   }
 
-  return res.json({ success: true, event: data });
+  const is_active = await isTenantSurveyActive(sb, eventId);
+  return res.json({ success: true, event: data, is_active });
 }
 
 // ─── Public: Check duplicate ─────────────────────────────────────
@@ -314,11 +371,24 @@ async function handlePublicSubmit(req, res) {
     });
   }
 
-  // NOTE: Event existence check removed for public submissions.
-  // Reason: Tenants may submit before events are formally created in the
-  // dashboard. Duplicate prevention (by device_fingerprint) still works.
-  // Re-enable this check once all events are guaranteed to exist in the
-  // `events` table at survey time.
+  // Event must exist + survey config is_active (no row = inactive)
+  const { data: eventRow } = await sb
+    .from('events')
+    .select('id')
+    .eq('id', eventId)
+    .maybeSingle();
+
+  if (!eventRow) {
+    return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+  }
+
+  const active = await isTenantSurveyActive(sb, eventId);
+  if (!active) {
+    return res.status(403).json({
+      success: false,
+      error: 'Survey tenant untuk event ini tidak aktif atau sudah ditutup.',
+    });
+  }
 
   // Build row
   const row = {
@@ -762,11 +832,12 @@ async function handleConfigGet(req, res) {
     .eq('event_id', eventId)
     .single();
 
+  // No row = inactive (safe default; admin must toggle on)
   return res.json({
     success: true,
     config: data || {
       event_id: eventId,
-      is_active: true,
+      is_active: false,
       activated_at: null,
       deactivated_at: null,
     },

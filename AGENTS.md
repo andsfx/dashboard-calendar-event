@@ -26,6 +26,7 @@ Project conventions:
 - Do not expose Supabase service role, R2 keys, admin password/token, or Apps Script token.
 - Remote URL may contain credential in local git config; never copy credential into docs or output.
 - improve/ is separate prototype folder; use improve/AGENTS.md there.
+- Tenant survey form: before edit, read `src/components/survey/rules.md` (public form = no login).
 
 Verification:
 - For code changes, prefer npm run build plus targeted tests.

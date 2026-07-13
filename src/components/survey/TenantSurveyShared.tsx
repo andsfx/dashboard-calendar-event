@@ -103,6 +103,8 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
 }
 
 // ─── TenantSearchSelect ───────────────────────────────────────────
+// Pick-from-list only: ketik = search; commit nama/id hanya lewat pilih item.
+// Ketik ulang setelah select → clear selection parent (onChange '' + onTenantSelect null).
 
 export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, id, required, error }: {
   value: string;
@@ -120,20 +122,32 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [highlighted, setHighlighted] = useState(-1);
+  const listboxId = `${id}-listbox`;
 
-  // Sync query when value changes externally (e.g., reset)
-  useEffect(() => { setQuery(value); }, [value]);
+  // Sync display when parent commits selection / form reset.
+  // Jangan overwrite query saat user ketik ulang (value '' tapi input masih isi).
+  useEffect(() => {
+    if (value) {
+      setQuery(value);
+      return;
+    }
+    if (!open) setQuery('');
+  }, [value, open]);
 
-  // Reset highlight when tenants change
   useEffect(() => { setHighlighted(-1); }, [tenants]);
 
-  // Debounced search
   useEffect(() => {
     if (disabled) return;
+    const q = query.trim();
+    if (q.length < 2) {
+      setTenants([]);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     const t = setTimeout(async () => {
-      const result = await fetchActiveTenants(query);
+      const result = await fetchActiveTenants(q);
       if (!cancelled) {
         setTenants(result);
         setLoading(false);
@@ -142,7 +156,6 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
     return () => { cancelled = true; clearTimeout(t); };
   }, [query, disabled]);
 
-  // Close on outside click + ESC
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
@@ -159,12 +172,30 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
     };
   }, [open]);
 
+  function clearSelection() {
+    onChange('');
+    onTenantSelect?.(null);
+  }
+
   function selectTenant(t: TenantDropdownOption) {
     onChange(t.name);
     setQuery(t.name);
     setOpen(false);
     setHighlighted(-1);
     onTenantSelect?.(t);
+  }
+
+  function handleInputChange(next: string) {
+    setQuery(next);
+    setOpen(true);
+    // Retype after pick → drop committed selection + auto-fill parent
+    if (value) clearSelection();
+  }
+
+  function handleClear() {
+    setQuery('');
+    setOpen(false);
+    clearSelection();
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -181,6 +212,10 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
     }
   }
 
+  const hintId = `${id}-hint`;
+  const errorId = error ? `${id}-error` : undefined;
+  const describedBy = [!value ? hintId : null, errorId].filter(Boolean).join(' ') || undefined;
+
   return (
     <div ref={containerRef} className="relative">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -189,25 +224,26 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
         id={id}
         type="text"
         value={query}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+        onChange={(e) => handleInputChange(e.target.value)}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        placeholder="Ketik nama gerai..."
+        placeholder="Cari & pilih gerai dari daftar"
         disabled={disabled}
         autoComplete="off"
         role="combobox"
         aria-expanded={open}
         aria-autocomplete="list"
+        aria-controls={listboxId}
         aria-activedescendant={highlighted >= 0 ? `tenant-opt-${highlighted}` : undefined}
         aria-required={required || undefined}
         aria-invalid={!!error || undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
+        aria-describedby={describedBy}
         className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
       />
       {query && !disabled && (
         <button
           type="button"
-          onClick={() => { setQuery(''); onChange(''); setOpen(false); onTenantSelect?.(null); }}
+          onClick={handleClear}
           className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
           aria-label="Hapus"
         >
@@ -216,7 +252,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
       )}
 
       {open && !disabled && (
-        <div role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
+        <div id={listboxId} role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -224,7 +260,9 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
             </div>
           ) : tenants.length === 0 ? (
             <div className="px-4 py-3 text-xs text-slate-500">
-              {query ? `Tidak ada tenant cocok "${query}"` : 'Ketik untuk mencari tenant'}
+              {query.trim().length < 2
+                ? 'Ketik minimal 2 huruf, lalu pilih dari daftar'
+                : `Tidak ada tenant cocok "${query}"`}
             </div>
           ) : (
             tenants.map((t, i) => (
@@ -264,8 +302,13 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           )}
         </div>
       )}
+      {!value && !error && (
+        <p id={hintId} className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          Pilih gerai dari daftar, bukan ketik bebas.
+        </p>
+      )}
       {error && (
-        <p id={`${id}-error`} className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
+        <p id={errorId} className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
           <AlertTriangle className="h-3 w-3" />
           {error}
         </p>

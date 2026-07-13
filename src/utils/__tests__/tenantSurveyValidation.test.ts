@@ -166,7 +166,15 @@ describe('validateTenantSurvey', () => {
   });
 
   describe('Text field length limits', () => {
-    it('should reject overly long feedback_comment', () => {
+    it('should reject overly long feedback_teks (v3)', () => {
+      const data = validData();
+      data.feedback_teks = 'a'.repeat(2001);
+      const result = validateTenantSurvey(data);
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('feedback_teks'))).toBe(true);
+    });
+
+    it('should reject overly long feedback_comment (legacy)', () => {
       const data = validData();
       data.feedback_comment = 'a'.repeat(2001);
       const result = validateTenantSurvey(data);
@@ -206,6 +214,7 @@ describe('validateTenantSurvey', () => {
 
     it('should accept empty comment fields', () => {
       const data = validData();
+      data.feedback_teks = '';
       data.feedback_comment = '';
       data.improvement_suggestion = '';
       const result = validateTenantSurvey(data);

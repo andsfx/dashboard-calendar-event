@@ -45,6 +45,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // ─── Event Management State ─────────────────────────────────────
+  // Default false until config-get hydrates (no row = inactive)
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
   const [configLoading, setConfigLoading] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState('');
@@ -64,6 +65,19 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
     currentUserId,
   );
 
+  // ─── Auth token helper (used by config + export) ───────────────
+  const getAccessToken = useCallback(() => {
+    try {
+      const keys = Object.keys(localStorage);
+      const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+      if (sbKey) {
+        const data = JSON.parse(localStorage.getItem(sbKey) || '{}');
+        return data.access_token || '';
+      }
+    } catch { /* ignore */ }
+    return '';
+  }, []);
+
   // ─── Fetch current user ───────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
@@ -72,6 +86,37 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
     });
     return () => { cancelled = true; };
   }, []);
+
+  // ─── Hydrate is_active per event (config-get) ──────────────────
+  useEffect(() => {
+    const pastIds = events.filter((e) => e.status === 'past').map((e) => e.id);
+    if (pastIds.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const token = getAccessToken();
+      const entries = await Promise.all(
+        pastIds.map(async (id) => {
+          try {
+            const res = await fetch(
+              `/api/tenant-survey?action=config-get&event_id=${encodeURIComponent(id)}`,
+              { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+            );
+            if (!res.ok) return [id, false] as const;
+            const json = await res.json();
+            const active = json.config?.is_active === true || json.data?.is_active === true;
+            return [id, active] as const;
+          } catch {
+            return [id, false] as const;
+          }
+        }),
+      );
+      if (cancelled) return;
+      setActiveConfigs(Object.fromEntries(entries));
+    })();
+
+    return () => { cancelled = true; };
+  }, [events, getAccessToken]);
 
   // ─── Handlers ──────────────────────────────────────────────────
   const handleNewSurvey = useCallback((eventId: string) => {
@@ -162,18 +207,6 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   }, []);
 
   // ─── Event Management Handlers ──────────────────────────────────
-  const getAccessToken = useCallback(() => {
-    try {
-      const keys = Object.keys(localStorage);
-      const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-      if (sbKey) {
-        const data = JSON.parse(localStorage.getItem(sbKey) || '{}');
-        return data.access_token || '';
-      }
-    } catch { /* ignore */ }
-    return '';
-  }, []);
-
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
     try {
@@ -613,7 +646,7 @@ function TenantSurveyEventRow({
   activeConfigs: Record<string, boolean>;
 }) {
   const [showQR, setShowQR] = useState(false);
-  const isActive = activeConfigs[event.id] ?? true;
+  const isActive = activeConfigs[event.id] === true;
   const isCopied = copiedId === event.id;
   const isToggling = configLoading === event.id;
 

@@ -2,280 +2,27 @@ import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
-  Send, ArrowLeft, MapPin, Calendar, Search,
-  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, X, Phone,
+  Send, ArrowLeft, MapPin, Calendar,
+  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, Phone,
 } from 'lucide-react';
 import {
   fetchPublicTenantSurveyEvent,
   checkPublicTenantSurveyDuplicate,
   submitPublicTenantSurvey,
-  fetchActiveTenants,
   type TenantDropdownOption,
 } from '../../utils/supabaseApi';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateTenantSurvey } from '../../utils/validation';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
+import {
+  TenantSearchSelect,
+  RadioGroup,
+  floorToZona,
+  apiCategoryToKategori,
+  TRAFFIC_LABELS,
+} from './TenantSurveyShared';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
-
-const TRAFFIC_LABELS: Record<string, string> = {
-  'Signifikan': 'Signifikan (Toko jauh lebih ramai)',
-  'Sedikit Naik': 'Sedikit Naik (Ada tambahan pengunjung tapi tidak terlalu padat)',
-  'Tidak Ada': 'Tidak Ada (Kondisi sama seperti hari biasa)',
-  'Menurun': 'Menurun (Toko justru lebih sepi)',
-};
-
-function RadioGroup({ label, options, value, onChange, disabled, labels, required, error }: {
-  label: string;
-  options: readonly string[];
-  value: string;
-  onChange: (v: string) => void;
-  disabled?: boolean;
-  labels?: Record<string, string>;
-  required?: boolean;
-  error?: string;
-}) {
-  const errorId = error ? `${label.replace(/\s+/g, '-').toLowerCase()}-error` : undefined;
-  return (
-    <fieldset className="space-y-2" disabled={disabled} aria-required={required || undefined} aria-invalid={!!error || undefined} aria-describedby={errorId}>
-      <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-        {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
-      </legend>
-      <div className="space-y-2" role="radiogroup" aria-label={label}>
-        {options.map((opt) => {
-          const selected = value === opt;
-          return (
-            <label
-              key={opt}
-              className={`
-                flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
-                transition focus-within:ring-2 focus-within:ring-brand-primary-500
-                ${selected
-                  ? 'border-brand-primary-400 bg-brand-primary-50 shadow-sm dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
-                  : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
-                }
-              `}
-            >
-              <input
-                type="radio"
-                name={label}
-                value={opt}
-                checked={selected}
-                onChange={() => onChange(opt)}
-                disabled={disabled}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
-                aria-label={labels?.[opt] || opt}
-              />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
-                {labels?.[opt] || opt}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-      {error && (
-        <p id={errorId} className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
-          <AlertTriangle className="h-3 w-3" />
-          {error}
-        </p>
-      )}
-    </fieldset>
-  );
-}
-
-/** Map MID floor code to SURVEY_OPTIONS.lokasi_zona value */
-function floorToZona(floor: string): string {
-  const map: Record<string, string> = {
-    'LTB': 'Lantai Dasar',
-    'LT1': 'Lantai 1',
-    'LT2': 'Lantai 2',
-    'LT3': 'Lantai 3',
-  };
-  return map[floor.toUpperCase().trim()] || '';
-}
-
-/** Map MID tenant category to SURVEY_OPTIONS.kategori value */
-function apiCategoryToKategori(apiCat: string): string {
-  const c = apiCat.toUpperCase().trim();
-  if (/FOOD|FOOD\s*&\s*BEVERAGE|F\s*&\s*B|RESTAURANT|CAFE|KULINER|MINUMAN/.test(c)) return 'Food & Beverage (F&B)';
-  if (/FASHION|PAKAIAN|CLOTHING|APPAREL|ACCESSORIES|TAS|SEPATU|JAM|TENANT_FASHION/.test(c)) return 'Fashion & Aksesoris';
-  if (/LIFESTYLE|HOBBY|HOBI|GADGET|HP|COMPUTER|ELEKTRONIK|BUKU/.test(c)) return 'Lifestyle & Hobi';
-  if (/HIBURAN|MAINAN|TOYS|KIDS|ANAK|PLAY/.test(c)) return 'Hiburan / Mainan Anak';
-  if (/SERVICE|JASA|SERVIS/.test(c)) return 'Servis / Jasa';
-  if (/SUPERMARKET|DEPARTMENT|MATRAI|RETAIL/.test(c)) return 'Supermarket / Department Store';
-  return '';
-}
-
-function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, id, required, error }: {
-  value: string;
-  onChange: (v: string) => void;
-  onTenantSelect?: (tenant: TenantDropdownOption | null) => void;
-  disabled?: boolean;
-  id: string;
-  required?: boolean;
-  error?: string;
-}) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [query, setQuery] = useState(value);
-  const [open, setOpen] = useState(false);
-  const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [highlighted, setHighlighted] = useState(-1);
-
-  // Sync query when value changes externally (e.g., reset)
-  useEffect(() => { setQuery(value); }, [value]);
-
-  // Reset highlight when tenants change
-  useEffect(() => { setHighlighted(-1); }, [tenants]);
-
-  // Debounced search
-  useEffect(() => {
-    if (disabled) return;
-    let cancelled = false;
-    setLoading(true);
-    const t = setTimeout(async () => {
-      const result = await fetchActiveTenants(query);
-      if (!cancelled) {
-        setTenants(result);
-        setLoading(false);
-      }
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [query, disabled]);
-
-  // Close on outside click + ESC
-  useEffect(() => {
-    if (!open) return;
-    function onClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
-    }
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  function selectTenant(t: TenantDropdownOption) {
-    onChange(t.name);
-    setQuery(t.name);
-    setOpen(false);
-    setHighlighted(-1);
-    onTenantSelect?.(t);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (!open || tenants.length === 0) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlighted(prev => (prev < tenants.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlighted(prev => (prev > 0 ? prev - 1 : tenants.length - 1));
-    } else if (e.key === 'Enter' && highlighted >= 0 && tenants[highlighted]) {
-      e.preventDefault();
-      selectTenant(tenants[highlighted]);
-    }
-  }
-
-  return (
-    <div ref={containerRef} className="relative">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-      <input
-        ref={inputRef}
-        id={id}
-        type="text"
-        value={query}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={handleKeyDown}
-        placeholder="Ketik nama gerai Anda..."
-        disabled={disabled}
-        autoComplete="off"
-        role="combobox"
-        aria-expanded={open}
-        aria-autocomplete="list"
-        aria-activedescendant={highlighted >= 0 ? `tenant-opt-${highlighted}` : undefined}
-        aria-required={required || undefined}
-        aria-invalid={!!error || undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
-      />
-      {query && !disabled && (
-        <button
-          type="button"
-          onClick={() => { setQuery(''); onChange(''); setOpen(false); onTenantSelect?.(null); }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
-          aria-label="Hapus"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
-      )}
-
-      {open && !disabled && (
-        <div role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
-          {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
-              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-              Memuat tenant...
-            </div>
-          ) : tenants.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-slate-500">
-              {query ? `Tidak ada tenant cocok "${query}"` : 'Ketik untuk mencari tenant'}
-            </div>
-          ) : (
-            tenants.map((t, i) => (
-              <button
-                key={t.id}
-                id={`tenant-opt-${i}`}
-                type="button"
-                role="option"
-                aria-selected={i === highlighted}
-                onClick={() => selectTenant(t)}
-                onMouseEnter={() => setHighlighted(i)}
-                className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 dark:border-slate-700 ${
-                  i === highlighted
-                    ? 'bg-brand-primary-50 dark:bg-brand-primary-950/30'
-                    : 'hover:bg-brand-primary-50 dark:hover:bg-brand-primary-950/30'
-                }`}
-              >
-                {t.logo ? (
-                  <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
-                ) : (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-400 dark:bg-slate-700">
-                    {t.name.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
-                    {t.name}
-                  </p>
-                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
-                    {t.category || '—'}
-                    {t.floor ? ` • ${t.floor}` : ''}
-                    {t.lot ? ` • Lot ${t.lot}` : ''}
-                  </p>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-      )}
-      {error && (
-        <p id={`${id}-error`} className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
-          <AlertTriangle className="h-3 w-3" />
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
 export default function TenantSurveyPublicPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -285,6 +32,7 @@ export default function TenantSurveyPublicPage() {
   const [event, setEvent] = useState<{
     id: string; acara: string; tanggal: string; lokasi: string; eo: string;
   } | null>(null);
+  const [surveyClosed, setSurveyClosed] = useState(false);
   const [error, setError] = useState('');
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
@@ -314,17 +62,28 @@ export default function TenantSurveyPublicPage() {
     if (field === 'kategori') setAutoFilled(prev => ({ ...prev, kategori: false }));
   };
 
-  // Auto-fill lokasi_zona + kategori when a tenant is picked
+  // Pick-from-list: auto-fill only when tenant dipilih dari MID list
   const handleTenantSelect = useCallback((tenant: TenantDropdownOption | null) => {
     setSelectedTenant(tenant);
     if (!tenant) {
-      setAutoFilled({ lokasi_zona: false, kategori: false });
+      setAutoFilled(prevAuto => {
+        setFormData(prev => ({
+          ...prev,
+          nama_gerai: '',
+          lokasi_zona: prevAuto.lokasi_zona ? '' : prev.lokasi_zona,
+          kategori: prevAuto.kategori ? '' : prev.kategori,
+          pic_name: '',
+          pic_phone: '',
+        }));
+        return { lokasi_zona: false, kategori: false };
+      });
       return;
     }
     const zona = floorToZona(tenant.floor);
     const kat = apiCategoryToKategori(tenant.category);
     setFormData(prev => ({
       ...prev,
+      nama_gerai: tenant.name,
       lokasi_zona: zona || prev.lokasi_zona,
       kategori: kat || prev.kategori,
       pic_name: tenant.pic || prev.pic_name,
@@ -351,6 +110,11 @@ export default function TenantSurveyPublicPage() {
           return;
         }
         setEvent(ev);
+        if (ev.is_active !== true) {
+          setSurveyClosed(true);
+          setLoading(false);
+          return;
+        }
 
         const fp = getDeviceFingerprint();
         const dup = await checkPublicTenantSurveyDuplicate(eventId, fp);
@@ -373,16 +137,25 @@ export default function TenantSurveyPublicPage() {
     setSubmitError('');
     setFieldErrors([]);
 
+    if (!selectedTenant) {
+      setFieldErrors(['Pilih gerai dari daftar, bukan ketik bebas.']);
+      setFormStatus('idle');
+      requestAnimationFrame(() => {
+        errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      return;
+    }
+
     const submission: Record<string, unknown> = {
       event_id: eventId,
-      nama_gerai: formData.nama_gerai.trim(),
+      nama_gerai: selectedTenant.name.trim(),
       lokasi_zona: formData.lokasi_zona,
       kategori: formData.kategori,
       kenaikan_traffic: formData.kenaikan_traffic,
       kenaikan_sales: formData.kenaikan_sales,
       feedback_teks: formData.feedback_teks.trim(),
       device_fingerprint: getDeviceFingerprint(),
-      tenant_id: selectedTenant?.id || '',
+      tenant_id: selectedTenant.id,
       pic_name: formData.pic_name.trim(),
       pic_phone: formData.pic_phone.trim(),
     };
@@ -391,7 +164,6 @@ export default function TenantSurveyPublicPage() {
     if (!validation.valid) {
       setFieldErrors(validation.errors);
       setFormStatus('idle');
-      // Scroll to error alert after render
       requestAnimationFrame(() => {
         errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -411,7 +183,7 @@ export default function TenantSurveyPublicPage() {
         setSubmitError(msg);
       }
     }
-  }, [eventId, event, formData]);
+  }, [eventId, event, formData, selectedTenant]);
 
   const goBack = useCallback(() => {
     if (window.history.length > 1) {
@@ -478,6 +250,34 @@ function PageShell({ children, onBack }: { children: ReactNode; onBack: () => vo
           >
             <ChevronLeft className="h-4 w-4" />
             Ke Beranda
+          </button>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (surveyClosed) {
+    return (
+      <PageShell onBack={goBack}>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+            <Shield className="h-8 w-8 text-slate-500" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Ditutup</h2>
+          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+            Self-assessment tenant untuk event
+            <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+              &quot;{event.acara}&quot;
+            </span>
+            tidak aktif atau sudah ditutup.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/tenant-survey')}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Pilih Event Lain
           </button>
         </div>
       </PageShell>
@@ -573,15 +373,17 @@ function PageShell({ children, onBack }: { children: ReactNode; onBack: () => vo
     );
   }
 
-const REQUIRED_FIELDS = ['nama_gerai', 'lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'] as const;
-const requiredCount = REQUIRED_FIELDS.length;
-const filledCount = REQUIRED_FIELDS.filter(f => formData[f].trim()).length;
-const progress = Math.round((filledCount / requiredCount) * 100);
+  // nama_gerai terhitung isi hanya jika tenant dipilih dari list
+  const geraiFilled = !!selectedTenant;
+  const otherRequired = ['lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'] as const;
+  const requiredCount = 1 + otherRequired.length;
+  const filledCount = (geraiFilled ? 1 : 0) + otherRequired.filter(f => formData[f].trim()).length;
+  const progress = Math.round((filledCount / requiredCount) * 100);
 
   const fieldErrorMap = (() => {
     const map: Record<string, string> = {};
     const patterns: Array<[RegExp, string]> = [
-      [/[Nn]ama gerai/i, 'nama_gerai'],
+      [/[Nn]ama gerai|[Pp]ilih gerai/i, 'nama_gerai'],
       [/[Ll]okasi/i, 'lokasi_zona'],
       [/[Kk]ategori/i, 'kategori'],
       [/traffic/i, 'kenaikan_traffic'],
@@ -649,7 +451,7 @@ const progress = Math.round((filledCount / requiredCount) * 100);
       {/* Section stepper */}
         <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
           {[
-            { num: 1, label: 'Informasi Gerai', filled: !!(formData.nama_gerai && formData.lokasi_zona && formData.kategori) },
+            { num: 1, label: 'Informasi Gerai', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
             { num: 2, label: 'Evaluasi', filled: !!(formData.kenaikan_traffic && formData.kenaikan_sales) },
             { num: 3, label: 'Umpan Balik', filled: formData.feedback_teks.trim().length > 0 },
           ].map(step => (
@@ -705,7 +507,7 @@ const progress = Math.round((filledCount / requiredCount) * 100);
               </label>
               <TenantSearchSelect
                 id="tenant-survey-gerai"
-                value={formData.nama_gerai}
+                value={selectedTenant?.name || formData.nama_gerai}
                 onChange={updateField('nama_gerai')}
                 onTenantSelect={handleTenantSelect}
                 required

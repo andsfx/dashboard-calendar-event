@@ -1196,6 +1196,8 @@ export interface PublicTenantSurveyEventInfo {
   lokasi: string;
   eo: string;
   status: string;
+  /** Survey open for public submit; false if config missing or toggled off */
+  is_active?: boolean;
 }
 
 /**
@@ -1211,12 +1213,17 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
     if (res.ok) {
       const json = await res.json();
       if (json.success && json.event) {
-        return json.event;
+        return {
+          ...json.event,
+          is_active: json.is_active === true,
+        };
       }
+      // 403/closed handled by caller via null + status if needed
     }
+    if (res.status === 404) return null;
   } catch { /* fall through */ }
 
-  // Fallback: try the anon Supabase client
+  // Fallback: try the anon Supabase client (no is_active — treat as inactive)
   const { data, error } = await supabase
     .from('events')
     .select('id, acara, tanggal, lokasi, eo, status')
@@ -1224,7 +1231,7 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
     .single();
 
   if (error || !data) return null;
-  return data as PublicTenantSurveyEventInfo;
+  return { ...(data as PublicTenantSurveyEventInfo), is_active: false };
 }
 
 /**
@@ -1260,7 +1267,9 @@ export interface TenantDropdownOption {
   floor: string;
   lot: string;
   category: string;
+  /** May be empty on public list (PII stripped) */
   pic: string;
+  /** May be empty on public list (PII stripped) */
   picTelp: string;
   logo: string;
   status: string;
@@ -1270,14 +1279,16 @@ export interface TenantDropdownOption {
 /**
  * Fetch list of active tenants from the MID loyalty API
  * (proxied through /api/tenant-survey?mode=public&action=tenants).
- * Server-side env: MID_API_KEY.
+ * Server-side env: MID_API_KEY. Requires q min 2 chars; no full dump.
  */
 export async function fetchActiveTenants(query?: string): Promise<TenantDropdownOption[]> {
+  const q = (query || '').trim();
+  if (q.length < 2) return [];
+
   try {
-    const url = query
-      ? `/api/tenant-survey?mode=public&action=tenants&q=${encodeURIComponent(query)}`
-      : '/api/tenant-survey?mode=public&action=tenants';
-    const res = await fetch(url);
+    const res = await fetch(
+      `/api/tenant-survey?mode=public&action=tenants&q=${encodeURIComponent(q)}`,
+    );
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.tenants)) {

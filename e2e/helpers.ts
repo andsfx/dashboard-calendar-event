@@ -170,13 +170,19 @@ export async function setupSurveyApiMocks(
           return route.fulfill({ json: { success: true, events: MOCK_EVENTS } });
 
         case 'event-info':
-          return route.fulfill({ json: { success: true, event: MOCK_EVENT } });
+          return route.fulfill({
+            json: { success: true, event: MOCK_EVENT, is_active: true },
+          });
 
         case 'tenants': {
-          const q = (url.searchParams.get('q') || '').toLowerCase();
-          const filtered = q
-            ? MOCK_TENANTS.filter(t => t.name.toLowerCase().includes(q))
-            : MOCK_TENANTS;
+          const q = (url.searchParams.get('q') || '').trim().toLowerCase();
+          if (q.length < 2) {
+            return route.fulfill({
+              status: 400,
+              json: { success: false, error: 'Query pencarian minimal 2 karakter', tenants: [] },
+            });
+          }
+          const filtered = MOCK_TENANTS.filter(t => t.name.toLowerCase().includes(q));
           return route.fulfill({ json: { success: true, tenants: filtered } });
         }
 
@@ -253,7 +259,10 @@ export async function setupSurveyApiMocks(
 
       case 'config-get':
         return route.fulfill({
-          json: { success: true, data: { event_id: 'evt_test123', is_active: true } },
+          json: {
+            success: true,
+            config: { event_id: url.searchParams.get('event_id') || 'evt_test123', is_active: true },
+          },
         });
 
       default:
