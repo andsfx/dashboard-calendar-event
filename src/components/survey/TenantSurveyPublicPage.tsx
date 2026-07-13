@@ -24,6 +24,29 @@ import {
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
+function PageShell({ children, onBack }: { children: ReactNode; onBack: () => void }) {
+  return (
+    <div className="min-h-screen scroll-smooth bg-slate-50 dark:bg-slate-950">
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali
+          </button>
+          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+            Metropolitan Mall Bekasi
+          </span>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function TenantSurveyPublicPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
@@ -55,6 +78,7 @@ export default function TenantSurveyPublicPage() {
     kategori: false,
   });
   const errorAlertRef = useRef<HTMLDivElement | null>(null);
+  const submittingRef = useRef(false);
 
   const updateField = (field: keyof typeof formData) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -131,8 +155,9 @@ export default function TenantSurveyPublicPage() {
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!eventId || !event) return;
+    if (!eventId || !event || submittingRef.current) return;
 
+    submittingRef.current = true;
     setFormStatus('submitting');
     setSubmitError('');
     setFieldErrors([]);
@@ -140,6 +165,7 @@ export default function TenantSurveyPublicPage() {
     if (!selectedTenant) {
       setFieldErrors(['Pilih gerai dari daftar, bukan ketik bebas.']);
       setFormStatus('idle');
+      submittingRef.current = false;
       requestAnimationFrame(() => {
         errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -164,6 +190,7 @@ export default function TenantSurveyPublicPage() {
     if (!validation.valid) {
       setFieldErrors(validation.errors);
       setFormStatus('idle');
+      submittingRef.current = false;
       requestAnimationFrame(() => {
         errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -182,6 +209,8 @@ export default function TenantSurveyPublicPage() {
         setFormStatus('error');
         setSubmitError(msg);
       }
+    } finally {
+      submittingRef.current = false;
     }
   }, [eventId, event, formData, selectedTenant]);
 
@@ -196,30 +225,8 @@ export default function TenantSurveyPublicPage() {
   const handleRetry = useCallback(() => {
     setFormStatus('idle');
     setSubmitError('');
+    submittingRef.current = false;
   }, []);
-
-function PageShell({ children, onBack }: { children: ReactNode; onBack: () => void }) {
-  return (
-    <div className="min-h-screen scroll-smooth bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Kembali
-          </button>
-          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
-            Metropolitan Mall Bekasi
-          </span>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
   if (loading) {
     return (
@@ -711,42 +718,44 @@ function PageShell({ children, onBack }: { children: ReactNode; onBack: () => vo
           </div>
           <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
             <span role="status" aria-live="polite">{progress}% selesai</span>
-            <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
+            <span>{filledCount} dari {requiredCount} field wajib terisi</span>
           </div>
         </div>
 
-        {/* Submit */}
-        {filledCount < requiredCount && (
-          <p className="text-center text-xs text-slate-500 dark:text-slate-400 sm:text-right">
-            Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
-          </p>
-        )}
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={goBack}
-            disabled={formStatus === 'submitting'}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Batal
-          </button>
-          <button
-            type="submit"
-            disabled={formStatus === 'submitting' || filledCount < requiredCount}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
-              filledCount >= requiredCount
-                ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
-                : 'bg-slate-400 cursor-not-allowed'
-            }`}
-          >
-            {formStatus === 'submitting' ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-            Kirim Survey
-          </button>
+        {/* Submit — sticky on mobile */}
+        <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+          {filledCount < requiredCount && (
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400 sm:text-right">
+              Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
+            </p>
+          )}
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={formStatus === 'submitting'}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={formStatus === 'submitting' || filledCount < requiredCount}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
+                filledCount >= requiredCount
+                  ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
+                  : 'bg-slate-400 cursor-not-allowed'
+              }`}
+            >
+              {formStatus === 'submitting' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              Kirim Survey
+            </button>
+          </div>
         </div>
 
         <p className="text-center text-[11px] text-slate-500 dark:text-slate-400">

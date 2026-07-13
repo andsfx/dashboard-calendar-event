@@ -28,7 +28,9 @@ export default function TenantSurveyEventPicker() {
         const data = await fetchPublicTenantSurveyEvents();
         if (!cancelled) {
           setEvents(data);
-          if (data.length === 0) setError('Belum ada event yang bisa disurvei');
+          if (data.length === 0) {
+            setError('Survey tenant belum dibuka admin, atau semua survey sudah ditutup. Coba lagi nanti.');
+          }
         }
       } catch {
         if (!cancelled) setError('Gagal memuat data event');
@@ -72,13 +74,21 @@ export default function TenantSurveyEventPicker() {
 
   // Error + no data
   if (error && events.length === 0) {
+    const isEmptyList = /belum dibuka|sudah ditutup|belum ada event/i.test(error);
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-6 py-16 text-center dark:border-amber-800 dark:bg-amber-950/30">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
           <AlertTriangle className="h-8 w-8 text-amber-500" />
         </div>
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Tidak Ada Event</h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{error}</p>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          {isEmptyList ? 'Survey Belum Tersedia' : 'Gagal Memuat'}
+        </h2>
+        <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">{error}</p>
+        {isEmptyList && (
+          <p className="mt-3 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+            Hanya event dengan survey aktif yang tampil di sini. Hubungi admin mall jika Anda menerima link/QR tapi event tidak muncul.
+          </p>
+        )}
       </div>
     );
   }

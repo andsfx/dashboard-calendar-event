@@ -150,7 +150,7 @@ Aturan public:
 
 ## Known debt (jangan ulangi / perbaiki saat sentuh area)
 
-1. `auth.userId` typo di `api/tenant-survey.js` (harusnya `auth.user?.id`) — dashboard API identity.
+1. ~~`auth.userId` typo di `api/tenant-survey.js` (harusnya `auth.user?.id`)~~ — fixed: pakai `auth.user?.id`.
 2. Dual-write auth: FE create/update/submit lewat Supabase client, API create/update jarang dipakai.
 3. ~~Public gate event/config `is_active`~~ — fixed: gate submit/event-info/events + FE closed state + hydrate config.
 4. ~~Public tenants PII dump~~ — fixed: strip PIC/telp, min q=2, limit 50.

@@ -267,7 +267,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
             onClick={() => setActiveTab('list')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
               activeTab === 'list'
-                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300'
+                ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
             }`}
           >
@@ -279,7 +279,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
             onClick={() => setActiveTab('analytics')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
               activeTab === 'analytics'
-                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300'
+                ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
             }`}
           >
@@ -310,7 +310,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-violet-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
               >
                 <option value="all">Semua Event</option>
                 {events
@@ -354,7 +354,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         <button
           type="button"
           onClick={handleCancelForm}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 transition hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -457,7 +457,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
                 )}
                 {editingSurvey.improvement_suggestion && (
                   <div>
-                    <h4 className="text-xs font-semibold text-violet-600 dark:text-violet-400">Saran Perbaikan</h4>
+                    <h4 className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">Saran Perbaikan</h4>
                     <p className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-300">
                       {editingSurvey.improvement_suggestion}
                     </p>
@@ -469,9 +469,9 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
 
           {/* Review notes */}
           {editingSurvey.status === 'reviewed' && editingSurvey.review_notes && (
-            <div className="mt-4 rounded-xl bg-violet-50 p-4 dark:bg-violet-950/30">
-              <h4 className="text-xs font-semibold text-violet-700 dark:text-violet-300">Review Admin</h4>
-              <p className="mt-1 text-sm text-violet-600 dark:text-violet-400">
+            <div className="mt-4 rounded-xl bg-brand-primary-50 p-4 dark:bg-brand-primary-950/30">
+              <h4 className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Review Admin</h4>
+              <p className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400">
                 {editingSurvey.review_notes}
               </p>
             </div>
@@ -508,7 +508,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         <button
           type="button"
           onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 transition hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -543,7 +543,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         <button
           type="button"
           onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 transition hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -569,7 +569,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         <button
           type="button"
           onClick={() => setFormStatus('idle')}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 transition hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Coba lagi
@@ -600,7 +600,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
         type="button"
         onClick={handleCancelForm}
         disabled={formStatus === 'submitting'}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 transition hover:text-violet-700 disabled:opacity-50 dark:text-violet-400 dark:hover:text-violet-300"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 disabled:opacity-50 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke daftar
@@ -681,7 +681,7 @@ function TenantSurveyEventRow({
 
         <button
           onClick={() => onExport(event.id)}
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-900/30"
+          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-brand-primary-600 hover:bg-brand-primary-50 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/30"
           title="Export CSV"
         >
           <Download className="h-3 w-3" />
@@ -700,7 +700,7 @@ function TenantSurveyEventRow({
 
       {showQR && (
         <div className="mt-3">
-          <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" /></div>}>
+          <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
             <SurveyQRCode
               eventId={event.id}
               eventName={event.acara}

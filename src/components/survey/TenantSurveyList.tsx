@@ -33,7 +33,7 @@ const STATUS_CONFIG = {
   reviewed: {
     label: 'Direview',
     icon: <Eye className="h-3.5 w-3.5" />,
-    color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+    color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300',
   },
 } as const;
 
@@ -121,7 +121,7 @@ export default function TenantSurveyList({
           <button
             type="button"
             onClick={() => setShowEventPicker(!showEventPicker)}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500"
           >
             <ClipboardCheck className="h-4 w-4" />
             Buat Self-Assessment
@@ -336,7 +336,7 @@ export default function TenantSurveyList({
                           )}
                           {survey.improvement_suggestion && (
                             <div className="text-xs">
-                              <span className="font-semibold text-violet-600 dark:text-violet-400">Saran: </span>
+                              <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">Saran: </span>
                               <span className="text-slate-600 dark:text-slate-300">{survey.improvement_suggestion}</span>
                             </div>
                           )}
@@ -346,11 +346,11 @@ export default function TenantSurveyList({
 
                     {/* Review notes */}
                     {survey.status === 'reviewed' && survey.review_notes && (
-                      <div className="mb-4 rounded-xl bg-violet-50 p-3 dark:bg-violet-950/30">
-                        <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                      <div className="mb-4 rounded-xl bg-brand-primary-50 p-3 dark:bg-brand-primary-950/30">
+                        <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                           Review Admin:
                         </p>
-                        <p className="mt-0.5 text-xs text-violet-600 dark:text-violet-400">
+                        <p className="mt-0.5 text-xs text-brand-primary-600 dark:text-brand-primary-400">
                           {survey.review_notes}
                         </p>
                       </div>
@@ -387,7 +387,7 @@ export default function TenantSurveyList({
                             type="button"
                             onClick={() => handleSubmitDraft(survey.id)}
                             disabled={submittingId === survey.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-50"
                           >
                             {submittingId === survey.id ? (
                               <Clock className="h-3 w-3 animate-spin" />

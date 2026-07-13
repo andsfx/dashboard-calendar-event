@@ -23,3 +23,6 @@ playwright-report/
 reports/
 FINAL_VERIFICATION_REPORT.md
 DESIGN_AUDIT_REPORT.md
+
+# Deepwork session state
+.slim/deepwork/

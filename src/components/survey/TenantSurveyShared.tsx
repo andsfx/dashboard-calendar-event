@@ -68,9 +68,9 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
               key={opt}
               className={`
                 flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
-                transition focus-within:ring-2 focus-within:ring-violet-500
+                transition focus-within:ring-2 focus-within:ring-brand-primary-500
                 ${selected
-                  ? 'border-violet-400 bg-violet-50 shadow-sm dark:border-violet-500 dark:bg-violet-950/40'
+                  ? 'border-brand-primary-400 bg-brand-primary-50 shadow-sm dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
                   : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                 }
               `}
@@ -82,7 +82,7 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
                 checked={selected}
                 onChange={() => onChange(opt)}
                 disabled={disabled}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-violet-600"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
                 aria-label={labels?.[opt] || opt}
               />
               <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -238,7 +238,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
         aria-required={required || undefined}
         aria-invalid={!!error || undefined}
         aria-describedby={describedBy}
-        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
       />
       {query && !disabled && (
         <button
@@ -276,8 +276,8 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
                 onMouseEnter={() => setHighlighted(i)}
                 className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 dark:border-slate-700 ${
                   i === highlighted
-                    ? 'bg-violet-50 dark:bg-violet-950/30'
-                    : 'hover:bg-violet-50 dark:hover:bg-violet-950/30'
+                    ? 'bg-brand-primary-50 dark:bg-brand-primary-950/30'
+                    : 'hover:bg-brand-primary-50 dark:hover:bg-brand-primary-950/30'
                 }`}
               >
                 {t.logo ? (

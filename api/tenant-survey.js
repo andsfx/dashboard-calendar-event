@@ -474,7 +474,7 @@ async function handleList(req, res) {
 
   // Scope to tenant's own surveys if not admin
   if (auth.role !== 'superadmin' && auth.role !== 'admin') {
-    query = query.eq('tenant_user_id', auth.userId);
+    query = query.eq('tenant_user_id', auth.user?.id);
   }
 
   const { data, error } = await query;
@@ -510,7 +510,7 @@ async function handleGet(req, res) {
   }
 
   // Check ownership for non-admin
-  if (auth.role !== 'superadmin' && auth.role !== 'admin' && data.tenant_user_id !== auth.userId) {
+  if (auth.role !== 'superadmin' && auth.role !== 'admin' && data.tenant_user_id !== auth.user?.id) {
     return res.status(403).json({ success: false, error: 'Not authorized to view this survey' });
   }
 
@@ -545,7 +545,7 @@ async function handleCreate(req, res) {
 
   const row = {
     event_id: sanitize(body.event_id, 200),
-    tenant_user_id: auth.userId,
+    tenant_user_id: auth.user?.id,
     tenant_name: sanitize(body.tenant_name || '', 100),
     tenant_organization: sanitize(body.tenant_organization || '', 200),
     tenant_email: sanitize(body.tenant_email || '', 254),
@@ -614,7 +614,7 @@ async function handleUpdate(req, res) {
     return res.status(404).json({ success: false, error: 'Survey not found' });
   }
 
-  if (existing.tenant_user_id !== auth.userId && auth.role !== 'superadmin' && auth.role !== 'admin') {
+  if (existing.tenant_user_id !== auth.user?.id && auth.role !== 'superadmin' && auth.role !== 'admin') {
     return res.status(403).json({ success: false, error: 'Not authorized' });
   }
 
@@ -696,7 +696,7 @@ async function handleSubmit(req, res) {
     return res.status(404).json({ success: false, error: 'Survey not found' });
   }
 
-  if (existing.tenant_user_id !== auth.userId && auth.role !== 'superadmin' && auth.role !== 'admin') {
+  if (existing.tenant_user_id !== auth.user?.id && auth.role !== 'superadmin' && auth.role !== 'admin') {
     return res.status(403).json({ success: false, error: 'Not authorized' });
   }
 
@@ -741,7 +741,7 @@ async function handleReview(req, res) {
     .from('tenant_event_surveys')
     .update({
       status: 'reviewed',
-      reviewed_by: auth.userId,
+      reviewed_by: auth.user?.id,
       reviewed_at: now,
       review_notes: reviewNotes,
     })
@@ -774,7 +774,7 @@ async function handleAnalytics(req, res) {
   // Use v4 RPC with explicit auth params (no auth.uid() dependency)
   const { data, error } = await sb.rpc('get_tenant_survey_analytics_v4', {
     p_is_admin: isAdmin,
-    p_tenant_user_id: isAdmin ? null : auth.userId,
+    p_tenant_user_id: isAdmin ? null : auth.user?.id,
     p_event_id: eventId,
     p_group_by: group,
   });

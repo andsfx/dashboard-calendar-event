@@ -184,16 +184,16 @@ export default function TenantSurveyForm({
       noValidate
     >
       {/* Event context banner */}
-      <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-4 dark:border-violet-800 dark:from-violet-950/40 dark:to-indigo-950/40">
+      <div className="rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-indigo-50 p-4 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-indigo-950/40">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/50">
-            <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
+            <Building2 className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="truncate text-sm font-bold text-violet-900 dark:text-violet-100">
+            <h2 className="truncate text-sm font-bold text-brand-primary-900 dark:text-brand-primary-100">
               {event.acara}
             </h2>
-            <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-violet-700 dark:text-violet-300">
+            <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
               {event.tanggal && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -212,12 +212,12 @@ export default function TenantSurveyForm({
         {/* Progress */}
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-violet-700 dark:text-violet-300">Progress</span>
-            <span className="font-semibold text-violet-900 dark:text-violet-100">{progress}%</span>
+            <span className="text-brand-primary-700 dark:text-brand-primary-300">Progress</span>
+            <span className="font-semibold text-brand-primary-900 dark:text-brand-primary-100">{progress}%</span>
           </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-violet-200 dark:bg-violet-800">
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
             <div
-              className="h-full rounded-full bg-violet-500 transition-all duration-300"
+              className="h-full rounded-full bg-brand-primary-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -326,7 +326,7 @@ export default function TenantSurveyForm({
               disabled={disabled}
               aria-required="true"
               aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
-              className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
             >
               <option value="">Pilih lokasi / zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -415,7 +415,7 @@ export default function TenantSurveyForm({
                 maxLength={100}
                 disabled={disabled}
                 autoComplete="name"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
             <div>
@@ -433,7 +433,7 @@ export default function TenantSurveyForm({
                 maxLength={20}
                 disabled={disabled}
                 autoComplete="tel"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
           </div>
@@ -453,7 +453,7 @@ export default function TenantSurveyForm({
               rows={5}
               maxLength={2000}
               disabled={disabled}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
             />
             <p className="mt-1 text-right text-[10px] text-slate-400">
               {2000 - formData.feedback_teks.length} karakter tersisa
@@ -464,9 +464,9 @@ export default function TenantSurveyForm({
 
       {/* Progress indicator */}
       <div className="space-y-1.5">
-        <div className="overflow-hidden rounded-full bg-violet-200 dark:bg-violet-800">
+        <div className="overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
           <div
-            className="h-2 rounded-full bg-violet-500 transition-all duration-500"
+            className="h-2 rounded-full bg-brand-primary-500 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -499,7 +499,7 @@ export default function TenantSurveyForm({
         <button
           type="submit"
           disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
         >
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -531,7 +531,7 @@ export function TenantSurveySuccess({
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
         Terima kasih telah mengirimkan self-assessment untuk event
       </p>
-      <p className="mt-0.5 text-sm font-semibold text-violet-600 dark:text-violet-400">
+      <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
         "{eventName}"
       </p>
       <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
@@ -540,7 +540,7 @@ export function TenantSurveySuccess({
       <button
         type="button"
         onClick={onBack}
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke Dashboard
@@ -568,7 +568,7 @@ export function TenantSurveyDuplicate({
       </h2>
       <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
         Anda sudah pernah mengirimkan self-assessment untuk event
-        <span className="mx-1 font-semibold text-violet-600 dark:text-violet-400">
+        <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
           "{eventName}"
         </span>
         Setiap tenant hanya dapat mengirimkan satu survey per event.
@@ -578,7 +578,7 @@ export function TenantSurveyDuplicate({
           <button
             type="button"
             onClick={onViewExisting}
-            className="inline-flex items-center gap-2 rounded-xl border border-violet-300 px-5 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950/40"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-primary-300 px-5 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
           >
             Lihat Survey
           </button>
@@ -586,7 +586,7 @@ export function TenantSurveyDuplicate({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali
@@ -629,7 +629,7 @@ export function TenantSurveyError({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />
             Kembali
@@ -643,7 +643,7 @@ export function TenantSurveyError({
 export function TenantSurveyLoading({ message = 'Memuat survey...' }: { message?: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
-      <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+      <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
       <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{message}</p>
     </div>
   );
