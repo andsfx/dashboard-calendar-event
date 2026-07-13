@@ -80,10 +80,14 @@ Aturan public:
    - Public `events` list hanya event **aktif** + status `past|ongoing`.
    - Public `submit` 403 bila inactive; 404 bila event hilang.
    - Dashboard kelola: past + ongoing, **search by name**, no hard-limit 30; hydrate config-get; toggle default off.
-6. `action=tenants`: proxy MID server-side (`MID_API_KEY` env only).
-   - Wajib `q` min 2 karakter (tanpa full dump).
-   - Response minimal: `id,name,floor,lot,category,logo` — **tanpa** PIC/telp massal.
-   - Limit hasil (~50).
+  6. `action=tenants`: proxy MID server-side (`MID_API_KEY` env only).
+     - Wajib `q` min 2 karakter (tanpa full dump).
+     - Response minimal: `id,name,floor,lot,category,logo` — **tanpa** PIC/telp massal.
+     - Limit hasil (~50).
+  6b. `action=tenant-detail?id=...`: proxy MID, return **hanya** `{id,name,pic,picTelp}`
+      untuk tenant yang **eksplisit dipilih** (auto-fill PIC). Bukan mass dump — satu id.
+      FE `TenantSearchSelect.selectTenant` fetch ini lalu re-call `onTenantSelect` dengan
+      `pic`/`picTelp` terisi. Guard `selectedIdRef` agar tidak stale saat user ganti pilihan.
 7. Rate limit public surface (events / event-info / tenants / check / submit) wajib dipikir saat ubah API.
 8. `feedback_teks` max 2000 di FE `validateTenantSurvey` + BE `validatePublicSubmission` / `validateSurveyBody`.
 
@@ -153,7 +157,8 @@ Aturan public:
 1. ~~`auth.userId` typo di `api/tenant-survey.js` (harusnya `auth.user?.id`)~~ — fixed: pakai `auth.user?.id`.
 2. Dual-write auth: FE create/update/submit lewat Supabase client, API create/update jarang dipakai.
 3. ~~Public gate event/config `is_active`~~ — fixed: gate submit/event-info/events + FE closed state + hydrate config.
-4. ~~Public tenants PII dump~~ — fixed: strip PIC/telp, min q=2, limit 50.
+  4. ~~Public tenants PII dump~~ — fixed: strip PIC/telp di list (min q=2, limit 50);
+     PIC auto-fill aman lewat `action=tenant-detail?id=` (satu tenant, bukan mass dump).
 5. ~~`feedback_teks` limit~~ — fixed FE+BE (+ legacy fields still limited).
 6. ~~Shared components diduplikasi di public page~~ — fixed: public import Shared.
 7. Types form masih bawa stub v2 + cast `as never`.

@@ -46,6 +46,7 @@ async function handlePublic(req, res, action) {
     case 'events':     return await handlePublicEvents(req, res);
     case 'event-info': return await handlePublicEventInfo(req, res);
     case 'tenants':    return await handlePublicTenants(req, res);
+    case 'tenant-detail': return await handlePublicTenantDetail(req, res);
     case 'check':      return await handlePublicCheck(req, res);
     case 'submit':     return await handlePublicSubmit(req, res);
     default:
@@ -283,6 +284,55 @@ async function handlePublicTenants(req, res) {
     return res.json({ success: true, tenants });
   } catch (err) {
     console.error('[tenant-survey/public/tenants] fetch error', err);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
+  }
+}
+
+// ─── Public: Tenant detail (PIC only) ───────────────────────────
+// Secure auto-fill: list response strips PIC (no mass PII dump), but when a
+// tenant is explicitly selected we return only that one tenant's PIC fields.
+
+async function handlePublicTenantDetail(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const id = String(req.query?.id || '').trim();
+  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+
+  const API_KEY = process.env.MID_API_KEY;
+  const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
+
+  if (!API_KEY) {
+    console.error('[tenant-survey/public/tenant-detail] MID_API_KEY not set');
+    return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+  }
+
+  try {
+    const resp = await fetch(API_URL, {
+      headers: { 'mid-api-key': API_KEY },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) {
+      console.error('[tenant-survey/public/tenant-detail] upstream', resp.status);
+      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    }
+    const json = await resp.json();
+    const list = Array.isArray(json.data) ? json.data : [];
+    const t = list.find((x) => String(x.TENANT_ID ?? '') === id);
+    if (!t) {
+      return res.status(404).json({ success: false, error: 'Tenant tidak ditemukan' });
+    }
+    // Only PIC fields for the explicitly-selected tenant (no mass PII dump)
+    return res.json({
+      success: true,
+      tenant: {
+        id: String(t.TENANT_ID ?? ''),
+        name: String(t.TENANT_NAME ?? '').trim(),
+        pic: String(t.PIC_NAME ?? '').trim(),
+        picTelp: String(t.PIC_Telp ?? '').trim(),
+      },
+    });
+  } catch (err) {
+    console.error('[tenant-survey/public/tenant-detail] fetch error', err);
     return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
   }
 }

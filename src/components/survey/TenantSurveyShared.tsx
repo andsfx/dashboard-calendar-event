@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import {
   fetchActiveTenants,
+  fetchTenantDetail,
   type TenantDropdownOption,
 } from '../../utils/supabaseApi';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
@@ -117,6 +118,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
@@ -173,16 +175,30 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   }, [open]);
 
   function clearSelection() {
+    selectedIdRef.current = null;
     onChange('');
     onTenantSelect?.(null);
   }
 
   function selectTenant(t: TenantDropdownOption) {
+    selectedIdRef.current = t.id;
     onChange(t.name);
     setQuery(t.name);
     setOpen(false);
     setHighlighted(-1);
+    // Instant auto-fill (nama/lokasi/kategori) from list option
     onTenantSelect?.(t);
+    // PIC auto-fill: list strips PIC (no mass PII dump) → fetch detail by id
+    void fetchTenantDetail(t.id).then((detail) => {
+      if (!detail) return;
+      // Guard: selection may have changed while detail was loading
+      if (selectedIdRef.current !== t.id) return;
+      onTenantSelect?.({
+        ...t,
+        pic: detail.pic,
+        picTelp: detail.picTelp,
+      });
+    });
   }
 
   function handleInputChange(next: string) {

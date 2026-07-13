@@ -1277,6 +1277,29 @@ export interface TenantDropdownOption {
 }
 
 /**
+ * Fetch PIC detail for a single tenant (by id) from the MID loyalty API.
+ * Used to auto-fill PIC name/phone after a tenant is picked from the list.
+ * The public list response strips PIC (no mass PII dump); this endpoint
+ * returns only the explicitly-selected tenant's PIC fields.
+ */
+export async function fetchTenantDetail(
+  id: string,
+): Promise<{ id: string; name: string; pic: string; picTelp: string } | null> {
+  const tid = (id || '').trim();
+  if (!tid) return null;
+  try {
+    const res = await fetch(
+      `/api/tenant-survey?mode=public&action=tenant-detail&id=${encodeURIComponent(tid)}`,
+    );
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.tenant) return json.tenant;
+    }
+  } catch { /* fall through */ }
+  return null;
+}
+
+/**
  * Fetch list of active tenants from the MID loyalty API
  * (proxied through /api/tenant-survey?mode=public&action=tenants).
  * Server-side env: MID_API_KEY. Requires q min 2 chars; no full dump.

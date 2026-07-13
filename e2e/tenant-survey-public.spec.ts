@@ -121,9 +121,9 @@ test.describe('Tenant Survey — Public Flow', () => {
     // Auto-fill: kategori should be checked
     await expect(page.locator('input[type="radio"][value="Food & Beverage (F&B)"]')).toBeChecked();
 
-    // Public API strips PIC mass-dump; mock may still send pic — accept empty or mock PIC
+    // PIC auto-fill: detail-by-id returns PIC for the selected tenant
     const picName = page.locator('#tenant-survey-pic-name');
-    const picVal = await picName.inputValue();
-    expect(picVal === '' || picVal === 'Budi Santoso').toBeTruthy();
+    await expect(picName).toHaveValue('Budi Santoso', { timeout: 3000 });
+    await expect(page.locator('#tenant-survey-pic-phone')).toHaveValue('081234567890', { timeout: 3000 });
   });
 });

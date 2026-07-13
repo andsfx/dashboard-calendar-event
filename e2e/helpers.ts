@@ -186,6 +186,18 @@ export async function setupSurveyApiMocks(
           return route.fulfill({ json: { success: true, tenants: filtered } });
         }
 
+        case 'tenant-detail': {
+          const id = url.searchParams.get('id') || '';
+          const t = MOCK_TENANTS.find(x => x.id === id);
+          if (!t) {
+            return route.fulfill({ status: 404, json: { success: false, error: 'Tenant tidak ditemukan' } });
+          }
+          // Only PIC fields returned (mirrors secure backend: no mass PII dump)
+          return route.fulfill({
+            json: { success: true, tenant: { id: t.id, name: t.name, pic: t.pic, picTelp: t.picTelp } },
+          });
+        }
+
         case 'check':
           return route.fulfill({
             json: { success: true, submitted: opts.alreadySubmitted ?? false },
