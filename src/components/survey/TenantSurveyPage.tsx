@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search } from 'lucide-react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -264,23 +264,31 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
     return (
       <div className="space-y-4">
         {/* Tabs */}
-        <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
+        <div
+          role="tablist"
+          aria-label="Tenant self-assessment"
+          className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
+        >
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'list'}
             onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
               activeTab === 'list'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
             }`}
           >
-            <List className="h-4 w-4" />
-            Self-Assessment
-          </button>
+              <List className="h-4 w-4" />
+              Self-Assessment
+            </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'analytics'}
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
               activeTab === 'analytics'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
@@ -307,13 +315,13 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
 
         {activeTab === 'analytics' && (
           <div className="space-y-3">
-            {/* Event filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
               <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Event</span>
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300"
               >
                 <option value="all">Semua Event</option>
                 {events
@@ -744,6 +752,8 @@ function TenantSurveyManagementSection({
   activeConfigs: Record<string, boolean>;
 }) {
   const [query, setQuery] = useState('');
+  // Collapsed by default so list tab stays primary focus
+  const [open, setOpen] = useState(false);
 
   // past + ongoing (bukan cuma past, tanpa hard-limit 30)
   const surveyableEvents = useMemo(() => {
@@ -754,6 +764,11 @@ function TenantSurveyManagementSection({
       return a.status === 'ongoing' ? -1 : 1;
     });
   }, [events]);
+
+  const activeCount = useMemo(
+    () => surveyableEvents.filter((e) => activeConfigs[e.id] === true).length,
+    [surveyableEvents, activeConfigs],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -774,45 +789,66 @@ function TenantSurveyManagementSection({
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-700">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
-        <p className="text-[10px] text-slate-400">
-          Cari event, aktifkan toggle, copy link/QR. Default nonaktif — nyalakan dulu agar form public buka.
-        </p>
-        <div className="relative mt-2">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari event (contoh: Bekasi Criterium)..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-          />
-        </div>
-        <p className="mt-1.5 text-[10px] text-slate-400">
-          {filtered.length} dari {surveyableEvents.length} event (ongoing + past)
-        </p>
-      </div>
-      <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
-        {filtered.length === 0 ? (
-          <p className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-            Tidak ada event cocok &quot;{query}&quot;. Cek ejaan atau status event (harus ongoing/past).
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-50/80 dark:hover:bg-slate-700/40"
+      >
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+            Kelola Self-Assessment per Event
+          </h3>
+          <p className="text-[10px] text-slate-400">
+            {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR, export
           </p>
-        ) : (
-          filtered.map((ev) => (
-            <TenantSurveyEventRow
-              key={ev.id}
-              event={ev}
-              copiedId={copiedId}
-              onCopyLink={onCopyLink}
-              onExport={onExport}
-              onToggleConfig={onToggleConfig}
-              configLoading={configLoading}
-              activeConfigs={activeConfigs}
-            />
-          ))
-        )}
-      </div>
+        </div>
+        {open
+          ? <ChevronUp className="h-4 w-4 shrink-0 text-slate-400" />
+          : <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />}
+      </button>
+
+      {open && (
+        <>
+          <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-700">
+            <p className="mb-2 text-[10px] text-slate-400">
+              Cari event, aktifkan toggle, copy link/QR. Default nonaktif — nyalakan dulu agar form public buka.
+            </p>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari event (contoh: Bekasi Criterium)..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              />
+            </div>
+            <p className="mt-1.5 text-[10px] text-slate-400">
+              {filtered.length} dari {surveyableEvents.length} event
+            </p>
+          </div>
+          <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100 dark:divide-slate-700 dark:border-slate-700">
+            {filtered.length === 0 ? (
+              <p className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                Tidak ada event cocok &quot;{query}&quot;. Cek ejaan atau status event (harus ongoing/past).
+              </p>
+            ) : (
+              filtered.map((ev) => (
+                <TenantSurveyEventRow
+                  key={ev.id}
+                  event={ev}
+                  copiedId={copiedId}
+                  onCopyLink={onCopyLink}
+                  onExport={onExport}
+                  onToggleConfig={onToggleConfig}
+                  configLoading={configLoading}
+                  activeConfigs={activeConfigs}
+                />
+              ))
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
