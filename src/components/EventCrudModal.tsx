@@ -460,7 +460,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
               <Calendar className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -504,7 +504,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               ] as const).map(opt => (
                 <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                   form.eventType === opt.value
-                    ? 'border-violet-400 bg-violet-50 text-violet-700 ring-1 ring-violet-200 dark:border-violet-600 dark:bg-violet-900/20 dark:text-violet-300'
+                    ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'
                 }`}>
                   <input
@@ -585,7 +585,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               onChange={e => set('keterangan', e.target.value)}
               rows={3}
               placeholder="Deskripsi singkat tentang acara..."
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -668,7 +668,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}

@@ -20,7 +20,7 @@ const ACTION_ICONS: Record<string, React.ReactNode> = {
   create: <Plus className="h-3 w-3 text-emerald-500" />,
   update: <Pencil className="h-3 w-3 text-blue-500" />,
   delete: <Trash2 className="h-3 w-3 text-red-500" />,
-  login: <LogIn className="h-3 w-3 text-violet-500" />,
+  login: <LogIn className="h-3 w-3 text-brand-primary-500" />,
   logout: <LogOut className="h-3 w-3 text-slate-400" />,
   invite: <Mail className="h-3 w-3 text-amber-500" />,
 };
@@ -117,13 +117,13 @@ export function ActivityLog() {
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300" />
         {(filterAction || filterResource || dateFrom || dateTo) && (
           <button onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-            className="text-[10px] text-violet-600 hover:underline dark:text-violet-400">Reset</button>
+            className="text-[10px] text-brand-primary-600 hover:underline dark:text-brand-primary-400">Reset</button>
         )}
       </div>
 
       {/* Log entries */}
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-violet-500" /></div>
+        <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" /></div>
       ) : logs.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800">
           <Activity className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />

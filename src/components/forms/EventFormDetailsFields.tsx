@@ -58,7 +58,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
           onChange={e => onFieldChange('eo', e.target.value)}
           placeholder={eoPlaceholder}
           list={`${datalistId}-eo-suggestions`}
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
         />
         <datalist id={`${datalistId}-eo-suggestions`}>
           {eoSuggestions.map(item => <option key={item} value={item} />)}
@@ -82,7 +82,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
             className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
               errors.pic
                 ? 'border-red-400 focus:ring-red-100'
-                : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
             }`}
           />
           {picSuggestions.length > 0 && (
@@ -107,7 +107,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
             className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
               errors.phone
                 ? 'border-red-400 focus:ring-red-100'
-                : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
             }`}
           />
           {phoneSuggestions.length > 0 && (
@@ -132,19 +132,19 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               onAddCategory(e.target.value);
               e.target.value = '';
             }}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           >
             <option value="">Pilih jenis acara</option>
             {CATEGORIES.filter(category => !categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <div className="mt-2 flex flex-wrap gap-2">
             {categories.map(category => (
-              <span key={category} className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 dark:border-violet-900/50 dark:bg-violet-900/20 dark:text-violet-300">
+              <span key={category} className="inline-flex items-center gap-1 rounded-full border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1 text-xs font-medium text-brand-primary-700 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300">
                 {category}
                 <button
                   type="button"
                   onClick={() => onRemoveCategory(category)}
-                  className="rounded-full p-0.5 text-violet-500 transition hover:bg-violet-100 hover:text-violet-700 dark:hover:bg-violet-900/30"
+                  className="rounded-full p-0.5 text-brand-primary-500 transition hover:bg-brand-primary-100 hover:text-brand-primary-700 dark:hover:bg-brand-primary-900/30"
                   aria-label={`Hapus kategori ${category}`}
                 >
                   <X className="h-3 w-3" />
@@ -160,7 +160,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
             id={`${datalistId}-priority`}
             value={priority}
             onChange={e => onFieldChange('priority', e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           >
             <option value="high">🔴 Tinggi</option>
             <option value="medium">🔵 Sedang</option>

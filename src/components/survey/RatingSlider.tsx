@@ -38,7 +38,7 @@ export default function RatingSlider({ label, description, value, onChange, icon
     <div className="space-y-2">
       {/* Label */}
       <div className="flex items-center gap-2">
-        {icon && <span className="text-violet-500 dark:text-violet-400">{icon}</span>}
+        {icon && <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>}
         <div>
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{label}</p>
           {description && (

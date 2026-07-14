@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={this.handleReset}
-              className="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium transition-colors"
+              className="px-6 py-2.5 bg-brand-primary-500 hover:bg-brand-primary-600 text-white rounded-xl font-medium transition-colors"
             >
               Coba Lagi
             </button>

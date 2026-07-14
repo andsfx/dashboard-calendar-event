@@ -12,7 +12,7 @@ const DARK_TEXT_CATEGORIES = new Set([
 ]);
 
 export const CategoryBadge = memo(function CategoryBadge({ category }: { category: string }) {
-  const color = CATEGORY_COLORS[category] ?? '#6366f1';
+  const color = CATEGORY_COLORS[category] ?? '#00918e';
   const useDarkText = DARK_TEXT_CATEGORIES.has(category);
   return (
     <span

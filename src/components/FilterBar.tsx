@@ -6,7 +6,7 @@ const focusRing = 'ui-focus-ring';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
-  { key: 'draft',    label: 'Draft',        dot: 'bg-purple-400' },
+  { key: 'draft',    label: 'Draft',        dot: 'bg-brand-primary-400' },
   { key: 'ongoing',  label: 'Berlangsung',  dot: 'bg-emerald-500' },
   { key: 'upcoming', label: 'Mendatang',    dot: 'bg-amber-500' },
   { key: 'past',     label: 'Selesai',      dot: 'bg-slate-400' },
@@ -91,7 +91,7 @@ function CustomDropdown({
         onClick={() => setOpen(v => !v)}
         className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${focusRing} ${
           open
-            ? 'border-violet-400 ring-2 ring-violet-100 dark:border-violet-600 dark:ring-violet-900/30'
+            ? 'border-brand-primary-400 ring-2 ring-brand-primary-100 dark:border-brand-primary-600 dark:ring-brand-primary-900/30'
             : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-600'
         }`}
         aria-haspopup="listbox"
@@ -122,12 +122,12 @@ function CustomDropdown({
               onClick={() => { onChange(opt.key); setOpen(false); }}
               className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing} ${
                 value === opt.key
-                  ? 'bg-violet-50 font-semibold text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
+                  ? 'bg-brand-primary-50 font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300'
                   : 'text-slate-700 dark:text-slate-300'
               }`}
             >
               {opt.label}
-              {value === opt.key && <Check className="h-3 w-3 text-violet-600 dark:text-violet-400" />}
+              {value === opt.key && <Check className="h-3 w-3 text-brand-primary-600 dark:text-brand-primary-400" />}
             </button>
           ))}
         </div>
@@ -252,7 +252,7 @@ export function FilterBar({
               key={chip.key}
               type="button"
               onClick={chip.clear}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 dark:border-violet-900/50 dark:bg-violet-950/40 dark:text-violet-300 ${focusRing}`}
+              className={`inline-flex items-center gap-1.5 rounded-full border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:border-brand-primary-300 hover:bg-brand-primary-100 dark:border-brand-primary-900/50 dark:bg-brand-primary-950/40 dark:text-brand-primary-300 ${focusRing}`}
               aria-label={`Hapus filter ${chip.label}`}
             >
               {chip.label}

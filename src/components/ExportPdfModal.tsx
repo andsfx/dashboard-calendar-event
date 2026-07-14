@@ -164,7 +164,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       <div className="overflow-hidden rounded-3xl bg-white text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-violet-500">PDF Report</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-500">PDF Report</p>
             <h2 className="mt-1 text-2xl font-bold tracking-tight">{previewUrl ? 'Preview PDF' : 'Export Album Foto'}</h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{previewUrl ? 'Cek dulu hasilnya sebelum download.' : 'Generate report landscape berdasarkan tanggal atau tema event.'}</p>
           </div>
@@ -191,7 +191,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <button
               type="button"
               onClick={() => setMode('date')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-violet-500 bg-violet-50 text-violet-950 dark:bg-violet-500/15 dark:text-violet-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <CalendarDays className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tanggal</div>
@@ -200,7 +200,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <button
               type="button"
               onClick={() => setMode('theme')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-violet-500 bg-violet-50 text-violet-950 dark:bg-violet-500/15 dark:text-violet-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <Palette className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tema</div>
@@ -216,7 +216,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                   type="date"
                   value={dateStart}
                   onChange={(event) => setDateStart(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-violet-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
                 />
               </label>
               <label className="block">
@@ -225,7 +225,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                   type="date"
                   value={dateEnd}
                   onChange={(event) => setDateEnd(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-violet-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
                 />
               </label>
             </div>
@@ -235,7 +235,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
               <select
                 value={themeId}
                 onChange={(event) => setThemeId(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-violet-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
               >
                 <option value="">Pilih tema</option>
                 {themes.map(theme => (
@@ -247,7 +247,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-500/15 dark:text-brand-primary-300">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
@@ -274,7 +274,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
               <button
                 type="button"
                 onClick={handleDownload}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:bg-violet-700"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
               >
                 <Download className="h-4 w-4" />
                 Download PDF
@@ -293,7 +293,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                 type="button"
                 onClick={handleGenerate}
                 disabled={!canGenerate}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
               >
                 {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
                 {isGenerating ? (progressText || 'Membuat PDF...') : 'Preview PDF'}

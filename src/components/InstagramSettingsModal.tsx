@@ -101,7 +101,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
               <Settings className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -142,7 +142,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-8 text-sm text-slate-500 transition hover:border-violet-300 hover:bg-violet-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-violet-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-8 text-sm text-slate-500 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
               >
                 {heroUploading ? (
                   <span>Mengupload...</span>
@@ -166,7 +166,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="text-xs font-medium text-violet-600 transition hover:text-violet-700 dark:text-violet-400 disabled:opacity-60"
+                className="text-xs font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 disabled:opacity-60"
               >
                 {heroUploading ? 'Mengupload...' : 'Ganti foto'}
               </button>
@@ -187,7 +187,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 value={postUrls[i]}
                 onChange={e => setUrl(i, e.target.value)}
                 placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
             </div>
           ))}
@@ -254,7 +254,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}

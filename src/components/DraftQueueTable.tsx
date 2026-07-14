@@ -56,7 +56,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                       <select
                         value={draft.progress}
                         onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
                       >
                         <option value="draft">Draft</option>
                         <option value="confirm">Confirm</option>
@@ -69,8 +69,10 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                       <button onClick={() => onEdit(draft)} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"><Edit2 className="h-3.5 w-3.5" />Edit</button>
                       <button onClick={() => onDelete(draft)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>
                        <button
+                        type="button"
                         onClick={() => onPublish(draft)}
                         disabled={draft.progress !== 'confirm'}
+                        title={draft.progress !== 'confirm' ? 'Set progress ke Confirm dulu sebelum publish' : 'Publish ke schedule utama'}
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
                       >
                         <Upload className="h-3.5 w-3.5" />Publish

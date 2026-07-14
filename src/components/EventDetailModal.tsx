@@ -45,7 +45,7 @@ function getEventModelLabel(value: EventItem['eventModel']) {
 export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, onDelete, onDeleteSeries, isAdmin = false }: Props) {
   if (!event) return null;
 
-  const color = CATEGORY_COLORS[event.category] ?? '#6366f1';
+  const color = CATEGORY_COLORS[event.category] ?? '#00918e';
   const isOngoing = event.status === 'ongoing';
   const isMultiDay = isMultiDayEvent(event);
   const duration = isMultiDay ? getEventDuration(event.dateStr, event.dateEnd) : 1;
@@ -84,12 +84,12 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
               </span>
             )}
             {isMultiDay && (
-              <span aria-label={`Rangkaian acara ${duration} hari`} className="flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+              <span aria-label={`Rangkaian acara ${duration} hari`} className="flex items-center gap-1 rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
                 <CalendarDays className="h-3 w-3" aria-hidden="true" /> Rangkaian acara · {duration} hari
               </span>
             )}
             {isRecurring && (
-              <span aria-label="Event reguler berulang" className="flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+              <span aria-label="Event reguler berulang" className="flex items-center gap-1 rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
                 <Repeat className="h-3 w-3" aria-hidden="true" /> Event reguler
               </span>
             )}
@@ -104,7 +104,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         <div className="space-y-3 px-4 py-5 sm:px-6">
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <InfoRow
-              icon={<Calendar className="h-4 w-4 text-violet-500" />}
+              icon={<Calendar className="h-4 w-4 text-brand-primary-500" />}
               label="Tanggal"
               value={isMultiDay ? formatDateRange(event.dateStr, event.dateEnd) : `${event.day}, ${event.tanggal}`}
             />
@@ -153,7 +153,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             )}
             {isAdmin && event.eventModelNotes && (
               <InfoRow
-                icon={<Tag className="h-4 w-4 text-violet-500" />}
+                icon={<Tag className="h-4 w-4 text-brand-primary-500" />}
                 label="Keterangan Model Event"
                 value={event.eventModelNotes}
               />
@@ -171,8 +171,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
           {/* Series info untuk recurring event */}
           {isRecurring && seriesEvents.length > 0 && (
-            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/30 dark:bg-indigo-900/10">
-              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
+              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
                 <Repeat className="h-3 w-3" /> Series Reguler
               </p>
               <p className="text-sm text-slate-700 dark:text-slate-200">
@@ -183,8 +183,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
           {/* Jadwal per Hari untuk rangkaian acara */}
           {isMultiDay && event.dayTimeSlots && event.dayTimeSlots.length > 0 && (
-            <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
-              <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+            <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
+              <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
                 <CalendarDays className="h-3 w-3" /> Jadwal per Hari
               </p>
               <div className="space-y-1.5">
@@ -232,30 +232,30 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             {!isAdmin && (
               <a
                 href={`/survey/${event.id}`}
-                className="mb-3 flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-3 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
+                className="mb-3 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 transition hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/50">
-                  <ClipboardCheck className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
+                  <ClipboardCheck className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">Isi Survey Kepuasan</p>
-                  <p className="text-[11px] text-violet-500 dark:text-violet-400">Bantu kami meningkatkan kualitas layanan</p>
+                  <p className="text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Isi Survey Kepuasan</p>
+                  <p className="text-[11px] text-brand-primary-500 dark:text-brand-primary-400">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
-                <span className="shrink-0 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white">
+                <span className="shrink-0 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white">
                   Isi Survey
                 </span>
               </a>
             )}
             {/* QR Code (both admin & public) */}
             <details className="group">
-              <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-violet-600 dark:text-slate-400 dark:hover:text-violet-400">
+              <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400">
                 <QrCode className="h-3.5 w-3.5" />
                 <span>QR Code Survey</span>
                 <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
                 <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
-                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" /></div>}>
+                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
                   <SurveyQRCode eventId={event.id} eventName={event.acara} />
                 </Suspense>
               </div>
@@ -269,7 +269,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                 <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
-                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" /></div>}>
+                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
                   <SurveyQRCode
                     eventId={event.id}
                     eventName={event.acara}

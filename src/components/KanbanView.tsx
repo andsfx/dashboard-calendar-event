@@ -16,8 +16,8 @@ const COLUMNS: Array<{
     status: 'draft',
     label: 'Draft',
     icon: <PenSquare className="h-4 w-4" />,
-    gradient: 'from-purple-500 to-violet-500',
-    cardBorder: 'border-purple-200 bg-purple-50/50 dark:border-purple-800/40 dark:bg-purple-900/10 hover:border-purple-300 dark:hover:border-purple-600/60',
+    gradient: 'from-brand-primary-500 to-brand-primary-500',
+    cardBorder: 'border-brand-primary-200 bg-brand-primary-50/50 dark:border-brand-primary-800/40 dark:bg-brand-primary-900/10 hover:border-brand-primary-300 dark:hover:border-brand-primary-600/60',
     emptyMsg: 'Tidak ada event draft',
   },
   {
@@ -64,11 +64,11 @@ function EventCard({
   onDetail: (e: EventItem) => void;
   cardBorder: string;
 }) {
-  const color = CATEGORY_COLORS[ev.category] ?? '#6366f1';
+  const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
 
   return (
     <div
-            className={`group relative cursor-pointer overflow-hidden rounded-xl border shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
+            className={`group relative cursor-pointer overflow-hidden rounded-xl border shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
       onClick={() => onDetail(ev)}
       role="button"
       tabIndex={0}
@@ -90,7 +90,7 @@ function EventCard({
               onClick={() => onDetail(ev)}
               title="Lihat detail"
               aria-label="Lihat detail"
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:outline-none"
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
@@ -144,7 +144,7 @@ function EventCard({
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
           <CategoryBadges categories={ev.categories} maxVisible={2} />
           <PriorityBadge priority={ev.priority} />
-          {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+          {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
         </div>
       </div>
     </div>

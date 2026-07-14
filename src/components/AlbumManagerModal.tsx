@@ -332,7 +332,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                 <ChevronLeft className="h-4 w-4" />
               </button>
             )}
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
               <ImageIcon className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -365,7 +365,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
           {/* Loading */}
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
               <span className="ml-3 text-sm text-slate-500 dark:text-slate-400">Memuat...</span>
             </div>
           )}
@@ -378,7 +378,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                 <button
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold text-slate-500 transition hover:border-violet-400 hover:text-violet-600 dark:border-slate-600 dark:text-slate-400 dark:hover:border-violet-400 dark:hover:text-violet-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold text-slate-500 transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:text-slate-400 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
@@ -387,8 +387,8 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
 
               {/* Create Album Form */}
               {showCreateForm && (
-                <div className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 dark:border-violet-900/50 dark:bg-violet-900/10">
-                  <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">Album Baru</p>
+                <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
+                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Album Baru</p>
                   <div className="space-y-3">
                     {/* Event dropdown */}
                     <div>
@@ -396,7 +396,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       <select
                         value={isCustomEvent ? '__custom__' : selectedEventId}
                         onChange={(e) => handleEventSelect(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       >
                         <option value="">Pilih event yang sudah berlangsung...</option>
                         {(pastEvents || [])
@@ -416,7 +416,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       <select
                         value={selectedThemeId}
                         onChange={(e) => setSelectedThemeId(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       >
                         <option value="">Pilih tema (opsional)...</option>
                         {(annualThemes || []).map(t => (
@@ -424,7 +424,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                         ))}
                       </select>
                       {selectedThemeId && !isCustomEvent && (
-                        <p className="mt-1 text-xs text-violet-500">Auto-matched berdasarkan tanggal event</p>
+                        <p className="mt-1 text-xs text-brand-primary-500">Auto-matched berdasarkan tanggal event</p>
                       )}
                     </div>
 
@@ -435,7 +435,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="Nama event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
 
@@ -446,7 +446,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                         value={newDesc}
                         onChange={(e) => setNewDesc(e.target.value)}
                         placeholder="Deskripsi event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
 
@@ -461,7 +461,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                             setNewDate(e.target.value);
                             if (!isCustomEvent) setSelectedThemeId(autoMatchTheme(e.target.value));
                           }}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
                         />
                       </div>
                       <div>
@@ -470,7 +470,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                           value={newLokasi}
                           onChange={(e) => setNewLokasi(e.target.value)}
                           placeholder="Lokasi event"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                         />
                       </div>
                     </div>
@@ -489,7 +489,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       type="button"
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
-                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-violet-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
@@ -512,7 +512,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                   {albums.map((album) => (
                     <div
                       key={album.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-violet-300 hover:bg-violet-50/30 dark:border-slate-600 dark:hover:border-violet-500/50 dark:hover:bg-violet-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
                     >
                       {/* Cover thumbnail */}
                       <div
@@ -660,8 +660,8 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                     onClick={() => fileInputRef.current?.click()}
                     className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition ${
                       isDragOver
-                        ? 'border-violet-400 bg-violet-50 dark:border-violet-500 dark:bg-violet-900/20'
-                        : 'border-slate-300 hover:border-violet-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-violet-400 dark:hover:bg-slate-800'
+                        ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-900/20'
+                        : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
                     }`}
                   >
                     <Upload className="h-7 w-7 text-slate-400" />
@@ -715,7 +715,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       <div className="space-y-1">
                         <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                           <div
-                            className="h-full rounded-full bg-violet-500 transition-all duration-300"
+                            className="h-full rounded-full bg-brand-primary-500 transition-all duration-300"
                             style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
                           />
                         </div>
@@ -729,7 +729,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-violet-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto

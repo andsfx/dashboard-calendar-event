@@ -120,7 +120,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     </div>
                     <div className="flex items-center gap-1.5">
                       <StatusBadge status={ev.status} />
-                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                     </div>
                   </div>
 
@@ -212,7 +212,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-violet-50 dark:focus-visible:bg-violet-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-brand-primary-50 dark:focus-visible:bg-brand-primary-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-80' : ''}`}
                     onClick={() => onDetail(ev)}
                     tabIndex={0}
                     role="button"
@@ -260,7 +260,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={ev.status} />
-                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                       </div>
                     </td>
                     {/* Category */}
@@ -291,7 +291,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         <button
                           onClick={() => onDetail(ev)}
                           aria-label="Lihat detail"
-                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400"
+                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>

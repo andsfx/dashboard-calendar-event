@@ -212,7 +212,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     if (success) onClose();
   };
 
-  const inputClass = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400';
+  const inputClass = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400';
   const errorClass = 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:border-red-400 dark:focus:ring-red-900/30';
   const visibleStepFields = STEP_FIELDS[currentStep] ?? [];
   const visibleErrorCount = visibleStepFields.filter(field => errors[field]).length;
@@ -278,7 +278,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             <div
               key={step.title}
               className={`rounded-2xl border p-3 transition ${isActive
-                ? 'border-violet-200 bg-violet-50 dark:border-violet-500/50 dark:bg-violet-950/30'
+                ? 'border-brand-primary-200 bg-brand-primary-50 dark:border-brand-primary-500/50 dark:bg-brand-primary-950/30'
                 : isComplete
                   ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/20'
                   : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40'
@@ -289,7 +289,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                 <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${isComplete
                   ? 'bg-emerald-500 text-white'
                   : isActive
-                    ? 'bg-violet-600 text-white'
+                    ? 'bg-brand-primary-600 text-white'
                     : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
                 }`}>
                   {isComplete ? <Check className="h-4 w-4" /> : index + 1}
@@ -316,9 +316,9 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   );
 
   const renderReviewCard = () => (
-    <aside className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4 dark:border-violet-500/30 dark:bg-violet-950/20">
+    <aside className="rounded-2xl border border-brand-primary-100 bg-brand-primary-50/60 p-4 dark:border-brand-primary-500/30 dark:bg-brand-primary-950/20">
       <div className="mb-4 flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/30">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
           <FileText className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -416,7 +416,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
       <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-slate-50 shadow-2xl dark:bg-slate-900">
         <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/30">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -453,7 +453,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                   {currentStep > 0 && <ChevronLeft className="h-4 w-4" />}
                   {currentStep === 0 ? 'Batal' : 'Kembali'}
                 </button>
-                <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition hover:from-violet-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-violet-900/30">
+                <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
                   {currentStep === STEPS.length - 1 ? (
                     <>
                       <Save className="h-4 w-4" />

@@ -146,7 +146,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="relative px-4 pb-5 pt-6 sm:px-6 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.13) 0%, rgba(139,92,246,0.03) 100%)', borderBottom: '3px solid rgba(139,92,246,0.27)' }}>
-          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #8b5cf6, rgba(139,92,246,0.27))' }} />
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #00918e, rgba(0,145,142,0.27))' }} />
 
           <button
             onClick={onClose}
@@ -157,7 +157,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           </button>
 
           <div className="flex items-center gap-3 pr-8 sm:pr-10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 text-white shadow-lg">
               <Users className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -173,7 +173,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         <div className="overflow-y-auto flex-1 px-4 py-5 sm:px-6 space-y-4">
           {/* Info Grid */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <InfoItem icon={<Users className="h-4 w-4 text-violet-500" />} label="Nama Organisasi" value={registration.organizationName || registration.communityName} />
+            <InfoItem icon={<Users className="h-4 w-4 text-brand-primary-500" />} label="Nama Organisasi" value={registration.organizationName || registration.communityName} />
             <InfoItem icon={<FileText className="h-4 w-4 text-blue-500" />} label="Tipe Organisasi" value={ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType] || registration.communityType} />
             <InfoItem icon={<Users className="h-4 w-4 text-amber-500" />} label="PIC" value={registration.pic} />
             <InfoItem icon={<Phone className="h-4 w-4 text-emerald-500" />} label="Nomor WhatsApp" value={registration.phone} />
@@ -237,7 +237,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               onChange={e => setAdminNote(e.target.value)}
               rows={3}
               placeholder="Tambahkan catatan admin..."
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-violet-500"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
             />
           </div>
 
@@ -250,7 +250,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <select
               value={waTemplate}
               onChange={e => setWaTemplate(e.target.value)}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
             >
               <option value="reviewed">Reviewed</option>
               <option value="approved">Approved</option>
@@ -262,7 +262,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               value={waMessage}
               onChange={e => { setWaMessage(e.target.value); if (waTemplate !== 'custom') setWaTemplate('custom'); }}
               rows={5}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-violet-500"
+              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
             />
 
             <button
@@ -285,7 +285,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                 }
               }}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 active:scale-95 disabled:opacity-50 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 active:scale-95 disabled:opacity-50 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
             >
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Event
             </button>

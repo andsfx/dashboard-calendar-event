@@ -45,7 +45,7 @@ function StatCard({
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center gap-2 text-violet-500 dark:text-violet-400">
+      <div className="flex items-center gap-2 text-brand-primary-500 dark:text-brand-primary-400">
         {icon}
         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
       </div>
@@ -189,7 +189,7 @@ export default function TenantSurveyAnalyticsPanel({
       {hasV3 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Store className="h-4 w-4 text-violet-500" />
+            <Store className="h-4 w-4 text-brand-primary-500" />
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Feedback Publik (Self-Assessment v3)
             </h3>
@@ -250,7 +250,7 @@ export default function TenantSurveyAnalyticsPanel({
       {hasV2 && aggregate && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-violet-500" />
+            <Star className="h-4 w-4 text-brand-primary-500" />
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Self-Assessment Tenant (v2)
             </h3>
@@ -306,7 +306,7 @@ export default function TenantSurveyAnalyticsPanel({
                     key={key}
                     className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
                   >
-                    <span className="text-violet-500 dark:text-violet-400">{icon}</span>
+                    <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{label}</p>
                       <p className={`text-sm font-bold ${ratingColor(val)}`}>{val?.toFixed(2) || '-'}</p>
@@ -331,7 +331,7 @@ export default function TenantSurveyAnalyticsPanel({
                     key={a.tenant_user_id || `v3-${i}`}
                     className="flex items-center gap-3 p-4"
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-primary-100 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
                       {i + 1}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -433,14 +433,14 @@ function DistCard({
 }) {
   const entries = Object.entries(dist).filter(([, count]) => count > 0);
   const maxCount = Math.max(...entries.map(([, c]) => c), 1);
-  const defaultColors = ['bg-violet-500', 'bg-indigo-500', 'bg-blue-500', 'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500'];
+  const defaultColors = ['bg-brand-primary-500', 'bg-brand-primary-500', 'bg-blue-500', 'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500'];
 
   if (entries.length === 0) return null;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
       <div className="mb-3 flex items-center gap-2">
-        <span className="text-violet-500 dark:text-violet-400">{icon}</span>
+        <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>
         <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">{title}</h4>
       </div>
       <div className="space-y-2">

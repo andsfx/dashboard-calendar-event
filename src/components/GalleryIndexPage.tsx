@@ -103,7 +103,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         {/* Page title */}
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">
               Gallery
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -117,7 +117,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
             <button
               type="button"
               onClick={() => setShowExportModal(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:bg-violet-700"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
             >
               <FileDown className="h-4 w-4" />
               Export PDF
@@ -154,7 +154,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
             </p>
             <button
               onClick={() => setRetryCount(c => c + 1)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-violet-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <RefreshCw className="h-4 w-4" />
               Coba lagi
@@ -221,8 +221,8 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                             onError={(e) => { (e.target as HTMLImageElement).src = album.coverPhotoUrl; }}
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">
-                            <Camera className="h-10 w-10 text-violet-300 dark:text-violet-500" />
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-primary-100 to-brand-primary-200 dark:from-brand-primary-900/40 dark:to-slate-700">
+                            <Camera className="h-10 w-10 text-brand-primary-300 dark:text-brand-primary-500" />
                           </div>
                         )}
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100">

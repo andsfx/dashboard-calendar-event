@@ -166,7 +166,7 @@ export const annualThemes: AnnualTheme[] = [
     name: 'Q1 – Awal Tahun & Perayaan',
     dateStart: '2026-01-01',
     dateEnd: '2026-03-31',
-    color: '#6366f1',
+    color: '#00918e',
   },
   {
     id: 'q2-2026',

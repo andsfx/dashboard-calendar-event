@@ -25,14 +25,14 @@ function groupByMonth(events: EventItem[]): Array<{ month: string; events: Event
 }
 
 const DOT_COLOR: Record<string, string> = {
-  draft:    'bg-purple-400 ring-purple-200 dark:ring-purple-800',
+  draft:    'bg-brand-primary-400 ring-brand-primary-200 dark:ring-brand-primary-800',
   ongoing:  'bg-emerald-500 ring-emerald-200 dark:ring-emerald-800',
   upcoming: 'bg-amber-500 ring-amber-200 dark:ring-amber-800',
   past:     'bg-slate-400 ring-slate-200 dark:ring-slate-700',
 };
 
 const CARD_ACCENT: Record<string, string> = {
-  draft:    'border-purple-200 bg-purple-50/50 dark:border-purple-800/40 dark:bg-purple-900/10',
+  draft:    'border-brand-primary-200 bg-brand-primary-50/50 dark:border-brand-primary-800/40 dark:bg-brand-primary-900/10',
   ongoing:  'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-900/10',
   upcoming: 'border-amber-200 bg-amber-50/50 dark:border-amber-800/40 dark:bg-amber-900/10',
   past:     'border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20',
@@ -91,7 +91,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                     <div className="flex-1">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={ev.status} size="sm" />
-                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                         {isAdmin && <PriorityBadge priority={ev.priority} />}
                       </div>
@@ -119,7 +119,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       >
                         <button
                           onClick={() => onDetail(ev)}
-                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/20 dark:hover:text-violet-400"
+                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400"
                           aria-label="Lihat detail"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />

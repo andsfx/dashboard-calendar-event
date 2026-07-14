@@ -37,7 +37,7 @@ export function CategoryChart({ events }: Props) {
   return (
     <div className="h-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 shrink-0 text-violet-500" /><span className="truncate">Distribusi Kategori</span></p>
+        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 shrink-0 text-brand-primary-500" /><span className="truncate">Distribusi Kategori</span></p>
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
           {sorted.length} kategori
         </span>
@@ -59,7 +59,7 @@ export function CategoryChart({ events }: Props) {
                 className="text-slate-100 dark:text-slate-700" />
 
               {segments.map((seg, i) => {
-                const color = CATEGORY_COLORS[seg.cat] ?? '#6366f1';
+                const color = CATEGORY_COLORS[seg.cat] ?? '#00918e';
                 const dashArray = (seg.pct / 100) * circumference;
                 const dashOffset = circumference - (seg.offset / 100) * circumference;
                 const isHovered = hoveredCat === seg.cat;
@@ -101,7 +101,7 @@ export function CategoryChart({ events }: Props) {
           {/* Bar chart list */}
           <div className="space-y-2.5">
             {sorted.map(([cat, count]) => {
-              const color = CATEGORY_COLORS[cat] ?? '#6366f1';
+              const color = CATEGORY_COLORS[cat] ?? '#00918e';
               const pct = Math.round((count / max) * 100);
               const isHov = hoveredCat === cat;
               return (

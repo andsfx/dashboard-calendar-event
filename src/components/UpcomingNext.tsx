@@ -50,14 +50,14 @@ export default function UpcomingNext({ events }: UpcomingNextProps) {
               </div>
 
               {/* Event name */}
-              <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-snug line-clamp-2 mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-snug line-clamp-2 mb-3 group-hover:text-brand-primary-600 dark:group-hover:text-brand-primary-400 transition-colors">
                 {event.acara}
               </h4>
 
               {/* Details */}
               <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
-                  <CalendarDays className="w-3 h-3 text-indigo-500 flex-shrink-0" />
+                  <CalendarDays className="w-3 h-3 text-brand-primary-500 flex-shrink-0" />
                   <span>{event.day}, {event.tanggal}</span>
                 </div>
                 {event.jam && (

@@ -32,7 +32,7 @@ function TrendBar({
         >
           {v3 > 0 && (
             <div
-              className="w-full bg-violet-400 transition-all duration-500"
+              className="w-full bg-brand-primary-400 transition-all duration-500"
               style={{ height: `${v3H > 0 ? (v3H / (v2H + v3H)) * 100 : 0}%`, minHeight: v3H > 0 ? '2px' : '0' }}
             />
           )}
@@ -107,7 +107,7 @@ export default function TenantSurveyTrendChart({ eventFilter }: { eventFilter?: 
     <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-violet-500" />
+          <BarChart3 className="h-4 w-4 text-brand-primary-500" />
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
             Tren Bulanan
           </h3>
@@ -172,7 +172,7 @@ export default function TenantSurveyTrendChart({ eventFilter }: { eventFilter?: 
           v2 (Rating)
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-violet-400" />
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-brand-primary-400" />
           v3 (Publik)
         </span>
       </div>
@@ -195,7 +195,7 @@ function TrendStat({
 }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-      <div className="flex items-center gap-1.5 text-violet-500 dark:text-violet-400">
+      <div className="flex items-center gap-1.5 text-brand-primary-500 dark:text-brand-primary-400">
         {icon}
         <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
       </div>

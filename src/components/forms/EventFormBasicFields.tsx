@@ -50,7 +50,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
             className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
               errors.dateStr
                 ? 'border-red-400 focus:ring-red-100'
-                : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+                : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
             }`}
           />
           {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-500">{errors.dateStr}</p>}
@@ -63,7 +63,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
             onChange={e => onFieldChange('jam', e.target.value)}
             placeholder={jamPlaceholder}
             list={`${datalistId}-jam-suggestions`}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           />
           <datalist id={`${datalistId}-jam-suggestions`}>
             {jamSuggestions.map(item => <option key={item} value={item} />)}
@@ -86,7 +86,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
             errors.acara
               ? 'border-red-400 focus:ring-red-100'
-              : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+              : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
         {errors.acara && <p id={nameErrorId} className="mt-1 text-xs text-red-500">{errors.acara}</p>}
@@ -108,7 +108,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${
             errors.lokasi
               ? 'border-red-400 focus:ring-red-100'
-              : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+              : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
         <datalist id={`${datalistId}-lokasi-suggestions`}>

@@ -32,14 +32,14 @@ export function RecurringEventFields({
   isDraft = false,
 }: RecurringEventFieldsProps) {
   return (
-    <div className="space-y-4 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">
+    <div className="space-y-4 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       {/* Frequency selector */}
       <div>
         <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
         <select
           value={recurrenceFrequency}
           onChange={e => onFieldChange('recurrenceFrequency', e.target.value)}
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
         >
           <option value="weekly">Setiap minggu</option>
           <option value="biweekly">Setiap 2 minggu</option>
@@ -60,7 +60,7 @@ export function RecurringEventFields({
                 onClick={() => onToggleDayOfWeek(idx)}
                 className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
                   recurrenceDaysOfWeek.includes(idx)
-                    ? 'bg-violet-600 text-white'
+                    ? 'bg-brand-primary-600 text-white'
                     : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-300'
                 }`}
               >
@@ -82,7 +82,7 @@ export function RecurringEventFields({
             max={31}
             value={recurrenceDayOfMonth}
             onChange={e => onFieldChange('recurrenceDayOfMonth', e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           />
         </div>
       )}
@@ -96,7 +96,7 @@ export function RecurringEventFields({
             min={1}
             value={recurrenceInterval}
             onChange={e => onFieldChange('recurrenceInterval', e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           />
         </div>
       )}
@@ -113,7 +113,7 @@ export function RecurringEventFields({
           className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
             errors.recurrenceEndDate
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
-              : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600'
+              : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
         {errors.recurrenceEndDate && <p className="mt-1 text-xs text-red-500">{errors.recurrenceEndDate}</p>}
@@ -133,8 +133,8 @@ export function RecurringEventFields({
         if (dates.length === 0) return null;
         
         return (
-          <div className="rounded-xl border border-violet-300 bg-white p-3 dark:border-violet-700 dark:bg-slate-800/60">
-            <p className="mb-2 text-xs font-semibold text-violet-700 dark:text-violet-300">
+          <div className="rounded-xl border border-brand-primary-300 bg-white p-3 dark:border-brand-primary-700 dark:bg-slate-800/60">
+            <p className="mb-2 text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
               Preview: {dates.length} event akan dibuat{isDraft ? ' saat dipublish' : ''}
             </p>
             <div className="max-h-40 space-y-1 overflow-y-auto">

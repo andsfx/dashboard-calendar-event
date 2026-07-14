@@ -586,7 +586,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               {generatedLetter && (
                 <button
                   onClick={handleShare}
-                  className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+                  className="flex items-center gap-2 rounded-lg bg-brand-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary-700"
                 >
                   <Share2 size={16} />
                   Bagikan

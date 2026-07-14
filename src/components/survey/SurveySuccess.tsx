@@ -19,7 +19,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
       <p className="mb-1 text-sm text-slate-600 dark:text-slate-400">
         Feedback Anda untuk event
       </p>
-      <p className="mb-6 text-sm font-semibold text-violet-600 dark:text-violet-400">
+      <p className="mb-6 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
         "{eventName}"
       </p>
       <p className="mb-8 max-w-xs text-sm text-slate-500 dark:text-slate-400">
@@ -29,7 +29,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali ke Dashboard

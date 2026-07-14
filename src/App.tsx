@@ -18,8 +18,7 @@ import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
 import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
 import { createId, parseDateStrLocal, MONTH_NAMES } from './utils/eventUtils';
-import { createLetterRequest, createDraftEvent, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
-import type { PublicEventRequestPayload } from './components/PublicLandingPage';
+import { createLetterRequest, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
 import type { PhotoAlbum } from './types';
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
@@ -498,37 +497,6 @@ export default function App() {
     }
   }, [showToast]);
 
-  const handlePublicSubmitRequest = useCallback(async (payload: PublicEventRequestPayload) => {
-    try {
-      await createDraftEvent({
-        acara: payload.acara,
-        dateStr: payload.dateStr,
-        tanggal: '',
-        day: '',
-        jam: payload.jam,
-        lokasi: payload.lokasi,
-        eo: payload.eo,
-        pic: payload.pic,
-        phone: payload.phone,
-        keterangan: payload.keterangan,
-        internalNote: '',
-        month: '',
-        category: payload.categories[0] || 'Umum',
-        categories: payload.categories,
-        priority: 'medium',
-        eventModel: payload.eventModel,
-        eventNominal: payload.eventNominal,
-        eventModelNotes: payload.eventModelNotes,
-        progress: 'draft',
-      }, 'public');
-      showToast('success', 'Pengajuan terkirim', 'Tim mall akan meninjau pengajuan event Anda.');
-      return true;
-    } catch {
-      showToast('error', 'Gagal mengirim', 'Pengajuan belum terkirim. Coba lagi.');
-      return false;
-    }
-  }, [showToast]);
-
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
   const ongoingEvents = useMemo(
@@ -736,7 +704,7 @@ export default function App() {
       {/* Skip to main content — WCAG 2.4.1 */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none"
       >
         Lewati ke konten utama
       </a>

@@ -36,7 +36,7 @@ export function AdminDraftSection({
     <section id="drafts" className="space-y-4 scroll-mt-32">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ui-dashboard-card-padded">
         <div className="flex items-start gap-3">
-          <div className="ui-icon-tile bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+          <div className="ui-icon-tile bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
             <ClipboardList className="h-5 w-5" />
           </div>
           <div>
@@ -46,7 +46,7 @@ export function AdminDraftSection({
         </div>
         <button
           onClick={onAddDraft}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-gradient-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-200 transition ui-gradient-primary-hover dark:shadow-violet-900/30"
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-gradient-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition ui-gradient-primary-hover dark:shadow-brand-primary-900/30"
         >
           <Plus className="h-4 w-4" /> Tambah Draft Event
         </button>

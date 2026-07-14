@@ -17,7 +17,7 @@ const STATUS_TABS: Array<{ key: RegistrationStatus | 'all'; label: string; dot?:
 ];
 
 const ORG_TYPE_CONFIG: Record<OrganizationType, { label: string; color: string }> = {
-  community: { label: 'Komunitas', color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
+  community: { label: 'Komunitas', color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300' },
   school: { label: 'Sekolah', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
   company: { label: 'Perusahaan', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
   eo: { label: 'EO', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
@@ -81,7 +81,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       {/* Header card */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
             <Users className="h-5 w-5" />
           </div>
           <div>
@@ -108,7 +108,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               aria-pressed={activeTab === tab.key}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                 activeTab === tab.key
-                  ? 'bg-violet-600 text-white shadow-sm'
+                  ? 'bg-brand-primary-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
               }`}
             >
@@ -172,7 +172,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               <button
                 key={reg.id}
                 onClick={() => onDetail(reg)}
-                className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-violet-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-violet-600"
+                className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-brand-primary-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">

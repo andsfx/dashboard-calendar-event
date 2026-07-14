@@ -77,15 +77,15 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
 
         {/* Content */}
         <div className="flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/40">
-            <Star className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary-100 dark:bg-brand-primary-900/40">
+            <Star className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
           </div>
 
           <h3 className="mb-1 text-base font-bold text-slate-900 dark:text-white">
             Bagaimana Pengalaman Anda?
           </h3>
           <p className="mb-1 text-sm text-slate-600 dark:text-slate-400">
-            Event <span className="font-semibold text-violet-600 dark:text-violet-400">"{targetEvent.acara}"</span> telah selesai.
+            Event <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">"{targetEvent.acara}"</span> telah selesai.
           </p>
           <p className="mb-5 text-xs text-slate-500 dark:text-slate-400">
             Bantu kami meningkatkan kualitas layanan dengan mengisi survey singkat.
@@ -100,7 +100,7 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
             </button>
             <button
               onClick={handleOpen}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
             >
               <ClipboardCheck className="h-4 w-4" />
               Isi Survey

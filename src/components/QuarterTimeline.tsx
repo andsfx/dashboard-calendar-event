@@ -53,7 +53,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-violet-500" />Tema Tahunan {themeYear}</p>
+        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-brand-primary-500" />Tema Tahunan {themeYear}</p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
             {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
@@ -61,7 +61,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               : 'Tidak ada tema aktif'}
           </span>
           {isAdmin && onAddTheme && (
-            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-violet-200 px-2.5 py-1.5 text-xs font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900/20">
+            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20">
               <Plus className="h-3.5 w-3.5" />Tambah Tema
             </button>
           )}
@@ -75,7 +75,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               <select
                 value={selectedTheme.id}
                 onChange={e => setSelectedThemeId(e.target.value)}
-                className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-violet-500 dark:focus:ring-violet-900/30"
+                className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
               >
                 {themes.map(theme => (
                   <option key={theme.id} value={theme.id}>{theme.name}</option>

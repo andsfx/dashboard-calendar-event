@@ -31,7 +31,7 @@ export function LogoMark({ className = '' }: { className?: string }) {
 export function eyebrow(label: string, light = false) {
   return (
     <p
-      className={`text-[11px] font-semibold uppercase tracking-[0.3em] ${light ? 'text-white/80' : 'text-violet-500 dark:text-violet-400'}`}
+      className={`text-[11px] font-semibold uppercase tracking-[0.3em] ${light ? 'text-white/80' : 'text-brand-primary-500 dark:text-brand-primary-400'}`}
     >
       {label}
     </p>

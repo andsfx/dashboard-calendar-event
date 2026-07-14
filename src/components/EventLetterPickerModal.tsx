@@ -38,7 +38,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
       <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -58,7 +58,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari event, lokasi, atau EO"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -89,7 +89,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
                       </div>
                       {event.eo && <p className="text-xs text-slate-500 dark:text-slate-400">EO: {event.eo}</p>}
                     </div>
-                    <span className="shrink-0 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-medium text-violet-600 dark:border-violet-900/50 dark:text-violet-300">
+                    <span className="shrink-0 rounded-lg border border-brand-primary-200 px-3 py-1.5 text-xs font-medium text-brand-primary-600 dark:border-brand-primary-900/50 dark:text-brand-primary-300">
                       Pilih
                     </span>
                   </button>

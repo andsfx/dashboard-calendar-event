@@ -49,7 +49,7 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 
       <button
         onClick={dismiss}
-        className="relative shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:hover:bg-slate-700 dark:hover:text-white"
+        className="relative shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
         aria-label="Tutup notifikasi"
       >
         <X className="h-3.5 w-3.5" />

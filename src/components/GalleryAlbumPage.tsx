@@ -215,7 +215,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
             </p>
             <button
               onClick={() => setRetryCount(c => c + 1)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-violet-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <RefreshCw className="h-4 w-4" />
               Coba lagi
@@ -237,7 +237,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
             </p>
             <button
               onClick={() => navigate('/gallery')}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-violet-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <ArrowLeft className="h-4 w-4" />
               Kembali ke Gallery
@@ -250,7 +250,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
           <>
             {/* Album header */}
             <div className="mb-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">
                 Album
               </p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">

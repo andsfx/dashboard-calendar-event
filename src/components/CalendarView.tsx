@@ -199,9 +199,9 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                 aria-label={dayLabel}
                 className={`relative flex h-9 w-full flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
-                    ? 'bg-violet-600 text-white shadow-md'
+                    ? 'bg-brand-primary-600 text-white shadow-md'
                     : isToday
-                    ? 'bg-violet-100 text-violet-700 font-bold ring-2 ring-violet-300 dark:bg-violet-900/40 dark:text-violet-300 dark:ring-violet-700'
+                    ? 'bg-brand-primary-100 text-brand-primary-700 font-bold ring-2 ring-brand-primary-300 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 dark:ring-brand-primary-700'
                     : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
@@ -259,7 +259,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
-                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-violet-500" /> Agenda {MONTH_ID[month]} {year}</span>
+                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-brand-primary-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
               <p className="text-xs text-slate-400">
                 {monthEvents.length} acara dan {monthHolidays.length} hari libur di bulan ini
@@ -293,10 +293,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       if (multiDayEvents.length === 0) return null;
                       
                       return (
-                        <div className="mb-5 space-y-3 rounded-xl border border-violet-200 bg-violet-50/40 p-4 dark:border-violet-800/50 dark:bg-violet-900/10">
+                        <div className="mb-5 space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/40 p-4 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10">
                           <div className="flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-violet-500" />
-                            <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                            <span className="h-2 w-2 rounded-full bg-brand-primary-500" />
+                            <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                             Rangkaian acara ({multiDayEvents.length})
                           </p>
                         </div>
@@ -307,18 +307,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                 <button
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className="w-full rounded-xl border border-violet-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50/50 hover:shadow-md dark:border-violet-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                  className="w-full rounded-xl border border-brand-primary-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                                    <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                                       {formatDateRange(ev.dateStr, ev.dateEnd)}
                                     </p>
                                     <div className="flex items-center gap-2">
-                                      <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                      <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-xs font-medium text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
                                         {duration} hari
                                       </span>
                                       <StatusBadge status={ev.status} size="sm" />
-                                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                                     </div>
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -370,16 +370,16 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                   onClick={() => onDetail(ev)}
                                   className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
                                     isSelectedCard
-                                      ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                                      ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
                                       : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
                                   }`}
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-500 dark:text-slate-400'}`}>
                                       {ev.day}, {ev.tanggal}
                                     </p>
                                     <StatusBadge status={ev.status} size="sm" />
-                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
@@ -437,12 +437,12 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           key={`holiday-${holiday.id}`}
                           className={`rounded-2xl border p-4 text-left shadow-sm ${
                             isSelectedCard
-                              ? 'border-violet-200 bg-violet-50/40 ring-1 ring-violet-200 dark:border-violet-800/50 dark:bg-violet-900/10 dark:ring-violet-800/40'
+                              ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
                               : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
                           }`}
                         >
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-500 dark:text-slate-400'}`}>
                               {holiday.day}, {holiday.tanggal}
                             </p>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
@@ -524,10 +524,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     if (multiDayEvents.length === 0) return null;
                     
                     return (
-                      <div className="mb-4 space-y-3 rounded-xl border border-violet-200 bg-violet-50/40 p-3 dark:border-violet-800/50 dark:bg-violet-900/10">
+                      <div className="mb-4 space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/40 p-3 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10">
                         <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-violet-500" />
-                          <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                          <span className="h-2 w-2 rounded-full bg-brand-primary-500" />
+                          <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                             Rangkaian acara ({multiDayEvents.length})
                           </p>
                         </div>
@@ -541,18 +541,18 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                   setSelectedDate(null);
                                   onDetail(ev);
                                 }}
-                                className="w-full rounded-lg border border-violet-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50/50 hover:shadow-md dark:border-violet-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                className="w-full rounded-lg border border-brand-primary-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                               >
                                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                  <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                                     {formatDateRange(ev.dateStr, ev.dateEnd)}
                                   </p>
                                   <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                    <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-xs font-medium text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
                                       {duration} hari
                                     </span>
                                     <StatusBadge status={ev.status} size="sm" />
-                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                                   </div>
                                 </div>
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -607,7 +607,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
                                 <StatusBadge status={ev.status} size="sm" />
-                                {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Reguler</span>}
+                                {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                               </div>
                               <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <CategoryBadges categories={ev.categories} maxVisible={2} />

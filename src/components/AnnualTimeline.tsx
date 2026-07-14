@@ -24,7 +24,7 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: '250ms' }}>
       <div className="flex items-center gap-2 mb-4">
-        <CalendarDays className="w-5 h-5 text-indigo-500" />
+        <CalendarDays className="w-5 h-5 text-brand-primary-500" />
         <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Tema Tahunan 2026
         </h3>

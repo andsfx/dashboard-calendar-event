@@ -79,7 +79,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="admin-login-title">
       <div className={`rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden transition-transform ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
         {/* Header gradient */}
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5">
+        <div className="bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
@@ -107,7 +107,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
             onClick={() => setTab('email')}
             className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
               tab === 'email'
-                ? 'border-b-2 border-violet-500 text-violet-600 dark:text-violet-400'
+                ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
@@ -119,7 +119,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
             onClick={() => setTab('legacy')}
             className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
               tab === 'legacy'
-                ? 'border-b-2 border-violet-500 text-violet-600 dark:text-violet-400'
+                ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
             }`}
           >
@@ -143,7 +143,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                   onChange={e => { setEmail(e.target.value); setError(''); }}
                   placeholder="admin@example.com"
                   autoFocus
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-violet-900/30"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
                 />
               </div>
             )}
@@ -163,7 +163,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                   className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
                     error
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900/30'
-                      : 'border-slate-200 focus:border-violet-400 focus:ring-violet-100 dark:border-slate-600 dark:focus:ring-violet-900/30'
+                      : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600 dark:focus:ring-brand-primary-900/30'
                   }`}
                 />
                 <button
@@ -185,7 +185,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-violet-700 hover:to-indigo-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-brand-primary-700 hover:to-brand-primary-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

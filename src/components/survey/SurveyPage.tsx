@@ -179,7 +179,7 @@ export default function SurveyPage() {
     return (
       <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
           <p className="mt-3 text-sm text-slate-500">Memuat survey...</p>
         </div>
       </PageShell>
@@ -193,7 +193,7 @@ export default function SurveyPage() {
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <AlertTriangle className="h-10 w-10 text-amber-500" />
           <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">{error}</p>
-          <button onClick={() => navigate('/dashboard')} className="mt-4 text-sm text-violet-600 hover:underline">
+          <button onClick={() => navigate('/dashboard')} className="mt-4 text-sm text-brand-primary-600 hover:underline">
             Kembali ke Dashboard
           </button>
         </div>
@@ -211,7 +211,7 @@ export default function SurveyPage() {
           <p className="mt-2 max-w-xs text-sm text-slate-500 dark:text-slate-400">
             Terima kasih! Anda sudah pernah mengisi survey untuk event "{event?.acara}".
           </p>
-          <button onClick={() => navigate('/dashboard')} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">
+          <button onClick={() => navigate('/dashboard')} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-primary-700">
             Kembali ke Dashboard
           </button>
         </div>
@@ -232,10 +232,10 @@ export default function SurveyPage() {
   return (
     <PageShell onBack={goBack}>
       {/* Event info header */}
-      <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-4 dark:border-violet-800 dark:from-violet-950/40 dark:to-indigo-950/40">
+      <div className="rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-primary-50 p-4 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-primary-950/40">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/50">
-            <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
+            <Building2 className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" />
           </div>
           <div className="min-w-0">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">{event?.acara}</h2>
@@ -276,14 +276,14 @@ export default function SurveyPage() {
           {/* Type indicator */}
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Mengisi sebagai: <span className="font-semibold text-violet-600 dark:text-violet-400">
+              Mengisi sebagai: <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">
                 {surveyType === 'organizer' ? 'Penyelenggara' : 'Peserta / Pengunjung'}
               </span>
             </p>
             <button
               type="button"
               onClick={() => setSurveyType(null)}
-              className="text-xs text-violet-600 hover:underline dark:text-violet-400"
+              className="text-xs text-brand-primary-600 hover:underline dark:text-brand-primary-400"
             >
               Ubah
             </button>
@@ -292,7 +292,7 @@ export default function SurveyPage() {
           {/* Mall ratings */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-violet-500" />
+              <div className="h-1 w-1 rounded-full bg-brand-primary-500" />
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                 Penilaian Pengelola Tempat
               </h3>
@@ -319,7 +319,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, mall: e.target.value }))}
               maxLength={1000}
               rows={2}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-violet-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
             />
           </section>
 
@@ -327,7 +327,7 @@ export default function SurveyPage() {
           {surveyType === 'public' && (
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-indigo-500" />
+                <div className="h-1 w-1 rounded-full bg-brand-primary-500" />
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                   Penilaian Penyelenggara Event
                 </h3>
@@ -354,7 +354,7 @@ export default function SurveyPage() {
                 onChange={(e) => setComments(prev => ({ ...prev, eo: e.target.value }))}
                 maxLength={1000}
                 rows={2}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-violet-800"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
               />
             </section>
           )}
@@ -370,7 +370,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
               maxLength={1000}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-violet-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
             />
           </section>
 
@@ -410,7 +410,7 @@ export default function SurveyPage() {
             type="button"
             disabled={!isValid() || submitting}
             onClick={handleSubmit}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary-200 transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -444,7 +444,7 @@ function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: (
               <ArrowLeft className="h-4 w-4" />
             </button>
           )}
-          <ClipboardCheck className="h-5 w-5 shrink-0 text-violet-600 dark:text-violet-400" />
+          <ClipboardCheck className="h-5 w-5 shrink-0 text-brand-primary-600 dark:text-brand-primary-400" />
           <div>
             <h1 className="text-sm font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">Metropolitan Mall Bekasi</p>
@@ -473,9 +473,9 @@ function TypeCard({ title, desc, icon, onClick }: { title: string; desc: string;
     <button
       type="button"
       onClick={onClick}
-      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-violet-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-violet-600"
+      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-primary-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/50 dark:text-brand-primary-400">
         {icon}
       </div>
       <div>
@@ -502,7 +502,7 @@ function InputField({ icon, placeholder, value, onChange, type = 'text', maxLeng
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={maxLength}
-        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-violet-800"
+        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
       />
     </div>
   );

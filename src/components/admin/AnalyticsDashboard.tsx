@@ -34,11 +34,11 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-violet-500" />
+            <TrendingUp className="h-4 w-4 text-brand-primary-500" />
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Tren Event per Bulan</h3>
           </div>
           <div className="flex items-center gap-1 text-[10px]">
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-violet-500" />{currentYear}</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-brand-primary-500" />{currentYear}</span>
             {prevYearEvents.length > 0 && (
               <span className="flex items-center gap-1 ml-2"><span className="h-2 w-2 rounded-full bg-slate-300" />{prevYear}</span>
             )}
@@ -87,7 +87,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || '#6366f1' }}
+                  style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || '#00918e' }}
                 />
               </div>
               <p className="text-[10px] text-slate-400">{pct.toFixed(0)}%</p>
@@ -183,7 +183,7 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
                 />
               )}
               <div
-                className="w-2 rounded-t bg-violet-500 transition-all duration-700 sm:w-3"
+                className="w-2 rounded-t bg-brand-primary-500 transition-all duration-700 sm:w-3"
                 style={{ height: `${(cur / max) * 100}%`, minHeight: cur > 0 ? '4px' : '0' }}
                 title={`${cur} event`}
               />

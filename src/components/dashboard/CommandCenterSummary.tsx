@@ -39,47 +39,52 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
 
   return (
     <section aria-labelledby="command-center-title">
-      <div className="mb-6">
-        <h2 id="command-center-title" className="text-lg font-bold text-slate-900 dark:text-white">
-          Command Center
-        </h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Quick access to all dashboard modules
-        </p>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 id="command-center-title" className="text-lg font-bold text-slate-900 dark:text-white">
+            Command Center
+          </h2>
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+            Akses cepat modul operasional
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map(card => (
           <Link
             key={card.id}
             to={card.route}
-            className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 ui-focus-ring"
+            className={`group flex items-start gap-3 rounded-xl border bg-white p-4 shadow-sm transition hover:border-brand-primary-300 hover:shadow-md dark:bg-slate-800 dark:hover:border-brand-primary-700 ui-focus-ring ${
+              card.attention
+                ? 'border-brand-primary-200 dark:border-brand-primary-800'
+                : 'border-slate-200 dark:border-slate-700'
+            }`}
           >
-            {/* Gradient background on hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 transition-opacity group-hover:opacity-5`} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300">
+              {card.icon}
+            </div>
 
-            <div className="relative flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   {card.title}
                 </p>
-                <p className="mt-2 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
-                  {card.value}
-                </p>
-                <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                  {card.subtitle}
-                </p>
+                {card.attention && (
+                  <span className="shrink-0 rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                    Perlu
+                  </span>
+                )}
               </div>
-
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${card.iconBg} ${card.textColor} transition-transform group-hover:scale-110`}>
-                {card.icon}
+              <div className="mt-1 flex items-center gap-2 text-2xl font-bold tabular-nums text-slate-900 dark:text-white">
+                {card.value}
               </div>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+                {card.subtitle}
+              </p>
             </div>
 
-            {/* Arrow indicator */}
-            <div className="absolute bottom-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 opacity-0 transition-all group-hover:opacity-100 dark:bg-slate-700">
-              <ArrowRight className="h-3 w-3 text-slate-600 dark:text-slate-300" />
-            </div>
+            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-primary-500 dark:text-slate-600" aria-hidden />
           </Link>
         ))}
       </div>

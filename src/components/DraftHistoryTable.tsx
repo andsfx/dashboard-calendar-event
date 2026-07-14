@@ -68,7 +68,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                       {!draft.published && (draft.deleted || draft.progress === 'cancel') && (
                         <button
                           onClick={() => onRestore(draft)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-violet-200 px-2.5 py-1.5 text-xs font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900/20"
+                          className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20"
                         >
                           <RotateCcw className="h-3.5 w-3.5" />Pulihkan
                         </button>

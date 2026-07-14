@@ -4,8 +4,8 @@ import { DraftProgress } from '../types';
 const CONFIG: Record<DraftProgress, { label: string; className: string; dot: string }> = {
   draft: {
     label: 'Draft',
-    className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 ring-1 ring-purple-300 dark:ring-purple-700',
-    dot: 'bg-purple-400',
+    className: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 ring-1 ring-brand-primary-300 dark:ring-brand-primary-700',
+    dot: 'bg-brand-primary-400',
   },
   confirm: {
     label: 'Confirm',

@@ -141,7 +141,7 @@ export function DashboardViewsSection(props: Props) {
                     aria-label={`Tampilan ${tab.label}`}
                     className={`ui-focus-ring flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
-                        ? 'border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-800/50 dark:bg-slate-600 dark:text-violet-300'
+                        ? 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 shadow-sm dark:border-brand-primary-800/50 dark:bg-slate-600 dark:text-brand-primary-300'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
                     }`}
                   >
@@ -160,7 +160,7 @@ export function DashboardViewsSection(props: Props) {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-violet-600 hover:underline dark:text-violet-400"
+                  className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-brand-primary-600 hover:underline dark:text-brand-primary-400"
                 >
                   <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
                 </button>
@@ -186,7 +186,7 @@ export function DashboardViewsSection(props: Props) {
           <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
           <button
             onClick={resetFilters}
-            className="ui-focus-ring mt-1 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+            className="ui-focus-ring mt-1 rounded-xl bg-brand-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-primary-700"
           >
             Reset Filter
           </button>

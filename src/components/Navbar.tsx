@@ -1,7 +1,7 @@
 import { Moon, Sun, CalendarDays, LogOut, Shield, Users, Crown } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
 
 interface Props {
   isDark: boolean;
@@ -52,7 +52,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
 
         {/* Brand */}
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/40">
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/40">
             <CalendarDays className="h-5 w-5 text-white" />
             {/* Live events indicator */}
             {ongoingCount > 0 && (
@@ -76,7 +76,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               <a
                 href="/"
                 title="Community Space"
-                className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/30 sm:px-3 ${focusRing}`}
               >
                 <Users className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Community</span>
@@ -88,7 +88,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               <button
                 onClick={onLoginClick}
                 title="Masuk sebagai admin"
-                className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-violet-700 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 sm:px-3 ${focusRing}`}
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 hover:text-brand-primary-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-brand-primary-700 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400 sm:px-3 ${focusRing}`}
               >
                 <Shield className="h-3.5 w-3.5" />
                 <span className="hidden md:inline">Admin</span>
@@ -98,7 +98,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               <a
                 href="/"
                 title="Community Space"
-                className={`flex h-9 items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/30 sm:px-3 ${focusRing}`}
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/30 sm:px-3 ${focusRing}`}
               >
                 <Users className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Community</span>

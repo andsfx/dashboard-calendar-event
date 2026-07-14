@@ -139,10 +139,10 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
           {ongoingEvents.map(event => (
             <div
               key={event.id}
-              className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white rounded-2xl p-6 shadow-xl shadow-indigo-600/20 relative overflow-hidden"
+              className="bg-gradient-to-br from-brand-primary-600 via-brand-primary-700 to-brand-primary-800 text-white rounded-2xl p-6 shadow-xl shadow-brand-primary-600/20 relative overflow-hidden"
             >
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-400/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-primary-400/10 rounded-full blur-2xl" />
 
               <div className="relative z-10">
                 <div className="flex items-start justify-between mb-3">
@@ -182,7 +182,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                   </div>
                   <div className="h-2 bg-white/15 rounded-full overflow-hidden backdrop-blur-sm">
                     <div
-                      className="h-full bg-gradient-to-r from-indigo-300 to-violet-300 rounded-full transition-all duration-1000"
+                      className="h-full bg-gradient-to-r from-brand-primary-300 to-brand-primary-300 rounded-full transition-all duration-1000"
                       style={{ width: `${progress[event.id] || 0}%` }}
                     />
                   </div>

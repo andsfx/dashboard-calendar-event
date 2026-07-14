@@ -29,7 +29,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
 
   return (
     <div className="relative group">
-      <Search className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-violet-500' : 'text-slate-400 group-focus-within:text-violet-500'}`} />
+      <Search className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-brand-primary-500' : 'text-slate-400 group-focus-within:text-brand-primary-500'}`} />
       <input
         ref={inputRef}
         type="search"
@@ -38,7 +38,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         placeholder={placeholder}
         maxLength={100}
         aria-label="Cari acara"
-        className="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-violet-500 dark:focus:ring-violet-900/30"
+        className="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
       />
 
       {/* Right side: clear button OR keyboard shortcut hint */}
@@ -46,7 +46,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         {value ? (
           <button
             onClick={() => { onChange(''); inputRef.current?.focus(); }}
-            className="rounded-lg p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 dark:hover:bg-slate-700 dark:hover:text-white"
+            className="rounded-lg p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
             aria-label="Hapus pencarian"
           >
             <X className="h-3.5 w-3.5" />

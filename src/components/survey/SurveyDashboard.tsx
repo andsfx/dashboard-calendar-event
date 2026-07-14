@@ -139,7 +139,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-brand-primary-500" />
       </div>
     );
   }
@@ -279,7 +279,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
                 placeholder="Sampai"
               />
               {(dateFrom || dateTo) && (
-                <button onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-[10px] text-violet-600 hover:underline dark:text-violet-400">
+                <button onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-[10px] text-brand-primary-600 hover:underline dark:text-brand-primary-400">
                   Reset
                 </button>
               )}
@@ -440,7 +440,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               {/* Export */}
               <button
                 onClick={() => onExport(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-900/30"
+                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-brand-primary-600 hover:bg-brand-primary-50 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/30"
               >
                 <Download className="h-3 w-3" />
                 CSV
@@ -458,7 +458,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
 
 function StatMini({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   const colors: Record<string, string> = {
-    violet: 'bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400',
+    violet: 'bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/40 dark:text-brand-primary-400',
     blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
     emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
     amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
@@ -476,9 +476,9 @@ function RatingBar({ label, value, highlight }: { label: string; value: number; 
   const pct = (value / 10) * 100;
   const color = value >= 8 ? 'bg-emerald-500' : value >= 5 ? 'bg-yellow-500' : 'bg-red-500';
   return (
-    <div className={`space-y-1 ${highlight ? 'rounded-lg bg-violet-50 p-2 dark:bg-violet-900/20' : ''}`}>
+    <div className={`space-y-1 ${highlight ? 'rounded-lg bg-brand-primary-50 p-2 dark:bg-brand-primary-900/20' : ''}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-[11px] ${highlight ? 'font-semibold text-violet-700 dark:text-violet-300' : 'text-slate-600 dark:text-slate-400'}`}>{label}</span>
+        <span className={`text-[11px] ${highlight ? 'font-semibold text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-600 dark:text-slate-400'}`}>{label}</span>
         <span className={`text-xs font-bold ${value >= 8 ? 'text-emerald-600' : value >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{value.toFixed(1)}</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">

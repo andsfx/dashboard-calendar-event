@@ -151,7 +151,7 @@ export default function SurveyQRCode({
         {/* Download button */}
         <button
           onClick={handleDownload}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 px-4 py-2 text-sm font-medium text-violet-600 transition hover:bg-violet-50 dark:border-violet-700 dark:text-violet-400 dark:hover:bg-violet-900/20"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary-200 px-4 py-2 text-sm font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/20"
         >
           <Download className="h-4 w-4" />
           Download QR Code (PNG)
@@ -168,7 +168,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
       onClick={onClick}
       className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
         active
-          ? 'bg-white text-violet-700 shadow-sm dark:bg-slate-600 dark:text-violet-300'
+          ? 'bg-white text-brand-primary-700 shadow-sm dark:bg-slate-600 dark:text-brand-primary-300'
           : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
       }`}
     >
