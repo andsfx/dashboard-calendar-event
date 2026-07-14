@@ -1,8 +1,9 @@
 import { ArrowRight, CheckCircle2, Music, Users } from 'lucide-react';
 import { imgUrl } from '../../utils/imageOptim';
 
-/* Hallmark polish (minimal): solid brand CTA, no orbs/sparkle/gradient buttons */
-/* P0: hero body static — no RevealSection (LCP / FOUC) */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3
+ * redesign: solid brand CTA, honest badge, LCP static hero — no invented metrics
+ */
 
 const focusRing = 'ui-focus-ring';
 
@@ -52,7 +53,7 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
       )}
 
       <div className="relative mx-auto flex min-h-[70dvh] max-w-7xl items-center px-4 py-24 sm:px-6">
-        <div className="max-w-3xl w-full text-center lg:text-left">
+        <div className="max-w-3xl w-full text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85">
             100+ Event Sudah Terlaksana
           </div>
@@ -61,33 +62,33 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
             Panggung Gratis untuk Komunitas Bekasi
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl lg:mx-0">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
             Cari venue untuk event komunitas? Metropolitan Mall Bekasi siapkan tempatnya <strong className="text-white">gratis</strong>.
           </p>
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg lg:mx-0">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
             Venue, sound system, dan lighting sudah tersedia. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lain.
           </p>
-          <p className="mx-auto mt-4 max-w-md text-sm font-medium text-white/75 lg:mx-0">
+          <p className="mt-4 max-w-md text-sm font-medium text-white/75">
             Slot bulanan terbatas. Daftar sebelum jadwal penuh.
           </p>
 
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start">
             <a
               href="#register"
-              className={`group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] ${focusRing}`}
+              className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] ${focusRing}`}
             >
               Daftar Sekarang
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
             </a>
             <a
               href="#benefits"
-              className={`inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
+              className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
             >
               Lihat Keuntungan
             </a>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/75 lg:justify-start">
+          <div className="mt-12 flex flex-wrap items-center gap-6 text-sm text-white/75">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" />

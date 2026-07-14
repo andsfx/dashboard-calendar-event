@@ -40,11 +40,11 @@ interface CommunityLandingProps {
 const NAV_ITEMS = [
   { href: '#upcoming-events', label: 'Event' },
   { href: '#benefits', label: 'Keuntungan' },
-  { href: '#facilities', label: 'Fasilitas' },
   { href: '#how', label: 'Cara Daftar' },
   { href: '#faq', label: 'FAQ' },
   { href: '#gallery', label: 'Galeri' },
   { href: '#register', label: 'Daftar' },
+  { href: '#contact', label: 'Kontak' },
 ] as const;
 
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
@@ -235,10 +235,15 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <div ref={sentinelRef} className="absolute top-0 h-px w-px" aria-hidden="true" />
       </main>
       <footer className="border-t border-black/5 bg-white px-4 py-12 dark:bg-slate-950 dark:border-slate-800 sm:px-6 sm:py-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <LogoMark className="h-auto w-[102px] opacity-90" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi. All rights reserved.</p>
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <LogoMark className="h-auto w-[102px] opacity-90" />
+          <div className="flex flex-col gap-2 sm:items-end">
+            <a href="#register" className="text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">
+              Daftar event komunitas
+            </a>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi
+            </p>
           </div>
         </div>
       </footer>

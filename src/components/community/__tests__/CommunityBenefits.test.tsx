@@ -21,8 +21,8 @@ describe('CommunityBenefits', () => {
     expect(screen.getByText(/Tim marketing kami bantu promosikan/)).toBeInTheDocument()
   })
 
-  it('renders eyebrow label', () => {
+  it('renders support copy', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText('Kenapa Gabung')).toBeInTheDocument()
+    expect(screen.getByText(/didukung untuk berkembang/)).toBeInTheDocument()
   })
 })

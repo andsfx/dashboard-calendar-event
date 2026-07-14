@@ -1,12 +1,8 @@
 import React, { useState, useEffect, CSSProperties } from 'react';
-import { Clock, MapPin, CalendarDays, ArrowRight, Radio } from 'lucide-react';
+import { Clock, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
 import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { RevealSection } from './CommunityRevealPrimitives';
-
-function vv(cssVar: string): string { return `var(--brand-${cssVar})`; }
-
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 function EmptyEvents() {
   return (
@@ -23,84 +19,6 @@ function EmptyEvents() {
         Hubungi Kami <ArrowRight className="h-4 w-4" />
       </a>
     </div>
-  );
-}
-
-function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (ev: EventItem) => void }) {
-  const sorted = [...events].sort((a, b) => {
-    if (a.status === 'ongoing' && b.status !== 'ongoing') return -1;
-    if (a.status !== 'ongoing' && b.status === 'ongoing') return 1;
-    return a.dateStr.localeCompare(b.dateStr);
-  }).slice(0, 6);
-
-  if (sorted.length === 0) return <EmptyEvents />;
-
-  return (
-    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sorted.map(ev => {
-        const color = CATEGORY_COLORS[ev.category] ?? vv('tosca');
-        const isOngoing = ev.status === 'ongoing';
-        return (
-          <button
-            key={ev.id}
-            type="button"
-            onClick={() => onDetail(ev)}
-            aria-label={`${ev.acara} - ${ev.tanggal}`}
-            className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl text-left shadow-sm transition hover:shadow-lg hover:-translate-y-0.5 ${focusRing}`}
-          >
-            {/* Gradient top section. Fixed min-height for consistency */}
-            <div
-              className="relative flex min-h-[120px] flex-1 flex-col justify-between px-5 pb-5 pt-5"
-              style={{ background: `linear-gradient(135deg, ${color} 0%, color-mix(in srgb, ${color} 80%, transparent) 100%)` }}
-            >
-              {/* Status badge */}
-              <div>
-                {isOngoing ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                    <Radio className="h-3 w-3" aria-hidden="true" /> BERLANGSUNG
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
-                    <CalendarDays className="h-3 w-3" aria-hidden="true" /> {ev.tanggal}
-                  </span>
-                )}
-              </div>
-              <p className="mt-3 text-base font-bold leading-snug text-white line-clamp-2 drop-shadow-sm">{ev.acara}</p>
-            </div>
-            {/* Bottom section */}
-            <div className="border border-t-0 border-slate-200/50 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800 rounded-b-2xl">
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
-                {ev.jam && <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 shrink-0" aria-hidden="true" /><span>{ev.jam}</span></div>}
-                {ev.lokasi && <div className="flex items-center gap-1.5"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.lokasi}</span></div>}
-              </div>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-700 transition-colors group-hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:group-hover:text-[var(--brand-tosca-soft)]">
-                Lihat Detail <ArrowRight className="h-3 w-3" aria-hidden="true" />
-              </div>
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-export function EventShowcase({ events, onDetail, onViewAll }: { events: EventItem[]; onDetail: (ev: EventItem) => void; onViewAll: () => void }) {
-  return (
-    <>
-      <GridCardsView events={events} onDetail={onDetail} />
-
-      <div className="mt-8 text-center">
-        <button
-          type="button"
-          onClick={onViewAll}
-          className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
-        >
-          <CalendarDays className="h-4 w-4" />
-          Lihat Semua Event
-          <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
-    </>
   );
 }
 
@@ -126,7 +44,7 @@ function CountdownPill({ label, value, color }: { label: string; value: number; 
       className="rounded-2xl border border-[color-mix(in_srgb,var(--brand-tosca)_30%,transparent)] bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] px-4 py-3 text-center text-[var(--brand-tosca-dark)] dark:border-[color-mix(in_srgb,var(--brand-tosca)_40%,black)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)] dark:text-[var(--brand-tosca-soft)]"
       style={pillStyle}
     >
-      <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
+      <p className="text-2xl font-bold tabular-nums sm:text-3xl">{String(value).padStart(2, '0')}</p>
       <p className="mt-1 text-[10px] font-medium tracking-wider">{label}</p>
     </div>
   );
@@ -151,7 +69,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
     return (
       <RevealSection id="upcoming-events" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-center text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Agenda event
           </h2>
           <EmptyEvents />
@@ -183,7 +101,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
                 <span className="relative flex h-2 w-2 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: catColor }}></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:hidden" style={{ backgroundColor: catColor }}></span>
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
                 </span>
                 Event Berikutnya
@@ -223,10 +141,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
               <button
                 type="button"
                 onClick={() => onDetail?.(mainEvent)}
-                className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
-                style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 Lihat Detail Event <ArrowRight className="h-4 w-4" />
               </button>
@@ -235,7 +150,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
 
           {/* Right: promo poster. Visible all sizes */}
           <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-            <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 rotate-2 transition-transform hover:rotate-0">
+            <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
               {promoImageUrl ? (
                 <img
                   src={promoImageUrl}
@@ -265,7 +180,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-3xl border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start gap-4 rounded-3xl border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ color, backgroundColor: `${color}15` }}>
@@ -304,10 +219,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
                 href={`https://wa.me/6281318534823?text=${encodeURIComponent(`Halo, saya tertarik untuk menjadi sponsor atau mendukung event "${mainEvent.acara}". Mohon informasi lebih lanjut.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition"
-                style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)]"
               >
                 Hubungi Kami <ArrowRight className="h-4 w-4" />
               </a>

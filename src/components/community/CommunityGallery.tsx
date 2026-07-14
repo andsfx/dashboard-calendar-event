@@ -131,8 +131,8 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.caption || 'Instagram post'} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[var(--brand-paper)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:to-slate-800">
-            <Globe className="h-10 w-10 text-[var(--brand-tosca-soft)]" />
+          <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
+            <Globe className="h-10 w-10 text-[var(--brand-tosca-soft)]" aria-hidden="true" />
           </div>
         )}
       </div>
@@ -154,8 +154,8 @@ function InstagramFallbackCard({ url }: { url: string }) {
       rel="noopener noreferrer"
       className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[var(--brand-paper)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:to-slate-800">
-        <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
+        <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
       <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
@@ -173,11 +173,11 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
   return (
     <RevealSection id="gallery" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
       <div className="mx-auto max-w-7xl">
-        <div className="text-center">
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
             Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
           </p>
         </div>
@@ -185,8 +185,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
         {/* ── Dokumentasi Event ── */}
         {albums.length > 0 && (
           <div className="mt-10 sm:mt-14 lg:mt-16">
-            <div className="mb-6 flex items-center justify-center gap-2">
-              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+            <div className="mb-6 flex items-center gap-3">
               <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
             </div>
@@ -202,26 +201,26 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
                     {album.coverPhotoUrl ? (
                       <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_30%,black)] dark:to-slate-700">
+                      <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
                         <Camera className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
                       </div>
                     )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-                      <span className="text-sm font-semibold text-white">Lihat Foto &rarr;</span>
-                    </div>
                   </div>
                   <div className="p-3 sm:p-4">
                     <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                       {album.eventDate && <span>{album.eventDate}</span>}
-                      {typeof album.photoCount === 'number' && album.photoCount > 0 && <span>{album.eventDate ? '·' : ''} {album.photoCount} foto</span>}
+                      {typeof album.photoCount === 'number' && album.photoCount > 0 && (
+                        <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
+                      )}
+                      <span className="font-semibold text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]">Lihat foto →</span>
                     </div>
                   </div>
                 </a>
               ))}
             </div>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6">
               <a
                 href="/gallery"
                 className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
@@ -236,8 +235,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
 
         {/* ── Instagram ── */}
         <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          <div className="mb-6 flex items-center gap-3">
             <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Instagram</h3>
             <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
           </div>
@@ -265,7 +263,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
             </div>
           )}
 
-          <div className="mt-8 text-center">
+          <div className="mt-8">
             <a
               href="https://instagram.com/metmalbekasi"
               target="_blank"

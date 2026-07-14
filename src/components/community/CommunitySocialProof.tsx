@@ -3,8 +3,8 @@ import { RevealSection } from './CommunityRevealPrimitives';
 function StatBadge({ number, label }: { number: string; label: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-2xl font-extrabold text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">{number}</span>
-      <span className="text-left text-xs font-medium text-slate-600 dark:text-slate-400 leading-tight">{label}</span>
+      <span className="text-2xl font-extrabold tabular-nums text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">{number}</span>
+      <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-400">{label}</span>
     </div>
   );
 }

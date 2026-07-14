@@ -19,7 +19,7 @@ export function CommunityFAQ() {
   return (
     <RevealSection id="faq" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
-        <div className="text-center">
+        <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Pertanyaan yang sering muncul.
           </h2>
@@ -28,10 +28,7 @@ export function CommunityFAQ() {
           {FAQS.map(([question, answer], index) => {
             const isOpen = openFaq === index;
             return (
-              <div
-                key={question}
-                className="ui-campaign-card overflow-hidden"
-              >
+              <div key={question} className="ui-campaign-card overflow-hidden">
                 <button
                   type="button"
                   id={`community-faq-trigger-${index}`}
@@ -41,10 +38,18 @@ export function CommunityFAQ() {
                   aria-controls={isOpen ? `community-faq-${index}` : undefined}
                 >
                   <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                  <ChevronDown className={`h-5 w-5 shrink-0 transition text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`h-5 w-5 shrink-0 text-[var(--brand-tosca)] transition motion-reduce:transition-none dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
                 </button>
                 {isOpen && (
-                  <div id={`community-faq-${index}`} role="region" aria-labelledby={`community-faq-trigger-${index}`} className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">
+                  <div
+                    id={`community-faq-${index}`}
+                    role="region"
+                    aria-labelledby={`community-faq-trigger-${index}`}
+                    className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6"
+                  >
                     {answer}
                   </div>
                 )}
