@@ -1,4 +1,4 @@
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const STEPS: Array<{ num: string; title: string; desc: string }> = [
   { num: '01', title: 'Daftar & Submit', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritain rencana event kamu.' },
@@ -12,8 +12,7 @@ export function CommunitySteps() {
     <RevealSection id="how" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          <CommunityEyebrow>Cara Daftar</CommunityEyebrow>
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Gampang banget, cuma 4 langkah.
           </h2>
         </div>
@@ -22,7 +21,7 @@ export function CommunitySteps() {
           {STEPS.map((s, i) => (
             <div key={s.num} className="relative">
               {i < STEPS.length - 1 && (
-                <div className="absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-gradient-to-r from-violet-400/40 to-transparent dark:from-violet-500/30 lg:block" />
+                <div className="absolute right-0 top-10 hidden h-0.5 w-full translate-x-1/2 bg-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] lg:block" />
               )}
               <div className="ui-campaign-card relative p-6">
                 <span className="ui-campaign-icon-gradient inline-flex h-10 w-10 items-center justify-center rounded-full text-lg font-extrabold">

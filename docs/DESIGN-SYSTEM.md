@@ -1,9 +1,9 @@
 # Design System Documentation
 ## Metropolitan Mall Bekasi Event Dashboard
 
-> **Version**: 2.0  
-> **Last Updated**: 2026-01-16  
-> **Based on**: design-taste-frontend principles
+> **Version**: 2.1  
+> **Last Updated**: 2026-07-14  
+> **Based on**: design-taste-frontend principles + Metmal logo brand
 
 ---
 
@@ -29,7 +29,7 @@ Sistem desain komprehensif untuk aplikasi **Metropolitan Mall Bekasi Event Dashb
 
 ### 2. **Metmal-like Aesthetic**
 - Pastel neutral palette (paper, card, ink)
-- Violet primary + Orange secondary
+- Tosca primary (`#00918E`) + Pink secondary (`#E24378`)
 - Clean data-first approach
 - Rounded corners (12-16px)
 
@@ -60,12 +60,17 @@ Sistem desain komprehensif untuk aplikasi **Metropolitan Mall Bekasi Event Dashb
 ### Brand Colors
 | Token | Value | Usage |
 |-------|-------|-------|
-| `brand-primary` | `#7c6cf2` | Primary actions, links, focus states |
-| `brand-primary-50` | `#f5f3ff` | Light backgrounds |
-| `brand-primary-100` | `#ede9fe` | Hover states |
-| `brand-primary-600` | `#7c3aed` | Hover actions |
-| `brand-secondary` | `#f2743e` | Secondary actions, accents |
-| `brand-secondary-600` | `#ea580c` | Hover secondary |
+| `brand-primary` | `#00918e` | Primary actions, links, focus, solid CTAs |
+| `brand-primary-50` | `#eefafa` | Light backgrounds |
+| `brand-primary-100` | `#d5f3f2` | Soft fills |
+| `brand-primary-400` | `#33a8a5` | Soft tosca / dark-mode accents |
+| `brand-primary-600` | `#007a78` | Hover actions |
+| `brand-primary-700` | `#00554c` | Dark tosca |
+| `brand-secondary` | `#e24378` | Secondary accent (pink) |
+| `brand-secondary-400` | `#ee95a9` | Soft pink |
+| `brand-secondary-600` | `#c92d62` | Hover secondary |
+
+CSS vars: `--brand-tosca`, `--brand-pink`. Legacy `--brand-violet` / `--brand-orange` alias to tosca/pink.
 
 ### Neutral Palette
 | Token | Value | Usage |

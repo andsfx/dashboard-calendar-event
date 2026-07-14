@@ -207,7 +207,7 @@ function RegistrationForm() {
         error={fieldErrors.organizationType}
       />
       {fieldErrors.organizationType && (
-        <p id="organization-type-error" className="mt-2 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+        <p id="organization-type-error" className="mt-2 text-sm text-rose-600 dark:text-rose-400" role="alert">
           {fieldErrors.organizationType}
         </p>
       )}
@@ -234,7 +234,7 @@ function RegistrationForm() {
             {/* Organization Name */}
             <div className="sm:col-span-2">
               <label htmlFor="reg-org-name" className={labelClass}>
-                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-brand-primary-600 dark:text-brand-primary-400">*</span>
+                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-500">*</span>
               </label>
               <input
                 id="reg-org-name"
@@ -247,7 +247,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.organizationName ? 'organization-name-error' : undefined}
               />
               {fieldErrors.organizationName && (
-                <p id="organization-name-error" className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+                <p id="organization-name-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
                   {fieldErrors.organizationName}
                 </p>
               )}
@@ -264,16 +264,16 @@ function RegistrationForm() {
 
             {/* Common Fields */}
             <div>
-              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-brand-primary-600 dark:text-brand-primary-400">*</span></label>
+              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-500">*</span></label>
               <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
               {fieldErrors.pic && (
-                <p id="pic-error" className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+                <p id="pic-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
                   {fieldErrors.pic}
                 </p>
               )}
             </div>
             <div>
-              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-brand-primary-600 dark:text-brand-primary-400">*</span></label>
+              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-500">*</span></label>
               <input 
                 id="reg-phone" 
                 value={form.phone} 
@@ -287,7 +287,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
               />
               {fieldErrors.phone && (
-                <p id="phone-error" className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+                <p id="phone-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
                   {fieldErrors.phone}
                 </p>
               )}
@@ -306,7 +306,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               />
               {fieldErrors.email && (
-                <p id="email-error" className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+                <p id="email-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
                   {fieldErrors.email}
                 </p>
               )}
@@ -323,7 +323,7 @@ function RegistrationForm() {
                 aria-describedby={fieldErrors.instagram ? 'instagram-error' : undefined}
               />
               {fieldErrors.instagram && (
-                <p id="instagram-error" className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">
+                <p id="instagram-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
                   {fieldErrors.instagram}
                 </p>
               )}
@@ -340,14 +340,14 @@ function RegistrationForm() {
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-brand-primary-600 dark:text-brand-primary-400" role="alert">{error}</p>}
+      {error && <p className="mt-4 text-sm text-rose-600 dark:text-rose-400" role="alert">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4 border-t border-black/[0.06] dark:border-neutral-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs leading-6 text-neutral-500 dark:text-neutral-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"
           disabled={submitting}
-          className={`inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-secondary to-brand-primary px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 hover:shadow-lg disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
+          className={`inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
         >
           <Send className="h-4 w-4" />
           {submitting ? 'Mengirim...' : 'Kirim Pendaftaran'}
@@ -360,7 +360,7 @@ function RegistrationForm() {
 export function CommunityRegistrationForm() {
   return (
     <RevealSection id="register" intensity="strong" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
-      <div className="reveal-cluster mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           <h2 className="mt-3 text-4xl font-bold leading-tight text-neutral-950 dark:text-white sm:text-5xl">
             Yuk, gabung!

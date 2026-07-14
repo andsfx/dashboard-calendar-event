@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const FAQS: Array<[string, string]> = [
   ['Benar gratis? Ada biaya tersembunyi?', 'Benar 100% gratis. Panggung, sound system, lighting, dan kursi disediakan tanpa biaya. Kamu cukup siapkan konsep acara dan kebutuhan komunitas.'],
@@ -20,8 +20,7 @@ export function CommunityFAQ() {
     <RevealSection id="faq" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="text-center">
-          <CommunityEyebrow>FAQ</CommunityEyebrow>
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Pertanyaan yang sering muncul.
           </h2>
         </div>
@@ -42,7 +41,7 @@ export function CommunityFAQ() {
                   aria-controls={isOpen ? `community-faq-${index}` : undefined}
                 >
                   <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                  <ChevronDown className={`h-5 w-5 shrink-0 transition text-violet-500 dark:text-violet-400 ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-5 w-5 shrink-0 transition text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
                   <div id={`community-faq-${index}`} role="region" aria-labelledby={`community-faq-trigger-${index}`} className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">

@@ -1,26 +1,35 @@
-/* Design tokens aligned to DESIGN.md */
+/* Design tokens — Metmal brand (logo tosca + pink), keep legacy names */
 :root {
-  --font-display: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --font-body: "Plus Jakarta Sans", "Segoe UI", sans-serif;
 
-  --brand-violet: #7c6cf2;
-  --brand-violet-soft: #9185f7;
-  --brand-orange: #f2743e;
+  /* Logo-aligned brand (primary = tosca, secondary = pink) */
+  --brand-tosca: #00918e;
+  --brand-tosca-soft: #33a8a5;
+  --brand-tosca-dark: #00554c;
+  --brand-pink: #e24378;
+  --brand-pink-soft: #ee95a9;
+
+  /* Legacy names → brand (landing + campaign still reference these) */
+  --brand-violet: var(--brand-tosca);
+  --brand-violet-soft: var(--brand-tosca-soft);
+  --brand-orange: var(--brand-pink);
+
   --brand-paper: #f4efe8;
   --brand-card: #faf6ef;
   --brand-card-light: #fffdf9;
   --color-neutral-page: #fbfaf7;
   --brand-ink: #0f172a;
 
-  /* Backward-compatible aliases for older landing CSS. */
-  --brand-cyan: var(--brand-violet-soft);
-  --brand-pink: var(--brand-violet);
+  --brand-cyan: var(--brand-tosca);
+  --brand-primary: var(--brand-tosca);
+  --brand-secondary: var(--brand-pink);
 
   --surface-paper: var(--brand-paper);
   --surface-card: var(--brand-card);
   --surface-card-light: var(--brand-card-light);
 
-  --focus-ring-color: var(--brand-violet);
+  --focus-ring-color: var(--brand-tosca);
   --focus-ring-offset-light: var(--brand-card-light);
   --focus-ring-offset-dark: #0f172a;
 

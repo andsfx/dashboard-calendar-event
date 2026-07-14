@@ -76,7 +76,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
               tabIndex={isSelected || (!value && index === Math.max(selectedIndex, 0)) ? 0 : -1}
               onClick={() => onChange(opt.value)}
               onKeyDown={event => handleKeyDown(event, index)}
-              className={`ui-focus-ring group relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 motion-reduce:transition-none ${
+              className={`ui-focus-ring relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-colors duration-200 motion-reduce:transition-none ${
                 isSelected
                   ? 'border-brand-primary-500 bg-brand-primary-50 shadow-md dark:border-brand-primary-400 dark:bg-brand-primary-950/30'
                   : error
@@ -84,7 +84,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                     : 'border-neutral-200/60 bg-white hover:border-neutral-300 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600'
               }`}
             >
-              <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 motion-reduce:transform-none motion-reduce:transition-none ${opt.color}`}>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${opt.color}`}>
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>

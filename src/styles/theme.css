@@ -9,31 +9,32 @@
    * COLOR SYSTEM
    * Brand colors unified across public & community sections
    */
-  --color-brand-primary: #7c6cf2;
-  --color-brand-primary-50: #f5f3ff;
-  --color-brand-primary-100: #ede9fe;
-  --color-brand-primary-200: #ddd6fe;
-  --color-brand-primary-300: #c4b5fd;
-  --color-brand-primary-400: #a78bfa;
-  --color-brand-primary-500: #8b5cf6;
-  --color-brand-primary-600: #7c3aed;
-  --color-brand-primary-700: #6d28d9;
-  --color-brand-primary-800: #5b21b6;
-  --color-brand-primary-900: #4c1d95;
-  --color-brand-primary-950: #2e1065;
+  /* Metmal logo: primary tosca, secondary pink */
+  --color-brand-primary: #00918e;
+  --color-brand-primary-50: #eefafa;
+  --color-brand-primary-100: #d5f3f2;
+  --color-brand-primary-200: #aae6e4;
+  --color-brand-primary-300: #66d1ce;
+  --color-brand-primary-400: #33a8a5;
+  --color-brand-primary-500: #00918e;
+  --color-brand-primary-600: #007a78;
+  --color-brand-primary-700: #00554c;
+  --color-brand-primary-800: #004440;
+  --color-brand-primary-900: #003330;
+  --color-brand-primary-950: #001f1d;
 
-  --color-brand-secondary: #f2743e;
-  --color-brand-secondary-50: #fff7ed;
-  --color-brand-secondary-100: #ffedd5;
-  --color-brand-secondary-200: #fed7aa;
-  --color-brand-secondary-300: #fdba74;
-  --color-brand-secondary-400: #fb923c;
-  --color-brand-secondary-500: #f97316;
-  --color-brand-secondary-600: #ea580c;
-  --color-brand-secondary-700: #c2410c;
-  --color-brand-secondary-800: #9a3412;
-  --color-brand-secondary-900: #7c2d12;
-  --color-brand-secondary-950: #4a1a0a;
+  --color-brand-secondary: #e24378;
+  --color-brand-secondary-50: #fdf2f6;
+  --color-brand-secondary-100: #fce7ef;
+  --color-brand-secondary-200: #f9c5d7;
+  --color-brand-secondary-300: #f49ab8;
+  --color-brand-secondary-400: #ee95a9;
+  --color-brand-secondary-500: #e24378;
+  --color-brand-secondary-600: #c92d62;
+  --color-brand-secondary-700: #a82150;
+  --color-brand-secondary-800: #8a1c43;
+  --color-brand-secondary-900: #721a3a;
+  --color-brand-secondary-950: #440a1f;
 
   /* Neutral palette - Metmal pastel aesthetic */
   --color-neutral-50: #f4efe8;    /* brand-paper */
@@ -51,9 +52,9 @@
 
   /*
    * TYPOGRAPHY SYSTEM
-   * Plus Jakarta Sans with proper hierarchy
+   * display=system serif / body=Plus Jakarta Sans
    */
-  --font-family-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-family-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --font-family-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   --font-size-2xs: 0.625rem;    /* 10px */

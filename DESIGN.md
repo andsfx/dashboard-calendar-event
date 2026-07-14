@@ -9,7 +9,7 @@ Public marketing surfaces should feel like a polished community campaign, not a 
 ## Visual Keywords
 
 - warm paper
-- violet/orange energy
+- tosca/pink Metmal brand
 - rounded cards
 - soft elevation
 - clear hierarchy
@@ -21,11 +21,13 @@ Public marketing surfaces should feel like a polished community campaign, not a 
 
 ### Brand Accents
 
-- Violet: `#7c6cf2`
-- Soft Violet: `#9185f7`
-- Warm Orange: `#f2743e`
+- Tosca (primary): `#00918E`
+- Soft Tosca: `#33A8A5`
+- Dark Tosca: `#00554C`
+- Pink (secondary): `#E24378`
+- Soft Pink: `#EE95A9`
 
-Use violet for structure, focus, links, selected states, and brand continuity. Use orange for high-energy CTAs and warm emphasis.
+Use tosca for structure, focus, links, selected states, primary CTAs, and brand continuity. Use pink sparingly for secondary accent. Legacy CSS vars `--brand-violet` / `--brand-orange` alias to tosca/pink.
 
 ### Surfaces
 
@@ -43,19 +45,20 @@ Use established Tailwind semantic colors:
 - Success: emerald
 - Warning: amber/orange
 - Error: rose/red
-- Info: violet/blue
+- Info: blue (or tosca for brand-linked info)
 
 Do not create new semantic colors unless existing meaning is insufficient.
+Error/required markers use rose — never brand-primary.
 
 ## Typography
 
-Use current app font stack. Keep hierarchy sharp through weight, size, spacing, and line height.
+Display: system serif (Iowan/Palatino/Georgia). Body: Plus Jakarta Sans. Hierarchy via weight, size, spacing, line height.
 
 ### Landing Page
 
 - Hero H1: extra-bold, tight leading, large mobile-aware scale.
 - Section H2: bold, `text-4xl` to `sm:text-5xl`.
-- Eyebrow: uppercase, `text-[11px]`, `tracking-[0.3em]`, violet.
+- Eyebrow: uppercase, `text-[11px]`, `tracking-[0.3em]`, tosca/brand-primary.
 - Body: `text-base`, relaxed `leading-7` or `leading-8`.
 - Metadata/chips: small but readable, usually `text-sm`.
 
@@ -90,7 +93,7 @@ Shared landing reveal primitive. It should:
 Shared section eyebrow for community landing surfaces:
 
 - uppercase
-- violet text
+- tosca / brand-primary text
 - high letter spacing
 - concise label only
 
@@ -99,14 +102,15 @@ Shared section eyebrow for community landing surfaces:
 Primary landing CTA:
 
 - rounded full
-- orange-to-violet gradient
+- solid tosca (`var(--brand-tosca)` / `bg-brand-primary-500`)
 - white text
-- strong but not excessive shadow
+- no orange→violet gradient
 - clear verb: `Daftar Sekarang`, `Daftar Kolaborasi`, or `Hubungi Kami`
 
 Secondary CTA:
 
 - bordered/glass when on dark hero
+- outline/ghost for non-conversion actions (e.g. Event Dashboard)
 - lower visual weight than primary CTA
 - points to proof or supporting info
 

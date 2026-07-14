@@ -24,9 +24,4 @@ describe('CommunityFacilities', () => {
     expect(screen.getByText(/Sound system profesional 10.000 watt/)).toBeInTheDocument()
     expect(screen.getByText(/Lighting profesional yang bikin panggung/)).toBeInTheDocument()
   })
-
-  it('renders eyebrow label', () => {
-    render(<CommunityFacilities />)
-    expect(screen.getByText('Fasilitas')).toBeInTheDocument()
-  })
 })

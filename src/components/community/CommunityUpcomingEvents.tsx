@@ -6,19 +6,19 @@ import { RevealSection } from './CommunityRevealPrimitives';
 
 function vv(cssVar: string): string { return `var(--brand-${cssVar})`; }
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 function EmptyEvents() {
   return (
     <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-16 text-center dark:border-slate-700 dark:bg-slate-800/30">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-900/20">
-        <CalendarDays className="h-8 w-8 text-violet-400 dark:text-violet-500" aria-hidden="true" />
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]">
+        <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
       </div>
       <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
       <p className="mt-2 max-w-xs text-sm text-slate-500 dark:text-slate-400">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
       <a
         href="#contact"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+        className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
       >
         Hubungi Kami <ArrowRight className="h-4 w-4" />
       </a>
@@ -38,7 +38,7 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
   return (
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map(ev => {
-        const color = CATEGORY_COLORS[ev.category] ?? vv('violet');
+        const color = CATEGORY_COLORS[ev.category] ?? vv('tosca');
         const isOngoing = ev.status === 'ongoing';
         return (
           <button
@@ -73,7 +73,7 @@ function GridCardsView({ events, onDetail }: { events: EventItem[]; onDetail: (e
                 {ev.jam && <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 shrink-0" aria-hidden="true" /><span>{ev.jam}</span></div>}
                 {ev.lokasi && <div className="flex items-center gap-1.5"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" /><span className="line-clamp-1">{ev.lokasi}</span></div>}
               </div>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-700 transition-colors group-hover:text-violet-600 dark:text-slate-300 dark:group-hover:text-violet-400">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-700 transition-colors group-hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:group-hover:text-[var(--brand-tosca-soft)]">
                 Lihat Detail <ArrowRight className="h-3 w-3" aria-hidden="true" />
               </div>
             </div>
@@ -123,7 +123,7 @@ function CountdownPill({ label, value, color }: { label: string; value: number; 
     : {};
   return (
     <div
-      className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-center text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300"
+      className="rounded-2xl border border-[color-mix(in_srgb,var(--brand-tosca)_30%,transparent)] bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] px-4 py-3 text-center text-[var(--brand-tosca-dark)] dark:border-[color-mix(in_srgb,var(--brand-tosca)_40%,black)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)] dark:text-[var(--brand-tosca-soft)]"
       style={pillStyle}
     >
       <p className="text-2xl font-bold sm:text-3xl">{String(value).padStart(2, '0')}</p>
@@ -146,10 +146,20 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
     return () => window.clearInterval(timer);
   }, []);
 
-  if (events.length === 0) return null;
-
-  const [mainEvent, ...otherEvents] = events;
-  if (!mainEvent) return null;
+  const mainEvent = events[0];
+  if (!mainEvent) {
+    return (
+      <RevealSection id="upcoming-events" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            Agenda event
+          </h2>
+          <EmptyEvents />
+        </div>
+      </RevealSection>
+    );
+  }
+  const otherEvents = events.slice(1);
 
   // Derive category color from mainEvent
   const mainCat = (mainEvent.categories?.length ? mainEvent.categories[0] : mainEvent.category) || 'Umum';
@@ -213,7 +223,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
               <button
                 type="button"
                 onClick={() => onDetail?.(mainEvent)}
-                className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
                 style={{ background: `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)` }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor}ee 0%, ${catColor}cc 100%)`; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = `linear-gradient(90deg, ${catColor} 0%, ${catColor}dd 100%)`; }}
@@ -255,7 +265,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-3xl border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start gap-4 rounded-3xl border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ color, backgroundColor: `${color}15` }}>

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Headphones, Heart, Lightbulb, MapPin, Mic2, Users } from 'lucide-react';
-import { CommunityEyebrow, RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
   { icon: <Mic2 className="h-6 w-6" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
@@ -17,8 +17,7 @@ export function CommunityFacilities() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <CommunityEyebrow>Fasilitas</CommunityEyebrow>
-            <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Semua udah disiapin.
             </h2>
           </div>
@@ -33,7 +32,7 @@ export function CommunityFacilities() {
               key={f.title}
               className="ui-campaign-card p-5 transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                 {f.icon}
               </div>
               <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">{f.title}</h3>

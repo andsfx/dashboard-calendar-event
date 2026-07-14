@@ -1,5 +1,6 @@
 /* Font loaded via <link> in index.html for non-blocking render */
 @import "tailwindcss";
+@import "./styles/theme.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/motion.css";

@@ -1,5 +1,4 @@
 import { ElementType, HTMLAttributes, ReactNode } from 'react';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 type RevealSectionProps<T extends ElementType = 'section'> = {
   as?: T;
@@ -9,32 +8,20 @@ type RevealSectionProps<T extends ElementType = 'section'> = {
   skeleton?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
+/** Static section wrapper — scroll-reveal removed (community landing polish). */
 export function RevealSection<T extends ElementType = 'section'>({
   as,
   children,
   className = '',
-  intensity = 'default',
-  skeleton,
+  intensity: _intensity = 'default',
+  skeleton: _skeleton,
   ...rest
 }: RevealSectionProps<T>) {
-  const { ref, isVisible } = useScrollReveal();
   const Tag = as ?? 'section';
 
-  if (!isVisible && skeleton) {
-    return (
-      <Tag ref={ref} className={className} {...rest}>
-        <div className="animate-pulse">{skeleton}</div>
-      </Tag>
-    );
-  }
-
   return (
-    <Tag
-      ref={ref}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
-      {...rest}
-    >
-      <div className="reveal-stage">{children}</div>
+    <Tag className={className} {...rest}>
+      {children}
     </Tag>
   );
 }
@@ -46,7 +33,7 @@ type CommunityEyebrowProps = {
 
 export function CommunityEyebrow({ children, className = 'text-[11px]' }: CommunityEyebrowProps) {
   return (
-    <p className={`${className} font-semibold uppercase tracking-[0.3em] text-violet-600`}>
+    <p className={`${className} font-semibold uppercase tracking-[0.2em] text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]`}>
       {children}
     </p>
   );

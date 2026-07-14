@@ -4,7 +4,7 @@ import { PhotoAlbum } from '../../types';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 const IG_POSTS = [
   'https://www.instagram.com/p/DXYxAlQkXrD/',
@@ -89,7 +89,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
     <div ref={containerRef} className="min-h-[350px] overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
       {!isVisible ? (
         <div className="flex h-[350px] items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-[var(--brand-tosca)]" />
         </div>
       ) : hasError || timedOut ? (
         <a
@@ -98,7 +98,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
           rel="noopener noreferrer"
           className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-slate-500 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
         >
-          <Globe className="h-8 w-8 text-violet-400" />
+          <Globe className="h-8 w-8 text-[var(--brand-tosca-soft)]" />
           <span>Lihat di Instagram &rarr;</span>
         </a>
       ) : (
@@ -129,10 +129,10 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
     >
       <div className="aspect-square overflow-hidden bg-slate-200 dark:bg-slate-700">
         {post.imageUrl ? (
-          <img src={post.imageUrl} alt={post.caption || 'Instagram post'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+          <img src={post.imageUrl} alt={post.caption || 'Instagram post'} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
-            <Globe className="h-10 w-10 text-violet-400" />
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[var(--brand-paper)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:to-slate-800">
+            <Globe className="h-10 w-10 text-[var(--brand-tosca-soft)]" />
           </div>
         )}
       </div>
@@ -154,8 +154,8 @@ function InstagramFallbackCard({ url }: { url: string }) {
       rel="noopener noreferrer"
       className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-amber-50 dark:from-violet-900/30 dark:to-amber-900/20">
-        <Globe className="h-10 w-10 text-violet-500 dark:text-violet-400" />
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[var(--brand-paper)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:to-slate-800">
+        <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
       </div>
       <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
@@ -200,10 +200,10 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
                     {album.coverPhotoUrl ? (
-                      <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+                      <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/40 dark:to-slate-700">
-                        <Camera className="h-8 w-8 text-violet-300 dark:text-violet-500" aria-hidden="true" />
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] to-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] dark:from-[color-mix(in_srgb,var(--brand-tosca)_30%,black)] dark:to-slate-700">
+                        <Camera className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
                       </div>
                     )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">

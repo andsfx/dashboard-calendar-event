@@ -30,9 +30,4 @@ describe('CommunitySteps', () => {
     expect(screen.getByText(/Pilih tipe organisasi/)).toBeInTheDocument()
     expect(screen.getByText(/Tim kami review proposal/)).toBeInTheDocument()
   })
-
-  it('renders eyebrow label', () => {
-    render(<CommunitySteps />)
-    expect(screen.getByText('Cara Daftar')).toBeInTheDocument()
-  })
 })

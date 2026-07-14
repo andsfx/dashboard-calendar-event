@@ -1,9 +1,11 @@
 .ui-focus-ring {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  --tw-ring-color: var(--brand-tosca-soft);
 }
 
 .ui-focus-ring-panel {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  --tw-ring-color: var(--brand-tosca-soft);
 }
 
 .ui-dashboard-surface {
@@ -35,15 +37,25 @@
 }
 
 .ui-campaign-icon-gradient {
-  @apply bg-gradient-to-br from-orange-500 to-violet-500 text-white;
+  background: var(--brand-tosca);
+  color: #fff;
 }
 
 .ui-gradient-primary {
-  @apply bg-gradient-to-r from-violet-600 to-indigo-600;
+  background: var(--brand-tosca);
 }
 
-.ui-gradient-primary-hover {
-  @apply hover:from-violet-700 hover:to-indigo-700;
+.ui-gradient-primary-hover:hover {
+  background: var(--brand-tosca-dark);
+}
+
+.ui-btn-primary {
+  background: var(--brand-tosca);
+  color: #fff;
+}
+
+.ui-btn-primary:hover {
+  background: var(--brand-tosca-dark);
 }
 
 .ui-gradient-slate {

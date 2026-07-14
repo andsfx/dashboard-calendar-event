@@ -12,29 +12,8 @@ import { CommunitySocialProof } from './community/CommunitySocialProof';
 import { CommunityUpcomingEvents } from './community/CommunityUpcomingEvents';
 import { CommunityGallery } from './community/CommunityGallery';
 import { CommunityContact } from './community/CommunityContact';
-import { CommunityEyebrow, RevealSection } from './community/CommunityRevealPrimitives';
 
 const focusRing = 'ui-focus-ring';
-
-function SkeletonEventGrid() {
-  return (
-    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
-          <div className="flex h-[120px] flex-col justify-between bg-slate-200 p-5 dark:bg-slate-700">
-            <div className="h-5 w-24 rounded-full bg-slate-300 dark:bg-slate-600" />
-            <div className="h-6 w-3/4 rounded bg-slate-300 dark:bg-slate-600" />
-          </div>
-          <div className="space-y-2 p-5">
-            <div className="h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="mt-4 h-4 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function LogoMark({ className = '' }: { className?: string }) {
   return <img src={mallLogo} alt="Metropolitan Mall Bekasi" className={className} />;
@@ -59,15 +38,14 @@ interface CommunityLandingProps {
 }
 
 const NAV_ITEMS = [
-  { href: '#upcoming-events', label: 'Upcoming' },
+  { href: '#upcoming-events', label: 'Event' },
   { href: '#benefits', label: 'Keuntungan' },
   { href: '#facilities', label: 'Fasilitas' },
-  { href: '#gallery', label: 'Galeri' },
-  { href: '#upcoming-events', label: 'Event' },
   { href: '#how', label: 'Cara Daftar' },
-  { href: '#register', label: 'Daftar' },
   { href: '#faq', label: 'FAQ' },
-];
+  { href: '#gallery', label: 'Galeri' },
+  { href: '#register', label: 'Daftar' },
+] as const;
 
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [] }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -114,9 +92,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [mobileNavOpen]);
 
+  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
   const featuredUpcomingEvents = events
-    .filter(event => event.priority === 'high' && event.status === 'upcoming')
-    .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+    .filter(event => event.status === 'upcoming' || event.status === 'ongoing')
+    .sort((a, b) => {
+      const byPriority = (priorityRank[a.priority] ?? 9) - (priorityRank[b.priority] ?? 9);
+      if (byPriority !== 0) return byPriority;
+      return a.dateStr.localeCompare(b.dateStr);
+    });
 
   const headerClassName = isHeaderPinned
     ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-neutral-150/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
@@ -132,74 +115,102 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     : 'mt-3 rounded-[1.6rem] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
-    <div className="min-h-screen bg-neutral-150 selection:bg-violet-200 selection:text-violet-900 dark:bg-slate-950 dark:selection:bg-violet-900/40 dark:selection:text-violet-100">
-      <header className={`transition-all duration-300 ${headerClassName}`}>
+    <div className="community-landing min-h-screen bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
+      <header className={`transition-colors duration-200 ${headerClassName}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20">
-            <button onClick={onBack} className={`group flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors ${focusRing}`}>
+            <a href="#hero" className={`group flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors ${focusRing}`}>
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
-            </button>
-            <nav className={navClassName}>
+            </a>
+            <nav className={navClassName} aria-label="Navigasi utama">
               {NAV_ITEMS.map((item) => (
-                <a key={item.href} href={item.href} className={`transition hover:-translate-y-0.5 ${isHeaderPinned ? 'hover:text-violet-600 dark:hover:text-violet-400' : 'hover:text-white'}`}>
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`whitespace-nowrap transition ${isHeaderPinned ? 'hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]' : 'hover:text-white'}`}
+                >
                   {item.label}
                 </a>
               ))}
             </nav>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={onToggleDark} className={`transition-transform hover:scale-105 ${utilityButtonClass} ${focusRing}`} aria-label="Toggle dark mode">
+              <button type="button" onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label="Toggle dark mode">
                 {isDark ? <SunMedium className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
               </button>
               <button
                 type="button"
                 onClick={onBack}
-                className={`hidden items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 sm:inline-flex ${focusRing}`}
-                style={{ background: 'linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-soft) 100%)' }}
+                className={`hidden items-center gap-2 rounded-full border px-3.5 py-2.5 text-[13px] font-medium transition sm:inline-flex ${focusRing} ${
+                  isHeaderPinned
+                    ? 'border-black/10 bg-transparent text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800'
+                    : 'border-white/30 bg-white/10 text-white hover:bg-white/15'
+                }`}
               >
                 <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
               </button>
-              <a href="#register" className={`hidden items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-bold transition hover:-translate-y-0.5 sm:flex ${focusRing} ${isHeaderPinned ? 'bg-violet-600 text-white shadow-md hover:bg-violet-700 hover:shadow-lg' : 'bg-white text-slate-900 hover:bg-slate-50'}`}>
+              <a
+                href="#register"
+                className={`hidden items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-[13px] font-bold whitespace-nowrap text-white shadow-md transition hover:bg-[var(--brand-tosca-dark)] sm:flex ${focusRing}`}
+              >
                 Daftar Sekarang
               </a>
-              <button type="button" onClick={() => setMobileNavOpen(!mobileNavOpen)} className={`lg:hidden transition-transform hover:scale-105 ${utilityButtonClass} ${focusRing}`} aria-label="Toggle menu">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className={`lg:hidden ${utilityButtonClass} ${focusRing}`}
+                aria-label={mobileNavOpen ? 'Tutup menu' : 'Buka menu'}
+                aria-expanded={mobileNavOpen}
+              >
                 {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
           {mobileNavOpen && (
             <div className={mobilePanelClass}>
-              <nav className="flex flex-col gap-1">
+              <nav className="flex flex-col gap-1" aria-label="Navigasi mobile">
                 {NAV_ITEMS.map((item) => (
-                  <a key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)} className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${isHeaderPinned ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' : 'text-white hover:bg-white/10'}`}>
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${isHeaderPinned ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' : 'text-white hover:bg-white/10'}`}
+                  >
                     {item.label}
                   </a>
                 ))}
+                <a
+                  href="#register"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
+                >
+                  Daftar Sekarang
+                </a>
                 <button
                   type="button"
                   onClick={() => {
                     setMobileNavOpen(false);
                     onBack();
                   }}
-                  className={`mt-1 flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors ${isHeaderPinned ? 'bg-violet-600 text-white hover:bg-violet-700' : 'bg-white text-slate-900 hover:bg-slate-50'}`}
+                  className={`flex w-full items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors ${
+                    isHeaderPinned
+                      ? 'border-black/10 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800'
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
                 </button>
-                <a
-                  href="#register"
-                  onClick={() => setMobileNavOpen(false)}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${isHeaderPinned ? 'border border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-300 dark:hover:bg-violet-900/20' : 'border border-white/30 text-white hover:bg-white/10'}`}
-                >
-                  Daftar Sekarang
-                </a>
               </nav>
             </div>
           )}
         </div>
       </header>
-      <a href="#register" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white">
+      <a
+        href="#register"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
         Langsung ke form pendaftaran
       </a>
-      <main>
+      <main className="pb-20 sm:pb-0">
         <CommunityHero heroImageUrl={heroImageUrl} />
         <CommunitySocialProof />
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} />
@@ -207,14 +218,17 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityFacilities />
         <CommunitySteps />
         <CommunityFAQ />
-        <CommunityRegistrationForm />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} />
+        <CommunityRegistrationForm />
         <CommunityContact />
         {isHeaderPinned && (
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 py-3 backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
-            <a href="#register" className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg">
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
+            <a
+              href="#register"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-lg hover:bg-[var(--brand-tosca-dark)]"
+            >
               Daftar Gratis Sekarang
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
         )}

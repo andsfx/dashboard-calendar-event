@@ -18,6 +18,11 @@ body {
   font-family: var(--font-display);
 }
 
+.community-landing h1,
+.community-landing h2 {
+  font-family: var(--font-display);
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
