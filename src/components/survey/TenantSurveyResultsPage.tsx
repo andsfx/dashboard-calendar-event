@@ -1469,7 +1469,7 @@ export default function TenantSurveyResultsPage({
                 />
               </div>
             </div>
-            <div className="max-h-96 overflow-y-auto p-3 sm:p-4">
+            <div className="max-h-[min(40rem,75vh)] overflow-y-auto overscroll-contain p-3 sm:p-4">
               {feedbackFiltered.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center dark:border-slate-700">
                   <MessageSquareText
@@ -1479,8 +1479,8 @@ export default function TenantSurveyResultsPage({
                   <p className="mt-2 text-xs font-medium text-slate-500">Tidak ada feedback teks</p>
                 </div>
               ) : (
-                <ul className="grid gap-2.5 sm:grid-cols-2">
-                  {feedbackFiltered.slice(0, 50).map((f) => (
+                <ul className="grid gap-3">
+                  {feedbackFiltered.slice(0, 100).map((f) => (
                     <li
                       key={f.id}
                       className="rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3 dark:border-slate-700/80 dark:bg-slate-800/40"
@@ -1494,10 +1494,7 @@ export default function TenantSurveyResultsPage({
                           {eventMap.get(f.event_id) || f.event_id}
                         </span>
                       </div>
-                      <p className="line-clamp-4 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                        <span className="mr-0.5 text-lg leading-none text-brand-primary-300 dark:text-brand-primary-700">
-                          “
-                        </span>
+                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700 dark:text-slate-200">
                         {f.text}
                       </p>
                     </li>

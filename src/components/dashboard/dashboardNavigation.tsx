@@ -217,7 +217,7 @@ export function getCommandCenterCards({
       id: 'tenant-survey-results',
       title: 'Hasil Evaluasi Tenant',
       value: <TrendingUp className="h-6 w-6" aria-hidden />,
-      subtitle: 'Analisa dampak event ke gerai',
+      subtitle: 'Hasil evaluasi tenant',
       icon: <BarChart3 className="h-5 w-5" />,
       route: '/tenant-survey-results',
     }] : []),

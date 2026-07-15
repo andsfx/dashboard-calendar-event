@@ -209,9 +209,7 @@ export function TenantSurveyResultsDocument({
             a.feedback.slice(0, 30).map((f) => (
               <View key={f.id} style={styles.feedbackItem}>
                 <Text style={styles.feedbackGerai}>{f.gerai}</Text>
-                <Text style={styles.feedbackText}>
-                  {f.text.length > 280 ? `${f.text.slice(0, 280)}…` : f.text}
-                </Text>
+                <Text style={styles.feedbackText}>{f.text}</Text>
               </View>
             ))
           )}
