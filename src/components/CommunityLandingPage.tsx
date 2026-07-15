@@ -146,7 +146,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                     : 'border-white/30 bg-white/10 text-white hover:bg-white/15'
                 }`}
               >
-                <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
+                <CalendarDays className="h-4 w-4" aria-hidden="true" /> Jadwal Event
               </button>
               <a
                 href="#register"
@@ -197,7 +197,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                       : 'border-white/30 text-white hover:bg-white/10'
                   }`}
                 >
-                  <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Dashboard
+                  <CalendarDays className="h-4 w-4" aria-hidden="true" /> Jadwal Event
                 </button>
               </nav>
             </div>

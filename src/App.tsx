@@ -24,6 +24,7 @@ import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
+const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
 const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
 const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
@@ -597,12 +598,36 @@ export default function App() {
           <CommunityLandingPage
             isDark={isDark}
             onToggleDark={toggleDark}
-            onBack={() => navigate('/dashboard')}
+            onBack={() => navigate('/events')}
             instagramPosts={instagramPosts}
             events={publicEvents}
             onEventDetail={handleDetailClick}
             heroImageUrl={heroImageUrl}
             albums={landingAlbums}
+          />
+          <Suspense fallback={null}>
+            <EventDetailModal
+              isOpen={showDetailModal}
+              event={detailEvent}
+              onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
+              events={events}
+            />
+          </Suspense>
+          <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </Suspense>
+      } />
+
+      {/* Public event schedule landing — no dashboard chrome */}
+      <Route path="/events" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <EventsLandingPage
+            isDark={isDark}
+            onToggleDark={toggleDark}
+            events={publicEvents}
+            holidays={holidays}
+            albums={landingAlbums}
+            isLoading={isLoading}
+            onDetail={handleDetailClick}
           />
           <Suspense fallback={null}>
             <EventDetailModal
