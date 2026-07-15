@@ -62,7 +62,7 @@ export function Modal({
       {/* Modal Content */}
       <div 
         className={cn(
-          'relative w-full rounded-2xl bg-white dark:bg-neutral-900 shadow-2xl transition-all',
+          'relative w-full rounded-2xl bg-[var(--brand-card-light)] dark:bg-neutral-900 shadow-2xl transition-all',
           sizes[size],
           className
         )}

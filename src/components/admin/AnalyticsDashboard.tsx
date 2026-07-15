@@ -31,7 +31,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       </div>
 
       {/* 1. Tren Event per Bulan */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-brand-primary-500" />
@@ -72,7 +72,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       </div>
 
       {/* 3. Kategori Terpopuler (donut) */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
           <PieChart className="h-4 w-4 text-amber-500" />
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kategori Terpopuler</h3>
@@ -97,7 +97,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       </div>
 
       {/* 4. Revenue/Model Breakdown */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-emerald-500" />
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Model Event Breakdown</h3>
@@ -116,7 +116,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       </div>
 
       {/* 5. Heatmap Lokasi & Waktu */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
           <MapPin className="h-4 w-4 text-red-500" />
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Top Lokasi</h3>
@@ -135,7 +135,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       </div>
 
       {/* 6. Occupancy / Jam Populer */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
           <Clock className="h-4 w-4 text-blue-500" />
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Distribusi Waktu Event</h3>
@@ -205,7 +205,7 @@ function CompareCard({ label, current, previous }: { label: string; current: num
   const isDown = diff < 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-panel rounded-xl p-3">
       <p className="text-[10px] text-slate-500 dark:text-slate-400">{label}</p>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{current}</p>
       {previous > 0 && (

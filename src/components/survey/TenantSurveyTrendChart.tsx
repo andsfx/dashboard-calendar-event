@@ -92,7 +92,7 @@ export default function TenantSurveyTrendChart({ eventFilter }: { eventFilter?: 
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <BarChart3 className="h-4 w-4 animate-pulse" />
           Memuat tren...
@@ -104,7 +104,7 @@ export default function TenantSurveyTrendChart({ eventFilter }: { eventFilter?: 
   if (error || trend.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-brand-primary-500" />

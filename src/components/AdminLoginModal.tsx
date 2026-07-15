@@ -77,7 +77,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="admin-login-title">
-      <div className={`rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden transition-transform ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
+      <div className={`rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden transition-transform ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
         {/* Header gradient */}
         <div className="bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 px-6 py-5">
           <div className="flex items-center justify-between">
@@ -143,7 +143,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                   onChange={e => { setEmail(e.target.value); setError(''); }}
                   placeholder="admin@example.com"
                   autoFocus
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
+                  className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
                 />
               </div>
             )}
@@ -160,7 +160,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                   onChange={e => { setPw(e.target.value); setError(''); }}
                   placeholder={tab === 'email' ? 'Masukkan password…' : 'Masukkan password admin…'}
                   autoFocus={tab === 'legacy'}
-                  className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
+                  className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
                     error
                       ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900/30'
                       : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600 dark:focus:ring-brand-primary-900/30'

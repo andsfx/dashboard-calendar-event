@@ -454,7 +454,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-crud-title">
       <div
-        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
+        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800"
         tabIndex={-1}
       >
         {/* Header */}
@@ -585,7 +585,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               onChange={e => set('keterangan', e.target.value)}
               rows={3}
               placeholder="Deskripsi singkat tentang acara..."
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -596,7 +596,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               Poster / Flyer Event
             </label>
             {form.posterUrl ? (
-              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-[var(--brand-card)] dark:border-slate-700 dark:bg-slate-900">
                 <img
                   src={form.posterUrl}
                   alt="Poster acara"
@@ -629,7 +629,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 type="button"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-6 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
               >
                 {posterUploading ? (
                   <>

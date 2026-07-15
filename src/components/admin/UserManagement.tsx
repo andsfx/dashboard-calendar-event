@@ -166,7 +166,7 @@ export function UserManagement() {
       )}
 
       {/* Users table */}
-      <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface">
         <div className="divide-y divide-slate-100 dark:divide-slate-700">
           {users.map((u) => {
             const roleInfo = ROLE_LABELS[u.role] || { label: u.role, color: 'bg-slate-100 text-slate-700', icon: <Shield className="h-3 w-3" /> };

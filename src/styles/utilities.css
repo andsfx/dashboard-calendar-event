@@ -8,16 +8,41 @@
   --tw-ring-color: var(--brand-tosca-soft);
 }
 
+/* Product/admin surfaces: warm Metmal card, compact density (not campaign scale) */
 .ui-dashboard-surface {
-  @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800;
+  border-radius: var(--radius-card-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--brand-card-light);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.dark .ui-dashboard-surface {
+  border-color: #334155;
+  background: #1e293b;
+  box-shadow: none;
 }
 
 .ui-dashboard-panel {
-  @apply rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800;
+  border-radius: var(--radius-card-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--brand-card-light);
+}
+
+.dark .ui-dashboard-panel {
+  border-color: #334155;
+  background: #1e293b;
 }
 
 .ui-empty-panel {
-  @apply rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center dark:border-slate-700 dark:bg-slate-800/50;
+  border-radius: var(--radius-card-lg);
+  border: 1px dashed #cbd5e1;
+  background: var(--brand-card);
+  text-align: center;
+}
+
+.dark .ui-empty-panel {
+  border-color: #334155;
+  background: rgb(30 41 59 / 0.5);
 }
 
 .ui-alert-panel {
@@ -71,7 +96,57 @@
 }
 
 .ui-dashboard-card-padded {
-  @apply rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800;
+  border-radius: var(--radius-card-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--brand-card-light);
+  box-shadow: var(--shadow-card-soft);
+  padding: 1rem;
+}
+
+.dark .ui-dashboard-card-padded {
+  border-color: #334155;
+  background: #1e293b;
+  box-shadow: none;
+}
+
+.ui-dashboard-page {
+  background: var(--brand-paper);
+}
+
+.dark .ui-dashboard-page {
+  background: #020617; /* slate-950 */
+}
+
+.ui-dashboard-chrome {
+  border-color: rgba(15, 23, 42, 0.06);
+  background: color-mix(in srgb, var(--brand-card-light) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.dark .ui-dashboard-chrome {
+  border-color: rgb(51 65 85 / 0.5);
+  background: rgb(15 23 42 / 0.88);
+}
+
+/* Compact controls on warm page: search, filter, chips */
+.ui-dashboard-control {
+  border: 1px solid var(--border-subtle);
+  background: var(--brand-card-light);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.dark .ui-dashboard-control {
+  border-color: #334155;
+  background: #1e293b;
+  box-shadow: none;
+}
+
+.ui-dashboard-muted {
+  background: var(--brand-card);
+}
+
+.dark .ui-dashboard-muted {
+  background: rgb(30 41 59 / 0.7);
 }
 
 .ui-text-muted {

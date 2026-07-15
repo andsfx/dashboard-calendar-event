@@ -331,7 +331,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="draft-crud-title">
       <div
-        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800"
+        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800"
         tabIndex={-1}
       >
         {/* Header */}
@@ -447,7 +447,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             <select
               value={form.progress}
               onChange={e => set('progress', e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             >
               <option value="draft">Draft</option>
               <option value="confirm">Confirm</option>
@@ -470,7 +470,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               onChange={e => set('keterangan', e.target.value)}
               rows={3}
               placeholder="Tulis status progres atau catatan follow-up event"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -481,7 +481,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               onChange={e => set('internalNote', e.target.value)}
               rows={3}
               placeholder="Catatan admin internal, tidak ikut dipublish ke event utama"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 

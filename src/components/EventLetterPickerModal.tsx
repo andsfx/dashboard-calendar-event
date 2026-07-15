@@ -35,7 +35,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="letter-picker-title">
-      <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
@@ -58,7 +58,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari event, lokasi, atau EO"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 

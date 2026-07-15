@@ -157,7 +157,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   if (events.length === 0) {
     return (
       <div 
-        className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50"
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400"
         aria-live="polite"
         role="status"
       >
@@ -187,7 +187,7 @@ export function KanbanView({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             <div className="flex flex-col gap-2.5">
               {colEvents.length === 0 ? (
                 <div 
-                  className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-slate-400 dark:border-slate-700 dark:bg-slate-800/30"
+                  className="ui-empty-panel flex flex-col items-center justify-center rounded-xl py-8 text-slate-400"
                   aria-live="polite"
                   role="status"
                 >

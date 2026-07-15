@@ -125,12 +125,12 @@ export function ActivityLog() {
       {loading ? (
         <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" /></div>
       ) : logs.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-6 text-center">
           <Activity className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
           <p className="mt-2 text-sm text-slate-500">Tidak ada aktivitas ditemukan</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface">
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {logs.map((log) => (
               <div key={log.id} className="px-4 py-3">

@@ -55,10 +55,10 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
           <Link
             key={card.id}
             to={card.route}
-            className={`group flex items-start gap-3 rounded-xl border bg-white p-4 shadow-sm transition hover:border-brand-primary-300 hover:shadow-md dark:bg-slate-800 dark:hover:border-brand-primary-700 ui-focus-ring ${
+            className={`group flex items-start gap-3 rounded-2xl border p-4 shadow-[var(--shadow-card-soft)] transition hover:border-brand-primary-300 hover:shadow-md dark:hover:border-brand-primary-700 ui-focus-ring ${
               card.attention
-                ? 'border-brand-primary-200 dark:border-brand-primary-800'
-                : 'border-slate-200 dark:border-slate-700'
+                ? 'border-brand-primary-200 bg-[var(--brand-card)] dark:border-brand-primary-800 dark:bg-slate-800'
+                : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800'
             }`}
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300">

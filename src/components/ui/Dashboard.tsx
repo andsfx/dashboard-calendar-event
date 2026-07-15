@@ -14,9 +14,9 @@ export function DashboardLayout({
   ...props
 }: DashboardLayoutProps) {
   return (
-    <div className={cn('flex min-h-screen bg-neutral-50 dark:bg-neutral-950', className)} {...props}>
+    <div className={cn('ui-dashboard-page flex min-h-screen dark:bg-slate-950', className)} {...props}>
       {sidebar && (
-        <aside className="hidden md:block w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200/50 dark:border-neutral-800/50">
+        <aside className="hidden w-64 border-r border-black/[0.06] bg-[var(--brand-card-light)] dark:border-neutral-800/50 dark:bg-neutral-900 md:block">
           {sidebar}
         </aside>
       )}
@@ -44,7 +44,7 @@ export function DashboardHeader({
   return (
     <div 
       className={cn(
-        'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white dark:bg-neutral-900',
+        'ui-dashboard-chrome flex flex-col items-start justify-between gap-4 border-b p-6 sm:flex-row sm:items-center',
         className
       )}
       {...props}

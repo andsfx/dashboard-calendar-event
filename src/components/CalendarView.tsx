@@ -145,7 +145,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
     <>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         {/* Calendar grid */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 lg:w-96 lg:shrink-0">
+        <div className="ui-dashboard-surface overflow-hidden lg:w-96 lg:shrink-0">
         {/* Header */}
         <div className="flex items-center justify-between ui-gradient-primary px-5 py-4">
           <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
@@ -256,8 +256,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         {/* Monthly event panel */}
         <div className="flex-1">
         {monthEvents.length > 0 || monthHolidays.length > 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-100 px-4 py-4 sm:px-5 dark:border-slate-700">
+          <div className="ui-dashboard-surface">
+            <div className="border-b border-black/[0.04] px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
                 <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-brand-primary-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
@@ -307,7 +307,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                 <button
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className="w-full rounded-xl border border-brand-primary-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                  className="w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                     <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
@@ -371,7 +371,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                   className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
                                     isSelectedCard
                                       ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                                      : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                                      : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
                                   }`}
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -410,7 +410,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
                     Tidak ada event di bulan ini.
                   </div>
                 )}
@@ -438,7 +438,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           className={`rounded-2xl border p-4 text-left shadow-sm ${
                             isSelectedCard
                               ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/50'
+                              : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
                           }`}
                         >
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -458,7 +458,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
                     Tidak ada hari libur di bulan ini.
                   </div>
                 )}
@@ -466,7 +466,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             </div>
           </div>
         ) : (
-          <div className="flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/50 px-4 text-center text-slate-400 dark:border-slate-700 dark:bg-slate-800/30 sm:min-h-[300px]">
+          <div className="ui-empty-panel flex h-full min-h-[260px] flex-col items-center justify-center px-4 text-slate-400 sm:min-h-[300px]">
             <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
             <p className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</p>
             <p className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</p>
@@ -475,7 +475,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
         {/* Monthly summary */}
         {monthEvents.length > 0 && (
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div className="ui-dashboard-surface mt-4 p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
@@ -498,7 +498,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       </div>
 
       <ModalWrapper isOpen={isDayPopupOpen} onClose={() => setSelectedDate(null)} maxWidth="max-w-2xl">
-        <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+        <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
             <div>
               <p className="font-bold text-slate-800 dark:text-white">Agenda Tanggal</p>
@@ -541,7 +541,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                   setSelectedDate(null);
                                   onDetail(ev);
                                 }}
-                                className="w-full rounded-lg border border-brand-primary-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                className="w-full rounded-lg border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                               >
                                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                   <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
@@ -602,7 +602,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                                 setSelectedDate(null);
                                 onDetail(ev);
                               }}
-                              className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                              className="w-full rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                             >
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
@@ -636,7 +636,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   })}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
                   Tidak ada event pada tanggal ini.
                 </div>
               )}
@@ -656,7 +656,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
 
                     return (
-                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
+                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800/50">
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{holiday.day}, {holiday.tanggal}</p>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
@@ -670,7 +670,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   })}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
                   Tidak ada hari libur pada tanggal ini.
                 </div>
               )}

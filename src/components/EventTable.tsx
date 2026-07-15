@@ -93,11 +93,11 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   }
 
   return (
-    <div className="ui-dashboard-surface overflow-hidden dark:bg-slate-800/60">
+    <div className="ui-dashboard-surface overflow-hidden">
       <div className="divide-y divide-slate-100 dark:divide-slate-700/50 md:hidden">
         {groupedEvents.map(group => (
           <div key={group.monthKey}>
-            <div className="border-y border-slate-100 bg-slate-50/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-400">
+            <div className="ui-dashboard-muted border-y border-black/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
               {group.monthLabel}
             </div>
             {group.events.map(ev => (
@@ -185,7 +185,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
         <table className="w-full min-w-[750px] text-sm">
           <caption className="sr-only">Tabel jadwal event</caption>
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+            <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
               <th className="px-4 py-3 text-left">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide ui-text-muted">
                   <ArrowUpDown className="h-3 w-3" /> Tanggal
@@ -204,7 +204,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
             {groupedEvents.map(group => (
               <Fragment key={group.monthKey}>
-                <tr key={`${group.monthKey}-header`} className="border-y border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/70">
+                <tr key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-black/[0.04] dark:border-slate-700">
                   <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide ui-text-muted">
                     {group.monthLabel}
                   </td>
@@ -327,7 +327,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
         </table>
       </div>
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-muted flex items-center justify-between border-t border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
         <p className="text-xs text-slate-400">Menampilkan {events.length} acara</p>
         {isAdmin && (
           <button

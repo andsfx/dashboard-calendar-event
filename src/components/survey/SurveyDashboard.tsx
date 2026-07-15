@@ -156,7 +156,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
   if (!stats || stats.total_responses === 0) {
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-6 text-center">
           <ClipboardCheck className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
           <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
             Belum ada response survey
@@ -206,7 +206,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
       {/* Mall average ratings */}
       {stats.mall_avg && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-4">
           <h3 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
             Rata-rata Rating Pengelola Tempat
           </h3>
@@ -222,7 +222,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
       {/* EO average ratings */}
       {stats.eo_avg && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-4">
           <h3 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
             Rata-rata Rating Penyelenggara Event
           </h3>
@@ -239,7 +239,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
       {/* NPS Score */}
       {stats.nps_score !== null && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface p-4">
           <div className="flex items-center gap-3">
             <TrendingUp className={`h-5 w-5 ${stats.nps_score >= 50 ? 'text-emerald-500' : stats.nps_score >= 0 ? 'text-yellow-500' : 'text-red-500'}`} />
             <div>
@@ -257,8 +257,8 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
       {/* Recent responses with date filter + expandable detail */}
       {stats.recent.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-          <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+        <div className="ui-dashboard-surface">
+          <div className="flex flex-col gap-2 border-b border-black/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Response Terbaru</h3>
             {/* Date filter */}
             <div className="flex items-center gap-2">
@@ -317,7 +317,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
                   </button>
                   {/* Expanded detail */}
                   {isExpanded && (
-                    <div className="border-t border-slate-50 bg-slate-50/50 px-4 py-3 dark:border-slate-700/50 dark:bg-slate-800/50">
+                    <div className="ui-dashboard-muted border-t border-black/[0.04] px-4 py-3 dark:border-slate-700/50">
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <MiniRating label="Kebersihan" value={r.mall_cleanliness} />
                         <MiniRating label="Pelayanan" value={r.mall_staff_service} />
@@ -396,8 +396,8 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
   if (pastEvents.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-700">
+    <div className="ui-dashboard-surface">
+      <div className="border-b border-black/[0.04] px-4 py-3 dark:border-slate-700">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Survey per Event</h3>
         <p className="text-[10px] text-slate-400">Copy link, aktifkan/nonaktifkan, atau export data</p>
       </div>
@@ -464,7 +464,7 @@ function StatMini({ icon, label, value, color }: { icon: React.ReactNode; label:
     amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
   };
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface rounded-xl p-3">
       <div className={`mb-2 inline-flex rounded-lg p-1.5 ${colors[color] || colors.violet}`}>{icon}</div>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
       <p className="text-[10px] text-slate-500 dark:text-slate-400">{label}</p>
@@ -491,7 +491,7 @@ function RatingBar({ label, value, highlight }: { label: string; value: number; 
 function MiniRating({ label, value }: { label: string; value: number | null }) {
   const v = value ?? 0;
   return (
-    <div className="flex items-center justify-between rounded-md bg-white px-2 py-1 dark:bg-slate-800">
+    <div className="flex items-center justify-between rounded-md bg-[var(--brand-card-light)] px-2 py-1 dark:bg-slate-800">
       <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
       <span className={`text-[11px] font-bold ${v >= 8 ? 'text-emerald-600' : v >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{v || '-'}</span>
     </div>

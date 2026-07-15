@@ -149,7 +149,7 @@ export const AdminSidebar = memo(function AdminSidebar({
           </button>
 
           {/* User badge */}
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+          <div className="flex items-center gap-2 rounded-xl border border-black/[0.06] bg-[var(--brand-card)] px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
             {isSuperadmin ? (
               <Crown className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
             ) : (
@@ -183,7 +183,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       {/* Mobile hamburger button */}
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="fixed left-4 top-20 z-40 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 lg:hidden"
+        className="ui-dashboard-control fixed left-4 top-20 z-40 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition hover:bg-[var(--brand-card)] dark:hover:bg-slate-700 lg:hidden"
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />
@@ -200,7 +200,7 @@ export const AdminSidebar = memo(function AdminSidebar({
 
       {/* Sidebar - desktop fixed, mobile overlay */}
       <aside
-        className={`fixed left-0 top-0 z-50 h-screen w-64 border-r border-slate-200 bg-white shadow-xl transition-transform duration-300 dark:border-slate-700 dark:bg-slate-900 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-screen w-64 border-r border-black/[0.06] bg-[var(--brand-card-light)] shadow-xl transition-transform duration-300 dark:border-slate-700 dark:bg-slate-900 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

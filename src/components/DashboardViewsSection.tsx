@@ -126,7 +126,7 @@ export function DashboardViewsSection(props: Props) {
 
             <div className="space-y-2">
               <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Tampilan</p>
-              <div role="tablist" aria-labelledby="view-tabs-label" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-slate-100 sm:p-1 dark:sm:bg-slate-700/50">
+              <div role="tablist" aria-labelledby="view-tabs-label" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-[var(--brand-card)] sm:p-1 dark:sm:bg-slate-700/50">
                 {availableViewTabs.map(tab => (
                   <button
                     key={tab.key}
@@ -142,7 +142,7 @@ export function DashboardViewsSection(props: Props) {
                     className={`ui-focus-ring flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all whitespace-nowrap sm:justify-start sm:rounded-lg sm:border-0 sm:px-3 sm:py-1.5 ${
                       viewMode === tab.key
                         ? 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 shadow-sm dark:border-brand-primary-800/50 dark:bg-slate-600 dark:text-brand-primary-300'
-                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
+                        : 'border-black/[0.06] bg-[var(--brand-card-light)] text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-200'
                     }`}
                   >
                     {tab.icon} {tab.label}

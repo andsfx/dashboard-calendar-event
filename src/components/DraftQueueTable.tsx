@@ -14,19 +14,19 @@ interface Props {
 export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgressChange }: Props) {
   if (drafts.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+      <div className="ui-empty-panel p-8 text-sm text-slate-400">
         Belum ada draft event aktif.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+    <div className="ui-dashboard-surface overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1100px] text-sm">
           <caption className="sr-only">Tabel antrian draft event aktif</caption>
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+            <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
               {['Tanggal', 'Event', 'Jam', 'EO', 'PIC', 'No. Telepon', 'Lokasi', 'Progress', 'Aksi'].map(label => (
                 <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</th>
               ))}
@@ -56,7 +56,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                       <select
                         value={draft.progress}
                         onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        className="ui-dashboard-control w-full rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-brand-primary-400 dark:text-slate-300"
                       >
                         <option value="draft">Draft</option>
                         <option value="confirm">Confirm</option>

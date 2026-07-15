@@ -161,7 +161,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={previewUrl ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
-      <div className="overflow-hidden rounded-3xl bg-white text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
+      <div className="overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-500">PDF Report</p>
@@ -191,7 +191,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <button
               type="button"
               onClick={() => setMode('date')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <CalendarDays className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tanggal</div>
@@ -200,7 +200,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <button
               type="button"
               onClick={() => setMode('theme')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <Palette className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tema</div>
@@ -245,7 +245,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             </label>
           )}
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-500/15 dark:text-brand-primary-300">
                 <FileText className="h-5 w-5" />

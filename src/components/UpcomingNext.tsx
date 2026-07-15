@@ -38,7 +38,7 @@ export default function UpcomingNext({ events }: UpcomingNextProps) {
           return (
             <div
               key={event.id}
-              className="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group"
+              className="ui-dashboard-surface p-4 transition-all hover:-translate-y-0.5 hover:shadow-md group"
               style={{ animationDelay: `${300 + index * 80}ms` }}
             >
               {/* Days countdown */}

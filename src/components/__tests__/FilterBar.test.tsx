@@ -29,7 +29,7 @@ describe('FilterBar', () => {
   it('highlights active status tab', () => {
     render(<FilterBar {...mockProps} />)
     const upcomingTab = screen.getByText('Mendatang')
-    expect(upcomingTab).toHaveClass('bg-white')
+    expect(upcomingTab.className).toContain('brand-card-light')
   })
 
   it('calls onFilterChange when status tab clicked', () => {

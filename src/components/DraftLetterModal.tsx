@@ -212,7 +212,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     if (success) onClose();
   };
 
-  const inputClass = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400';
+  const inputClass = 'w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400';
   const errorClass = 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:border-red-400 dark:focus:ring-red-900/30';
   const visibleStepFields = STEP_FIELDS[currentStep] ?? [];
   const visibleErrorCount = visibleStepFields.filter(field => errors[field]).length;
@@ -281,7 +281,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                 ? 'border-brand-primary-200 bg-brand-primary-50 dark:border-brand-primary-500/50 dark:bg-brand-primary-950/30'
                 : isComplete
                   ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/20'
-                  : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40'
+                  : 'border-slate-200 bg-[var(--brand-card)] dark:border-slate-700 dark:bg-slate-900/40'
               }`}
               aria-current={isActive ? 'step' : undefined}
             >
@@ -307,7 +307,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   );
 
   const renderReviewItem = (label: string, value: string) => (
-    <div className="rounded-xl border border-slate-100 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+    <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-3 dark:border-slate-700 dark:bg-slate-800">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
       <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-white">
         {value.trim() || <span className="font-medium text-slate-400">Belum diisi</span>}
@@ -341,7 +341,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const renderStepContent = () => {
     if (currentStep === 0) {
       return (
-        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Data Surat</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">Isi identitas surat utama sebelum lanjut ke detail event.</p>
@@ -360,7 +360,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     if (currentStep === 1) {
       return (
         <div className="space-y-4">
-          <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-white">Penyelenggara</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Data EO dan PIC yang bertanggung jawab.</p>
@@ -372,7 +372,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             {renderTextarea('alamatEO', 'Alamat EO', 'Alamat lengkap EO')}
           </section>
 
-          <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-white">Detail Event</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Informasi acara yang akan masuk ke surat konfirmasi.</p>
@@ -393,7 +393,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
 
     return (
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Jadwal Loading</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
@@ -413,8 +413,8 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-5xl" ariaLabelledBy="draft-letter-title">
-      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-slate-50 shadow-2xl dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-[var(--brand-card-light)] px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
               <FileText className="h-5 w-5 text-white" />
@@ -436,7 +436,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             {renderStepContent()}
           </div>
 
-          <footer className="border-t border-slate-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-slate-700 dark:bg-slate-800/95">
+          <footer className="border-t border-slate-100 bg-[var(--brand-card-light)]/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-slate-700 dark:bg-slate-800/95">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-h-[2rem]">
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Langkah {currentStep + 1} dari {STEPS.length}: {currentStepTitle}</p>

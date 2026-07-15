@@ -44,7 +44,7 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface p-4">
       <div className="flex items-center gap-2 text-brand-primary-500 dark:text-brand-primary-400">
         {icon}
         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
@@ -289,7 +289,7 @@ export default function TenantSurveyAnalyticsPanel({
           </div>
 
           {/* Category averages */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+          <div className="ui-dashboard-surface p-4">
             <h3 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
               Rata-rata per Kategori
             </h3>
@@ -319,7 +319,7 @@ export default function TenantSurveyAnalyticsPanel({
 
           {/* Top performers */}
           {topPerformers.length > 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+            <div className="ui-dashboard-surface">
               <div className="border-b border-slate-200 p-4 dark:border-slate-700">
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                   Tenant Terbaik
@@ -438,7 +438,7 @@ function DistCard({
   if (entries.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface p-4">
       <div className="mb-3 flex items-center gap-2">
         <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>
         <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">{title}</h4>

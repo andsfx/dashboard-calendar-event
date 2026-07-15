@@ -80,7 +80,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
               tabIndex={onDetail ? 0 : undefined}
               aria-label={onDetail ? `Lihat detail: ${ev.acara}` : undefined}
               onKeyDown={onDetail ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } } : undefined}
-              className={`relative overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
+              className={`relative overflow-hidden rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
             >
               {/* Glow bar */}
               <div

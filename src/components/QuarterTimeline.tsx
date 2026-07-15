@@ -51,7 +51,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
   const themeYear = firstTheme?.dateStart?.slice(0, 4) ?? new Date().getFullYear().toString();
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface p-5">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-brand-primary-500" />Tema Tahunan {themeYear}</p>
         <div className="flex flex-wrap items-center gap-2">

@@ -79,7 +79,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
   return (
     <section id="registrations" className="space-y-4 scroll-mt-32">
       {/* Header card */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
             <Users className="h-5 w-5" />
@@ -160,7 +160,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-16 dark:border-slate-700 dark:bg-slate-800">
+        <div className="ui-dashboard-surface flex flex-col items-center justify-center gap-3 py-16">
           <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
           <p className="text-sm text-slate-400 dark:text-slate-500">Belum ada pendaftaran</p>
         </div>
@@ -172,7 +172,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               <button
                 key={reg.id}
                 onClick={() => onDetail(reg)}
-                className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-brand-primary-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
+                className="ui-dashboard-surface w-full p-4 text-left transition hover:border-brand-primary-300 dark:hover:border-brand-primary-600"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -198,10 +198,10 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
           </div>
 
           {/* Desktop table */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div className="ui-dashboard-surface hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-700">
+                <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Nama</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tipe</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">PIC</th>

@@ -6,18 +6,18 @@ import { formatDraftPublishedAt, getWhatsAppUrl } from '../utils/draftUtils';
 export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800/40">
+      <div className="ui-empty-panel p-6 text-sm text-slate-400">
         Belum ada riwayat draft event.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+    <div className="ui-dashboard-surface overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px] text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+            <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
               {['Tanggal', 'Event', 'EO', 'PIC', 'Nomor Telepon', 'Progress', 'Status Histori', 'Follow Up'].map(label => (
                 <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</th>
               ))}

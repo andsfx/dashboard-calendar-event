@@ -38,7 +38,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         placeholder={placeholder}
         maxLength={100}
         aria-label="Cari acara"
-        className="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-16 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
+        className="ui-dashboard-control h-10 w-full rounded-xl py-2 pl-9 pr-16 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:text-white dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
       />
 
       {/* Right side: clear button OR keyboard shortcut hint */}
@@ -52,7 +52,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
             <X className="h-3.5 w-3.5" />
           </button>
         ) : (
-          <kbd className="hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 select-none">
+          <kbd className="hidden select-none rounded-md border border-black/[0.06] bg-[var(--brand-card)] px-1.5 py-0.5 font-mono text-[10px] text-slate-400 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500 sm:inline-flex">
             /
           </kbd>
         )}

@@ -88,7 +88,7 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="annual-theme-title">
-      <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
@@ -107,19 +107,19 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
         <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:px-6">
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Tema <span className="text-red-500">*</span></label>
-            <input value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+            <input value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
             {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date Start <span className="text-red-500">*</span></label>
-              <input type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <input type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateStart && <p className="mt-1 text-xs text-red-500">{errors.dateStart}</p>}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date End <span className="text-red-500">*</span></label>
-              <input type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <input type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
             </div>
           </div>

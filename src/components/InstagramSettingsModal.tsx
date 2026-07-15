@@ -97,7 +97,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
@@ -142,7 +142,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-8 text-sm text-slate-500 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm text-slate-500 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
               >
                 {heroUploading ? (
                   <span>Mengupload...</span>
@@ -187,7 +187,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 value={postUrls[i]}
                 onChange={e => setUrl(i, e.target.value)}
                 placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
             </div>
           ))}

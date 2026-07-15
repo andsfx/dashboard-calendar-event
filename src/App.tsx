@@ -663,7 +663,7 @@ export default function App() {
       {/* Public Tenant Self-Assessment — standalone, no auth required */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+          <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
               {/* Header with logo + back button */}
               <div className="mb-6 flex items-center justify-between">
@@ -685,7 +685,7 @@ export default function App() {
               </div>
 
               {/* Main card */}
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <div className="ui-dashboard-surface overflow-hidden">
                 {/* Card header */}
                 <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
                   <h1 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -725,11 +725,11 @@ export default function App() {
 
       {/* Dashboard routes */}
       <Route path="/dashboard/*" element={
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="ui-dashboard-page min-h-screen transition-colors duration-300 dark:bg-slate-950">
       {/* Skip to main content — WCAG 2.4.1 */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none ui-focus-ring"
       >
         Lewati ke konten utama
       </a>

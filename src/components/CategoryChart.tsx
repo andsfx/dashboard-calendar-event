@@ -35,7 +35,7 @@ export function CategoryChart({ events }: Props) {
   const circumference = 2 * Math.PI * r;
 
   return (
-    <div className="h-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
+    <div className="ui-dashboard-surface h-full p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><BarChart3 className="h-4 w-4 shrink-0 text-brand-primary-500" /><span className="truncate">Distribusi Kategori</span></p>
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">

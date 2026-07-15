@@ -26,7 +26,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="delete-confirm-title">
-      <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden">
+      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden">
         {/* Red accent top bar */}
         <div className="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-500" />
 

@@ -47,7 +47,7 @@ function RoleBadge({ user, isLegacy, isSuperadmin }: { user?: AuthUser | null; i
 
 export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, user, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
   return (
-    <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/85">
+    <nav className="ui-dashboard-chrome sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
 
         {/* Brand */}

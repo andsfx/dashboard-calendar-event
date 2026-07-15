@@ -89,10 +89,10 @@ function CustomDropdown({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`flex h-10 w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 text-xs font-medium shadow-sm transition dark:bg-slate-800 dark:text-slate-300 ${focusRing} ${
+        className={`ui-dashboard-control flex h-10 w-full items-center justify-between gap-2 rounded-xl px-3 text-xs font-medium transition dark:text-slate-300 ${focusRing} ${
           open
             ? 'border-brand-primary-400 ring-2 ring-brand-primary-100 dark:border-brand-primary-600 dark:ring-brand-primary-900/30'
-            : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-600'
+            : 'text-slate-700 hover:border-slate-300 dark:border-slate-600'
         }`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -110,7 +110,7 @@ function CustomDropdown({
           ref={listboxRef} 
           role="listbox" 
           aria-label={label} 
-          className="absolute left-0 top-full z-40 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl border border-slate-100 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+          className="ui-dashboard-control absolute left-0 top-full z-40 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl py-1 shadow-xl"
         >
           {options.map(opt => (
             <button
@@ -196,7 +196,7 @@ export function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
-      <div className="flex w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800/80" role="tablist" aria-label="Filter status acara">
+      <div className="ui-dashboard-muted flex w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist" aria-label="Filter status acara">
         {statusTabs.map((tab, index) => (
           <button
             key={tab.key}
@@ -209,7 +209,7 @@ export function FilterBar({
             tabIndex={activeFilter === tab.key ? 0 : -1}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
               activeFilter === tab.key
-                ? 'bg-white shadow text-slate-800 dark:bg-slate-700 dark:text-white'
+                ? 'bg-[var(--brand-card-light)] text-slate-800 shadow dark:bg-slate-700 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >

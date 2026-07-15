@@ -320,7 +320,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="album-manager-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
@@ -620,7 +620,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                           </div>
 
                           {/* Caption */}
-                          <div className="bg-slate-50 px-2.5 py-2 dark:bg-slate-700/50">
+                          <div className="bg-[var(--brand-card)] px-2.5 py-2 dark:bg-slate-700/50">
                             <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
                               {photo.caption}
                             </p>
@@ -642,7 +642,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               )}
 
               {/* Upload Section */}
-              <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700/30">
+              <div className="space-y-3 rounded-xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-600 dark:bg-slate-700/30">
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Upload Foto Baru</p>
 
                 {isMaxPhotos && uploadFiles.length === 0 && (

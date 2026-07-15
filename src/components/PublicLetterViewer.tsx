@@ -70,7 +70,7 @@ export function PublicLetterViewer() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="flex min-h-screen items-center justify-center ui-dashboard-page dark:bg-slate-900">
         <div className="text-center">
           <FileText size={48} className="mx-auto mb-4 animate-pulse text-slate-400" />
           <p className="text-slate-600 dark:text-slate-400">Memuat surat...</p>
@@ -81,7 +81,7 @@ export function PublicLetterViewer() {
 
   if (error || !letter) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
+      <div className="flex min-h-screen items-center justify-center ui-dashboard-page dark:bg-slate-900 p-4">
         <div className="max-w-md rounded-lg border border-red-200 bg-white p-6 text-center shadow-lg dark:border-red-800 dark:bg-slate-800">
           <AlertCircle size={48} className="mx-auto mb-4 text-red-500" />
           <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
@@ -107,7 +107,7 @@ export function PublicLetterViewer() {
     : letter.pdfUrl;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen ui-dashboard-page dark:bg-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">

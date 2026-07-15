@@ -279,7 +279,7 @@ export default function TenantSurveyList({
       </div>
 
       {/* Toolbar */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-4">
+      <div className="ui-dashboard-surface p-3 sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -288,7 +288,7 @@ export default function TenantSurveyList({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari gerai, event, PIC, kategori…"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
             />
           </div>
 
@@ -303,13 +303,13 @@ export default function TenantSurveyList({
             </button>
 
             {showEventPicker && (
-              <div className="absolute right-0 z-20 mt-2 w-[min(100vw-2rem,20rem)] rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800 sm:w-80">
+              <div className="ui-dashboard-surface absolute right-0 z-20 mt-2 w-[min(100vw-2rem,20rem)] p-2 sm:w-80">
                 <input
                   type="search"
                   value={eventQuery}
                   onChange={(e) => setEventQuery(e.target.value)}
                   placeholder="Cari event…"
-                  className="mb-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none dark:text-slate-200"
                 />
                 {availableEvents.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
@@ -376,7 +376,7 @@ export default function TenantSurveyList({
                   className={`rounded-full px-1.5 text-[10px] tabular-nums ${
                     statusFilter === tab.key
                       ? 'bg-white/20 text-white'
-                      : 'bg-white text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                      : 'bg-[var(--brand-card-light)] text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                   }`}
                 >
                   {count}
@@ -392,7 +392,7 @@ export default function TenantSurveyList({
           <select
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
-            className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300"
+            className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
           >
             <option value="all">Semua event</option>
             {eventsInData.map((ev) => (
@@ -406,7 +406,7 @@ export default function TenantSurveyList({
             <select
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
-              className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300"
+              className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
             >
               <option value="all">Semua kategori</option>
               {kategoriInData.map((k) => (
@@ -475,7 +475,7 @@ export default function TenantSurveyList({
               return (
                 <div
                   key={survey.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                  className="ui-dashboard-surface p-3.5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
@@ -550,11 +550,11 @@ export default function TenantSurveyList({
           </div>
 
           {/* Desktop table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 md:block">
+          <div className="ui-dashboard-surface hidden overflow-hidden md:block">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+                  <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
                     <th className="px-4 py-3">Gerai / Tenant</th>
                     <th className="px-4 py-3">Event</th>
                     <th className="px-4 py-3">Impact</th>
@@ -764,7 +764,7 @@ function KpiCard({
   }[accent];
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface p-3.5">
       <div className={`flex items-center gap-2 ${iconColor}`}>
         {icon}
         <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{label}</span>

@@ -65,7 +65,7 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleDismiss} />
 
       {/* Modal */}
-      <div className="relative mx-4 mb-4 w-full max-w-sm animate-[slide-up_0.3s_ease-out] rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:mb-0 dark:border-slate-700 dark:bg-slate-800">
+      <div className="relative mx-4 mb-4 w-full max-w-sm animate-[slide-up_0.3s_ease-out] rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-5 shadow-2xl sm:mb-0 dark:border-slate-700 dark:bg-slate-800">
         {/* Close */}
         <button
           onClick={handleDismiss}

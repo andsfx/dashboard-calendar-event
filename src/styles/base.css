@@ -12,6 +12,11 @@ section[id] {
 
 body {
   font-family: var(--font-body);
+  color: var(--brand-ink);
+}
+
+.dark body {
+  color: #f8fafc;
 }
 
 .font-display {

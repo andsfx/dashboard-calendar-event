@@ -333,7 +333,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <div
           role="tablist"
           aria-label="Tenant self-assessment"
-          className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
+          className="ui-dashboard-surface flex gap-1 rounded-xl p-1"
         >
           <button
             type="button"
@@ -383,13 +383,13 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
         {activeTab === 'analytics' && (
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+            <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">
               <Calendar className="h-3.5 w-3.5 text-slate-400" />
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Event</span>
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
-                className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300"
+                className="ui-dashboard-control cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
               >
                 <option value="all">Semua Event</option>
                 {events
@@ -444,7 +444,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           Kembali ke daftar
         </button>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 sm:p-6">
+        <div className="ui-dashboard-surface p-5 sm:p-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
@@ -571,7 +571,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                 rows={3}
                 maxLength={2000}
                 placeholder="Opsional — ringkas temuan admin…"
-                className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
+                className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
               />
               <div className="mt-2 flex flex-wrap gap-2">
                 <button
@@ -598,37 +598,37 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           {/* Ratings grid (v2) / Info grid (v3) */}
           {isV3Survey(editingSurvey) ? (
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-7">
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Store className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Gerai</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.nama_gerai || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <MapPin className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Lokasi</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.lokasi_zona || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Tag className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Kategori</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kategori || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <TrendingUp className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Traffic</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_traffic || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Sales</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_sales || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <User className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_name || '-'}</span>
               </div>
-              <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+              <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Phone className="mb-1 h-4 w-4 text-slate-400" />
                 <span className="text-xs text-slate-500 dark:text-slate-400">Telepon PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_phone || '-'}</span>
@@ -646,7 +646,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                 return (
                   <div
                     key={key}
-                    className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 dark:border-slate-700 dark:bg-slate-900"
+                    className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700"
                   >
                     <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
                     <span className={`mt-1 text-xl font-bold ${
@@ -995,7 +995,7 @@ function TenantSurveyManagementSection({
 
   if (surveyableEvents.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="ui-dashboard-surface p-4">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survey tenant.
@@ -1005,11 +1005,11 @@ function TenantSurveyManagementSection({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+    <div className="ui-dashboard-surface">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-50/80 dark:hover:bg-slate-700/40"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[var(--brand-card)] dark:hover:bg-slate-700/40"
       >
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -1037,7 +1037,7 @@ function TenantSurveyManagementSection({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari event (contoh: Bekasi Criterium)..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
               />
             </div>
             <p className="mt-1.5 text-[10px] text-slate-400">

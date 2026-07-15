@@ -25,7 +25,7 @@ interface Props {
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3.5 dark:bg-slate-700/40 transition hover:bg-slate-100 dark:hover:bg-slate-700/60">
+    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition hover:bg-slate-100 dark:hover:bg-slate-700/60">
       <div className="mt-0.5 shrink-0 text-slate-400">{icon}</div>
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
@@ -54,7 +54,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
-      <div className="rounded-2xl bg-white shadow-2xl dark:bg-slate-800 overflow-hidden">
+      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden">
         {/* Color accent header */}
         <div
           className="relative px-4 pb-5 pt-6 sm:px-6"
@@ -161,7 +161,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           </div>
 
           {event.keterangan && (
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/40">
+            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
               <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 <Tag className="h-3 w-3" /> Keterangan
               </p>
