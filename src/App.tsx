@@ -579,11 +579,8 @@ export default function App() {
   useEffect(() => {
     if (!location.pathname.startsWith('/dashboard')) return;
     if (isLoading) return;
-    // Public visitors: schedule lives on /events, not dashboard chrome
-    if (!permissions.canViewDashboard) {
-      navigate('/events', { replace: true });
-      return;
-    }
+    // Guest may stay on /dashboard (public schedule + login). Admin-only path guard after auth.
+    if (!permissions.canViewDashboard) return;
     if (!allowedDashboardPaths.has(dashboardPath)) {
       navigate(`/dashboard${defaultDashboardPath === '/' ? '' : defaultDashboardPath}`, { replace: true });
     }
@@ -670,7 +667,7 @@ export default function App() {
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
                   <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
                   <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    Tenant Self-Assessment
+                     Evaluasi Tenant
                   </span>
                 </div>
                 <button
@@ -828,7 +825,7 @@ export default function App() {
           {permissions.canEditEvents && dashboardPath === '/drafts' && (
             <section id="draft-section" className="scroll-mt-20">
               <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Draft Queue</h1>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Antrian Draft</h1>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   Kelola draft event sebelum dipublikasikan
                 </p>
@@ -979,7 +976,7 @@ export default function App() {
           {permissions.canViewSurvey && dashboardPath === '/analytics' && (
             <section id="category-chart" className="scroll-mt-20">
               <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Analytics</h1>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Analitik</h1>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   Analisis tren dan statistik event
                 </p>
@@ -1009,7 +1006,7 @@ export default function App() {
         {(isAdmin || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
           <section id="tenant-surveys-section" className="scroll-mt-20">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tenant Self-Assessment</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h1>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                 Evaluasi mandiri dari EO/Tenant untuk setiap event yang telah dilaksanakan
               </p>
@@ -1024,7 +1021,7 @@ export default function App() {
         {permissions.canManageUsers && dashboardPath === '/users' && (
           <section id="user-management" className="scroll-mt-20">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h1>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                 Kelola user dan permission (Superadmin only)
               </p>
@@ -1039,7 +1036,7 @@ export default function App() {
         {permissions.canViewActivityLog && dashboardPath === '/activity-log' && (
           <section id="activity-log" className="scroll-mt-20">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Log</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Log Aktivitas</h1>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                 Audit trail dari semua aktivitas sistem
               </p>

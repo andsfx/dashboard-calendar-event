@@ -62,7 +62,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
             )}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold leading-tight text-slate-800 dark:text-white">Event Dashboard</p>
+            <p className="truncate text-sm font-bold leading-tight text-slate-800 dark:text-white">Dashboard Event</p>
             <p className="truncate text-[10px] leading-tight text-slate-500 dark:text-slate-400">Metropolitan Mall Bekasi</p>
           </div>
         </div>
@@ -72,19 +72,17 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
           {/* Admin view - simplified (sidebar handles most controls) */}
           {isAdmin ? (
             <>
-              {/* Community Space link */}
               <a
                 href="/"
-                title="Community Space"
+                title="Ruang Komunitas"
                 className={`flex h-9 items-center gap-1.5 rounded-xl border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/30 sm:px-3 ${focusRing}`}
               >
                 <Users className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Community</span>
+                <span className="hidden sm:inline">Komunitas</span>
               </a>
             </>
           ) : (
             <>
-              {/* Public view - full controls */}
               <button
                 onClick={onLoginClick}
                 title="Masuk sebagai admin"
@@ -94,14 +92,13 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
                 <span className="hidden md:inline">Admin</span>
               </button>
 
-              {/* Community Space link */}
               <a
                 href="/"
-                title="Community Space"
+                title="Ruang Komunitas"
                 className={`flex h-9 items-center gap-1.5 rounded-xl border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/30 sm:px-3 ${focusRing}`}
               >
                 <Users className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Community</span>
+                <span className="hidden sm:inline">Komunitas</span>
               </a>
 
               {/* Divider */}

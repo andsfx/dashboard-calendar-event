@@ -42,7 +42,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 id="command-center-title" className="text-lg font-bold text-slate-900 dark:text-white">
-            Command Center
+            Pusat Komando
           </h2>
           <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
             Akses cepat modul operasional

@@ -26,7 +26,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h2 className="text-base font-bold text-slate-900 dark:text-white">Analytics Lanjutan</h2>
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">Analitik Lanjutan</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">Insight mendalam tentang event & venue</p>
       </div>
 

@@ -70,9 +70,9 @@ export function PublicLetterViewer() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center ui-dashboard-page dark:bg-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--brand-paper)] dark:bg-slate-950">
         <div className="text-center">
-          <FileText size={48} className="mx-auto mb-4 animate-pulse text-slate-400" />
+          <FileText size={48} className="mx-auto mb-4 animate-pulse text-[var(--brand-tosca-soft)] motion-reduce:animate-none" />
           <p className="text-slate-600 dark:text-slate-400">Memuat surat...</p>
         </div>
       </div>
@@ -81,8 +81,8 @@ export function PublicLetterViewer() {
 
   if (error || !letter) {
     return (
-      <div className="flex min-h-screen items-center justify-center ui-dashboard-page dark:bg-slate-900 p-4">
-        <div className="max-w-md rounded-lg border border-red-200 bg-white p-6 text-center shadow-lg dark:border-red-800 dark:bg-slate-800">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--brand-paper)] p-4 dark:bg-slate-950">
+        <div className="max-w-md rounded-2xl border border-red-200 bg-[var(--brand-card-light)] p-6 text-center shadow-[var(--shadow-card-soft)] dark:border-red-800 dark:bg-slate-800">
           <AlertCircle size={48} className="mx-auto mb-4 text-red-500" />
           <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
             Surat Tidak Ditemukan
@@ -91,10 +91,11 @@ export function PublicLetterViewer() {
             {error || 'Surat yang Anda cari tidak tersedia.'}
           </p>
           <button
+            type="button"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 mx-auto"
+            className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={16} aria-hidden />
             Kembali ke Beranda
           </button>
         </div>
@@ -107,24 +108,24 @@ export function PublicLetterViewer() {
     : letter.pdfUrl;
 
   return (
-    <div className="min-h-screen ui-dashboard-page dark:bg-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+      <header className="ui-dashboard-chrome sticky top-0 z-10 border-b shadow-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate('/')}
-              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+              className="ui-focus-ring rounded-full p-2 text-slate-500 transition hover:bg-[var(--brand-card)] hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
               aria-label="Kembali"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={20} aria-hidden />
             </button>
-            <div>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-bold text-slate-900 dark:text-white">
                 Surat Konfirmasi Event
               </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                {letter.letterData.namaEvent || 'Tanpa Judul'} · 
+              <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                {letter.letterData.namaEvent || 'Tanpa Judul'} ·
                 Dibuat {new Date(letter.createdAt).toLocaleDateString('id-ID', {
                   day: 'numeric',
                   month: 'long',
@@ -133,21 +134,21 @@ export function PublicLetterViewer() {
               </p>
             </div>
           </div>
-          
+
           <button
+            type="button"
             onClick={handleDownload}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="ui-btn-primary ui-focus-ring flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
           >
-            <Download size={16} />
+            <Download size={16} aria-hidden />
             Unduh PDF
           </button>
         </div>
       </header>
 
-      {/* PDF Viewer */}
       <div className="mx-auto max-w-7xl p-4">
         {pdfSrc ? (
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700">
+          <div className="overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[var(--shadow-card-soft)] dark:border-slate-700">
             <iframe
               src={pdfSrc}
               className="h-[calc(100vh-120px)] w-full"
@@ -155,17 +156,18 @@ export function PublicLetterViewer() {
             />
           </div>
         ) : (
-          <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-8 text-center shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800">
             <FileText size={48} className="mx-auto mb-4 text-slate-400" />
             <p className="text-slate-600 dark:text-slate-400">
               PDF tidak tersedia untuk surat ini.
             </p>
             <button
+              type="button"
               onClick={handleDownload}
-              className="mt-4 flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 mx-auto"
+              className="ui-btn-primary ui-focus-ring mx-auto mt-4 flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
             >
-              <Download size={16} />
-              Generate & Unduh PDF
+              <Download size={16} aria-hidden />
+              Buat & Unduh PDF
             </button>
           </div>
         )}

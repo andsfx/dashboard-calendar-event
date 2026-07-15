@@ -108,7 +108,7 @@ export function UserManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">User Management</h2>
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">{users.length} user terdaftar</p>
         </div>
         <div className="flex gap-2">

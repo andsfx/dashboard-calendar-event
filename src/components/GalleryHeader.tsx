@@ -21,22 +21,23 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
           <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
         </button>
         <span className="hidden text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-200 sm:block">
-          Gallery Event
+          Galeri Event
         </span>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={onToggleDark}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ui-focus-ring"
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
           >
             {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <button
+            type="button"
             onClick={() => navigate('/events')}
-            className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-md"
-            style={{ background: 'linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-soft) 100%)' }}
+            className="ui-btn-primary ui-focus-ring inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)]"
           >
-            <CalendarDays className="h-4 w-4" /> Event Schedule
+            <CalendarDays className="h-4 w-4" aria-hidden /> Jadwal Event
           </button>
         </div>
       </div>
