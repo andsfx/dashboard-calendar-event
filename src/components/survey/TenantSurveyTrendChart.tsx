@@ -50,8 +50,14 @@ function TrendBar({
   );
 }
 
-export default function TenantSurveyTrendChart({ eventFilter }: { eventFilter?: string | null }) {
-  const { trend, isLoading, error } = useTenantSurveyMonthlyTrend(eventFilter);
+export default function TenantSurveyTrendChart({
+  eventFilter,
+  publicMode = false,
+}: {
+  eventFilter?: string | null;
+  publicMode?: boolean;
+}) {
+  const { trend, isLoading, error } = useTenantSurveyMonthlyTrend(eventFilter, { publicMode });
 
   const stats = useMemo(() => {
     if (trend.length < 2) return null;

@@ -11,7 +11,6 @@ import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
-import { AdminLoginModal } from './components/AdminLoginModal';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -735,7 +734,7 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Tenant survey results — standalone (auth required, no dashboard chrome) */}
+      {/* Tenant survey results — public (rate-limited APIs, no login) */}
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
@@ -775,47 +774,14 @@ export default function App() {
             </header>
 
             <div className="mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
-              {auth.isLoading ? (
-                <DashboardSkeleton isAdmin={false} />
-              ) : !auth.isAuthenticated && !auth.isLegacy ? (
-                <div className="ui-dashboard-surface mx-auto max-w-md overflow-hidden text-center">
-                  <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/60 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
-                    <h1 className="text-lg font-bold text-slate-900 dark:text-white">Hasil Evaluasi Tenant</h1>
-                    <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-                      Login dengan akun Tenant Relation atau Admin untuk melihat analisa.
-                    </p>
-                  </div>
-                  <div className="px-6 py-5">
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginModal(true)}
-                      className="ui-btn-primary ui-focus-ring rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
-                    >
-                      Login
-                    </button>
-                  </div>
-                </div>
-              ) : !permissions.canViewTenantSurveyResults ? (
-                <div className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/30">
-                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Akses ditolak</h1>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                    Akun ini tidak punya akses ke halaman hasil evaluasi tenant.
-                  </p>
-                </div>
-              ) : (
-                <TenantSurveyResultsPage
-                  events={events}
-                  canExport={permissions.canExportTenantSurveyAnalytics}
-                />
-              )}
+              {/* Don't block on events load — share list can hydrate from surveys too */}
+              <TenantSurveyResultsPage
+                events={events}
+                canExport={permissions.canExportTenantSurveyAnalytics}
+                publicMode
+              />
             </div>
 
-            <AdminLoginModal
-              isOpen={showLoginModal || (!auth.isLoading && !auth.isAuthenticated && !auth.isLegacy)}
-              onClose={() => setShowLoginModal(false)}
-              onEmailLogin={auth.login}
-              onLegacyLogin={auth.legacyLogin}
-            />
             <ToastContainer toasts={toasts} onRemove={removeToast} />
           </div>
         </Suspense>

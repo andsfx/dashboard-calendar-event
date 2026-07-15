@@ -10,6 +10,9 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  *   ?mode=public&action=tenants     GET   — List tenants from MID loyalty API (proxied)
  *   ?mode=public&action=check       GET   — Check if device already submitted (by fingerprint)
  *   ?mode=public&action=submit      POST  — Submit a new tenant survey (anonymous)
+ *   ?mode=public&action=results-list      GET — TR results: submitted/reviewed rows (PII stripped, rate-limited)
+ *   ?mode=public&action=results-analytics GET — TR results: analytics aggregate (rate-limited)
+ *   ?mode=public&action=results-roster    GET — TR results: MID roster no PIC (rate-limited)
  *
  * Authenticated (mode=auth, default):
  *   ?action=list        GET   — List tenant surveys (scoped to user or all for admin)
@@ -51,6 +54,9 @@ async function handlePublic(req, res, action) {
     case 'tenant-detail': return await handlePublicTenantDetail(req, res);
     case 'check':      return await handlePublicCheck(req, res);
     case 'submit':     return await handlePublicSubmit(req, res);
+    case 'results-list':      return await handlePublicResultsList(req, res);
+    case 'results-analytics': return await handlePublicResultsAnalytics(req, res);
+    case 'results-roster':    return await handlePublicResultsRoster(req, res);
     default:
       return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
   }
@@ -153,6 +159,147 @@ function stripSurveyPii(row) {
 function mapRowsForRole(rows, role) {
   if (role !== 'tenant_relation') return rows;
   return (rows || []).map(stripSurveyPii);
+}
+
+// ─── Public results rate limit (in-memory; best-effort on serverless) ──
+// Per-IP sliding window. Vercel cold starts reset map — still blocks bursts.
+const publicResultsBuckets = new Map();
+
+function clientIp(req) {
+  const xf = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return xf || String(req.headers['x-real-ip'] || '').trim() || req.socket?.remoteAddress || 'unknown';
+}
+
+/**
+ * @returns {boolean} true if allowed; false if response already sent (429)
+ */
+function enforcePublicResultsRateLimit(req, res, bucketKey, max, windowMs) {
+  const ip = clientIp(req);
+  const key = `${bucketKey}:${ip}`;
+  const now = Date.now();
+  let entry = publicResultsBuckets.get(key);
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + windowMs };
+    publicResultsBuckets.set(key, entry);
+  }
+  entry.count += 1;
+
+  // opportunistic prune
+  if (publicResultsBuckets.size > 5000) {
+    for (const [k, v] of publicResultsBuckets) {
+      if (now >= v.resetAt) publicResultsBuckets.delete(k);
+    }
+  }
+
+  const remaining = Math.max(0, max - entry.count);
+  const retryAfter = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
+  res.setHeader('X-RateLimit-Limit', String(max));
+  res.setHeader('X-RateLimit-Remaining', String(remaining));
+  res.setHeader('X-RateLimit-Reset', String(Math.ceil(entry.resetAt / 1000)));
+
+  if (entry.count > max) {
+    res.setHeader('Retry-After', String(retryAfter));
+    res.status(429).json({
+      success: false,
+      error: 'Terlalu banyak permintaan. Coba lagi sebentar.',
+      retry_after: retryAfter,
+    });
+    return false;
+  }
+  return true;
+}
+
+/** Safe columns for public results (no PIC / contact / fingerprint). */
+const PUBLIC_RESULTS_SELECT = [
+  'id',
+  'event_id',
+  'tenant_id',
+  'tenant_name',
+  'nama_gerai',
+  'lokasi_zona',
+  'kategori',
+  'kenaikan_traffic',
+  'kenaikan_sales',
+  'feedback_teks',
+  'status',
+  'submitted_at',
+  'created_at',
+  'updated_at',
+].join(',');
+
+async function handlePublicResultsList(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // 40 req / minute / IP
+  if (!enforcePublicResultsRateLimit(req, res, 'results-list', 40, 60_000)) return;
+
+  const sb = getServiceSupabase();
+  const eventId = String(req.query?.event_id || '').trim();
+
+  let query = sb
+    .from('tenant_event_surveys')
+    .select(PUBLIC_RESULTS_SELECT)
+    .in('status', ['submitted', 'reviewed'])
+    .order('created_at', { ascending: false })
+    .limit(3000);
+
+  if (eventId) query = query.eq('event_id', eventId);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('[tenant-survey/public/results-list]', error);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil data survey' });
+  }
+
+  // Defense in depth — never leak PII even if select drifts
+  const rows = (data || []).map(stripSurveyPii);
+  return res.json({ success: true, data: rows });
+}
+
+async function handlePublicResultsAnalytics(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // 40 req / minute / IP
+  if (!enforcePublicResultsRateLimit(req, res, 'results-analytics', 40, 60_000)) return;
+
+  const sb = getServiceSupabase();
+  const group = String(req.query?.group || 'tenant').trim();
+  const eventId = String(req.query?.event_id || '').trim() || null;
+  const allowedGroups = new Set(['tenant', 'event', 'month']);
+  const groupBy = allowedGroups.has(group) ? group : 'tenant';
+
+  const { data, error } = await sb.rpc('get_tenant_survey_analytics_v4', {
+    p_is_admin: true,
+    p_tenant_user_id: null,
+    p_event_id: eventId,
+    p_group_by: groupBy,
+  });
+
+  if (error) {
+    console.error('[tenant-survey/public/results-analytics]', error);
+    return res.status(500).json({ success: false, error: 'Gagal mengambil analytics' });
+  }
+
+  return res.json({ success: true, data: data || [] });
+}
+
+async function handlePublicResultsRoster(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // MID upstream is expensive — tighter limit
+  if (!enforcePublicResultsRateLimit(req, res, 'results-roster', 12, 60_000)) return;
+
+  try {
+    const tenants = await fetchMidActiveTenants();
+    tenants.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    return res.json({ success: true, tenants, total: tenants.length });
+  } catch (err) {
+    console.error('[tenant-survey/public/results-roster]', err);
+    if (err?.code === 'CONFIG') {
+      return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+    }
+    if (err?.code === 'UPSTREAM') {
+      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    }
+    return res.status(500).json({ success: false, error: 'Gagal mengambil roster tenant' });
+  }
 }
 
 function isValidRating(val, max = 5) {

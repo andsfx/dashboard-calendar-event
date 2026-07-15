@@ -1000,6 +1000,32 @@ export async function fetchTenantSurveys(eventId?: string): Promise<TenantEventS
   return (data || []).map((row) => dbTenantSurveyToTenantSurvey(row as DbTenantSurvey));
 }
 
+/**
+ * Public TR results list (no login). Rate-limited server-side.
+ * Only submitted/reviewed + PII stripped.
+ */
+export async function fetchPublicTenantSurveyResults(
+  eventId?: string,
+): Promise<TenantEventSurvey[]> {
+  const params = new URLSearchParams({
+    mode: 'public',
+    action: 'results-list',
+  });
+  if (eventId) params.set('event_id', eventId);
+  const res = await fetch(`/api/tenant-survey?${params}`);
+  if (res.status === 429) {
+    throw new SupabaseApiError('Terlalu banyak permintaan. Coba lagi sebentar.');
+  }
+  if (!res.ok) {
+    throw new SupabaseApiError('Gagal memuat hasil survey');
+  }
+  const json = await res.json();
+  if (!json.success || !Array.isArray(json.data)) {
+    throw new SupabaseApiError(json.error || 'Gagal memuat hasil survey');
+  }
+  return json.data.map((row: DbTenantSurvey) => dbTenantSurveyToTenantSurvey(row));
+}
+
 export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
   const { data, error } = await supabase
     .from('tenant_event_surveys')
@@ -1217,6 +1243,28 @@ export function fetchTenantSurveyMonthlyTrend(eventId?: string): Promise<TenantS
   return fetchTenantSurveyAnalytics({ group: 'month', eventId });
 }
 
+/** Public monthly trend for TR results page (rate-limited). */
+export async function fetchPublicTenantSurveyMonthlyTrend(
+  eventId?: string,
+): Promise<TenantSurveyMonthlyTrend[]> {
+  const params = new URLSearchParams({
+    mode: 'public',
+    action: 'results-analytics',
+    group: 'month',
+  });
+  if (eventId) params.set('event_id', eventId);
+  const res = await fetch(`/api/tenant-survey?${params}`);
+  if (res.status === 429) {
+    throw new SupabaseApiError('Terlalu banyak permintaan. Coba lagi sebentar.');
+  }
+  if (!res.ok) {
+    throw new SupabaseApiError('Gagal memuat trend bulanan');
+  }
+  const json = await res.json();
+  if (!json.success || !Array.isArray(json.data)) return [];
+  return json.data as TenantSurveyMonthlyTrend[];
+}
+
 export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {
   try {
     const res = await fetch(`/api/tenant-survey?action=summary&event_id=${encodeURIComponent(eventId)}`);
@@ -1389,6 +1437,21 @@ export interface TenantRosterItem {
 export async function fetchTenantRoster(): Promise<TenantRosterItem[]> {
   try {
     const res = await fetch('/api/tenant-survey?action=tenant-roster', { credentials: 'include' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.tenants)) {
+        return json.tenants as TenantRosterItem[];
+      }
+    }
+  } catch { /* fall through */ }
+  return [];
+}
+
+/** Public MID roster for TR results (rate-limited, no PIC). */
+export async function fetchPublicTenantRoster(): Promise<TenantRosterItem[]> {
+  try {
+    const res = await fetch('/api/tenant-survey?mode=public&action=results-roster');
+    if (res.status === 429) return [];
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.tenants)) {

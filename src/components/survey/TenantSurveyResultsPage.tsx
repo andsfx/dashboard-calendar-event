@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo, useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import {
   BarChart3,
   Download,
@@ -16,6 +16,10 @@ import {
   X,
   Check,
   CircleDashed,
+  Link2,
+  QrCode,
+  Share2,
+  CalendarDays,
 } from 'lucide-react';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
@@ -30,13 +34,17 @@ import {
 } from '../../utils/tenantSurveyResultsAggregate';
 import { downloadTenantSurveyResultsPdf } from '../../utils/tenantSurveyResultsPdf';
 import {
-  fetchTenantRoster,
+  fetchPublicTenantRoster,
   type TenantRosterItem,
 } from '../../utils/supabaseApi';
+
+const SurveyQRCode = lazy(() => import('./SurveyQRCode'));
 
 interface Props {
   events: EventItem[];
   canExport?: boolean;
+  /** Use rate-limited public APIs (no login). Default true for standalone page. */
+  publicMode?: boolean;
 }
 
 const FIELD =
@@ -217,8 +225,119 @@ function isFilterActive(f: ResultsFilter): boolean {
 
 type RosterTab = 'all' | 'done' | 'pending';
 
-export default function TenantSurveyResultsPage({ events, canExport = true }: Props) {
-  const { surveys, isLoading, error } = useTenantSurveys();
+function publicSurveyUrl(eventId: string): string {
+  if (typeof window === 'undefined') return `/tenant-survey/${eventId}`;
+  return `${window.location.origin}/tenant-survey/${eventId}`;
+}
+
+/** One event row: name + copy link + QR (same pattern as admin dashboard). */
+function EventShareRow({
+  event,
+  responseCount,
+  defaultOpen = false,
+}: {
+  event: Pick<EventItem, 'id' | 'acara' | 'status' | 'dateStr' | 'tanggal'>;
+  responseCount?: number;
+  defaultOpen?: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(defaultOpen);
+  const url = publicSurveyUrl(event.id);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  }, [url]);
+
+  const statusLabel =
+    event.status === 'ongoing' ? 'Berlangsung' : event.status === 'past' ? 'Selesai' : event.status;
+
+  return (
+    <div className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
+      <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-2.5">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+            <CalendarDays className="h-4 w-4" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+              {event.acara}
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {event.tanggal || event.dateStr || '—'}
+              {' · '}
+              {statusLabel}
+              {typeof responseCount === 'number' ? ` · ${responseCount} respons` : ''}
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5 sm:justify-end">
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            title="Salin link form survey"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
+            ) : (
+              <Link2 className="h-3.5 w-3.5" aria-hidden />
+            )}
+            {copied ? 'Tersalin' : 'Salin link'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowQR((v) => !v)}
+            className={`ui-focus-ring inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition ${
+              showQR
+                ? 'border-brand-primary-300 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+            }`}
+            title="Tampilkan QR form survey"
+            aria-expanded={showQR}
+          >
+            <QrCode className="h-3.5 w-3.5" aria-hidden />
+            QR
+          </button>
+        </div>
+      </div>
+      {showQR && (
+        <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4 dark:border-slate-800 dark:bg-slate-900/40">
+          <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+            Form survey: <span className="font-semibold text-slate-800 dark:text-slate-100">{event.acara}</span>
+          </p>
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-6">
+                <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" aria-hidden />
+              </div>
+            }
+          >
+            <SurveyQRCode
+              eventId={event.id}
+              eventName={event.acara}
+              basePath="/tenant-survey"
+              label="Self-Assessment Tenant"
+              showTypeTabs={false}
+            />
+          </Suspense>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function TenantSurveyResultsPage({
+  events,
+  canExport = false,
+  publicMode = true,
+}: Props) {
+  const { surveys, isLoading, error } = useTenantSurveys(undefined, { publicMode });
   const [filter, setFilter] = useState<ResultsFilter>(EMPTY_FILTER);
   const [feedbackQ, setFeedbackQ] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -228,17 +347,18 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
   const [rosterError, setRosterError] = useState('');
   const [rosterTab, setRosterTab] = useState<RosterTab>('pending');
   const [rosterQ, setRosterQ] = useState('');
+  const [shareSearch, setShareSearch] = useState('');
 
   useEffect(() => {
     let cancelled = false;
     setRosterLoading(true);
     setRosterError('');
-    void fetchTenantRoster().then((list) => {
+    void fetchPublicTenantRoster().then((list) => {
       if (cancelled) return;
       setRoster(list);
       setRosterLoading(false);
       if (list.length === 0) {
-        setRosterError('Roster tenant kosong atau gagal dimuat. Cek MID_API_KEY / koneksi.');
+        setRosterError('Roster tenant kosong atau gagal dimuat. Coba refresh sebentar lagi.');
       }
     });
     return () => {
@@ -252,13 +372,88 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
     return m;
   }, [events]);
 
-  const eventOptions = useMemo(() => {
-    const ids = new Set(surveys.map((s) => s.event_id));
-    return events
-      .filter((e) => ids.has(e.id))
-      .map((e) => ({ id: e.id, label: e.acara }))
-      .sort((a, b) => a.label.localeCompare(b.label, 'id'));
+  /** Events that can host public survey form (ongoing + past), with names. */
+  const shareableEvents = useMemo(() => {
+    const list = events
+      .filter((e) => e.status === 'past' || e.status === 'ongoing')
+      .slice()
+      .sort((a, b) => (b.dateStr || '').localeCompare(a.dateStr || ''));
+
+    // Fallback: event_id from surveys not yet in events prop (e.g. partial load)
+    const known = new Set(list.map((e) => e.id));
+    for (const s of surveys) {
+      if (known.has(s.event_id)) continue;
+      const found = events.find((e) => e.id === s.event_id);
+      if (found) {
+        list.push(found);
+        known.add(found.id);
+        continue;
+      }
+      // Minimal stub so share row still shows when only survey data loaded
+      list.push({
+        id: s.event_id,
+        acara: `Event ${s.event_id.slice(0, 8)}…`,
+        status: 'past',
+        dateStr: '',
+        tanggal: '',
+        day: '',
+        jam: '',
+        lokasi: '',
+        eo: '',
+        pic: '',
+        phone: '',
+        keterangan: '',
+        month: '',
+        category: '',
+        categories: [],
+        priority: 'medium',
+        eventModel: '',
+        eventNominal: '',
+        eventModelNotes: '',
+        rowIndex: 0,
+      } as EventItem);
+      known.add(s.event_id);
+    }
+    return list;
   }, [events, surveys]);
+
+  const responseCountByEvent = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of surveys) {
+      if (s.status !== 'submitted' && s.status !== 'reviewed') continue;
+      m.set(s.event_id, (m.get(s.event_id) || 0) + 1);
+    }
+    return m;
+  }, [surveys]);
+
+  const eventOptions = useMemo(() => {
+    // Prefer shareable list so filter shows event names even before responses exist
+    const byId = new Map(shareableEvents.map((e) => [e.id, e]));
+    for (const s of surveys) {
+      if (!byId.has(s.event_id)) {
+        const found = events.find((e) => e.id === s.event_id);
+        if (found) byId.set(found.id, found);
+      }
+    }
+    return [...byId.values()]
+      .map((e) => ({ id: e.id, label: e.acara, status: e.status }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'id'));
+  }, [shareableEvents, surveys, events]);
+
+  const selectedEvent = useMemo(() => {
+    if (filter.eventId === 'all') return null;
+    return events.find((e) => e.id === filter.eventId) || null;
+  }, [events, filter.eventId]);
+
+  const shareList = useMemo(() => {
+    const q = shareSearch.trim().toLowerCase();
+    const list =
+      filter.eventId !== 'all' && selectedEvent
+        ? [selectedEvent]
+        : shareableEvents;
+    if (!q) return list;
+    return list.filter((e) => e.acara.toLowerCase().includes(q));
+  }, [filter.eventId, selectedEvent, shareableEvents, shareSearch]);
 
   const filtered = useMemo(() => filterSurveys(surveys, filter), [surveys, filter]);
   const agg = useMemo(() => aggregateResults(filtered), [filtered]);
@@ -322,7 +517,7 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
   const eventLabel =
     filter.eventId === 'all'
       ? 'Semua event'
-      : eventMap.get(filter.eventId) || filter.eventId;
+      : selectedEvent?.acara || eventMap.get(filter.eventId) || filter.eventId;
 
   const setField = useCallback(<K extends keyof ResultsFilter>(key: K, value: ResultsFilter[K]) => {
     setFilter((prev) => ({ ...prev, [key]: value }));
@@ -404,6 +599,15 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
             Hasil Evaluasi Tenant
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {selectedEvent ? (
+              <>
+                Event:{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                  {selectedEvent.acara}
+                </span>
+                {' · '}
+              </>
+            ) : null}
             Dampak event ke gerai · read-only · tanpa data PIC
           </p>
         </div>
@@ -477,11 +681,13 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
               value={filter.eventId}
               onChange={(e) => setField('eventId', e.target.value)}
               className={FIELD}
+              aria-label="Filter nama event"
             >
               <option value="all">Semua event</option>
               {eventOptions.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
+                  {o.status === 'ongoing' ? ' (berlangsung)' : ''}
                 </option>
               ))}
             </select>
@@ -626,6 +832,67 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
           tone={pctTone(agg.salesPosPct)}
           helper="Kenaikan ≥ 10%"
         />
+      </section>
+
+      {/* Share form survey — nama event + link + QR */}
+      <section
+        aria-labelledby="share-heading"
+        className="ui-dashboard-surface overflow-hidden"
+      >
+        <div className="ui-dashboard-muted flex flex-col gap-3 border-b border-black/[0.04] px-4 py-3 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+              <Share2 className="h-3.5 w-3.5" aria-hidden />
+            </span>
+            <div>
+              <h2
+                id="share-heading"
+                className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+              >
+                Bagikan form survey
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                {selectedEvent
+                  ? `Link form untuk: ${selectedEvent.acara}`
+                  : 'Salin link atau QR per event (tenant isi tanpa login)'}
+              </p>
+            </div>
+          </div>
+          {filter.eventId === 'all' && (
+            <div className="relative min-w-[160px] sm:max-w-[220px] sm:flex-1">
+              <Search
+                className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                aria-hidden
+              />
+              <input
+                type="search"
+                value={shareSearch}
+                onChange={(e) => setShareSearch(e.target.value)}
+                placeholder="Cari nama event…"
+                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-7 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                aria-label="Cari event untuk dibagikan"
+              />
+            </div>
+          )}
+        </div>
+
+        {shareList.length === 0 ? (
+          <p className="px-4 py-8 text-center text-xs text-slate-500">
+            Tidak ada event ongoing/past untuk dibagikan
+            {shareSearch ? ' / cocok pencarian' : ''}.
+          </p>
+        ) : (
+          <div className={filter.eventId === 'all' ? 'max-h-[22rem] overflow-y-auto' : undefined}>
+            {shareList.map((ev) => (
+              <EventShareRow
+                key={ev.id}
+                event={ev}
+                responseCount={responseCountByEvent.get(ev.id) || 0}
+                defaultOpen={filter.eventId === ev.id}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Tenant checklist — roster MID × survey status */}
@@ -908,7 +1175,7 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
           </section>
 
           {/* Trend */}
-          <TenantSurveyTrendChart eventFilter={trendEventId} />
+          <TenantSurveyTrendChart eventFilter={trendEventId} publicMode={publicMode} />
 
           {/* Feedback wall */}
           <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="feedback-heading">

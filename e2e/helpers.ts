@@ -174,6 +174,31 @@ export async function setupSurveyApiMocks(
             json: { success: true, event: MOCK_EVENT, is_active: true },
           });
 
+        case 'results-list':
+          return route.fulfill({ json: { success: true, data: [MOCK_SURVEY_V3] } });
+
+        case 'results-analytics': {
+          const group = url.searchParams.get('group') || '';
+          const data = group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS;
+          return route.fulfill({ json: { success: true, data } });
+        }
+
+        case 'results-roster':
+          return route.fulfill({
+            json: {
+              success: true,
+              total: MOCK_TENANTS.length,
+              tenants: MOCK_TENANTS.map((t) => ({
+                id: t.id,
+                name: t.name,
+                floor: t.floor,
+                lot: t.lot,
+                category: t.category,
+                logo: t.logo || '',
+              })),
+            },
+          });
+
         case 'tenants': {
           const q = (url.searchParams.get('q') || '').trim().toLowerCase();
           if (q.length < 2) {

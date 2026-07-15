@@ -19,6 +19,8 @@ import {
   fetchTenantSurveyMonthlyTrend,
   fetchTenantSurveyEventSummary,
   checkTenantSurveyDuplicate,
+  fetchPublicTenantSurveyResults,
+  fetchPublicTenantSurveyMonthlyTrend,
 } from '../utils/supabaseApi';
 import { supabase } from '../lib/supabase';
 
@@ -27,8 +29,15 @@ import { supabase } from '../lib/supabase';
  *
  * Provides CRUD, submit, review, analytics, and realtime sync.
  * Follows the same pattern as useEvents for consistency.
+ *
+ * @param eventId optional event filter
+ * @param opts.publicMode use rate-limited public results API (no login, no realtime)
  */
-export function useTenantSurveys(eventId?: string) {
+export function useTenantSurveys(
+  eventId?: string,
+  opts?: { publicMode?: boolean },
+) {
+  const publicMode = !!opts?.publicMode;
   const [surveys, setSurveys] = useState<TenantEventSurvey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,22 +47,29 @@ export function useTenantSurveys(eventId?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchTenantSurveys(eventId);
+      const data = publicMode
+        ? await fetchPublicTenantSurveyResults(eventId)
+        : await fetchTenantSurveys(eventId);
       setSurveys(data);
     } catch (err) {
       console.error('Fetch tenant surveys error:', err);
-      setError('Gagal memuat survey tenant.');
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Gagal memuat survey tenant.',
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [eventId]);
+  }, [eventId, publicMode]);
 
   useEffect(() => {
     refreshSurveys();
   }, [refreshSurveys]);
 
-  // ─── Realtime subscription ─────────────────────────────────────
+  // ─── Realtime subscription (auth only) ─────────────────────────
   useEffect(() => {
+    if (publicMode) return;
     const channel = supabase
       .channel('tenant-surveys-realtime')
       .on(
@@ -66,7 +82,7 @@ export function useTenantSurveys(eventId?: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refreshSurveys]);
+  }, [refreshSurveys, publicMode]);
 
   // ─── CRUD operations ──────────────────────────────────────────
   const createSurvey = useCallback(async (formData: TenantSurveyFormData): Promise<TenantEventSurvey> => {
@@ -200,7 +216,11 @@ export function useTenantSurveyEventSummary(eventId: string | null) {
  * useTenantSurveyMonthlyTrend — fetches monthly aggregated trend data
  * for the last 12 months. Used for the trend chart in analytics tab.
  */
-export function useTenantSurveyMonthlyTrend(eventId?: string | null) {
+export function useTenantSurveyMonthlyTrend(
+  eventId?: string | null,
+  opts?: { publicMode?: boolean },
+) {
+  const publicMode = !!opts?.publicMode;
   const [trend, setTrend] = useState<TenantSurveyMonthlyTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -209,7 +229,9 @@ export function useTenantSurveyMonthlyTrend(eventId?: string | null) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchTenantSurveyMonthlyTrend(eventId ?? undefined);
+      const data = publicMode
+        ? await fetchPublicTenantSurveyMonthlyTrend(eventId ?? undefined)
+        : await fetchTenantSurveyMonthlyTrend(eventId ?? undefined);
       setTrend(data);
     } catch (err) {
       console.error('Fetch monthly trend error:', err);
@@ -217,7 +239,7 @@ export function useTenantSurveyMonthlyTrend(eventId?: string | null) {
     } finally {
       setIsLoading(false);
     }
-  }, [eventId]);
+  }, [eventId, publicMode]);
 
   useEffect(() => {
     refreshTrend();

@@ -7,8 +7,10 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 - **Public form = anonymous, no login.** Jangan tambah auth wall di `/tenant-survey` atau `/tenant-survey/:eventId`.
 - Tujuan: tenant mall (gerai) isi self-assessment pasca event lewat link/QR.
 - Dashboard `/dashboard/tenant-surveys` = admin/EO manage list, analytics, config, QR — **bukan** jalur utama pengisian tenant.
-- Standalone `/tenant-survey-results` = **Tenant Relation + admin** read-only analisa (filter, KPI, PDF). **Tanpa** form/CRUD/config/QR/PIC, **tanpa** chrome dashboard. Legacy `/dashboard/tenant-survey-results` redirect ke sini.
-- Role `tenant_relation`: default home results page; API analytics/list read; write actions 403; PIC stripped.
+- Standalone `/tenant-survey-results` = **public** read-only analisa (filter, KPI, checklist, bagikan form + QR). **Tanpa** form/CRUD/config toggle admin, **tanpa** PIC, **tanpa** login. Legacy `/dashboard/tenant-survey-results` redirect ke sini.
+- Share form: link `/tenant-survey/:eventId` + QR (`SurveyQRCode`, `basePath="/tenant-survey"`) — tampil **nama event** (`acara`).
+- Public data via `mode=public&action=results-*` (rate-limited, PII stripped). PDF export only if logged-in admin/TR.
+- Role `tenant_relation`: default home results page; write actions still 403 on auth API.
 - Jangan campur dengan **visitor survey** (`SurveyPage`, `api/survey.js`, `migrate/survey-schema.sql`).
 
 ## Canonical paths
@@ -23,7 +25,8 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Results aggregate + PDF | `src/utils/tenantSurveyResultsAggregate.ts`, `src/utils/tenantSurveyResultsPdf.tsx`, `src/components/pdf/TenantSurveyResultsDocument.tsx` |
 | Dashboard form (auth) | `src/components/survey/TenantSurveyForm.tsx` |
 | List / analytics / QR | `TenantSurveyList.tsx`, `TenantSurveyAnalytics.tsx`, `TenantSurveyTrendChart.tsx`, `SurveyQRCode.tsx` |
-| Routes | `src/App.tsx` — public `/tenant-survey*`, dash `/dashboard/tenant-surveys`, standalone `/tenant-survey-results` |
+| Routes | `src/App.tsx` — public `/tenant-survey*`, dash `/dashboard/tenant-surveys`, public results `/tenant-survey-results` |
+| Public results API | `results-list`, `results-analytics`, `results-roster` (rate limit / IP) |
 | Options (enum source of truth FE) | `src/constants/survey-options.ts` |
 | FE validate | `src/utils/validation.ts` → `validateTenantSurvey` |
 | Fingerprint public | `src/utils/fingerprint.ts` |
