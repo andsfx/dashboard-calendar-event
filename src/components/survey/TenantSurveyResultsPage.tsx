@@ -540,6 +540,9 @@ export default function TenantSurveyResultsPage({
   const [rosterTab, setRosterTab] = useState<RosterTab>('pending');
   const [rosterQ, setRosterQ] = useState('');
   const [shareSearch, setShareSearch] = useState('');
+  /** Main content tabs — avoids infinite scroll of every section */
+  type MainTab = 'ringkasan' | 'checklist' | 'bagikan' | 'detail';
+  const [mainTab, setMainTab] = useState<MainTab>('ringkasan');
 
   useEffect(() => {
     let cancelled = false;
@@ -795,28 +798,34 @@ export default function TenantSurveyResultsPage({
 
   const filterDirty = isFilterActive(filter);
 
+  const mainTabs: Array<{ id: MainTab; label: string; count?: number }> = [
+    { id: 'ringkasan', label: 'Ringkasan', count: agg.total },
+    { id: 'checklist', label: 'Checklist tenant', count: checklistStats.pending },
+    { id: 'bagikan', label: 'Bagikan form survey', count: shareableEvents.length },
+    { id: 'detail', label: 'Detail', count: agg.rows.length },
+  ];
+
   return (
-    <div className="space-y-5">
-      {/* Report header */}
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="space-y-4">
+      {/* Report header — compact */}
+      <header className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-primary-600 dark:text-brand-primary-400">
-            Laporan analisa
-          </p>
-          <h1 className="mt-0.5 text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
             Hasil Evaluasi Tenant
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
             {selectedEvent ? (
-              <>
-                Event:{' '}
-                <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {selectedEvent.acara}
-                </span>
-                {' · '}
-              </>
-            ) : null}
-            Dampak event ke gerai · read-only · tanpa data PIC
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-primary-50 px-2.5 py-0.5 text-xs font-semibold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
+                <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
+                <span className="truncate">{selectedEvent.acara}</span>
+              </span>
+            ) : (
+              <span>Semua event</span>
+            )}
+            <span className="text-slate-300 dark:text-slate-600" aria-hidden>
+              ·
+            </span>
+            <span>Analisa dampak · tanpa PIC</span>
           </p>
         </div>
         {canExport && (
@@ -824,7 +833,7 @@ export default function TenantSurveyResultsPage({
             type="button"
             onClick={handleExportPdf}
             disabled={exporting || agg.total === 0}
-            className="ui-btn-primary ui-focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+            className="ui-btn-primary ui-focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
             {exporting ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -987,8 +996,8 @@ export default function TenantSurveyResultsPage({
         )}
       </section>
 
-      {/* KPI strip */}
-      <section aria-label="Ringkasan KPI" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI strip — always visible */}
+      <section aria-label="Ringkasan KPI" className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Total Submisi"
           value={agg.total}
@@ -1036,7 +1045,46 @@ export default function TenantSurveyResultsPage({
         />
       </section>
 
-      {/* Share form survey — nama event + link + QR */}
+      {/* Main tabs */}
+      <div
+        role="tablist"
+        aria-label="Bagian konten"
+        className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 dark:border-slate-700 dark:bg-slate-800/60"
+      >
+        {mainTabs.map((t) => {
+          const active = mainTab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setMainTab(t.id)}
+              className={`ui-focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm ${
+                active
+                  ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              {t.label}
+              {typeof t.count === 'number' && (
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${
+                    active
+                      ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300'
+                      : 'bg-slate-200/80 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                  }`}
+                >
+                  {t.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab: Bagikan */}
+      {mainTab === 'bagikan' && (
       <section
         aria-labelledby="share-heading"
         className="ui-dashboard-surface overflow-hidden"
@@ -1090,14 +1138,16 @@ export default function TenantSurveyResultsPage({
                 key={ev.id}
                 event={ev}
                 responseCount={responseCountByEvent.get(ev.id) || 0}
-                defaultOpen={filter.eventId === ev.id}
+                defaultOpen={filter.eventId === ev.id || shareList.length === 1}
               />
             ))}
           </div>
         )}
       </section>
+      )}
 
-      {/* Tenant checklist — roster MID × survey status */}
+      {/* Tab: Checklist */}
+      {mainTab === 'checklist' && (
       <section
         aria-label="Checklist tenant"
         className="ui-dashboard-surface overflow-hidden"
@@ -1108,9 +1158,9 @@ export default function TenantSurveyResultsPage({
               <Store className="h-3.5 w-3.5" aria-hidden />
             </span>
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
                 Checklist tenant
-              </h3>
+              </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {filter.eventId === 'all'
                   ? 'Status isi survey (semua event di filter)'
@@ -1228,158 +1278,163 @@ export default function TenantSurveyResultsPage({
           </ul>
         )}
       </section>
+      )}
 
-      {agg.total === 0 ? (
-        <div className="ui-empty-panel px-6 py-14">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
-            <Inbox className="h-6 w-6 text-slate-400 dark:text-slate-500" aria-hidden />
+      {/* Tab: Ringkasan (charts) */}
+      {mainTab === 'ringkasan' && (
+        agg.total === 0 ? (
+          <div className="ui-empty-panel px-6 py-14">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
+              <Inbox className="h-6 w-6 text-slate-400 dark:text-slate-500" aria-hidden />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Belum ada data sesuai filter
+            </p>
+            <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+              Hanya menampilkan survey v3 yang sudah submitted/reviewed. Longgarkan filter atau
+              buka tab Bagikan / Checklist.
+            </p>
+            {filterDirty && (
+              <button
+                type="button"
+                onClick={resetFilter}
+                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+                Reset filter
+              </button>
+            )}
           </div>
-          <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Belum ada data sesuai filter
-          </p>
-          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
-            Hanya menampilkan survey v3 yang sudah submitted/reviewed. Longgarkan filter atau tunggu
-            submisi baru.
-          </p>
-          {filterDirty && (
-            <button
-              type="button"
-              onClick={resetFilter}
-              className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-            >
-              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-              Reset filter
-            </button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Distributions */}
-          <section aria-label="Distribusi" className="grid gap-3 lg:grid-cols-2">
-            <DistBars
-              title="Traffic"
-              icon={<TrendingUp className="h-3.5 w-3.5" aria-hidden />}
-              dist={agg.trafficDist}
-              total={agg.total}
-              colorMap={TRAFFIC_COLORS}
-            />
-            <DistBars
-              title="Sales"
-              icon={<DollarSign className="h-3.5 w-3.5" aria-hidden />}
-              dist={agg.salesDist}
-              total={agg.total}
-              colorMap={SALES_COLORS}
-            />
-            <DistBars
-              title="Kategori"
-              icon={<Tag className="h-3.5 w-3.5" aria-hidden />}
-              dist={agg.kategoriDist}
-              total={agg.total}
-            />
-            <DistBars
-              title="Zona"
-              icon={<MapPin className="h-3.5 w-3.5" aria-hidden />}
-              dist={agg.zonaDist}
-              total={agg.total}
-            />
-          </section>
+        ) : (
+          <div className="space-y-4">
+            <section aria-label="Distribusi" className="grid gap-3 lg:grid-cols-2">
+              <DistBars
+                title="Traffic"
+                icon={<TrendingUp className="h-3.5 w-3.5" aria-hidden />}
+                dist={agg.trafficDist}
+                total={agg.total}
+                colorMap={TRAFFIC_COLORS}
+              />
+              <DistBars
+                title="Sales"
+                icon={<DollarSign className="h-3.5 w-3.5" aria-hidden />}
+                dist={agg.salesDist}
+                total={agg.total}
+                colorMap={SALES_COLORS}
+              />
+              <DistBars
+                title="Kategori"
+                icon={<Tag className="h-3.5 w-3.5" aria-hidden />}
+                dist={agg.kategoriDist}
+                total={agg.total}
+              />
+              <DistBars
+                title="Zona"
+                icon={<MapPin className="h-3.5 w-3.5" aria-hidden />}
+                dist={agg.zonaDist}
+                total={agg.total}
+              />
+            </section>
 
-          {/* Top + cross-tab */}
-          <section className="grid gap-3 lg:grid-cols-2">
-            <div className="ui-dashboard-surface overflow-hidden">
-              <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
-                  Top Gerai
-                </h3>
-                <p className="mt-0.5 text-[11px] text-slate-400">
-                  Skor = sinyal traffic+ dan sales+
-                </p>
-              </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-700/80">
-                {agg.topGerai.map((g, i) => (
-                  <div
-                    key={g.nama_gerai}
-                    className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
-                  >
-                    <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${
-                        i === 0
-                          ? 'bg-brand-primary-500 text-white'
-                          : i < 3
-                            ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                      }`}
+            <section className="grid gap-3 lg:grid-cols-2">
+              <div className="ui-dashboard-surface overflow-hidden">
+                <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                    Top Gerai
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-slate-400">
+                    Skor = sinyal traffic+ dan sales+
+                  </p>
+                </div>
+                <div className="divide-y divide-slate-100 dark:divide-slate-700/80">
+                  {agg.topGerai.map((g, i) => (
+                    <div
+                      key={g.nama_gerai}
+                      className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
                     >
-                      {i + 1}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                        {g.nama_gerai}
-                      </p>
-                      <p className="text-[11px] text-slate-400">{g.count} respons</p>
-                    </div>
-                    <div className="shrink-0 text-right text-[11px] text-slate-500 dark:text-slate-400">
-                      <p>
-                        T+ {g.trafficPos} · S+ {g.salesPos}
-                      </p>
-                      <p className="font-bold text-brand-primary-600 dark:text-brand-primary-400">
-                        skor {g.score}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="ui-dashboard-surface overflow-hidden">
-              <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
-                  Kategori × Sales
-                </h3>
-                <p className="mt-0.5 text-[11px] text-slate-400">Cross-tab frekuensi</p>
-              </div>
-              <div className="max-h-80 overflow-auto">
-                <table className="w-full min-w-[320px] text-left text-xs">
-                  <thead className="sticky top-0 z-10">
-                    <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                      <th scope="col" className="px-4 py-2 font-semibold">
-                        Kategori
-                      </th>
-                      <th scope="col" className="px-2 py-2 font-semibold">
-                        Sales
-                      </th>
-                      <th scope="col" className="px-4 py-2 text-right font-semibold">
-                        N
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agg.crossTab.slice(0, 15).map((c, idx) => (
-                      <tr
-                        key={`${c.kategori}-${c.sales}`}
-                        className={`border-b border-slate-50 dark:border-slate-800/80 ${
-                          idx % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''
-                        } hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20`}
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${
+                          i === 0
+                            ? 'bg-brand-primary-500 text-white'
+                            : i < 3
+                              ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300'
+                              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                        }`}
                       >
-                        <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">
-                          {c.kategori}
-                        </td>
-                        <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{c.sales}</td>
-                        <td className="px-4 py-2 text-right font-semibold tabular-nums text-slate-800 dark:text-slate-200">
-                          {c.count}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                          {g.nama_gerai}
+                        </p>
+                        <p className="text-[11px] text-slate-400">{g.count} respons</p>
+                      </div>
+                      <div className="shrink-0 text-right text-[11px] text-slate-500 dark:text-slate-400">
+                        <p>
+                          T+ {g.trafficPos} · S+ {g.salesPos}
+                        </p>
+                        <p className="font-bold text-brand-primary-600 dark:text-brand-primary-400">
+                          skor {g.score}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
 
-          {/* Trend */}
-          <TenantSurveyTrendChart eventFilter={trendEventId} publicMode={publicMode} />
+              <div className="ui-dashboard-surface overflow-hidden">
+                <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                    Kategori × Sales
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-slate-400">Cross-tab frekuensi</p>
+                </div>
+                <div className="max-h-80 overflow-auto">
+                  <table className="w-full min-w-[320px] text-left text-xs">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                        <th scope="col" className="px-4 py-2 font-semibold">
+                          Kategori
+                        </th>
+                        <th scope="col" className="px-2 py-2 font-semibold">
+                          Sales
+                        </th>
+                        <th scope="col" className="px-4 py-2 text-right font-semibold">
+                          N
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {agg.crossTab.slice(0, 15).map((c, idx) => (
+                        <tr
+                          key={`${c.kategori}-${c.sales}`}
+                          className={`border-b border-slate-50 dark:border-slate-800/80 ${
+                            idx % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''
+                          } hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20`}
+                        >
+                          <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">
+                            {c.kategori}
+                          </td>
+                          <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{c.sales}</td>
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-slate-800 dark:text-slate-200">
+                            {c.count}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
 
-          {/* Feedback wall */}
+            <TenantSurveyTrendChart eventFilter={trendEventId} publicMode={publicMode} />
+          </div>
+        )
+      )}
+
+      {/* Tab: Detail (feedback + table) */}
+      {mainTab === 'detail' && (
+        <div className="space-y-4">
           <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="feedback-heading">
             <div className="ui-dashboard-muted flex flex-col gap-2.5 border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
@@ -1452,7 +1507,6 @@ export default function TenantSurveyResultsPage({
             </div>
           </section>
 
-          {/* Detail table */}
           <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="detail-heading">
             <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
               <h3
@@ -1532,7 +1586,7 @@ export default function TenantSurveyResultsPage({
               </p>
             )}
           </section>
-        </>
+        </div>
       )}
     </div>
   );

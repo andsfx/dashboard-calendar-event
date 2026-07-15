@@ -45,11 +45,14 @@ test.describe('Tenant Survey Results — public + TR', () => {
 
     await expect(page.getByRole('heading', { name: 'Hasil Evaluasi Tenant' })).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('heading', { name: 'Filter' })).toBeVisible();
+    // Tabs reorganize content — open Bagikan then Checklist
+    await page.getByRole('tab', { name: /Bagikan form survey/i }).click();
     await expect(page.getByRole('heading', { name: /Bagikan form survey/i })).toBeVisible();
-    // Share row: event name and/or copy link once surveys or events hydrate
     await expect(page.getByRole('button', { name: /Salin link/i }).first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole('button', { name: /^QR$/i }).first()).toBeVisible();
+    await page.getByRole('tab', { name: /Checklist tenant/i }).click();
     await expect(page.getByRole('heading', { name: /Checklist tenant/i })).toBeVisible();
+    await page.getByRole('tab', { name: /Detail/i }).click();
     await expect(page.getByRole('cell', { name: MOCK_SURVEY_V3.nama_gerai! })).toBeVisible({ timeout: 15000 });
     // export off for guests
     await expect(page.getByRole('button', { name: /Export PDF/i })).toHaveCount(0);
