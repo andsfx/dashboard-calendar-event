@@ -51,9 +51,27 @@ interface Props {
   events: EventItem[];
   holidays: HolidayItem[];
   onDetail: (ev: EventItem) => void;
+  /** public = campaign landing skin; dashboard = admin surface (default) */
+  variant?: 'dashboard' | 'public';
 }
 
-export function CalendarView({ events, holidays, onDetail }: Props) {
+export function CalendarView({ events, holidays, onDetail, variant = 'dashboard' }: Props) {
+  const isPublic = variant === 'public';
+  const surfaceClass = isPublic
+    ? 'overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900'
+    : 'ui-dashboard-surface overflow-hidden';
+  const headerClass = isPublic
+    ? 'flex items-center justify-between border-b border-black/[0.06] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80'
+    : 'flex items-center justify-between ui-gradient-primary px-5 py-4';
+  const headerBtnClass = isPublic
+    ? 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700'
+    : 'rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white';
+  const headerTitleClass = isPublic
+    ? 'text-lg font-bold text-slate-900 dark:text-white'
+    : 'text-lg font-bold text-white';
+  const headerSubClass = isPublic
+    ? 'text-xs text-slate-500 dark:text-slate-400'
+    : 'text-xs text-white/70';
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -145,17 +163,17 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
     <>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         {/* Calendar grid */}
-        <div className="ui-dashboard-surface overflow-hidden lg:w-96 lg:shrink-0">
+        <div className={`${surfaceClass} lg:w-96 lg:shrink-0`}>
         {/* Header */}
-        <div className="flex items-center justify-between ui-gradient-primary px-5 py-4">
-          <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
+        <div className={headerClass}>
+          <button type="button" onClick={prevMonth} aria-label="Bulan sebelumnya" className={headerBtnClass}>
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="text-center">
-            <p className="text-lg font-bold text-white">{MONTH_ID[month]}</p>
-            <p className="text-xs text-white/70">{year} | {monthEvents.length} acara</p>
+            <p className={headerTitleClass}>{MONTH_ID[month]}</p>
+            <p className={headerSubClass}>{year} · {monthEvents.length} acara</p>
           </div>
-          <button onClick={nextMonth} aria-label="Bulan berikutnya" className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white">
+          <button type="button" onClick={nextMonth} aria-label="Bulan berikutnya" className={headerBtnClass}>
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
@@ -256,7 +274,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         {/* Monthly event panel */}
         <div className="flex-1">
         {monthEvents.length > 0 || monthHolidays.length > 0 ? (
-          <div className="ui-dashboard-surface">
+          <div className={surfaceClass}>
             <div className="border-b border-black/[0.04] px-4 py-4 sm:px-5 dark:border-slate-700">
               <p className="font-semibold text-slate-800 dark:text-white">
                 <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-brand-primary-500" /> Agenda {MONTH_ID[month]} {year}</span>
@@ -475,7 +493,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
 
         {/* Monthly summary */}
         {monthEvents.length > 0 && (
-          <div className="ui-dashboard-surface mt-4 p-4">
+          <div className={`${surfaceClass} mt-4 p-4`}>
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Ringkasan {MONTH_ID[month]} {year}
             </p>

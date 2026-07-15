@@ -33,6 +33,8 @@ interface Props {
   onDetail: (ev: EventItem) => void;
 }
 
+const PRIORITY_RANK = { high: 0, medium: 1, low: 2 } as const;
+
 function getCountdown(targetDate: string, now: number) {
   const target = new Date(`${targetDate}T00:00:00`).getTime();
   const diff = Math.max(0, target - now);
@@ -44,6 +46,14 @@ function getCountdown(targetDate: string, now: number) {
     hours: Math.floor((diff % dayMs) / hourMs),
     minutes: Math.floor((diff % hourMs) / minuteMs),
   };
+}
+
+function sortHighlightCandidates(list: EventItem[]) {
+  return [...list].sort((a, b) => {
+    const byPriority = (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9);
+    if (byPriority !== 0) return byPriority;
+    return a.dateStr.localeCompare(b.dateStr);
+  });
 }
 
 function CountdownCell({ label, value }: { label: string; value: number }) {
@@ -92,6 +102,7 @@ function HighlightEventCard({
             className="h-full w-full object-cover"
             loading="eager"
             decoding="async"
+            fetchPriority="high"
             onError={(e) => {
               const wrap = e.currentTarget.closest('[data-promo-banner]');
               if (wrap instanceof HTMLElement) wrap.hidden = true;
@@ -124,7 +135,7 @@ function HighlightEventCard({
               )}
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }} />
             </span>
-            {isLive ? 'Live Now' : 'Highlights'}
+            {isLive ? 'Live Now' : 'Coming Soon'}
           </span>
           <CategoryBadges categories={event.categories} maxVisible={2} />
         </div>
@@ -181,7 +192,7 @@ function HighlightEventCard({
         <button
           type="button"
           onClick={() => onDetail(event)}
-          className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+          className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
         >
           Detail Event
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
@@ -206,7 +217,7 @@ function EventRailCard({
     <button
       type="button"
       onClick={() => onDetail(event)}
-      className="group flex min-w-0 flex-col items-start gap-4 rounded-[1.5rem] border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900 dark:focus-visible:ring-offset-slate-950"
+      className="group flex min-w-0 flex-col items-start gap-4 rounded-[1.5rem] border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
       <div className="flex w-full items-center justify-between gap-3">
         <span
@@ -268,12 +279,19 @@ export function EventsLandingPage({
   isLoading = false,
   onDetail,
 }: Props) {
-  const ongoing = useMemo(() => events.filter(e => e.status === 'ongoing'), [events]);
+  const ongoing = useMemo(
+    () => sortHighlightCandidates(events.filter(e => e.status === 'ongoing')),
+    [events],
+  );
   const upcoming = useMemo(
     () =>
       events
         .filter(e => e.status === 'upcoming')
-        .sort((a, b) => a.dateStr.localeCompare(b.dateStr)),
+        .sort((a, b) => {
+          const byPriority = (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9);
+          if (byPriority !== 0) return byPriority;
+          return a.dateStr.localeCompare(b.dateStr);
+        }),
     [events],
   );
 
@@ -284,18 +302,20 @@ export function EventsLandingPage({
     const album = albums.find(a => a.eventId === highlight.id);
     return album?.coverPhotoUrl || '';
   }, [highlight, albums]);
-  const railEvents = useMemo(() => {
-    const rest = [...ongoing, ...upcoming].filter(e => e.id !== highlight?.id);
-    return rest.slice(0, 6);
+
+  const railRest = useMemo(() => {
+    return [...ongoing, ...upcoming].filter(e => e.id !== highlight?.id);
   }, [ongoing, upcoming, highlight]);
+  const railEvents = railRest.slice(0, 6);
+  const railOverflow = Math.max(0, railRest.length - 6);
 
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
-        href="#featured"
+        href="#calendar"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
-        Skip to event schedule
+        Langsung ke kalender
       </a>
 
       <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
@@ -309,10 +329,10 @@ export function EventsLandingPage({
           </Link>
 
           <nav className="hidden items-center gap-6 text-[13px] font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Navigasi jadwal">
-            <a href="#featured" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]">
+            <a href="#featured" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Highlights
             </a>
-            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]">
+            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
             </a>
           </nav>
@@ -339,48 +359,67 @@ export function EventsLandingPage({
       <main>
         {/* Split Studio hero */}
         <section className="border-b border-black/5 dark:border-slate-800">
-          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-16">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-24">
             <div className="flex min-w-0 flex-col justify-center">
               <CommunityEyebrow>Metropolitan Mall Bekasi</CommunityEyebrow>
               <h1 className="font-display mt-3 max-w-xl text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-slate-950 dark:text-white">
                 Event Schedule
               </h1>
               <p className="mt-4 max-w-md text-base leading-8 text-slate-600 dark:text-slate-400">
-                Jadwal event live dan coming soon di Metropolitan Mall Bekasi.
+                Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.
               </p>
 
               {!isLoading && (
-                <dl className="mt-8 grid max-w-md grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-black/[0.06] bg-white px-3 py-3 dark:border-slate-700 dark:bg-slate-900">
+                <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
+                  <div className="rounded-2xl border border-black/[0.06] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Total</dt>
-                    <dd className="font-display mt-1 text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{events.length}</dd>
+                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{events.length}</dd>
                   </div>
-                  <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-3 py-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
+                  <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Live</dt>
-                    <dd className="font-display mt-1 text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{ongoing.length}</dd>
+                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300 sm:text-2xl">{ongoing.length}</dd>
                   </div>
-                  <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-3 py-3 dark:border-amber-800/50 dark:bg-amber-950/30">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 dark:text-amber-400">Coming Soon</dt>
-                    <dd className="font-display mt-1 text-2xl font-bold tabular-nums text-amber-700 dark:text-amber-300">{upcoming.length}</dd>
+                  <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-2.5 py-3 sm:px-3 dark:border-amber-800/50 dark:bg-amber-950/30">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-400">
+                      <span className="sm:hidden">Soon</span>
+                      <span className="hidden sm:inline">Coming Soon</span>
+                    </dt>
+                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-amber-700 dark:text-amber-300 sm:text-2xl">{upcoming.length}</dd>
                   </div>
                 </dl>
               )}
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
-                  href="#calendar"
-                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                  href="#featured"
+                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
                 >
-                  View Calendar
+                  Highlights
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
                 </a>
                 <a
+                  href="#calendar"
+                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                >
+                  View Calendar
+                </a>
+              </div>
+
+              {/* Mobile in-page anchors */}
+              <nav className="mt-6 flex gap-2 md:hidden" aria-label="Navigasi section">
+                <a
                   href="#featured"
-                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="inline-flex items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
                   Highlights
                 </a>
-              </div>
+                <a
+                  href="#calendar"
+                  className="inline-flex items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
+                >
+                  Calendar
+                </a>
+              </nav>
             </div>
 
             <div className="min-w-0">
@@ -399,7 +438,7 @@ export function EventsLandingPage({
                   </div>
                   <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event</p>
                   <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500 dark:text-slate-400">
-                    Schedule akan tampil di sini setelah event dipublish.
+                    Jadwal akan muncul di sini setelah event dipublikasikan.
                   </p>
                 </div>
               )}
@@ -408,7 +447,7 @@ export function EventsLandingPage({
         </section>
 
         {/* Event rail */}
-        <section id="featured" className="scroll-mt-28 px-4 py-12 sm:px-6 sm:py-16">
+        <section id="featured" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -418,15 +457,15 @@ export function EventsLandingPage({
               </div>
             ) : railEvents.length > 0 ? (
               <>
-                <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <CommunityEyebrow>More Events</CommunityEyebrow>
-                    <h2 className="font-display mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+                    <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                       Upcoming & Live
                     </h2>
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {railEvents.length} event
+                    {railRest.length} event
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -434,15 +473,26 @@ export function EventsLandingPage({
                     <EventRailCard key={ev.id} event={ev} onDetail={onDetail} />
                   ))}
                 </div>
+                {railOverflow > 0 && (
+                  <div className="mt-6 text-center">
+                    <a
+                      href="#calendar"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] transition hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                    >
+                      +{railOverflow} event lain di calendar
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                )}
               </>
             ) : !highlight ? null : (
               <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Lihat calendar untuk schedule lengkap.
+                  Lihat calendar untuk jadwal lengkap.
                 </p>
                 <a
                   href="#calendar"
-                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]"
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
                   View Calendar <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -452,22 +502,22 @@ export function EventsLandingPage({
         </section>
 
         {/* Calendar */}
-        <section id="calendar" className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-12 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-16">
-          <div className="mx-auto max-w-7xl space-y-6">
+        <section id="calendar" className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
+          <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <CommunityEyebrow>Calendar</CommunityEyebrow>
-              <h2 className="font-display mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+              <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 Full Schedule
               </h2>
-              <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
-                Tampilan bulanan. Klik event untuk detail.
+              <p className="mt-3 text-base leading-8 text-slate-600 dark:text-slate-400">
+                Tampilan bulanan. Klik event untuk melihat detail.
               </p>
             </div>
 
             {isLoading ? (
               <div className="h-[28rem] animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
             ) : (
-              <CalendarView events={events} holidays={holidays} onDetail={onDetail} />
+              <CalendarView events={events} holidays={holidays} onDetail={onDetail} variant="public" />
             )}
           </div>
         </section>
@@ -480,13 +530,13 @@ export function EventsLandingPage({
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Event Schedule</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-            <Link to="/" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]">
+            <Link to="/" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Community
             </Link>
-            <Link to="/gallery" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]">
+            <Link to="/gallery" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Gallery
             </Link>
-            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]">
+            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
             </a>
           </div>
