@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import {
   BarChart3,
   Download,
@@ -20,6 +20,7 @@ import {
   QrCode,
   Share2,
   CalendarDays,
+  ChevronDown,
 } from 'lucide-react';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
@@ -230,6 +231,197 @@ function publicSurveyUrl(eventId: string): string {
   return `${window.location.origin}/tenant-survey/${eventId}`;
 }
 
+type EventFilterOption = {
+  id: string;
+  label: string;
+  status: EventItem['status'] | string;
+  dateStr: string;
+};
+
+/** Searchable event picker — newest first, type-to-filter (no long scroll). */
+function EventFilterSearch({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: EventFilterOption[];
+  onChange: (eventId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const selected = value === 'all' ? null : options.find((o) => o.id === value) || null;
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter(
+      (o) =>
+        o.label.toLowerCase().includes(q) ||
+        o.dateStr.includes(q) ||
+        String(o.status).toLowerCase().includes(q),
+    );
+  }, [options, query]);
+
+  useEffect(() => {
+    if (!open) {
+      setQuery('');
+      return;
+    }
+    // focus search when open
+    const t = window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const pick = useCallback(
+    (id: string) => {
+      onChange(id);
+      setOpen(false);
+      setQuery('');
+    },
+    [onChange],
+  );
+
+  return (
+    <div ref={containerRef} className="relative min-w-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`${FIELD} flex items-center gap-2 text-left`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Filter nama event"
+      >
+        <span className="min-w-0 flex-1 truncate">
+          {selected ? (
+            <>
+              <span className="font-medium text-slate-800 dark:text-slate-100">{selected.label}</span>
+              {selected.status === 'ongoing' && (
+                <span className="ml-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  live
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-slate-500 dark:text-slate-400">Semua event</span>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
+      </button>
+
+      {open && (
+        <div
+          className="ui-dashboard-surface absolute left-0 right-0 z-40 mt-1 overflow-hidden shadow-lg"
+          role="listbox"
+        >
+          <div className="border-b border-slate-100 p-2 dark:border-slate-700">
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                aria-hidden
+              />
+              <input
+                ref={inputRef}
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari nama event…"
+                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                aria-label="Cari event"
+              />
+            </div>
+          </div>
+          <div className="max-h-64 overflow-y-auto py-1">
+            <button
+              type="button"
+              role="option"
+              aria-selected={value === 'all'}
+              onClick={() => pick('all')}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+                value === 'all'
+                  ? 'bg-brand-primary-50 font-semibold text-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-200'
+                  : 'text-slate-700 dark:text-slate-200'
+              }`}
+            >
+              Semua event
+              <span className="ml-auto text-[10px] font-normal text-slate-400">{options.length}</span>
+            </button>
+            {filtered.length === 0 ? (
+              <p className="px-3 py-3 text-center text-[11px] text-slate-500">
+                Tidak ada event cocok “{query}”
+              </p>
+            ) : (
+              filtered.map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="option"
+                  aria-selected={value === o.id}
+                  onClick={() => pick(o.id)}
+                  className={`flex w-full items-start gap-2 px-3 py-2 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+                    value === o.id
+                      ? 'bg-brand-primary-50 dark:bg-brand-primary-950/40'
+                      : ''
+                  }`}
+                >
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={`block truncate text-xs font-medium ${
+                        value === o.id
+                          ? 'text-brand-primary-800 dark:text-brand-primary-200'
+                          : 'text-slate-800 dark:text-slate-100'
+                      }`}
+                    >
+                      {o.label}
+                    </span>
+                    <span className="mt-0.5 block text-[10px] text-slate-400">
+                      {o.dateStr || '—'}
+                      {o.status === 'ongoing'
+                        ? ' · berlangsung'
+                        : o.status === 'past'
+                          ? ' · selesai'
+                          : o.status
+                            ? ` · ${o.status}`
+                            : ''}
+                    </span>
+                  </span>
+                  {value === o.id && (
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-primary-600" aria-hidden />
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** One event row: name + copy link + QR (same pattern as admin dashboard). */
 function EventShareRow({
   event,
@@ -426,7 +618,7 @@ export default function TenantSurveyResultsPage({
     return m;
   }, [surveys]);
 
-  const eventOptions = useMemo(() => {
+  const eventOptions = useMemo((): EventFilterOption[] => {
     // Prefer shareable list so filter shows event names even before responses exist
     const byId = new Map(shareableEvents.map((e) => [e.id, e]));
     for (const s of surveys) {
@@ -436,14 +628,30 @@ export default function TenantSurveyResultsPage({
       }
     }
     return [...byId.values()]
-      .map((e) => ({ id: e.id, label: e.acara, status: e.status }))
-      .sort((a, b) => a.label.localeCompare(b.label, 'id'));
+      .map((e) => ({
+        id: e.id,
+        label: e.acara,
+        status: e.status,
+        dateStr: e.dateStr || '',
+      }))
+      // Newest first (dateStr desc); ongoing before past on same day
+      .sort((a, b) => {
+        const d = (b.dateStr || '').localeCompare(a.dateStr || '');
+        if (d !== 0) return d;
+        if (a.status === 'ongoing' && b.status !== 'ongoing') return -1;
+        if (b.status === 'ongoing' && a.status !== 'ongoing') return 1;
+        return a.label.localeCompare(b.label, 'id');
+      });
   }, [shareableEvents, surveys, events]);
 
   const selectedEvent = useMemo(() => {
     if (filter.eventId === 'all') return null;
-    return events.find((e) => e.id === filter.eventId) || null;
-  }, [events, filter.eventId]);
+    return (
+      events.find((e) => e.id === filter.eventId) ||
+      shareableEvents.find((e) => e.id === filter.eventId) ||
+      null
+    );
+  }, [events, shareableEvents, filter.eventId]);
 
   const shareList = useMemo(() => {
     const q = shareSearch.trim().toLowerCase();
@@ -673,25 +881,19 @@ export default function TenantSurveyResultsPage({
         </div>
 
         <div className="grid gap-2.5 p-3.5 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-6">
-          <label className="block min-w-0">
+          <div className="block min-w-0 sm:col-span-2 lg:col-span-2 xl:col-span-2">
             <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
               Event
             </span>
-            <select
+            <EventFilterSearch
               value={filter.eventId}
-              onChange={(e) => setField('eventId', e.target.value)}
-              className={FIELD}
-              aria-label="Filter nama event"
-            >
-              <option value="all">Semua event</option>
-              {eventOptions.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.label}
-                  {o.status === 'ongoing' ? ' (berlangsung)' : ''}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={eventOptions}
+              onChange={(id) => setField('eventId', id)}
+            />
+            <p className="mt-1 text-[10px] text-slate-400">
+              Ketik untuk cari · event terbaru di atas
+            </p>
+          </div>
           <label className="block min-w-0">
             <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
               Dari tanggal
