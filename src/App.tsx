@@ -739,43 +739,61 @@ export default function App() {
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
-            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
-              <div className="mb-6 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
-                  <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            <header className="ui-dashboard-chrome sticky top-0 z-30 border-b">
+              <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
+                  <div className="h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />
+                  <span className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                     Tenant Relation
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   {(auth.isAuthenticated || auth.isLegacy) && (
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
-                    >
-                      Keluar
-                    </button>
+                    <>
+                      {(auth.user?.display_name || auth.isLegacy) && (
+                        <div className="hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 dark:border-slate-600 dark:bg-slate-800/70 sm:flex">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary-100 text-[10px] font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
+                            {(auth.user?.display_name || 'A').charAt(0).toUpperCase()}
+                          </span>
+                          <span className="max-w-[120px] truncate text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                            {auth.user?.display_name || 'Admin'}
+                          </span>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="ui-focus-ring rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                      >
+                        Keluar
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
+            </header>
 
+            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
               {auth.isLoading ? (
                 <DashboardSkeleton isAdmin={false} />
               ) : !auth.isAuthenticated && !auth.isLegacy ? (
-                <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
-                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Hasil Evaluasi Tenant</h1>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    Login dengan akun Tenant Relation atau Admin untuk melihat analisa.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowLoginModal(true)}
-                    className="mt-4 rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
-                  >
-                    Login
-                  </button>
+                <div className="ui-dashboard-surface mx-auto max-w-md overflow-hidden text-center">
+                  <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/60 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
+                    <h1 className="text-lg font-bold text-slate-900 dark:text-white">Hasil Evaluasi Tenant</h1>
+                    <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                      Login dengan akun Tenant Relation atau Admin untuk melihat analisa.
+                    </p>
+                  </div>
+                  <div className="px-6 py-5">
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginModal(true)}
+                      className="ui-btn-primary ui-focus-ring rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+                    >
+                      Login
+                    </button>
+                  </div>
                 </div>
               ) : !permissions.canViewTenantSurveyResults ? (
                 <div className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/30">

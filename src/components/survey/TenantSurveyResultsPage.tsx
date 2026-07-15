@@ -11,6 +11,9 @@ import {
   TrendingUp,
   DollarSign,
   Search,
+  RotateCcw,
+  Inbox,
+  X,
 } from 'lucide-react';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
@@ -30,30 +33,76 @@ interface Props {
   canExport?: boolean;
 }
 
-function DistBars({ title, icon, dist, total }: { title: string; icon: React.ReactNode; dist: DistMap; total: number }) {
+const FIELD =
+  'ui-focus-ring w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
+
+const TRAFFIC_COLORS: Record<string, string> = {
+  Signifikan: 'bg-emerald-500',
+  'Sedikit Naik': 'bg-green-400',
+  'Tidak Ada': 'bg-amber-400',
+  Menurun: 'bg-red-500',
+};
+
+const SALES_COLORS: Record<string, string> = {
+  '> 50%': 'bg-emerald-500',
+  '30% - 50%': 'bg-green-400',
+  '10% - 30%': 'bg-lime-400',
+  '< 10%': 'bg-amber-400',
+  'Tidak ada kenaikan / Sama saja': 'bg-orange-400',
+};
+
+const DEFAULT_BAR = [
+  'bg-brand-primary-500',
+  'bg-brand-primary-400',
+  'bg-sky-500',
+  'bg-cyan-500',
+  'bg-indigo-400',
+  'bg-violet-400',
+];
+
+function DistBars({
+  title,
+  icon,
+  dist,
+  total,
+  colorMap,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  dist: DistMap;
+  total: number;
+  colorMap?: Record<string, string>;
+}) {
   const max = Math.max(1, ...dist.labels.map((l) => dist.counts[l] || 0));
   return (
-    <div className="ui-dashboard-surface p-4">
-      <div className="mb-3 flex items-center gap-2 text-brand-primary-600 dark:text-brand-primary-400">
-        {icon}
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</h3>
+    <div className="ui-dashboard-surface overflow-hidden">
+      <div className="ui-dashboard-muted flex items-center gap-2 border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+          {icon}
+        </span>
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+          {title}
+        </h3>
       </div>
-      <div className="space-y-2">
-        {dist.labels.map((label) => {
+      <div className="space-y-2.5 p-4">
+        {dist.labels.map((label, i) => {
           const n = dist.counts[label] || 0;
           const pct = total > 0 ? Math.round((n / total) * 100) : 0;
           const w = Math.round((n / max) * 100);
+          const bar =
+            (colorMap ? colorMap[label] : undefined) || DEFAULT_BAR[i % DEFAULT_BAR.length];
           return (
             <div key={label}>
               <div className="mb-0.5 flex items-center justify-between gap-2 text-[11px]">
                 <span className="truncate text-slate-600 dark:text-slate-300">{label}</span>
-                <span className="shrink-0 font-medium text-slate-500 dark:text-slate-400">
-                  {n} · {pct}%
+                <span className="shrink-0 tabular-nums text-slate-500 dark:text-slate-400">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">{n}</span>
+                  <span className="text-slate-400"> · {pct}%</span>
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                 <div
-                  className="h-full rounded-full bg-teal-400/90 transition-all duration-500 dark:bg-teal-500/80"
+                  className={`h-full rounded-full transition-all duration-500 ${bar}`}
                   style={{ width: `${w}%` }}
                 />
               </div>
@@ -70,28 +119,75 @@ function KpiCard({
   value,
   icon,
   tone = 'neutral',
+  helper,
 }: {
   label: string;
   value: string | number;
   icon: React.ReactNode;
   tone?: 'neutral' | 'good' | 'warn' | 'bad';
+  helper?: string;
 }) {
-  const toneClass =
+  const accent =
+    tone === 'good'
+      ? 'border-l-emerald-400 dark:border-l-emerald-500'
+      : tone === 'warn'
+        ? 'border-l-amber-400 dark:border-l-amber-500'
+        : tone === 'bad'
+          ? 'border-l-red-400 dark:border-l-red-500'
+          : 'border-l-brand-primary-400 dark:border-l-brand-primary-500';
+  const valueClass =
     tone === 'good'
       ? 'text-emerald-600 dark:text-emerald-400'
       : tone === 'warn'
         ? 'text-amber-600 dark:text-amber-400'
         : tone === 'bad'
           ? 'text-red-600 dark:text-red-400'
-          : 'text-slate-800 dark:text-slate-100';
+          : 'text-slate-900 dark:text-slate-50';
+  const pill =
+    tone === 'good'
+      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
+      : tone === 'warn'
+        ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
+        : tone === 'bad'
+          ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'
+          : 'bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/40 dark:text-brand-primary-400';
+
   return (
-    <div className="ui-dashboard-surface p-4">
-      <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400">
-        {icon}
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
+    <div className={`ui-dashboard-surface border-l-[3px] p-3.5 sm:p-4 ${accent}`}>
+      <div className="flex items-start gap-3">
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${pill}`}>
+          {icon}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            {label}
+          </p>
+          <p className={`mt-0.5 text-2xl font-bold tabular-nums tracking-tight ${valueClass}`}>
+            {value}
+          </p>
+          {helper ? (
+            <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">{helper}</p>
+          ) : null}
+        </div>
       </div>
-      <p className={`mt-1 text-2xl font-bold ${toneClass}`}>{value}</p>
     </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  const cls =
+    s === 'reviewed'
+      ? 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800'
+      : s === 'submitted'
+        ? 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-800'
+        : 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700';
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ring-1 ring-inset ${cls}`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -100,6 +196,17 @@ function pctTone(n: number): 'good' | 'warn' | 'bad' | 'neutral' {
   if (n >= 60) return 'good';
   if (n >= 30) return 'warn';
   return 'bad';
+}
+
+function isFilterActive(f: ResultsFilter): boolean {
+  return (
+    f.eventId !== EMPTY_FILTER.eventId ||
+    f.dateFrom !== EMPTY_FILTER.dateFrom ||
+    f.dateTo !== EMPTY_FILTER.dateTo ||
+    f.zona !== EMPTY_FILTER.zona ||
+    f.kategori !== EMPTY_FILTER.kategori ||
+    f.status !== EMPTY_FILTER.status
+  );
 }
 
 export default function TenantSurveyResultsPage({ events, canExport = true }: Props) {
@@ -145,6 +252,35 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
     setFilter((prev) => ({ ...prev, [key]: value }));
   }, []);
 
+  const resetFilter = useCallback(() => {
+    setFilter(EMPTY_FILTER);
+  }, []);
+
+  const activeChips = useMemo(() => {
+    const chips: Array<{ key: keyof ResultsFilter; label: string }> = [];
+    if (filter.eventId !== 'all') {
+      chips.push({ key: 'eventId', label: eventMap.get(filter.eventId) || filter.eventId });
+    }
+    if (filter.dateFrom) chips.push({ key: 'dateFrom', label: `Dari ${filter.dateFrom}` });
+    if (filter.dateTo) chips.push({ key: 'dateTo', label: `Sampai ${filter.dateTo}` });
+    if (filter.zona !== 'all') chips.push({ key: 'zona', label: filter.zona });
+    if (filter.kategori !== 'all') chips.push({ key: 'kategori', label: filter.kategori });
+    if (filter.status !== 'all') {
+      chips.push({
+        key: 'status',
+        label: filter.status === 'submitted' ? 'Submitted' : 'Reviewed',
+      });
+    }
+    return chips;
+  }, [filter, eventMap]);
+
+  const clearChip = useCallback((key: keyof ResultsFilter) => {
+    setFilter((prev) => ({
+      ...prev,
+      [key]: key === 'dateFrom' || key === 'dateTo' ? '' : key === 'status' ? 'all' : 'all',
+    }));
+  }, []);
+
   const handleExportPdf = useCallback(async () => {
     if (!canExport) return;
     setExporting(true);
@@ -166,21 +302,33 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16 text-sm text-slate-500">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        Memuat hasil evaluasi tenant…
+      <div className="flex flex-col items-center justify-center gap-3 py-20">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary-50 dark:bg-brand-primary-950/40">
+          <Loader2 className="h-5 w-5 animate-spin text-brand-primary-600 dark:text-brand-primary-400" />
+        </div>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+          Memuat hasil evaluasi tenant…
+        </p>
+        <p className="text-xs text-slate-400">Mengambil data submisi v3</p>
       </div>
     );
   }
 
+  const filterDirty = isFilterActive(filter);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Hasil Evaluasi Tenant</h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Analisa dampak event ke gerai · read-only · tanpa data PIC
+    <div className="space-y-5">
+      {/* Report header */}
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-primary-600 dark:text-brand-primary-400">
+            Laporan analisa
+          </p>
+          <h1 className="mt-0.5 text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+            Hasil Evaluasi Tenant
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Dampak event ke gerai · read-only · tanpa data PIC
           </p>
         </div>
         {canExport && (
@@ -188,95 +336,144 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
             type="button"
             onClick={handleExportPdf}
             disabled={exporting || agg.total === 0}
-            className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
+            className="ui-btn-primary ui-focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {exporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden />
+            )}
             Export PDF
           </button>
         )}
-      </div>
+      </header>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+        >
           {error}
         </div>
       )}
       {exportError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+        >
           {exportError}
         </div>
       )}
 
-      {/* Filters */}
-      <div className="ui-dashboard-surface p-4">
-        <div className="mb-3 flex items-center gap-2 text-slate-500 dark:text-slate-400">
-          <Filter className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wide">Filter</span>
+      {/* Filter toolbar */}
+      <section
+        className="ui-dashboard-surface sticky top-14 z-20 overflow-hidden shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
+        aria-labelledby="filter-heading"
+      >
+        <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3.5 py-2 dark:border-slate-700 sm:px-4">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+            <Filter className="h-3.5 w-3.5 text-brand-primary-500" aria-hidden />
+            <h2 id="filter-heading" className="text-[11px] font-bold uppercase tracking-wide">
+              Filter
+            </h2>
+            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+              {agg.total} data
+            </span>
+          </div>
+          {filterDirty && (
+            <button
+              type="button"
+              onClick={resetFilter}
+              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+            >
+              <RotateCcw className="h-3 w-3" aria-hidden />
+              Reset filter
+            </button>
+          )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Event</span>
+
+        <div className="grid gap-2.5 p-3.5 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-6">
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Event
+            </span>
             <select
               value={filter.eventId}
               onChange={(e) => setField('eventId', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             >
               <option value="all">Semua event</option>
               {eventOptions.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Dari tanggal</span>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Dari tanggal
+            </span>
             <input
               type="date"
               value={filter.dateFrom}
               onChange={(e) => setField('dateFrom', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             />
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Sampai tanggal</span>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Sampai tanggal
+            </span>
             <input
               type="date"
               value={filter.dateTo}
               onChange={(e) => setField('dateTo', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             />
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Zona</span>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Zona
+            </span>
             <select
               value={filter.zona}
               onChange={(e) => setField('zona', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             >
               <option value="all">Semua zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
-                <option key={z} value={z}>{z}</option>
+                <option key={z} value={z}>
+                  {z}
+                </option>
               ))}
             </select>
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Kategori</span>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Kategori
+            </span>
             <select
               value={filter.kategori}
               onChange={(e) => setField('kategori', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             >
               <option value="all">Semua kategori</option>
               {SURVEY_OPTIONS.kategori.map((k) => (
-                <option key={k} value={k}>{k}</option>
+                <option key={k} value={k}>
+                  {k}
+                </option>
               ))}
             </select>
           </label>
-          <label className="block text-xs">
-            <span className="mb-1 block text-slate-500">Status</span>
+          <label className="block min-w-0">
+            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              Status
+            </span>
             <select
               value={filter.status}
               onChange={(e) => setField('status', e.target.value as ResultsFilter['status'])}
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className={FIELD}
             >
               <option value="all">Submitted + Reviewed</option>
               <option value="submitted">Submitted</option>
@@ -284,176 +481,361 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
             </select>
           </label>
         </div>
-      </div>
 
-      {/* KPI */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Total Submisi (v3)" value={agg.total} icon={<BarChart3 className="h-4 w-4" />} />
-        <KpiCard label="Gerai Unik" value={agg.uniqueGerai} icon={<Store className="h-4 w-4" />} />
+        {activeChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-black/[0.04] px-3.5 py-2.5 dark:border-slate-700 sm:px-4">
+            <span className="mr-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Aktif
+            </span>
+            {activeChips.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => clearChip(c.key)}
+                className="ui-focus-ring inline-flex max-w-[220px] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
+                title="Hapus filter ini"
+              >
+                <span className="truncate">{c.label}</span>
+                <X className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* KPI strip */}
+      <section aria-label="Ringkasan KPI" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label="Total Submisi"
+          value={agg.total}
+          icon={<BarChart3 className="h-4 w-4" aria-hidden />}
+          helper="Survey v3 final"
+        />
+        <KpiCard
+          label="Gerai Unik"
+          value={agg.uniqueGerai}
+          icon={<Store className="h-4 w-4" aria-hidden />}
+          helper="Nama gerai berbeda"
+        />
         <KpiCard
           label="Traffic Positif"
           value={agg.total > 0 ? `${agg.trafficPosPct}%` : '—'}
-          icon={<TrendingUp className="h-4 w-4" />}
+          icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.trafficPosPct)}
+          helper="Signifikan + Sedikit Naik"
         />
         <KpiCard
           label="Sales Positif"
           value={agg.total > 0 ? `${agg.salesPosPct}%` : '—'}
-          icon={<DollarSign className="h-4 w-4" />}
+          icon={<DollarSign className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.salesPosPct)}
+          helper="Kenaikan ≥ 10%"
         />
-      </div>
+      </section>
 
       {agg.total === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-600">
-          <BarChart3 className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm font-medium text-slate-500">Belum ada data sesuai filter</p>
-          <p className="mt-1 text-xs text-slate-400">Hanya menampilkan survey v3 yang sudah submitted/reviewed</p>
+        <div className="ui-empty-panel px-6 py-14">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
+            <Inbox className="h-6 w-6 text-slate-400 dark:text-slate-500" aria-hidden />
+          </div>
+          <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Belum ada data sesuai filter
+          </p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+            Hanya menampilkan survey v3 yang sudah submitted/reviewed. Longgarkan filter atau tunggu
+            submisi baru.
+          </p>
+          {filterDirty && (
+            <button
+              type="button"
+              onClick={resetFilter}
+              className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+              Reset filter
+            </button>
+          )}
         </div>
       ) : (
         <>
           {/* Distributions */}
-          <div className="grid gap-4 lg:grid-cols-2">
-            <DistBars title="Traffic" icon={<TrendingUp className="h-4 w-4" />} dist={agg.trafficDist} total={agg.total} />
-            <DistBars title="Sales" icon={<DollarSign className="h-4 w-4" />} dist={agg.salesDist} total={agg.total} />
-            <DistBars title="Kategori" icon={<Tag className="h-4 w-4" />} dist={agg.kategoriDist} total={agg.total} />
-            <DistBars title="Zona" icon={<MapPin className="h-4 w-4" />} dist={agg.zonaDist} total={agg.total} />
-          </div>
+          <section aria-label="Distribusi" className="grid gap-3 lg:grid-cols-2">
+            <DistBars
+              title="Traffic"
+              icon={<TrendingUp className="h-3.5 w-3.5" aria-hidden />}
+              dist={agg.trafficDist}
+              total={agg.total}
+              colorMap={TRAFFIC_COLORS}
+            />
+            <DistBars
+              title="Sales"
+              icon={<DollarSign className="h-3.5 w-3.5" aria-hidden />}
+              dist={agg.salesDist}
+              total={agg.total}
+              colorMap={SALES_COLORS}
+            />
+            <DistBars
+              title="Kategori"
+              icon={<Tag className="h-3.5 w-3.5" aria-hidden />}
+              dist={agg.kategoriDist}
+              total={agg.total}
+            />
+            <DistBars
+              title="Zona"
+              icon={<MapPin className="h-3.5 w-3.5" aria-hidden />}
+              dist={agg.zonaDist}
+              total={agg.total}
+            />
+          </section>
 
           {/* Top + cross-tab */}
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div className="ui-dashboard-surface">
-              <div className="border-b border-slate-200 p-4 dark:border-slate-700">
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Top Gerai</h3>
-                <p className="text-[11px] text-slate-400">Skor = jumlah sinyal traffic+ dan sales+</p>
+          <section className="grid gap-3 lg:grid-cols-2">
+            <div className="ui-dashboard-surface overflow-hidden">
+              <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+                <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                  Top Gerai
+                </h3>
+                <p className="mt-0.5 text-[11px] text-slate-400">
+                  Skor = sinyal traffic+ dan sales+
+                </p>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-700">
+              <div className="divide-y divide-slate-100 dark:divide-slate-700/80">
                 {agg.topGerai.map((g, i) => (
-                  <div key={g.nama_gerai} className="flex items-center gap-3 px-4 py-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-700 dark:bg-teal-900/40 dark:text-teal-300">
+                  <div
+                    key={g.nama_gerai}
+                    className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
+                  >
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${
+                        i === 0
+                          ? 'bg-brand-primary-500 text-white'
+                          : i < 3
+                            ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                      }`}
+                    >
                       {i + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{g.nama_gerai}</p>
+                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                        {g.nama_gerai}
+                      </p>
                       <p className="text-[11px] text-slate-400">{g.count} respons</p>
                     </div>
-                    <div className="text-right text-[11px] text-slate-500">
-                      <p>T+ {g.trafficPos} · S+ {g.salesPos}</p>
-                      <p className="font-bold text-teal-600 dark:text-teal-400">skor {g.score}</p>
+                    <div className="shrink-0 text-right text-[11px] text-slate-500 dark:text-slate-400">
+                      <p>
+                        T+ {g.trafficPos} · S+ {g.salesPos}
+                      </p>
+                      <p className="font-bold text-brand-primary-600 dark:text-brand-primary-400">
+                        skor {g.score}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="ui-dashboard-surface overflow-x-auto">
-              <div className="border-b border-slate-200 p-4 dark:border-slate-700">
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Kategori × Sales</h3>
-                <p className="text-[11px] text-slate-400">Cross-tab frekuensi</p>
+            <div className="ui-dashboard-surface overflow-hidden">
+              <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+                <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                  Kategori × Sales
+                </h3>
+                <p className="mt-0.5 text-[11px] text-slate-400">Cross-tab frekuensi</p>
               </div>
-              <table className="w-full min-w-[320px] text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-100 text-slate-500 dark:border-slate-700">
-                    <th className="px-4 py-2 font-medium">Kategori</th>
-                    <th className="px-2 py-2 font-medium">Sales</th>
-                    <th className="px-4 py-2 font-medium text-right">N</th>
+              <div className="max-h-80 overflow-auto">
+                <table className="w-full min-w-[320px] text-left text-xs">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      <th scope="col" className="px-4 py-2 font-semibold">
+                        Kategori
+                      </th>
+                      <th scope="col" className="px-2 py-2 font-semibold">
+                        Sales
+                      </th>
+                      <th scope="col" className="px-4 py-2 text-right font-semibold">
+                        N
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agg.crossTab.slice(0, 15).map((c, idx) => (
+                      <tr
+                        key={`${c.kategori}-${c.sales}`}
+                        className={`border-b border-slate-50 dark:border-slate-800/80 ${
+                          idx % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''
+                        } hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20`}
+                      >
+                        <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">
+                          {c.kategori}
+                        </td>
+                        <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{c.sales}</td>
+                        <td className="px-4 py-2 text-right font-semibold tabular-nums text-slate-800 dark:text-slate-200">
+                          {c.count}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          {/* Trend */}
+          <TenantSurveyTrendChart eventFilter={trendEventId} />
+
+          {/* Feedback wall */}
+          <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="feedback-heading">
+            <div className="ui-dashboard-muted flex flex-col gap-2.5 border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+                  <MessageSquareText className="h-3.5 w-3.5" aria-hidden />
+                </span>
+                <h3
+                  id="feedback-heading"
+                  className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+                >
+                  Feedback Gerai
+                  <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
+                    ({feedbackFiltered.length})
+                  </span>
+                </h3>
+              </div>
+              <div className="relative max-w-xs flex-1">
+                <label htmlFor="feedback-search" className="sr-only">
+                  Cari feedback atau gerai
+                </label>
+                <Search
+                  className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                  aria-hidden
+                />
+                <input
+                  id="feedback-search"
+                  type="search"
+                  value={feedbackQ}
+                  onChange={(e) => setFeedbackQ(e.target.value)}
+                  placeholder="Cari feedback / gerai…"
+                  className={`${FIELD} py-1.5 pl-8 pr-3`}
+                />
+              </div>
+            </div>
+            <div className="max-h-96 overflow-y-auto p-3 sm:p-4">
+              {feedbackFiltered.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center dark:border-slate-700">
+                  <MessageSquareText
+                    className="mx-auto h-6 w-6 text-slate-300 dark:text-slate-600"
+                    aria-hidden
+                  />
+                  <p className="mt-2 text-xs font-medium text-slate-500">Tidak ada feedback teks</p>
+                </div>
+              ) : (
+                <ul className="grid gap-2.5 sm:grid-cols-2">
+                  {feedbackFiltered.slice(0, 50).map((f) => (
+                    <li
+                      key={f.id}
+                      className="rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3 dark:border-slate-700/80 dark:bg-slate-800/40"
+                    >
+                      <div className="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-slate-400">
+                        <span className="font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                          {f.gerai}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <span className="truncate">
+                          {eventMap.get(f.event_id) || f.event_id}
+                        </span>
+                      </div>
+                      <p className="line-clamp-4 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                        <span className="mr-0.5 text-lg leading-none text-brand-primary-300 dark:text-brand-primary-700">
+                          “
+                        </span>
+                        {f.text}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+
+          {/* Detail table */}
+          <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="detail-heading">
+            <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+              <h3
+                id="detail-heading"
+                className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+              >
+                Detail Respons
+                <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
+                  ({agg.rows.length})
+                </span>
+              </h3>
+            </div>
+            <div className="max-h-[28rem] overflow-auto">
+              <table className="w-full min-w-[720px] text-left text-xs">
+                <thead className="sticky top-0 z-10">
+                  <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                    <th scope="col" className="px-4 py-2.5 font-semibold">
+                      Gerai
+                    </th>
+                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                      Event
+                    </th>
+                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                      Zona
+                    </th>
+                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                      Kategori
+                    </th>
+                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                      Traffic
+                    </th>
+                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                      Sales
+                    </th>
+                    <th scope="col" className="px-4 py-2.5 font-semibold">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {agg.crossTab.slice(0, 15).map((c) => (
-                    <tr key={`${c.kategori}-${c.sales}`} className="border-b border-slate-50 dark:border-slate-800">
-                      <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">{c.kategori}</td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{c.sales}</td>
-                      <td className="px-4 py-2 text-right font-semibold text-slate-800 dark:text-slate-200">{c.count}</td>
+                  {agg.rows.slice(0, 100).map((s: TenantEventSurvey, idx) => (
+                    <tr
+                      key={s.id}
+                      className={`border-b border-slate-50 transition dark:border-slate-800/80 ${
+                        idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-slate-800/25' : ''
+                      } hover:bg-brand-primary-50/50 dark:hover:bg-brand-primary-950/20`}
+                    >
+                      <td className="max-w-[140px] truncate px-4 py-2 font-medium text-slate-800 dark:text-slate-100">
+                        {s.nama_gerai || s.tenant_name || '—'}
+                      </td>
+                      <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">
+                        {eventMap.get(s.event_id) || s.event_id}
+                      </td>
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                        {s.lokasi_zona || '—'}
+                      </td>
+                      <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">
+                        {s.kategori || '—'}
+                      </td>
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                        {s.kenaikan_traffic || '—'}
+                      </td>
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                        {s.kenaikan_sales || '—'}
+                      </td>
+                      <td className="px-4 py-2">
+                        <StatusBadge status={s.status} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
-
-          {/* Trend (component owns its surface + data fetch) */}
-          <TenantSurveyTrendChart eventFilter={trendEventId} />
-
-          {/* Feedback wall */}
-          <div className="ui-dashboard-surface">
-            <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
-              <div className="flex items-center gap-2">
-                <MessageSquareText className="h-4 w-4 text-teal-600" />
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                  Feedback Gerai ({feedbackFiltered.length})
-                </h3>
-              </div>
-              <div className="relative max-w-xs flex-1">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="search"
-                  value={feedbackQ}
-                  onChange={(e) => setFeedbackQ(e.target.value)}
-                  placeholder="Cari feedback / gerai…"
-                  className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-            </div>
-            <div className="max-h-80 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
-              {feedbackFiltered.length === 0 ? (
-                <p className="p-4 text-xs text-slate-400">Tidak ada feedback teks</p>
-              ) : (
-                feedbackFiltered.slice(0, 50).map((f) => (
-                  <div key={f.id} className="px-4 py-3">
-                    <div className="mb-0.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                      <span className="font-semibold text-slate-600 dark:text-slate-300">{f.gerai}</span>
-                      <span>·</span>
-                      <span>{eventMap.get(f.event_id) || f.event_id}</span>
-                    </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-200">{f.text}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Detail table */}
-          <div className="ui-dashboard-surface overflow-x-auto">
-            <div className="border-b border-slate-200 p-4 dark:border-slate-700">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Detail Respons ({agg.rows.length})
-              </h3>
-            </div>
-            <table className="w-full min-w-[720px] text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-100 text-slate-500 dark:border-slate-700">
-                  <th className="px-4 py-2 font-medium">Gerai</th>
-                  <th className="px-2 py-2 font-medium">Event</th>
-                  <th className="px-2 py-2 font-medium">Zona</th>
-                  <th className="px-2 py-2 font-medium">Kategori</th>
-                  <th className="px-2 py-2 font-medium">Traffic</th>
-                  <th className="px-2 py-2 font-medium">Sales</th>
-                  <th className="px-4 py-2 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {agg.rows.slice(0, 100).map((s: TenantEventSurvey) => (
-                  <tr key={s.id} className="border-b border-slate-50 dark:border-slate-800">
-                    <td className="max-w-[140px] truncate px-4 py-2 font-medium text-slate-800 dark:text-slate-200">
-                      {s.nama_gerai || s.tenant_name || '—'}
-                    </td>
-                    <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">
-                      {eventMap.get(s.event_id) || s.event_id}
-                    </td>
-                    <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{s.lokasi_zona || '—'}</td>
-                    <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">{s.kategori || '—'}</td>
-                    <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{s.kenaikan_traffic || '—'}</td>
-                    <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{s.kenaikan_sales || '—'}</td>
-                    <td className="px-4 py-2 capitalize text-slate-500">{s.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
             {agg.rows.length > 100 && (
-              <p className="px-4 py-2 text-[11px] text-slate-400">Menampilkan 100 dari {agg.rows.length} baris</p>
+              <p className="border-t border-black/[0.04] px-4 py-2 text-[11px] text-slate-400 dark:border-slate-700">
+                Menampilkan 100 dari {agg.rows.length} baris
+              </p>
             )}
-          </div>
+          </section>
         </>
       )}
     </div>
