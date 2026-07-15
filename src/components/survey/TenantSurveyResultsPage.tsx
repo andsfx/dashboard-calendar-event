@@ -304,7 +304,7 @@ function EventFilterSearch({
   );
 
   return (
-    <div ref={containerRef} className="relative min-w-0">
+    <div ref={containerRef} className="relative z-50 min-w-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -335,10 +335,10 @@ function EventFilterSearch({
 
       {open && (
         <div
-          className="ui-dashboard-surface absolute left-0 right-0 z-40 mt-1 overflow-hidden shadow-lg"
+          className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,70vh)] flex-col overflow-hidden shadow-xl sm:min-w-[20rem]"
           role="listbox"
         >
-          <div className="border-b border-slate-100 p-2 dark:border-slate-700">
+          <div className="shrink-0 border-b border-slate-100 p-2 dark:border-slate-700">
             <div className="relative">
               <Search
                 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
@@ -354,14 +354,17 @@ function EventFilterSearch({
                 aria-label="Cari event"
               />
             </div>
+            <p className="mt-1.5 px-0.5 text-[10px] text-slate-400">
+              {filtered.length} event · terbaru di atas · scroll untuk lihat semua
+            </p>
           </div>
-          <div className="max-h-64 overflow-y-auto py-1">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
             <button
               type="button"
               role="option"
               aria-selected={value === 'all'}
               onClick={() => pick('all')}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
                 value === 'all'
                   ? 'bg-brand-primary-50 font-semibold text-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-200'
                   : 'text-slate-700 dark:text-slate-200'
@@ -371,7 +374,7 @@ function EventFilterSearch({
               <span className="ml-auto text-[10px] font-normal text-slate-400">{options.length}</span>
             </button>
             {filtered.length === 0 ? (
-              <p className="px-3 py-3 text-center text-[11px] text-slate-500">
+              <p className="px-3 py-6 text-center text-[11px] text-slate-500">
                 Tidak ada event cocok “{query}”
               </p>
             ) : (
@@ -382,7 +385,7 @@ function EventFilterSearch({
                   role="option"
                   aria-selected={value === o.id}
                   onClick={() => pick(o.id)}
-                  className={`flex w-full items-start gap-2 px-3 py-2 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
                     value === o.id
                       ? 'bg-brand-primary-50 dark:bg-brand-primary-950/40'
                       : ''
@@ -862,9 +865,9 @@ export default function TenantSurveyResultsPage({
         </div>
       )}
 
-      {/* Filter toolbar */}
+      {/* Filter toolbar — overflow-visible so event dropdown is not clipped */}
       <section
-        className="ui-dashboard-surface sticky top-14 z-20 overflow-hidden shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
+        className="ui-dashboard-surface sticky top-14 z-30 overflow-visible shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
         aria-labelledby="filter-heading"
       >
         <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3.5 py-2 dark:border-slate-700 sm:px-4">
@@ -1132,7 +1135,13 @@ export default function TenantSurveyResultsPage({
             {shareSearch ? ' / cocok pencarian' : ''}.
           </p>
         ) : (
-          <div className={filter.eventId === 'all' ? 'max-h-[22rem] overflow-y-auto' : undefined}>
+          <div
+            className={
+              filter.eventId === 'all'
+                ? 'max-h-[min(36rem,70vh)] overflow-y-auto overscroll-contain'
+                : undefined
+            }
+          >
             {shareList.map((ev) => (
               <EventShareRow
                 key={ev.id}
@@ -1220,7 +1229,7 @@ export default function TenantSurveyResultsPage({
             Tidak ada tenant di tab ini{rosterQ ? ' / hasil pencarian' : ''}.
           </p>
         ) : (
-          <ul className="max-h-[22rem] divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
+          <ul className="max-h-[min(36rem,70vh)] divide-y divide-slate-100 overflow-y-auto overscroll-contain dark:divide-slate-800">
             {checklistView.map((t) => (
               <li
                 key={t.id}
