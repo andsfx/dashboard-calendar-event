@@ -32,11 +32,11 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
             {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/events')}
             className="inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[13px] font-medium text-white shadow-md"
             style={{ background: 'linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-soft) 100%)' }}
           >
-            <CalendarDays className="h-4 w-4" /> Dashboard
+            <CalendarDays className="h-4 w-4" /> Event Schedule
           </button>
         </div>
       </div>

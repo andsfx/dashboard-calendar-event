@@ -579,10 +579,9 @@ export default function App() {
   useEffect(() => {
     if (!location.pathname.startsWith('/dashboard')) return;
     if (isLoading) return;
+    // Public visitors: schedule lives on /events, not dashboard chrome
     if (!permissions.canViewDashboard) {
-      if (dashboardPath !== '/') {
-        navigate('/dashboard', { replace: true });
-      }
+      navigate('/events', { replace: true });
       return;
     }
     if (!allowedDashboardPaths.has(dashboardPath)) {

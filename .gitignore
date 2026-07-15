@@ -26,3 +26,9 @@ DESIGN_AUDIT_REPORT.md
 
 # Deepwork session state
 .slim/deepwork/
+
+# Hallmark design agent local state
+.hallmark/
+
+# Knowledge graph local output
+graphify-out/
