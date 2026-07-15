@@ -13,6 +13,8 @@ import {
   createTenantSurvey,
   updateTenantSurvey,
   submitTenantSurvey,
+  reviewTenantSurvey,
+  deleteTenantSurvey,
   fetchTenantSurveyAnalytics,
   fetchTenantSurveyMonthlyTrend,
   fetchTenantSurveyEventSummary,
@@ -88,6 +90,17 @@ export function useTenantSurveys(eventId?: string) {
     return submitted;
   }, []);
 
+  const review = useCallback(async (id: string, reviewNotes = ''): Promise<TenantEventSurvey> => {
+    const reviewed = await reviewTenantSurvey(id, reviewNotes);
+    setSurveys(prev => prev.map(s => s.id === id ? reviewed : s));
+    return reviewed;
+  }, []);
+
+  const remove = useCallback(async (id: string): Promise<void> => {
+    await deleteTenantSurvey(id);
+    setSurveys(prev => prev.filter(s => s.id !== id));
+  }, []);
+
   const getSurveyById = useCallback(async (id: string): Promise<TenantEventSurvey> => {
     return fetchTenantSurveyById(id);
   }, []);
@@ -100,6 +113,8 @@ export function useTenantSurveys(eventId?: string) {
     createSurvey,
     editSurvey,
     submit,
+    review,
+    remove,
     getSurveyById,
   };
 }

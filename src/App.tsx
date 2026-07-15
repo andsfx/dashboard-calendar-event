@@ -991,7 +991,7 @@ export default function App() {
               </p>
             </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
-              <TenantSurveyPage events={events} />
+              <TenantSurveyPage events={events} isAdmin={isAdmin} />
             </Suspense>
           </section>
         )}

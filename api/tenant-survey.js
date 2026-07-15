@@ -18,6 +18,7 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  *   ?action=update      POST  — Update existing draft survey
  *   ?action=submit      POST  — Submit a draft survey
  *   ?action=review      POST  — Admin review a submitted survey
+ *   ?action=delete      POST  — Admin hard-delete a survey response
  *   ?action=analytics   GET   — Get aggregated analytics
  *   ?action=summary     GET   — Get per-event combined summary
  *   ?action=config-get  GET   — Get survey config for event
@@ -62,6 +63,7 @@ async function handleAuth(req, res, action) {
     case 'update':    return await handleUpdate(req, res);
     case 'submit':    return await handleSubmit(req, res);
     case 'review':    return await handleReview(req, res);
+    case 'delete':    return await handleDelete(req, res);
     case 'analytics': return await handleAnalytics(req, res);
     case 'summary':   return await handleSummary(req, res);
     case 'config-get': return await handleConfigGet(req, res);
@@ -809,6 +811,51 @@ async function handleReview(req, res) {
 }
 
 
+// ─── Admin delete ────────────────────────────────────────────────
+
+async function handleDelete(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const auth = await requireAuth(req, res);
+  if (!auth) return;
+
+  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin only' });
+  }
+
+  const body = req.body || {};
+  const id = sanitize(body.id || '', 100);
+  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+
+  const sb = getServiceSupabase();
+  const { data: existing, error: findErr } = await sb
+    .from('tenant_event_surveys')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (findErr) {
+    console.error('[tenant-survey/delete/find]', findErr);
+    return res.status(500).json({ success: false, error: 'Gagal memeriksa survey' });
+  }
+  if (!existing) {
+    return res.status(404).json({ success: false, error: 'Survey not found' });
+  }
+
+  const { error } = await sb
+    .from('tenant_event_surveys')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('[tenant-survey/delete]', error);
+    return res.status(500).json({ success: false, error: 'Gagal menghapus survey' });
+  }
+
+  return res.json({ success: true, id });
+}
+
+
 // ─── Analytics (v4: explicit auth, group by tenant/event/month) ──
 
 async function handleAnalytics(req, res) {
@@ -949,11 +996,12 @@ async function handleExport(req, res) {
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
 
   const sb = getServiceSupabase();
+  // Include submitted + reviewed (draft stays out of export)
   const { data, error } = await sb
     .from('tenant_event_surveys')
     .select('*')
     .eq('event_id', eventId)
-    .eq('status', 'submitted')
+    .in('status', ['submitted', 'reviewed'])
     .order('created_at', { ascending: true })
     .limit(5000);
 

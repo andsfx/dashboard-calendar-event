@@ -1120,6 +1120,60 @@ export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey>
   return updateTenantSurvey(id, { status: 'submitted' });
 }
 
+async function getTenantSurveyAccessToken(): Promise<string> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) return data.session.access_token;
+  } catch { /* ignore */ }
+  try {
+    const keys = Object.keys(localStorage);
+    const sbKey = keys.find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'));
+    if (sbKey) {
+      const raw = JSON.parse(localStorage.getItem(sbKey) || '{}') as { access_token?: string };
+      return raw.access_token || '';
+    }
+  } catch { /* ignore */ }
+  return '';
+}
+
+/** Admin review: marks survey as reviewed with optional notes. */
+export async function reviewTenantSurvey(
+  id: string,
+  reviewNotes = '',
+): Promise<TenantEventSurvey> {
+  const token = await getTenantSurveyAccessToken();
+  const res = await fetch('/api/tenant-survey?action=review', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ id, review_notes: reviewNotes }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.success) {
+    throw new SupabaseApiError(json.error || 'Gagal me-review survey');
+  }
+  return dbTenantSurveyToTenantSurvey(json.data as DbTenantSurvey);
+}
+
+/** Admin hard-delete a survey response. */
+export async function deleteTenantSurvey(id: string): Promise<void> {
+  const token = await getTenantSurveyAccessToken();
+  const res = await fetch('/api/tenant-survey?action=delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ id }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.success) {
+    throw new SupabaseApiError(json.error || 'Gagal menghapus survey');
+  }
+}
+
 type AnalyticsGroupMode = 'tenant' | 'event' | 'month';
 
 interface AnalyticsFetchOptions {

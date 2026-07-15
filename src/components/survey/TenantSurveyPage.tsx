@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
-import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search } from 'lucide-react';
+import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search, Edit, Send, Trash2, Eye, AlertTriangle } from 'lucide-react';
 import type {
   EventItem,
   TenantEventSurvey,
@@ -29,9 +29,10 @@ type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
 interface TenantSurveyPageProps {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'tanggal' | 'dateStr' | 'lokasi' | 'eo' | 'status'>>;
+  isAdmin?: boolean;
 }
 
-export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
+export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurveyPageProps) {
   // ─── View State ────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<TabKey>('list');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -51,8 +52,25 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   const [copiedId, setCopiedId] = useState('');
   const [analyticsEventFilter, setAnalyticsEventFilter] = useState<string>('all');
 
+  // ─── Detail CRUD state ─────────────────────────────────────────
+  const [reviewNotes, setReviewNotes] = useState('');
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState<'review' | 'delete' | 'submit' | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   // ─── Hooks ─────────────────────────────────────────────────────
-  const { surveys, isLoading, error, refreshSurveys, createSurvey, editSurvey, submit } = useTenantSurveys();
+  const {
+    surveys,
+    isLoading,
+    error,
+    refreshSurveys,
+    createSurvey,
+    editSurvey,
+    submit,
+    review,
+    remove,
+  } = useTenantSurveys();
   const { analytics, isLoading: analyticsLoading } = useTenantSurveyAnalytics(
     analyticsEventFilter !== 'all' ? analyticsEventFilter : null,
   );
@@ -142,8 +160,23 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
   const handleViewDetail = useCallback((survey: TenantEventSurvey) => {
     setEditingSurvey(survey);
     setSelectedEventId(survey.event_id);
+    setReviewNotes(survey.review_notes || '');
+    setReviewOpen(false);
+    setConfirmDelete(false);
+    setActionError(null);
     setViewMode('detail');
   }, []);
+
+  const handleEditSurvey = useCallback((survey: TenantEventSurvey) => {
+    // Draft: anyone; submitted/reviewed: admin only
+    if (survey.status !== 'draft' && !isAdmin) return;
+    setEditingSurvey(survey);
+    setSelectedEventId(survey.event_id);
+    setFormStatus('idle');
+    setFormError(null);
+    setDuplicateError(null);
+    setViewMode('form');
+  }, [isAdmin]);
 
   const handleCancelForm = useCallback(() => {
     setViewMode('list');
@@ -152,7 +185,40 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
     setFormStatus('idle');
     setFormError(null);
     setDuplicateError(null);
+    setReviewOpen(false);
+    setConfirmDelete(false);
+    setActionError(null);
   }, []);
+
+  const handleReview = useCallback(async () => {
+    if (!editingSurvey || !isAdmin) return;
+    setActionLoading('review');
+    setActionError(null);
+    try {
+      const updated = await review(editingSurvey.id, reviewNotes.trim());
+      setEditingSurvey(updated);
+      setReviewOpen(false);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Gagal me-review survey');
+    } finally {
+      setActionLoading(null);
+    }
+  }, [editingSurvey, isAdmin, review, reviewNotes]);
+
+  const handleDelete = useCallback(async () => {
+    if (!editingSurvey || !isAdmin) return;
+    setActionLoading('delete');
+    setActionError(null);
+    try {
+      await remove(editingSurvey.id);
+      handleCancelForm();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Gagal menghapus survey');
+      setConfirmDelete(false);
+    } finally {
+      setActionLoading(null);
+    }
+  }, [editingSurvey, isAdmin, remove, handleCancelForm]);
 
   const handleFormSubmit = useCallback(async (data: TenantSurveyFormData, isDraft: boolean) => {
     setFormStatus('submitting');
@@ -305,8 +371,10 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
             events={events}
             isLoading={isLoading}
             error={error}
+            isAdmin={isAdmin}
             onNewSurvey={handleNewSurvey}
             onEditDraft={handleEditDraft}
+            onEditSurvey={handleEditSurvey}
             onSubmitDraft={handleSubmitDraft}
             onViewDetail={handleViewDetail}
             onRefresh={refreshSurveys}
@@ -360,23 +428,172 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
 
   // DETAIL VIEW
   if (viewMode === 'detail' && editingSurvey && selectedEvent) {
+    const canEdit = editingSurvey.status === 'draft' || isAdmin;
+    const canReview = isAdmin && (editingSurvey.status === 'submitted' || editingSurvey.status === 'reviewed');
+    const canDelete = isAdmin;
+    const canSubmitDraft = editingSurvey.status === 'draft';
+
     return (
-      <div>
+      <div className="space-y-4">
         <button
           type="button"
           onClick={handleCancelForm}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
         </button>
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-1 text-lg font-bold text-slate-800 dark:text-slate-200">
-            {selectedEvent.acara}
-          </h2>
-          <p className="mb-6 text-xs text-slate-500 dark:text-slate-400">
-            {selectedEvent.tanggal} &bull; {selectedEvent.lokasi}
-          </p>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 sm:p-6">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                {selectedEvent.acara}
+              </h2>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                {selectedEvent.tanggal} &bull; {selectedEvent.lokasi}
+              </p>
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-400">
+                Status: <span className="font-semibold text-slate-600 dark:text-slate-300">{editingSurvey.status}</span>
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={() => handleEditSurvey(editingSurvey)}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  Edit
+                </button>
+              )}
+              {canSubmitDraft && (
+                <button
+                  type="button"
+                  disabled={actionLoading === 'submit'}
+                  onClick={async () => {
+                    setActionLoading('submit');
+                    setActionError(null);
+                    try {
+                      const updated = await submit(editingSurvey.id);
+                      setEditingSurvey(updated);
+                    } catch (err) {
+                      setActionError(err instanceof Error ? err.message : 'Gagal mengirim draft');
+                    } finally {
+                      setActionLoading(null);
+                    }
+                  }}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-50"
+                >
+                  {actionLoading === 'submit' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                  Kirim
+                </button>
+              )}
+              {canReview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReviewOpen((v) => !v);
+                    setConfirmDelete(false);
+                  }}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-brand-primary-300 bg-brand-primary-50 px-3 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  {editingSurvey.status === 'reviewed' ? 'Update review' : 'Review'}
+                </button>
+              )}
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmDelete(true);
+                    setReviewOpen(false);
+                  }}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Hapus
+                </button>
+              )}
+            </div>
+          </div>
+
+          {actionError && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+              {actionError}
+            </div>
+          )}
+
+          {confirmDelete && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-300">Hapus response ini?</p>
+                  <p className="mt-0.5 text-xs text-red-600 dark:text-red-400">
+                    Permanen. Tidak bisa dibatalkan.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={actionLoading === 'delete'}
+                      onClick={handleDelete}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                    >
+                      {actionLoading === 'delete' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                      Ya, hapus
+                    </button>
+                    <button
+                      type="button"
+                      disabled={actionLoading === 'delete'}
+                      onClick={() => setConfirmDelete(false)}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {reviewOpen && canReview && (
+            <div className="mb-4 rounded-xl border border-brand-primary-200 bg-brand-primary-50/60 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/30">
+              <label htmlFor="review-notes" className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                Catatan review
+              </label>
+              <textarea
+                id="review-notes"
+                value={reviewNotes}
+                onChange={(e) => setReviewNotes(e.target.value)}
+                rows={3}
+                maxLength={2000}
+                placeholder="Opsional — ringkas temuan admin…"
+                className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={actionLoading === 'review'}
+                  onClick={handleReview}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-50"
+                >
+                  {actionLoading === 'review' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                  Simpan review
+                </button>
+                <button
+                  type="button"
+                  disabled={actionLoading === 'review'}
+                  onClick={() => setReviewOpen(false)}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Ratings grid (v2) / Info grid (v3) */}
           {isV3Survey(editingSurvey) ? (
@@ -479,7 +696,7 @@ export default function TenantSurveyPage({ events }: TenantSurveyPageProps) {
           )}
 
           {/* Review notes */}
-          {editingSurvey.status === 'reviewed' && editingSurvey.review_notes && (
+          {editingSurvey.status === 'reviewed' && editingSurvey.review_notes && !reviewOpen && (
             <div className="mt-4 rounded-xl bg-brand-primary-50 p-4 dark:bg-brand-primary-950/30">
               <h4 className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Review Admin</h4>
               <p className="mt-1 text-sm text-brand-primary-600 dark:text-brand-primary-400">

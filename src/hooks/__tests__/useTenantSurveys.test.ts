@@ -25,6 +25,7 @@ vi.mock('../../utils/supabaseApi', () => ({
   updateTenantSurvey: vi.fn(),
   submitTenantSurvey: vi.fn(),
   reviewTenantSurvey: vi.fn(),
+  deleteTenantSurvey: vi.fn(),
   fetchTenantSurveyAnalytics: vi.fn(),
   fetchTenantSurveyEventSummary: vi.fn(),
   checkTenantSurveyDuplicate: vi.fn(),
@@ -35,6 +36,8 @@ import {
   fetchTenantSurveys,
   createTenantSurvey,
   submitTenantSurvey,
+  reviewTenantSurvey,
+  deleteTenantSurvey,
   fetchTenantSurveyAnalytics,
   checkTenantSurveyDuplicate,
 } from '../../utils/supabaseApi';
@@ -47,6 +50,8 @@ const mockSurvey = {
   tenant_organization: 'Test Org',
   tenant_email: 'test@example.com',
   tenant_phone: '081234567890',
+  business_category: 'other' as const,
+  business_subcategory: '',
   venue_rating: 4,
   management_rating: 4,
   event_organization_rating: 4,
@@ -111,6 +116,8 @@ describe('useTenantSurveys', () => {
       await result.current.createSurvey({
         event_id: 'evt-1',
         tenant_name: 'Test EO',
+        business_category: 'other',
+        business_subcategory: '',
         venue_rating: 4,
         management_rating: 4,
         event_organization_rating: 4,
@@ -145,6 +152,53 @@ describe('useTenantSurveys', () => {
       expect(result.current.surveys[0].status).toBe('submitted');
     });
     expect(submitTenantSurvey).toHaveBeenCalledWith('survey-1');
+  });
+
+  it('should review a submitted survey', async () => {
+    const submitted = { ...mockSurvey, status: 'submitted' as const };
+    const reviewed = {
+      ...mockSurvey,
+      status: 'reviewed' as const,
+      review_notes: 'OK',
+    };
+
+    vi.mocked(fetchTenantSurveys).mockResolvedValueOnce([submitted]);
+    vi.mocked(reviewTenantSurvey).mockResolvedValueOnce(reviewed);
+
+    const { result } = renderHook(() => useTenantSurveys());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.review('survey-1', 'OK');
+    });
+
+    await waitFor(() => {
+      expect(result.current.surveys[0].status).toBe('reviewed');
+    });
+    expect(reviewTenantSurvey).toHaveBeenCalledWith('survey-1', 'OK');
+  });
+
+  it('should remove a survey', async () => {
+    vi.mocked(fetchTenantSurveys).mockResolvedValueOnce([mockSurvey]);
+    vi.mocked(deleteTenantSurvey).mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(() => useTenantSurveys());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.remove('survey-1');
+    });
+
+    await waitFor(() => {
+      expect(result.current.surveys).toHaveLength(0);
+    });
+    expect(deleteTenantSurvey).toHaveBeenCalledWith('survey-1');
   });
 
   it('should refresh surveys', async () => {

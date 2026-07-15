@@ -12,8 +12,10 @@ interface TenantSurveyListProps {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'dateStr' | 'status'>>;
   isLoading: boolean;
   error: string | null;
+  isAdmin?: boolean;
   onNewSurvey: (eventId: string) => void;
   onEditDraft: (survey: TenantEventSurvey) => void;
+  onEditSurvey?: (survey: TenantEventSurvey) => void;
   onSubmitDraft: (id: string) => Promise<void>;
   onViewDetail: (survey: TenantEventSurvey) => void;
   onRefresh: () => void;
@@ -84,12 +86,15 @@ export default function TenantSurveyList({
   events,
   isLoading,
   error,
+  isAdmin = false,
   onNewSurvey,
   onEditDraft,
+  onEditSurvey,
   onSubmitDraft,
   onViewDetail,
   onRefresh,
 }: TenantSurveyListProps) {
+  const openEdit = onEditSurvey ?? onEditDraft;
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [showEventPicker, setShowEventPicker] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
@@ -526,17 +531,17 @@ export default function TenantSurveyList({
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" />
+                    {(survey.status === 'draft' || isAdmin) && (
+                      <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Edit" />
+                    )}
                     {survey.status === 'draft' && (
-                      <>
-                        <ActionBtn onClick={() => onEditDraft(survey)} icon={Edit} label="Edit" />
-                        <ActionBtn
-                          onClick={() => handleSubmitDraft(survey.id)}
-                          icon={Send}
-                          label={submittingId === survey.id ? '…' : 'Kirim'}
-                          primary
-                          disabled={submittingId === survey.id}
-                        />
-                      </>
+                      <ActionBtn
+                        onClick={() => handleSubmitDraft(survey.id)}
+                        icon={Send}
+                        label={submittingId === survey.id ? '…' : 'Kirim'}
+                        primary
+                        disabled={submittingId === survey.id}
+                      />
                     )}
                   </div>
                 </div>
@@ -652,18 +657,18 @@ export default function TenantSurveyList({
                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1.5">
                             <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" compact />
+                            {(survey.status === 'draft' || isAdmin) && (
+                              <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Edit" compact />
+                            )}
                             {survey.status === 'draft' && (
-                              <>
-                                <ActionBtn onClick={() => onEditDraft(survey)} icon={Edit} label="Edit" compact />
-                                <ActionBtn
-                                  onClick={() => handleSubmitDraft(survey.id)}
-                                  icon={Send}
-                                  label={submittingId === survey.id ? '…' : 'Kirim'}
-                                  primary
-                                  compact
-                                  disabled={submittingId === survey.id}
-                                />
-                              </>
+                              <ActionBtn
+                                onClick={() => handleSubmitDraft(survey.id)}
+                                icon={Send}
+                                label={submittingId === survey.id ? '…' : 'Kirim'}
+                                primary
+                                compact
+                                disabled={submittingId === survey.id}
+                              />
                             )}
                           </div>
                         </td>
