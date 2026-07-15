@@ -128,7 +128,7 @@ export function TenantSurveyResultsDocument({
             <Text style={styles.kpiValue}>{a.total}</Text>
           </View>
           <View style={styles.kpi}>
-            <Text style={styles.kpiLabel}>Gerai Unik</Text>
+            <Text style={styles.kpiLabel}>Tenant yang sudah isi</Text>
             <Text style={styles.kpiValue}>{a.uniqueGerai}</Text>
           </View>
           <View style={styles.kpi}>

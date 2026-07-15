@@ -239,6 +239,22 @@ export async function setupSurveyApiMocks(
       case 'list':
         return route.fulfill({ json: { success: true, data: [MOCK_SURVEY_V3] } });
 
+      case 'tenant-roster':
+        return route.fulfill({
+          json: {
+            success: true,
+            total: MOCK_TENANTS.length,
+            tenants: MOCK_TENANTS.map((t) => ({
+              id: t.id,
+              name: t.name,
+              floor: t.floor,
+              lot: t.lot,
+              category: t.category,
+              logo: t.logo || '',
+            })),
+          },
+        });
+
       case 'analytics': {
         const group = url.searchParams.get('group') || '';
         const data = group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS;

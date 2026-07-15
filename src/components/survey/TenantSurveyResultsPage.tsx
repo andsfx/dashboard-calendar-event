@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   BarChart3,
   Download,
@@ -14,6 +14,8 @@ import {
   RotateCcw,
   Inbox,
   X,
+  Check,
+  CircleDashed,
 } from 'lucide-react';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
@@ -27,6 +29,10 @@ import {
   type DistMap,
 } from '../../utils/tenantSurveyResultsAggregate';
 import { downloadTenantSurveyResultsPdf } from '../../utils/tenantSurveyResultsPdf';
+import {
+  fetchTenantRoster,
+  type TenantRosterItem,
+} from '../../utils/supabaseApi';
 
 interface Props {
   events: EventItem[];
@@ -209,12 +215,36 @@ function isFilterActive(f: ResultsFilter): boolean {
   );
 }
 
+type RosterTab = 'all' | 'done' | 'pending';
+
 export default function TenantSurveyResultsPage({ events, canExport = true }: Props) {
   const { surveys, isLoading, error } = useTenantSurveys();
   const [filter, setFilter] = useState<ResultsFilter>(EMPTY_FILTER);
   const [feedbackQ, setFeedbackQ] = useState('');
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState('');
+  const [roster, setRoster] = useState<TenantRosterItem[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(true);
+  const [rosterError, setRosterError] = useState('');
+  const [rosterTab, setRosterTab] = useState<RosterTab>('pending');
+  const [rosterQ, setRosterQ] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setRosterLoading(true);
+    setRosterError('');
+    void fetchTenantRoster().then((list) => {
+      if (cancelled) return;
+      setRoster(list);
+      setRosterLoading(false);
+      if (list.length === 0) {
+        setRosterError('Roster tenant kosong atau gagal dimuat. Cek MID_API_KEY / koneksi.');
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const eventMap = useMemo(() => {
     const m = new Map<string, string>();
@@ -232,6 +262,52 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
 
   const filtered = useMemo(() => filterSurveys(surveys, filter), [surveys, filter]);
   const agg = useMemo(() => aggregateResults(filtered), [filtered]);
+
+  /** tenant_id + normalized name from filtered surveys (scope = current filter, esp. event) */
+  const filledKeys = useMemo(() => {
+    const ids = new Set<string>();
+    const names = new Set<string>();
+    for (const s of filtered) {
+      if (s.tenant_id) ids.add(String(s.tenant_id));
+      const n = (s.nama_gerai || s.tenant_name || '').trim().toLowerCase();
+      if (n) names.add(n);
+    }
+    return { ids, names };
+  }, [filtered]);
+
+  const checklist = useMemo(() => {
+    return roster.map((t) => {
+      const byId = filledKeys.ids.has(t.id);
+      const byName = filledKeys.names.has(t.name.trim().toLowerCase());
+      return { ...t, filled: byId || byName };
+    });
+  }, [roster, filledKeys]);
+
+  const checklistStats = useMemo(() => {
+    const done = checklist.filter((t) => t.filled).length;
+    const total = checklist.length;
+    return { done, pending: total - done, total };
+  }, [checklist]);
+
+  const checklistView = useMemo(() => {
+    const q = rosterQ.trim().toLowerCase();
+    return checklist
+      .filter((t) => {
+        if (rosterTab === 'done' && !t.filled) return false;
+        if (rosterTab === 'pending' && t.filled) return false;
+        if (!q) return true;
+        return (
+          t.name.toLowerCase().includes(q) ||
+          t.floor.toLowerCase().includes(q) ||
+          t.lot.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        if (a.filled !== b.filled) return a.filled ? 1 : -1; // pending first in "all"
+        return a.name.localeCompare(b.name, 'id');
+      });
+  }, [checklist, rosterQ, rosterTab]);
 
   const trendEventId = filter.eventId === 'all' ? null : filter.eventId;
 
@@ -512,10 +588,29 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
           helper="Survey v3 final"
         />
         <KpiCard
-          label="Gerai Unik"
-          value={agg.uniqueGerai}
+          label="Tenant yang sudah isi"
+          value={
+            rosterLoading
+              ? '…'
+              : checklistStats.total > 0
+                ? `${checklistStats.done}/${checklistStats.total}`
+                : agg.uniqueGerai
+          }
           icon={<Store className="h-4 w-4" aria-hidden />}
-          helper="Nama gerai berbeda"
+          helper={
+            checklistStats.total > 0
+              ? `${checklistStats.pending} belum isi`
+              : 'Jumlah tenant berbeda'
+          }
+          tone={
+            checklistStats.total === 0
+              ? 'neutral'
+              : checklistStats.pending === 0
+                ? 'good'
+                : checklistStats.done === 0
+                  ? 'bad'
+                  : 'warn'
+          }
         />
         <KpiCard
           label="Traffic Positif"
@@ -531,6 +626,138 @@ export default function TenantSurveyResultsPage({ events, canExport = true }: Pr
           tone={pctTone(agg.salesPosPct)}
           helper="Kenaikan ≥ 10%"
         />
+      </section>
+
+      {/* Tenant checklist — roster MID × survey status */}
+      <section
+        aria-label="Checklist tenant"
+        className="ui-dashboard-surface overflow-hidden"
+      >
+        <div className="ui-dashboard-muted flex flex-col gap-3 border-b border-black/[0.04] px-4 py-3 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+              <Store className="h-3.5 w-3.5" aria-hidden />
+            </span>
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                Checklist tenant
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                {filter.eventId === 'all'
+                  ? 'Status isi survey (semua event di filter)'
+                  : `Status isi untuk: ${eventLabel}`}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {(['pending', 'done', 'all'] as const).map((tab) => {
+              const count =
+                tab === 'pending'
+                  ? checklistStats.pending
+                  : tab === 'done'
+                    ? checklistStats.done
+                    : checklistStats.total;
+              const active = rosterTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setRosterTab(tab)}
+                  className={`ui-focus-ring rounded-lg px-2.5 py-1 text-[11px] font-semibold transition ${
+                    active
+                      ? 'bg-brand-primary-600 text-white'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                  }`}
+                >
+                  {tab === 'pending' ? 'Belum isi' : tab === 'done' ? 'Sudah isi' : 'Semua'}
+                  <span className={`ml-1 tabular-nums ${active ? 'text-white/80' : 'text-slate-400'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+            <div className="relative min-w-[140px] flex-1 sm:max-w-[200px]">
+              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" aria-hidden />
+              <input
+                type="search"
+                value={rosterQ}
+                onChange={(e) => setRosterQ(e.target.value)}
+                placeholder="Cari tenant…"
+                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-7 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        {rosterLoading ? (
+          <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500">
+            <Loader2 className="h-4 w-4 animate-spin text-brand-primary-500" aria-hidden />
+            Memuat daftar tenant…
+          </div>
+        ) : rosterError && roster.length === 0 ? (
+          <p className="px-4 py-8 text-center text-xs text-slate-500">{rosterError}</p>
+        ) : checklistView.length === 0 ? (
+          <p className="px-4 py-8 text-center text-xs text-slate-500">
+            Tidak ada tenant di tab ini{rosterQ ? ' / hasil pencarian' : ''}.
+          </p>
+        ) : (
+          <ul className="max-h-[22rem] divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
+            {checklistView.map((t) => (
+              <li
+                key={t.id}
+                className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+              >
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                    t.filled
+                      ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
+                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                  }`}
+                  title={t.filled ? 'Sudah isi' : 'Belum isi'}
+                  aria-label={t.filled ? 'Sudah isi' : 'Belum isi'}
+                >
+                  {t.filled ? (
+                    <Check className="h-3.5 w-3.5" aria-hidden />
+                  ) : (
+                    <CircleDashed className="h-3.5 w-3.5" aria-hidden />
+                  )}
+                </span>
+                {t.logo ? (
+                  <img
+                    src={t.logo}
+                    alt=""
+                    className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-400 dark:border-slate-600 dark:bg-slate-800">
+                    {(t.name || '?').charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    {t.name}
+                  </p>
+                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                    {[t.floor, t.lot].filter(Boolean).join(' · ') || '—'}
+                    {t.category ? ` · ${t.category}` : ''}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    t.filled
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                  }`}
+                >
+                  {t.filled ? 'Sudah' : 'Belum'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {agg.total === 0 ? (

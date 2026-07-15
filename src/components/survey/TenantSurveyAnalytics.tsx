@@ -202,7 +202,7 @@ export default function TenantSurveyAnalyticsPanel({
               icon={<BarChart3 className="h-4 w-4" />}
             />
             <StatCard
-              label="Gerai Unik"
+              label="Tenant yang sudah isi"
               value={v3Data.uniqueGerai}
               icon={<Store className="h-4 w-4" />}
             />

@@ -1376,6 +1376,29 @@ export async function fetchActiveTenants(query?: string): Promise<TenantDropdown
   return [];
 }
 
+/** Auth roster: all active MID tenants (id, name, logo, floor, lot, category). No PIC. */
+export interface TenantRosterItem {
+  id: string;
+  name: string;
+  floor: string;
+  lot: string;
+  category: string;
+  logo: string;
+}
+
+export async function fetchTenantRoster(): Promise<TenantRosterItem[]> {
+  try {
+    const res = await fetch('/api/tenant-survey?action=tenant-roster', { credentials: 'include' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.tenants)) {
+        return json.tenants as TenantRosterItem[];
+      }
+    }
+  } catch { /* fall through */ }
+  return [];
+}
+
 /**
  * Check if a device has already submitted a public tenant survey
  * for a given event (fingerprint-based duplicate detection).

@@ -14,6 +14,8 @@ test.describe('Tenant Survey Results — TR + admin', () => {
     await expect(page.getByRole('heading', { name: 'Hasil Evaluasi Tenant' })).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('button', { name: /Export PDF/i })).toBeVisible();
     await expect(page.getByRole('cell', { name: MOCK_SURVEY_V3.nama_gerai! })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Checklist tenant/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Belum isi/i })).toBeVisible();
 
     // ops page not allowed — bounce back to standalone results
     await page.goto('/dashboard/tenant-surveys');
@@ -30,7 +32,8 @@ test.describe('Tenant Survey Results — TR + admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByRole('heading', { name: 'Hasil Evaluasi Tenant' })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Filter')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Filter' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Checklist tenant/i })).toBeVisible();
   });
 
   test('legacy /dashboard/tenant-survey-results redirects to standalone', async ({ page }) => {

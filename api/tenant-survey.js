@@ -24,6 +24,7 @@ import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
  *   ?action=config-get  GET   — Get survey config for event
  *   ?action=config-set  POST  — Create/update survey config
  *   ?action=export      GET   — Export responses as CSV
+ *   ?action=tenant-roster GET — Full active MID tenant list (auth analytics roles, no PIC)
  */
 export default async function handler(req, res) {
   const mode = String(req.query?.mode || 'auth').trim();
@@ -69,9 +70,43 @@ async function handleAuth(req, res, action) {
     case 'config-get': return await handleConfigGet(req, res);
     case 'config-set': return await handleConfigSet(req, res);
     case 'export':    return await handleExport(req, res);
+    case 'tenant-roster': return await handleTenantRoster(req, res);
     default:
       return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
   }
+}
+
+/** Fetch active tenants from MID (no PIC). Shared by public search + auth roster. */
+async function fetchMidActiveTenants() {
+  const API_KEY = process.env.MID_API_KEY;
+  const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
+  if (!API_KEY) {
+    const err = new Error('MID_API_KEY not set');
+    err.code = 'CONFIG';
+    throw err;
+  }
+  const resp = await fetch(API_URL, {
+    headers: { 'mid-api-key': API_KEY },
+    signal: AbortSignal.timeout(12000),
+  });
+  if (!resp.ok) {
+    const err = new Error(`MID upstream ${resp.status}`);
+    err.code = 'UPSTREAM';
+    throw err;
+  }
+  const json = await resp.json();
+  const list = Array.isArray(json.data) ? json.data : [];
+  return list
+    .filter((t) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
+    .map((t) => ({
+      id: String(t.TENANT_ID ?? ''),
+      name: String(t.TENANT_NAME ?? '').trim(),
+      floor: String(t.TENANT_FLOOR ?? '').trim(),
+      lot: String(t.TENANT_LOT ?? '').trim(),
+      category: String(t.TENANT_CATEGORY ?? '').trim(),
+      logo: String(t.TENANT_LOGO ?? '').trim(),
+    }))
+    .filter((t) => t.id && t.name);
 }
 
 // ─── Shared helpers ───────────────────────────────────────────────
@@ -284,47 +319,29 @@ async function handlePublicTenants(req, res) {
     });
   }
 
-  const API_KEY = process.env.MID_API_KEY;
-  const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
-
-  if (!API_KEY) {
-    console.error('[tenant-survey/public/tenants] MID_API_KEY not set');
-    return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
-  }
-
   try {
-    const resp = await fetch(API_URL, {
-      headers: { 'mid-api-key': API_KEY },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!resp.ok) {
-      console.error('[tenant-survey/public/tenants] upstream', resp.status);
-      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
-    }
-    const json = await resp.json();
-    const list = Array.isArray(json.data) ? json.data : [];
-
+    const list = await fetchMidActiveTenants();
     // Minimal fields only — no PIC/telp/evoucher mass dump to anon clients
     const tenants = list
-      .filter((t) => String(t.TENANT_STATUS ?? '').toLowerCase() === 'active')
+      .filter((t) => t.name.toLowerCase().includes(q))
+      .slice(0, 50)
       .map((t) => ({
-        id: String(t.TENANT_ID ?? ''),
-        name: String(t.TENANT_NAME ?? '').trim(),
-        floor: String(t.TENANT_FLOOR ?? '').trim(),
-        lot: String(t.TENANT_LOT ?? '').trim(),
-        category: String(t.TENANT_CATEGORY ?? '').trim(),
-        logo: String(t.TENANT_LOGO ?? '').trim(),
+        ...t,
         pic: '',
         picTelp: '',
         status: 'active',
         participantEvoucher: '',
-      }))
-      .filter((t) => t.name && t.name.toLowerCase().includes(q))
-      .slice(0, 50);
+      }));
 
     return res.json({ success: true, tenants });
   } catch (err) {
     console.error('[tenant-survey/public/tenants] fetch error', err);
+    if (err?.code === 'CONFIG') {
+      return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+    }
+    if (err?.code === 'UPSTREAM') {
+      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    }
     return res.status(500).json({ success: false, error: 'Gagal mengambil data tenant' });
   }
 }
@@ -1023,6 +1040,30 @@ async function handleConfigSet(req, res) {
   return res.json({ success: true, config: data });
 }
 
+
+// ─── Auth: full active tenant roster (for TR checklist, no PIC) ───
+
+async function handleTenantRoster(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+
+  const auth = await requireAuth(req, res, ANALYTICS_READ_ROLES);
+  if (!auth) return;
+
+  try {
+    const tenants = await fetchMidActiveTenants();
+    tenants.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    return res.json({ success: true, tenants, total: tenants.length });
+  } catch (err) {
+    console.error('[tenant-survey/tenant-roster]', err);
+    if (err?.code === 'CONFIG') {
+      return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+    }
+    if (err?.code === 'UPSTREAM') {
+      return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
+    }
+    return res.status(500).json({ success: false, error: 'Gagal mengambil roster tenant' });
+  }
+}
 
 // ─── Export CSV ───────────────────────────────────────────────────
 
