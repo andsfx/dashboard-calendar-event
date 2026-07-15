@@ -355,7 +355,7 @@ function EventFilterSearch({
               />
             </div>
             <p className="mt-1.5 px-0.5 text-[10px] text-slate-400">
-              {filtered.length} event · terbaru di atas · scroll untuk lihat semua
+              {filtered.length} event · terbaru dulu
             </p>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
@@ -816,20 +816,14 @@ export default function TenantSurveyResultsPage({
           <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
             Hasil Evaluasi Tenant
           </h1>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
-            {selectedEvent ? (
+          {selectedEvent ? (
+            <p className="mt-1.5">
               <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-primary-50 px-2.5 py-0.5 text-xs font-semibold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
                 <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
                 <span className="truncate">{selectedEvent.acara}</span>
               </span>
-            ) : (
-              <span>Semua event</span>
-            )}
-            <span className="text-slate-300 dark:text-slate-600" aria-hidden>
-              ·
-            </span>
-            <span>Analisa dampak · tanpa PIC</span>
-          </p>
+            </p>
+          ) : null}
         </div>
         {canExport && (
           <button
@@ -867,7 +861,7 @@ export default function TenantSurveyResultsPage({
 
       {/* Filter toolbar — overflow-visible so event dropdown is not clipped */}
       <section
-        className="ui-dashboard-surface sticky top-14 z-30 overflow-visible shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
+        className="ui-dashboard-surface sticky top-[3.25rem] z-30 overflow-visible shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
         aria-labelledby="filter-heading"
       >
         <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3.5 py-2 dark:border-slate-700 sm:px-4">
@@ -902,9 +896,6 @@ export default function TenantSurveyResultsPage({
               options={eventOptions}
               onChange={(id) => setField('eventId', id)}
             />
-            <p className="mt-1 text-[10px] text-slate-400">
-              Ketik untuk cari · event terbaru di atas
-            </p>
           </div>
           <label className="block min-w-0">
             <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
@@ -1052,7 +1043,7 @@ export default function TenantSurveyResultsPage({
       <div
         role="tablist"
         aria-label="Bagian konten"
-        className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 dark:border-slate-700 dark:bg-slate-800/60"
+        className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 [-ms-overflow-style:none] [scrollbar-width:none] dark:border-slate-700 dark:bg-slate-800/60 [&::-webkit-scrollbar]:hidden"
       >
         {mainTabs.map((t) => {
           const active = mainTab === t.id;
@@ -1063,13 +1054,13 @@ export default function TenantSurveyResultsPage({
               role="tab"
               aria-selected={active}
               onClick={() => setMainTab(t.id)}
-              className={`ui-focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm ${
+              className={`ui-focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:flex-1 sm:justify-center sm:text-sm ${
                 active
                   ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              {t.label}
+              <span className="truncate">{t.label}</span>
               {typeof t.count === 'number' && (
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${
@@ -1107,7 +1098,7 @@ export default function TenantSurveyResultsPage({
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {selectedEvent
                   ? `Link form untuk: ${selectedEvent.acara}`
-                  : 'Salin link atau QR per event (tenant isi tanpa login)'}
+                  : 'Salin link atau tampilkan QR per event'}
               </p>
             </div>
           </div>

@@ -738,12 +738,12 @@ export default function App() {
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
-            <header className="ui-dashboard-chrome sticky top-0 z-30 border-b">
+            <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
               <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
                 <div className="flex min-w-0 items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-                  <div className="h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />
-                  <span className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                  <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
+                  <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 sm:inline">
                     Tenant Relation
                   </span>
                 </div>
@@ -773,8 +773,7 @@ export default function App() {
               </div>
             </header>
 
-            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
-              {/* Don't block on events load — share list can hydrate from surveys too */}
+            <div className="mx-auto max-w-7xl px-3 py-4 pb-10 sm:px-4 sm:py-6 sm:pb-12">
               <TenantSurveyResultsPage
                 events={events}
                 canExport={permissions.canExportTenantSurveyAnalytics}
