@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { List, Kanban, Clock4, Radio, Clock3, ArrowLeft } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
@@ -10,7 +10,8 @@ import { DashboardStats } from './components/dashboard/DashboardStats';
 import { AdminSidebar } from './components/dashboard/AdminSidebar';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
-import { getAllowedDashboardPaths, getDefaultDashboardPath } from './components/dashboard/dashboardNavigation';
+import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
+import { AdminLoginModal } from './components/AdminLoginModal';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -45,6 +46,7 @@ const AdminDraftSection = lazy(() => import('./components/AdminDraftSection').th
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const SurveyDashboard = lazy(() => import('./components/survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
 const TenantSurveyPage = lazy(() => import('./components/survey/TenantSurveyPage'));
+const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSurveyResultsPage'));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
 const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
 const UserManagement = lazy(() => import('./components/admin/UserManagement').then(m => ({ default: m.UserManagement })));
@@ -54,6 +56,10 @@ const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSect
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
+}
+
+function RedirectToTenantSurveyResults() {
+  return <Navigate to="/tenant-survey-results" replace />;
 }
 
 export default function App() {
@@ -577,14 +583,24 @@ export default function App() {
   }, [visibleMonths, activeMonth, setActiveMonth]);
 
   useEffect(() => {
-    if (!location.pathname.startsWith('/dashboard')) return;
     if (isLoading) return;
+
+    // TR-only: never stay inside dashboard chrome — send to standalone results
+    if (permissions.isTenantRelation && !permissions.canEditEvents) {
+      if (location.pathname.startsWith('/dashboard')) {
+        navigate('/tenant-survey-results', { replace: true });
+      }
+      return;
+    }
+
+    if (!location.pathname.startsWith('/dashboard')) return;
     // Guest may stay on /dashboard (public schedule + login). Admin-only path guard after auth.
     if (!permissions.canViewDashboard) return;
     if (!allowedDashboardPaths.has(dashboardPath)) {
-      navigate(`/dashboard${defaultDashboardPath === '/' ? '' : defaultDashboardPath}`, { replace: true });
+      const dest = getDefaultAppPath(permissions);
+      navigate(dest, { replace: true });
     }
-  }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions.canViewDashboard]);
+  }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions]);
 
   return (
     <Routes>
@@ -716,6 +732,81 @@ export default function App() {
       <Route path="/letter/:id" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <PublicLetterViewer />
+        </Suspense>
+      } />
+
+      {/* Tenant survey results — standalone (auth required, no dashboard chrome) */}
+      <Route path="/tenant-survey-results" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
+            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
+              <div className="mb-6 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
+                  <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    Tenant Relation
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {(auth.isAuthenticated || auth.isLegacy) && (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
+                      Keluar
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {auth.isLoading ? (
+                <DashboardSkeleton isAdmin={false} />
+              ) : !auth.isAuthenticated && !auth.isLegacy ? (
+                <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
+                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Hasil Evaluasi Tenant</h1>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    Login dengan akun Tenant Relation atau Admin untuk melihat analisa.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginModal(true)}
+                    className="mt-4 rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+                  >
+                    Login
+                  </button>
+                </div>
+              ) : !permissions.canViewTenantSurveyResults ? (
+                <div className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/30">
+                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Akses ditolak</h1>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    Akun ini tidak punya akses ke halaman hasil evaluasi tenant.
+                  </p>
+                </div>
+              ) : (
+                <TenantSurveyResultsPage
+                  events={events}
+                  canExport={permissions.canExportTenantSurveyAnalytics}
+                />
+              )}
+            </div>
+
+            <AdminLoginModal
+              isOpen={showLoginModal || (!auth.isLoading && !auth.isAuthenticated && !auth.isLegacy)}
+              onClose={() => setShowLoginModal(false)}
+              onEmailLogin={auth.login}
+              onLegacyLogin={auth.legacyLogin}
+            />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
+          </div>
+        </Suspense>
+      } />
+
+      {/* Legacy dashboard path → standalone */}
+      <Route path="/dashboard/tenant-survey-results" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <RedirectToTenantSurveyResults />
         </Suspense>
       } />
 
@@ -1002,8 +1093,8 @@ export default function App() {
           </section>
         )}
 
-        {/* 8b. Tenant Self-Assessment — admin + eo_tenant */}
-        {(isAdmin || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
+        {/* 8b. Tenant Self-Assessment — admin + eo_tenant (ops) */}
+        {(permissions.canEditEvents || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
           <section id="tenant-surveys-section" className="scroll-mt-20">
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h1>
@@ -1012,7 +1103,7 @@ export default function App() {
               </p>
             </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
-              <TenantSurveyPage events={events} isAdmin={isAdmin} />
+              <TenantSurveyPage events={events} isAdmin={permissions.canEditEvents} />
             </Suspense>
           </section>
         )}

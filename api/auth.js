@@ -194,7 +194,7 @@ export default async function handler(req, res) {
 
     const { email, role, display_name, eo_organization } = req.body || {};
     if (!email || !role) return res.status(400).json({ success: false, error: 'email dan role wajib diisi' });
-    if (!['admin', 'viewer', 'eo_tenant'].includes(role)) {
+    if (!['admin', 'viewer', 'eo_tenant', 'tenant_relation'].includes(role)) {
       return res.status(400).json({ success: false, error: 'Role tidak valid' });
     }
 
@@ -242,7 +242,7 @@ export default async function handler(req, res) {
     if (!email || !password || !role) {
       return res.status(400).json({ success: false, error: 'email, password, dan role wajib diisi' });
     }
-    if (!['admin', 'viewer', 'eo_tenant'].includes(role)) {
+    if (!['admin', 'viewer', 'eo_tenant', 'tenant_relation'].includes(role)) {
       return res.status(400).json({ success: false, error: 'Role tidak valid' });
     }
     if (password.length < 6) {
@@ -300,7 +300,7 @@ export default async function handler(req, res) {
     }
 
     const updates = {};
-    if (role !== undefined && ['superadmin', 'admin', 'viewer', 'eo_tenant'].includes(role)) updates.role = role;
+    if (role !== undefined && ['superadmin', 'admin', 'viewer', 'eo_tenant', 'tenant_relation'].includes(role)) updates.role = role;
     if (is_active !== undefined) updates.is_active = !!is_active;
     if (display_name !== undefined) updates.display_name = String(display_name).trim().slice(0, 100);
     if (eo_organization !== undefined) updates.eo_organization = String(eo_organization).trim().slice(0, 200);

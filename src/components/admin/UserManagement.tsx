@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Users, UserPlus, Shield, Eye, Building2, Loader2,
   ToggleLeft, ToggleRight, Pencil, Trash2, Mail, Check, X,
-  Crown,
+  Crown, BarChart3,
 } from 'lucide-react';
 
 interface UserRecord {
@@ -22,6 +22,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
   admin: { label: 'Admin', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', icon: <Shield className="h-3 w-3" /> },
   viewer: { label: 'Viewer', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', icon: <Eye className="h-3 w-3" /> },
   eo_tenant: { label: 'EO/Tenant', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', icon: <Building2 className="h-3 w-3" /> },
+  tenant_relation: { label: 'Tenant Relation', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', icon: <BarChart3 className="h-3 w-3" /> },
 };
 
 export function UserManagement() {
@@ -149,6 +150,7 @@ export function UserManagement() {
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
               <option value="eo_tenant">EO/Tenant</option>
+              <option value="tenant_relation">Tenant Relation</option>
             </select>
             {formData.role === 'eo_tenant' && (
               <input type="text" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={e => setFormData(p => ({ ...p, eo_organization: e.target.value }))}

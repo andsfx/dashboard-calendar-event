@@ -292,7 +292,7 @@ export async function setupSurveyApiMocks(
  * IMPORTANT: Must match the projectRef in SUPABASE_URL env var.
  * We use 'test-project' as the projectRef, so the key becomes 'sb-test-project-auth-token'.
  */
-export async function mockAuth(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' = 'superadmin') {
+export async function mockAuth(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
   const fakeSession = {
     access_token: 'fake-access-token',
     refresh_token: 'fake-refresh-token',
@@ -324,10 +324,11 @@ export async function mockAdminAuth(page: Page) {
   await mockAuth(page, 'superadmin');
 }
 
-export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' = 'superadmin') {
+export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
   const user = {
     id: `user_${role}_001`,
     email: `${role}@metmal.test`,
+    display_name: role,
     role,
     aud: 'authenticated',
     app_metadata: { role },
@@ -336,7 +337,7 @@ export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin
   };
 
   await page.route(/.*api\/auth.*action=me.*/, async (route) => {
-    await route.fulfill({ json: { user } });
+    await route.fulfill({ json: { success: true, user, legacy: false } });
   });
 
   await page.route('**/api/auth', async (route) => {

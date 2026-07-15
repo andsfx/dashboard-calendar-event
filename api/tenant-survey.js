@@ -81,6 +81,45 @@ function sanitize(val, maxLen = 1000) {
   return val.replace(/\0/g, '').trim().slice(0, maxLen);
 }
 
+/** Roles that can manage ops (CRUD, config, review, full CSV with PIC). */
+const STAFF_ROLES = ['superadmin', 'admin'];
+/** Roles that can read full aggregate analytics (includes Tenant Relation). */
+const ANALYTICS_READ_ROLES = ['superadmin', 'admin', 'tenant_relation'];
+/** Roles that can list rows (TR gets all rows, PIC stripped). */
+const LIST_READ_ROLES = ['superadmin', 'admin', 'tenant_relation', 'eo_tenant'];
+
+function isStaff(role) {
+  return STAFF_ROLES.includes(role);
+}
+
+function isAnalyticsReader(role) {
+  return ANALYTICS_READ_ROLES.includes(role);
+}
+
+/** Strip PII fields for tenant_relation responses. */
+function stripSurveyPii(row) {
+  if (!row || typeof row !== 'object') return row;
+  const {
+    pic_name: _pn,
+    pic_phone: _pp,
+    tenant_email: _te,
+    tenant_phone: _tp,
+    ...safe
+  } = row;
+  return {
+    ...safe,
+    pic_name: null,
+    pic_phone: null,
+    tenant_email: '',
+    tenant_phone: '',
+  };
+}
+
+function mapRowsForRole(rows, role) {
+  if (role !== 'tenant_relation') return rows;
+  return (rows || []).map(stripSurveyPii);
+}
+
 function isValidRating(val, max = 5) {
   return Number.isInteger(val) && val >= 1 && val <= max;
 }
@@ -513,7 +552,7 @@ async function handlePublicSubmit(req, res) {
 async function handleList(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, LIST_READ_ROLES);
   if (!auth) return;
 
   const sb = getServiceSupabase();
@@ -525,9 +564,14 @@ async function handleList(req, res) {
     query = query.eq('event_id', eventId);
   }
 
-  // Scope to tenant's own surveys if not admin
-  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
+  // Full list for staff + tenant_relation; EO only own rows
+  if (!isStaff(auth.role) && auth.role !== 'tenant_relation') {
     query = query.eq('tenant_user_id', auth.user?.id);
+  }
+
+  // TR analytics: hide drafts (not final)
+  if (auth.role === 'tenant_relation') {
+    query = query.in('status', ['submitted', 'reviewed']);
   }
 
   const { data, error } = await query;
@@ -536,7 +580,7 @@ async function handleList(req, res) {
     return res.status(500).json({ success: false, error: 'Gagal mengambil data survey' });
   }
 
-  return res.json({ success: true, data: data || [] });
+  return res.json({ success: true, data: mapRowsForRole(data || [], auth.role) });
 }
 
 
@@ -545,7 +589,7 @@ async function handleList(req, res) {
 async function handleGet(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, LIST_READ_ROLES);
   if (!auth) return;
 
   const id = String(req.query?.id || '').trim();
@@ -562,12 +606,17 @@ async function handleGet(req, res) {
     return res.status(404).json({ success: false, error: 'Survey not found' });
   }
 
-  // Check ownership for non-admin
-  if (auth.role !== 'superadmin' && auth.role !== 'admin' && data.tenant_user_id !== auth.user?.id) {
+  const canSeeAll = isStaff(auth.role) || auth.role === 'tenant_relation';
+  if (!canSeeAll && data.tenant_user_id !== auth.user?.id) {
     return res.status(403).json({ success: false, error: 'Not authorized to view this survey' });
   }
 
-  return res.json({ success: true, data });
+  if (auth.role === 'tenant_relation' && data.status === 'draft') {
+    return res.status(403).json({ success: false, error: 'Not authorized to view this survey' });
+  }
+
+  const payload = auth.role === 'tenant_relation' ? stripSurveyPii(data) : data;
+  return res.json({ success: true, data: payload });
 }
 
 
@@ -576,7 +625,8 @@ async function handleGet(req, res) {
 async function handleCreate(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  // tenant_relation is read-only — no create
+  const auth = await requireAuth(req, res, [...STAFF_ROLES, 'eo_tenant']);
   if (!auth) return;
 
   const body = req.body || {};
@@ -647,7 +697,7 @@ async function handleCreate(req, res) {
 async function handleUpdate(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, [...STAFF_ROLES, 'eo_tenant']);
   if (!auth) return;
 
   const body = req.body || {};
@@ -729,7 +779,7 @@ async function handleUpdate(req, res) {
 async function handleSubmit(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, [...STAFF_ROLES, 'eo_tenant']);
   if (!auth) return;
 
   const body = req.body || {};
@@ -775,12 +825,8 @@ async function handleSubmit(req, res) {
 async function handleReview(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, STAFF_ROLES);
   if (!auth) return;
-
-  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Admin only' });
-  }
 
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
@@ -816,12 +862,8 @@ async function handleReview(req, res) {
 async function handleDelete(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, STAFF_ROLES);
   if (!auth) return;
-
-  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Admin only' });
-  }
 
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
@@ -861,18 +903,19 @@ async function handleDelete(req, res) {
 async function handleAnalytics(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, ANALYTICS_READ_ROLES);
   if (!auth) return;
 
   const sb = getServiceSupabase();
-  const isAdmin = auth.role === 'superadmin' || auth.role === 'admin';
+  // tenant_relation needs full mall aggregate (same as staff)
+  const fullScope = isAnalyticsReader(auth.role);
   const group = String(req.query?.group || 'tenant').trim();
   const eventId = String(req.query?.event_id || '').trim() || null;
 
   // Use v4 RPC with explicit auth params (no auth.uid() dependency)
   const { data, error } = await sb.rpc('get_tenant_survey_analytics_v4', {
-    p_is_admin: isAdmin,
-    p_tenant_user_id: isAdmin ? null : auth.user?.id,
+    p_is_admin: fullScope,
+    p_tenant_user_id: fullScope ? null : auth.user?.id,
     p_event_id: eventId,
     p_group_by: group,
   });
@@ -891,7 +934,7 @@ async function handleAnalytics(req, res) {
 async function handleSummary(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, ANALYTICS_READ_ROLES);
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();
@@ -917,7 +960,8 @@ async function handleSummary(req, res) {
 async function handleConfigGet(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  // TR does not need config UI — staff + EO only
+  const auth = await requireAuth(req, res, [...STAFF_ROLES, 'eo_tenant']);
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();
@@ -948,12 +992,8 @@ async function handleConfigGet(req, res) {
 async function handleConfigSet(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res, STAFF_ROLES);
   if (!auth) return;
-
-  if (auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Admin only' });
-  }
 
   const body = req.body || {};
   const eventId = sanitize(body.event_id || '', 200);
@@ -989,7 +1029,8 @@ async function handleConfigSet(req, res) {
 async function handleExport(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  const auth = await requireAuth(req, res);
+  // CSV with PIC = staff only. TR uses client PDF (no PII).
+  const auth = await requireAuth(req, res, STAFF_ROLES);
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();

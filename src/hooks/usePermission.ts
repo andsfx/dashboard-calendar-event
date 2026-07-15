@@ -14,6 +14,10 @@ export interface Permissions {
   canManageSurvey: boolean;
   /** Can view survey results */
   canViewSurvey: boolean;
+  /** Tenant Relation analytics page (read-only results) */
+  canViewTenantSurveyResults: boolean;
+  /** Export tenant survey analytics PDF */
+  canExportTenantSurveyAnalytics: boolean;
   /** Can view registrations */
   canViewRegistrations: boolean;
   /** Can manage settings (landing page, albums, etc.) */
@@ -28,6 +32,8 @@ export interface Permissions {
   isReadOnly: boolean;
   /** Is EO/Tenant with limited view */
   isEoTenant: boolean;
+  /** Tenant Relation staff (analytics only) */
+  isTenantRelation: boolean;
   /** User role */
   role: string;
 }
@@ -36,7 +42,7 @@ export interface Permissions {
  * usePermission — derives granular permissions from user role.
  *
  * Role hierarchy:
- *   superadmin > admin > viewer > eo_tenant
+ *   superadmin > admin > viewer > eo_tenant | tenant_relation
  */
 export function usePermission(user: AuthUser | null, isLegacy: boolean): Permissions {
   return useMemo(() => {
@@ -51,6 +57,8 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
         canManageThemes: false,
         canManageSurvey: false,
         canViewSurvey: false,
+        canViewTenantSurveyResults: false,
+        canExportTenantSurveyAnalytics: false,
         canViewRegistrations: false,
         canManageSettings: false,
         canManageUsers: false,
@@ -58,6 +66,7 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
         canExport: false,
         isReadOnly: false,
         isEoTenant: false,
+        isTenantRelation: false,
         role: '',
       };
     }
@@ -66,6 +75,7 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
     const isAdmin = role === 'admin' || isSuperadmin;
     const isViewer = role === 'viewer';
     const isEoTenant = role === 'eo_tenant';
+    const isTenantRelation = role === 'tenant_relation';
 
     return {
       canViewDashboard: true,
@@ -73,14 +83,18 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
       canDeleteEvents: isAdmin,
       canManageThemes: isAdmin,
       canManageSurvey: isAdmin,
-      canViewSurvey: true, // all roles can view
+      // visitor survey + ops pages — not for TR-only accounts
+      canViewSurvey: isAdmin || isViewer || isEoTenant,
+      canViewTenantSurveyResults: isAdmin || isTenantRelation,
+      canExportTenantSurveyAnalytics: isAdmin || isTenantRelation,
       canViewRegistrations: isAdmin || isViewer,
       canManageSettings: isAdmin,
       canManageUsers: isSuperadmin,
       canViewActivityLog: isAdmin,
       canExport: isAdmin || isViewer,
-      isReadOnly: isViewer,
+      isReadOnly: isViewer || isTenantRelation,
       isEoTenant,
+      isTenantRelation,
       role,
     };
   }, [user, isLegacy]);

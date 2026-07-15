@@ -62,18 +62,22 @@ export function getDashboardNavGroups(
   permissions: Permissions,
   callbacks: DashboardNavCallbacks,
 ): DashboardNavGroup[] {
+  // TR-only accounts: analytics page only (no command center / event ops)
+  const isTrOnly = permissions.isTenantRelation && !permissions.canEditEvents;
+
   return [
     {
       label: 'Ringkasan',
       items: [
-        { id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route' as const, route: '/dashboard' },
+        ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route' as const, route: '/dashboard' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
+        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className="h-4 w-4" />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },
     {
       label: 'Kelola Event',
       items: [
-        { id: 'events', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/events' },
+        ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/events' }] : []),
         ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
         ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/themes' }] : []),
       ],
@@ -83,7 +87,7 @@ export function getDashboardNavGroups(
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...(permissions.canViewSurvey || permissions.isEoTenant ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
     },
     {
@@ -114,12 +118,25 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
   })
     .flatMap(group => group.items)
     .filter(item => item.action === 'route' && item.route)
+    // Standalone routes (not under /dashboard/*) are not dashboard-path keys
+    .filter(item => item.route === '/dashboard' || item.route?.startsWith('/dashboard/'))
     .map(item => item.route === '/dashboard' ? '/' : item.route?.replace('/dashboard', '') || '/');
 
   return Array.from(new Set(routeItems));
 }
 
+/** Absolute path for post-login / unauthorized redirect (may be outside /dashboard). */
+export function getDefaultAppPath(permissions: Permissions): string {
+  if (permissions.isTenantRelation) return '/tenant-survey-results';
+  if (permissions.isEoTenant) return '/dashboard/tenant-surveys';
+  const paths = getAllowedDashboardPaths(permissions);
+  if (paths.includes('/')) return '/dashboard';
+  const first = paths[0];
+  return first ? `/dashboard${first}` : '/dashboard';
+}
+
 export function getDefaultDashboardPath(permissions: Permissions): string {
+  if (permissions.isTenantRelation) return '/tenant-survey-results';
   if (permissions.isEoTenant) return '/tenant-surveys';
   const paths = getAllowedDashboardPaths(permissions);
   if (paths.includes('/')) return '/';
@@ -188,13 +205,21 @@ export function getCommandCenterCards({
       icon: <ClipboardCheck className="h-5 w-5" />,
       route: '/dashboard/survey',
     }] : []),
-    ...((permissions.canViewSurvey || permissions.isEoTenant) ? [{
+    ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
       value: <ClipboardCheck className="h-6 w-6" aria-hidden />,
       subtitle: 'Evaluasi EO/tenant',
       icon: <ClipboardCheck className="h-5 w-5" />,
       route: '/dashboard/tenant-surveys',
+    }] : []),
+    ...(permissions.canViewTenantSurveyResults ? [{
+      id: 'tenant-survey-results',
+      title: 'Hasil Evaluasi Tenant',
+      value: <TrendingUp className="h-6 w-6" aria-hidden />,
+      subtitle: 'Analisa dampak event ke gerai',
+      icon: <BarChart3 className="h-5 w-5" />,
+      route: '/tenant-survey-results',
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',
