@@ -21,6 +21,8 @@ import {
   Share2,
   CalendarDays,
   ChevronDown,
+  CircleHelp,
+  BookOpen,
 } from 'lucide-react';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
@@ -81,12 +83,14 @@ function DistBars({
   dist,
   total,
   colorMap,
+  hint,
 }: {
   title: string;
   icon: React.ReactNode;
   dist: DistMap;
   total: number;
   colorMap?: Record<string, string>;
+  hint?: string;
 }) {
   const max = Math.max(1, ...dist.labels.map((l) => dist.counts[l] || 0));
   return (
@@ -95,9 +99,14 @@ function DistBars({
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
           {icon}
         </span>
-        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
-          {title}
-        </h3>
+        <div className="min-w-0">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+            {title}
+          </h3>
+          {hint ? (
+            <p className="mt-0.5 text-[10px] leading-snug text-slate-400 dark:text-slate-500">{hint}</p>
+          ) : null}
+        </div>
       </div>
       <div className="space-y-2.5 p-4">
         {dist.labels.map((label, i) => {
@@ -181,7 +190,7 @@ function KpiCard({
             {value}
           </p>
           {helper ? (
-            <p className="mt-0.5 hidden text-[10px] text-slate-400 dark:text-slate-500 sm:block">{helper}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-slate-400 dark:text-slate-500">{helper}</p>
           ) : null}
         </div>
       </div>
@@ -221,6 +230,179 @@ function isFilterActive(f: ResultsFilter): boolean {
     f.zona !== EMPTY_FILTER.zona ||
     f.kategori !== EMPTY_FILTER.kategori ||
     f.status !== EMPTY_FILTER.status
+  );
+}
+
+const GUIDE_COLLAPSED_KEY = 'tsr_guide_collapsed';
+
+/** Collapsible how-to for reading / analysing survey results. */
+function ResultsReadingGuide() {
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(GUIDE_COLLAPSED_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+
+  const toggle = useCallback(() => {
+    setOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(GUIDE_COLLAPSED_KEY, next ? '0' : '1');
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+
+  return (
+    <section
+      className="rounded-xl border border-sky-200/80 bg-sky-50/70 dark:border-sky-900/50 dark:bg-sky-950/25"
+      aria-labelledby="results-guide-heading"
+    >
+      <button
+        type="button"
+        onClick={toggle}
+        className="ui-focus-ring flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left sm:px-4 sm:py-3"
+        aria-expanded={open}
+        aria-controls="results-guide-body"
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-300">
+          <BookOpen className="h-4 w-4" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2
+            id="results-guide-heading"
+            className="text-sm font-semibold text-sky-900 dark:text-sky-100"
+          >
+            Panduan membaca hasil survey
+          </h2>
+          <p className="text-[11px] text-sky-700/80 dark:text-sky-400">
+            Ringkasan langkah dan arti angka di halaman ini
+          </p>
+        </div>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-sky-600 transition dark:text-sky-400 ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
+      </button>
+
+      {open ? (
+        <div
+          id="results-guide-body"
+          className="space-y-3 border-t border-sky-200/70 px-3 pb-3.5 pt-3 dark:border-sky-900/40 sm:px-4 sm:pb-4"
+        >
+          <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                n: '1',
+                t: 'Pilih event',
+                d: 'Pilih event terlebih dahulu. Rentang tanggal, zona, dan kategori gerai dapat digunakan untuk mempersempit data.',
+              },
+              {
+                n: '2',
+                t: 'Baca angka ringkasan',
+                d: 'Hijau: 60% atau lebih. Kuning: 30% sampai 59%. Merah: di bawah 30%.',
+              },
+              {
+                n: '3',
+                t: 'Buka tab Ringkasan',
+                d: 'Tab ini menampilkan sebaran jawaban, peringkat gerai, dan tren bulanan.',
+              },
+              {
+                n: '4',
+                t: 'Tindak lanjut',
+                d: 'Checklist untuk tenant yang belum mengisi. Bagikan untuk mengirim tautan atau kode QR. Detail untuk membaca komentar.',
+              },
+            ].map((s) => (
+              <li
+                key={s.n}
+                className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40"
+              >
+                <p className="text-[11px] font-bold text-sky-800 dark:text-sky-200">
+                  <span className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-sky-200/80 text-[10px] tabular-nums text-sky-900 dark:bg-sky-800 dark:text-sky-100">
+                    {s.n}
+                  </span>
+                  {s.t}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+                  {s.d}
+                </p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40">
+              <p className="flex items-center gap-1 text-[11px] font-bold text-sky-800 dark:text-sky-200">
+                <CircleHelp className="h-3 w-3 shrink-0" aria-hidden />
+                Keterangan angka ringkasan
+              </p>
+              <ul className="mt-1 space-y-1 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Total submisi
+                  </strong>
+                  {': '}
+                  jumlah formulir yang telah dikirim (bukan draf).
+                </li>
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Tenant yang sudah isi
+                  </strong>
+                  {': '}
+                  dari daftar tenant mall, berapa yang telah mengisi sesuai filter. Pilih satu event agar angkanya lebih akurat.
+                </li>
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Traffic positif
+                  </strong>
+                  {': '}
+                  persentase yang menyatakan pengunjung meningkat (Signifikan atau Sedikit Naik).
+                </li>
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Sales positif
+                  </strong>
+                  {': '}
+                  persentase yang menyatakan omzet meningkat minimal 10%.
+                </li>
+              </ul>
+            </div>
+            <div className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40">
+              <p className="flex items-center gap-1 text-[11px] font-bold text-sky-800 dark:text-sky-200">
+                <BarChart3 className="h-3 w-3 shrink-0" aria-hidden />
+                Catatan untuk analisis
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-3.5 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+                <li>
+                  Jika pengunjung meningkat tetapi omzet tidak, periksa kategori atau zona yang lemah.
+                </li>
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Top Gerai
+                  </strong>
+                  {' '}
+                  diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi.
+                </li>
+                <li>
+                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                    Kategori × Sales
+                  </strong>
+                  {' '}
+                  menunjukkan jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya.
+                </li>
+                <li>
+                  Untuk laporan singkat, pilih satu event kemudian ekspor PDF.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -758,7 +940,7 @@ export default function TenantSurveyResultsPage({
     if (filter.status !== 'all') {
       chips.push({
         key: 'status',
-        label: filter.status === 'submitted' ? 'Submitted' : 'Reviewed',
+        label: filter.status === 'submitted' ? 'Telah dikirim' : 'Telah ditinjau',
       });
     }
     return chips;
@@ -799,7 +981,7 @@ export default function TenantSurveyResultsPage({
         <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
           Memuat hasil evaluasi tenant…
         </p>
-        <p className="text-xs text-slate-400">Mengambil data submisi v3</p>
+        <p className="text-xs text-slate-400">Memuat data survey…</p>
       </div>
     );
   }
@@ -870,6 +1052,8 @@ export default function TenantSurveyResultsPage({
           {exportError}
         </div>
       )}
+
+      <ResultsReadingGuide />
 
       {/* Filter toolbar — overflow-visible so event dropdown is not clipped */}
       <section
@@ -998,9 +1182,9 @@ export default function TenantSurveyResultsPage({
                 onChange={(e) => setField('status', e.target.value as ResultsFilter['status'])}
                 className={FIELD}
               >
-                <option value="all">Submitted + Reviewed</option>
-                <option value="submitted">Submitted</option>
-                <option value="reviewed">Reviewed</option>
+                <option value="all">Semua (telah dikirim)</option>
+                <option value="submitted">Telah dikirim</option>
+                <option value="reviewed">Telah ditinjau</option>
               </select>
             </label>
           </div>
@@ -1028,12 +1212,12 @@ export default function TenantSurveyResultsPage({
       </section>
 
       {/* KPI strip — always 2×2 on phone */}
-      <section aria-label="Ringkasan KPI" className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4">
+      <section aria-label="Ringkasan angka" className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4">
         <KpiCard
           label="Total Submisi"
           value={agg.total}
           icon={<BarChart3 className="h-4 w-4" aria-hidden />}
-          helper="Survey v3 final"
+          helper="Formulir yang telah dikirim"
         />
         <KpiCard
           label="Tenant yang sudah isi"
@@ -1047,8 +1231,8 @@ export default function TenantSurveyResultsPage({
           icon={<Store className="h-4 w-4" aria-hidden />}
           helper={
             checklistStats.total > 0
-              ? `${checklistStats.pending} belum isi`
-              : 'Jumlah tenant berbeda'
+              ? `${checklistStats.pending} belum mengisi`
+              : 'Jumlah gerai yang menjawab'
           }
           tone={
             checklistStats.total === 0
@@ -1065,14 +1249,14 @@ export default function TenantSurveyResultsPage({
           value={agg.total > 0 ? `${agg.trafficPosPct}%` : '—'}
           icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.trafficPosPct)}
-          helper="Signifikan + Sedikit Naik"
+          helper="Menyatakan pengunjung meningkat"
         />
         <KpiCard
           label="Sales Positif"
           value={agg.total > 0 ? `${agg.salesPosPct}%` : '—'}
           icon={<DollarSign className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.salesPosPct)}
-          helper="Kenaikan ≥ 10%"
+          helper="Omzet meningkat minimal 10%"
         />
       </section>
 
@@ -1137,8 +1321,8 @@ export default function TenantSurveyResultsPage({
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {selectedEvent
-                  ? `Link form untuk: ${selectedEvent.acara}`
-                  : 'Salin link atau tampilkan QR per event'}
+                  ? `Tautan dan kode QR formulir: ${selectedEvent.acara}`
+                  : 'Salin tautan atau tampilkan QR, lalu kirim kepada tenant yang belum mengisi'}
               </p>
             </div>
           </div>
@@ -1203,8 +1387,8 @@ export default function TenantSurveyResultsPage({
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 {filter.eventId === 'all'
-                  ? 'Status isi survey (semua event di filter)'
-                  : `Status isi untuk: ${eventLabel}`}
+                  ? 'Daftar tenant yang telah atau belum mengisi. Pilih satu event pada filter agar angkanya lebih akurat.'
+                  : `Status pengisian untuk: ${eventLabel}`}
               </p>
             </div>
           </div>
@@ -1331,8 +1515,8 @@ export default function TenantSurveyResultsPage({
               Belum ada data sesuai filter
             </p>
             <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
-              Hanya menampilkan survey v3 yang sudah submitted/reviewed. Longgarkan filter atau
-              buka tab Bagikan / Checklist.
+              Tidak ada data yang sesuai filter. Longgarkan filter, buka Bagikan untuk mengirim
+              formulir, atau Checklist untuk memeriksa partisipasi.
             </p>
             {filterDirty && (
               <button
@@ -1354,6 +1538,7 @@ export default function TenantSurveyResultsPage({
                 dist={agg.trafficDist}
                 total={agg.total}
                 colorMap={TRAFFIC_COLORS}
+                hint="Hijau: pengunjung meningkat. Merah: menurun."
               />
               <DistBars
                 title="Sales"
@@ -1361,18 +1546,21 @@ export default function TenantSurveyResultsPage({
                 dist={agg.salesDist}
                 total={agg.total}
                 colorMap={SALES_COLORS}
+                hint="Dihitung positif jika omzet meningkat minimal 10%"
               />
               <DistBars
                 title="Kategori"
                 icon={<Tag className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.kategoriDist}
                 total={agg.total}
+                hint="Jenis gerai yang paling banyak mengisi"
               />
               <DistBars
                 title="Zona"
                 icon={<MapPin className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.zonaDist}
                 total={agg.total}
+                hint="Lantai atau area lokasi gerai"
               />
             </section>
 
@@ -1383,7 +1571,7 @@ export default function TenantSurveyResultsPage({
                     Top Gerai
                   </h3>
                   <p className="mt-0.5 text-[11px] text-slate-400">
-                    Skor = sinyal traffic+ dan sales+
+                    Diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi
                   </p>
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-700/80">
@@ -1409,9 +1597,9 @@ export default function TenantSurveyResultsPage({
                         </p>
                         <p className="text-[11px] text-slate-400">{g.count} respons</p>
                       </div>
-                      <div className="shrink-0 text-right text-[11px] text-slate-500 dark:text-slate-400">
+                        <div className="shrink-0 text-right text-[11px] text-slate-500 dark:text-slate-400">
                         <p>
-                          T+ {g.trafficPos} · S+ {g.salesPos}
+                          Traffic naik {g.trafficPos} · Omzet naik {g.salesPos}
                         </p>
                         <p className="font-bold text-brand-primary-600 dark:text-brand-primary-400">
                           skor {g.score}
@@ -1427,7 +1615,9 @@ export default function TenantSurveyResultsPage({
                   <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
                     Kategori × Sales
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-slate-400">Cross-tab frekuensi</p>
+                  <p className="mt-0.5 text-[11px] text-slate-400">
+                    Jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya
+                  </p>
                 </div>
                 <div className="max-h-80 overflow-auto">
                   <table className="w-full min-w-[320px] text-left text-xs">
@@ -1481,15 +1671,20 @@ export default function TenantSurveyResultsPage({
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
                   <MessageSquareText className="h-3.5 w-3.5" aria-hidden />
                 </span>
-                <h3
-                  id="feedback-heading"
-                  className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
-                >
-                  Feedback Gerai
-                  <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
-                    ({feedbackFiltered.length})
-                  </span>
-                </h3>
+                <div>
+                  <h3
+                    id="feedback-heading"
+                    className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+                  >
+                    Feedback Gerai
+                    <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
+                      ({feedbackFiltered.length})
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Komentar dari gerai. Perhatikan keluhan atau saran yang sering muncul.
+                  </p>
+                </div>
               </div>
               <div className="relative max-w-xs flex-1">
                 <label htmlFor="feedback-search" className="sr-only">
