@@ -39,7 +39,7 @@ export default function SurveyQRCode({
     QRCode.toCanvas(canvasRef.current, surveyUrl, {
       width: compact ? 160 : 200,
       margin: 2,
-      color: { dark: '#1e1b4b', light: '#ffffff' },
+      color: { dark: '#0f172a', light: '#ffffff' },
       errorCorrectionLevel: 'M',
     });
   }, [surveyUrl, compact]);
@@ -50,7 +50,7 @@ export default function SurveyQRCode({
       const qrDataUrl = await QRCode.toDataURL(surveyUrl, {
         width: 400,
         margin: 2,
-        color: { dark: '#1e1b4b', light: '#ffffff' },
+        color: { dark: '#0f172a', light: '#ffffff' },
         errorCorrectionLevel: 'M',
       });
 
@@ -73,7 +73,7 @@ export default function SurveyQRCode({
         ctx.drawImage(img, padding, padding, size, size);
 
         // Title text
-        ctx.fillStyle = '#1e1b4b';
+        ctx.fillStyle = '#0f172a';
         ctx.font = 'bold 16px Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(label, downloadCanvas.width / 2, size + padding + 30);

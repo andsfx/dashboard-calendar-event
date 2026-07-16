@@ -198,7 +198,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatMini icon={<ClipboardCheck className="h-4 w-4" />} label="Total Response" value={stats.total_responses} color="violet" />
+        <StatMini icon={<ClipboardCheck className="h-4 w-4" />} label="Total Response" value={stats.total_responses} color="primary" />
         <StatMini icon={<Building2 className="h-4 w-4" />} label="Penyelenggara" value={stats.organizer_responses} color="blue" />
         <StatMini icon={<Users className="h-4 w-4" />} label="Peserta" value={stats.public_responses} color="emerald" />
         <StatMini icon={<Star className="h-4 w-4" />} label="Event Dinilai" value={stats.unique_events} color="amber" />
@@ -458,14 +458,14 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
 
 function StatMini({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   const colors: Record<string, string> = {
-    violet: 'bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/40 dark:text-brand-primary-400',
+    primary: 'bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/40 dark:text-brand-primary-400',
     blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
     emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
     amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
   };
   return (
     <div className="ui-dashboard-surface rounded-xl p-3">
-      <div className={`mb-2 inline-flex rounded-lg p-1.5 ${colors[color] || colors.violet}`}>{icon}</div>
+      <div className={`mb-2 inline-flex rounded-lg p-1.5 ${colors[color] || colors.primary}`}>{icon}</div>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
       <p className="text-[10px] text-slate-500 dark:text-slate-400">{label}</p>
     </div>

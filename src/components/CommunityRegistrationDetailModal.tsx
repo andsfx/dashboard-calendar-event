@@ -145,8 +145,8 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="reg-detail-title">
       <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="relative px-4 pb-5 pt-6 sm:px-6 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.13) 0%, rgba(139,92,246,0.03) 100%)', borderBottom: '3px solid rgba(139,92,246,0.27)' }}>
-          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #00918e, rgba(0,145,142,0.27))' }} />
+        <div className="relative px-4 pb-5 pt-6 sm:px-6 shrink-0 border-b-[3px] border-brand-primary-500/30 bg-gradient-to-br from-brand-primary-500/[0.13] to-brand-primary-500/[0.03]">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary-500 to-brand-primary-500/30" />
 
           <button
             onClick={onClose}

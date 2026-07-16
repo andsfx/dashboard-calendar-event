@@ -169,7 +169,7 @@ Aturan public:
 5. ~~`feedback_teks` limit~~ — fixed FE+BE (+ legacy fields still limited).
 6. ~~Shared components diduplikasi di public page~~ — fixed: public import Shared.
 7. Types form masih bawa stub v2 + cast `as never`.
-8. Shared RadioGroup accent violet vs public brand tokens — visual minor drift OK.
+  8. ~~Shared RadioGroup accent violet~~ — prefer brand-primary; residual only if shared component still uses default.
 9. Rate limit public IP belum ada.
 
 ## Change checklist

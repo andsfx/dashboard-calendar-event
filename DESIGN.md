@@ -1,5 +1,8 @@
 # DESIGN
 
+> **Source of truth:** `src/styles/tokens.css` + `src/styles/theme.css`  
+> **Last updated:** 2026-07-16
+
 ## Design Direction
 
 Metropolitan Mall Bekasi event pages should feel warm, active, and community-centered. The visual language blends mall hospitality, event energy, and operational trust.
@@ -27,14 +30,44 @@ Public marketing surfaces should feel like a polished community campaign, not a 
 - Pink (secondary): `#E24378`
 - Soft Pink: `#EE95A9`
 
-Use tosca for structure, focus, links, selected states, primary CTAs, and brand continuity. Use pink sparingly for secondary accent. Legacy CSS vars `--brand-violet` / `--brand-orange` alias to tosca/pink.
+Use tosca for structure, focus, links, selected states, primary CTAs, and brand continuity. Pink is secondary only — see rules below. Legacy CSS vars `--brand-violet` / `--brand-orange` alias to tosca/pink (compatibility only; new code uses `--brand-tosca` / `--brand-pink`).
+
+### Pink secondary — allow / deny
+
+| Allow | Deny |
+|-------|------|
+| Small badge / chip / “highlight” label | Primary CTA fill |
+| Inline text emphasis (1 phrase max) | Large section wash / full-width bg |
+| Secondary chart series (with tosca primary) | Error / required / destructive (use rose) |
+| Soft pink border on optional callout | Focus ring (always tosca) |
+| Icon accent on non-primary list items | Login / admin chrome headers |
+
+Cap: at most **one** pink signal per viewport region. If tosca already carries the action, skip pink.
+
+### Brand primary scale (`theme.css`)
+
+| Token | Hex | Use |
+|-------|-----|-----|
+| `brand-primary-50` | `#eefafa` | Soft wash / selected row |
+| `brand-primary-100` | `#d5f3f2` | Chip bg light |
+| `brand-primary-200` | `#aae6e4` | Soft border accent |
+| `brand-primary-300` | `#66d1ce` | Hover wash |
+| `brand-primary-400` | `#33a8a5` | Soft tosca / dark-mode text |
+| `brand-primary-500` | `#00918e` | **Primary CTA / links** |
+| `brand-primary-600` | `#007a78` | Hover primary |
+| `brand-primary-700` | `#00554c` | Pressed / dark tosca |
+| `brand-primary-800`–`950` | deeper | Rare; dense dark UI only |
+
+Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500).
 
 ### Surfaces
 
-- Warm paper: `#f4efe8`
-- Warm card: `#faf6ef`
-- Light card: `#fffdf9`
+- Warm paper: `#f4efe8` (`--brand-paper`)
+- Warm card: `#faf6ef` (`--brand-card`)
+- Light card: `#fffdf9` (`--brand-card-light`)
+- Page neutral: `#fbfaf7` (`--color-neutral-page`)
 - White section: `#ffffff`
+- Ink: `#0f172a` (`--brand-ink`)
 - Slate text: Tailwind `slate-950`, `slate-700`, `slate-600`, `slate-500`
 - Dark background: Tailwind `slate-950`, `slate-900`, `slate-800`
 
@@ -50,9 +83,41 @@ Use established Tailwind semantic colors:
 Do not create new semantic colors unless existing meaning is insufficient.
 Error/required markers use rose — never brand-primary.
 
+**Data-viz exception:** charts/category series may use amber, emerald, blue, etc. outside brand accents. Those colors are for encoding data only — not brand CTAs or large UI washes.
+
+## Token Reference
+
+Mirror of semantic tokens in `tokens.css`. Prefer CSS vars (or utilities that wrap them) over hard-coded `rounded-[2rem]` / raw rgba.
+
+### Radius
+
+| Token | Value | Surface |
+|-------|-------|---------|
+| `--radius-control` | `0.75rem` | Inputs, product buttons, chips |
+| `--radius-card` | `1rem` | Compact product cards |
+| `--radius-card-lg` | `1.5rem` | Admin panels / larger product cards |
+| `--radius-campaign-card` | `2rem` | Landing / campaign cards only |
+
+Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounded-3xl`). Product controls: `var(--radius-control)` — never campaign radius in admin forms.
+
+### Shadow & border
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--shadow-card-soft` | `0 12px 28px rgba(15, 23, 42, 0.04)` | Default card rest |
+| `--shadow-card-raised` | `0 18px 45px rgba(15, 23, 42, 0.08)` | Hover / elevated interactive |
+| `--border-subtle` | `rgba(15, 23, 42, 0.06)` | Default card/panel border |
+| `--ease-out-expo` | `cubic-bezier(0.22, 1, 0.36, 1)` | Reveals, modal panel, toast |
+
+### Focus
+
+- `--focus-ring-color`: tosca
+- Light offset: `--focus-ring-offset-light` (card light)
+- Dark offset: `--focus-ring-offset-dark` (`#0f172a`)
+
 ## Typography
 
-Display: system serif (Iowan/Palatino/Georgia). Body: Plus Jakarta Sans. Hierarchy via weight, size, spacing, line height.
+Display: system serif (Iowan/Palatino/Georgia) via `--font-display`. Body: Plus Jakarta Sans via `--font-body`. Hierarchy via weight, size, spacing, line height.
 
 ### Landing Page
 
@@ -64,9 +129,13 @@ Display: system serif (Iowan/Palatino/Georgia). Body: Plus Jakarta Sans. Hierarc
 
 ### Product/Admin UI
 
-- Prefer compact headings.
-- Keep table/card metadata readable.
-- Avoid marketing-sized headings in admin flows.
+- Prefer compact headings (`text-lg`–`text-2xl` max for page titles).
+- Keep table/card metadata readable (`text-sm` / `text-xs`).
+- Avoid marketing-sized headings (`text-4xl+`) in admin flows.
+- Dense tables: sticky header, horizontal scroll on overflow — never squeeze columns into unreadable wrap.
+- Sidebar / nav: compact labels, active state = tosca text or soft primary wash — not campaign gradient deco.
+- Modals: `ui-btn-primary` (solid tosca) for confirm; ghost/outline for cancel. No orange→violet or multi-stop brand gradients on admin chrome.
+- Controls use `--radius-control`; panels use `--radius-card` / `--radius-card-lg`.
 
 ## Layout
 
@@ -75,6 +144,7 @@ Display: system serif (Iowan/Palatino/Georgia). Body: Plus Jakarta Sans. Hierarc
 - Use mobile-first padding: `px-4`, `sm:px-6`.
 - Landing vertical rhythm: `py-16`, `sm:py-24`, `lg:py-32`.
 - Anchor sections with fixed headers should use `scroll-mt-28` or appropriate offset.
+- Admin shell: fixed sidebar + scrollable main; content max-width as needed for tables, not campaign hero widths.
 
 ## Components
 
@@ -116,13 +186,19 @@ Secondary CTA:
 
 ### Cards
 
-Cards use:
+**Campaign / landing**
 
-- `rounded-[2rem]`
-- soft border `border-slate-200/50` or `border-black/[0.06]`
-- warm card background on marketing surfaces
-- subtle shadows
-- hover elevation only when clickable/interactive
+- radius: `var(--radius-campaign-card)` (`2rem`)
+- soft border `border-slate-200/50` or `var(--border-subtle)`
+- warm card background
+- `var(--shadow-card-soft)`; raised on interactive hover
+- hover elevation only when clickable
+
+**Product / admin**
+
+- radius: `var(--radius-card)` or `var(--radius-card-lg)`
+- tighter padding; less decorative elevation
+- prefer `ui-*` utilities over one-off campaign card classes
 
 ### Forms
 
@@ -133,6 +209,7 @@ Form controls should:
 - include `aria-invalid` and `aria-describedby` when invalid
 - avoid disabled primary submit unless submission is in progress
 - provide clear success state and next step
+- use `--radius-control` on inputs and product buttons
 
 Option cards acting as single-choice controls should use real radio semantics or correct `radiogroup`/`radio` ARIA with keyboard support.
 
@@ -142,7 +219,7 @@ Motion should support orientation and hierarchy, not distract.
 
 Use:
 
-- reveal-on-scroll for section entrance
+- reveal-on-scroll for section entrance (`--ease-out-expo`)
 - small hover translations for cards/buttons
 - subtle icon movement on CTA hover
 
@@ -187,9 +264,31 @@ Gallery/social proof images:
 Dark mode should preserve warmth but avoid low contrast.
 
 - Use `slate-950`, `slate-900`, `slate-800` backgrounds.
-- Keep violet accents visible.
+- Keep **tosca / brand-primary** accents visible (`brand-primary-400` text on dark is preferred over full 500 wash).
+- Pink secondary stays sparse — chips/badges only, not large fills.
 - Avoid low-opacity white text for critical content.
 - Borders should be subtle but perceptible.
+
+## Legacy aliases & migrate path
+
+`tokens.css` keeps aliases so old classnames don’t break:
+
+| Alias | Resolves to | Status |
+|-------|-------------|--------|
+| `--brand-violet` / `--brand-violet-soft` | tosca / soft tosca | **Deprecated** — do not use in new code |
+| `--brand-orange` | pink family | **Deprecated** — do not use in new code |
+
+**New code:** only `--brand-tosca`, `--brand-pink`, `brand-primary-*`, `brand-secondary-*`.
+
+**When touching a file:** replace residual purple/violet hardcodes (`#8b5cf6`, `rgba(139,92,246,…)`, `bg-violet-*` as brand chrome) with tosca tokens. Exception: pure data-viz series colors (see Color System).
+
+Known residual (fix when editing that surface):
+
+- ~~`CommunityRegistrationDetailModal`~~ — fixed → tosca wash (2026-07-16)
+- ~~`eventUtils` draft/Bazaar/Konser purple~~ — fixed: draft=`slate`, Bazaar=tosca, Konser=pink; Hiburan/Teknologi rebalanced (2026-07-16)
+- ~~`SurveyDashboard` / `TenantSurveyResultsPage` violet keys~~ — fixed → `primary` / brand-secondary bars (2026-07-16)
+- ~~`SurveyQRCode` indigo-950 QR ink~~ — fixed → brand ink `#0f172a` (2026-07-16)
+- Outside `src/` (ignore): `improve/` sandbox + `pdfExport` indigo headers — migrate when those surfaces ship
 
 ## Copy Style
 
@@ -224,3 +323,11 @@ Before shipping public landing changes:
 - Form shows required errors before submission.
 - Reduced motion does not hide content.
 - Console has no new runtime errors.
+
+Before shipping admin / product changes:
+
+- Login modal keyboard-complete (Tab trap, Escape close, focus restore).
+- Tables: no horizontal page scroll; overflow scrolls inside table region.
+- Forms: labels + errors readable in light and dark.
+- Primary actions use solid tosca — no residual violet/purple hardcodes.
+- Dense UI still hits ≥44px touch targets on mobile admin breakpoints where applicable.

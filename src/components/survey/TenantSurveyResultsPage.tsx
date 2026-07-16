@@ -73,8 +73,8 @@ const DEFAULT_BAR = [
   'bg-brand-primary-400',
   'bg-sky-500',
   'bg-cyan-500',
-  'bg-indigo-400',
-  'bg-violet-400',
+  'bg-teal-500',
+  'bg-brand-secondary-400',
 ];
 
 function DistBars({

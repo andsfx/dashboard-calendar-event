@@ -15,30 +15,31 @@ export const STATUS_LABEL: Record<EventStatus, string> = {
 };
 
 export const STATUS_COLOR: Record<EventStatus, string> = {
-  draft:    'purple',
+  draft:    'slate',
   ongoing:  'emerald',
   upcoming: 'amber',
   past:     'slate',
 };
 
+// Data-viz series only — not brand chrome. No violet/purple hex.
 export const CATEGORY_COLORS: Record<string, string> = {
-  Bazaar:     '#8b5cf6',
+  Bazaar:     '#00918e', // brand tosca
   Festival:   '#f59e0b',
   Workshop:   '#06b6d4',
   Kompetisi:  '#f43f5e',
   Fashion:    '#ec4899',
   Seminar:    '#3b82f6',
   Pameran:    '#10b981',
-  Konser:     '#a855f7',
+  Konser:     '#e24378', // brand pink
   Sosial:     '#14b8a6',
   Seni:       '#f97316',
-  Hiburan:    '#6366f1',
+  Hiburan:    '#0ea5e9',
   Karir:      '#84cc16',
   Produk:     '#ef4444',
   Anak:       '#fb923c',
   Kuliner:    '#d97706',
   Olahraga:   '#22c55e',
-  Teknologi:  '#0ea5e9',
+  Teknologi:  '#0284c7',
   Kesehatan:  '#e11d48',
   Umum:       '#64748b',
 };
