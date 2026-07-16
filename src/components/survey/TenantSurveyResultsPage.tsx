@@ -168,20 +168,20 @@ function KpiCard({
           : 'bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/40 dark:text-brand-primary-400';
 
   return (
-    <div className={`ui-dashboard-surface border-l-[3px] p-3.5 sm:p-4 ${accent}`}>
-      <div className="flex items-start gap-3">
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${pill}`}>
+    <div className={`ui-dashboard-surface border-l-[3px] p-2.5 sm:p-3.5 ${accent}`}>
+      <div className="flex items-start gap-2 sm:gap-3">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9 sm:rounded-xl ${pill}`}>
           {icon}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="text-[10px] font-medium uppercase leading-tight tracking-wide text-slate-500 dark:text-slate-400 sm:text-[11px]">
             {label}
           </p>
-          <p className={`mt-0.5 text-2xl font-bold tabular-nums tracking-tight ${valueClass}`}>
+          <p className={`mt-0.5 text-xl font-bold tabular-nums tracking-tight sm:text-2xl ${valueClass}`}>
             {value}
           </p>
           {helper ? (
-            <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">{helper}</p>
+            <p className="mt-0.5 hidden text-[10px] text-slate-400 dark:text-slate-500 sm:block">{helper}</p>
           ) : null}
         </div>
       </div>
@@ -335,7 +335,7 @@ function EventFilterSearch({
 
       {open && (
         <div
-          className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,70vh)] flex-col overflow-hidden shadow-xl sm:min-w-[20rem]"
+          className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,65dvh)] w-full flex-col overflow-hidden shadow-xl sm:left-0 sm:right-auto sm:min-w-[22rem] sm:max-w-[min(100vw-2rem,28rem)]"
           role="listbox"
         >
           <div className="shrink-0 border-b border-slate-100 p-2 dark:border-slate-700">
@@ -454,16 +454,16 @@ function EventShareRow({
 
   return (
     <div className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
-      <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
+      <div className="flex flex-col gap-2.5 px-3 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-4">
         <div className="flex min-w-0 flex-1 items-start gap-2.5">
           <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
             <CalendarDays className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+            <p className="text-sm font-semibold leading-snug text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
               {event.acara}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
               {event.tanggal || event.dateStr || '—'}
               {' · '}
               {statusLabel}
@@ -471,11 +471,11 @@ function EventShareRow({
             </p>
           </div>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-1.5 sm:justify-end">
+        <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0 sm:justify-end">
           <button
             type="button"
             onClick={handleCopy}
-            className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             title="Salin link form survey"
           >
             {copied ? (
@@ -488,7 +488,7 @@ function EventShareRow({
           <button
             type="button"
             onClick={() => setShowQR((v) => !v)}
-            className={`ui-focus-ring inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition ${
+            className={`ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition ${
               showQR
                 ? 'border-brand-primary-300 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300'
                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -502,9 +502,12 @@ function EventShareRow({
         </div>
       </div>
       {showQR && (
-        <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="border-t border-slate-100 bg-slate-50/60 px-3 py-4 dark:border-slate-800 dark:bg-slate-900/40 sm:px-4">
           <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
-            Form survey: <span className="font-semibold text-slate-800 dark:text-slate-100">{event.acara}</span>
+            Form survey:{' '}
+            <span className="font-semibold text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
+              {event.acara}
+            </span>
           </p>
           <Suspense
             fallback={
@@ -546,6 +549,8 @@ export default function TenantSurveyResultsPage({
   /** Main content tabs — avoids infinite scroll of every section */
   type MainTab = 'ringkasan' | 'checklist' | 'bagikan' | 'detail';
   const [mainTab, setMainTab] = useState<MainTab>('ringkasan');
+  /** Mobile: keep secondary filters collapsed so sticky bar stays short */
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -801,23 +806,30 @@ export default function TenantSurveyResultsPage({
 
   const filterDirty = isFilterActive(filter);
 
-  const mainTabs: Array<{ id: MainTab; label: string; count?: number }> = [
-    { id: 'ringkasan', label: 'Ringkasan', count: agg.total },
-    { id: 'checklist', label: 'Checklist tenant', count: checklistStats.pending },
-    { id: 'bagikan', label: 'Bagikan form survey', count: shareableEvents.length },
-    { id: 'detail', label: 'Detail', count: agg.rows.length },
+  const mainTabs: Array<{ id: MainTab; label: string; shortLabel: string; count?: number }> = [
+    { id: 'ringkasan', label: 'Ringkasan', shortLabel: 'Ringkas', count: agg.total },
+    { id: 'checklist', label: 'Checklist tenant', shortLabel: 'Checklist', count: checklistStats.pending },
+    { id: 'bagikan', label: 'Bagikan form survey', shortLabel: 'Bagikan', count: shareableEvents.length },
+    { id: 'detail', label: 'Detail', shortLabel: 'Detail', count: agg.rows.length },
   ];
 
+  const advancedFilterCount =
+    (filter.dateFrom ? 1 : 0) +
+    (filter.dateTo ? 1 : 0) +
+    (filter.zona !== 'all' ? 1 : 0) +
+    (filter.kategori !== 'all' ? 1 : 0) +
+    (filter.status !== 'all' ? 1 : 0);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Report header — compact */}
-      <header className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
             Hasil Evaluasi Tenant
           </h1>
           {selectedEvent ? (
-            <p className="mt-1.5">
+            <p className="mt-1">
               <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-primary-50 px-2.5 py-0.5 text-xs font-semibold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
                 <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
                 <span className="truncate">{selectedEvent.acara}</span>
@@ -830,7 +842,7 @@ export default function TenantSurveyResultsPage({
             type="button"
             onClick={handleExportPdf}
             disabled={exporting || agg.total === 0}
-            className="ui-btn-primary ui-focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+            className="ui-btn-primary ui-focus-ring inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
           >
             {exporting ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -864,30 +876,47 @@ export default function TenantSurveyResultsPage({
         className="ui-dashboard-surface sticky top-[3.25rem] z-30 overflow-visible shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
         aria-labelledby="filter-heading"
       >
-        <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3.5 py-2 dark:border-slate-700 sm:px-4">
-          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-            <Filter className="h-3.5 w-3.5 text-brand-primary-500" aria-hidden />
+        <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3 py-2 dark:border-slate-700 sm:px-4">
+          <div className="flex min-w-0 items-center gap-2 text-slate-600 dark:text-slate-300">
+            <Filter className="h-3.5 w-3.5 shrink-0 text-brand-primary-500" aria-hidden />
             <h2 id="filter-heading" className="text-[11px] font-bold uppercase tracking-wide">
               Filter
             </h2>
             <span className="rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-              {agg.total} data
+              {agg.total}
             </span>
           </div>
-          {filterDirty && (
+          <div className="flex items-center gap-1.5">
+            {filterDirty && (
+              <button
+                type="button"
+                onClick={resetFilter}
+                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+              >
+                <RotateCcw className="h-3 w-3" aria-hidden />
+                <span className="hidden sm:inline">Reset</span>
+              </button>
+            )}
             <button
               type="button"
-              onClick={resetFilter}
-              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+              onClick={() => setFiltersOpen((v) => !v)}
+              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:hidden"
+              aria-expanded={filtersOpen}
             >
-              <RotateCcw className="h-3 w-3" aria-hidden />
-              Reset filter
+              Lanjutan
+              {advancedFilterCount > 0 && (
+                <span className="rounded-full bg-brand-primary-100 px-1.5 text-[10px] tabular-nums text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
+                  {advancedFilterCount}
+                </span>
+              )}
+              <ChevronDown className={`h-3.5 w-3.5 transition ${filtersOpen ? 'rotate-180' : ''}`} aria-hidden />
             </button>
-          )}
+          </div>
         </div>
 
-        <div className="grid gap-2.5 p-3.5 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-6">
-          <div className="block min-w-0 sm:col-span-2 lg:col-span-2 xl:col-span-2">
+        <div className="space-y-2.5 p-3 sm:p-4">
+          {/* Event always visible — primary control */}
+          <div className="min-w-0">
             <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
               Event
             </span>
@@ -897,81 +926,89 @@ export default function TenantSurveyResultsPage({
               onChange={(id) => setField('eventId', id)}
             />
           </div>
-          <label className="block min-w-0">
-            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              Dari tanggal
-            </span>
-            <input
-              type="date"
-              value={filter.dateFrom}
-              onChange={(e) => setField('dateFrom', e.target.value)}
-              className={FIELD}
-            />
-          </label>
-          <label className="block min-w-0">
-            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              Sampai tanggal
-            </span>
-            <input
-              type="date"
-              value={filter.dateTo}
-              onChange={(e) => setField('dateTo', e.target.value)}
-              className={FIELD}
-            />
-          </label>
-          <label className="block min-w-0">
-            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              Zona
-            </span>
-            <select
-              value={filter.zona}
-              onChange={(e) => setField('zona', e.target.value)}
-              className={FIELD}
-            >
-              <option value="all">Semua zona</option>
-              {SURVEY_OPTIONS.lokasi_zona.map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block min-w-0">
-            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              Kategori
-            </span>
-            <select
-              value={filter.kategori}
-              onChange={(e) => setField('kategori', e.target.value)}
-              className={FIELD}
-            >
-              <option value="all">Semua kategori</option>
-              {SURVEY_OPTIONS.kategori.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block min-w-0">
-            <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              Status
-            </span>
-            <select
-              value={filter.status}
-              onChange={(e) => setField('status', e.target.value as ResultsFilter['status'])}
-              className={FIELD}
-            >
-              <option value="all">Submitted + Reviewed</option>
-              <option value="submitted">Submitted</option>
-              <option value="reviewed">Reviewed</option>
-            </select>
-          </label>
+
+          {/* Secondary filters: collapsed on mobile by default */}
+          <div
+            className={`grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 ${
+              filtersOpen ? 'grid' : 'hidden sm:grid'
+            }`}
+          >
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Dari tanggal
+              </span>
+              <input
+                type="date"
+                value={filter.dateFrom}
+                onChange={(e) => setField('dateFrom', e.target.value)}
+                className={FIELD}
+              />
+            </label>
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Sampai tanggal
+              </span>
+              <input
+                type="date"
+                value={filter.dateTo}
+                onChange={(e) => setField('dateTo', e.target.value)}
+                className={FIELD}
+              />
+            </label>
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Zona
+              </span>
+              <select
+                value={filter.zona}
+                onChange={(e) => setField('zona', e.target.value)}
+                className={FIELD}
+              >
+                <option value="all">Semua zona</option>
+                {SURVEY_OPTIONS.lokasi_zona.map((z) => (
+                  <option key={z} value={z}>
+                    {z}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block min-w-0">
+              <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Kategori
+              </span>
+              <select
+                value={filter.kategori}
+                onChange={(e) => setField('kategori', e.target.value)}
+                className={FIELD}
+              >
+                <option value="all">Semua kategori</option>
+                {SURVEY_OPTIONS.kategori.map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block min-w-0 sm:col-span-2 xl:col-span-1">
+              <span className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                Status
+              </span>
+              <select
+                value={filter.status}
+                onChange={(e) => setField('status', e.target.value as ResultsFilter['status'])}
+                className={FIELD}
+              >
+                <option value="all">Submitted + Reviewed</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         {activeChips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-black/[0.04] px-3.5 py-2.5 dark:border-slate-700 sm:px-4">
-            <span className="mr-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-black/[0.04] px-3 py-2 dark:border-slate-700 sm:px-4 sm:py-2.5">
+            <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
               Aktif
             </span>
             {activeChips.map((c) => (
@@ -979,7 +1016,7 @@ export default function TenantSurveyResultsPage({
                 key={c.key}
                 type="button"
                 onClick={() => clearChip(c.key)}
-                className="ui-focus-ring inline-flex max-w-[220px] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
+                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
                 title="Hapus filter ini"
               >
                 <span className="truncate">{c.label}</span>
@@ -990,8 +1027,8 @@ export default function TenantSurveyResultsPage({
         )}
       </section>
 
-      {/* KPI strip — always visible */}
-      <section aria-label="Ringkasan KPI" className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI strip — always 2×2 on phone */}
+      <section aria-label="Ringkasan KPI" className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4">
         <KpiCard
           label="Total Submisi"
           value={agg.total}
@@ -1039,11 +1076,11 @@ export default function TenantSurveyResultsPage({
         />
       </section>
 
-      {/* Main tabs */}
+      {/* Main tabs — short labels on phone */}
       <div
         role="tablist"
         aria-label="Bagian konten"
-        className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 [-ms-overflow-style:none] [scrollbar-width:none] dark:border-slate-700 dark:bg-slate-800/60 [&::-webkit-scrollbar]:hidden"
+        className="grid grid-cols-4 gap-1 rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 dark:border-slate-700 dark:bg-slate-800/60"
       >
         {mainTabs.map((t) => {
           const active = mainTab === t.id;
@@ -1054,16 +1091,19 @@ export default function TenantSurveyResultsPage({
               role="tab"
               aria-selected={active}
               onClick={() => setMainTab(t.id)}
-              className={`ui-focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:flex-1 sm:justify-center sm:text-sm ${
+              className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
                 active
                   ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              <span className="truncate">{t.label}</span>
+              <span className="max-w-full truncate text-[11px] font-semibold leading-tight sm:text-xs">
+                <span className="sm:hidden">{t.shortLabel}</span>
+                <span className="hidden sm:inline">{t.label}</span>
+              </span>
               {typeof t.count === 'number' && (
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none ${
                     active
                       ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300'
                       : 'bg-slate-200/80 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
@@ -1220,11 +1260,11 @@ export default function TenantSurveyResultsPage({
             Tidak ada tenant di tab ini{rosterQ ? ' / hasil pencarian' : ''}.
           </p>
         ) : (
-          <ul className="max-h-[min(36rem,70vh)] divide-y divide-slate-100 overflow-y-auto overscroll-contain dark:divide-slate-800">
+          <ul className="max-h-[min(36rem,70dvh)] divide-y divide-slate-100 overflow-y-auto overscroll-contain dark:divide-slate-800">
             {checklistView.map((t) => (
               <li
                 key={t.id}
-                className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
+                className="flex items-center gap-2.5 px-3 py-2.5 transition hover:bg-slate-50/80 dark:gap-3 dark:hover:bg-slate-800/40 sm:px-4"
               >
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
@@ -1469,7 +1509,7 @@ export default function TenantSurveyResultsPage({
                 />
               </div>
             </div>
-            <div className="max-h-[min(40rem,75vh)] overflow-y-auto overscroll-contain p-3 sm:p-4">
+            <div className="max-h-[min(40rem,70dvh)] overflow-y-auto overscroll-contain p-2.5 sm:p-4">
               {feedbackFiltered.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center dark:border-slate-700">
                   <MessageSquareText
@@ -1479,22 +1519,24 @@ export default function TenantSurveyResultsPage({
                   <p className="mt-2 text-xs font-medium text-slate-500">Tidak ada feedback teks</p>
                 </div>
               ) : (
-                <ul className="grid gap-3">
+                <ul className="grid gap-2.5 sm:gap-3">
                   {feedbackFiltered.slice(0, 100).map((f) => (
                     <li
                       key={f.id}
-                      className="rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3 dark:border-slate-700/80 dark:bg-slate-800/40"
+                      className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5 dark:border-slate-700/80 dark:bg-slate-800/40 sm:px-3.5 sm:py-3"
                     >
-                      <div className="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-slate-400">
+                      <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-slate-400 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
                         <span className="font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                           {f.gerai}
                         </span>
-                        <span aria-hidden>·</span>
-                        <span className="truncate">
+                        <span className="hidden sm:inline" aria-hidden>
+                          ·
+                        </span>
+                        <span className="truncate text-slate-400">
                           {eventMap.get(f.event_id) || f.event_id}
                         </span>
                       </div>
-                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                      <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-slate-700 dark:text-slate-200 sm:text-sm">
                         {f.text}
                       </p>
                     </li>
@@ -1516,7 +1558,46 @@ export default function TenantSurveyResultsPage({
                 </span>
               </h3>
             </div>
-            <div className="max-h-[28rem] overflow-auto">
+            {/* Mobile cards + desktop table */}
+            <div className="divide-y divide-slate-100 dark:divide-slate-800 sm:hidden">
+              {agg.rows.slice(0, 100).map((s: TenantEventSurvey) => (
+                <article key={s.id} className="space-y-1.5 px-3 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 text-sm font-semibold text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
+                      {s.nama_gerai || s.tenant_name || '—'}
+                    </p>
+                    <StatusBadge status={s.status} />
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 [overflow-wrap:anywhere]">
+                    {eventMap.get(s.event_id) || s.event_id}
+                  </p>
+                  <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
+                    <div>
+                      <dt className="text-slate-400">Zona</dt>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.lokasi_zona || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">Kategori</dt>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300 [overflow-wrap:anywhere]">
+                        {s.kategori || '—'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">Traffic</dt>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_traffic || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">Sales</dt>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_sales || '—'}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+              {agg.rows.length === 0 && (
+                <p className="px-3 py-8 text-center text-xs text-slate-500">Tidak ada respons</p>
+              )}
+            </div>
+            <div className="hidden max-h-[28rem] overflow-auto sm:block">
               <table className="w-full min-w-[720px] text-left text-xs">
                 <thead className="sticky top-0 z-10">
                   <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">

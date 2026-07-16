@@ -773,7 +773,7 @@ export default function App() {
               </div>
             </header>
 
-            <div className="mx-auto max-w-7xl px-3 py-4 pb-10 sm:px-4 sm:py-6 sm:pb-12">
+            <div className="mx-auto max-w-7xl px-3 py-3 pb-16 sm:px-4 sm:py-6 sm:pb-12">
               <TenantSurveyResultsPage
                 events={events}
                 canExport={permissions.canExportTenantSurveyAnalytics}
