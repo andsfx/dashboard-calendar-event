@@ -21,7 +21,7 @@ import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
 import { CategoryBadges } from './CategoryBadges';
 import { CalendarView } from './CalendarView';
-import { PublicEventList } from './PublicEventList';
+import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityEyebrow } from './community/CommunityRevealPrimitives';
 
 interface Props {
@@ -333,11 +333,11 @@ export function EventsLandingPage({
             <a href="#featured" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Highlights
             </a>
-            <a href="#event-list" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Daftar
-            </a>
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
+            </a>
+            <a href="#register" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+              Daftar
             </a>
           </nav>
 
@@ -402,7 +402,7 @@ export function EventsLandingPage({
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
                 </a>
                 <a
-                  href="#event-list"
+                  href="#register"
                   className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
                 >
                   Daftar Event
@@ -418,16 +418,16 @@ export function EventsLandingPage({
                   Highlights
                 </a>
                 <a
-                  href="#event-list"
-                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
-                >
-                  Daftar
-                </a>
-                <a
                   href="#calendar"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
                   Calendar
+                </a>
+                <a
+                  href="#register"
+                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
+                >
+                  Daftar
                 </a>
               </nav>
             </div>
@@ -486,10 +486,10 @@ export function EventsLandingPage({
                 {railOverflow > 0 && (
                   <div className="mt-6 text-center">
                     <a
-                      href="#event-list"
+                      href="#calendar"
                       className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] transition hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                     >
-                      +{railOverflow} event lain di daftar event
+                      +{railOverflow} event lain di calendar
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </div>
@@ -498,27 +498,16 @@ export function EventsLandingPage({
             ) : !highlight ? null : (
               <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Lihat daftar event untuk jadwal lengkap.
+                  Lihat calendar untuk jadwal lengkap.
                 </p>
                 <a
-                  href="#event-list"
+                  href="#calendar"
                   className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
-                  Daftar Event <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  View Calendar <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Public event list — full scan/filter (past hidden by default) */}
-        <section
-          id="event-list"
-          className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32"
-          aria-labelledby="event-list-heading"
-        >
-          <div className="mx-auto max-w-7xl">
-            <PublicEventList events={events} isLoading={isLoading} onDetail={onDetail} />
           </div>
         </section>
 
@@ -542,6 +531,11 @@ export function EventsLandingPage({
             )}
           </div>
         </section>
+
+        {/* Community registration — same form as /community, scroll target #register */}
+        <div className="border-t border-black/5 dark:border-slate-800">
+          <CommunityRegistrationForm />
+        </div>
       </main>
 
       <footer className="border-t border-black/6 bg-[var(--color-neutral-page)] py-8 dark:border-slate-800 dark:bg-slate-950">
@@ -557,11 +551,11 @@ export function EventsLandingPage({
             <Link to="/gallery" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Gallery
             </Link>
-            <a href="#event-list" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Daftar
-            </a>
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
+            </a>
+            <a href="#register" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+              Daftar
             </a>
           </div>
         </div>
