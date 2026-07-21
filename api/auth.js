@@ -1,4 +1,5 @@
 import { getAnonSupabase, getServiceSupabase, verifySupabaseAuth, tryRefreshSession, getCookie, getAdminSessionToken, logActivity } from './_lib/auth.js';
+import { enforceRateLimit } from './_lib/rateLimit.js';
 
 /**
  * /api/auth?action=login   POST  — email+password login
@@ -96,6 +97,8 @@ export default async function handler(req, res) {
   // ── login ────────────────────────────────────────────────────────────
   if (action === 'login') {
     if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
+    // 20 attempts / 15 min per IP — blocks brute force (best-effort on serverless)
+    if (!enforceRateLimit(req, res, 'auth-login', 20, 15 * 60 * 1000)) return;
 
     const email = String(req.body?.email || '').trim().toLowerCase();
     const password = String(req.body?.password || '').trim();

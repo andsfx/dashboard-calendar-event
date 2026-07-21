@@ -1,4 +1,5 @@
 import { requireAuth } from './_lib/auth.js';
+import { validateExistingKey } from './_lib/r2Key.js';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const R2 = new S3Client({
@@ -18,16 +19,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { fileName } = req.body;
-    if (!fileName) {
-      return res.status(400).json({ success: false, error: 'Missing fileName' });
+    const { fileName } = req.body || {};
+    const safe = validateExistingKey(fileName);
+    if (!safe.ok) {
+      return res.status(400).json({ success: false, error: safe.error });
     }
 
     const bucket = process.env.R2_BUCKET_NAME || 'metmal-gallery';
 
     await R2.send(new DeleteObjectCommand({
       Bucket: bucket,
-      Key: fileName,
+      Key: safe.key,
     }));
 
     res.status(200).json({ success: true });

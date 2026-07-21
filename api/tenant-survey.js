@@ -1,4 +1,5 @@
 import { getServiceSupabase, getAnonSupabase, requireAuth } from './_lib/auth.js';
+import { enforceRateLimit } from './_lib/rateLimit.js';
 import { SURVEY_OPTIONS } from '../src/constants/survey-options.js';
 
 /**
@@ -594,6 +595,8 @@ async function handlePublicCheck(req, res) {
 
 async function handlePublicSubmit(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // 15 submissions / 15 min per IP
+  if (!enforceRateLimit(req, res, 'tenant-survey-submit', 15, 15 * 60 * 1000)) return;
 
   const body = req.body || {};
 

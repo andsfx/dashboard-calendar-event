@@ -480,6 +480,29 @@ export async function deleteEventPhoto(id: string, url: string): Promise<void> {
   if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
 }
 
+export async function createEventPhotoRecord(data: {
+  url: string;
+  caption?: string;
+  event_id?: string;
+  event_date?: string;
+  sort_order?: number;
+}): Promise<{ id: string; sortOrder: number }> {
+  const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
+    'createEventPhoto',
+    { data }
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
+  return { id: result.id || '', sortOrder: result.sortOrder || 0 };
+}
+
+export async function linkAlbumToEvent(albumId: string, eventId: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('linkAlbumToEvent', {
+    id: albumId,
+    eventId,
+  });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Link album failed');
+}
+
 export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateEventPhotoOrder', { data: photos });
   if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
@@ -583,16 +606,17 @@ export async function setAlbumCover(albumId: string, coverPhotoUrl: string): Pro
   if (!result.success) throw new SupabaseApiError(result.error || 'Set cover failed');
 }
 
-export async function uploadToR2(file: File): Promise<string> {
-  const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `gallery/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
-
-  // Step 1: Get presigned upload URL from server
+export async function uploadToR2(file: File, folder = 'gallery/'): Promise<string> {
+  // Step 1: Get presigned upload URL from server (server builds safe key)
   const presignRes = await fetch('/api/r2-upload', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ fileName, contentType: file.type }),
+    body: JSON.stringify({
+      folder,
+      originalName: file.name,
+      contentType: file.type,
+    }),
   });
 
   const presignResult = await presignRes.json();

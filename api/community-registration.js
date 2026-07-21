@@ -1,4 +1,5 @@
 import { getServiceSupabase } from './_lib/auth.js';
+import { enforceRateLimit } from './_lib/rateLimit.js';
 
 /**
  * POST /api/community-registration
@@ -301,12 +302,15 @@ export default async function handler(req, res) {
   
   // Only allow POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
+    return res.status(405).json({
       success: false,
-      error: 'Method not allowed' 
+      error: 'Method not allowed'
     });
   }
-  
+
+  // 10 submissions / 15 min per IP
+  if (!enforceRateLimit(req, res, 'community-registration', 10, 15 * 60 * 1000)) return;
+
   try {
     const body = req.body || {};
     const errors = {};
