@@ -485,7 +485,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Tipe acara */}
           <div className="space-y-2">
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
+            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
             <div className="flex flex-wrap gap-2">
               {([
                 { value: 'single', label: 'Acara biasa' },
@@ -569,19 +569,19 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Keterangan */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
+            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
             <textarea
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Deskripsi singkat tentang acara..."
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
           {/* Poster / Flyer */}
           <div>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
               <Image className="h-3.5 w-3.5 text-emerald-500" />
               Poster / Flyer Event
             </label>

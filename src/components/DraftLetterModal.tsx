@@ -319,7 +319,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const renderReviewCard = () => (
     <aside className="rounded-2xl border border-brand-primary-100 bg-brand-primary-50/60 p-4 dark:border-brand-primary-500/30 dark:bg-brand-primary-950/20">
       <div className="mb-4 flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
           <FileText className="h-5 w-5 text-white" />
         </div>
         <div>

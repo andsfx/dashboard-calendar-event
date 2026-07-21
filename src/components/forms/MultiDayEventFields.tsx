@@ -31,16 +31,16 @@ export function MultiDayEventFields({
   const datalistId = isDraft ? 'draft' : 'event';
 
   return (
-    <div className="space-y-4 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
+    <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
           Tanggal Selesai <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           value={dateEnd}
           onChange={e => onDateEndChange(e.target.value)}
-          className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
+          className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
             errors.dateEnd
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
@@ -50,7 +50,7 @@ export function MultiDayEventFields({
       </div>
 
       {dayTimeSlots.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Jam per hari:</p>
           {dayTimeSlots.map((slot, idx) => {
             const date = parseDateStrLocal(slot.date);

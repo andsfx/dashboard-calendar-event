@@ -145,26 +145,24 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="reg-detail-title">
       <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="relative px-4 pb-5 pt-6 sm:px-6 shrink-0 border-b-[3px] border-brand-primary-500/30 bg-gradient-to-br from-brand-primary-500/[0.13] to-brand-primary-500/[0.03]">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary-500 to-brand-primary-500/30" />
-
+        <div className="relative shrink-0 border-b border-slate-100 bg-brand-primary-50 px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-brand-primary-950/30">
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-xl p-2 text-slate-400 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-3 rounded-xl p-2 text-slate-400 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
           </button>
 
           <div className="flex items-center gap-3 pr-8 sm:pr-10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 text-white shadow-lg">
-              <Users className="h-5 w-5" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary-600 text-white">
+              <Users className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <h2 id="reg-detail-title" className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
+              <h2 id="reg-detail-title" className="font-bold text-slate-800 dark:text-white">
                 Detail Pendaftaran
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{registration.organizationName || registration.communityName}</p>
+              <p className="truncate text-xs text-slate-400">{registration.organizationName || registration.communityName}</p>
             </div>
           </div>
         </div>

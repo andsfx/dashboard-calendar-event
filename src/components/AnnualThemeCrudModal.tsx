@@ -100,28 +100,28 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
           closeAriaLabel="Tutup"
         />
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:px-6">
+        <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Tema <span className="text-red-500">*</span></label>
-            <input value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Tema <span className="text-red-500">*</span></label>
+            <input value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
             {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date Start <span className="text-red-500">*</span></label>
-              <input type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date Start <span className="text-red-500">*</span></label>
+              <input type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateStart && <p className="mt-1 text-xs text-red-500">{errors.dateStart}</p>}
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date End <span className="text-red-500">*</span></label>
-              <input type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date End <span className="text-red-500">*</span></label>
+              <input type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Warna Tema <span className="text-red-500">*</span></label>
+            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Warna Tema <span className="text-red-500">*</span></label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {COLOR_OPTIONS.map(option => {
                 const isSelected = form.color === option.value;
@@ -141,11 +141,11 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
             {errors.color && <p className="mt-1 text-xs text-red-500">{errors.color}</p>}
           </div>
 
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+          <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
               Batal
             </button>
-            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
+            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan...' : editingTheme ? 'Simpan Tema' : 'Tambah Tema'}
             </button>

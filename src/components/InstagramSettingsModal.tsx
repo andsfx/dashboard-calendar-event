@@ -109,7 +109,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
         />
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5 px-4 py-5 sm:px-6">
+        <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           {/* Hero Background Image */}
           <div className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hero Background</p>
@@ -169,7 +169,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Instagram Gallery</p>
           {[0, 1, 2].map(i => (
             <div key={i}>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                 <Globe className="h-3.5 w-3.5" />
                 Post {i + 1}:
               </label>
@@ -177,7 +177,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 value={postUrls[i]}
                 onChange={e => setUrl(i, e.target.value)}
                 placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
             </div>
           ))}

@@ -32,14 +32,14 @@ export function RecurringEventFields({
   isDraft = false,
 }: RecurringEventFieldsProps) {
   return (
-    <div className="space-y-4 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
+    <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       {/* Frequency selector */}
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
+        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
         <select
           value={recurrenceFrequency}
           onChange={e => onFieldChange('recurrenceFrequency', e.target.value)}
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
         >
           <option value="weekly">Setiap minggu</option>
           <option value="biweekly">Setiap 2 minggu</option>
@@ -51,7 +51,7 @@ export function RecurringEventFields({
       {/* Days of week for weekly/biweekly */}
       {(recurrenceFrequency === 'weekly' || recurrenceFrequency === 'biweekly') && (
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari</label>
           <div className="flex flex-wrap gap-2">
             {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, idx) => (
               <button
@@ -75,14 +75,14 @@ export function RecurringEventFields({
       {/* Day of month for monthly */}
       {recurrenceFrequency === 'monthly' && (
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
           <input
             type="number"
             min={1}
             max={31}
             value={recurrenceDayOfMonth}
             onChange={e => onFieldChange('recurrenceDayOfMonth', e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           />
         </div>
       )}
@@ -90,27 +90,27 @@ export function RecurringEventFields({
       {/* Interval for custom */}
       {recurrenceFrequency === 'custom' && (
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
           <input
             type="number"
             min={1}
             value={recurrenceInterval}
             onChange={e => onFieldChange('recurrenceInterval', e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           />
         </div>
       )}
 
       {/* End date */}
       <div>
-        <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
           Sampai tanggal <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           value={recurrenceEndDate}
           onChange={e => onFieldChange('recurrenceEndDate', e.target.value)}
-          className={`w-full rounded-xl border bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
+          className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
             errors.recurrenceEndDate
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'

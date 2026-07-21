@@ -52,7 +52,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
 
         {/* Brand */}
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/40">
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/40">
             <CalendarDays className="h-5 w-5 text-white" />
             {/* Live events indicator */}
             {ongoingCount > 0 && (

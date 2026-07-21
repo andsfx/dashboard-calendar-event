@@ -346,7 +346,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
           }
         />
 
-        <div className="space-y-5 px-4 py-5 sm:px-6">
+        <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Error message */}
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">

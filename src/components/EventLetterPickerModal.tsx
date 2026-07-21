@@ -46,14 +46,14 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
           closeAriaLabel="Tutup"
         />
 
-        <div className="space-y-4 px-4 py-5 sm:px-6">
+        <div className="space-y-3 px-4 py-4 sm:px-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari event, lokasi, atau EO"
-              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
