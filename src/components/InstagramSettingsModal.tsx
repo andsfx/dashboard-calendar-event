@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Save, X, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
+import { Settings, Save, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ModalWrapper } from './ModalWrapper';
+import { ModalHeader } from './ui/ModalHeader';
 
 interface Props {
   isOpen: boolean;
@@ -98,25 +99,14 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg">
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
-              <Settings className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-800 dark:text-white">Landing Page Settings</p>
-              <p className="text-xs text-slate-400">Hero background & Instagram gallery</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <ModalHeader
+          title="Landing Page Settings"
+          subtitle="Hero background & Instagram gallery"
+          icon={<Settings />}
+          onClose={onClose}
+          closeDisabled={isSubmitting}
+          closeAriaLabel="Tutup"
+        />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5 px-4 py-5 sm:px-6">

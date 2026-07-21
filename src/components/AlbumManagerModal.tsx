@@ -3,6 +3,7 @@ import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } 
 import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
+import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
 
 interface Props {
@@ -321,38 +322,29 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="album-manager-title">
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            {view === 'detail' && (
+        <ModalHeader
+          titleId="album-manager-title"
+          title={view === 'list' ? 'Album Gallery' : selectedAlbum?.name || 'Detail Album'}
+          subtitle={
+            view === 'list'
+              ? 'Kelola album foto event'
+              : `${albumPhotos.length} / ${MAX_PHOTOS} foto`
+          }
+          icon={<ImageIcon />}
+          onClose={onClose}
+          closeAriaLabel="Tutup"
+          leading={
+            view === 'detail' ? (
               <button
+                type="button"
                 onClick={goBackToList}
                 className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-            )}
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
-              <ImageIcon className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p id="album-manager-title" className="font-bold text-slate-800 dark:text-white">
-                {view === 'list' ? 'Album Gallery' : selectedAlbum?.name || 'Detail Album'}
-              </p>
-              <p className="text-xs text-slate-400">
-                {view === 'list'
-                  ? 'Kelola album foto event'
-                  : `${albumPhotos.length} / ${MAX_PHOTOS} foto`}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+            ) : undefined
+          }
+        />
 
         <div className="space-y-5 px-4 py-5 sm:px-6">
           {/* Error message */}

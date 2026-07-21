@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, FileText, MapPin, Search, X } from 'lucide-react';
+import { CalendarDays, FileText, MapPin, Search } from 'lucide-react';
 import { EventItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
+import { ModalHeader } from './ui/ModalHeader';
 
 interface Props {
   isOpen: boolean;
@@ -36,20 +37,14 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="letter-picker-title">
       <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
-              <FileText className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p id="letter-picker-title" className="font-bold text-slate-800 dark:text-white">Pilih Event Untuk Surat</p>
-              <p className="text-xs text-slate-400">Pilih event terlebih dahulu sebelum mengisi form surat.</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <ModalHeader
+          titleId="letter-picker-title"
+          title="Pilih Event Untuk Surat"
+          subtitle="Pilih event terlebih dahulu sebelum mengisi form surat."
+          icon={<FileText />}
+          onClose={onClose}
+          closeAriaLabel="Tutup"
+        />
 
         <div className="space-y-4 px-4 py-5 sm:px-6">
           <div className="relative">

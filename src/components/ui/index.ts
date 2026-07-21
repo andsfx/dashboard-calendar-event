@@ -6,6 +6,7 @@ export * from './Select';
 export * from './Checkbox';
 export * from './Layout';
 export * from './Modal';
+export * from './ModalHeader';
 export * from './Navbar';
 export * from './Content';
 export * from './Footer';

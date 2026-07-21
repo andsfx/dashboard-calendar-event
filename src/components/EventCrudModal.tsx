@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
+import { Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
 import { parseDateStrLocal, getDateRange, createRecurringEvents } from '../utils/eventUtils';
 import { uploadToR2 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
+import { ModalHeader } from './ui/ModalHeader';
 import { EventFormBasicFields } from './forms/EventFormBasicFields';
 import { EventFormDetailsFields } from './forms/EventFormDetailsFields';
 import { EventFormModelFields } from './forms/EventFormModelFields';
@@ -457,29 +458,18 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800"
         tabIndex={-1}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600">
-              <Calendar className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p id="event-crud-title" className="font-bold text-slate-800 dark:text-white">{isEdit ? 'Edit Acara' : 'Tambah Acara Baru'}</p>
-              <p className="text-xs text-slate-400">{isEdit ? `Mengubah: ${editingEvent.acara}` : 'Isi detail acara di bawah'}</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            aria-label="Tutup"
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <ModalHeader
+          titleId="event-crud-title"
+          title={isEdit ? 'Edit Acara' : 'Tambah Acara Baru'}
+          subtitle={isEdit ? `Mengubah: ${editingEvent.acara}` : 'Isi detail acara di bawah'}
+          icon={<Calendar />}
+          onClose={onClose}
+          closeDisabled={isSubmitting}
+          closeAriaLabel="Tutup"
+        />
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 px-4 py-5 sm:px-6">
+        <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <EventFormBasicFields
             dateStr={form.dateStr}
             jam={form.jam}
@@ -496,13 +486,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
           {/* Tipe acara */}
           <div className="space-y-2">
             <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {([
                 { value: 'single', label: 'Acara biasa' },
                 { value: 'multi_day', label: 'Rangkaian acara' },
                 { value: 'recurring', label: 'Event reguler' },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
+                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
                   form.eventType === opt.value
                     ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'
@@ -583,7 +573,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             <textarea
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
-              rows={3}
+              rows={2}
               placeholder="Deskripsi singkat tentang acara..."
               className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
@@ -629,7 +619,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 type="button"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-6 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
               >
                 {posterUploading ? (
                   <>
@@ -656,19 +646,19 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          <div className="flex flex-col gap-2 pt-1 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}

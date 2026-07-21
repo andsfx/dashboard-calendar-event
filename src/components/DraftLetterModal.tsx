@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, Check, ChevronLeft, ChevronRight, FileText, Save, X } from 'lucide-react';
+import { AlertCircle, Check, ChevronLeft, ChevronRight, FileText, Save } from 'lucide-react';
 import { LetterRequestItem } from '../types';
 import { ModalWrapper } from './ModalWrapper';
+import { ModalHeader } from './ui/ModalHeader';
 
 interface Props {
   isOpen: boolean;
@@ -414,20 +415,15 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-5xl" ariaLabelledBy="draft-letter-title">
       <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-100 bg-[var(--brand-card-light)] px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary-500 to-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/30">
-              <FileText className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p id="draft-letter-title" className="font-bold text-slate-800 dark:text-white">Form Surat Izin Konfirmasi Event</p>
-              <p className="text-xs text-slate-400">Data dikirim ke spreadsheet AutoCrat untuk proses dokumen.</p>
-            </div>
-          </div>
-          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup form surat">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <ModalHeader
+          titleId="draft-letter-title"
+          title="Form Surat Izin Konfirmasi Event"
+          subtitle="Data dikirim ke spreadsheet AutoCrat untuk proses dokumen."
+          icon={<FileText />}
+          onClose={onClose}
+          closeAriaLabel="Tutup form surat"
+          className="bg-[var(--brand-card-light)] dark:bg-slate-800"
+        />
 
         {renderStepIndicator()}
 

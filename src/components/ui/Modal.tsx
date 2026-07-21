@@ -93,17 +93,21 @@ export function Modal({
   );
 }
 
-export interface ModalHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+/** @deprecated Prefer named chrome header from `./ModalHeader` for admin modals */
+export interface ModalSectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function ModalHeader({ children, className, ...props }: ModalHeaderProps) {
+export function ModalSectionHeader({ children, className, ...props }: ModalSectionHeaderProps) {
   return (
     <div className={cn('mb-6', className)} {...props}>
       {children}
     </div>
   );
 }
+
+export { ModalHeader } from './ModalHeader';
+export type { ModalChromeHeaderProps as ModalHeaderProps } from './ModalHeader';
 
 export interface ModalFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
