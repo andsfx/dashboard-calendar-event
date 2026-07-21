@@ -1,22 +1,40 @@
-import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
+import { getServiceSupabase, logActivity } from './_lib/auth.js';
+import { enforceRateLimit } from './_lib/rateLimit.js';
 
 /**
  * POST /api/auth-seed
- * 
+ *
  * Create the first superadmin account. Only works if no superadmin exists yet.
- * After first use, this endpoint is locked.
- * 
- * Body: { email, password, display_name }
+ * Always requires SEED_SECRET (header x-seed-secret or body.seed_secret).
+ *
+ * Body: { email, password, display_name, seed_secret? }
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
+  if (!enforceRateLimit(req, res, 'auth-seed', 5, 60 * 60 * 1000)) return;
+
+  const expectedSeed = String(process.env.SEED_SECRET || '').trim();
+  if (!expectedSeed) {
+    return res.status(503).json({
+      success: false,
+      error: 'SEED_SECRET belum dikonfigurasi. Endpoint seed dinonaktifkan.',
+    });
+  }
+
+  const provided =
+    String(req.headers['x-seed-secret'] || '').trim() ||
+    String(req.body?.seed_secret || '').trim();
+
+  if (!provided || provided !== expectedSeed) {
+    return res.status(403).json({ success: false, error: 'Seed secret tidak valid' });
+  }
+
   try {
     const sb = getServiceSupabase();
 
-    // Check if any superadmin already exists
     const { data: existingSuperadmins, error: checkError } = await sb
       .from('users')
       .select('id')
@@ -50,11 +68,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // 1. Create Supabase Auth user
     const { data: authData, error: authError } = await sb.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Skip email verification for seed
+      email_confirm: true,
     });
 
     if (authError) {
@@ -64,7 +81,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2. Insert into users table
     const { data: dbUser, error: dbError } = await sb
       .from('users')
       .insert({
@@ -78,7 +94,6 @@ export default async function handler(req, res) {
       .single();
 
     if (dbError) {
-      // Rollback: delete auth user
       await sb.auth.admin.deleteUser(authData.user.id).catch(() => {});
       return res.status(500).json({
         success: false,
@@ -86,7 +101,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3. Log activity
     await logActivity(
       { user: dbUser, legacy: false },
       'seed_superadmin',

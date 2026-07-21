@@ -333,6 +333,22 @@ export default async function handler(req, res) {
         result = { success: true };
         break;
       }
+      case 'linkAlbumToEvent': {
+        const albumId = req.body.id || req.body.albumId;
+        const eventId = req.body.eventId || req.body.event_id;
+        if (!albumId || !eventId) {
+          result = { success: false, error: 'albumId and eventId required' };
+          break;
+        }
+        const { error } = await sb
+          .from('photo_albums')
+          .update({ event_id: eventId })
+          .eq('id', albumId);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'link_album_event', 'album', albumId, { event_id: eventId }, req);
+        break;
+      }
 
       default:
         result = { success: false, error: `Unknown action: ${action}` };

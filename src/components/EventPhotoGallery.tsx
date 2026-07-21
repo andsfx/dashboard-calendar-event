@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Camera, Upload, Trash2, Loader2, X, ImagePlus, Link2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import {
+  uploadToR2,
+  createEventPhotoRecord,
+  deleteEventPhoto,
+  linkAlbumToEvent,
+  fetchAlbums,
+} from '../utils/supabaseApi';
 import type { PhotoAlbum } from '../types';
 
 interface EventPhoto {
@@ -27,7 +34,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
 
-  // Fetch photos + linked album
+  // Reads stay on anon client (SELECT only — RLS must allow public read)
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
     try {
@@ -36,76 +43,78 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
         supabase.from('photo_albums').select('*').eq('event_id', eventId).limit(1).single(),
       ]);
       setPhotos(photosRes.data || []);
-      setLinkedAlbum(albumRes.data || null);
+      const row = albumRes.data;
+      setLinkedAlbum(
+        row
+          ? {
+              id: row.id,
+              name: row.name,
+              slug: row.slug,
+              description: row.description || '',
+              eventDate: row.event_date || '',
+              coverPhotoUrl: row.cover_photo_url || '',
+              sortOrder: row.sort_order || 0,
+              eventId: row.event_id || '',
+              lokasi: row.lokasi || '',
+              themeId: row.theme_id || '',
+            }
+          : null
+      );
     } catch { /* ignore */ }
     finally { setLoading(false); }
   }, [eventId]);
 
   useEffect(() => { fetchPhotos(); }, [fetchPhotos]);
 
-  // Upload photo
+  // Writes go through auth'd admin proxy + R2 presign
   const handleUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
 
     try {
       for (const file of Array.from(files).slice(0, 10)) {
-        // Get presigned URL from R2
-        const token = getToken();
-        const ext = file.name.split('.').pop() || 'jpg';
-        const fileName = `events/${eventId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-        const presignRes = await fetch('/api/r2-upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ fileName, contentType: file.type }),
-        });
-        const presignData = await presignRes.json();
-        if (!presignData.success) continue;
-
-        // Upload to R2
-        await fetch(presignData.uploadUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': file.type },
-          body: file,
-        });
-
-        // Save to database
-        await supabase.from('event_photos').insert({
-          url: presignData.publicUrl,
+        const url = await uploadToR2(file, `events/${eventId}/`);
+        await createEventPhotoRecord({
+          url,
           caption: '',
           event_id: eventId,
           event_date: '',
-          sort_order: photos.length,
         });
       }
-      fetchPhotos();
-    } catch { /* ignore */ }
-    finally { setUploading(false); }
-  }, [eventId, photos.length, fetchPhotos]);
-
-  // Delete photo
-  const handleDelete = useCallback(async (photoId: string) => {
-    if (!confirm('Hapus foto ini?')) return;
-    await supabase.from('event_photos').delete().eq('id', photoId);
-    fetchPhotos();
-  }, [fetchPhotos]);
-
-  // Link existing album
-  const handleLinkAlbum = useCallback(async (albumId: string) => {
-    const token = getToken();
-    // Update album's event_id
-    await supabase.from('photo_albums').update({ event_id: eventId }).eq('id', albumId);
-    setShowLinkForm(false);
-    fetchPhotos();
+      await fetchPhotos();
+    } catch (err) {
+      console.error('[EventPhotoGallery] upload failed:', err);
+    } finally {
+      setUploading(false);
+    }
   }, [eventId, fetchPhotos]);
 
-  // Fetch all albums for linking
+  const handleDelete = useCallback(async (photoId: string) => {
+    if (!confirm('Hapus foto ini?')) return;
+    const photo = photos.find((p) => p.id === photoId);
+    try {
+      await deleteEventPhoto(photoId, photo?.url || '');
+      await fetchPhotos();
+    } catch (err) {
+      console.error('[EventPhotoGallery] delete failed:', err);
+    }
+  }, [photos, fetchPhotos]);
+
+  const handleLinkAlbum = useCallback(async (albumId: string) => {
+    try {
+      await linkAlbumToEvent(albumId, eventId);
+      setShowLinkForm(false);
+      await fetchPhotos();
+    } catch (err) {
+      console.error('[EventPhotoGallery] link album failed:', err);
+    }
+  }, [eventId, fetchPhotos]);
+
   useEffect(() => {
     if (!showLinkForm) return;
-    supabase.from('photo_albums').select('*').order('created_at', { ascending: false }).then(({ data }) => {
-      setAlbums(data || []);
-    });
+    fetchAlbums()
+      .then(setAlbums)
+      .catch(() => setAlbums([]));
   }, [showLinkForm]);
 
   if (loading) {
@@ -306,11 +315,3 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
   );
 }
 
-function getToken(): string {
-  try {
-    const keys = Object.keys(localStorage);
-    const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-    if (sbKey) { return JSON.parse(localStorage.getItem(sbKey) || '{}').access_token || ''; }
-  } catch {}
-  return '';
-}

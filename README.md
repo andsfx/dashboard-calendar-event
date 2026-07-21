@@ -55,7 +55,7 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - **Venue Management** - Approval & monitoring feedback
 
 ### Admin Mode
-- Login dengan password (`admin123`)
+- Login dengan email + password (Supabase Auth; legacy password off by default)
 - Tambah event baru
 - Edit event
 - Hapus event

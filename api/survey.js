@@ -1,4 +1,5 @@
 import { getServiceSupabase, getAnonSupabase, requireAuth } from './_lib/auth.js';
+import { enforceRateLimit } from './_lib/rateLimit.js';
 
 /**
  * /api/survey — Unified survey endpoint
@@ -91,6 +92,8 @@ function validateSubmission(body) {
 
 async function handleSubmit(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // 20 submissions / 15 min per IP
+  if (!enforceRateLimit(req, res, 'survey-submit', 20, 15 * 60 * 1000)) return;
 
   const body = req.body || {};
 
