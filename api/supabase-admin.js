@@ -1,4 +1,13 @@
 import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
+import {
+  pickFields,
+  pickFieldsMany,
+  EVENT_FIELDS,
+  DRAFT_FIELDS,
+  THEME_FIELDS,
+  ALBUM_FIELDS,
+  EVENT_PHOTO_FIELDS,
+} from './_lib/pickFields.js';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const R2 = new S3Client({
@@ -48,18 +57,20 @@ export default async function handler(req, res) {
     switch (action) {
       // ---- Events ----
       case 'createEvent': {
-        const { data, error } = await sb.from('events').insert(req.body.data).select('id').single();
+        const eventData = pickFields(req.body.data, EVENT_FIELDS);
+        const { data, error } = await sb.from('events').insert(eventData).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
-        await logActivity(authInfo, 'create_event', 'event', data.id, { acara: req.body.data?.acara }, req);
+        await logActivity(authInfo, 'create_event', 'event', data.id, { acara: eventData.acara }, req);
         break;
       }
       case 'updateEvent': {
         if (!req.body.id) return res.status(400).json({ success: false, error: 'Event ID is required' });
-        const { error } = await sb.from('events').update(req.body.data).eq('id', req.body.id);
+        const eventData = pickFields(req.body.data, EVENT_FIELDS);
+        const { error } = await sb.from('events').update(eventData).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
-        await logActivity(authInfo, 'update_event', 'event', req.body.id, { fields: Object.keys(req.body.data || {}) }, req);
+        await logActivity(authInfo, 'update_event', 'event', req.body.id, { fields: Object.keys(eventData) }, req);
         break;
       }
       case 'deleteEvent': {
@@ -71,8 +82,8 @@ export default async function handler(req, res) {
         break;
       }
       case 'batchCreateEvents': {
-        const rows = req.body.data;
-        if (!Array.isArray(rows) || rows.length === 0) {
+        const rows = pickFieldsMany(req.body.data, EVENT_FIELDS);
+        if (!Array.isArray(req.body.data) || rows.length === 0) {
           result = { success: false, error: 'No events data provided' };
           break;
         }
@@ -98,15 +109,17 @@ export default async function handler(req, res) {
 
       // ---- Annual Themes ----
       case 'createTheme': {
-        const { data, error } = await sb.from('annual_themes').insert(req.body.data).select('id').single();
+        const themeData = pickFields(req.body.data, THEME_FIELDS);
+        const { data, error } = await sb.from('annual_themes').insert(themeData).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
-        await logActivity(authInfo, 'create_theme', 'theme', data.id, { name: req.body.data?.name }, req);
+        await logActivity(authInfo, 'create_theme', 'theme', data.id, { name: themeData.name }, req);
         break;
       }
       case 'updateTheme': {
         if (!req.body.id) return res.status(400).json({ success: false, error: 'Theme ID is required' });
-        const { error } = await sb.from('annual_themes').update(req.body.data).eq('id', req.body.id);
+        const themeData = pickFields(req.body.data, THEME_FIELDS);
+        const { error } = await sb.from('annual_themes').update(themeData).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
         await logActivity(authInfo, 'update_theme', 'theme', req.body.id, null, req);
@@ -129,15 +142,17 @@ export default async function handler(req, res) {
         break;
       }
       case 'createDraft': {
-        const { data, error } = await sb.from('draft_events').insert(req.body.data).select('id').single();
+        const draftData = pickFields(req.body.data, DRAFT_FIELDS);
+        const { data, error } = await sb.from('draft_events').insert(draftData).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
-        await logActivity(authInfo, 'create_draft', 'draft', data.id, { acara: req.body.data?.acara }, req);
+        await logActivity(authInfo, 'create_draft', 'draft', data.id, { acara: draftData.acara }, req);
         break;
       }
       case 'updateDraft': {
         if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
-        const { error } = await sb.from('draft_events').update(req.body.data).eq('id', req.body.id);
+        const draftData = pickFields(req.body.data, DRAFT_FIELDS);
+        const { error } = await sb.from('draft_events').update(draftData).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
         await logActivity(authInfo, 'update_draft', 'draft', req.body.id, null, req);
@@ -240,10 +255,11 @@ export default async function handler(req, res) {
 
       // ---- Photo Albums ----
       case 'createAlbum': {
-        const { data, error } = await sb.from('photo_albums').insert(req.body.data).select('id').single();
+        const albumData = pickFields(req.body.data, ALBUM_FIELDS);
+        const { data, error } = await sb.from('photo_albums').insert(albumData).select('id').single();
         if (error) throw error;
         result = { success: true, id: data.id };
-        await logActivity(authInfo, 'create_album', 'album', data.id, { title: req.body.data?.title }, req);
+        await logActivity(authInfo, 'create_album', 'album', data.id, { name: albumData.name }, req);
         break;
       }
       case 'deleteAlbum': {
@@ -270,9 +286,10 @@ export default async function handler(req, res) {
         break;
       }
       case 'createAlbumPhoto': {
-        const { data: maxData } = await sb.from('event_photos').select('sort_order').eq('album_id', req.body.data.album_id).order('sort_order', { ascending: false }).limit(1);
+        const photoIn = pickFields(req.body.data, EVENT_PHOTO_FIELDS);
+        const { data: maxData } = await sb.from('event_photos').select('sort_order').eq('album_id', photoIn.album_id).order('sort_order', { ascending: false }).limit(1);
         const nextOrder = (maxData?.[0]?.sort_order ?? -1) + 1;
-        const photoRow = { ...req.body.data, sort_order: nextOrder };
+        const photoRow = { ...photoIn, sort_order: nextOrder };
         const { data, error } = await sb.from('event_photos').insert(photoRow).select('id, sort_order').single();
         if (error) throw error;
         result = { success: true, id: data.id, sortOrder: data.sort_order };
@@ -304,10 +321,13 @@ export default async function handler(req, res) {
 
       // ---- Event Photos ----
       case 'createEventPhoto': {
-        // Get current max sort_order
-        const { data: maxData } = await sb.from('event_photos').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+        const photoIn = pickFields(req.body.data, EVENT_PHOTO_FIELDS);
+        const scope = photoIn.event_id
+          ? sb.from('event_photos').select('sort_order').eq('event_id', photoIn.event_id)
+          : sb.from('event_photos').select('sort_order');
+        const { data: maxData } = await scope.order('sort_order', { ascending: false }).limit(1);
         const nextOrder = (maxData?.[0]?.sort_order ?? -1) + 1;
-        const photoRow = { ...req.body.data, sort_order: nextOrder };
+        const photoRow = { ...photoIn, sort_order: nextOrder };
         const { data, error } = await sb.from('event_photos').insert(photoRow).select('id, sort_order').single();
         if (error) throw error;
         result = { success: true, id: data.id, sortOrder: data.sort_order };
