@@ -1,22 +1,22 @@
 .reveal-on-scroll {
-  --reveal-distance: 48px;
-  --reveal-stagger-step: 80ms;
+  --reveal-distance: 16px;
+  --reveal-stagger-step: 50ms;
 }
 
 .reveal-stage {
   opacity: 0;
   transform: translateY(var(--reveal-distance));
   transition:
-    opacity 880ms var(--ease-out-expo),
-    transform 880ms var(--ease-out-expo);
+    opacity 240ms var(--ease-out-expo),
+    transform 240ms var(--ease-out-expo);
 }
 
 .reveal-stage > * {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(12px);
   transition:
-    opacity 760ms var(--ease-out-expo),
-    transform 760ms var(--ease-out-expo);
+    opacity 220ms var(--ease-out-expo),
+    transform 220ms var(--ease-out-expo);
 }
 
 .reveal-visible .reveal-stage,
@@ -37,42 +37,57 @@
 .reveal-visible .reveal-stage > *:nth-child(9) { transition-delay: calc(var(--reveal-stagger-step) * 9); }
 .reveal-visible .reveal-stage > *:nth-child(10) { transition-delay: calc(var(--reveal-stagger-step) * 10); }
 
+/* Keep class for intensity="strong" API — timings match default after Path A retime */
 .reveal-strong {
-  --reveal-distance: 56px;
-  --reveal-stagger-step: 110ms;
+  --reveal-distance: 16px;
+  --reveal-stagger-step: 50ms;
 }
 
 .reveal-strong .reveal-stage {
   transform: translateY(var(--reveal-distance));
   transition:
-    opacity 860ms var(--ease-out-expo),
-    transform 860ms var(--ease-out-expo);
+    opacity 240ms var(--ease-out-expo),
+    transform 240ms var(--ease-out-expo);
 }
 
 .reveal-strong .reveal-stage > * {
-  transform: translateY(20px);
+  transform: translateY(12px);
   transition:
-    opacity 760ms var(--ease-out-expo),
-    transform 760ms var(--ease-out-expo);
+    opacity 220ms var(--ease-out-expo),
+    transform 220ms var(--ease-out-expo);
 }
 
 .reveal-cluster > * {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(12px);
   transition:
-    opacity 860ms var(--ease-out-expo),
-    transform 860ms var(--ease-out-expo);
+    opacity 220ms var(--ease-out-expo),
+    transform 220ms var(--ease-out-expo);
 }
 
-.reveal-visible .reveal-cluster > *:nth-child(1) { transition-delay: 140ms; }
-.reveal-visible .reveal-cluster > *:nth-child(2) { transition-delay: 260ms; }
-.reveal-visible .reveal-cluster > *:nth-child(3) { transition-delay: 380ms; }
-.reveal-visible .reveal-cluster > *:nth-child(4) { transition-delay: 500ms; }
+.reveal-visible .reveal-cluster > *:nth-child(1) { transition-delay: 50ms; }
+.reveal-visible .reveal-cluster > *:nth-child(2) { transition-delay: 100ms; }
+.reveal-visible .reveal-cluster > *:nth-child(3) { transition-delay: 150ms; }
+.reveal-visible .reveal-cluster > *:nth-child(4) { transition-delay: 200ms; }
+
+/* Community hero entrance — copy column only; image stays static */
+@keyframes community-hero-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.community-hero-in {
+  animation: community-hero-in 240ms var(--ease-out-expo) both;
+}
+.community-hero-in-d1 { animation-delay: 40ms; }
+.community-hero-in-d2 { animation-delay: 90ms; }
+.community-hero-in-d3 { animation-delay: 140ms; }
+.community-hero-in-d4 { animation-delay: 180ms; }
 
 .landing-grid {
+  /* Metmal brand grid — tosca / soft pink (was legacy violet + orange) */
   background-image:
-    linear-gradient(rgba(124, 108, 242, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(242, 116, 62, 0.06) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--brand-tosca) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--brand-pink) 8%, transparent) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent);
 }
@@ -200,6 +215,11 @@
   .reveal-stage,
   .reveal-stage > *,
   .reveal-cluster > *,
+  .community-hero-in,
+  .community-hero-in-d1,
+  .community-hero-in-d2,
+  .community-hero-in-d3,
+  .community-hero-in-d4,
   .fade-up,
   .fade-in,
   .count-up,

@@ -1,8 +1,12 @@
 # Design System Documentation
 ## Metropolitan Mall Bekasi Event Dashboard
 
-> **Version**: 2.1  
-> **Last Updated**: 2026-07-14  
+> **⚠️ Source of truth (SoT):** [`DESIGN.md`](../DESIGN.md) + `src/styles/tokens.css` + `src/styles/theme.css`.  
+> This file is **reference / historical**. On conflict, follow `DESIGN.md` and tokens — not this doc.  
+> Pink is **not** a primary CTA fill; secondary buttons use soft tosca (see `DESIGN.md` pink allow/deny).
+
+> **Version**: 2.2  
+> **Last Updated**: 2026-07-19  
 > **Based on**: design-taste-frontend principles + Metmal logo brand
 
 ---

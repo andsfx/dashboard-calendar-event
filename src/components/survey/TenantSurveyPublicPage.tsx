@@ -422,7 +422,7 @@ export default function TenantSurveyPublicPage() {
         </div>
 
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-primary-50 p-4 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-primary-950/40">
+      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/40">
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
             <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />

@@ -79,7 +79,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="admin-login-title">
       <div className={`rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden transition-transform ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
         {/* Header gradient */}
-        <div className="bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 px-6 py-5">
+        <div className="bg-brand-primary-600 px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
@@ -185,7 +185,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-brand-primary-700 hover:to-brand-primary-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-brand-primary-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

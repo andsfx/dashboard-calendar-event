@@ -17,7 +17,7 @@ export function CommunitySteps() {
           </h2>
         </div>
 
-        <ol className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+        <ol className="reveal-cluster mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
           {STEPS.map((s) => (
             <li key={s.num} className="ui-campaign-card relative p-6">
               <span className="ui-campaign-icon-gradient inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-extrabold tabular-nums">

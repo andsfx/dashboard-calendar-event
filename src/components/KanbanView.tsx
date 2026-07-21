@@ -16,7 +16,7 @@ const COLUMNS: Array<{
     status: 'draft',
     label: 'Draft',
     icon: <PenSquare className="h-4 w-4" />,
-    gradient: 'from-brand-primary-500 to-brand-primary-500',
+    gradient: 'from-brand-primary-500 to-brand-primary-600',
     cardBorder: 'border-brand-primary-200 bg-brand-primary-50/50 dark:border-brand-primary-800/40 dark:bg-brand-primary-900/10 hover:border-brand-primary-300 dark:hover:border-brand-primary-600/60',
     emptyMsg: 'Tidak ada event draft',
   },

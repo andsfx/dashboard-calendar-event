@@ -54,28 +54,30 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
 
       <div className="relative mx-auto flex min-h-[70dvh] max-w-7xl items-center px-4 py-24 sm:px-6">
         <div className="max-w-3xl w-full text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85">
+          <div className="community-hero-in inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85">
             100+ Event Sudah Terlaksana
           </div>
 
-          <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
+          <h1 className="community-hero-in community-hero-in-d1 mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
             Panggung Gratis untuk Komunitas Bekasi
           </h1>
 
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
-            Cari venue untuk event komunitas? Metropolitan Mall Bekasi siapkan tempatnya <strong className="text-white">gratis</strong>.
-          </p>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
-            Venue, sound system, dan lighting sudah tersedia. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lain.
-          </p>
-          <p className="mt-4 max-w-md text-sm font-medium text-white/75">
-            Slot bulanan terbatas. Daftar sebelum jadwal penuh.
-          </p>
+          <div className="community-hero-in community-hero-in-d2">
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
+              Cari venue untuk event komunitas? Metropolitan Mall Bekasi siapkan tempatnya <strong className="text-white">gratis</strong>.
+            </p>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
+              Venue, sound system, dan lighting sudah tersedia. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lain.
+            </p>
+            <p className="mt-4 max-w-md text-sm font-medium text-white/75">
+              Slot bulanan terbatas. Daftar sebelum jadwal penuh.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start">
+          <div className="community-hero-in community-hero-in-d3 mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start">
             <a
               href="#register"
-              className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] ${focusRing}`}
+              className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
             >
               Daftar Sekarang
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
@@ -88,7 +90,7 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
             </a>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center gap-6 text-sm text-white/75">
+          <div className="community-hero-in community-hero-in-d4 mt-12 flex flex-wrap items-center gap-6 text-sm text-white/75">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" />

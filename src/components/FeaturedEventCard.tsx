@@ -182,7 +182,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                   </div>
                   <div className="h-2 bg-white/15 rounded-full overflow-hidden backdrop-blur-sm">
                     <div
-                      className="h-full bg-gradient-to-r from-brand-primary-300 to-brand-primary-300 rounded-full transition-all duration-1000"
+                      className="h-full bg-brand-primary-300 rounded-full transition-all duration-1000"
                       style={{ width: `${progress[event.id] || 0}%` }}
                     />
                   </div>

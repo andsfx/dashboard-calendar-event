@@ -43,7 +43,7 @@ export function CommunityBenefits() {
             </p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="reveal-cluster grid gap-5 sm:grid-cols-2">
             {BENEFITS.map((b) => (
               <div key={b.title} className="ui-campaign-card p-6">
                 <div

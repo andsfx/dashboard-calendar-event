@@ -1,4 +1,5 @@
 import { ElementType, HTMLAttributes, ReactNode } from 'react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 type RevealSectionProps<T extends ElementType = 'section'> = {
   as?: T;
@@ -8,20 +9,25 @@ type RevealSectionProps<T extends ElementType = 'section'> = {
   skeleton?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
-/** Static section wrapper — scroll-reveal removed (community landing polish). */
+/** Fast community reveal — useScrollReveal + motion.css (Path A). */
 export function RevealSection<T extends ElementType = 'section'>({
   as,
   children,
   className = '',
-  intensity: _intensity = 'default',
+  intensity = 'default',
   skeleton: _skeleton,
   ...rest
 }: RevealSectionProps<T>) {
+  const { ref, isVisible } = useScrollReveal();
   const Tag = as ?? 'section';
 
   return (
-    <Tag className={className} {...rest}>
-      {children}
+    <Tag
+      ref={ref as never}
+      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${className}`}
+      {...rest}
+    >
+      <div className="reveal-stage">{children}</div>
     </Tag>
   );
 }

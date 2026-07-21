@@ -489,7 +489,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       type="button"
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
-                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
@@ -729,7 +729,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary-600 to-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:from-brand-primary-700 hover:to-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto

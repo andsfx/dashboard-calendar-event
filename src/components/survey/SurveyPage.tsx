@@ -232,7 +232,7 @@ export default function SurveyPage() {
   return (
     <PageShell onBack={goBack}>
       {/* Event info header */}
-      <div className="rounded-2xl border border-brand-primary-200 bg-gradient-to-br from-brand-primary-50 to-brand-primary-50 p-4 dark:border-brand-primary-800 dark:from-brand-primary-950/40 dark:to-brand-primary-950/40">
+      <div className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/40">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
             <Building2 className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" />
