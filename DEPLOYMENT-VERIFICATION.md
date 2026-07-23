@@ -113,15 +113,21 @@
 
 ## 🐛 Known Issues
 
-### TypeScript Errors (55 remaining)
-- **Status**: Tracked in TYPESCRIPT-STRICT-MODE-REMAINING-ERRORS.md
-- **Impact**: No runtime impact (noUncheckedIndexedAccess disabled)
-- **Plan**: Fix in next sprint
+### TypeScript Errors
+- **Status (re-verify 2026-07-23)**: Claim “55 remaining” is **stale**. `TYPESCRIPT-STRICT-MODE-REMAINING-ERRORS.md` is gone from repo root.
+- **Current gate**: `npm run build` runs `tsc && vite build` — use that as SoT (not this historical count).
+- **Impact**: Historical note only; do not block deploy on the old “55” figure.
+- **Plan**: Keep strict flags; fix real `tsc` failures when they appear in CI/local build.
 
-### Console Statements (42 remaining)
-- **Status**: Logger utility created but not yet applied
-- **Impact**: Minor (development only)
-- **Plan**: Replace in next session
+### Console / logger
+- **Status (2026-07-23)**: `src/utils/logger.ts` has production sink via optional `globalThis.__METMAL_ERROR_SINK__` + `reportError` (R3 fixed).
+- **Remaining**: optional wire real sink (e.g. Sentry) when DSN ready; replace leftover raw `console.*` opportunistically.
+- **Impact**: Low.
+
+### App shell size (R4)
+- **Status (2026-07-23)**: Chrome extracted to `src/components/dashboard/DashboardShell.tsx` (skip-link, sidebar, navbar, main frame, footer, modals/toasts slots). Route sections already `React.lazy`.
+- **Residual**: handlers + `dashboardPath ===` switches remain in `App.tsx` — extract hooks/map only when next dashboard feature lands.
+- **Impact**: Not blocking deploy.
 
 ---
 
@@ -179,10 +185,13 @@ git push origin main
 1. ✅ Verify deployment successful
 2. ✅ Run fixed RLS SQL in Supabase
 3. ⏳ Monitor performance for 24 hours
-4. ⏳ Fix remaining TypeScript errors (55)
-5. ⏳ Replace console statements (42)
+4. ✅ Doc: drop stale “55 TS errors” claim (2026-07-23)
+5. ✅ Logger prod sink path documented / implemented (R3)
+6. ⏳ Ops: rotate admin/service keys; RLS indexes; cache headers (R5 remainder)
+7. ✅ Extract `DashboardShell` chrome from `App.tsx` (R4, 2026-07-23)
 
 ---
 
 **Generated**: 2026-04-25 21:45 WIB  
-**Status**: Ready for verification
+**Last re-verify**: 2026-07-23  
+**Status**: Historical deploy report; known-issues section refreshed

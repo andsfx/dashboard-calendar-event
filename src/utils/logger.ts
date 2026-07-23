@@ -6,6 +6,14 @@
 const isDev = import.meta.env.DEV;
 const isProd = import.meta.env.PROD;
 
+type ErrorSink = (message: string, error?: unknown) => void;
+
+function getProdErrorSink(): ErrorSink | null {
+  const g = globalThis as { __METMAL_ERROR_SINK__?: ErrorSink };
+  if (typeof g.__METMAL_ERROR_SINK__ === 'function') return g.__METMAL_ERROR_SINK__;
+  return null;
+}
+
 export const logger = {
   /**
    * Log informational messages (development only)
@@ -24,15 +32,32 @@ export const logger = {
   },
 
   /**
-   * Log errors (all environments)
+   * Log errors (all environments).
+   * Prod: console + optional `globalThis.__METMAL_ERROR_SINK__` (no Sentry dep).
+   * Wire sink from bootstrap when DSN ready — e.g. Sentry.captureException.
    */
   error: (message: string, error?: unknown) => {
     console.error(`[ERROR] ${message}`, error);
-    
-    // TODO: Send to error tracking service in production
-    if (isProd) {
-      // Integrate with Sentry, LogRocket, or similar
-      // Example: Sentry.captureException(error);
+
+    if (!isProd) return;
+
+    const sink = getProdErrorSink();
+    if (sink) {
+      try {
+        sink(message, error);
+      } catch {
+        /* logger must never throw */
+      }
+      return;
+    }
+
+    // Browser reporting API when available; no third-party SDK installed
+    if (typeof reportError === 'function' && error instanceof Error) {
+      try {
+        reportError(error);
+      } catch {
+        /* ignore */
+      }
     }
   },
 
@@ -45,12 +70,3 @@ export const logger = {
     }
   }
 };
-
-/**
- * Usage examples:
- * 
- * logger.info('User logged in', { userId: 123 });
- * logger.warn('API rate limit approaching');
- * logger.error('Failed to fetch events', error);
- * logger.debug('Component rendered', { props });
- */

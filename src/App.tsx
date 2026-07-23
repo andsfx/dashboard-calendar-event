@@ -1,13 +1,11 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { List, Kanban, Clock4, Radio, Clock3, ArrowLeft } from 'lucide-react';
-import { Navbar } from './components/Navbar';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
-import { SectionNav } from './components/SectionNav';
 import { ToastContainer } from './components/ToastContainer';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { DashboardStats } from './components/dashboard/DashboardStats';
-import { AdminSidebar } from './components/dashboard/AdminSidebar';
+import { DashboardShell } from './components/dashboard/DashboardShell';
 import { DashboardModals } from './components/dashboard/DashboardModals';
 import { CommandCenterSummary } from './components/dashboard/CommandCenterSummary';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
@@ -793,55 +791,84 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Dashboard routes */}
+      {/* Dashboard routes — chrome in DashboardShell; sections stay here */}
       <Route path="/dashboard/*" element={
-    <div className="ui-dashboard-page min-h-screen transition-colors duration-300 dark:bg-slate-950">
-      {/* Skip to main content — WCAG 2.4.1 */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none ui-focus-ring"
-      >
-        Lewati ke konten utama
-      </a>
-
-      {/* Admin Sidebar */}
-      {isAdmin && (
-        <AdminSidebar
-          isDark={isDark}
-          onToggleDark={toggleDark}
-          onLogout={handleLogout}
-          user={auth.user}
-          isSuperadmin={auth.isSuperadmin}
-          isLegacy={auth.isLegacy}
-          permissions={permissions}
-          onOpenInstagramSettings={() => setShowInstagramSettings(true)}
-          onOpenAlbumManager={() => setShowAlbumManager(true)}
-          onOpenLetterPicker={handleOpenLetterPicker}
-        />
-      )}
-
-      {/* Main content wrapper */}
-      <div className={isAdmin ? 'lg:ml-64' : ''}>
-        <Navbar
-          isDark={isDark}
-          onToggleDark={toggleDark}
-          isAdmin={isAdmin}
-          isSuperadmin={auth.isSuperadmin}
-          isLegacy={auth.isLegacy}
-          user={auth.user}
-          onLoginClick={() => setShowLoginModal(true)}
-          onLogout={handleLogout}
-          ongoingCount={visibleStats.ongoing}
-        />
-
-        {!isAdmin && !isLoading && <SectionNav items={publicSectionItems} />}
-
-        {isLoading ? (
-          <DashboardSkeleton isAdmin={isAdmin} />
-        ) : (
-
-        <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-
+    <DashboardShell
+      isAdmin={isAdmin}
+      isLoading={isLoading}
+      isDark={isDark}
+      onToggleDark={toggleDark}
+      onLogout={handleLogout}
+      user={auth.user}
+      isSuperadmin={auth.isSuperadmin}
+      isLegacy={auth.isLegacy}
+      permissions={permissions}
+      onOpenInstagramSettings={() => setShowInstagramSettings(true)}
+      onOpenAlbumManager={() => setShowAlbumManager(true)}
+      onOpenLetterPicker={handleOpenLetterPicker}
+      onLoginClick={() => setShowLoginModal(true)}
+      ongoingCount={visibleStats.ongoing}
+      upcomingCount={visibleStats.upcoming}
+      publicSectionItems={publicSectionItems}
+      modals={
+      <DashboardModals
+        showLoginModal={showLoginModal}
+        onCloseLoginModal={() => setShowLoginModal(false)}
+        onEmailLogin={auth.login}
+        onLegacyLogin={auth.legacyLogin}
+        showCrudModal={showCrudModal}
+        onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); setInitialEventData(null); }}
+        onSave={handleSave}
+        onSaveBatch={handleSaveBatch}
+        editingEvent={editingEvent}
+        events={events}
+        showDraftModal={showDraftModal}
+        onCloseDraftModal={() => { setShowDraftModal(false); setEditingDraft(null); }}
+        onSaveDraft={handleSaveDraft}
+        editingDraft={editingDraft}
+        draftEvents={draftEvents}
+        showLetterPickerModal={showLetterPickerModal}
+        onCloseLetterPickerModal={() => setShowLetterPickerModal(false)}
+        publicEvents={publicEvents}
+        onSelectLetterEvent={handleSelectLetterEvent}
+        showLetterModal={showLetterModal}
+        onCloseLetterModal={() => { setShowLetterModal(false); setLetterEvent(null); }}
+        letterEvent={letterEvent}
+        showThemeModal={showThemeModal}
+        onCloseThemeModal={() => { setShowThemeModal(false); setEditingTheme(null); }}
+        onSaveTheme={handleSaveTheme}
+        editingTheme={editingTheme}
+        showDeleteModal={showDeleteModal}
+        onCloseDeleteModal={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
+        deletingEvent={deletingEvent}
+        onDeleteConfirm={handleDeleteConfirm}
+        showDetailModal={showDetailModal}
+        onCloseDetailModal={() => { setShowDetailModal(false); setDetailEvent(null); }}
+        detailEvent={detailEvent}
+        onEdit={permissions.canEditEvents ? handleEdit : undefined}
+        onDelete={permissions.canDeleteEvents ? handleDeleteClick : undefined}
+        onDeleteSeries={permissions.canDeleteEvents ? handleDeleteSeries : undefined}
+        isAdmin={isAdmin}
+        showInstagramSettings={showInstagramSettings}
+        onCloseInstagramSettings={() => setShowInstagramSettings(false)}
+        instagramPosts={instagramPosts}
+        onSaveInstagramPosts={handleSaveInstagramPosts}
+        heroImageUrl={heroImageUrl}
+        onSaveHeroImage={handleSaveHeroImage}
+        showAlbumManager={showAlbumManager}
+        onCloseAlbumManager={() => setShowAlbumManager(false)}
+        pastEvents={events.filter(e => e.status === 'past')}
+        annualThemes={annualThemes}
+        showRegDetail={showRegDetail}
+        onCloseRegDetail={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
+        selectedRegistration={selectedRegistration}
+        onUpdateRegStatus={handleUpdateRegStatus}
+        onCreateEventFromRegistration={handleCreateEventFromRegistration}
+        initialEventData={initialEventData}
+      />
+      }
+      toasts={<ToastContainer toasts={toasts} onRemove={removeToast} />}
+    >
           {/* Header */}
           <DashboardHeader
             isAdmin={isAdmin}
@@ -1129,87 +1156,7 @@ export default function App() {
             </Suspense>
           </section>
         )}
-
-          {/* Footer */}
-          <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
-            <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
-              <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
-                <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-primary-500 live-dot" aria-hidden="true" />
-                    <span>{visibleStats.ongoing} berlangsung</span>
-                  </span>
-                <span className="hidden sm:inline">·</span>
-                <span>{visibleStats.upcoming} mendatang</span>
-              </div>
-            </div>
-          </footer>
-        </main>
-        )}
-
-
-      </div>
-
-      {/* Modals */}
-      <DashboardModals
-        showLoginModal={showLoginModal}
-        onCloseLoginModal={() => setShowLoginModal(false)}
-        onEmailLogin={auth.login}
-        onLegacyLogin={auth.legacyLogin}
-        showCrudModal={showCrudModal}
-        onCloseCrudModal={() => { setShowCrudModal(false); setEditingEvent(null); setInitialEventData(null); }}
-        onSave={handleSave}
-        onSaveBatch={handleSaveBatch}
-        editingEvent={editingEvent}
-        events={events}
-        showDraftModal={showDraftModal}
-        onCloseDraftModal={() => { setShowDraftModal(false); setEditingDraft(null); }}
-        onSaveDraft={handleSaveDraft}
-        editingDraft={editingDraft}
-        draftEvents={draftEvents}
-        showLetterPickerModal={showLetterPickerModal}
-        onCloseLetterPickerModal={() => setShowLetterPickerModal(false)}
-        publicEvents={publicEvents}
-        onSelectLetterEvent={handleSelectLetterEvent}
-        showLetterModal={showLetterModal}
-        onCloseLetterModal={() => { setShowLetterModal(false); setLetterEvent(null); }}
-        letterEvent={letterEvent}
-        showThemeModal={showThemeModal}
-        onCloseThemeModal={() => { setShowThemeModal(false); setEditingTheme(null); }}
-        onSaveTheme={handleSaveTheme}
-        editingTheme={editingTheme}
-        showDeleteModal={showDeleteModal}
-        onCloseDeleteModal={() => { setShowDeleteModal(false); setDeletingEvent(null); }}
-        deletingEvent={deletingEvent}
-        onDeleteConfirm={handleDeleteConfirm}
-        showDetailModal={showDetailModal}
-        onCloseDetailModal={() => { setShowDetailModal(false); setDetailEvent(null); }}
-        detailEvent={detailEvent}
-        onEdit={permissions.canEditEvents ? handleEdit : undefined}
-        onDelete={permissions.canDeleteEvents ? handleDeleteClick : undefined}
-        onDeleteSeries={permissions.canDeleteEvents ? handleDeleteSeries : undefined}
-        isAdmin={isAdmin}
-        showInstagramSettings={showInstagramSettings}
-        onCloseInstagramSettings={() => setShowInstagramSettings(false)}
-        instagramPosts={instagramPosts}
-        onSaveInstagramPosts={handleSaveInstagramPosts}
-        heroImageUrl={heroImageUrl}
-        onSaveHeroImage={handleSaveHeroImage}
-        showAlbumManager={showAlbumManager}
-        onCloseAlbumManager={() => setShowAlbumManager(false)}
-        pastEvents={events.filter(e => e.status === 'past')}
-        annualThemes={annualThemes}
-        showRegDetail={showRegDetail}
-        onCloseRegDetail={() => { setShowRegDetail(false); setSelectedRegistration(null); }}
-        selectedRegistration={selectedRegistration}
-        onUpdateRegStatus={handleUpdateRegStatus}
-        onCreateEventFromRegistration={handleCreateEventFromRegistration}
-        initialEventData={initialEventData}
-      />
-
-      {/* Toast notifications */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </div>
+    </DashboardShell>
       } />
     </Routes>
   );

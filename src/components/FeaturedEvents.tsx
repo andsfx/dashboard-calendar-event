@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
 import { CategoryBadges } from './CategoryBadges';
@@ -55,6 +56,7 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
 }
 
 export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props) {
+  const navigate = useNavigate();
   if (events.length === 0) return null;
 
   const featured = events.slice(0, 3);
@@ -129,7 +131,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
       {events.length > 3 && (
         <button
           type="button"
-          onClick={() => document.getElementById('views')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          onClick={() => navigate('/dashboard/events')}
           className={`mt-3 cursor-pointer text-xs font-medium transition hover:underline ${accentStyle.link}`}
         >
           +{events.length - 3} acara lainnya — lihat di daftar acara
