@@ -79,7 +79,8 @@ Dev server berjalan normal di `http://localhost:5173`
 1. `src/App.tsx` - Conditional rendering berdasarkan route; chrome via `DashboardShell`
 2. `src/components/dashboard/AdminSidebar.tsx` - Mengubah dari scroll-based ke route-based navigation
 3. ~~`src/hooks/useDashboardSection.ts`~~ — **dihapus 2026-07-23** (dead, 0 import; R1+R7). SoT path: `dashboardNavigation.tsx`
-4. `src/components/dashboard/DashboardShell.tsx` — **added 2026-07-23** (R4): skip-link, sidebar, navbar, main frame, footer, modals/toasts slots. Sections + handlers tetap di App.
+4. `src/components/dashboard/DashboardShell.tsx` — **added 2026-07-23** (R4): skip-link, sidebar, navbar, main frame, footer, modals/toasts slots. Sections tetap di App.
+5. `src/hooks/useDashboardHandlers.ts` — **added 2026-07-23** (R4 residual): modal state + CRUD/draft/reg/letter handlers. App ~851 LOC (routes + sections + view memos).
 
 ## File Backup
 

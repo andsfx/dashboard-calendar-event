@@ -14,12 +14,10 @@ import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
-import { DraftEventItem, EventItem, LetterRequestItem, ViewMode, AnnualTheme, CommunityRegistration, RegistrationStatus } from './types';
-import { createId, parseDateStrLocal, MONTH_NAMES } from './utils/eventUtils';
-import { createLetterRequest, fetchSiteSettings, updateSiteSettings, fetchCommunityRegistrations, updateRegistrationStatus, fetchAlbums } from './utils/supabaseApi';
-import type { PhotoAlbum } from './types';
-import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
+import { useDashboardHandlers } from './hooks/useDashboardHandlers';
+import { ViewMode } from './types';
 
+import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
@@ -64,7 +62,6 @@ export default function App() {
   const location = useLocation();
   const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
 
-
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -76,33 +73,6 @@ export default function App() {
   const auth = useAuth();
   const permissions = usePermission(auth.user, auth.isLegacy);
   const isAdmin = permissions.canViewDashboard;
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showCrudModal, setShowCrudModal] = useState(false);
-  const [showDraftModal, setShowDraftModal] = useState(false);
-  const [showLetterPickerModal, setShowLetterPickerModal] = useState(false);
-  const [showLetterModal, setShowLetterModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showDraftHistory, setShowDraftHistory] = useState(false);
-  const [showThemeModal, setShowThemeModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
-  const [editingDraft, setEditingDraft] = useState<DraftEventItem | null>(null);
-  const [editingTheme, setEditingTheme] = useState<AnnualTheme | null>(null);
-  const [letterEvent, setLetterEvent] = useState<EventItem | null>(null);
-  const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
-  const [detailEvent, setDetailEvent] = useState<EventItem | null>(null);
-  const [showInstagramSettings, setShowInstagramSettings] = useState(false);
-  const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
-  const [showAlbumManager, setShowAlbumManager] = useState(false);
-  const [heroImageUrl, setHeroImageUrl] = useState('');
-  const [landingAlbums, setLandingAlbums] = useState<PhotoAlbum[]>([]);
-  const [communityRegistrations, setCommunityRegistrations] = useState<CommunityRegistration[]>([]);
-  const [isRegLoading, setIsRegLoading] = useState(false);
-  const [showRegDetail, setShowRegDetail] = useState(false);
-  const [selectedRegistration, setSelectedRegistration] = useState<CommunityRegistration | null>(null);
-
-  const [initialEventData, setInitialEventData] = useState<Partial<EventItem> | null>(null);
-
   const { toasts, showToast, removeToast } = useToast();
   const {
     events, filteredEvents,
@@ -133,126 +103,6 @@ export default function App() {
     restoreDraft,
   } = useDraftEvents(isAdmin);
 
-  const refreshRegistrations = useCallback(async (showError = true) => {
-    if (!permissions.canViewRegistrations) return;
-    setIsRegLoading(true);
-    try {
-      const regs = await fetchCommunityRegistrations();
-      setCommunityRegistrations(regs);
-      setSelectedRegistration(prev => prev ? (regs.find(r => r.id === prev.id) ?? prev) : null);
-    } catch {
-      if (showError) {
-        showToast('error', 'Gagal memuat', 'Data pendaftaran belum berhasil dimuat. Coba refresh halaman.');
-      }
-    } finally {
-      setIsRegLoading(false);
-    }
-  }, [permissions.canViewRegistrations, showToast]);
-
-  useEffect(() => {
-    if (permissions.canViewRegistrations && dashboardPath === '/registrations') {
-      refreshRegistrations();
-    }
-  }, [dashboardPath, permissions.canViewRegistrations, refreshRegistrations]);
-
-  useEffect(() => {
-    if (draftError && dashboardPath === '/drafts') {
-      showToast('error', 'Gagal memuat draft', draftError);
-    }
-  }, [dashboardPath, draftError, showToast]);
-
-  const handleRegDetail = useCallback((reg: CommunityRegistration) => {
-    setSelectedRegistration(reg);
-    setShowRegDetail(true);
-  }, []);
-
-  const handleUpdateRegStatus = useCallback(async (id: string, status: RegistrationStatus, adminNote: string) => {
-    try {
-      await updateRegistrationStatus(id, status, adminNote);
-      await refreshRegistrations();
-      showToast('success', 'Status diperbarui', `Pendaftaran berhasil diubah ke ${status}.`);
-      return true;
-    } catch {
-      showToast('error', 'Gagal memperbarui', 'Status pendaftaran belum berubah.');
-      return false;
-    }
-  }, [refreshRegistrations, showToast]);
-
-  const handleCreateEventFromRegistration = useCallback((registration: CommunityRegistration) => {
-    // Parse preferred date or use empty string
-    const dateStr = registration.preferredDate || '';
-    const dateMeta = dateStr ? (() => {
-      const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-      const d = parseDateStrLocal(dateStr);
-      if (!d) return { day: '', tanggal: '', month: '' };
-      return {
-        day: DAY_ID[d.getDay()] || '',
-        tanggal: `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`,
-        month: MONTH_NAMES[d.getMonth()] || '',
-      };
-    })() : { day: '', tanggal: '', month: '' };
-    
-    // Pre-fill event data from registration (NO id → will be treated as CREATE, not UPDATE)
-    const prefillData: Partial<EventItem> = {
-      acara: registration.organizationName || registration.communityName,
-      lokasi: '',
-      eo: registration.organizationName || registration.communityName,
-      pic: registration.pic,
-      phone: registration.phone,
-      keterangan: registration.description || '',
-      dateStr,
-      day: dateMeta.day,
-      tanggal: dateMeta.tanggal,
-      month: dateMeta.month,
-      jam: '',
-      categories: [],
-      category: 'Umum',
-      priority: 'medium',
-      eventModel: 'free',
-    };
-    
-    // Use initialData (NOT editingEvent) so handleSave calls addEvent (INSERT), not updateEvent (UPDATE)
-    setInitialEventData(prefillData);
-    setEditingEvent(null);
-    setShowCrudModal(true);
-    showToast('info', 'Buat Event', 'Form event telah diisi dengan data pendaftaran. Silakan lengkapi dan simpan.');
-  }, [showToast]);
-
-  useEffect(() => {
-    fetchSiteSettings<string[]>('instagram_posts').then(posts => {
-      if (posts && Array.isArray(posts)) setInstagramPosts(posts);
-    }).catch(() => {});
-    fetchSiteSettings<string>('hero_image').then(url => {
-      if (url && typeof url === 'string') setHeroImageUrl(url);
-    }).catch(() => {});
-    fetchAlbums().then(setLandingAlbums).catch(() => {});
-  }, []);
-
-  const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
-    try {
-      await updateSiteSettings('instagram_posts', posts);
-      setInstagramPosts(posts);
-      showToast('success', 'Instagram diperbarui', 'Link Instagram gallery berhasil disimpan.');
-      return true;
-    } catch {
-      showToast('error', 'Gagal menyimpan', 'Link Instagram belum tersimpan. Coba lagi.');
-      return false;
-    }
-  }, [showToast]);
-
-  const handleSaveHeroImage = useCallback(async (url: string) => {
-    try {
-      await updateSiteSettings('hero_image', url);
-      setHeroImageUrl(url);
-      return true;
-    } catch {
-      showToast('error', 'Gagal menyimpan', 'Hero image belum tersimpan. Coba lagi.');
-      return false;
-    }
-  }, [showToast]);
-
-
-  // Dark mode toggle
   const toggleDark = useCallback(() => {
     setIsDark(v => {
       const next = !v;
@@ -262,244 +112,82 @@ export default function App() {
     });
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    await auth.logout();
-    showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
-  }, [auth, showToast]);
-
-  // CRUD
-  const handleAddNew = useCallback(() => {
-    setEditingEvent(null);
-    setInitialEventData(null);
-    setShowCrudModal(true);
-  }, []);
-
-  const handleEdit = useCallback((ev: EventItem) => {
-    setEditingEvent(ev);
-    setShowCrudModal(true);
-  }, []);
-
-  const handleAddDraft = useCallback(() => {
-    setEditingDraft(null);
-    setShowDraftModal(true);
-  }, []);
-
-  const handleEditDraft = useCallback((draft: DraftEventItem) => {
-    setEditingDraft(draft);
-    setShowDraftModal(true);
-  }, []);
-
-  const handleOpenLetterPicker = useCallback(() => {
-    setShowLetterPickerModal(true);
-  }, []);
-
-  const handleAddTheme = useCallback(() => {
-    setEditingTheme(null);
-    setShowThemeModal(true);
-  }, []);
-
-  const handleEditTheme = useCallback((theme: AnnualTheme) => {
-    setEditingTheme(theme);
-    setShowThemeModal(true);
-  }, []);
-
-  const handleSaveTheme = useCallback(async (theme: AnnualTheme) => {
-    const success = theme.sheetRow
-      ? await updateTheme(theme)
-      : await addTheme(theme);
-
-    if (success) {
-      setShowThemeModal(false);
-      setEditingTheme(null);
-      showToast('success', theme.sheetRow ? 'Tema diperbarui' : 'Tema ditambahkan', 'Perubahan tema tahunan sudah tersimpan.');
-      return true;
-    }
-
-    showToast('error', 'Gagal menyimpan tema', 'Perubahan tema tahunan belum berhasil disimpan.');
-    return false;
-  }, [addTheme, updateTheme, showToast]);
-
-  const handleDeleteTheme = useCallback(async (theme: AnnualTheme) => {
-    if (!theme.id) return;
-    const confirmed = window.confirm(`Hapus tema tahunan "${theme.name}"?`);
-    if (!confirmed) return;
-
-    const success = await deleteTheme(theme.id);
-    if (success) {
-      showToast('success', 'Tema dihapus', `"${theme.name}" telah dihapus.`);
-    } else {
-      showToast('error', 'Gagal menghapus tema', 'Tema tahunan belum berhasil dihapus.');
-    }
-  }, [deleteTheme, showToast]);
-
-  const handleOpenLetter = useCallback((event: EventItem) => {
-    setLetterEvent(event);
-    setShowLetterModal(true);
-  }, []);
-
-  const handleSelectLetterEvent = useCallback((event: EventItem) => {
-    setShowLetterPickerModal(false);
-    handleOpenLetter(event);
-  }, [handleOpenLetter]);
-
-  const handleDeleteClick = useCallback((ev: EventItem) => {
-    setDeletingEvent(ev);
-    setShowDeleteModal(true);
-  }, []);
-
-  const handleDetailClick = useCallback((ev: EventItem) => {
-    setDetailEvent(ev);
-    setShowDetailModal(true);
-  }, []);
-
-  const handleSave = useCallback(async (data: Partial<EventItem>) => {
-    let success = false;
-
-    if (editingEvent) {
-      success = await updateEvent({ ...editingEvent, ...data } as EventItem);
-      if (success) showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
-      else showToast('error', 'Gagal memperbarui', 'Perubahan belum tersimpan. Silakan coba lagi.');
-    } else {
-      const newEv: EventItem = {
-        ...data as EventItem,
-        id: createId(),
-        rowIndex: events.length + 1,
-        status: data.status || 'upcoming',
-      };
-      success = await addEvent(newEv);
-      if (success) showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
-      else showToast('error', 'Gagal menambahkan', 'Acara belum tersimpan. Silakan periksa koneksi lalu coba lagi.');
-    }
-
-    if (success) {
-      setShowCrudModal(false);
-      setEditingEvent(null);
-      setInitialEventData(null);
-    }
-
-    return success;
-  }, [editingEvent, events.length, addEvent, updateEvent, showToast]);
-
-  const handleSaveBatch = useCallback(async (evs: EventItem[]) => {
-    const success = await addRecurringEvents(evs);
-    if (success) showToast('success', 'Event reguler ditambahkan!', `${evs.length} event berhasil dibuat.`);
-    else showToast('error', 'Gagal menambahkan', 'Event reguler belum tersimpan. Silakan coba lagi.');
-    if (success) {
-      setShowCrudModal(false);
-      setEditingEvent(null);
-      setInitialEventData(null);
-    }
-    return success;
-  }, [addRecurringEvents, showToast]);
-
-  const handleDeleteSeries = useCallback(async (groupId: string) => {
-    const success = await deleteRecurringSeries(groupId);
-    if (success) showToast('success', 'Rangkaian dihapus!', 'Seluruh event dalam rangkaian telah dihapus.');
-    else showToast('error', 'Gagal menghapus', 'Rangkaian belum berhasil dihapus.');
-    setShowDetailModal(false);
-    setDetailEvent(null);
-    return success;
-  }, [deleteRecurringSeries, showToast]);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingEvent) return false;
-    const success = await deleteEvent(deletingEvent.id);
-    if (success) showToast('success', 'Acara dihapus!', `"${deletingEvent.acara}" telah dihapus.`);
-    setDeletingEvent(null);
-    setShowDeleteModal(false);
-    if (!success) showToast('error', 'Gagal menghapus', 'Acara belum berhasil dihapus.');
-    return success;
-  }, [deletingEvent, deleteEvent, showToast]);
-
-  const handleSaveDraft = useCallback(async (data: Partial<DraftEventItem>) => {
-    let success = false;
-
-    if (editingDraft) {
-      success = await updateDraft({ ...editingDraft, ...data } as DraftEventItem);
-      if (success) showToast('success', 'Draft diperbarui', `"${data.acara}" berhasil diperbarui.`);
-      else showToast('error', 'Gagal memperbarui draft', 'Perubahan draft belum tersimpan.');
-    } else {
-      const newDraft: DraftEventItem = {
-        ...data as DraftEventItem,
-        id: createId(),
-        rowIndex: draftEvents.length + 1,
-        progress: data.progress || 'draft',
-        published: false,
-        publishedAt: '',
-        deleted: false,
-        deletedAt: '',
-      };
-      success = await addDraft(newDraft);
-      if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke queue aktif.`);
-      else showToast('error', 'Gagal menambahkan draft', 'Draft event belum tersimpan.');
-    }
-
-    if (success) {
-      setShowDraftModal(false);
-      setEditingDraft(null);
-    }
-
-    return success;
-  }, [editingDraft, draftEvents.length, addDraft, updateDraft, showToast]);
-
-  const handleDeleteDraft = useCallback(async (draft: DraftEventItem) => {
-    if (!window.confirm(`Hapus draft event "${draft.acara}"?`)) return;
-    const success = await deleteDraft(draft.id);
-    if (success) showToast('success', 'Draft dipindahkan ke riwayat', `"${draft.acara}" ditandai sebagai dihapus.`);
-    else showToast('error', 'Gagal menghapus draft', 'Draft event belum terhapus.');
-  }, [deleteDraft, showToast]);
-
-  const handlePublishDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.progress !== 'confirm') {
-      showToast('warning', 'Belum bisa dipublish', 'Draft harus berstatus confirm sebelum dipublish.');
-      return;
-    }
-    if (!window.confirm(`Publish draft event "${draft.acara}" ke schedule utama?`)) return;
-
-    const success = await publishDraft(draft.id);
-    if (success) {
-      await refreshEvents();
-      showToast('success', 'Draft dipublish', `"${draft.acara}" sudah masuk ke schedule utama.`);
-    } else {
-      showToast('error', 'Gagal publish draft', 'Publish ke schedule utama belum berhasil.');
-    }
-  }, [publishDraft, refreshEvents, showToast]);
-
-  const handleDraftProgressChange = useCallback(async (draft: DraftEventItem, progress: DraftEventItem['progress']) => {
-    const success = await updateDraft({ ...draft, progress });
-    if (success) {
-      showToast('success', 'Progress diperbarui', `Draft "${draft.acara}" sekarang berstatus ${progress}.`);
-    } else {
-      showToast('error', 'Gagal memperbarui progress', 'Progress draft belum berubah.');
-    }
-  }, [updateDraft, showToast]);
-
-  const handleRestoreDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.published) {
-      showToast('warning', 'Tidak bisa dipulihkan', 'Draft yang sudah dipublish tidak dapat dipulihkan.');
-      return;
-    }
-    if (!window.confirm(`Pulihkan draft event "${draft.acara}" ke queue aktif?`)) return;
-
-    const success = await restoreDraft(draft.id);
-    if (success) {
-      showToast('success', 'Draft dipulihkan', `"${draft.acara}" kembali ke queue aktif.`);
-    } else {
-      showToast('error', 'Gagal memulihkan draft', 'Draft event belum berhasil dipulihkan.');
-    }
-  }, [restoreDraft, showToast]);
-
-  const handleSubmitLetter = useCallback(async (data: LetterRequestItem) => {
-    try {
-      await createLetterRequest(data);
-      showToast('success', 'Permintaan surat dikirim', 'Data berhasil masuk ke workflow Google Form dan AutoCrat akan membuat dokumennya otomatis.');
-      return true;
-    } catch (error) {
-      console.error('Letter request error:', error);
-      showToast('error', 'Gagal mengirim surat', 'Data surat belum berhasil dikirim ke Google Form. Periksa koneksi lalu coba lagi.');
-      return false;
-    }
-  }, [showToast]);
+  const {
+    showLoginModal, setShowLoginModal,
+    showCrudModal, setShowCrudModal,
+    showDraftModal, setShowDraftModal,
+    showLetterPickerModal, setShowLetterPickerModal,
+    showLetterModal, setShowLetterModal,
+    showDeleteModal, setShowDeleteModal,
+    showDetailModal, setShowDetailModal,
+    showDraftHistory, setShowDraftHistory,
+    showThemeModal, setShowThemeModal,
+    editingEvent, setEditingEvent,
+    editingDraft, setEditingDraft,
+    editingTheme, setEditingTheme,
+    letterEvent, setLetterEvent,
+    deletingEvent, setDeletingEvent,
+    detailEvent, setDetailEvent,
+    showInstagramSettings, setShowInstagramSettings,
+    instagramPosts,
+    showAlbumManager, setShowAlbumManager,
+    heroImageUrl,
+    landingAlbums,
+    communityRegistrations,
+    isRegLoading,
+    showRegDetail, setShowRegDetail,
+    selectedRegistration, setSelectedRegistration,
+    initialEventData, setInitialEventData,
+    handleRegDetail,
+    handleUpdateRegStatus,
+    handleCreateEventFromRegistration,
+    handleSaveInstagramPosts,
+    handleSaveHeroImage,
+    handleLogout,
+    handleAddNew,
+    handleEdit,
+    handleAddDraft,
+    handleEditDraft,
+    handleOpenLetterPicker,
+    handleAddTheme,
+    handleEditTheme,
+    handleSaveTheme,
+    handleDeleteTheme,
+    handleSelectLetterEvent,
+    handleDeleteClick,
+    handleDetailClick,
+    handleSave,
+    handleSaveBatch,
+    handleDeleteSeries,
+    handleDeleteConfirm,
+    handleSaveDraft,
+    handleDeleteDraft,
+    handlePublishDraft,
+    handleDraftProgressChange,
+    handleRestoreDraft,
+  } = useDashboardHandlers({
+    showToast,
+    logout: auth.logout,
+    events,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    addRecurringEvents,
+    deleteRecurringSeries,
+    addTheme,
+    updateTheme,
+    deleteTheme,
+    refreshEvents,
+    draftEvents,
+    addDraft,
+    updateDraft,
+    deleteDraft,
+    publishDraft,
+    restoreDraft,
+    canViewRegistrations: permissions.canViewRegistrations,
+    dashboardPath,
+    draftError,
+  });
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
   const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
@@ -582,7 +270,7 @@ export default function App() {
   useEffect(() => {
     if (isLoading) return;
 
-    // TR-only: never stay inside dashboard chrome — send to standalone results
+    // TR-only: never stay inside dashboard chrome â€” send to standalone results
     if (permissions.isTenantRelation && !permissions.canEditEvents) {
       if (location.pathname.startsWith('/dashboard')) {
         navigate('/tenant-survey-results', { replace: true });
@@ -601,7 +289,7 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Community Landing Page — default route */}
+      {/* Community Landing Page â€” default route */}
       <Route path="/" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <CommunityLandingPage
@@ -626,7 +314,7 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Public event schedule landing — no dashboard chrome */}
+      {/* Public event schedule landing â€” no dashboard chrome */}
       <Route path="/events" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <EventsLandingPage
@@ -662,14 +350,14 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Survey — standalone page */}
+      {/* Survey â€” standalone page */}
       <Route path="/survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <SurveyPage />
         </Suspense>
       } />
 
-      {/* Public Tenant Self-Assessment — standalone, no auth required */}
+      {/* Public Tenant Self-Assessment â€” standalone, no auth required */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
@@ -725,14 +413,14 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Public Letter Viewer — shareable link */}
+      {/* Public Letter Viewer â€” shareable link */}
       <Route path="/letter/:id" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <PublicLetterViewer />
         </Suspense>
       } />
 
-      {/* Tenant survey results — public (rate-limited APIs, no login) */}
+      {/* Tenant survey results â€” public (rate-limited APIs, no login) */}
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
@@ -784,14 +472,14 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Legacy dashboard path → standalone */}
+      {/* Legacy dashboard path â†’ standalone */}
       <Route path="/dashboard/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <RedirectToTenantSurveyResults />
         </Suspense>
       } />
 
-      {/* Dashboard routes — chrome in DashboardShell; sections stay here */}
+      {/* Dashboard routes â€” chrome in DashboardShell; sections stay here */}
       <Route path="/dashboard/*" element={
     <DashboardShell
       isAdmin={isAdmin}
@@ -877,7 +565,7 @@ export default function App() {
             onAddNew={permissions.canEditEvents ? handleAddNew : undefined}
           />
 
-          {/* 1. Overview — Stat Cards (paling penting, pertama dilihat) */}
+          {/* 1. Overview â€” Stat Cards (paling penting, pertama dilihat) */}
           {isAdmin && dashboardPath === '/' && (
             <section id="overview" className="scroll-mt-20 space-y-6">
               <DashboardStats stats={visibleStats} />
@@ -894,7 +582,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 2. Featured Events — yang sedang/akan berlangsung */}
+          {/* 2. Featured Events â€” yang sedang/akan berlangsung */}
           {isAdmin && dashboardPath === '/' && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
             <div className="space-y-4 sm:space-y-5">
               {ongoingEvents.length > 0 && (
@@ -922,7 +610,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 3. Draft Queue — event yang perlu di-review/publish */}
+          {/* 3. Draft Queue â€” event yang perlu di-review/publish */}
           {permissions.canEditEvents && dashboardPath === '/drafts' && (
             <section id="draft-section" className="scroll-mt-20">
               <div className="mb-6">
@@ -950,7 +638,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 4. Community Registrations — pendaftaran masuk */}
+          {/* 4. Community Registrations â€” pendaftaran masuk */}
           {permissions.canViewRegistrations && dashboardPath === '/registrations' && (
             <section id="registrations" className="scroll-mt-20">
               <div className="mb-6">
@@ -969,7 +657,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 5. Tema Tahunan — perencanaan jangka panjang */}
+          {/* 5. Tema Tahunan â€” perencanaan jangka panjang */}
           {permissions.canManageThemes && dashboardPath === '/themes' && (
             <section id="themes" className="scroll-mt-20">
               <div className="mb-6">
@@ -984,7 +672,7 @@ export default function App() {
             </section>
           )}
 
-        {/* Public: 1. Featured Events — sedang berlangsung / segera dimulai */}
+        {/* Public: 1. Featured Events â€” sedang berlangsung / segera dimulai */}
         {!isAdmin && (ongoingEvents.length > 0 || upcomingEvents.length > 0) && (
           <section id="featured" className="space-y-4 scroll-mt-32 sm:space-y-5">
             {ongoingEvents.length > 0 && (
@@ -1012,7 +700,7 @@ export default function App() {
           </section>
         )}
 
-        {/* Public: 2. Ringkasan — stat cards */}
+        {/* Public: 2. Ringkasan â€” stat cards */}
         {!isAdmin && (
           <section id="summary" className="scroll-mt-32">
             <DashboardStats stats={visibleStats} />
@@ -1032,7 +720,7 @@ export default function App() {
           </section>
         )}
 
-        {/* 6. Jadwal Event — tabel/kalender/kanban/timeline */}
+        {/* 6. Jadwal Event â€” tabel/kalender/kanban/timeline */}
         {((isAdmin && dashboardPath === '/events') || (!isAdmin && dashboardPath === '/')) && (
         <section id="views" className="scroll-mt-20">
           {isAdmin && (
@@ -1073,7 +761,7 @@ export default function App() {
         </section>
         )}
 
-        {/* 7. Analytics — statistik lanjutan */}
+        {/* 7. Analytics â€” statistik lanjutan */}
           {permissions.canViewSurvey && dashboardPath === '/analytics' && (
             <section id="category-chart" className="scroll-mt-20">
               <div className="mb-6">
@@ -1088,7 +776,7 @@ export default function App() {
             </section>
           )}
 
-        {/* 8. Survey Kepuasan — admin only */}
+        {/* 8. Survey Kepuasan â€” admin only */}
         {permissions.canViewSurvey && dashboardPath === '/survey' && (
           <section id="survey-section" className="scroll-mt-20">
             <div className="mb-6">
@@ -1103,7 +791,7 @@ export default function App() {
           </section>
         )}
 
-        {/* 8b. Tenant Self-Assessment — admin + eo_tenant (ops) */}
+        {/* 8b. Tenant Self-Assessment â€” admin + eo_tenant (ops) */}
         {(permissions.canEditEvents || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
           <section id="tenant-surveys-section" className="scroll-mt-20">
             <div className="mb-6">
@@ -1118,7 +806,7 @@ export default function App() {
           </section>
         )}
 
-        {/* 9. User Management — superadmin only */}
+        {/* 9. User Management â€” superadmin only */}
         {permissions.canManageUsers && dashboardPath === '/users' && (
           <section id="user-management" className="scroll-mt-20">
             <div className="mb-6">
@@ -1133,7 +821,7 @@ export default function App() {
           </section>
         )}
 
-        {/* 10. Activity Log — admin + superadmin */}
+        {/* 10. Activity Log â€” admin + superadmin */}
         {permissions.canViewActivityLog && dashboardPath === '/activity-log' && (
           <section id="activity-log" className="scroll-mt-20">
             <div className="mb-6">
@@ -1148,7 +836,7 @@ export default function App() {
           </section>
         )}
 
-        {/* Public: 5. Tema Tahunan — paling bawah */}
+        {/* Public: 5. Tema Tahunan â€” paling bawah */}
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
             <Suspense fallback={<SectionFallback height="h-40" />}>
