@@ -4,6 +4,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   FileEdit,
+  FileSearch,
   FileText,
   Globe,
   Image,
@@ -71,6 +72,7 @@ export function getDashboardNavGroups(
       items: [
         ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route' as const, route: '/dashboard' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
+        ...(!isTrOnly ? [{ id: 'audit-resume', label: 'Audit Resume', icon: <FileSearch className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/audit-resume' }] : []),
         ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className="h-4 w-4" />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },

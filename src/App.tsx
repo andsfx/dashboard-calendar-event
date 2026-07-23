@@ -48,6 +48,7 @@ const UserManagement = lazy(() => import('./components/admin/UserManagement').th
 const ActivityLog = lazy(() => import('./components/admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const AnalyticsDashboard = lazy(() => import('./components/admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const DashboardViewsSection = lazy(() => import('./components/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
+const AuditResumeDashboard = lazy(() => import('./components/dashboard/AuditResumeDashboard').then(m => ({ default: m.AuditResumeDashboard })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
@@ -836,6 +837,14 @@ export default function App() {
           </section>
         )}
 
+        {/* 11. Audit Resume */}
+        {!permissions.isTenantRelation && dashboardPath === '/audit-resume' && (
+          <section id="audit-resume" className="scroll-mt-20">
+            <Suspense fallback={<SectionFallback height="h-96" />}>
+              <AuditResumeDashboard />
+            </Suspense>
+          </section>
+        )}
         {/* Public: 5. Tema Tahunan â€” paling bawah */}
         {!isAdmin && (
           <section id="themes" className="scroll-mt-32">
