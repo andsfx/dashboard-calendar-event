@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const STORAGE_KEY = 'od-admin-audit-checklist';
 
@@ -80,16 +81,17 @@ function SeverityBadge({ severity }: { severity: string }) {
   const colors: Record<string, string> = {
     critical: 'bg-rose-50 text-rose-600 border-rose-200',
     medium: 'bg-amber-50 text-amber-600 border-amber-200',
-    low: 'bg-slate-100 text-slate-500 border-slate-200',
+    low: 'bg-neutral-100 text-neutral-600 border-neutral-200',
   };
   return (
-    <span className={`inline-flex items-center text-[10px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border ${colors[severity] || colors.low}`}>
+    <span className={`inline-flex items-center text-[11px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border ${colors[severity] || colors.low}`}>
       {severity}
     </span>
   );
 }
 
 export function AuditResumeDashboard() {
+  const { ref, isVisible } = useScrollReveal();
   const [filter, setFilter] = useState<SeverityFilter>('all');
   const [checklist, setChecklist] = useState<Record<string, boolean>>(() => {
     const saved = loadChecklist();
@@ -127,123 +129,133 @@ export function AuditResumeDashboard() {
   const filters: SeverityFilter[] = ['all', 'critical', 'medium', 'low'];
 
   return (
-    <div className="space-y-6">
-      <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400 px-3 py-1 rounded-full bg-slate-50 border border-black/[0.04]">
-        Audit resume · graphify re-verify
-      </span>
-
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Resume Temuan</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-prose">
-            Progress debt — R1–R4+R6+R7 on <code className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded text-slate-700">main</code>. R4 = <code className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded text-slate-700">DashboardShell</code> + <code className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded text-slate-700">useDashboardHandlers</code>. R5 ops <strong>deferred</strong> — rotate/RLS/cache parked.
-          </p>
-          <p className="mt-1 text-[10px] font-mono text-slate-400 tracking-[0.02em]">
-            re-verify 23 Jul 2026 · HEAD=origin/main <code className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">f115d30</code> · graph 3330n/4987e · 6 fixed · R5 deferred · graph stale for new symbols
-          </p>
-        </div>
-        <span className="text-[11px] text-slate-400 font-medium tabular-nums whitespace-nowrap">
-          {doneCount} / {totalCount} selesai
+    <div
+      ref={ref as never}
+      className={`reveal-on-scroll space-y-6 ${isVisible ? 'reveal-visible' : ''}`}
+    >
+      <div className="reveal-stage">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500 px-3 py-1 rounded-full bg-neutral-100 border border-black/[0.04]">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary-400" />
+          Audit resume · graphify re-verify
         </span>
-      </div>
 
-      <div className="rounded-full bg-slate-100 dark:bg-slate-800 h-2 overflow-hidden">
-        <div
-          className="h-full rounded-full bg-brand-primary-500 transition-all duration-700 ease-out"
-          style={{ width: `${progressPct}%` }}
-        />
-      </div>
-
-      {CALLOTS.map(callout => (
-        <div
-          key={callout.id}
-          className="rounded-2xl border border-rose-200/70 bg-rose-50/30 p-4 shadow-[var(--shadow-card)]"
-        >
-          <h4 className="text-xs font-semibold text-rose-600 mb-1 tracking-tight">{callout.title}</h4>
-          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-prose">{callout.body}</p>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white font-display tracking-tight">Resume Temuan</h1>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-slate-400 max-w-prose">
+              Progress debt — R1–R4+R6+R7 on <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">main</code>. R4 = <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">DashboardShell</code> + <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">useDashboardHandlers</code>. R5 ops <strong>deferred</strong> — rotate/RLS/cache parked.
+            </p>
+            <p className="mt-1 text-[10px] font-mono text-neutral-400 tracking-[0.02em]">
+              re-verify 23 Jul 2026 · HEAD=origin/main <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded">f115d30</code> · graph 3330n/4987e · 6 fixed · R5 deferred · graph stale for new symbols
+            </p>
+          </div>
+          <span className="text-[11px] text-neutral-400 font-medium tabular-nums whitespace-nowrap">
+            {doneCount} / {totalCount} selesai
+          </span>
         </div>
-      ))}
 
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter severity">
-        {filters.map(f => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={`text-[11px] px-4 py-1.5 rounded-full border font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary-500 ${
-              filter === f
-                ? 'bg-brand-primary-50 text-brand-primary-700 border-brand-primary-300 font-semibold'
-                : 'bg-white text-slate-500 border-black/[0.06] hover:border-brand-primary-200 hover:text-brand-primary-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-600'
-            }`}
-            aria-pressed={filter === f}
-          >
-            {f === 'all' ? 'Semua' : f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
+        <div className="p-0.5 rounded-full bg-black/[0.02] border border-black/[0.04]">
+          <div className="rounded-full bg-neutral-100 dark:bg-slate-800 h-2 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
+            <div
+              className="h-full rounded-full bg-brand-primary-500 transition-all duration-700 ease-[var(--ease-out-expo)]"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+
+        {CALLOTS.map(callout => (
+          <div key={callout.id} className="p-0.5 rounded-2xl bg-rose-600/5 border border-rose-600/10 shadow-[var(--shadow-card-soft)] dark:bg-rose-600/15 dark:border-rose-500/20">
+            <div className="rounded-[calc(1.25rem-0.125rem)] bg-rose-50/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-slate-800">
+              <h4 className="text-xs font-semibold text-rose-600 mb-1 tracking-tight">{callout.title}</h4>
+              <p className="text-xs text-neutral-600 dark:text-slate-400 leading-relaxed max-w-prose">{callout.body}</p>
+            </div>
+          </div>
         ))}
-      </div>
 
-      <div className="rounded-2xl border border-black/[0.04] bg-white dark:bg-slate-800/50 shadow-[var(--shadow-card)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs" aria-label="Daftar temuan audit">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800">
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit w-9">Selesai</th>
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit">ID</th>
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit">Item</th>
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit">Severitas</th>
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit">Evidence</th>
-                <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-slate-400 sticky top-0 bg-inherit">Langkah selanjutnya</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-8 text-slate-400">
-                    <p className="font-semibold text-sm text-slate-600 dark:text-slate-300">Filter kosong</p>
-                    <p className="text-xs mt-1">Tidak ada temuan untuk severity ini. Pilih filter lain.</p>
-                  </td>
-                </tr>
-              ) : (
-                sorted.map(item => {
-                  const done = checklist[item.id] || false;
-                  return (
-                    <tr
-                      key={item.id}
-                      className={`border-t border-black/[0.04] transition hover:bg-brand-primary-50/30 dark:hover:bg-brand-primary-950/20 ${done ? 'opacity-45' : ''}`}
-                    >
-                      <td className="px-4 py-3 align-top">
-                        <input
-                          type="checkbox"
-                          id={`check-${item.id}`}
-                          checked={done}
-                          onChange={() => toggleCheck(item.id)}
-                          className="accent-brand-primary-500 w-4 h-4 cursor-pointer"
-                          aria-label={`Tandai ${item.id} selesai`}
-                        />
-                      </td>
-                      <td className="px-4 py-3 align-top">
-                        <code className={`font-mono text-xs rounded px-1 py-0.5 ${done ? 'text-slate-400 bg-slate-100' : 'text-brand-primary-700 bg-brand-primary-50'}`}>
-                          {item.id}
-                        </code>
-                      </td>
-                      <td className={`px-4 py-3 align-top font-medium ${done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}`}>
-                        {item.title}
-                      </td>
-                      <td className="px-4 py-3 align-top">
-                        <SeverityBadge severity={item.severity} />
-                      </td>
-                      <td className="px-4 py-3 align-top text-slate-500 max-w-[260px] leading-relaxed">
-                        {item.evidence}
-                      </td>
-                      <td className="px-4 py-3 align-top text-slate-500 max-w-[200px] leading-relaxed">
-                        {item.nextAction}
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter severity">
+          {filters.map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              className={`text-[11px] px-4 py-1.5 rounded-full border font-medium transition duration-200 ease-[var(--ease-out-expo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary-500 focus-visible:ring-offset-2 active:scale-[0.97] ${
+                filter === f
+                  ? 'bg-brand-primary-50 text-brand-primary-700 border-brand-primary-400 font-semibold shadow-[inset_0_0_0_1px_rgba(0,145,142,0.25)]'
+                  : 'bg-neutral-100 text-neutral-500 border-black/[0.06] hover:border-brand-primary-200 hover:text-brand-primary-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-600 dark:hover:bg-slate-700'
+              }`}
+              aria-pressed={filter === f}
+            >
+              {f === 'all' ? 'Semua' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-0.5 rounded-2xl bg-black/[0.02] border border-black/[0.04] shadow-[var(--shadow-card-soft)]">
+          <div className="rounded-[calc(1.25rem-0.125rem)] bg-neutral-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] overflow-hidden dark:bg-slate-800">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs" aria-label="Daftar temuan audit">
+                <caption className="sr-only">Daftar temuan audit — toggle checklist untuk tandai selesai</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10 w-9">Selesai</th>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10">ID</th>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10">Item</th>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10">Severitas</th>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10">Evidence</th>
+                    <th scope="col" className="text-left px-4 py-3 font-semibold text-[10px] uppercase tracking-[0.08em] text-neutral-400 sticky top-0 bg-neutral-100 dark:bg-slate-800 z-10">Langkah selanjutnya</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center py-8 text-neutral-400">
+                        <p className="font-semibold text-sm text-neutral-600 dark:text-slate-300">Filter kosong</p>
+                        <p className="text-xs mt-1">Tidak ada temuan untuk severity ini. Pilih filter lain.</p>
                       </td>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                  ) : (
+                    sorted.map(item => {
+                      const done = checklist[item.id] || false;
+                      return (
+                        <tr
+                          key={item.id}
+                          className={`border-t border-black/[0.04] transition duration-200 ease-[var(--ease-out-expo)] ${done ? 'opacity-45' : 'hover:bg-brand-primary-50/30 dark:hover:bg-brand-primary-950/20'}`}
+                        >
+                          <td className="px-4 py-3 align-top">
+                            <input
+                              type="checkbox"
+                              id={`check-${item.id}`}
+                              checked={done}
+                              onChange={() => toggleCheck(item.id)}
+                              className="accent-brand-primary-500 w-4 h-4 cursor-pointer rounded border-neutral-300"
+                              aria-label={`Tandai ${item.id} selesai`}
+                            />
+                          </td>
+                          <td className="px-4 py-3 align-top">
+                            <code className={`font-mono text-xs rounded px-1 py-0.5 ${done ? 'text-neutral-400 bg-neutral-100' : 'text-brand-primary-700 bg-brand-primary-50'}`}>
+                              {item.id}
+                            </code>
+                          </td>
+                          <td className={`px-4 py-3 align-top font-medium ${done ? 'line-through text-neutral-400' : 'text-slate-900 dark:text-white'}`}>
+                            <label htmlFor={`check-${item.id}`} className="cursor-pointer">{item.title}</label>
+                          </td>
+                          <td className="px-4 py-3 align-top">
+                            <SeverityBadge severity={item.severity} />
+                          </td>
+                          <td className="px-4 py-3 align-top text-neutral-500 max-w-[260px] leading-relaxed">
+                            {item.evidence}
+                          </td>
+                          <td className="px-4 py-3 align-top text-neutral-500 max-w-[200px] leading-relaxed">
+                            {item.nextAction}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
