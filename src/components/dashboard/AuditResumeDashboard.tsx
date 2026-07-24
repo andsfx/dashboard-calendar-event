@@ -67,7 +67,7 @@ const CALLOTS = [
 
 type SeverityFilter = 'all' | 'critical' | 'medium' | 'low';
 
-const SEVERITY_ORDER: Record<string, number> = { critical: 0, medium: 1, low: 2 };
+const SEVERITY_ORDER: Record<'critical' | 'medium' | 'low', number> = { critical: 0, medium: 1, low: 2 };
 
 function loadChecklist(): Record<string, boolean> {
   try {
@@ -98,7 +98,7 @@ export function AuditResumeDashboard() {
     const defaults: Record<string, boolean> = {};
     RESUME_ITEMS.forEach(item => {
       if (item.id in saved) {
-        defaults[item.id] = saved[item.id];
+        defaults[item.id] = saved[item.id] as boolean;
       } else {
         defaults[item.id] = item.id !== 'R5';
       }
