@@ -124,7 +124,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-4 dark:border-slate-700">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg ui-gradient-primary shadow-md">
-            <LayoutDashboard className="h-4 w-4 text-white" aria-hidden />
+            <LayoutDashboard className="h-4 w-4 text-white" strokeWidth={1.5} aria-hidden />
           </div>
           <div>
             <p className="text-sm font-bold text-slate-900 dark:text-white">Panel Admin</p>
@@ -137,7 +137,7 @@ export const AdminSidebar = memo(function AdminSidebar({
           className="ui-focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
           aria-label="Tutup menu"
         >
-          <X className="h-4 w-4" aria-hidden />
+          <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
         </button>
       </div>
 
@@ -191,12 +191,12 @@ export const AdminSidebar = memo(function AdminSidebar({
           >
             {isDark ? (
               <>
-                <Sun className="h-4 w-4 text-amber-500" aria-hidden />
+                <Sun className="h-4 w-4 text-amber-500" strokeWidth={1.5} aria-hidden />
                 <span>Mode Terang</span>
               </>
             ) : (
               <>
-                <Moon className="h-4 w-4" aria-hidden />
+                <Moon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                 <span>Mode Gelap</span>
               </>
             )}
@@ -204,9 +204,9 @@ export const AdminSidebar = memo(function AdminSidebar({
 
           <div className="flex items-center gap-2 rounded-xl border border-black/[0.06] bg-[var(--brand-card)] px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
             {isSuperadmin ? (
-              <Crown className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" aria-hidden />
+              <Crown className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" strokeWidth={1.5} aria-hidden />
             ) : (
-              <Shield className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
+              <Shield className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} aria-hidden />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -223,7 +223,7 @@ export const AdminSidebar = memo(function AdminSidebar({
             onClick={onLogout}
             className={`${navItemBase} w-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20`}
           >
-            <LogOut className="h-4 w-4" aria-hidden />
+            <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             <span>Keluar</span>
           </button>
         </div>
@@ -242,7 +242,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         aria-expanded={isMobileOpen}
         aria-controls="admin-sidebar"
       >
-        <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" aria-hidden />
+        <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" strokeWidth={1.5} aria-hidden />
       </button>
 
       {isMobileOpen && (

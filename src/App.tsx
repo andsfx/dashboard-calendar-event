@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { List, Kanban, Clock4, Radio, Clock3, ArrowLeft } from 'lucide-react';
+import { List, Kanban, Clock4, Radio, Clock3, ArrowLeft, CalendarDays } from 'lucide-react';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
@@ -27,10 +27,10 @@ const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').
 const CommunityRegistrationSection = lazy(() => import('./components/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: React.ReactNode }> = [
-  { key: 'table',    label: 'Tabel',    icon: <List    className="h-3.5 w-3.5" /> },
-  { key: 'calendar', label: 'Kalender', icon: <List className="h-3.5 w-3.5" /> },
-  { key: 'kanban',   label: 'Kanban',   icon: <Kanban  className="h-3.5 w-3.5" /> },
-  { key: 'timeline', label: 'Timeline', icon: <Clock4  className="h-3.5 w-3.5" /> },
+  { key: 'table',    label: 'Tabel',    icon: <List         className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { key: 'calendar', label: 'Kalender', icon: <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { key: 'kanban',   label: 'Kanban',   icon: <Kanban       className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { key: 'timeline', label: 'Timeline', icon: <Clock4       className="h-3.5 w-3.5" strokeWidth={1.5} /> },
 ];
 
 const FeaturedEvents = lazy(() => import('./components/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));

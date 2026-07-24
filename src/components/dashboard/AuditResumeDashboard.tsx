@@ -1,5 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleDot,
+  ClipboardList,
+  SearchX,
+  ShieldAlert,
+} from 'lucide-react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+
+const ICON = 'h-3.5 w-3.5 shrink-0';
+const sw = 1.5;
 
 const STORAGE_KEY = 'od-admin-audit-checklist';
 
@@ -83,8 +94,11 @@ function SeverityBadge({ severity }: { severity: string }) {
     medium: 'bg-amber-50 text-amber-600 border-amber-200',
     low: 'bg-neutral-100 text-neutral-600 border-neutral-200',
   };
+  const Icon =
+    severity === 'critical' ? AlertTriangle : severity === 'medium' ? CircleDot : CheckCircle2;
   return (
-    <span className={`inline-flex items-center text-[11px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border ${colors[severity] || colors.low}`}>
+    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full border ${colors[severity] || colors.low}`}>
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={sw} aria-hidden />
       {severity}
     </span>
   );
@@ -135,7 +149,7 @@ export function AuditResumeDashboard() {
     >
       <div className="reveal-stage">
         <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500 px-3 py-1 rounded-full bg-neutral-100 border border-black/[0.04]">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary-400" />
+          <ClipboardList className={ICON} strokeWidth={sw} aria-hidden />
           Audit resume · graphify re-verify
         </span>
 
@@ -166,7 +180,10 @@ export function AuditResumeDashboard() {
         {CALLOTS.map(callout => (
           <div key={callout.id} className="p-0.5 rounded-2xl bg-rose-600/5 border border-rose-600/10 shadow-[var(--shadow-card-soft)] dark:bg-rose-600/15 dark:border-rose-500/20">
             <div className="rounded-[calc(1.25rem-0.125rem)] bg-rose-50/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-slate-800">
-              <h4 className="text-xs font-semibold text-rose-600 mb-1 tracking-tight">{callout.title}</h4>
+              <h4 className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 mb-1 tracking-tight">
+                <ShieldAlert className={ICON} strokeWidth={sw} aria-hidden />
+                {callout.title}
+              </h4>
               <p className="text-xs text-neutral-600 dark:text-slate-400 leading-relaxed max-w-prose">{callout.body}</p>
             </div>
           </div>
@@ -208,9 +225,14 @@ export function AuditResumeDashboard() {
                 <tbody>
                   {sorted.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-neutral-400">
-                        <p className="font-semibold text-sm text-neutral-600 dark:text-slate-300">Filter kosong</p>
-                        <p className="text-xs mt-1">Tidak ada temuan untuk severity ini. Pilih filter lain.</p>
+                      <td colSpan={6} className="text-center py-10 text-neutral-400">
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-400 dark:bg-slate-700">
+                            <SearchX className="h-5 w-5" strokeWidth={sw} aria-hidden />
+                          </span>
+                          <p className="font-semibold text-sm text-neutral-600 dark:text-slate-300">Filter kosong</p>
+                          <p className="text-xs">Tidak ada temuan untuk severity ini. Pilih filter lain.</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (

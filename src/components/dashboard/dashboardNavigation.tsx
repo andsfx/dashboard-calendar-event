@@ -3,19 +3,27 @@ import {
   BarChart3,
   CalendarDays,
   ClipboardCheck,
+  ClipboardList,
   FileEdit,
   FileSearch,
   FileText,
   Globe,
-  Image,
+  Images,
   LayoutDashboard,
   Palette,
+  Store,
   TrendingUp,
   UserCog,
   Users,
 } from 'lucide-react';
 import type { AnnualTheme, CommunityRegistration, DraftEventItem } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
+
+/** Monoline admin icons — stroke 1.5 matches brand-spec / HTML prototype (1.4) */
+const NAV = 'h-4 w-4 shrink-0';
+const CARD = 'h-5 w-5 shrink-0';
+const VALUE = 'h-6 w-6 shrink-0';
+const sw = 1.5;
 
 export interface DashboardNavItem {
   id: string;
@@ -70,42 +78,42 @@ export function getDashboardNavGroups(
     {
       label: 'Ringkasan',
       items: [
-        ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className="h-4 w-4" />, action: 'route' as const, route: '/dashboard' }] : []),
-        ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
-        ...(!isTrOnly ? [{ id: 'audit-resume', label: 'Audit Resume', icon: <FileSearch className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/audit-resume' }] : []),
-        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className="h-4 w-4" />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
+        ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard' }] : []),
+        ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
+        ...(!isTrOnly ? [{ id: 'audit-resume', label: 'Audit Resume', icon: <FileSearch className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/audit-resume' }] : []),
+        ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
     },
     {
       label: 'Kelola Event',
       items: [
-        ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/events' }] : []),
-        ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
-        ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/themes' }] : []),
+        ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/events' }] : []),
+        ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
+        ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
       ],
     },
     {
       label: 'Interaksi',
       items: [
-        ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
-        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <ClipboardCheck className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
+        ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
+        ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
     },
     {
       label: 'Sistem',
       items: [
-        ...(permissions.canManageUsers ? [{ id: 'users', label: 'Manajemen Pengguna', icon: <UserCog className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/users' }] : []),
-        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Log Aktivitas', icon: <Activity className="h-4 w-4" />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
+        ...(permissions.canManageUsers ? [{ id: 'users', label: 'Manajemen Pengguna', icon: <UserCog className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/users' }] : []),
+        ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Log Aktivitas', icon: <Activity className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
       ],
     },
     {
       label: 'Konten',
       items: [
         ...(permissions.canManageSettings ? [
-          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className="h-4 w-4" />, action: 'callback' as const, callback: callbacks.onOpenInstagramSettings },
-          { id: 'album-gallery', label: 'Galeri Album', icon: <Image className="h-4 w-4" />, action: 'callback' as const, callback: callbacks.onOpenAlbumManager },
-          { id: 'letter', label: 'Buat Surat', icon: <FileText className="h-4 w-4" />, action: 'callback' as const, callback: callbacks.onOpenLetterPicker },
+          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenInstagramSettings },
+          { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenAlbumManager },
+          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenLetterPicker },
         ] : []),
       ],
     },
@@ -169,7 +177,7 @@ export function getCommandCenterCards({
       title: 'Jadwal Event',
       value: totalEvents,
       subtitle: `${upcomingEvents} mendatang · ${ongoingEvents} berlangsung`,
-      icon: <CalendarDays className="h-5 w-5" />,
+      icon: <CalendarDays className={CARD} strokeWidth={sw} />,
       route: '/dashboard/events',
       attention: ongoingEvents > 0,
     },
@@ -178,7 +186,7 @@ export function getCommandCenterCards({
       title: 'Antrian Draft',
       value: activeDrafts.length,
       subtitle: activeDrafts.length === 0 ? 'Antrian kosong' : 'Perlu review',
-      icon: <FileEdit className="h-5 w-5" />,
+      icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',
       attention: activeDrafts.length > 0,
     }] : []),
@@ -187,7 +195,7 @@ export function getCommandCenterCards({
       title: 'Tema Tahunan',
       value: annualThemes.length,
       subtitle: currentTheme ? `Aktif: ${currentTheme.name}` : 'Belum ada tema aktif',
-      icon: <Palette className="h-5 w-5" />,
+      icon: <Palette className={CARD} strokeWidth={sw} />,
       route: '/dashboard/themes',
     }] : []),
     ...(permissions.canViewRegistrations ? [{
@@ -195,56 +203,56 @@ export function getCommandCenterCards({
       title: 'Pendaftaran',
       value: communityRegistrations.length,
       subtitle: pendingRegistrations > 0 ? `${pendingRegistrations} menunggu review` : 'Semua sudah direview',
-      icon: <Users className="h-5 w-5" />,
+      icon: <Users className={CARD} strokeWidth={sw} />,
       route: '/dashboard/registrations',
       attention: pendingRegistrations > 0,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'survey',
       title: 'Survey Kepuasan',
-      value: <ClipboardCheck className="h-6 w-6" aria-hidden />,
+      value: <ClipboardList className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Lihat respons survey',
-      icon: <ClipboardCheck className="h-5 w-5" />,
+      icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
     }] : []),
     ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
-      value: <ClipboardCheck className="h-6 w-6" aria-hidden />,
+      value: <Store className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Evaluasi EO/tenant',
-      icon: <ClipboardCheck className="h-5 w-5" />,
+      icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
     }] : []),
     ...(permissions.canViewTenantSurveyResults ? [{
       id: 'tenant-survey-results',
       title: 'Hasil Evaluasi Tenant',
-      value: <TrendingUp className="h-6 w-6" aria-hidden />,
+      value: <TrendingUp className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Hasil evaluasi tenant',
-      icon: <BarChart3 className="h-5 w-5" />,
+      icon: <TrendingUp className={CARD} strokeWidth={sw} />,
       route: '/tenant-survey-results',
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',
       title: 'Analitik',
-      value: <TrendingUp className="h-6 w-6" aria-hidden />,
+      value: <BarChart3 className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Tren & insight',
-      icon: <BarChart3 className="h-5 w-5" />,
+      icon: <BarChart3 className={CARD} strokeWidth={sw} />,
       route: '/dashboard/analytics',
     }] : []),
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',
       title: 'Log Aktivitas',
-      value: <Activity className="h-6 w-6" aria-hidden />,
+      value: <Activity className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Aktivitas terbaru',
-      icon: <Activity className="h-5 w-5" />,
+      icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
     }] : []),
     ...(isSuperadmin && permissions.canManageUsers ? [{
       id: 'users',
       title: 'Manajemen Pengguna',
-      value: <UserCog className="h-6 w-6" aria-hidden />,
+      value: <UserCog className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Kelola admin',
-      icon: <UserCog className="h-5 w-5" />,
+      icon: <UserCog className={CARD} strokeWidth={sw} />,
       route: '/dashboard/users',
     }] : []),
   ];

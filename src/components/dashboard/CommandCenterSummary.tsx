@@ -84,7 +84,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
               </p>
             </div>
 
-            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-primary-500 dark:text-slate-600" aria-hidden />
+            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-primary-500 dark:text-slate-600" strokeWidth={1.5} aria-hidden />
           </Link>
         ))}
       </div>
