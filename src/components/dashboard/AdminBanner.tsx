@@ -8,7 +8,7 @@ interface AdminBannerProps {
 export const AdminBanner = memo(function AdminBanner({ onLogout }: AdminBannerProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-brand-primary-200 bg-brand-primary-50 px-4 py-3 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20">
-      <ShieldCheck className="h-5 w-5 shrink-0 text-brand-primary-600 dark:text-brand-primary-300" />
+      <ShieldCheck className="h-5 w-5 shrink-0 text-brand-primary-600 dark:text-brand-primary-300" strokeWidth={1.5} aria-hidden />
       <div className="flex-1">
         <p className="text-sm font-semibold text-brand-primary-800 dark:text-brand-primary-300">Mode Admin Aktif</p>
         <p className="text-xs text-brand-primary-600 dark:text-brand-primary-400">Bisa tambah, edit, hapus acara</p>
