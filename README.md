@@ -37,30 +37,28 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 ## Fitur
 
 ### View Modes
-- **Tabel** - Daftar event dalam bentuk tabel
-- **Kalender** - Tampilan kalender monthly
-- **Kanban** - Kolom status (Draft, Berlangsung, Mendatang, Selesai)
+- **Tabel** - Daftar event
+- **Kalender** - Monthly (admin)
+- **Kanban** - Berlangsung / Mendatang / Selesai (+ kolom Internal opsional)
 - **Timeline** - Garis waktu event
 
 ### Fitur Utama
-- Filter berdasarkan status, kategori, prioritas, dan bulan
-- Pencarian event
-- Dark mode dengan auto-detect sistem
+- Filter status, kategori, prioritas, bulan + pencarian
+- Dark mode (system detect)
 - Auto-detect kategori dari nama event
-- Statistik dashboard (total, berlangsung, mendatang, selesai)
-- Quarter timeline untuk tema tahunan
-- **Community Hub** - Landing page publik dengan hero, upcoming events, gallery
-- **Superadmin Mode** - Manajemen user, activity log, analytics
-- **Survey System** - Form feedback venue & management
-- **Venue Management** - Approval & monitoring feedback
+- Statistik (total, berlangsung, mendatang, selesai)
+- Tema tahunan (quarter timeline)
+- **Community Hub** + **Jadwal publik** (`/events`) + unduh PDF jadwal
+- **Gallery** album foto
+- **Survey Kepuasan** (pengunjung/organizer) — terpisah dari **Evaluasi Tenant**
+- **Superadmin** — user management, activity log
 
 ### Admin Mode
-- Login dengan email + password (Supabase Auth; legacy password off by default)
-- Tambah event baru
-- Edit event
-- Hapus event
-- Status draft untuk event yang belum dikonfirmasi
-- Draft letter generator (PDF)
+- Login email + password (Supabase Auth)
+- **Event** (jadwal resmi) + **Draft** (antrian pra-jadwal) — dua entitas; publish Draft → spawn Event
+- Status Event dihitung dari tanggal (bukan workflow manual)
+- Surat: generator PDF → **GeneratedLetter** (Supabase); bukan Google Apps Script
+- Pendaftaran komunitas: approve **tidak** auto-buat Draft (CTA manual “Buat Draft dari pendaftaran”)
 
 ## Cara Menjalankan
 
@@ -88,9 +86,21 @@ npm run test:ui
 npm run test:coverage
 ```
 
-Current test coverage:
-- Unit tests: eventInput, eventDateTime utilities
-- Component tests: StatCard
+## Domain docs (bahasa bersama)
+
+- [CONTEXT.md](./CONTEXT.md) — glossary + bounded contexts
+- [docs/SPEC.md](./docs/SPEC.md) — product behavior
+- [docs/SPEC-hygiene.md](./docs/SPEC-hygiene.md) — repo hygiene + letter cutover
+- [docs/tickets/](./docs/tickets/) — board T-* / H-*
+- [docs/adr/](./docs/adr/) — keputusan keras (Draft/Event, status, registration, letter)
+
+## Testing
+
+Unit (vitest) cover domain guards: status derive, publish Draft, permission matrix, letter no-GAS, schedule PDF filter, dsb.
+
+```bash
+npx vitest run --dir src --maxWorkers=2
+```
 
 ## Konfigurasi
 

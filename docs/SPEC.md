@@ -336,25 +336,22 @@ Board: [docs/tickets/README.md](tickets/README.md)
 
 ---
 
-## 11. Open questions (tidak blokir spek v1)
+## 11. Open questions — resolved defaults
 
-1. Timezone & jam: status ganti di tengah hari — pakai date-only atau jam mulai Event?
-2. Publish ulang Draft yang sudah `published` — forbid vs spawn Event kedua?
-3. Recurring edit: “this occurrence” vs “entire series” — UX default?
-4. Apakah viewer boleh calendar/kanban atau table-only?
-
-Jawab di grill lanjutan atau ticket discovery; default sementara:
-
-1. Date-only Asia/Jakarta.  
-2. Forbid re-publish; buat Draft baru.  
-3. Default this occurrence; series = aksi eksplisit.  
-4. Ikuti permission/view existing kode sampai ticket P0 akses.
+| # | Q | Keputusan (implemented / accepted) |
+|---|---|-------------------------------------|
+| 1 | Status mid-day | `getStatus` pakai tanggal + jam bila parseable; multi-day last-day end jam. Local date (browser). |
+| 2 | Re-publish Draft | **Forbid** (API 409 + client `canPublishDraft`); buat Draft baru. |
+| 3 | Recurring edit | Default this occurrence; series = aksi hapus series eksplisit. |
+| 4 | Viewer calendar/kanban | Viewer: dashboard table-oriented; calendar/kanban tabs admin-oriented (`canViewDashboard` + existing tab filter). |
 
 ---
 
 ## References
 
 - [CONTEXT.md](../CONTEXT.md)
+- [SPEC-hygiene.md](SPEC-hygiene.md)
 - [ADR 001 Draft/Event dual entity](adr/001-draft-event-dual-entity.md)
 - [ADR 002 Event status from dates](adr/002-event-status-from-dates.md)
 - [ADR 003 Registration not auto-Draft](adr/003-registration-not-auto-draft.md)
+- [ADR 004 Letter Supabase; kill GAS letter](adr/004-letter-supabase-kill-gas.md)
