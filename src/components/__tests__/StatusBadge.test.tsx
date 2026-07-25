@@ -4,9 +4,9 @@ import '@testing-library/jest-dom'
 import { StatusBadge } from '../StatusBadge'
 
 describe('StatusBadge', () => {
-  it('renders draft status', () => {
+  it('renders internal draft status', () => {
     render(<StatusBadge status="draft" />)
-    expect(screen.getByText('Draft')).toBeInTheDocument()
+    expect(screen.getByText('Internal')).toBeInTheDocument()
   })
 
   it('renders ongoing status', () => {

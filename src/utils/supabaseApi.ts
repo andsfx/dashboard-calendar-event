@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { EventItem, AnnualTheme, DraftEventItem, HolidayItem, LetterRequestItem, EventPhoto, CommunityRegistration, PhotoAlbum, GeneratedLetter, TenantEventSurvey, TenantSurveyFormData, TenantSurveyAnalytics, TenantSurveyEventSummary, TenantSurveyEventAnalytics, TenantSurveyMonthlyTrend } from '../types';
+import { getStatus } from './eventUtils';
 
 // ============================================================
 // Supabase API — Replaces sheetsApi.ts
@@ -119,7 +120,15 @@ function dbEventToEventItem(row: DbEvent, index: number): EventItem {
     phone: row.phone || '',
     keterangan: row.keterangan || '',
     month: row.month,
-    status: (row.status as EventItem['status']) || 'upcoming',
+    // status cache may be stale; derive operational status (keep internal draft flag)
+    status: row.status === 'draft'
+      ? 'draft'
+      : getStatus(
+          row.date_str,
+          row.jam || '',
+          row.date_end || undefined,
+          Array.isArray(row.day_time_slots) ? row.day_time_slots as EventItem['dayTimeSlots'] : undefined,
+        ),
     category: categories[0] || detectCategory(row.acara),
     categories,
     priority: (row.priority as EventItem['priority']) || 'medium',
@@ -314,15 +323,27 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
 // ADMIN WRITE OPERATIONS (via server-side proxy with service_role)
 // ============================================================
 
-export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<{ row: number; id: string }> {
-  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createEvent', { data: eventItemToDbRow(eventData) });
+/** Derive operational status cache for write; never trust form-provided status alone. */
+function withDerivedStatusCache(ev: Partial<EventItem>): Partial<EventItem> {
+  if (ev.status === 'draft') return ev;
+  if (!ev.dateStr) return ev;
+  return {
+    ...ev,
+    status: getStatus(ev.dateStr, ev.jam || '', ev.dateEnd, ev.dayTimeSlots),
+  };
+}
+
+export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<{ row: number; id: string }> {
+  const payload = withDerivedStatusCache(eventData as Partial<EventItem>);
+  const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createEvent', { data: eventItemToDbRow(payload) });
   if (!result.success) throw new SupabaseApiError(result.error || 'Create event failed');
   return { row: 0, id: result.id || '' };
 }
 
 export async function updateEvent(eventData: Partial<EventItem> & { id: string }): Promise<void> {
   const { id, ...rest } = eventData;
-  const result = await adminAction<{ success: boolean; error?: string }>('updateEvent', { id, data: eventItemToDbRow(rest) });
+  const payload = withDerivedStatusCache(rest);
+  const result = await adminAction<{ success: boolean; error?: string }>('updateEvent', { id, data: eventItemToDbRow(payload) });
   if (!result.success) throw new SupabaseApiError(result.error || 'Update event failed');
 }
 
@@ -331,8 +352,8 @@ export async function deleteEvent(id: string): Promise<void> {
   if (!result.success) throw new SupabaseApiError(result.error || 'Delete event failed');
 }
 
-export async function batchCreateEvents(eventsData: Array<Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>>): Promise<{ results: Array<{ row: number; id: string }>; count: number }> {
-  const rows = eventsData.map(ev => eventItemToDbRow(ev));
+export async function batchCreateEvents(eventsData: Array<Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>>): Promise<{ results: Array<{ row: number; id: string }>; count: number }> {
+  const rows = eventsData.map(ev => eventItemToDbRow(withDerivedStatusCache(ev as Partial<EventItem>)));
   const result = await adminAction<{ success: boolean; error?: string; results?: Array<{ id: string }>; count?: number }>('batchCreateEvents', { data: rows });
   if (!result.success) throw new SupabaseApiError(result.error || 'Batch create failed');
   const results = (result.results || []).map(r => ({ row: 0, id: r.id }));
@@ -406,6 +427,7 @@ export async function deleteDraftEvent(id: string): Promise<void> {
   if (!result.success) throw new SupabaseApiError(result.error || 'Delete draft failed');
 }
 
+/** Publish Draft → Event via /api/supabase-admin only (not Apps Script). */
 export async function publishDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('publishDraft', { id });
   if (!result.success) throw new SupabaseApiError(result.error || 'Publish draft failed');
@@ -767,6 +789,7 @@ export async function submitCommunityRegistration(data: {
 }
 
 // ---- Letter Request (legacy - still uses Google Apps Script) ----
+// Does not mutate Draft progress / Event status (T-008).
 
 export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
   const response = await fetch(LEGACY_ADMIN_PROXY_URL, {

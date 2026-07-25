@@ -1,6 +1,19 @@
 import { DraftEventItem } from '../types';
 import { parseDateStrLocal } from './eventUtils';
 
+/**
+ * Client/API publish gate (T-002 / ADR 001).
+ * Must match api/supabase-admin.js `publishDraft` guards.
+ */
+export function canPublishDraft(
+  draft: Pick<DraftEventItem, 'progress' | 'published' | 'deleted'>,
+): boolean {
+  if (draft.published) return false;
+  if (draft.deleted) return false;
+  if (draft.progress !== 'confirm') return false;
+  return true;
+}
+
 export function normalizePhoneToWhatsApp(phone: string) {
   const digits = String(phone || '').replace(/\D/g, '');
   if (!digits) return '';

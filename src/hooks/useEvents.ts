@@ -113,7 +113,7 @@ export function useEvents() {
     const normalizedEvent = normalizeEvent(ev);
     setEvents(prev => [...prev, normalizedEvent]);
     try {
-      const { id, status, rowIndex, ...apiData } = normalizedEvent;
+      const { id, rowIndex, ...apiData } = normalizedEvent;
       const created = await apiCreate(apiData);
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
@@ -131,7 +131,7 @@ export function useEvents() {
     setEvents(prev => [...prev, ...normalizedEvents]);
     try {
       const apiDataList = normalizedEvents.map(e => {
-        const { id, status, rowIndex, ...apiData } = e;
+        const { id, rowIndex, ...apiData } = e;
         return apiData;
       });
       const { results } = await apiBatchCreate(apiDataList);

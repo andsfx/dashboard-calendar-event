@@ -20,7 +20,7 @@ describe('FilterBar', () => {
   it('renders status tabs', () => {
     render(<FilterBar {...mockProps} />)
     expect(screen.getByText('Semua')).toBeInTheDocument()
-    expect(screen.getByText('Draft')).toBeInTheDocument()
+    expect(screen.getByText('Internal')).toBeInTheDocument()
     expect(screen.getByText('Berlangsung')).toBeInTheDocument()
     expect(screen.getByText('Mendatang')).toBeInTheDocument()
     expect(screen.getByText('Selesai')).toBeInTheDocument()
@@ -38,9 +38,9 @@ describe('FilterBar', () => {
     expect(mockProps.onFilterChange).toHaveBeenCalledWith('ongoing')
   })
 
-  it('hides draft tab when showDraft is false', () => {
+  it('hides internal draft tab when showDraft is false', () => {
     render(<FilterBar {...mockProps} showDraft={false} />)
-    expect(screen.queryByText('Draft')).not.toBeInTheDocument()
+    expect(screen.queryByText('Internal')).not.toBeInTheDocument()
   })
 
   it('renders month dropdown', () => {

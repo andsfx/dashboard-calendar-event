@@ -1,3 +1,5 @@
+import { getStatus as getStatusCanonical } from './eventUtils';
+
 export type EventStatus = 'upcoming' | 'ongoing' | 'past';
 
 export interface TimeRange {
@@ -35,25 +37,7 @@ export function parseTimeRange(jam: string): TimeRange | null {
   };
 }
 
+/** Thin wrapper — canonical logic lives in eventUtils.getStatus (SPEC §3.3). */
 export function getStatus(dateStr: string, jam: string, now = new Date()): EventStatus {
-  const eventDate = parseIsoDateLocal(dateStr);
-  if (!eventDate) return 'upcoming';
-
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  if (eventDate > today) return 'upcoming';
-  if (eventDate < today) return 'past';
-
-  const range = parseTimeRange(jam);
-  if (!range) return 'ongoing';
-
-  const endDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    range.endHour,
-    range.endMin
-  );
-  if (now > endDate) return 'past';
-  return 'ongoing';
+  return getStatusCanonical(dateStr, jam, undefined, undefined, now);
 }

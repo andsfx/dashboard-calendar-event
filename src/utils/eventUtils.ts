@@ -8,7 +8,7 @@ export const STATUS_ORDER: Record<EventStatus, number> = {
 };
 
 export const STATUS_LABEL: Record<EventStatus, string> = {
-  draft:    'Draft',
+  draft:    'Internal',
   ongoing:  'Berlangsung',
   upcoming: 'Mendatang',
   past:     'Selesai',
@@ -270,36 +270,45 @@ export function getSingleDayEventsForDate(events: EventItem[], dateStr: string):
 // ===== END MULTI-DAY EVENT HELPERS =====
 
 
-export function getStatus(dateStr: string, jam: string, dateEnd?: string, dayTimeSlots?: DayTimeSlot[]): EventStatus {
+/**
+ * Canonical Event operational status from dates (ADR 002 / SPEC §3.3).
+ * `draft` is never returned — callers preserve internal draft flag separately.
+ * Optional `now` for tests; multi-day last-day uses jam/end time when parseable.
+ */
+export function getStatus(
+  dateStr: string,
+  jam: string,
+  dateEnd?: string,
+  dayTimeSlots?: DayTimeSlot[],
+  now: Date = new Date(),
+): Exclude<EventStatus, 'draft'> {
   if (!dateStr) return 'upcoming';
-  
-  const now = new Date();
+
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
+
   const startDate = parseDateStrLocal(dateStr);
   if (!startDate) return 'upcoming';
-  
+
   // Multi-day event
   if (dateEnd && dateEnd !== dateStr) {
     const endDate = parseDateStrLocal(dateEnd);
     if (!endDate) return 'upcoming';
-    
+
     const startTarget = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
     const endTarget = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-    
+
     if (today > endTarget) return 'past';
     if (today < startTarget) return 'upcoming';
-    
+
     // On the last day, check end time
     if (today.getTime() === endTarget.getTime()) {
-      // Prefer the last day's slot jam if available
       const lastDayJam = dayTimeSlots?.find(s => s.date === dateEnd)?.jam || jam;
       if (lastDayJam) {
         try {
           const endMatch = lastDayJam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
           if (endMatch && endMatch[1] && endMatch[2]) {
-            const endHour = parseInt(endMatch[1]);
-            const endMin = parseInt(endMatch[2]);
+            const endHour = parseInt(endMatch[1], 10);
+            const endMin = parseInt(endMatch[2], 10);
             const endTime = new Date(now);
             endTime.setHours(endHour, endMin, 0);
             if (now > endTime) return 'past';
@@ -309,47 +318,40 @@ export function getStatus(dateStr: string, jam: string, dateEnd?: string, dayTim
         }
       }
     }
-    
-    return 'ongoing'; // today is within range
+
+    return 'ongoing';
   }
-  
+
   // Single-day event
   const target = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
 
   if (target > today) return 'upcoming';
   if (target < today) return 'past';
 
-  // Same day - check time
+  // Same day - check time range when parseable
   if (!jam) return 'ongoing';
 
   try {
-    const timeMatch = jam.match(/(\d{1,2})[:.](\d{2})/);
-    if (timeMatch && timeMatch[1] && timeMatch[2]) {
-      const startHour = parseInt(timeMatch[1]);
-      const startMin = parseInt(timeMatch[2]);
+    const normalized = jam.trim().replace(/\./g, ':');
+    const rangeMatch = /^([01]?\d|2[0-3]):([0-5]\d)\s*[-–]\s*([01]?\d|2[0-3]):([0-5]\d)$/.exec(normalized);
+    if (rangeMatch && rangeMatch[1] && rangeMatch[2] && rangeMatch[3] && rangeMatch[4]) {
       const startTime = new Date(today);
-      startTime.setHours(startHour, startMin, 0);
-      
-      const endMatch = jam.match(/[-–]\s*(\d{1,2})[:.](\d{2})/);
-      if (endMatch && endMatch[1] && endMatch[2]) {
-        const endHour = parseInt(endMatch[1]);
-        const endMin = parseInt(endMatch[2]);
-        const endTime = new Date(today);
-        endTime.setHours(endHour, endMin, 0);
-        
-        if (now >= startTime && now <= endTime) return 'ongoing';
-        if (now < startTime) return 'upcoming';
-        return 'past';
-      }
-      
-      if (now >= startTime) return 'ongoing';
-      return 'upcoming';
+      startTime.setHours(parseInt(rangeMatch[1], 10), parseInt(rangeMatch[2], 10), 0);
+      const endTime = new Date(today);
+      endTime.setHours(parseInt(rangeMatch[3], 10), parseInt(rangeMatch[4], 10), 0);
+
+      if (now >= startTime && now <= endTime) return 'ongoing';
+      if (now < startTime) return 'upcoming';
+      return 'past';
     }
+
+    // Unparseable jam on same day → ongoing (date-only fallback)
+    return 'ongoing';
   } catch (e) {
     console.error('Error parsing time for status:', e);
   }
 
-  return 'upcoming';
+  return 'ongoing';
 }
 
 export function recalculateStatuses(events: EventItem[]): EventItem[] {

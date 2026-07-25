@@ -12,6 +12,8 @@ interface Props {
   availableViewTabs: Array<{ key: ViewMode; label: string; icon: React.ReactNode }>;
   setViewMode: (view: ViewMode) => void;
   isAdmin: boolean;
+  /** Show Event status "draft" filter tab (admin/superadmin only). */
+  showInternalDraftFilter?: boolean;
   visibleEvents: EventItem[];
   visibleStats: { total: number };
   holidays: HolidayItem[];
@@ -39,6 +41,7 @@ export function DashboardViewsSection(props: Props) {
     availableViewTabs,
     setViewMode,
     isAdmin,
+    showInternalDraftFilter = false,
     visibleEvents,
     visibleStats,
     holidays,
@@ -119,7 +122,7 @@ export function DashboardViewsSection(props: Props) {
                 months={visibleMonths}
                 activeMonth={activeMonth}
                 onMonthChange={setActiveMonth}
-                showDraft={isAdmin}
+                showDraft={showInternalDraftFilter}
                 showPriority={isAdmin}
               />
             </div>
@@ -208,7 +211,14 @@ export function DashboardViewsSection(props: Props) {
             <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
           )}
           {viewMode === 'kanban' && (
-            <KanbanView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+            <KanbanView
+              events={visibleEvents}
+              isAdmin={isAdmin}
+              showInternalDraftColumn={showInternalDraftFilter}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onDetail={onDetail}
+            />
           )}
           {viewMode === 'timeline' && (
             <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />

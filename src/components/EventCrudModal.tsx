@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
-import { parseDateStrLocal, getDateRange, createRecurringEvents } from '../utils/eventUtils';
+import { parseDateStrLocal, getDateRange, createRecurringEvents, getStatus } from '../utils/eventUtils';
 import { uploadToR2 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
@@ -435,9 +435,15 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : undefined,
     };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
-    const now = new Date().toISOString().split('T')[0] ?? '';
-    const autoStatus = formData.dateStr < now ? 'past' : formData.dateStr === now ? 'ongoing' : 'upcoming';
-    const finalStatus = autoStatus;
+    // Canonical derive (SPEC §3.3); preserve legacy internal draft flag if editing one
+    const finalStatus = editingEvent?.status === 'draft'
+      ? 'draft'
+      : getStatus(
+          formData.dateStr,
+          formData.jam || '',
+          normalizedFormData.dateEnd,
+          normalizedFormData.dayTimeSlots,
+        );
 
     setIsSubmitting(true);
     const success = await onSave({

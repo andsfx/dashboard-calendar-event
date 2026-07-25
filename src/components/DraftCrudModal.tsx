@@ -310,7 +310,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     const meta = getDraftDateMeta(form.dateStr);
     setIsSubmitting(true);
     const success = await onSave({
-      ...(editingDraft ? { id: editingDraft.id, rowIndex: editingDraft.rowIndex } : { id: createId(), rowIndex: 0 }),
+      ...(editingDraft?.id ? { id: editingDraft.id, rowIndex: editingDraft.rowIndex } : { id: createId(), rowIndex: 0 }),
       ...form,
       category: form.categories[0] || 'Umum',
       isMultiDay: form.eventType === 'multi_day',
@@ -327,7 +327,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
     if (!success) setIsSubmitting(false);
   };
 
-  const isEdit = !!editingDraft;
+  // empty id = prefill create (e.g. dari Registration), not edit
+  const isEdit = Boolean(editingDraft?.id);
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="draft-crud-title">
@@ -338,7 +339,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         <ModalHeader
           titleId="draft-crud-title"
           title={isEdit ? 'Edit Draft Event' : 'Tambah Draft Event'}
-          subtitle={isEdit ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}
+          subtitle={isEdit && editingDraft ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}
           icon={<FileEdit />}
           onClose={onClose}
           closeDisabled={isSubmitting}

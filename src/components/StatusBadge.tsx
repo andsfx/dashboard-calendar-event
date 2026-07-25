@@ -3,7 +3,8 @@ import { EventStatus } from '../types';
 
 const CONFIG: Record<EventStatus, { label: string; className: string; dotClass: string }> = {
   draft: {
-    label: 'Draft',
+    // Internal Event flag — not Draft antrian (CONTEXT.md)
+    label: 'Internal',
     className: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 ring-1 ring-brand-primary-300 dark:ring-brand-primary-700',
     dotClass: 'bg-brand-primary-400',
   },

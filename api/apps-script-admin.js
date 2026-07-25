@@ -1,5 +1,10 @@
 import { requireAuth } from './_lib/auth.js';
 
+/**
+ * Legacy Google Apps Script proxy.
+ * Production event/draft CRUD + publishDraft: use /api/supabase-admin (supabase-admin.js).
+ * Keep this allowlist only while Apps Script still used for letter/migration.
+ */
 const ALLOWED_ACTIONS = new Set([
   'readDrafts',
   'create', 'update', 'delete',

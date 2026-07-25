@@ -72,7 +72,10 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
   const permissions = usePermission(auth.user, auth.isLegacy);
+  /** Dashboard shell access (any logged-in role with canViewDashboard). */
   const isAdmin = permissions.canViewDashboard;
+  /** Internal schedule: Draft queue + Event status draft (admin/superadmin only). SPEC T-003 */
+  const canSeeInternalSchedule = permissions.canEditEvents;
   const { toasts, showToast, removeToast } = useToast();
   const {
     events, filteredEvents,
@@ -101,7 +104,7 @@ export default function App() {
     deleteDraft,
     publishDraft,
     restoreDraft,
-  } = useDraftEvents(isAdmin);
+  } = useDraftEvents(canSeeInternalSchedule);
 
   const toggleDark = useCallback(() => {
     setIsDark(v => {
@@ -190,37 +193,42 @@ export default function App() {
   });
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
-  const visibleEvents = useMemo(() => filteredEvents.filter(e => isAdmin || e.status !== 'draft'), [filteredEvents, isAdmin]);
+  // Internal draft Event rows only for canEditEvents (admin/superadmin), not all dashboard roles
+  const visibleEvents = useMemo(
+    () => filteredEvents.filter(e => canSeeInternalSchedule || e.status !== 'draft'),
+    [filteredEvents, canSeeInternalSchedule]
+  );
+  const scheduleSource = canSeeInternalSchedule ? visibleEvents : publicEvents;
   const ongoingEvents = useMemo(
-    () => (isAdmin ? visibleEvents : publicEvents).filter(e => e.status === 'ongoing'),
-    [isAdmin, visibleEvents, publicEvents]
+    () => scheduleSource.filter(e => e.status === 'ongoing'),
+    [scheduleSource]
   );
   const upcomingEvents = useMemo(
-    () => (isAdmin ? visibleEvents : publicEvents).filter(e => e.status === 'upcoming'),
-    [isAdmin, visibleEvents, publicEvents]
+    () => scheduleSource.filter(e => e.status === 'upcoming'),
+    [scheduleSource]
   );
   const visibleCategories = useMemo(() => {
-    const source = isAdmin ? events : publicEvents;
+    const source = canSeeInternalSchedule ? events : publicEvents;
     const normalized = source
       .flatMap(e => e.categories)
       .flatMap(category => String(category || '').split(/[|,]/))
       .map(category => category.trim())
       .filter(Boolean);
     return ['Semua', ...new Set(normalized)];
-  }, [isAdmin, events, publicEvents]);
+  }, [canSeeInternalSchedule, events, publicEvents]);
   const visibleMonths = useMemo(() => {
-    const source = isAdmin ? events : publicEvents;
+    const source = canSeeInternalSchedule ? events : publicEvents;
     return ['Semua', ...new Set(source.map(e => e.month))];
-  }, [isAdmin, events, publicEvents]);
+  }, [canSeeInternalSchedule, events, publicEvents]);
   const visibleStats = useMemo(() => {
-    const source = isAdmin ? events : publicEvents;
+    const source = canSeeInternalSchedule ? events : publicEvents;
     return {
       total: source.length,
       ongoing: source.filter(e => e.status === 'ongoing').length,
       upcoming: source.filter(e => e.status === 'upcoming').length,
       past: source.filter(e => e.status === 'past').length,
     };
-  }, [isAdmin, events, publicEvents]);
+  }, [canSeeInternalSchedule, events, publicEvents]);
   const availableViewTabs = useMemo(
     () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar' && tab.key !== 'kanban'),
     [isAdmin]
@@ -238,10 +246,10 @@ export default function App() {
   const allowedDashboardPaths = useMemo(() => new Set(getAllowedDashboardPaths(permissions)), [permissions]);
   const defaultDashboardPath = useMemo(() => getDefaultDashboardPath(permissions), [permissions]);
   useEffect(() => {
-    if (!isAdmin && activeFilter === 'draft') {
+    if (!canSeeInternalSchedule && activeFilter === 'draft') {
       setActiveFilter('Semua');
     }
-  }, [isAdmin, activeFilter, setActiveFilter]);
+  }, [canSeeInternalSchedule, activeFilter, setActiveFilter]);
 
   useEffect(() => {
     if (!isAdmin && (viewMode === 'calendar' || viewMode === 'kanban')) {
@@ -737,6 +745,7 @@ export default function App() {
               availableViewTabs={availableViewTabs}
               setViewMode={setViewMode}
               isAdmin={isAdmin}
+              showInternalDraftFilter={canSeeInternalSchedule}
               visibleEvents={visibleEvents}
               visibleStats={{ total: visibleStats.total }}
               holidays={holidays}
@@ -782,7 +791,7 @@ export default function App() {
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Kelola survey dan feedback dari peserta event
+                Kelola Survey Kepuasan (pengunjung/organizer) per event
               </p>
             </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>
@@ -797,7 +806,7 @@ export default function App() {
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h1>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Evaluasi mandiri dari EO/Tenant untuk setiap event yang telah dilaksanakan
+                Self-assessment tenant/gerai per event (terpisah dari Survey Kepuasan)
               </p>
             </div>
             <Suspense fallback={<SectionFallback height="h-48" />}>

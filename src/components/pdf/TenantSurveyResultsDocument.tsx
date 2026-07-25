@@ -105,7 +105,7 @@ export function TenantSurveyResultsDocument({
     <Document
       title="Hasil Evaluasi Tenant"
       author="Metropolitan Mall Bekasi"
-      subject="Tenant Survey Results"
+      subject="Hasil Evaluasi Tenant"
     >
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>Hasil Evaluasi Tenant</Text>

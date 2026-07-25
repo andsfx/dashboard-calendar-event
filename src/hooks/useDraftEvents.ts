@@ -9,7 +9,7 @@ import {
   restoreDraftEvent as apiRestoreDraft,
 } from '../utils/supabaseApi';
 import { supabase } from '../lib/supabase';
-import { sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
+import { canPublishDraft, sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
 export function useDraftEvents(enabled = false) {
   const [draftEvents, setDraftEvents] = useState<DraftEventItem[]>([]);
@@ -135,6 +135,7 @@ export function useDraftEvents(enabled = false) {
   const publishDraft = useCallback(async (id: string): Promise<boolean> => {
     const target = draftEvents.find(item => item.id === id);
     if (!target?.id) return false;
+    if (!canPublishDraft(target)) return false;
 
     try {
       await apiPublishDraft(target.id);

@@ -163,14 +163,21 @@ export default async function handler(req, res) {
         const { data: draft, error: fetchErr } = await sb.from('draft_events').select('*').eq('id', draftId).single();
         if (fetchErr) throw fetchErr;
         if (!draft) throw new Error('Draft not found');
-        if (draft.published) throw new Error('Draft already published');
-        if (draft.deleted) throw new Error('Draft is deleted');
-        if (draft.progress !== 'confirm') throw new Error('Draft must be confirmed before publishing');
+        // Hard forbid re-publish (T-002 / ADR 001) — no second Event spawn
+        if (draft.published) {
+          return res.status(409).json({ success: false, error: 'Draft already published' });
+        }
+        if (draft.deleted) {
+          return res.status(400).json({ success: false, error: 'Draft is deleted' });
+        }
+        if (draft.progress !== 'confirm') {
+          return res.status(400).json({ success: false, error: 'Draft must be confirmed before publishing' });
+        }
 
-        // 2. Idempotency: check if event already exists for this draft (prevents duplicate on retry)
+        // 2. Idempotency: event may exist from partial prior attempt
         const { data: existing } = await sb.from('events').select('id').eq('source_draft_id', draftId).maybeSingle();
         if (!existing) {
-          // 3. Create event from draft
+          // 3. Create event from draft (status cache left null/default; client derives on read)
           const eventRow = {
             date_str: draft.date_str,
             date_end: draft.date_end,
@@ -201,10 +208,11 @@ export default async function handler(req, res) {
           if (insertErr) throw insertErr;
         }
 
-        // 4. Mark draft as published (safe to repeat if already marked)
+        // 4. Mark draft as published
         const { error: updateErr } = await sb.from('draft_events').update({
           published: true,
           published_at: new Date().toISOString(),
+          progress: 'confirm',
         }).eq('id', draftId);
         if (updateErr) throw updateErr;
 

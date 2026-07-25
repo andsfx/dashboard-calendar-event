@@ -1,4 +1,11 @@
-export type EventStatus = 'draft' | 'upcoming' | 'ongoing' | 'past';
+/** Operational Event status — derived from dates (SPEC §3.3 / ADR 002). */
+export type EventOperationalStatus = 'upcoming' | 'ongoing' | 'past';
+/**
+ * Event row status including legacy internal `draft` flag.
+ * `draft` here is NOT the Draft antrian entity (see DraftEventItem / CONTEXT.md).
+ * Public surfaces must hide `draft`. Prefer EventOperationalStatus for new code.
+ */
+export type EventStatus = EventOperationalStatus | 'draft';
 export type EventModel = '' | 'free' | 'bayar' | 'support';
 export type DraftProgress = 'draft' | 'confirm' | 'cancel';
 export type HolidayType = 'libur_nasional' | 'cuti_bersama';

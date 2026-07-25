@@ -285,7 +285,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               disabled={isSubmitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 active:scale-95 disabled:opacity-50 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
             >
-              <CalendarPlus className="h-3.5 w-3.5" /> Buat Event
+              <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
             </button>
           )}
           {canReview && (

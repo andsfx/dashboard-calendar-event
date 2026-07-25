@@ -9,6 +9,7 @@ import {
   ToastMessage,
 } from '../types';
 import { createId, parseDateStrLocal, MONTH_NAMES } from '../utils/eventUtils';
+import { canPublishDraft } from '../utils/draftUtils';
 import {
   createLetterRequest,
   fetchSiteSettings,
@@ -151,6 +152,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     }
   }, [refreshRegistrations, showToast]);
 
+  /** Prefill Draft form from approved registration (manual; never auto on approve). T-005 / ADR 003 */
   const handleCreateEventFromRegistration = useCallback((registration: CommunityRegistration) => {
     const dateStr = registration.preferredDate || '';
     const dateMeta = dateStr ? (() => {
@@ -164,10 +166,11 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
       };
     })() : { day: '', tanggal: '', month: '' };
 
-    const prefillData: Partial<EventItem> = {
-      acara: registration.organizationName || registration.communityName,
+    const orgName = registration.organizationName || registration.communityName;
+    const prefillData: Partial<DraftEventItem> = {
+      acara: orgName,
       lokasi: '',
-      eo: registration.organizationName || registration.communityName,
+      eo: orgName,
       pic: registration.pic,
       phone: registration.phone,
       keterangan: registration.description || '',
@@ -180,12 +183,38 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
       category: 'Umum',
       priority: 'medium',
       eventModel: 'free',
+      progress: 'draft',
+      internalNote: `Dari pendaftaran: ${orgName} (${registration.id})`,
     };
 
-    setInitialEventData(prefillData);
-    setEditingEvent(null);
-    setShowCrudModal(true);
-    showToast('info', 'Buat Event', 'Form event telah diisi dengan data pendaftaran. Silakan lengkapi dan simpan.');
+    // Prefill form only (empty id ⇒ create on save, not update)
+    setEditingDraft({
+      id: '',
+      rowIndex: 0,
+      tanggal: prefillData.tanggal || '',
+      dateStr: prefillData.dateStr || '',
+      day: prefillData.day || '',
+      jam: '',
+      acara: prefillData.acara || '',
+      lokasi: '',
+      eo: prefillData.eo || '',
+      pic: prefillData.pic || '',
+      phone: prefillData.phone || '',
+      keterangan: prefillData.keterangan || '',
+      internalNote: prefillData.internalNote || '',
+      month: prefillData.month || '',
+      category: 'Umum',
+      categories: [],
+      priority: 'medium',
+      eventModel: 'free',
+      eventNominal: '',
+      eventModelNotes: '',
+      progress: 'draft',
+      published: false,
+      deleted: false,
+    });
+    setShowDraftModal(true);
+    showToast('info', 'Buat Draft dari pendaftaran', 'Form Draft diisi dari data pendaftaran. Lengkapi lalu simpan — Approve tidak membuat Draft otomatis.');
   }, [showToast]);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
@@ -312,7 +341,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
         ...data as EventItem,
         id: createId(),
         rowIndex: events.length + 1,
-        status: data.status || 'upcoming',
+        // status derived in normalizeEvent / getStatus — ignore form status
       };
       success = await addEvent(newEv);
       if (success) showToast('success', 'Acara ditambahkan!', `"${data.acara}" berhasil ditambahkan.`);
@@ -361,8 +390,10 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
 
   const handleSaveDraft = useCallback(async (data: Partial<DraftEventItem>) => {
     let success = false;
+    // empty id = new Draft (e.g. prefill dari Registration); only real ids update
+    const isUpdate = Boolean(editingDraft?.id);
 
-    if (editingDraft) {
+    if (isUpdate && editingDraft) {
       success = await updateDraft({ ...editingDraft, ...data } as DraftEventItem);
       if (success) showToast('success', 'Draft diperbarui', `"${data.acara}" berhasil diperbarui.`);
       else showToast('error', 'Gagal memperbarui draft', 'Perubahan draft belum tersimpan.');
@@ -378,7 +409,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
         deletedAt: '',
       };
       success = await addDraft(newDraft);
-      if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke queue aktif.`);
+      if (success) showToast('success', 'Draft ditambahkan', `"${data.acara}" masuk ke antrian Draft.`);
       else showToast('error', 'Gagal menambahkan draft', 'Draft event belum tersimpan.');
     }
 
@@ -398,18 +429,26 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
   }, [deleteDraft, showToast]);
 
   const handlePublishDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.progress !== 'confirm') {
-      showToast('warning', 'Belum bisa dipublish', 'Draft harus berstatus confirm sebelum dipublish.');
+    if (draft.published) {
+      showToast('warning', 'Sudah dipublish', 'Draft ini sudah dipublish. Buat Draft baru bila perlu Event lain.');
       return;
     }
-    if (!window.confirm(`Publish draft event "${draft.acara}" ke schedule utama?`)) return;
+    if (draft.deleted) {
+      showToast('warning', 'Draft terhapus', 'Pulihkan draft dulu sebelum publish.');
+      return;
+    }
+    if (!canPublishDraft(draft)) {
+      showToast('warning', 'Belum bisa publish', 'Draft harus berstatus confirm sebelum Publish Draft.');
+      return;
+    }
+    if (!window.confirm(`Publish Draft "${draft.acara}" ke jadwal Event resmi?`)) return;
 
     const success = await publishDraft(draft.id);
     if (success) {
       await refreshEvents();
-      showToast('success', 'Draft dipublish', `"${draft.acara}" sudah masuk ke schedule utama.`);
+      showToast('success', 'Draft dipublish', `"${draft.acara}" sudah jadi Event di jadwal resmi.`);
     } else {
-      showToast('error', 'Gagal publish draft', 'Publish ke schedule utama belum berhasil.');
+      showToast('error', 'Gagal Publish Draft', 'Publish ke jadwal Event belum berhasil (mungkin sudah dipublish atau belum confirm).');
     }
   }, [publishDraft, refreshEvents, showToast]);
 
