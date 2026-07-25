@@ -15,14 +15,17 @@
 **Risk**: High - Database breach if leaked
 
 **Actions**:
-- [ ] Check if .env is in .gitignore
-- [ ] Remove .env from git history (if committed)
+- [x] Check if .env is in .gitignore — yes (`.env`, `.env*`, `.env*.local`) — verified 2026-07-23
+- [ ] Remove .env from git history (if committed) — re-run `git log --all -- .env` before force rewrite
 - [ ] Rotate all exposed keys:
   - [ ] Supabase service role key
   - [ ] R2 access keys
-  - [ ] Admin password (change from admin123)
-- [ ] Update .env.example with placeholder values
-- [ ] Document secret rotation in README
+  - [ ] Admin password (local still weak default in private env — **rotate in Vercel + local**)
+- [x] Update .env.example with placeholder values — already placeholders
+- [x] Code: remove hardcoded `admin123` fallback from `api/admin-login.js` (fail closed) — 2026-07-23
+- [x] README no longer documents default admin password — 2026-07-23
+- [ ] Document secret rotation procedure in README (ops runbook still open)
+- [ ] Confirm no secrets in committed history / CI logs
 
 **Commands**:
 \\\ash

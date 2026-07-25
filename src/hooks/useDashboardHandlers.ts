@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   DraftEventItem,
   EventItem,
-  LetterRequestItem,
   AnnualTheme,
   CommunityRegistration,
   RegistrationStatus,
@@ -11,7 +10,6 @@ import {
 import { createId, parseDateStrLocal, MONTH_NAMES } from '../utils/eventUtils';
 import { canPublishDraft } from '../utils/draftUtils';
 import {
-  createLetterRequest,
   fetchSiteSettings,
   updateSiteSettings,
   fetchCommunityRegistrations,
@@ -476,18 +474,6 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     }
   }, [restoreDraft, showToast]);
 
-  const handleSubmitLetter = useCallback(async (data: LetterRequestItem) => {
-    try {
-      await createLetterRequest(data);
-      showToast('success', 'Permintaan surat dikirim', 'Data berhasil masuk ke workflow Google Form dan AutoCrat akan membuat dokumennya otomatis.');
-      return true;
-    } catch (error) {
-      console.error('Letter request error:', error);
-      showToast('error', 'Gagal mengirim surat', 'Data surat belum berhasil dikirim ke Google Form. Periksa koneksi lalu coba lagi.');
-      return false;
-    }
-  }, [showToast]);
-
   return {
     showLoginModal,
     setShowLoginModal,
@@ -563,6 +549,5 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     handlePublishDraft,
     handleDraftProgressChange,
     handleRestoreDraft,
-    handleSubmitLetter,
   };
 }

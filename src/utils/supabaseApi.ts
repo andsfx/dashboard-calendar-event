@@ -8,9 +8,6 @@ import { getStatus } from './eventUtils';
 
 const ADMIN_PROXY_URL = '/api/supabase-admin';
 
-// Legacy: letter request still uses Google Apps Script
-const LEGACY_ADMIN_PROXY_URL = '/api/apps-script-admin';
-
 class SupabaseApiError extends Error {
   constructor(message: string) {
     super(message);
@@ -788,22 +785,7 @@ export async function submitCommunityRegistration(data: {
   return { id: result.id || '' };
 }
 
-// ---- Letter Request (legacy - still uses Google Apps Script) ----
-// Does not mutate Draft progress / Event status (T-008).
-
-export async function createLetterRequest(data: LetterRequestItem): Promise<{ row: number }> {
-  const response = await fetch(LEGACY_ADMIN_PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ action: 'createLetterRequest', data }),
-  });
-  const result = await response.json();
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create letter request failed');
-  return { row: result.row || 0 };
-}
-
-// ---- Generated Letters (new - stored in Supabase) ----
+// ---- Generated Letters (Supabase only — ADR 004; GAS createLetterRequest removed) ----
 
 interface DbGeneratedLetter {
   id: string;

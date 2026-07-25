@@ -348,4 +348,49 @@ Urutan hemat:
 
 **Q: File ini untuk apa?**  
 **A: Rules + step-by-step** supaya audit berulang konsisten, hemat token, dan tidak skip area sensitif.
+
+**Q: Bedanya mode A–G vs loop harian?**  
+**A:** Mode A–G = pilih *scope sesi audit*. Loop §12 = jalur *satu bug* (locate → fix → verify → close). Pakai keduanya: triage pilih mode, lalu jalanin 7 step.
+
+---
+
+## 12. Daily bug fix loop (7 steps)
+
+Jalur harian audit → analisa → fix. **Tidak mengganti** mode A–G; melengkapi.  
+One-pager mirror (Open Design / handoff): `bug-fix-workflow.md`.
+
+| # | Name | Action |
+|---|---|---|
+| **1** | **Preflight** | `git status -sb` · `git rev-parse HEAD` · bandingkan “Built from commit” di `graphify-out/GRAPH_REPORT.md`. Stale → `graphify update .`. Env: nama key dari `.env.example` saja — jangan paste secret. |
+| **2** | **Triage** | Symptom → mode: **C** area bug · **D** security · **E** UI/a11y · **F** release. (A map / B arch / G full = bukan default bug path.) |
+| **3** | **Locate** | `graphify query "…"` lalu `graphify path "UI" "API/store"` → baca SoT file dulu; hindari grep buta full repo. Tenant survey → `src/components/survey/rules.md` dulu. |
+| **4** | **Blast** | Neighbors / community SoT → risk list (authz, data loss, empty state, mobile, public abuse). Catat sentuhan god node (`EventItem`, auth, `App`). |
+| **5** | **Fix** | Patch terkecil. Jangan sentuh `improve/` kecuali disengaja. No secret di client. Prefer modul SoT (mis. `dashboardNavigation.tsx`). |
+| **6** | **Verify** | Selalu `npm run build`. Logic → unit/vitest target. UI/flow → `npm run test:e2e` (atau headed). Gagal → fix lagi, jangan skip gate. |
+| **7** | **Close** | Temuan: severity · path · status (`fixed` / `deferred` / `wontfix`) · evidence. Opsional `graphify update .` setelah edit struktural. |
+
+### Triage cepat (ulang dari §5)
+
+| Symptom | Mode |
+|---|---|
+| Fitur rusak / data salah / crash area dikenal | **C** |
+| Auth, env, secret, API publik abuse | **D** |
+| Layout, a11y, visual regression | **E** |
+| “Aman deploy?” | **F** |
+| Baru buka repo / hilang di struktur | **A** lalu **C** |
+
+### Finding stub (step 7)
+
+```markdown
+### [ID] <title>
+- Severity: critical | high | medium | low
+- Status: fixed | deferred | wontfix
+- Mode: C | D | E | F
+- Path: `path/to/file`
+- Evidence: …
+- Verify: commands + result
+- Next: …
 ```
+
+Default simpan: chat ringkas, atau `reports/bug-YYYY-MM-DD.md` (sesuaikan konvensi tim).
+

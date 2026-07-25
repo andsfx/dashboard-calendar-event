@@ -16,6 +16,16 @@ Pipeline: grill → spec → **tickets** → implement → review.
 | [T-007](T-007-event-status-type-cleanup.md) | P2 | EventStatus publik vs internal; type cleanup | done | T-001, T-003 |
 | [T-008](T-008-asset-lifecycle-guards.md) | P2 | Aset opsional: guard surat/album tidak gate jadwal | done | — |
 
+## Hygiene board (grill 2026-07-25)
+
+| ID | Prioritas | Judul | Status | Depends |
+|----|-----------|-------|--------|---------|
+| [H-001](H-001-gitignore-and-leftover.md) | P0 | gitignore noise + leftover dirty execute | done | — |
+| [H-002](H-002-kill-gas-letter.md) | P0 | Kill GAS letter; GeneratedLetter only | done | — |
+| [H-003](H-003-apps-script-migration-deprecate.md) | P2 | Deprecate/document apps-script migration | done | H-002 |
+
+Spec: [docs/SPEC-hygiene.md](../SPEC-hygiene.md) · ADR: [004](../adr/004-letter-supabase-kill-gas.md)
+
 ### Follow-up (post-audit P1) — 2026-07-25
 
 - `canPublishDraft` shared: `draftUtils` → `useDraftEvents` + `useDashboardHandlers`

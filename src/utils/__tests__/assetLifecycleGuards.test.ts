@@ -34,24 +34,29 @@ describe('asset lifecycle guards (T-008)', () => {
     )).toBe(false);
   });
 
-  it('letter submit shape does not include draft progress fields', () => {
-    // createLetterRequest payload is LetterRequestItem only — no progress/published
-    const letterPayload = {
-      tanggalSurat: '2026-01-01',
-      nomorSurat: 'X',
-      namaEO: 'EO',
-      penanggungJawab: 'PIC',
-      alamatEO: '',
-      namaEvent: 'Event',
-      lokasi: '',
-      hariTanggalPelaksanaan: '',
-      waktuPelaksanaan: '',
-      nomorTelepon: '',
-      hariTanggalLoading: '',
-      waktuLoading: '',
+  it('GeneratedLetter create params do not include draft progress fields', () => {
+    // Product letter = Supabase GeneratedLetter (ADR 004); not GAS createLetterRequest
+    const createParams = {
+      eventId: 'ev-1',
+      letterData: {
+        tanggalSurat: '2026-01-01',
+        nomorSurat: 'X',
+        namaEO: 'EO',
+        penanggungJawab: 'PIC',
+        alamatEO: '',
+        namaEvent: 'Event',
+        lokasi: '',
+        hariTanggalPelaksanaan: '',
+        waktuPelaksanaan: '',
+        nomorTelepon: '',
+        hariTanggalLoading: '',
+        waktuLoading: '',
+      },
+      pdfBase64: 'x',
     };
-    expect(letterPayload).not.toHaveProperty('progress');
-    expect(letterPayload).not.toHaveProperty('published');
-    expect(letterPayload).not.toHaveProperty('status');
+    expect(createParams).not.toHaveProperty('progress');
+    expect(createParams).not.toHaveProperty('published');
+    expect(createParams.letterData).not.toHaveProperty('status');
   });
 });
+

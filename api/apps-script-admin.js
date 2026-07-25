@@ -1,18 +1,18 @@
 import { requireAuth } from './_lib/auth.js';
 
 /**
- * Legacy Google Apps Script proxy.
- * Production event/draft CRUD + publishDraft: use /api/supabase-admin (supabase-admin.js).
- * Keep this allowlist only while Apps Script still used for letter/migration.
+ * Legacy Google Apps Script proxy — OPS MIGRATION ONLY (ADR 004 / SPEC-hygiene).
+ *
+ * Product paths (do NOT add here):
+ * - Event/Draft/publish → /api/supabase-admin
+ * - Letter product → GeneratedLetter in Supabase (LetterGenerator); no createLetterRequest
+ *
+ * Allowed actions are sheet migration/bootstrap one-offs only.
  */
 const ALLOWED_ACTIONS = new Set([
-  'readDrafts',
-  'create', 'update', 'delete',
-  'batchCreate', 'deleteByGroupId',
-  'createTheme', 'updateTheme', 'deleteTheme',
-  'createDraft', 'updateDraft', 'deleteDraft', 'publishDraft', 'restoreDraft',
-  'createLetterRequest',
-  'bootstrapEventSheet', 'migrateLegacyEvents', 'migrateStableIds'
+  'bootstrapEventSheet',
+  'migrateLegacyEvents',
+  'migrateStableIds',
 ]);
 
 export default async function handler(req, res) {
@@ -30,7 +30,10 @@ export default async function handler(req, res) {
 
   const action = String(req.body?.action || '').trim();
   if (!ALLOWED_ACTIONS.has(action)) {
-    return res.status(400).json({ success: false, error: 'Action tidak diizinkan' });
+    return res.status(400).json({
+      success: false,
+      error: 'Action tidak diizinkan (migration-only proxy; letter/Event/Draft use Supabase)',
+    });
   }
 
   const token = adminToken;

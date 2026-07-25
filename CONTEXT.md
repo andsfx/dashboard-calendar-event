@@ -1,7 +1,7 @@
 # CONTEXT — Dashboard Calendar Event
 
 Shared language for Metropolitan Mall Bekasi event operations.
-Pipeline: `grill-with-docs` (this file) → [`to-spec`](docs/SPEC.md) → [`to-tickets`](docs/tickets/README.md) → implement.
+Pipeline: `grill-with-docs` (this file) → [`to-spec`](docs/SPEC.md) / [`hygiene`](docs/SPEC-hygiene.md) → [`to-tickets`](docs/tickets/README.md) → implement.
 
 **Job utama:** operasional jadwal event mall. Community, survey, gallery, surat = satelit di sekitar Event.
 
@@ -102,6 +102,24 @@ Jangan pakai payung **"Staff Mall"** di spek baru — sebut role di atas.
 - Status Event sebagai workflow manual murni (tanpa derivasi tanggal)
 - Menyamakan field EO Event dengan role `eo_tenant`
 - Menyatukan Survey Kepuasan dan Evaluasi Tenant jadi satu entitas
+- Memakai `improve/` sebagai sumber production
+- Letter request lewat Google Apps Script / AutoCrat sebagai jalur produk (lihat ADR 004)
+
+---
+
+## Repo hygiene (keputusan 2026-07-25)
+
+Istilah untuk kebersihan tree — bukan domain Event, tapi wajib selaras spek.
+
+| Istilah | Arti kanonik | Bukan |
+|---------|--------------|--------|
+| **App production** | Root project (`src/`, `api/`) | Folder `improve/` |
+| **Prototype sandbox (`improve/`)** | Lab UI/eksperimen; boleh di repo; merge ke production hanya sadar + review | Sumber auth/API production |
+| **Tool dir lokal** | `.claude/`, `.od-skills/`, `graphify-out/`, state agent lain — **gitignore, jangan commit** | Skill production yang disengaja di-track (mis. `.agents/` bila tim setuju) |
+| **pnpm-workspace.yaml** (root) | Noise lokal kecuali monorepo resmi diadopsi — **jangan commit** default | npm lock production (`package-lock.json`) |
+| **Leftover dirty policy** | Commit: docs audit bermakna + `package-lock` selaras `package.json`. Discard: noise `improve/` (mis. login stub). Fitur untracked (mis. `eventsSchedulePdf*`) = **PR/fitur terpisah**, bukan numpang commit domain | Satu commit campur semua dirty |
+| **Surat (produk)** | `GeneratedLetter` di Supabase | `createLetterRequest` → Apps Script (dihentikan, ADR 004) |
+| **Status Event di DB** | Kolom `status` = **cache** derived; always derive on read/write (ADR 002). Tidak drop kolom di v1 | Sumber kebenaran workflow manual |
 
 ---
 
@@ -112,6 +130,7 @@ Keputusan keras (susah di-reverse):
 - [ADR 001 — Draft & Event dual entity](docs/adr/001-draft-event-dual-entity.md)
 - [ADR 002 — Event status from dates](docs/adr/002-event-status-from-dates.md)
 - [ADR 003 — Registration not auto-Draft](docs/adr/003-registration-not-auto-draft.md)
+- [ADR 004 — Letter via Supabase only; kill GAS letter path](docs/adr/004-letter-supabase-kill-gas.md)
 
 ---
 
@@ -120,5 +139,6 @@ Keputusan keras (susah di-reverse):
 - Tipe: `src/types.ts`, `src/types/auth.ts`
 - Permission: `src/hooks/usePermission.ts`
 - Nav capability: `src/components/dashboard/dashboardNavigation.tsx`
+- Admin write: `/api/supabase-admin` (bukan Apps Script untuk Event/Draft/publish)
 
 Kalau kode dan glossary bentrok, **glossary menang sampai ADR/spek diubah.**
