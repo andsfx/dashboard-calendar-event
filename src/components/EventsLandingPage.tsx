@@ -9,6 +9,8 @@ import {
   CalendarDays,
   Clock,
   Clock3,
+  Download,
+  Loader2,
   MapPin,
   Moon,
   Radio,
@@ -19,6 +21,7 @@ import { EventItem, HolidayItem, PhotoAlbum } from '../types';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
+import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { CategoryBadges } from './CategoryBadges';
 import { CalendarView } from './CalendarView';
 import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
@@ -309,6 +312,19 @@ export function EventsLandingPage({
   }, [ongoing, upcoming, highlight]);
   const railEvents = railRest.slice(0, 6);
   const railOverflow = Math.max(0, railRest.length - 6);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const handleDownloadSchedulePdf = async () => {
+    if (isExportingPdf || events.length === 0) return;
+    setIsExportingPdf(true);
+    try {
+      await downloadEventsSchedulePdf(events);
+    } catch (err) {
+      console.error('Schedule PDF export failed:', err);
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
 
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
@@ -407,6 +423,20 @@ export function EventsLandingPage({
                 >
                   Daftar Event
                 </a>
+                <button
+                  type="button"
+                  onClick={handleDownloadSchedulePdf}
+                  disabled={isExportingPdf || isLoading || events.length === 0}
+                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                  aria-label="Unduh jadwal event sebagai PDF"
+                >
+                  {isExportingPdf ? (
+                    <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                  ) : (
+                    <Download className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {isExportingPdf ? 'Menyiapkan PDF…' : 'Unduh PDF'}
+                </button>
               </div>
 
               {/* Mobile in-page anchors */}

@@ -1,4 +1,5 @@
-import { RefreshCw, SearchX } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Loader2, RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem } from '../types';
 import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
@@ -6,6 +7,7 @@ import { EventTable } from './EventTable';
 import { CalendarView } from './CalendarView';
 import { KanbanView } from './KanbanView';
 import { TimelineView } from './TimelineView';
+import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 
 interface Props {
   viewMode: ViewMode;
@@ -14,6 +16,8 @@ interface Props {
   isAdmin: boolean;
   /** Show Event status "draft" filter tab (admin/superadmin only). */
   showInternalDraftFilter?: boolean;
+  /** Allow unduh PDF jadwal (admin/viewer export). */
+  canExportSchedulePdf?: boolean;
   visibleEvents: EventItem[];
   visibleStats: { total: number };
   holidays: HolidayItem[];
@@ -42,6 +46,7 @@ export function DashboardViewsSection(props: Props) {
     setViewMode,
     isAdmin,
     showInternalDraftFilter = false,
+    canExportSchedulePdf = false,
     visibleEvents,
     visibleStats,
     holidays,
@@ -63,12 +68,26 @@ export function DashboardViewsSection(props: Props) {
     onDetail,
   } = props;
 
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
   const resetFilters = () => {
     setSearchQuery('');
     setActiveFilter('Semua');
     setActiveCategory('Semua');
     setActivePriority('Semua');
     setActiveMonth('Semua');
+  };
+
+  const handleExportSchedulePdf = async () => {
+    if (!canExportSchedulePdf || isExportingPdf || visibleEvents.length === 0) return;
+    setIsExportingPdf(true);
+    try {
+      await downloadEventsSchedulePdf(visibleEvents);
+    } catch (err) {
+      console.error('Schedule PDF export failed:', err);
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   const activeFilterCount = [
@@ -128,7 +147,25 @@ export function DashboardViewsSection(props: Props) {
             </div>
 
             <div className="space-y-2">
-              <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Tampilan</p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p id="view-tabs-label" className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Tampilan</p>
+                {canExportSchedulePdf && (
+                  <button
+                    type="button"
+                    onClick={handleExportSchedulePdf}
+                    disabled={isExportingPdf || visibleEvents.length === 0}
+                    className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-black/[0.06] bg-[var(--brand-card-light)] px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-slate-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                    aria-label="Unduh jadwal event sebagai PDF"
+                  >
+                    {isExportingPdf ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden />
+                    ) : (
+                      <Download className="h-3.5 w-3.5" aria-hidden />
+                    )}
+                    {isExportingPdf ? 'PDF…' : 'Unduh PDF'}
+                  </button>
+                )}
+              </div>
               <div role="tablist" aria-labelledby="view-tabs-label" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1 sm:rounded-xl sm:bg-[var(--brand-card)] sm:p-1 dark:sm:bg-slate-700/50">
                 {availableViewTabs.map(tab => (
                   <button

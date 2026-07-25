@@ -746,6 +746,7 @@ export default function App() {
               setViewMode={setViewMode}
               isAdmin={isAdmin}
               showInternalDraftFilter={canSeeInternalSchedule}
+              canExportSchedulePdf={permissions.canExport}
               visibleEvents={visibleEvents}
               visibleStats={{ total: visibleStats.total }}
               holidays={holidays}
