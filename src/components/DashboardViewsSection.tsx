@@ -16,6 +16,8 @@ interface Props {
   isAdmin: boolean;
   /** Show Event status "draft" filter tab (admin/superadmin only). */
   showInternalDraftFilter?: boolean;
+  /** Calendar + Kanban tabs/panels — canEditEvents only (not viewer). */
+  canUseCalendarKanban?: boolean;
   /** Allow unduh PDF jadwal (admin/viewer export). */
   canExportSchedulePdf?: boolean;
   visibleEvents: EventItem[];
@@ -46,6 +48,7 @@ export function DashboardViewsSection(props: Props) {
     setViewMode,
     isAdmin,
     showInternalDraftFilter = false,
+    canUseCalendarKanban = false,
     canExportSchedulePdf = false,
     visibleEvents,
     visibleStats,
@@ -244,10 +247,10 @@ export function DashboardViewsSection(props: Props) {
               onDetail={onDetail}
             />
           )}
-          {isAdmin && viewMode === 'calendar' && (
+          {canUseCalendarKanban && viewMode === 'calendar' && (
             <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
           )}
-          {viewMode === 'kanban' && (
+          {canUseCalendarKanban && viewMode === 'kanban' && (
             <KanbanView
               events={visibleEvents}
               isAdmin={isAdmin}

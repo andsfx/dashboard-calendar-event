@@ -229,9 +229,13 @@ export default function App() {
       past: source.filter(e => e.status === 'past').length,
     };
   }, [canSeeInternalSchedule, events, publicEvents]);
+  // Calendar/Kanban = ops views for canEditEvents only (admin/superadmin).
+  // isAdmin (= canViewDashboard) is true for viewer/eo/TR too — do not use for tab gate.
   const availableViewTabs = useMemo(
-    () => isAdmin ? VIEW_TABS : VIEW_TABS.filter(tab => tab.key !== 'calendar' && tab.key !== 'kanban'),
-    [isAdmin]
+    () => (permissions.canEditEvents
+      ? VIEW_TABS
+      : VIEW_TABS.filter(tab => tab.key !== 'calendar' && tab.key !== 'kanban')),
+    [permissions.canEditEvents]
   );
   const publicSectionItems = useMemo(
     () => [
@@ -252,10 +256,10 @@ export default function App() {
   }, [canSeeInternalSchedule, activeFilter, setActiveFilter]);
 
   useEffect(() => {
-    if (!isAdmin && (viewMode === 'calendar' || viewMode === 'kanban')) {
+    if (!permissions.canEditEvents && (viewMode === 'calendar' || viewMode === 'kanban')) {
       setViewMode('table');
     }
-  }, [isAdmin, viewMode]);
+  }, [permissions.canEditEvents, viewMode]);
 
   useEffect(() => {
     if (!isAdmin && activePriority !== 'Semua') {
@@ -746,6 +750,7 @@ export default function App() {
               setViewMode={setViewMode}
               isAdmin={isAdmin}
               showInternalDraftFilter={canSeeInternalSchedule}
+              canUseCalendarKanban={permissions.canEditEvents}
               canExportSchedulePdf={permissions.canExport}
               visibleEvents={visibleEvents}
               visibleStats={{ total: visibleStats.total }}
