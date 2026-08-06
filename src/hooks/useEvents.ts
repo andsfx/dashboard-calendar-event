@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/supabaseApi';
 import { supabase } from '../lib/supabase';
+import { AdminError } from '../lib/schemas';
 
 function normalizeEvent(ev: EventItem): EventItem {
   const normalized = recalculateStatuses([ev])[0];
@@ -23,6 +24,8 @@ export function useEvents() {
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [activePriority, setActivePriority] = useState('Semua');
   const [activeMonth, setActiveMonth] = useState('Semua');
+  const [lastError, setLastError] = useState<AdminError | null>(null);
+  const clearLastError = useCallback(() => setLastError(null), []);
 
   const refreshEvents = useCallback(async () => {
     setIsLoading(true);
@@ -45,22 +48,28 @@ export function useEvents() {
     refreshEvents();
   }, [refreshEvents]);
 
-  // Supabase Realtime: auto-refresh on changes
+  // Supabase Realtime: debounced refresh (coalesce burst of changes)
+  // ponytail: full re-fetch, not row-level patch. Upgrade to incremental
+  // when payload.new is reliably shaped + zod-parsed.
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleRefresh = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        refreshEvents();
+      }, 400);
+    };
+
     const channel = supabase
       .channel('events-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
-        refreshEvents();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'annual_themes' }, () => {
-        refreshEvents();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, () => {
-        refreshEvents();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, scheduleRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'annual_themes' }, scheduleRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, scheduleRefresh)
       .subscribe();
 
     return () => {
+      if (timer) clearTimeout(timer);
       supabase.removeChannel(channel);
     };
   }, [refreshEvents]);
@@ -118,6 +127,8 @@ export function useEvents() {
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
     } catch (err) {
+      const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+      setLastError(ae);
       console.error('Error adding event:', err);
       setEvents(prev => prev.filter(e => e.id !== tempId));
       return false;
@@ -159,6 +170,8 @@ export function useEvents() {
         await apiUpdate(normalizedEvent as EventItem & { id: string });
         return true;
       } catch (err) {
+        const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+        setLastError(ae);
         console.error('Error updating event:', err);
         if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
         return false;
@@ -176,6 +189,8 @@ export function useEvents() {
         await refreshEvents();
         return true;
       } catch (err) {
+        const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+        setLastError(ae);
         console.error('Error deleting event:', err);
         if (target) setEvents(prev => [...prev, target]);
         return false;
@@ -252,6 +267,8 @@ export function useEvents() {
     holidays,
     isLoading,
     error,
+    lastError,
+    clearLastError,
     searchQuery, setSearchQuery,
     activeFilter, setActiveFilter,
     activeCategory, setActiveCategory,

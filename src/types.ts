@@ -4,6 +4,10 @@ export type EventOperationalStatus = 'upcoming' | 'ongoing' | 'past';
  * Event row status including legacy internal `draft` flag.
  * `draft` here is NOT the Draft antrian entity (see DraftEventItem / CONTEXT.md).
  * Public surfaces must hide `draft`. Prefer EventOperationalStatus for new code.
+ *
+ * TECH DEBT (#7 design-thinking): remove `| 'draft'` and use `isDraft?: boolean`
+ * once FilterBar / StatusBadge / KanbanView / eventUtils no longer key on
+ * status==='draft'. Blast radius high — do as dedicated migration.
  */
 export type EventStatus = EventOperationalStatus | 'draft';
 export type EventModel = '' | 'free' | 'bayar' | 'support';
@@ -28,45 +32,13 @@ export interface RecurrenceRule {
   endDate: string;          // "2026-06-30"
 }
 
-export interface EventItem {
-  id: string;
-  sheetRow?: number;
-  rowIndex: number;
-  tanggal: string;   // "12 Juni 2025"
-  dateStr: string;   // "2025-06-12"
-  dateEnd?: string;  // "2025-06-15" (untuk multi-day)
-  day: string;       // "Kamis"
-  jam: string;       // "10:00 - 12:00"
-  acara: string;
-  lokasi: string;
-  eo: string;
-  pic: string;
-  phone: string;
-  keterangan: string;
-  month: string;     // "Juni"
-  status: EventStatus;
-  category: string;
-  categories: string[];
-  priority: 'high' | 'medium' | 'low';
-  eventModel: EventModel;
-  eventNominal: string;
-  eventModelNotes: string;
-  sourceDraftId?: string;
-  isMultiDay?: boolean;           // true jika multi-day
-  dayTimeSlots?: DayTimeSlot[];   // jam untuk setiap hari
-  eventType?: EventType;          // 'single' | 'multi_day' | 'recurring'
-  recurrenceGroupId?: string;     // shared ID untuk semua event dalam 1 series
-  isRecurring?: boolean;          // true jika bagian dari recurring series
-  posterUrl?: string;             // poster/flyer image URL for upcoming event promo
-}
+// ─── Shared base ────────────────────────────────────────────────
+// ponytail: shared base for Event/Draft — add fields here, both inherit.
+// When adding new event fields, extend EventBase instead of both interfaces.
 
-export interface DraftEventItem {
-  id: string;
-  sheetRow?: number;
-  rowIndex: number;
-  tanggal: string;
+export interface EventBase {
   dateStr: string;
-  dateEnd?: string;  // "2025-06-15" (untuk multi-day)
+  dateEnd?: string;
   day: string;
   jam: string;
   acara: string;
@@ -75,7 +47,6 @@ export interface DraftEventItem {
   pic: string;
   phone: string;
   keterangan: string;
-  internalNote: string;
   month: string;
   category: string;
   categories: string[];
@@ -83,16 +54,34 @@ export interface DraftEventItem {
   eventModel: EventModel;
   eventNominal: string;
   eventModelNotes: string;
+  isMultiDay?: boolean;
+  dayTimeSlots?: DayTimeSlot[];
+  eventType?: EventType;
+  recurrenceGroupId?: string;
+  isRecurring?: boolean;
+}
+
+export interface EventItem extends EventBase {
+  id: string;
+  sheetRow?: number;
+  rowIndex: number;
+  tanggal: string;
+  status: EventStatus;
+  sourceDraftId?: string;
+  posterUrl?: string;
+}
+
+export interface DraftEventItem extends EventBase {
+  id: string;
+  sheetRow?: number;
+  rowIndex: number;
+  tanggal: string;
+  internalNote: string;
   progress: DraftProgress;
   published: boolean;
   publishedAt?: string;
   deleted: boolean;
   deletedAt?: string;
-  isMultiDay?: boolean;           // true jika multi-day
-  dayTimeSlots?: DayTimeSlot[];   // jam untuk setiap hari
-  eventType?: EventType;          // 'single' | 'multi_day' | 'recurring'
-  recurrenceGroupId?: string;     // shared ID untuk semua event dalam 1 series
-  isRecurring?: boolean;          // true jika bagian dari recurring series
 }
 
 export interface AnnualTheme {

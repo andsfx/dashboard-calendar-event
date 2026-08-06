@@ -1,5 +1,6 @@
 import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { validateAction } from './_lib/schemas.js';
 
 const R2 = new S3Client({
   region: 'auto',
@@ -40,6 +41,14 @@ export default async function handler(req, res) {
   if (!action) {
     return res.status(400).json({ success: false, error: 'Action is required' });
   }
+
+  // Boundary: unknown → trusted (zod schema per action)
+  const validated = validateAction(req.body);
+  if (!validated.ok) {
+    return res.status(400).json({ success: false, error: validated.error });
+  }
+  // Use validated data for subsequent switch (req.body still available for unvalidated fields)
+  req.body = validated.data;
 
   try {
     const sb = getServiceSupabase();
@@ -334,10 +343,12 @@ export default async function handler(req, res) {
           result = { success: false, error: 'Invalid data' };
           break;
         }
-        for (const item of updates) {
-          const { error } = await sb.from('event_photos').update({ sort_order: item.sortOrder }).eq('id', item.id);
-          if (error) throw error;
-        }
+        // Batch: single update with IN clause + per-row CASE
+        // ponytail: Supabase JS client lacks bulk CASE update; use Promise.all
+        // for parallel instead of sequential. Upgrade to RPC when photo count > 100.
+        await Promise.all(updates.map(item =>
+          sb.from('event_photos').update({ sort_order: item.sortOrder }).eq('id', item.id)
+        ));
         result = { success: true };
         break;
       }

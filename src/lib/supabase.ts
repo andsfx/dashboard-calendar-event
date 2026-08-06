@@ -1,21 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Support both VITE_ prefix and NEXT_PUBLIC_ prefix (Supabase dashboard default)
-const SUPABASE_URL = (
-  import.meta.env.VITE_SUPABASE_URL ||
-  import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
-  ''
-) as string;
+export class ConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ConfigError';
+  }
+}
 
+// Vite-only env prefix (NEXT_PUBLIC_ removed — this is a Vite app, not Next.js).
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '') as string;
 const SUPABASE_ANON_KEY = (
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   ''
 ) as string;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn('Supabase URL or Anon Key not configured. Check .env file.');
+  throw new ConfigError(
+    'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY) must be set. Check .env.',
+  );
 }
 
 /**
