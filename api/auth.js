@@ -108,15 +108,12 @@ export default async function handler(req, res) {
     }
 
     try {
-      console.log('[auth/login] step 1: creating clients');
       const anonSb = getAnonSupabase();
       const serviceSb = getServiceSupabase();
 
-      console.log('[auth/login] step 2: signInWithPassword');
       const { data: authData, error: authError } = await anonSb.auth.signInWithPassword({ email, password });
 
       if (authError) {
-        console.error('[auth/login] authError:', authError.message);
         const errorMap = {
           'Invalid login credentials': 'Email atau password salah',
           'Email not confirmed': 'Email belum dikonfirmasi. Cek inbox kamu.',
@@ -130,7 +127,6 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, error: 'Login gagal' });
       }
 
-      console.log('[auth/login] step 3: lookup user in DB, userId:', authData.user.id);
       const { data: dbUser, error: dbError } = await serviceSb
         .from('users')
         .select('id, email, display_name, role, is_active')
@@ -138,7 +134,6 @@ export default async function handler(req, res) {
         .single();
 
       if (dbError || !dbUser) {
-        console.error('[auth/login] dbError:', dbError?.message, 'userId:', authData.user.id);
         return res.status(403).json({ success: false, error: 'Akun tidak terdaftar di sistem. Hubungi superadmin.' });
       }
 
@@ -146,10 +141,8 @@ export default async function handler(req, res) {
         return res.status(403).json({ success: false, error: 'Akun dinonaktifkan. Hubungi superadmin.' });
       }
 
-      console.log('[auth/login] step 4: update last_login_at');
       try { await serviceSb.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', dbUser.id); } catch {};
 
-      console.log('[auth/login] step 5: set cookies');
       const maxAge = authData.session.expires_in || 3600;
       const domainStr = process.env.COOKIE_DOMAIN ? `; Domain=${process.env.COOKIE_DOMAIN}` : '';
 
@@ -158,18 +151,16 @@ export default async function handler(req, res) {
         `sb-refresh-token=${authData.session.refresh_token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 24 * 30}${domainStr}`,
       ]);
 
-      console.log('[auth/login] step 6: log activity');
       await logActivity({ user: dbUser, legacy: false }, 'login', 'user', dbUser.id, { email: dbUser.email }, req).catch(() => {});
 
-      console.log('[auth/login] step 7: return success');
       return res.status(200).json({
         success: true,
         user: { id: dbUser.id, email: dbUser.email, display_name: dbUser.display_name, role: dbUser.role },
         session: { access_token: authData.session.access_token, expires_at: authData.session.expires_at },
       });
     } catch (err) {
-      console.error('[auth/login] unexpected:', err?.message || err, err?.stack);
-      return res.status(500).json({ success: false, error: 'Login gagal. Coba lagi nanti.', debug: String(err?.message || err) });
+      console.error('[auth/login] unexpected:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Login gagal. Coba lagi nanti.' });
     }
   }
 
