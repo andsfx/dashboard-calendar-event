@@ -86,16 +86,11 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
   const countdown = getCountdown(mainEvent.dateStr, now);
   const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
   const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
-  const promoImageCaption = mainEvent.posterUrl
-    ? 'Poster/flyer dari detail event.'
-    : mainAlbum?.coverPhotoUrl
-      ? 'Materi promosi dari album gallery event.'
-      : 'Belum ada poster/flyer untuk event ini.';
 
   return (
     <RevealSection id="upcoming-events" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
+        <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}
           <div className="rounded-[2rem] border border-black/[0.06] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between">
             <div className="p-6 sm:p-10 lg:p-12">
@@ -148,26 +143,19 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
             </div>
           </div>
 
-          {/* Right: promo poster. Visible all sizes */}
-          <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-            <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
-              {promoImageUrl ? (
+          {/* Right: promo poster — hidden when no poster/flyer */}
+          {promoImageUrl && (
+            <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
+              <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
                 <img
                   src={promoImageUrl}
                   alt={`Promo ${mainEvent.acara}`}
                   className="aspect-[3/4] w-full object-cover"
                   loading="lazy"
                 />
-              ) : (
-                <div className="flex aspect-[3/4] w-full flex-col items-center justify-center p-6 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm dark:bg-slate-700">
-                    <CalendarDays className="h-8 w-8 text-slate-400" />
-                  </div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{promoImageCaption}</p>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── Other upcoming events ── */}
