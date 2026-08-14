@@ -1,5 +1,6 @@
 import React, { useState, useEffect, CSSProperties } from 'react';
 import { Clock, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { RevealSection } from './CommunityRevealPrimitives';
@@ -213,6 +214,17 @@ export function CommunityUpcomingEvents({ events, albums, onDetail }: Props) {
               </a>
             </div>
           )}
+        </div>
+
+        {/* ── Link ke semua event ── */}
+        <div className="mt-8 flex justify-center">
+          <Link
+            to="/events"
+            className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
+          >
+            Lihat Semua Event
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </RevealSection>
