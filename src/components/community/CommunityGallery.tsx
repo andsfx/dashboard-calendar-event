@@ -15,6 +15,7 @@ interface CachedInstagramPost {
   shortCode?: string;
   postUrl?: string;
   imageUrl?: string;
+  cachedImageUrl?: string;
   caption?: string;
 }
 
@@ -120,6 +121,8 @@ function LazyInstagramEmbed({ url }: { url: string }) {
 
 /* ─── Cached Instagram card (no external embeds) ────────── */
 function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const imgSrc = post.cachedImageUrl || post.imageUrl;
   return (
     <a
       href={post.postUrl || 'https://instagram.com/metmalbekasi'}
@@ -128,8 +131,15 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
       className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
     >
       <div className="aspect-square overflow-hidden bg-slate-200 dark:bg-slate-700">
-        {post.imageUrl ? (
-          <img src={post.imageUrl} alt={post.caption || 'Instagram post'} className="h-full w-full object-cover" loading="lazy" />
+        {imgSrc && !imgFailed ? (
+          <img
+            src={imgSrc}
+            alt={post.caption || 'Instagram post'}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={() => setImgFailed(true)}
+          />
         ) : (
           <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
             <Globe className="h-10 w-10 text-[var(--brand-tosca-soft)]" aria-hidden="true" />
