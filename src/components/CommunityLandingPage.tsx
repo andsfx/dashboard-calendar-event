@@ -93,8 +93,11 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   }, [mobileNavOpen]);
 
   const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+  // Tampilkan hanya event di bulan aktif (bulan berjalan), bukan semua event mendatang.
+  const now = new Date();
+  const activeMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const featuredUpcomingEvents = events
-    .filter(event => event.status === 'upcoming' || event.status === 'ongoing')
+    .filter(event => (event.status === 'upcoming' || event.status === 'ongoing') && event.dateStr.startsWith(activeMonthKey))
     .sort((a, b) => {
       const byPriority = (priorityRank[a.priority] ?? 9) - (priorityRank[b.priority] ?? 9);
       if (byPriority !== 0) return byPriority;
