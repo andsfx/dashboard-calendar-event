@@ -19,9 +19,9 @@
     transform 220ms var(--ease-out-expo);
 }
 
-.reveal-visible .reveal-stage,
-.reveal-visible .reveal-stage > *,
-.reveal-visible .reveal-cluster > * {
+.reveal-on-scroll.reveal-visible .reveal-stage,
+.reveal-on-scroll.reveal-visible .reveal-stage > *,
+.reveal-on-scroll.reveal-visible .reveal-cluster > * {
   opacity: 1;
   transform: translateY(0);
 }

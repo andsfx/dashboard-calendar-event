@@ -16,6 +16,12 @@ export function useScrollReveal() {
     const target = ref.current;
     if (!target) return;
 
+    // No IntersectionObserver (very old browsers): never leave content hidden.
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -26,7 +32,11 @@ export function useScrollReveal() {
         });
       },
       {
-        threshold: 0.24,
+        // threshold 0 fires on any intersection. A higher threshold (e.g. 0.24)
+        // can never be met when the target is taller than ~4x the viewport —
+        // which happens on mobile stacked layouts (e.g. the community events
+        // section), leaving the section stuck at opacity 0.
+        threshold: 0,
         rootMargin: '0px 0px -16% 0px',
       }
     );
