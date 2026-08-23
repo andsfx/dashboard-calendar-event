@@ -15,44 +15,37 @@ export function CommunityHero({ heroImageUrl }: CommunityHeroProps) {
   return (
     <section
       id="hero"
-      className="relative min-h-[70dvh] lg:max-h-[1000px] overflow-hidden"
+      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden"
     >
-      {heroImageUrl ? (
-        <>
-          <div className="absolute inset-0">
-            <img
-              src={imgUrl(heroImageUrl, { w: 1280, q: 78 })}
-              srcSet={`
-                ${imgUrl(heroImageUrl, { w: 768, q: 74 })} 768w,
-                ${imgUrl(heroImageUrl, { w: 1280, q: 78 })} 1280w,
-                ${imgUrl(heroImageUrl, { w: 1920, q: 80 })} 1920w
-              `}
-              sizes="100vw"
-              alt="Suasana event komunitas di Metropolitan Mall Bekasi"
-              className="h-full w-full object-cover"
-              fetchPriority="high"
-              decoding="async"
-            />
-          </div>
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(105deg, color-mix(in srgb, var(--brand-tosca-dark) 82%, transparent) 0%, color-mix(in srgb, var(--brand-ink) 70%, transparent) 55%, color-mix(in srgb, var(--brand-ink) 55%, transparent) 100%)',
-            }}
+      {/* Layer 1: gradient bg */}
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-hero-tosca" />
+
+      {/* Layer 2: grain texture */}
+      <div aria-hidden="true" className="site-grain absolute inset-0 z-0" />
+
+      {/* Layer 3: hero image (if available) */}
+      {heroImageUrl && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
+          <img
+            src={imgUrl(heroImageUrl, { w: 1280, q: 78 })}
+            srcSet={`
+              ${imgUrl(heroImageUrl, { w: 768, q: 74 })} 768w,
+              ${imgUrl(heroImageUrl, { w: 1280, q: 78 })} 1280w,
+              ${imgUrl(heroImageUrl, { w: 1920, q: 80 })} 1920w
+            `}
+            sizes="100vw"
+            alt="Suasana event komunitas di Metropolitan Mall Bekasi"
+            className="h-full w-full object-cover brightness-[0.35]"
+            fetchPriority="high"
+            decoding="async"
           />
-        </>
-      ) : (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, var(--brand-tosca-dark) 0%, var(--brand-ink) 55%, color-mix(in srgb, var(--brand-tosca) 40%, var(--brand-ink)) 100%)',
-          }}
-        />
+        </div>
       )}
 
-      <div className="relative mx-auto flex min-h-[70dvh] max-w-7xl items-center px-4 py-24 sm:px-6">
+      {/* Layer 4: radial mask depth overlay */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[2] bg-gradient-hero-mask" />
+
+      <div className="relative z-10 mx-auto flex min-h-[70dvh] max-w-7xl items-center px-4 pt-20 pb-32 sm:px-6">
         <div className="max-w-3xl w-full text-left">
           <div className="community-hero-in inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85">
             100+ Event Sudah Terlaksana
