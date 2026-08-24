@@ -1,0 +1,20 @@
+{
+  "navInitial": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "boxShadow": "none",
+    "color": "rgb(22, 33, 27)"
+  },
+  "navPillLayers": [
+    {
+      "bg": "lab(13.5405 -14.5722 2.28421 / 0.85)",
+      "bgImage": "none"
+    },
+    {
+      "bg": "lab(97.165 -0.558555 3.49776 / 0.9)",
+      "bgImage": "none"
+    }
+  ],
+  "brandColor": "rgb(22, 33, 27)",
+  "verifyColor": "oklab(0.999994 0.0000455677 0.0000200868 / 0.7)"
+}

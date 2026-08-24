@@ -4,7 +4,6 @@
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/typography.css";
+@import "./styles/gradients.css";
 @import "./styles/motion.css";
-@import "./styles/utilities.css";
-
 @variant dark (&:where(.dark, .dark *));

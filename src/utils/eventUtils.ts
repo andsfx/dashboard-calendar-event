@@ -21,7 +21,7 @@ export const STATUS_COLOR: Record<EventStatus, string> = {
   past:     'slate',
 };
 
-// Data-viz series only — not brand chrome. No violet/purple hex.
+// Data-viz series only — not brand chrome. Metmal tosca.
 export const CATEGORY_COLORS: Record<string, string> = {
   Bazaar:     '#00918e', // brand tosca
   Festival:   '#f59e0b',
@@ -41,7 +41,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Olahraga:   '#22c55e',
   Teknologi:  '#0284c7',
   Kesehatan:  '#e11d48',
-  Umum:       '#64748b',
+  Umum:       '#626b60',
 };
 
 export const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];

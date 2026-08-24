@@ -1,0 +1,80 @@
+/* Graphify-style gradients — tosca-tinted */
+/* Hero: 8-stop dark tosca → cream */
+/* Reasoning: radial + linear dark tosca */
+/* Seam: light → dark transition between sections */
+
+/* ── Hero gradient ── */
+.bg-gradient-hero-tosca {
+  background: linear-gradient(180deg,
+    #003230 0%,
+    #004a48 35%,
+    #006260 60%,
+    #008070 74%,
+    #33a8a5 85%,
+    #99dfde 93%,
+    #d4eee8 98%,
+    #f8f7f0 100%
+  );
+}
+
+/* ── Hero radial mask overlay ── */
+.bg-gradient-hero-mask {
+  background: radial-gradient(72% 58% at 32% 42%, rgba(0, 50, 48, 0.30), transparent 74%);
+}
+
+/* ── Reasoning / dark CTA gradient ── */
+.bg-gradient-reasoning-tosca {
+  background:
+    radial-gradient(70% 82% at 76% 44%, rgba(0, 146, 142, 0.45) 0%, rgba(0, 146, 142, 0) 62%),
+    linear-gradient(180deg, #004a48 0%, #003d3a 44%, #001a18 100%);
+}
+
+/* ── Section seam (light → dark bridge) ── */
+.bg-gradient-seam {
+  background: linear-gradient(180deg, #f8f7f0 0%, #edeee2 48%, #004a48 100%);
+}
+
+/* ── Grain texture overlay ── */
+.site-grain {
+  pointer-events: none;
+  opacity: 0.50;
+  mix-blend-mode: soft-light;
+}
+
+.site-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+/* ── Section divider (angled wave, Graphify-style) ── */
+.section-divider-wave {
+  position: relative;
+  height: 4rem;
+  overflow: hidden;
+}
+
+.section-divider-wave::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f8f7f0 0%, #edeee2 50%);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 64' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M0 64V0c240 32 480 48 720 48s480-16 720-48v64H0z' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 64' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Cpath d='M0 64V0c240 32 480 48 720 48s480-16 720-48v64H0z' fill='black'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* ── Glass morphism backdrops ── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(22, 33, 27, 0.06);
+}

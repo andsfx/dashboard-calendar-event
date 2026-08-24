@@ -1,0 +1,116 @@
+[
+  {
+    "name": "section-0",
+    "tag": "header",
+    "selector": "header.poi",
+    "text": "Graphify\nProduct\nDevelopers\nEnterprise\nPricing\nBlog\nDocs\n109"
+  },
+  {
+    "name": "section-1",
+    "tag": "section",
+    "selector": "section.her",
+    "text": "The knowledge graph your AI can reason over."
+  },
+  {
+    "name": "Adoption, in numbers",
+    "tag": "section",
+    "selector": "section.bor",
+    "text": "Graphify on GitHub: star it.\n109,638\nGitHub stars\n362 to go "
+  },
+  {
+    "name": "product",
+    "tag": "section",
+    "selector": "section#product.bor",
+    "text": "Install → graph → query."
+  },
+  {
+    "name": "showcase",
+    "tag": "section",
+    "selector": "section#showcase.bor",
+    "text": "Your whole codebase, as one graph."
+  },
+  {
+    "name": "origin",
+    "tag": "section",
+    "selector": "section#origin.bor",
+    "text": "It started with a Karpathy post."
+  },
+  {
+    "name": "used-by",
+    "tag": "section",
+    "selector": "section#used-by.bor",
+    "text": "In their words."
+  },
+  {
+    "name": "coverage",
+    "tag": "section",
+    "selector": "section#coverage.bor",
+    "text": "Written up across the community."
+  },
+  {
+    "name": "section-8",
+    "tag": "section",
+    "selector": "section.mx-",
+    "text": "Try it on your codebase."
+  },
+  {
+    "name": "reasoning",
+    "tag": "section",
+    "selector": "section#reasoning.rel",
+    "text": "Every answer traces to a real path."
+  },
+  {
+    "name": "vs",
+    "tag": "section",
+    "selector": "section#vs.bor",
+    "text": "Graph, chunks, or grep."
+  },
+  {
+    "name": "section-11",
+    "tag": "section",
+    "selector": "section.bor",
+    "text": "BENCHMARK\n\nCrossed single-pass SOTA on SWR-Bench code review"
+  },
+  {
+    "name": "capabilities",
+    "tag": "section",
+    "selector": "section#capabilities.bor",
+    "text": "Every edge says how it knows."
+  },
+  {
+    "name": "personas",
+    "tag": "section",
+    "selector": "section#personas.mx-",
+    "text": "Developers run it. The whole team reads it."
+  },
+  {
+    "name": "on-device",
+    "tag": "section",
+    "selector": "section#on-device.bor",
+    "text": "Your code never leaves your machine."
+  },
+  {
+    "name": "pricing",
+    "tag": "section",
+    "selector": "section#pricing.rel",
+    "text": "Start free. Scale per seat."
+  },
+  {
+    "name": "faq",
+    "tag": "section",
+    "selector": "section#faq.bor",
+    "text": "The questions we get first."
+  },
+  {
+    "name": "section-17",
+    "tag": "section",
+    "selector": "section.rel",
+    "text": "Try it on your own repo."
+  },
+  {
+    "name": "section-18",
+    "tag": "footer",
+    "selector": "footer.rel",
+    "text": "Graphify\n\nThe open-source knowledge graph your coding assist"
+  }
+]

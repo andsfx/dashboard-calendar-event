@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inovasi Manajemen Event — Metropolitan Mall Bekasi</title>
+  <style>
+    :root {
+      --paper: #fbfaf7;
+      --paper-deep: #f4efe8;
+      --card: #fffdf9;
+      --card-warm: #faf6ef;
+      --ink: #0f172a;
+      --muted: #667085;
+      --line: rgba(15, 23, 42, .10);
+      --line-soft: rgba(15, 23, 42, .06);
+      --tosca: #00918e;
+      --tosca-dark: #00554c;
+      --tosca-soft: #dff4f1;
+      --pink: #e24378;
+      --amber: #b45309;
+      --emerald: #047857;
+      --display: Iowan Old Style, Palatino, Georgia, serif;
+      --body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+      --shadow: 0 18px 45px rgba(15, 23, 42, .08);
+      --shadow-soft: 0 12px 28px rgba(15, 23, 42, .05);
+      --ease: cubic-bezier(.22, 1, .36, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--paper-deep); color: var(--ink); font-family: var(--body); }
+    body { overflow: hidden; }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid var(--tosca); outline-offset: 4px; }
+    .deck { width: 100vw; height: 100vh; position: relative; background: var(--paper-deep); }
+    .stage { width: min(100vw, 177.7778vh); height: min(100vh, 56.25vw); min-height: 560px; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); background: var(--paper); overflow: hidden; }
+    .stage::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .28; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Ccircle cx='1' cy='1' r='.55' fill='%230f172a' fill-opacity='.12'/%3E%3C/svg%3E"); background-size: 13px 13px; mix-blend-mode: multiply; }
+    .slide { position: absolute; inset: 0; padding: 5.2% 7.2% 8.3%; display: grid; align-content: center; opacity: 0; transform: translateX(28px); pointer-events: none; transition: opacity .42s var(--ease), transform .5s var(--ease); }
+    .slide.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+    .slide.is-before { transform: translateX(-28px); }
+    .slide::after { content: attr(data-slide); position: absolute; right: 7.2%; top: 5.4%; font-size: clamp(9px, .72vw, 12px); letter-spacing: .16em; color: var(--muted); font-weight: 700; }
+    .kicker { margin: 0 0 1.4rem; color: var(--tosca-dark); font-size: clamp(9px, .8vw, 13px); letter-spacing: .19em; line-height: 1.2; text-transform: uppercase; font-weight: 800; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: -.045em; }
+    h1 { max-width: 9.5em; margin-bottom: 1.1rem; font-size: clamp(38px, 5.3vw, 86px); line-height: .98; }
+    h2 { max-width: 12em; margin-bottom: .9rem; font-size: clamp(32px, 4vw, 67px); line-height: 1.02; }
+    h3 { margin-bottom: .5rem; font-size: clamp(14px, 1.35vw, 22px); line-height: 1.18; letter-spacing: -.02em; }
+    p { color: var(--muted); font-size: clamp(12px, 1.15vw, 18px); line-height: 1.55; }
+    .lead { max-width: 39rem; font-size: clamp(15px, 1.35vw, 22px); line-height: 1.5; }
+    .serif { font-family: var(--display); }
+    .pink { color: var(--pink); }
+    .tosca { color: var(--tosca-dark); }
+    .brand { position: absolute; top: 4.8%; left: 7.2%; display: flex; align-items: center; gap: .6rem; z-index: 3; }
+    .brand img { width: clamp(30px, 3.2vw, 52px); height: clamp(30px, 3.2vw, 52px); object-fit: contain; }
+    .brand span { color: var(--tosca-dark); font-weight: 800; font-size: clamp(10px, .78vw, 13px); letter-spacing: .11em; text-transform: uppercase; }
+    .rule { width: 58px; height: 4px; background: var(--tosca); margin: 1.7rem 0; }
+    .btn { border: 0; border-radius: 999px; cursor: pointer; padding: .76rem 1.1rem; font-weight: 800; font-size: clamp(11px, .9vw, 14px); transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: var(--tosca-dark); box-shadow: 0 9px 18px rgba(0,85,76,.16); }
+    .btn-primary:hover { background: var(--tosca); }
+    .btn-ghost { color: var(--tosca-dark); border: 1px solid rgba(0,85,76,.25); background: transparent; }
+    .btn-ghost:hover { background: var(--tosca-soft); }
+    .hero { align-content: end; padding-bottom: 12%; }
+    .hero h1 { max-width: 8em; }
+    .hero-copy { display: flex; justify-content: space-between; align-items: end; gap: 5%; }
+    .hero-copy .lead { max-width: 35rem; }
+    .hero-mark { position: absolute; right: 7%; top: 19%; width: 30%; aspect-ratio: 1; border-radius: 50%; background: var(--tosca-dark); opacity: .96; display: grid; place-items: center; transform: rotate(-11deg); box-shadow: 22px 28px 0 rgba(226,67,120,.12); }
+    .hero-mark::before, .hero-mark::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.26); inset: 11%; }
+    .hero-mark::after { inset: 21%; border-color: rgba(255,255,255,.16); }
+    .hero-mark strong { position: relative; z-index: 1; color: white; font-family: var(--display); font-size: clamp(32px, 5vw, 78px); line-height: .83; text-align: center; letter-spacing: -.08em; }
+    .hero-mark small { position: absolute; bottom: 15%; color: #a9e5df; font-weight: 800; letter-spacing: .2em; font-size: clamp(8px, .75vw, 12px); }
+    .hero-attribution { position: absolute; right: 7%; bottom: 14%; text-align: right; }
+    .hero-attribution .name { display: block; color: var(--tosca-dark); font-weight: 800; font-size: clamp(12px, 1.05vw, 17px); }
+    .hero-attribution .role { display: block; color: var(--muted); font-size: clamp(10px, .82vw, 13px); margin-top: .2rem; }
+    .slide-footer { position: absolute; left: 7.2%; right: 7.2%; bottom: 4%; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: clamp(9px, .72vw, 12px); }
+    .note { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); font-size: clamp(10px, .82vw, 13px); }
+    .note::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 7%; align-items: center; }
+    .two-col.wide-right { grid-template-columns: .78fr 1.22fr; }
+    .two-col.wide-left { grid-template-columns: 1.18fr .82fr; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--line-soft); box-shadow: var(--shadow-soft); border-radius: 1.1rem; padding: 1.15rem; }
+    .card.warm { background: var(--card-warm); }
+    .card p { margin-bottom: 0; font-size: clamp(11px, .98vw, 15px); }
+    .card-tag { color: var(--tosca-dark); font-size: clamp(9px, .7vw, 11px); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1.2rem; }
+    .card-icon { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; border-radius: .75rem; margin-bottom: 1.2rem; background: var(--tosca-soft); color: var(--tosca-dark); font-weight: 900; font-size: 1.1rem; }
+    .problem-list { display: grid; gap: .7rem; margin: 1.8rem 0 0; padding: 0; list-style: none; }
+    .problem-list li { display: flex; gap: .8rem; align-items: baseline; border-bottom: 1px solid var(--line); padding: .7rem 0; color: var(--ink); font-size: clamp(12px, 1.05vw, 16px); }
+    .problem-list b { color: var(--pink); font-family: var(--display); font-size: 1.4em; font-weight: 600; }
+    .quote-box { background: var(--tosca-dark); color: white; border-radius: 1.4rem; padding: 2rem; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+    .quote-box::after { content: ""; position: absolute; width: 9rem; height: 9rem; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; right: -2rem; bottom: -3rem; }
+    .quote-box p { color: #d3efeb; font-family: var(--display); font-size: clamp(20px, 2.3vw, 36px); line-height: 1.1; max-width: 10em; position: relative; z-index: 1; }
+    .quote-box small { color: #a9e5df; font-size: clamp(10px, .8vw, 12px); letter-spacing: .08em; text-transform: uppercase; font-weight: 800; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 2.3rem 0 1.3rem; position: relative; }
+    .flow::before { content: ""; position: absolute; left: 8%; right: 8%; top: 1.75rem; height: 1px; background: var(--tosca); opacity: .38; }
+    .flow-step { position: relative; text-align: center; padding: 0 .35rem; }
+    .flow-step .num { margin: 0 auto 1rem; width: 3.45rem; height: 3.45rem; border: 1px solid var(--tosca); background: var(--paper); border-radius: 50%; display: grid; place-items: center; color: var(--tosca-dark); font-family: var(--display); font-size: 1.45rem; position: relative; }
+    .flow-step strong { display: block; font-size: clamp(11px, 1vw, 15px); line-height: 1.2; }
+    .flow-step span { display: block; margin-top: .45rem; color: var(--muted); font-size: clamp(9px, .75vw, 12px); line-height: 1.25; }
+    .proof-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 1.2rem; align-items: stretch; }
+    .proof-main { min-height: 260px; }
+    .proof-side { display: grid; gap: 1.2rem; }
+    .proof { position: relative; overflow: hidden; border-radius: 1rem; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft); padding: .7rem; }
+    .proof img { display: block; width: 100%; height: 100%; min-height: 115px; object-fit: cover; object-position: top left; border-radius: .55rem; }
+    .proof-main img { min-height: 276px; }
+    .proof-label { position: absolute; left: 1.2rem; top: 1.2rem; border-radius: 999px; padding: .35rem .6rem; color: white; background: rgba(0,85,76,.92); font-size: clamp(9px, .7vw, 11px); font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .proof-copy { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; margin-bottom: 1.3rem; }
+    .proof-copy p { max-width: 31rem; margin-bottom: 0; }
+    .module-cloud { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; max-width: 42rem; }
+    .module { border: 1px solid rgba(0,145,142,.23); background: var(--card); color: var(--tosca-dark); border-radius: 999px; padding: .58rem .82rem; font-size: clamp(10px, .82vw, 13px); font-weight: 700; }
+    .module.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: .45rem; background: var(--emerald); vertical-align: 1px; }
+    .split-band { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.7rem; }
+    .band { padding: 1.1rem 1.2rem; border-radius: 1rem; border: 1px solid var(--line); background: var(--card); }
+    .band strong { display: block; margin-bottom: .35rem; font-size: clamp(13px, 1.05vw, 16px); }
+    .band span { color: var(--muted); font-size: clamp(10px, .82vw, 13px); line-height: 1.4; }
+    .steps { display: grid; gap: .75rem; margin-top: 1.5rem; }
+    .step-row { display: grid; grid-template-columns: 2.4rem 1fr; gap: .8rem; align-items: center; padding: .85rem 1rem; background: var(--card); border: 1px solid var(--line-soft); border-radius: .9rem; }
+    .step-row i { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; background: var(--tosca-soft); color: var(--tosca-dark); border-radius: 50%; font-style: normal; font-weight: 900; font-size: .8rem; }
+    .step-row strong { display: block; font-size: clamp(11px, .9vw, 14px); }
+    .step-row span { color: var(--muted); font-size: clamp(10px, .78vw, 12px); }
+    .measure { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+    .measure .card { min-height: 140px; }
+    .measure .card h3 { font-family: var(--display); color: var(--tosca-dark); font-size: clamp(19px, 2vw, 30px); }
+    .measure .card p { font-size: clamp(10px, .82vw, 13px); }
+    .cta { align-content: center; }
+    .cta-box { background: var(--tosca-dark); color: white; border-radius: 1.6rem; padding: 4.2% 5%; display: grid; grid-template-columns: 1fr auto; gap: 5%; align-items: center; box-shadow: var(--shadow); }
+    .cta-box h2 { color: white; margin-bottom: .8rem; max-width: 9em; }
+    .cta-box p { color: #d3efeb; max-width: 35rem; margin-bottom: 0; }
+    .cta-box .btn { background: white; color: var(--tosca-dark); white-space: nowrap; }
+    .controls { position: absolute; z-index: 10; left: 7.2%; right: 7.2%; bottom: 1.25%; display: flex; align-items: center; gap: .8rem; }
+    .control-btn { width: 2rem; height: 2rem; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,253,249,.9); color: var(--tosca-dark); cursor: pointer; display: grid; place-items: center; font-size: 1.05rem; line-height: 1; }
+    .control-btn:hover { border-color: var(--tosca); background: var(--tosca-soft); }
+    .progress { height: 3px; flex: 1; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .progress span { display: block; height: 100%; width: 0; background: var(--tosca); transition: width .35s var(--ease); }
+    .dots { display: flex; gap: .35rem; align-items: center; }
+    .dot { width: .5rem; height: .5rem; border: 0; border-radius: 50%; background: #c7cec9; cursor: pointer; padding: 0; }
+    .dot.is-active { width: 1.25rem; border-radius: 99px; background: var(--tosca-dark); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .shift-visual { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: center; margin-top: 2rem; }
+    .shift-side { padding: 1.4rem; border-radius: 1.1rem; }
+    .shift-side.before { background: var(--card-warm); border: 1px solid var(--line); }
+    .shift-side.after { background: var(--tosca-soft); border: 1px solid rgba(0,145,142,.25); }
+    .shift-side h3 { margin-bottom: .4rem; }
+    .shift-side p { font-size: clamp(10px, .82vw, 13px); margin-bottom: 0; }
+    .shift-arrow { color: var(--tosca); font-size: clamp(24px, 2.5vw, 40px); font-weight: 300; }
+    @media (max-aspect-ratio: 4/3) {
+      body { overflow: auto; }
+      .deck { min-height: 100vh; height: auto; padding: 1rem 0; }
+      .stage { position: relative; inset: auto; transform: none; width: 100%; height: auto; min-height: 0; aspect-ratio: auto; overflow: visible; }
+      .slide { position: relative; inset: auto; min-height: 76vh; padding: 12% 7% 14%; opacity: 1; transform: none; pointer-events: auto; display: block; }
+      .slide.is-before, .slide.is-active { transform: none; }
+      .slide::after { top: 4%; }
+      .brand { top: 2.5%; }
+      .hero-mark { width: 28%; top: 22%; }
+      .hero-attribution { bottom: 10%; }
+      .controls { position: fixed; bottom: 1rem; left: 5%; right: 5%; }
+      .slide-footer { bottom: 6%; }
+    }
+    @media (max-width: 720px) {
+      h1 { font-size: clamp(38px, 13vw, 68px); }
+      h2 { font-size: clamp(31px, 10vw, 54px); }
+      .hero { padding-top: 23%; }
+      .hero-copy, .two-col, .two-col.wide-right, .two-col.wide-left, .cta-box { display: block; }
+      .hero-mark { position: relative; right: auto; top: auto; width: 45%; margin: 2rem 0 0 auto; }
+      .hero-attribution { position: relative; right: auto; bottom: auto; text-align: left; margin-top: 1.5rem; }
+      .cards, .measure, .split-band { grid-template-columns: 1fr; }
+      .flow { gap: .2rem; }
+      .flow-step .num { width: 2.3rem; height: 2.3rem; font-size: 1rem; }
+      .flow::before { top: 1.15rem; }
+      .proof-grid { display: block; }
+      .proof-main { margin-bottom: 1rem; }
+      .proof-side { grid-template-columns: 1fr 1fr; }
+      .shift-visual { grid-template-columns: 1fr; gap: 1rem; }
+      .shift-arrow { text-align: center; }
+      .cta-box .btn { margin-top: 1.5rem; }
+      .dots { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-label="Presentasi Inovasi Manajemen Event Metropolitan Mall Bekasi">
+    <section class="stage" data-od-id="presentation-stage" aria-live="polite">
+      <div class="brand" data-od-id="brand-mark"><img src="assets/logo-metmal.svg" alt="Logo Metropolitan Mall Bekasi"><span>Metropolitan Mall Bekasi</span></div>
+
+      <!-- 01 · Cover -->
+      <section class="slide hero is-active" data-slide="01 / 11" data-od-id="slide-cover" aria-roledescription="slide" aria-label="Sampul">
+        <p class="kicker">Inovasi Marcomm · Metropolitan Mall Bekasi</p>
+        <h1>Manajemen Event<br><span class="tosca">yang terpusat</span><br>dan terukur.</h1>
+        <div class="rule"></div>
+        <div class="hero-copy">
+          <p class="lead">Sebuah sistem yang mengubah cara tim event mengelola seluruh siklus — dari perencanaan hingga pelaporan — menjadi satu alur yang jelas.</p>
+          <button class="btn btn-primary" data-go="7">Lihat dampaknya</button>
+        </div>
+        <div class="hero-mark" aria-hidden="true"><strong>EVENT<br>FLOW</strong><small>METMAL / MARCOMM</small></div>
+        <div class="hero-attribution"><span class="name">Andy Safii</span><span class="role">Marcomm · Inisiator proyek</span></div>
+        <div class="slide-footer"><span>Inisiatif pribadi → dampak operasional</span><span class="note">Bukti nyata, bukan konsep</span></div>
+      </section>
+
+      <!-- 02 · Problem observed -->
+      <section class="slide" data-slide="02 / 11" data-od-id="slide-problem" aria-roledescription="slide" aria-label="Masalah yang dilihat">
+        <div class="two-col wide-right">
+          <div>
+            <p class="kicker">Yang dilihat sehari-hari</p>
+            <h2>Proses event masih berjalan sendiri-sendiri.</h2>
+            <p class="lead">Setiap bagian berjalan dengan caranya sendiri: jadwal di satu tempat, draft di tempat lain, survey di spreadsheet terpisah.</p>
+            <ul class="problem-list">
+              <li><b>01</b><span>Jadwal event dan rencana konten tidak saling terhubung.</span></li>
+              <li><b>02</b><span>Review draft, pendaftaran, dan survey perlu dilacak manual.</span></li>
+              <li><b>03</b><span>Laporan dibuat ulang setiap kali, dari data yang berbeda-beda.</span></li>
+            </ul>
+          </div>
+          <div class="quote-box"><p>&ldquo;Setiap event terasa seperti dimulai dari nol.&rdquo;</p><small>Pengamatan langsung</small></div>
+        </div>
+        <div class="slide-footer"><span>Masalah: tidak ada satu tempat untuk melihat semuanya</span><span>02</span></div>
+      </section>
+
+      <!-- 03 · The initiative -->
+      <section class="slide" data-slide="03 / 11" data-od-id="slide-initiative" aria-roledescription="slide" aria-label="Inisiatif">
+        <p class="kicker">Inisiatif</p>
+        <h2>Dari manual menjadi <span class="tosca">terpusat.</span></h2>
+        <p class="lead">Alih-alih menunggu, saya mengambil inisiatif untuk membangun sistem yang menghubungkan semua bagian event ke dalam satu dashboard.</p>
+        <div class="shift-visual" data-od-id="shift-visual">
+          <div class="shift-side before"><h3>Sebelum</h3><p>Jadwal tersebar · Draft di-review manual · Survey di spreadsheet · Laporan dibuat ulang setiap kali</p></div>
+          <div class="shift-arrow">&rarr;</div>
+          <div class="shift-side after"><h3>Sesudah</h3><p>Satu dashboard · Alur draft terstruktur · Survey tercatat otomatis · Data siap dilaporkan</p></div>
+        </div>
+        <div class="slide-footer"><span>Inisiatif: bangun sistem, bukan tunggu instruksi</span><span>03</span></div>
+      </section>
+
+      <!-- 04 · What runs today -->
+      <section class="slide" data-slide="04 / 11" data-od-id="slide-live" aria-roledescription="slide" aria-label="Sudah berjalan">
+        <p class="kicker">Fase 1 · Sudah live</p>
+        <h2>Bukan rencana. <span class="tosca">Sudah berjalan.</span></h2>
+        <p class="lead">Sistem ini bukan proposal di atas kertas. Modul-modul berikut sudah aktif dan bisa digunakan hari ini.</p>
+        <div class="module-cloud" data-od-id="live-module-list">
+          <span class="module live">Pusat Komando</span><span class="module live">Analitik</span><span class="module live">Jadwal Event</span><span class="module live">Antrian Draft</span><span class="module live">Tema Tahunan</span><span class="module live">Pendaftaran</span><span class="module live">Survey Kepuasan</span><span class="module live">Evaluasi Tenant</span><span class="module live">Hasil Evaluasi Tenant</span><span class="module live">Manajemen Pengguna</span><span class="module live">Log Aktivitas</span><span class="module live">Konten</span>
+        </div>
+        <div class="split-band" style="margin-top:1.8rem">
+          <div class="band"><strong>Admin</strong><span>Dashboard terpusat untuk mengelola seluruh siklus event — dari draft hingga laporan.</span></div>
+          <div class="band"><strong>Publik</strong><span>Landing event, galeri, survey, dan pendaftaran — sisi yang dilihat pengunjung dan tenant.</span></div>
+        </div>
+        <div class="slide-footer"><span>Fase 1: modul inti sudah aktif dan teruji</span><span>04</span></div>
+      </section>
+
+      <!-- 05 · Proof screenshots -->
+      <section class="slide" data-slide="05 / 11" data-od-id="slide-proof" aria-roledescription="slide" aria-label="Bukti nyata">
+        <div class="proof-copy"><div><p class="kicker">Bukti nyata</p><h2>Sistem berjalan, bukan mockup.</h2></div><p>Screenshot dari dashboard yang sudah aktif. Ini bukan konsep — ini yang digunakan tim.</p></div>
+        <div class="proof-grid" data-od-id="proof-gallery">
+          <figure class="proof proof-main"><span class="proof-label">Dashboard · Jadwal</span><img src="public/screenshots/dashboard-timeline-content.png" alt="Screenshot dashboard menampilkan timeline event dan area konten"></figure>
+          <div class="proof-side">
+            <figure class="proof"><span class="proof-label">Tabel event</span><img src="public/screenshots/dashboard-table-content.png" alt="Screenshot dashboard menampilkan tabel event dan konten"></figure>
+            <figure class="proof"><span class="proof-label">Cari &amp; filter</span><img src="public/screenshots/dashboard-search-filter.png" alt="Screenshot dashboard menampilkan pencarian dan filter event"></figure>
+          </div>
+        </div>
+        <div class="slide-footer"><span class="note">Screenshot dari sistem live, bukan mockup</span><span>05</span></div>
+      </section>
+
+      <!-- 06 · Impact -->
+      <section class="slide" data-slide="06 / 11" data-od-id="slide-impact" aria-roledescription="slide" aria-label="Dampak">
+        <p class="kicker">Dampak</p>
+        <h2>Apa yang berubah.</h2>
+        <div class="measure" data-od-id="impact-grid">
+          <article class="card"><div class="card-tag">Koordinasi</div><h3>Satu tempat, bukan banyak</h3><p>Tim tidak lagi mencari jadwal di satu file, draft di tempat lain, dan survey di spreadsheet terpisah.</p></article>
+          <article class="card warm"><div class="card-tag">Visibilitas</div><h3>Semua terlihat jelas</h3><p>Status event, draft yang perlu review, hasil survey — semua bisa dilihat dari satu titik tanpa bertanya ke banyak orang.</p></article>
+          <article class="card"><div class="card-tag">Pelaporan</div><h3>Data siap pakai</h3><p>Laporan tidak perlu dibuat ulang dari nol. Data proses sudah tercatat dan bisa langsung digunakan.</p></article>
+        </div>
+        <p class="note" style="margin-top:1.5rem">Tidak ada angka hasil yang dijanjikan di muka — dampak diukur dari pemakaian nyata.</p>
+        <div class="slide-footer"><span>Dampak: koordinasi, visibilitas, pelaporan</span><span>06</span></div>
+      </section>
+
+      <!-- 07 · Still evolving -->
+      <section class="slide" data-slide="07 / 11" data-od-id="slide-evolving" aria-roledescription="slide" aria-label="Masih berkembang">
+        <p class="kicker">Momentum</p>
+        <h2>Ini baru <span class="tosca">fase pertama.</span></h2>
+        <p class="lead">Sistem ini terus berkembang. Setiap iterasi menambah kemampuan berdasarkan kebutuhan operasional yang nyata.</p>
+        <div class="flow" data-od-id="evolution-flow">
+          <div class="flow-step"><div class="num">01</div><strong>Fase 1 · Live</strong><span>Modul inti sudah berjalan</span></div>
+          <div class="flow-step"><div class="num">02</div><strong>Fase 2 · Keamanan</strong><span>Penguatan sistem berlanjut</span></div>
+          <div class="flow-step"><div class="num">03</div><strong>Fase 3 · Ekspansi</strong><span>Fitur tambahan sesuai kebutuhan</span></div>
+          <div class="flow-step"><div class="num">04</div><strong>Fase 4 · Integrasi</strong><span>Hubungkan ke sistem mall lain</span></div>
+          <div class="flow-step"><div class="num">05</div><strong>Fase 5 · Optimal</strong><span>Alur kerja yang semakin efisien</span></div>
+        </div>
+        <p class="note">Roadmap menunjukkan komitmen jangka panjang, bukan proyek satu kali.</p>
+        <div class="slide-footer"><span>Momentum: setiap fase membangun di atas yang sudah terbukti</span><span>07</span></div>
+      </section>
+
+      <!-- 08 · Roadmap -->
+      <section class="slide" data-slide="08 / 11" data-od-id="slide-roadmap" aria-roledescription="slide" aria-label="Langkah berikutnya">
+        <p class="kicker">Langkah berikutnya</p>
+        <h2>Yang sedang dikerjakan.</h2>
+        <div class="steps" data-od-id="roadmap-steps">
+          <div class="step-row"><i>01</i><div><strong>Keamanan berlanjut</strong><span>Penguatan sistem keamanan terus berjalan — rotasi kredensial, kontrol akses, dan pengujian berkala.</span></div></div>
+          <div class="step-row"><i>02</i><div><strong>Penyempurnaan alur</strong><span>Optimasi workflow berdasarkan feedback penggunaan sehari-hari.</span></div></div>
+          <div class="step-row"><i>03</i><div><strong>Fitur tambahan</strong><span>Modul baru sesuai prioritas operasional — misalnya notifikasi otomatis dan integrasi kalender.</span></div></div>
+        </div>
+        <div class="slide-footer"><span>Roadmap: keamanan, alur, fitur — semua berdasarkan kebutuhan nyata</span><span>08</span></div>
+      </section>
+
+      <!-- 09 · GM involvement -->
+      <section class="slide" data-slide="09 / 11" data-od-id="slide-gm-input" aria-roledescription="slide" aria-label="Arahkan langkah">
+        <div class="two-col">
+          <div>
+            <p class="kicker">Keterlibatan</p>
+            <h2>Arahkan langkah berikutnya.</h2>
+            <p class="lead">Sistem ini dibangun untuk melayani kebutuhan operasional. Prioritas berikutnya bisa ditentukan bersama — mana yang paling penting untuk tim.</p>
+          </div>
+          <div class="cards" style="grid-template-columns:1fr">
+            <article class="card"><div class="card-tag">Opsi 1</div><h3>Perkuat keamanan</h3><p>Prioritaskan penguatan sistem sebelum ekspansi fitur.</p></article>
+            <article class="card warm"><div class="card-tag">Opsi 2</div><h3>Tambah fitur</h3><p>Prioritaskan modul baru yang paling dibutuhkan tim operasional.</p></article>
+            <article class="card"><div class="card-tag">Opsi 3</div><h3>Seimbangkan</h3><p>Jalankan keduanya secara paralel dengan alokasi yang tepat.</p></article>
+          </div>
+        </div>
+        <div class="slide-footer"><span>GM diundang untuk mengarahkan prioritas</span><span>09</span></div>
+      </section>
+
+      <!-- 10 · Value summary -->
+      <section class="slide" data-slide="10 / 11" data-od-id="slide-value" aria-roledescription="slide" aria-label="Nilai">
+        <p class="kicker">Nilai</p>
+        <h2>Inisiatif yang sudah <span class="tosca">memberikan hasil.</span></h2>
+        <div class="split-band" style="margin-top:2rem">
+          <div class="band"><strong>Dari marcomm</strong><span>Proaktif mengidentifikasi masalah, mengambil inisiatif, dan mengeksekusi solusi — bukan menunggu instruksi.</span></div>
+          <div class="band"><strong>Untuk operasional</strong><span>Sistem yang mempermudah tim event mengelola seluruh siklus — dari perencanaan hingga pelaporan — dalam satu tempat.</span></div>
+        </div>
+        <div class="rule"></div>
+        <p class="lead" style="max-width:36rem">Proyek ini menunjukkan bahwa inovasi tidak harus menunggu anggaran besar atau tim khusus. Satu inisiatif yang tepat bisa mengubah cara kerja.</p>
+        <div class="slide-footer"><span>Nilai: proaktif · eksekusi · dampak nyata</span><span>10</span></div>
+      </section>
+
+      <!-- 11 · Closing -->
+      <section class="slide cta" data-slide="11 / 11" data-od-id="slide-closing" aria-roledescription="slide" aria-label="Penutup">
+        <div class="cta-box">
+          <div>
+            <p class="kicker" style="color:#a9e5df">Penutup</p>
+            <h2>Inovasi sudah berjalan. Langkah berikutnya, bersama.</h2>
+            <p>Sistem ini adalah bukti bahwa perbaikan bisa dimulai dari inisiatif. Saya mengundang arahan untuk menentukan prioritas berikutnya.</p>
+          </div>
+          <button class="btn" data-go="8">Kembali ke roadmap</button>
+        </div>
+        <div class="hero-attribution" style="position:relative;right:auto;bottom:auto;text-align:left;margin-top:2rem"><span class="name" style="color:white">Andy Safii</span><span class="role" style="color:#a9e5df">Marcomm · Inisiator proyek · Metropolitan Mall Bekasi</span></div>
+        <div class="slide-footer"><span>Inovasi Manajemen Event — Metropolitan Mall Bekasi</span><span>11</span></div>
+      </section>
+
+      <nav class="controls" data-od-id="slide-controls" aria-label="Navigasi slide">
+        <button class="control-btn" id="prev" type="button" aria-label="Slide sebelumnya">←</button>
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <div class="dots" id="dots" aria-label="Pilih slide"></div>
+        <button class="control-btn" id="next" type="button" aria-label="Slide berikutnya">→</button>
+      </nav>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll('.slide')];
+      const dots = document.getElementById('dots');
+      const progress = document.getElementById('progress-bar');
+      let current = 0;
+      slides.forEach((slide, index) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot' + (index === 0 ? ' is-active' : '');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', 'Buka slide ' + (index + 1));
+        dot.addEventListener('click', () => show(index));
+        dots.appendChild(dot);
+      });
+      const dotButtons = [...dots.children];
+      function show(index) {
+        current = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('is-active', i === current);
+          slide.classList.toggle('is-before', i < current);
+          slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+        });
+        dotButtons.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
+        progress.style.width = ((current + 1) / slides.length * 100) + '%';
+      }
+      function next() { show(current + 1); }
+      function previous() { show(current - 1); }
+      document.getElementById('next').addEventListener('click', next);
+      document.getElementById('prev').addEventListener('click', previous);
+      document.querySelectorAll('[data-go]').forEach(button => button.addEventListener('click', () => show(Number(button.dataset.go))));
+      document.addEventListener('keydown', event => {
+        if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); next(); }
+        if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); previous(); }
+        if (event.key === 'Home') { event.preventDefault(); show(0); }
+        if (event.key === 'End') { event.preventDefault(); show(slides.length - 1); }
+      });
+      show(0);
+    })();
+  </script>
+</body>
+</html>

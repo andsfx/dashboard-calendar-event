@@ -51,14 +51,14 @@
 
 .ui-campaign-card {
   border-radius: var(--radius-campaign-card);
-  border: 1px solid rgba(226, 232, 240, 0.5);
-  background: #fcfaf6;
+  border: 1px solid var(--border-subtle);
+  background: var(--brand-card);
   box-shadow: var(--shadow-card-soft);
 }
 
 .dark .ui-campaign-card {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: rgb(45 56 47 / 0.5);
+  background: #1a241e;
 }
 
 .ui-campaign-icon-gradient {
@@ -114,7 +114,7 @@
 }
 
 .dark .ui-dashboard-page {
-  background: #020617; /* slate-950 */
+  background: #0e1612;
 }
 
 .ui-dashboard-chrome {
@@ -124,8 +124,8 @@
 }
 
 .dark .ui-dashboard-chrome {
-  border-color: rgb(51 65 85 / 0.5);
-  background: rgb(15 23 42 / 0.88);
+  border-color: rgb(74 85 76 / 0.5);
+  background: rgb(22 33 27 / 0.88);
 }
 
 /* Compact controls on warm page: search, filter, chips */
@@ -136,8 +136,8 @@
 }
 
 .dark .ui-dashboard-control {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: #2d382f;
+  background: #1a241e;
   box-shadow: none;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .dark .ui-dashboard-muted {
-  background: rgb(30 41 59 / 0.7);
+  background: rgb(45 56 47 / 0.7);
 }
 
 .ui-text-muted {
@@ -196,8 +196,8 @@
   pointer-events: none;
   transition: opacity 0.15s, transform 0.15s;
   white-space: nowrap;
-  background: #1e293b;
-  color: #f1f5f9;
+  background: #2d382f;
+  color: #fdfcf6;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 11px;

@@ -9,19 +9,19 @@
    * COLOR SYSTEM
    * Brand colors unified across public & community sections
    */
-  /* Metmal logo: primary tosca, secondary pink */
+  /* Metmal tosca (brand primary) — warm Graphify layout retained */
   --color-brand-primary: #00918e;
-  --color-brand-primary-50: #eefafa;
-  --color-brand-primary-100: #d5f3f2;
-  --color-brand-primary-200: #aae6e4;
-  --color-brand-primary-300: #66d1ce;
-  --color-brand-primary-400: #33a8a5;
+  --color-brand-primary-50: #e6f7f6;
+  --color-brand-primary-100: #ccefef;
+  --color-brand-primary-200: #99dfde;
+  --color-brand-primary-300: #66cfcd;
+  --color-brand-primary-400: #33bfbc;
   --color-brand-primary-500: #00918e;
   --color-brand-primary-600: #007a78;
-  --color-brand-primary-700: #00554c;
-  --color-brand-primary-800: #004440;
-  --color-brand-primary-900: #003330;
-  --color-brand-primary-950: #001f1d;
+  --color-brand-primary-700: #006260;
+  --color-brand-primary-800: #004a48;
+  --color-brand-primary-900: #003230;
+  --color-brand-primary-950: #001a18;
 
   --color-brand-secondary: #e24378;
   --color-brand-secondary-50: #fdf2f6;
@@ -36,26 +36,51 @@
   --color-brand-secondary-900: #721a3a;
   --color-brand-secondary-950: #440a1f;
 
-  /* Neutral palette - Metmal pastel aesthetic */
-  --color-neutral-50: #f4efe8;    /* brand-paper */
-  --color-neutral-100: #faf6ef;   /* brand-card */
-  --color-neutral-150: #fbfaf7;   /* brand-page */
-  --color-neutral-200: #fffdf9;   /* brand-card-light */
-  --color-neutral-900: #0f172a;   /* brand-ink */
-  --color-neutral-800: #1e293b;
-  --color-neutral-700: #334155;
-  --color-neutral-600: #475569;
-  --color-neutral-500: #64748b;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-250: #e2e8f0;
 
+  /*── Override Tailwind's slate & gray → Graphify warm olive ──*/
+  --color-slate-50: #f8f7f0;
+  --color-slate-100: #fdfcf6;
+  --color-slate-200: #edeee2;
+  --color-slate-300: #e0e2d3;
+  --color-slate-400: #b5bbb3;
+  --color-slate-500: #8b9389;
+  --color-slate-600: #626b60;
+  --color-slate-700: #4a554c;
+  --color-slate-800: #2d382f;
+  --color-slate-900: #16211b;
+  --color-slate-950: #0e1612;
+
+  --color-gray-50: var(--color-slate-50);
+  --color-gray-100: var(--color-slate-100);
+  --color-gray-200: var(--color-slate-200);
+  --color-gray-300: var(--color-slate-300);
+  --color-gray-400: var(--color-slate-400);
+  --color-gray-500: var(--color-slate-500);
+  --color-gray-600: var(--color-slate-600);
+  --color-gray-700: var(--color-slate-700);
+  --color-gray-800: var(--color-slate-800);
+  --color-gray-900: var(--color-slate-900);
+  --color-gray-950: var(--color-slate-950);
+
+  /* Wire neutral → slate for backward compat */
+  --color-neutral-50: var(--color-slate-50);
+  --color-neutral-100: var(--color-slate-100);
+  --color-neutral-150: var(--color-slate-50);
+  --color-neutral-200: var(--color-slate-200);
+  --color-neutral-300: var(--color-slate-300);
+  --color-neutral-400: var(--color-slate-400);
+  --color-neutral-500: var(--color-slate-500);
+  --color-neutral-600: var(--color-slate-600);
+  --color-neutral-700: var(--color-slate-700);
+  --color-neutral-800: var(--color-slate-800);
+  --color-neutral-900: var(--color-slate-900);
+  --color-neutral-250: var(--color-slate-300);
   /*
-   * TYPOGRAPHY SYSTEM
-   * display=system serif / body=Plus Jakarta Sans
+   * display=Bricolage Grotesque / body=Geist / mono=Geist Mono
    */
-  --font-family-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  --font-family-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-family-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-family-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
 
   --font-size-2xs: 0.625rem;    /* 10px */
   --font-size-xs: 0.75rem;      /* 12px */
@@ -107,14 +132,14 @@
   --spacing-36: 9rem;           /* 144px */
   --spacing-40: 10rem;          /* 160px */
   --spacing-44: 11rem;          /* 176px */
-  --spacing-48: 12rem;          /* 192px */
-  --spacing-52: 13rem;          /* 208px */
-  --spacing-56: 14rem;          /* 224px */
-  --spacing-60: 15rem;          /* 240px */
-  --spacing-64: 16rem;          /* 256px */
-  --spacing-72: 18rem;          /* 288px */
-  --spacing-80: 20rem;          /* 320px */
-  --spacing-96: 24rem;          /* 384px */
+  --shadow-xs: 0 1px 2px 0 rgb(22 33 27 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(22 33 27 / 0.06), 0 1px 2px -1px rgb(22 33 27 / 0.04);
+  --shadow: 0 1px 3px 0 rgb(22 33 27 / 0.06), 0 1px 2px -1px rgb(22 33 27 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(22 33 27 / 0.06), 0 2px 4px -2px rgb(22 33 27 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(22 33 27 / 0.06), 0 4px 6px -4px rgb(22 33 27 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(22 33 27 / 0.06), 0 8px 10px -6px rgb(22 33 27 / 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgb(22 33 27 / 0.15);
+  --shadow-inner: inset 0 2px 4px 0 rgb(22 33 27 / 0.04);
 
   /*
    * BORDER RADIUS SYSTEM

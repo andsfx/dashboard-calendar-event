@@ -568,23 +568,25 @@ export function EventsLandingPage({
         </div>
       </main>
 
-      <footer className="border-t border-black/6 bg-[var(--color-neutral-page)] py-8 dark:border-slate-800 dark:bg-slate-950">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 sm:flex-row sm:items-center sm:px-6">
+      <footer className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-18">
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-reasoning-tosca" />
+        <div aria-hidden="true" className="site-grain absolute inset-0" />
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Metropolitan Mall Bekasi</p>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Event Schedule</p>
+            <p className="text-sm font-semibold text-white">Metropolitan Mall Bekasi</p>
+            <p className="mt-0.5 text-xs text-white/50">Event Schedule</p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600 dark:text-slate-400">
-            <Link to="/" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/60">
+            <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">
               Community
             </Link>
-            <Link to="/gallery" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+            <Link to="/gallery" className="transition hover:text-white ui-focus-ring rounded-sm">
               Gallery
             </Link>
-            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+            <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Calendar
             </a>
-            <a href="#register" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+            <a href="#register" className="transition hover:text-white ui-focus-ring rounded-sm">
               Daftar
             </a>
           </div>

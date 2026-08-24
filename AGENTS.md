@@ -39,3 +39,17 @@ General agent rules:
 - Never commit secrets from .env or credential files.
 - Verify with project scripts when feasible.
 
+## Agent skills
+
+### Issue tracker
+
+GitHub issues on `andsfx/dashboard-calendar-event`, managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout — `CONTEXT.md` + `docs/adr/` at repo root when created. See `docs/agents/domain.md`.
+

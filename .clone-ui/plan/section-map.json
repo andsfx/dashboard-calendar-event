@@ -1,0 +1,13 @@
+[
+  { "name": "header", "sourceSelector": "header", "cloneSelector": "header", "type": "navigation" },
+  { "name": "hero", "sourceSelector": "section.hero-scope", "cloneSelector": "section#hero", "type": "hero" },
+  { "name": "stats", "sourceSelector": "section[aria-label=\"Adoption, in numbers\"]", "cloneSelector": "section#stats", "type": "stats-bar" },
+  { "name": "how-it-works", "sourceSelector": "section#product", "cloneSelector": "section#how-it-works", "type": "feature-cards" },
+  { "name": "showcase", "sourceSelector": "section#showcase", "cloneSelector": "section#showcase", "type": "product-showcase" },
+  { "name": "origin", "sourceSelector": "section#origin", "cloneSelector": "section#origin", "type": "story" },
+  { "name": "used-by", "sourceSelector": "section#used-by", "cloneSelector": "section#used-by", "type": "testimonials" },
+  { "name": "coverage", "sourceSelector": "section#coverage", "cloneSelector": "section#coverage", "type": "press-grid" },
+  { "name": "cta", "sourceSelector": "section.mx-auto.max-w-6xl", "cloneSelector": "section#cta-banner", "type": "cta" },
+  { "name": "reasoning", "sourceSelector": "section#reasoning", "cloneSelector": "section#reasoning", "type": "comparison" },
+  { "name": "footer", "sourceSelector": "footer", "cloneSelector": "footer", "type": "footer" }
+]
