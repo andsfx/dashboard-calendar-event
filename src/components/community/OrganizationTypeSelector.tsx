@@ -11,8 +11,8 @@ interface OrgTypeOption {
 }
 
 const TONE_CLASS: Record<OrgTypeOption['tone'], string> = {
-  tosca: 'bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]',
-  pink: 'bg-[color-mix(in_srgb,var(--brand-pink)_14%,white)] text-[var(--brand-pink)] dark:bg-[color-mix(in_srgb,var(--brand-pink)_25%,black)] dark:text-[var(--brand-pink-soft)]',
+  tosca: 'bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]',
+  pink: 'bg-[color-mix(in_srgb,var(--brand-pink)_14%,white)] text-[var(--brand-pink-600)] dark:bg-[color-mix(in_srgb,var(--brand-pink)_25%,black)] dark:text-[var(--brand-pink-soft)]',
   muted: 'bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-300',
 };
 
@@ -60,7 +60,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
   return (
     <div className="space-y-3">
       <p id="organization-type-label" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-        Tipe Organisasi <span className="text-rose-500">*</span>
+        Tipe Organisasi <span className="text-rose-600">*</span>
       </p>
       <div
         className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
@@ -94,15 +94,21 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className={`text-xs font-bold ${isSelected ? 'text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]' : 'text-slate-700 dark:text-slate-200'}`}>
+                <p className={`text-xs font-bold ${
+                  isSelected
+                    ? opt.tone === 'pink'
+                      ? 'text-[var(--brand-pink-600)] dark:text-[var(--brand-pink-soft)]'
+                      : 'text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]'
+                    : 'text-slate-700 dark:text-slate-200'
+                }`}>
                   {opt.label}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-tight text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 text-[10px] leading-tight text-slate-600 dark:text-slate-400">
                   {opt.description}
                 </p>
               </div>
               {isSelected && (
-                <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--brand-tosca)] text-white">
+                <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--brand-tosca-600)] text-white">
                   <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>

@@ -13,13 +13,16 @@ const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
 
 export function CommunityFacilities() {
   return (
-    <RevealSection id="facilities" intensity="strong" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="facilities" intensity="strong" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Semua udah disiapin.
             </h2>
+            <p className="mt-4 max-w-xl text-base leading-7 ui-text-secondary">
+              Dari panggung sampai meja juri, semua fasilitas siap pakai tanpa biaya sewa.
+            </p>
           </div>
           <p className="max-w-md text-sm leading-7 ui-text-secondary">
             Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang memorable!
@@ -32,7 +35,7 @@ export function CommunityFacilities() {
               key={f.title}
               className="ui-campaign-card flex gap-4 p-5 transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                 {f.icon}
               </div>
               <div className="min-w-0">

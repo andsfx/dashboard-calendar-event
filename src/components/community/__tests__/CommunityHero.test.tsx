@@ -26,4 +26,15 @@ describe('CommunityHero', () => {
     const img = container.querySelector('img')
     expect(img).toHaveAttribute('src', 'https://example.com/hero.jpg')
   })
+
+  it('renders live completed count in the badge with a "+" suffix', () => {
+    render(<CommunityHero stats={{ completed: 1234 }} />)
+    expect(screen.getByText('1.234+ Event Sudah Terlaksana')).toBeInTheDocument()
+  })
+
+  it('shows a skeleton instead of "0 Event" while loading', () => {
+    render(<CommunityHero stats={{ completed: 0 }} isLoading />)
+    expect(screen.queryByText(/0 Event/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/100\+ Event/)).not.toBeInTheDocument()
+  })
 })

@@ -11,9 +11,11 @@
 
   /* Brand (primary = Metmal tosca, secondary = pink) */
   --brand-tosca: #00918e;
+  --brand-tosca-600: #007a78; /* solid CTA bg — white text 5.18:1 (AA) */
   --brand-tosca-soft: #33a8a5;
   --brand-tosca-dark: #00554c;
   --brand-pink: #e24378;
+  --brand-pink-600: #c2185b;
   --brand-pink-soft: #ee95a9;
 
   /* Alias: legacy --brand-green → tosca */

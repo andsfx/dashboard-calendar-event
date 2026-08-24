@@ -29,15 +29,15 @@ const CONTACTS = [
 
 export function CommunityContact() {
   return (
-    <RevealSection id="contact" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="contact" variant="dark-tosca" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <h2 className="max-w-xl text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="max-w-xl text-4xl font-bold leading-tight text-white sm:text-5xl">
             Ada pertanyaan? Hubungi kami!
           </h2>
-          <p className="max-w-sm text-sm leading-7 ui-text-secondary">
-            Telepon kantor: <strong className="text-slate-800 dark:text-slate-200">021-8855555 ext 214</strong>
-            <span className="block text-slate-500 dark:text-slate-400">Senin – Jumat, jam kerja</span>
+          <p className="max-w-sm text-sm leading-7 text-white/80">
+            Telepon kantor: <strong className="text-white">021-8855555 ext 214</strong>
+            <span className="block text-white/70">Senin – Jumat, jam kerja</span>
           </p>
         </div>
 
@@ -51,12 +51,12 @@ export function CommunityContact() {
                 {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 className={`group flex items-center gap-4 rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_8px_20px_rgba(15,23,42,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 text-left">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">{c.title}</h3>
-                  <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{c.detail}</p>
+                  <p className="mt-0.5 truncate text-sm text-slate-600 dark:text-slate-400">{c.detail}</p>
                 </div>
               </a>
             );

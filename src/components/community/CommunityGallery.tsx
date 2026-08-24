@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Camera, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PhotoAlbum } from '../../types';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
-
-const IG_POSTS = [
-  'https://www.instagram.com/p/DXYxAlQkXrD/',
-  'https://www.instagram.com/metmalbekasi/p/DXecp6JEaqt/',
-];
 
 interface CachedInstagramPost {
   shortCode?: string;
@@ -97,9 +93,9 @@ function LazyInstagramEmbed({ url }: { url: string }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-slate-500 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
+          className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-slate-600 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
         >
-          <Globe className="h-8 w-8 text-[var(--brand-tosca-soft)]" />
+          <Globe className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
           <span>Lihat di Instagram &rarr;</span>
         </a>
       ) : (
@@ -142,7 +138,7 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
-            <Globe className="h-10 w-10 text-[var(--brand-tosca-soft)]" aria-hidden="true" />
+            <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
           </div>
         )}
       </div>
@@ -168,7 +164,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
       <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">@metmalbekasi</p>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">@metmalbekasi</p>
     </a>
   );
 }
@@ -177,11 +173,12 @@ interface Props {
   albums: PhotoAlbum[];
   instagramPosts?: string[];
   cachedIgPosts?: CachedInstagramPost[];
+  isLoading?: boolean;
 }
 
-export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }: Props) {
+export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], isLoading = false }: Props) {
   return (
-    <RevealSection id="gallery" className="border-y border-black/5 bg-neutral-50 px-4 py-16 dark:bg-slate-900 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />}>
+    <RevealSection id="gallery" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
@@ -196,15 +193,15 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
         {albums.length > 0 && (
           <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Dokumentasi Event</h3>
+              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400">Dokumentasi Event</h3>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
               {albums.slice(0, 3).map(album => (
-                <a
+                <Link
                   key={album.id}
-                  href={`/gallery/${album.slug}`}
+                  to={`/gallery/${album.slug}`}
                   className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
@@ -212,33 +209,33 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
                       <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
-                        <Camera className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
+                        <Camera className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
                       </div>
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
                     <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
                       {album.eventDate && <span>{album.eventDate}</span>}
                       {typeof album.photoCount === 'number' && album.photoCount > 0 && (
                         <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
                       )}
-                      <span className="font-semibold text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]">Lihat foto →</span>
+                      <span className="font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Lihat foto →</span>
                     </div>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
 
             <div className="mt-6">
-              <a
-                href="/gallery"
+              <Link
+                to="/gallery"
                 className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
                 Lihat Semua Gallery
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
+              </Link>
             </div>
           </div>
         )}
@@ -246,7 +243,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
         {/* ── Instagram ── */}
         <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
           <div className="mb-6 flex items-center gap-3">
-            <h3 className="text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">Instagram</h3>
+              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400">Instagram</h3>
             <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
           </div>
 
@@ -257,19 +254,20 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [] }:
                 <InstagramCachedCard key={post.shortCode || post.postUrl} post={post} />
               ))}
             </div>
-          ) : (
-            /* Fallback: iframe embed (slower, loads external scripts) */
+          ) : instagramPosts && instagramPosts.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(instagramPosts && instagramPosts.length > 0
-                ? instagramPosts
-                : IG_POSTS
-              ).map((url, idx) => {
+              {instagramPosts.map((url, idx) => {
                 const trimmedUrl = (url || '').trim();
                 if (!trimmedUrl || !trimmedUrl.includes('instagram.com')) {
                   return <InstagramFallbackCard key={`fallback-${idx}`} url="https://instagram.com/metmalbekasi" />;
                 }
                 return <LazyInstagramEmbed key={trimmedUrl} url={trimmedUrl} />;
               })}
+            </div>
+          ) : (
+            /* Fallback: lightweight profile card (no external iframes) */
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <InstagramFallbackCard url="https://instagram.com/metmalbekasi" />
             </div>
           )}
 

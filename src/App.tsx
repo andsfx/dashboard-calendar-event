@@ -18,6 +18,10 @@ import { useDashboardHandlers } from './hooks/useDashboardHandlers';
 import { ViewMode } from './types';
 
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
+import PrototypeLandingMetmalV1 from './pages/prototype-landing-metmal-v1';
+
+const PresentationDeck = lazy(() => import('./pages/presentation-deck'));
+const GraphifyLanding = lazy(() => import('./pages/GraphifyLanding'));
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
@@ -193,6 +197,12 @@ export default function App() {
   });
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
+  const communityStats = useMemo(() => {
+    const completed = publicEvents.filter(e => e.status === 'past').length;
+    const total = publicEvents.length;
+    const organizers = new Set(publicEvents.map(e => e.pic.trim()).filter(Boolean)).size;
+    return { completed, total, organizers };
+  }, [publicEvents]);
   // Internal draft Event rows only for canEditEvents (admin/superadmin), not all dashboard roles
   const visibleEvents = useMemo(
     () => filteredEvents.filter(e => canSeeInternalSchedule || e.status !== 'draft'),
@@ -313,6 +323,8 @@ export default function App() {
             onEventDetail={handleDetailClick}
             heroImageUrl={heroImageUrl}
             albums={landingAlbums}
+            isLoading={isLoading}
+            stats={communityStats}
           />
           <Suspense fallback={null}>
             <EventDetailModal
@@ -323,6 +335,13 @@ export default function App() {
             />
           </Suspense>
           <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </Suspense>
+      } />
+
+      {/* Graphify landing clone */}
+      <Route path="/graphify" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <GraphifyLanding />
         </Suspense>
       } />
 
@@ -859,6 +878,15 @@ export default function App() {
           </section>
         )}
     </DashboardShell>
+      } />
+      {/* PROTOTYPE: throwaway landing variant */}
+      <Route path="/prototype-landing-v1" element={<PrototypeLandingMetmalV1 />} />
+
+      {/* Presentation deck — slide-per-slide untuk pimpinan unit */}
+      <Route path="/presentasi" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <PresentationDeck />
+        </Suspense>
       } />
     </Routes>
   );

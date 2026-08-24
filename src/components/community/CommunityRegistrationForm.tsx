@@ -20,6 +20,12 @@ const ORG_TYPE_LABELS: Record<OrganizationType, string> = {
 
 const focusRing = 'ui-focus-ring';
 
+function todayIso() {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 interface FormData {
   organizationType: OrganizationType | '';
   organizationName: string;
@@ -177,7 +183,7 @@ function RegistrationForm() {
         <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
           Terima kasih udah daftar! Tim kami akan review dan hubungi kamu dalam 3-5 hari kerja.
-          <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> buat update terbaru!
+          <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> buat update terbaru!
         </p>
         <button
           type="button"
@@ -198,6 +204,7 @@ function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       className="ui-campaign-card p-5 xl:p-7"
     >
       {/* Step 1: Organization Type Selector */}
@@ -206,11 +213,6 @@ function RegistrationForm() {
         onChange={handleOrgTypeChange}
         error={fieldErrors.organizationType}
       />
-      {fieldErrors.organizationType && (
-        <p id="organization-type-error" className="mt-2 text-sm text-rose-600 dark:text-rose-400" role="alert">
-          {fieldErrors.organizationType}
-        </p>
-      )}
 
       {/* Step 2: Form Fields (shown after type selection) */}
       {showForm && (
@@ -220,12 +222,12 @@ function RegistrationForm() {
             <button
               type="button"
               onClick={() => setField('organizationType', '' as OrganizationType)}
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-slate-300 hover:text-slate-600 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:text-slate-300"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-slate-300 hover:text-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
               title="Ganti tipe"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
+              <ArrowLeft className="h-4 w-4" />
             </button>
-            <p className="text-xs font-semibold text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]">
+            <p className="text-xs font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">
               Pendaftaran {form.organizationType ? ORG_TYPE_LABELS[form.organizationType as OrganizationType] : ''}
             </p>
           </div>
@@ -234,7 +236,7 @@ function RegistrationForm() {
             {/* Organization Name */}
             <div className="sm:col-span-2">
               <label htmlFor="reg-org-name" className={labelClass}>
-                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-500">*</span>
+                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-600">*</span>
               </label>
               <input
                 id="reg-org-name"
@@ -264,7 +266,7 @@ function RegistrationForm() {
 
             {/* Common Fields */}
             <div>
-              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-500">*</span></label>
+              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-600">*</span></label>
               <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
               {fieldErrors.pic && (
                 <p id="pic-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
@@ -273,7 +275,7 @@ function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-500">*</span></label>
+              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600">*</span></label>
               <input 
                 id="reg-phone" 
                 value={form.phone} 
@@ -330,7 +332,7 @@ function RegistrationForm() {
             </div>
             <div>
               <label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</label>
-              <input id="reg-date" type="date" value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
+              <input id="reg-date" type="date" min={todayIso()} value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</label>
@@ -343,11 +345,11 @@ function RegistrationForm() {
       {error && <p className="mt-4 text-sm text-rose-600 dark:text-rose-400" role="alert">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4 border-t border-black/[0.06] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-6 text-slate-500 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
+        <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"
           disabled={submitting}
-          className={`inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
+          className={`inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
         >
           <Send className="h-4 w-4" />
           {submitting ? 'Mengirim...' : 'Kirim Pendaftaran'}
@@ -368,9 +370,9 @@ export function CommunityRegistrationForm() {
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
             Isi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu secepatnya.
           </p>
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
             Mau tanya-tanya dulu?{' '}
-            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">
+            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Chat via WhatsApp
             </a>
           </p>

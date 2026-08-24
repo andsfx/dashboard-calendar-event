@@ -19,7 +19,7 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
     icon: <Rocket className="h-6 w-6" aria-hidden="true" />,
     title: 'Kembangkan Komunitas',
     desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
-    color: 'var(--brand-tosca-soft)',
+    color: 'var(--brand-tosca)',
   },
   {
     icon: <Zap className="h-6 w-6" aria-hidden="true" />,
@@ -31,7 +31,7 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
 
 export function CommunityBenefits() {
   return (
-    <RevealSection id="benefits" intensity="strong" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="benefits" intensity="strong" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[2fr_3fr] lg:items-end">
           <div>
