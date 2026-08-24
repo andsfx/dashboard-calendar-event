@@ -111,13 +111,20 @@ export default function App() {
   } = useDraftEvents(canSeeInternalSchedule);
 
   const toggleDark = useCallback(() => {
-    setIsDark(v => {
-      const next = !v;
+    const next = !document.documentElement.classList.contains('dark');
+    const commit = () => {
       document.documentElement.classList.toggle('dark', next);
       localStorage.setItem('theme', next ? 'dark' : 'light');
-      return next;
-    });
-  }, []);
+      setIsDark(next);
+    };
+
+    const vt = (document as any).startViewTransition;
+    if (typeof vt === 'function') {
+      Promise.resolve(vt.call(document, commit)).catch(() => commit());
+    } else {
+      commit();
+    }
+  }, [setIsDark]);
 
   const {
     showLoginModal, setShowLoginModal,

@@ -197,6 +197,45 @@
 
 .live-dot { animation: live-pulse 2s infinite; }
 
+/* FAQ accordion — smooth expand/collapse (max-height + opacity + visibility) */
+.faq-panel {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transition:
+    max-height 300ms var(--ease-out-expo),
+    opacity 220ms var(--ease-out-expo),
+    visibility 0s 300ms;
+}
+
+.faq-panel-open {
+  max-height: 360px;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    max-height 300ms var(--ease-out-expo),
+    opacity 260ms var(--ease-out-expo),
+    visibility 0s 0s;
+}
+
+/* Dark / light mode crossfade (opt-in via document.startViewTransition) */
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@supports (view-transition-name: none) {
+  ::view-transition-old(root) {
+    animation: none;
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    animation: vt-fade-in 220ms var(--ease-out-expo);
+    z-index: 2;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -223,6 +262,8 @@
   .fade-up,
   .fade-in,
   .count-up,
+  .faq-panel,
+  .faq-panel-open,
   .modal-backdrop,
   .modal-panel,
   .toast-enter,

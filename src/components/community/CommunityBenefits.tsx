@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { Megaphone, Rocket, Trophy, Zap } from 'lucide-react';
+import { HandCoins, Megaphone, PackageCheck, Sprout } from 'lucide-react';
 import { RevealSection } from './CommunityRevealPrimitives';
 
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
   {
-    icon: <Trophy className="h-6 w-6" aria-hidden="true" />,
+    icon: <HandCoins className="h-6 w-6" aria-hidden="true" />,
     title: 'Dukungan Sponsorship',
     desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.',
     color: 'var(--brand-pink)',
@@ -16,13 +16,13 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
     color: 'var(--brand-tosca)',
   },
   {
-    icon: <Rocket className="h-6 w-6" aria-hidden="true" />,
+    icon: <Sprout className="h-6 w-6" aria-hidden="true" />,
     title: 'Kembangkan Komunitas',
     desc: 'Eksposur ke ribuan pengunjung mall setiap hari. Kesempatan kolaborasi dengan komunitas lain yang udah bergabung.',
     color: 'var(--brand-tosca)',
   },
   {
-    icon: <Zap className="h-6 w-6" aria-hidden="true" />,
+    icon: <PackageCheck className="h-6 w-6" aria-hidden="true" />,
     title: 'Venue & Peralatan Gratis',
     desc: 'Panggung, sound system, lighting, kursi penonton - semua GRATIS. Kamu tinggal fokus bikin acara yang seru.',
     color: 'var(--brand-tosca)',

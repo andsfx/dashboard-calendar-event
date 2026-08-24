@@ -131,7 +131,7 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
           <img
             src={imgSrc}
             alt={post.caption || 'Instagram post'}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
             loading="lazy"
             referrerPolicy="no-referrer"
             onError={() => setImgFailed(true)}
@@ -206,7 +206,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
                     {album.coverPhotoUrl ? (
-                      <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover" loading="lazy" />
+                      <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none" loading="lazy" />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
                         <Camera className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />

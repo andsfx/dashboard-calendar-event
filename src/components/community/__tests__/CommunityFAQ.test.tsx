@@ -18,7 +18,9 @@ describe('CommunityFAQ', () => {
 
   it('first FAQ is open by default', () => {
     render(<CommunityFAQ />)
-    expect(screen.getByText(/Benar 100% gratis\./)).toBeInTheDocument()
+    const firstAnswer = screen.getByText(/Benar 100% gratis\./)
+    expect(firstAnswer).toBeInTheDocument()
+    expect(firstAnswer.closest('[role="region"]')).toHaveClass('faq-panel-open')
   })
 
   it('toggles FAQ answer on click', () => {
@@ -31,9 +33,12 @@ describe('CommunityFAQ', () => {
   it('closes open FAQ when clicking another', () => {
     render(<CommunityFAQ />)
     const firstAnswer = screen.getByText(/Benar 100% gratis\./)
-    expect(firstAnswer).toBeInTheDocument()
+    const firstPanel = firstAnswer.closest('[role="region"]')
+    expect(firstPanel).toHaveClass('faq-panel-open')
+
     const secondQuestion = screen.getByText(/Komunitas apa saja/)
     fireEvent.click(secondQuestion)
-    expect(screen.queryByText(/Benar 100% gratis\./)).not.toBeInTheDocument()
+
+    expect(firstPanel).not.toHaveClass('faq-panel-open')
   })
 })

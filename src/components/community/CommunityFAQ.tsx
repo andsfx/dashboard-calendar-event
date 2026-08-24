@@ -43,16 +43,16 @@ export function CommunityFAQ() {
                     aria-hidden="true"
                   />
                 </button>
-                {isOpen && (
-                  <div
-                    id={`community-faq-${index}`}
-                    role="region"
-                    aria-labelledby={`community-faq-trigger-${index}`}
-                    className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6"
-                  >
+                <div
+                  id={`community-faq-${index}`}
+                  role="region"
+                  aria-labelledby={`community-faq-trigger-${index}`}
+                  className={`faq-panel ${isOpen ? 'faq-panel-open' : ''}`}
+                >
+                  <div className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-400 sm:px-6">
                     {answer}
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
