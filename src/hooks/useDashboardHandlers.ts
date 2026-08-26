@@ -95,6 +95,8 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     setShowAlbumManager: site.setShowAlbumManager,
     heroImageUrl: site.heroImageUrl,
     landingAlbums: site.landingAlbums,
+    showNewsManager: site.showNewsManager,
+    setShowNewsManager: site.setShowNewsManager,
     handleSaveInstagramPosts: site.handleSaveInstagramPosts,
     handleSaveHeroImage: site.handleSaveHeroImage,
     handleLogout: site.handleLogout,

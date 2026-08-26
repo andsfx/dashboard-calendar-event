@@ -17,6 +17,8 @@ export interface SiteSettingsHandlersResult {
   instagramPosts: string[];
   showAlbumManager: boolean;
   setShowAlbumManager: (v: boolean) => void;
+  showNewsManager: boolean;
+  setShowNewsManager: (v: boolean) => void;
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
   handleSaveInstagramPosts: (posts: string[]) => Promise<boolean>;
@@ -31,6 +33,7 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
   const [showInstagramSettings, setShowInstagramSettings] = useState(false);
   const [instagramPosts, setInstagramPosts] = useState<string[]>([]);
   const [showAlbumManager, setShowAlbumManager] = useState(false);
+  const [showNewsManager, setShowNewsManager] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [landingAlbums, setLandingAlbums] = useState<PhotoAlbum[]>([]);
 
@@ -77,6 +80,7 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
     showInstagramSettings, setShowInstagramSettings,
     instagramPosts,
     showAlbumManager, setShowAlbumManager,
+    showNewsManager, setShowNewsManager,
     heroImageUrl, landingAlbums,
     handleSaveInstagramPosts, handleSaveHeroImage,
     handleLogout,

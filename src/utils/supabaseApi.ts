@@ -76,6 +76,15 @@ export {
   submitPublicTenantSurvey,
 } from './api/surveysApi';
 
+export {
+  fetchNewsArticles,
+  fetchNewsArticleBySlug,
+  fetchAllNewsArticles,
+  createNewsArticle,
+  updateNewsArticle,
+  deleteNewsArticle,
+} from './api/newsApi';
+
 export type {
   PublicTenantSurveyEventInfo,
   TenantDropdownOption,

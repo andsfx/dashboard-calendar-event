@@ -11,6 +11,7 @@ const DeleteConfirmModal = lazy(() => import('../DeleteConfirmModal').then(m => 
 const EventDetailModal = lazy(() => import('../EventDetailModal').then(m => ({ default: m.EventDetailModal })));
 const InstagramSettingsModal = lazy(() => import('../InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
+const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
 const CommunityRegistrationDetailModal = lazy(() => import('../CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 
 import type { LoginResult } from '../../types/auth';
@@ -83,6 +84,8 @@ interface DashboardModalsProps {
   onCloseAlbumManager: () => void;
   pastEvents: EventItem[];
   annualThemes: AnnualTheme[];
+  showNewsManager: boolean;
+  onCloseNewsManager: () => void;
 
   // Registration detail modal
   showRegDetail: boolean;
@@ -141,6 +144,8 @@ export function DashboardModals({
   onCloseAlbumManager,
   pastEvents,
   annualThemes,
+  showNewsManager,
+  onCloseNewsManager,
   showRegDetail,
   onCloseRegDetail,
   selectedRegistration,
@@ -236,6 +241,12 @@ export function DashboardModals({
             onClose={onCloseAlbumManager}
             pastEvents={pastEvents}
             annualThemes={annualThemes}
+          />
+        )}
+        {showNewsManager && (
+          <NewsManagerModal
+            isOpen={showNewsManager}
+            onClose={onCloseNewsManager}
           />
         )}
         {showRegDetail && (

@@ -26,6 +26,7 @@ interface AdminSidebarProps {
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
+  onOpenNewsManager: () => void;
 }
 
 const navItemBase =
@@ -42,6 +43,7 @@ export const AdminSidebar = memo(function AdminSidebar({
   onOpenInstagramSettings,
   onOpenAlbumManager,
   onOpenLetterPicker,
+  onOpenNewsManager,
 }: AdminSidebarProps) {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -53,7 +55,8 @@ export const AdminSidebar = memo(function AdminSidebar({
     onOpenInstagramSettings,
     onOpenAlbumManager,
     onOpenLetterPicker,
-  }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, permissions]);
+    onOpenNewsManager,
+  }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, onOpenNewsManager, permissions]);
 
   const closeMobile = useCallback(() => setIsMobileOpen(false), []);
 

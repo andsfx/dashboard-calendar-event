@@ -302,6 +302,44 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- News / Blog ----
+      case 'listNewsArticles': {
+        const { data, error } = await sb.from('news_articles').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        result = { success: true, data: data || [] };
+        break;
+      }
+      case 'createNewsArticle': {
+        const { data, error } = await sb.from('news_articles').insert(req.body.data).select('id').single();
+        if (error) throw error;
+        result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_news', 'news', data.id, { title: req.body.data?.title }, req);
+        break;
+      }
+      case 'updateNewsArticle': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'News ID is required' });
+        const updateData = { ...req.body.data };
+        if (updateData.status === 'published') {
+          updateData.published_at = new Date().toISOString();
+        }
+        const { error } = await sb.from('news_articles').update(updateData).eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'update_news', 'news', req.body.id, null, req);
+        break;
+      }
+      case 'deleteNewsArticle': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'News ID is required' });
+        const { data: existing } = await sb.from('news_articles').select('cover_image_url').eq('id', req.body.id).single();
+        const { error } = await sb.from('news_articles').delete().eq('id', req.body.id);
+        if (error) throw error;
+        await deleteR2File(existing?.cover_image_url || '');
+        result = { success: true };
+        await logActivity(authInfo, 'delete_news', 'news', req.body.id, null, req);
+        break;
+      }
+
+
       // ---- Community Registrations ----
       case 'readRegistrations': {
         const { data, error } = await sb.from('community_registrations').select('*').order('created_at', { ascending: false });

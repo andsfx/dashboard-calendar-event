@@ -21,6 +21,7 @@ export interface DashboardShellProps {
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
+  onOpenNewsManager: () => void;
   onLoginClick: () => void;
   ongoingCount: number;
   upcomingCount: number;
@@ -44,6 +45,7 @@ export function DashboardShell({
   onOpenInstagramSettings,
   onOpenAlbumManager,
   onOpenLetterPicker,
+  onOpenNewsManager,
   onLoginClick,
   ongoingCount,
   upcomingCount,
@@ -74,6 +76,7 @@ export function DashboardShell({
           onOpenInstagramSettings={onOpenInstagramSettings}
           onOpenAlbumManager={onOpenAlbumManager}
           onOpenLetterPicker={onOpenLetterPicker}
+          onOpenNewsManager={onOpenNewsManager}
         />
       )}
 

@@ -9,6 +9,7 @@ import {
   Globe,
   Images,
   LayoutDashboard,
+  Newspaper,
   Palette,
   Store,
   TrendingUp,
@@ -42,6 +43,7 @@ interface DashboardNavCallbacks {
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
+  onOpenNewsManager: () => void;
 }
 
 interface CommandCenterCard {
@@ -112,6 +114,7 @@ export function getDashboardNavGroups(
           { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenInstagramSettings },
           { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenAlbumManager },
           { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenLetterPicker },
+          { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenNewsManager },
         ] : []),
       ],
     },
@@ -123,6 +126,7 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
     onOpenInstagramSettings: () => undefined,
     onOpenAlbumManager: () => undefined,
     onOpenLetterPicker: () => undefined,
+    onOpenNewsManager: () => undefined,
   })
     .flatMap(group => group.items)
     .filter(item => item.action === 'route' && item.route)

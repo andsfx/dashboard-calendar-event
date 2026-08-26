@@ -150,6 +150,20 @@ export interface PhotoAlbum {
   themeId?: string;
 }
 
+export interface NewsArticle {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImageUrl: string;
+  author: string;
+  status: 'draft' | 'published';
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

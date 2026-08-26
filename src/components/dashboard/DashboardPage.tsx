@@ -158,6 +158,7 @@ export interface DashboardPageSiteSettings {
   landingAlbums: PhotoAlbum[];
   showInstagramSettings: boolean;  setShowInstagramSettings: (v: boolean) => void;
   showAlbumManager: boolean;       setShowAlbumManager: (v: boolean) => void;
+  showNewsManager: boolean;        setShowNewsManager: (v: boolean) => void;
 }
 
 export interface DashboardPageProps {
@@ -206,6 +207,7 @@ export function DashboardPage({
       permissions={permissions}
       onOpenInstagramSettings={() => siteSettings.setShowInstagramSettings(true)}
       onOpenAlbumManager={() => siteSettings.setShowAlbumManager(true)}
+      onOpenNewsManager={() => siteSettings.setShowNewsManager(true)}
       onOpenLetterPicker={handlers.handleOpenLetterPicker}
       onLoginClick={() => modalState.setShowLoginModal(true)}
       ongoingCount={events.visibleStats.ongoing}
@@ -258,6 +260,8 @@ export function DashboardPage({
           onSaveHeroImage={handlers.handleSaveHeroImage}
           showAlbumManager={siteSettings.showAlbumManager}
           onCloseAlbumManager={() => siteSettings.setShowAlbumManager(false)}
+          showNewsManager={siteSettings.showNewsManager}
+          onCloseNewsManager={() => siteSettings.setShowNewsManager(false)}
           pastEvents={events.events.filter(e => e.status === 'past')}
           annualThemes={events.annualThemes}
           showRegDetail={registrations.showRegDetail}

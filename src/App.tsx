@@ -25,8 +25,10 @@ const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPag
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
 const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
 const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
-const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
+const NewsIndexPage = lazy(() => import('./components/NewsIndexPage').then(m => ({ default: m.NewsIndexPage })));
+const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
+const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
 const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
 const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSurveyResultsPage'));
@@ -117,6 +119,7 @@ export default function App() {
     instagramPosts,
     showAlbumManager, setShowAlbumManager,
     heroImageUrl,
+    showNewsManager, setShowNewsManager,
     landingAlbums,
     communityRegistrations,
     isRegLoading,
@@ -241,7 +244,7 @@ export default function App() {
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
-  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager };
+  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager };
 
   return (
     <Routes>
@@ -308,6 +311,18 @@ export default function App() {
       <Route path="/gallery/:slug" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <GalleryAlbumPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+
+      {/* News / Blog pages */}
+      <Route path="/news" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <NewsIndexPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      <Route path="/news/:slug" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <NewsArticlePage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
 

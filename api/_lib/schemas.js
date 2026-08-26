@@ -83,6 +83,10 @@ const ACTION_SCHEMAS = {
     status: z.string(),
     adminNote: z.string().optional(),
   }),
+  listNewsArticles: z.object({ action: z.literal('listNewsArticles') }),
+  createNewsArticle: z.object({ action: z.literal('createNewsArticle'), data: z.object({ title: z.string().min(1) }).passthrough() }),
+  updateNewsArticle: z.object({ action: z.literal('updateNewsArticle'), id: z.string().min(1), data: z.object({}).passthrough() }),
+  deleteNewsArticle: z.object({ action: z.literal('deleteNewsArticle'), id: z.string().min(1) }),
 };
 
 /**

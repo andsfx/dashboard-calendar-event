@@ -12,6 +12,7 @@ import { CommunityFAQ } from './community/CommunityFAQ';
 import { CommunitySocialProof } from './community/CommunitySocialProof';
 import { CommunityUpcomingEvents } from './community/CommunityUpcomingEvents';
 import { CommunityGallery } from './community/CommunityGallery';
+import { CommunityNews } from './community/CommunityNews';
 import { CommunityContact } from './community/CommunityContact';
 
 const focusRing = 'ui-focus-ring';
@@ -52,10 +53,10 @@ const NAV_ITEMS = [
   { href: '#how', label: 'Cara Daftar' },
   { href: '#faq', label: 'FAQ' },
   { href: '#gallery', label: 'Galeri' },
+  { href: '#news', label: 'Berita' },
   { href: '#register', label: 'Daftar' },
   { href: '#contact', label: 'Kontak' },
 ] as const;
-
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], isLoading = false, stats }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -240,7 +241,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunitySteps />
         <CommunityFAQ />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />
-        <CommunityRegistrationForm />
+        <CommunityNews />
         <CommunityContact />
         {isHeaderPinned && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
