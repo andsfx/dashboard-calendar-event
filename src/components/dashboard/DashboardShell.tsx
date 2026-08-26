@@ -22,6 +22,7 @@ export interface DashboardShellProps {
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
   onOpenNewsManager: () => void;
+  onOpenSponsorManager: () => void;
   onLoginClick: () => void;
   ongoingCount: number;
   upcomingCount: number;
@@ -46,6 +47,7 @@ export function DashboardShell({
   onOpenAlbumManager,
   onOpenLetterPicker,
   onOpenNewsManager,
+  onOpenSponsorManager,
   onLoginClick,
   ongoingCount,
   upcomingCount,
@@ -77,6 +79,7 @@ export function DashboardShell({
           onOpenAlbumManager={onOpenAlbumManager}
           onOpenLetterPicker={onOpenLetterPicker}
           onOpenNewsManager={onOpenNewsManager}
+          onOpenSponsorManager={onOpenSponsorManager}
         />
       )}
 

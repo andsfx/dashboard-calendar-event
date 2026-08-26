@@ -164,6 +164,55 @@ export interface NewsArticle {
   updatedAt?: string;
 }
 
+export type SponsorLeadStatus = 'pending' | 'contacted' | 'agreed' | 'declined';
+
+export interface EventProposal {
+  id: string;
+  eventId: string;
+  fileUrl: string;
+  fileName: string;
+  mimeType: string;
+}
+
+export interface SponsorEventLight {
+  id: string;
+  dateStr: string;
+  acara: string;
+  lokasi: string;
+  jam: string;
+  eo: string;
+}
+
+export interface EventProposalEvent {
+  event: SponsorEventLight;
+  proposal: EventProposal;
+}
+
+export interface SponsorLead {
+  id: string;
+  eventId: string;
+  eventAcara?: string;
+  eventDate?: string;
+  companyName: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  message: string;
+  status: SponsorLeadStatus;
+  internalNotes: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface SponsorLeadInput {
+  eventId: string;
+  companyName: string;
+  contactName: string;
+  phone: string;
+  email?: string;
+  message?: string;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

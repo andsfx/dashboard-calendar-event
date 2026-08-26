@@ -265,14 +265,12 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 <p className="mt-1.5 text-lg font-bold leading-tight text-slate-950 dark:text-white">Cari Sponsor atau Dukungan</p>
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Hubungi tim kami untuk peluang sponsorship dan kolaborasi event.</p>
               </div>
-              <a
-                href={`https://wa.me/6281318534823?text=${encodeURIComponent(`Halo, saya tertarik untuk menjadi sponsor atau mendukung event "${mainEvent.acara}". Mohon informasi lebih lanjut.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/sponsor"
                 className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
-                Hubungi Kami <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
+                Lihat Peluang Sponsor <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
           )}
         </div>

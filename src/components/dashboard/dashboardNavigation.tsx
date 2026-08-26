@@ -7,6 +7,7 @@ import {
   FileEdit,
   FileText,
   Globe,
+  Handshake,
   Images,
   LayoutDashboard,
   Newspaper,
@@ -38,12 +39,12 @@ export interface DashboardNavGroup {
   label: string;
   items: DashboardNavItem[];
 }
-
 interface DashboardNavCallbacks {
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
   onOpenNewsManager: () => void;
+  onOpenSponsorManager: () => void;
 }
 
 interface CommandCenterCard {
@@ -96,6 +97,7 @@ export function getDashboardNavGroups(
       label: 'Interaksi',
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
+        ...(permissions.canViewRegistrations ? [{ id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenSponsorManager }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
         ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
@@ -127,6 +129,7 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
     onOpenAlbumManager: () => undefined,
     onOpenLetterPicker: () => undefined,
     onOpenNewsManager: () => undefined,
+    onOpenSponsorManager: () => undefined,
   })
     .flatMap(group => group.items)
     .filter(item => item.action === 'route' && item.route)

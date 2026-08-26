@@ -339,6 +339,55 @@ export default async function handler(req, res) {
         break;
       }
 
+      // ---- Sponsorship ----
+      case 'setEventProposal': {
+        const { eventId, fileUrl, fileName = '', mimeType = '' } = req.body;
+        if (!eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
+        if (!fileUrl) return res.status(400).json({ success: false, error: 'File URL is required' });
+        const { error } = await sb.from('event_proposals')
+          .upsert({ event_id: eventId, file_url: fileUrl, file_name: fileName, mime_type: mimeType }, { onConflict: 'event_id' });
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'set_event_proposal', 'event', eventId, { file_name: fileName }, req);
+        break;
+      }
+      case 'deleteEventProposal': {
+        if (!req.body.eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
+        const { data: existing } = await sb.from('event_proposals').select('file_url').eq('event_id', req.body.eventId).maybeSingle();
+        const { error } = await sb.from('event_proposals').delete().eq('event_id', req.body.eventId);
+        if (error) throw error;
+        await deleteR2File(existing?.file_url || '');
+        result = { success: true };
+        await logActivity(authInfo, 'delete_event_proposal', 'event', req.body.eventId, null, req);
+        break;
+      }
+      case 'listSponsorLeads': {
+        const { data, error } = await sb.from('sponsor_leads')
+          .select('*, events(acara, date_str)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        result = { success: true, data: data || [] };
+        break;
+      }
+      case 'updateSponsorLeadStatus': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Lead ID is required' });
+        const updateData = { status: req.body.status };
+        if (req.body.internalNotes !== undefined) updateData.internal_notes = req.body.internalNotes;
+        const { error } = await sb.from('sponsor_leads').update(updateData).eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'update_sponsor_lead', 'sponsor_lead', req.body.id, { status: req.body.status }, req);
+        break;
+      }
+      case 'deleteSponsorLead': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'Lead ID is required' });
+        const { error } = await sb.from('sponsor_leads').delete().eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'delete_sponsor_lead', 'sponsor_lead', req.body.id, null, req);
+        break;
+      }
+
 
       // ---- Community Registrations ----
       case 'readRegistrations': {

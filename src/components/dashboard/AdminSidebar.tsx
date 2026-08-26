@@ -27,6 +27,7 @@ interface AdminSidebarProps {
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
   onOpenNewsManager: () => void;
+  onOpenSponsorManager: () => void;
 }
 
 const navItemBase =
@@ -44,19 +45,20 @@ export const AdminSidebar = memo(function AdminSidebar({
   onOpenAlbumManager,
   onOpenLetterPicker,
   onOpenNewsManager,
+  onOpenSponsorManager,
 }: AdminSidebarProps) {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const asideRef = useRef<HTMLElement>(null);
   const wasOpenRef = useRef(false);
-
   const navGroups = useMemo(() => getDashboardNavGroups(permissions, {
     onOpenInstagramSettings,
     onOpenAlbumManager,
     onOpenLetterPicker,
     onOpenNewsManager,
-  }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, onOpenNewsManager, permissions]);
+    onOpenSponsorManager,
+  }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, onOpenNewsManager, onOpenSponsorManager, permissions]);
 
   const closeMobile = useCallback(() => setIsMobileOpen(false), []);
 

@@ -85,6 +85,16 @@ export {
   deleteNewsArticle,
 } from './api/newsApi';
 
+export {
+  fetchSponsorEventsWithProposals,
+  submitSponsorLead,
+  fetchAllSponsorLeads,
+  updateSponsorLeadStatus,
+  deleteSponsorLead,
+  setEventProposal,
+  deleteEventProposal,
+} from './api/sponsorshipApi';
+
 export type {
   PublicTenantSurveyEventInfo,
   TenantDropdownOption,

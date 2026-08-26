@@ -8,6 +8,9 @@ const ALLOWED_MIME = new Set([
   'image/png',
   'image/webp',
   'image/gif',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
 
 const MIME_EXT = {
@@ -15,9 +18,12 @@ const MIME_EXT = {
   'image/png': 'png',
   'image/webp': 'webp',
   'image/gif': 'gif',
+  'application/pdf': 'pdf',
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
 
-const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/'];
+const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/', 'proposals/'];
 
 /**
  * @param {string} contentType
@@ -26,7 +32,7 @@ const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/'];
 export function validateContentType(contentType) {
   const ct = String(contentType || '').split(';')[0].trim().toLowerCase();
   if (!ALLOWED_MIME.has(ct)) {
-    return { ok: false, error: 'Content type tidak diizinkan. Gunakan JPEG, PNG, WebP, atau GIF.' };
+    return { ok: false, error: 'Content type tidak diizinkan. Gunakan JPEG, PNG, WebP, GIF, PDF, atau DOC/DOCX.' };
   }
   return { ok: true, contentType: ct, ext: MIME_EXT[ct] };
 }

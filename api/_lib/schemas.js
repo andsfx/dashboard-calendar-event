@@ -87,6 +87,22 @@ const ACTION_SCHEMAS = {
   createNewsArticle: z.object({ action: z.literal('createNewsArticle'), data: z.object({ title: z.string().min(1) }).passthrough() }),
   updateNewsArticle: z.object({ action: z.literal('updateNewsArticle'), id: z.string().min(1), data: z.object({}).passthrough() }),
   deleteNewsArticle: z.object({ action: z.literal('deleteNewsArticle'), id: z.string().min(1) }),
+  setEventProposal: z.object({
+    action: z.literal('setEventProposal'),
+    eventId: z.string().min(1),
+    fileUrl: z.string().min(1),
+    fileName: z.string().optional(),
+    mimeType: z.string().optional(),
+  }),
+  deleteEventProposal: z.object({ action: z.literal('deleteEventProposal'), eventId: z.string().min(1) }),
+  listSponsorLeads: z.object({ action: z.literal('listSponsorLeads') }),
+  updateSponsorLeadStatus: z.object({
+    action: z.literal('updateSponsorLeadStatus'),
+    id: z.string().min(1),
+    status: z.enum(['pending', 'contacted', 'agreed', 'declined']),
+    internalNotes: z.string().optional(),
+  }),
+  deleteSponsorLead: z.object({ action: z.literal('deleteSponsorLead'), id: z.string().min(1) }),
 };
 
 /**

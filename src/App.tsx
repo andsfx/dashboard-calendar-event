@@ -27,12 +27,12 @@ const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then
 const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
 const NewsIndexPage = lazy(() => import('./components/NewsIndexPage').then(m => ({ default: m.NewsIndexPage })));
 const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
+const SponsorLandingPage = lazy(() => import('./components/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
 const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
 const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSurveyResultsPage'));
-
 function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
 }
@@ -120,6 +120,7 @@ export default function App() {
     showAlbumManager, setShowAlbumManager,
     heroImageUrl,
     showNewsManager, setShowNewsManager,
+    showSponsorManager, setShowSponsorManager,
     landingAlbums,
     communityRegistrations,
     isRegLoading,
@@ -244,8 +245,7 @@ export default function App() {
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
-  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager };
-
+  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager };
   return (
     <Routes>
       {/* Community Landing Page */}
@@ -325,7 +325,12 @@ export default function App() {
           <NewsArticlePage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
-
+      {/* Sponsorship landing */}
+      <Route path="/sponsor" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <SponsorLandingPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
       {/* Survey — standalone page */}
       <Route path="/survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>

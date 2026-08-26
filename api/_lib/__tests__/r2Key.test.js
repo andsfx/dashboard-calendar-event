@@ -6,9 +6,13 @@ describe('validateContentType', () => {
     expect(validateContentType('image/jpeg').ok).toBe(true);
     expect(validateContentType('image/png; charset=binary').ok).toBe(true);
   });
-  it('rejects non-image', () => {
-    expect(validateContentType('application/pdf').ok).toBe(false);
+  it('rejects non-image/non-document', () => {
     expect(validateContentType('text/html').ok).toBe(false);
+    expect(validateContentType('application/x-msdownload').ok).toBe(false);
+  });
+  it('allows pdf and docx for proposals', () => {
+    expect(validateContentType('application/pdf').ok).toBe(true);
+    expect(validateContentType('application/vnd.openxmlformats-officedocument.wordprocessingml.document').ok).toBe(true);
   });
 });
 

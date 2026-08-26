@@ -97,10 +97,11 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     landingAlbums: site.landingAlbums,
     showNewsManager: site.showNewsManager,
     setShowNewsManager: site.setShowNewsManager,
+    showSponsorManager: site.showSponsorManager,
+    setShowSponsorManager: site.setShowSponsorManager,
     handleSaveInstagramPosts: site.handleSaveInstagramPosts,
     handleSaveHeroImage: site.handleSaveHeroImage,
     handleLogout: site.handleLogout,
-
     showCrudModal: event.showCrudModal, setShowCrudModal: event.setShowCrudModal,
     showDeleteModal: event.showDeleteModal, setShowDeleteModal: event.setShowDeleteModal,
     showDetailModal: event.showDetailModal, setShowDetailModal: event.setShowDetailModal,
