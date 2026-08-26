@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction } from './_shared';
 import { uploadToR2, deleteFromR2 } from './albumsApi';
 import type { SponsorLead, SponsorLeadInput, SponsorLeadStatus, EventProposalEvent } from '../../types';
+import { getTodayIsoLocal } from '../eventDateTime';
 
 // ─── Sponsorship / Akuisisi Sponsor ─────────────────────────────────
 
@@ -66,12 +67,13 @@ function leadInputToDbRow(data: SponsorLeadInput): Record<string, unknown> {
   return row;
 }
 
-/** Upcoming events with embedded proposals (anon RLS). Landing filters `proposal.fileUrl`; admin uses all rows. */
+/** Upcoming (masa depan) events with embedded proposals (anon RLS). Date guard keeps stale-status rows out; landing filters `proposal.fileUrl`; admin uses all rows. */
 export async function fetchSponsorEventsWithProposals(): Promise<EventProposalEvent[]> {
   const { data, error } = await supabase
     .from('events')
     .select('id, date_str, acara, lokasi, jam, eo, event_proposals(id, file_url, file_name, mime_type)')
     .eq('status', 'upcoming')
+    .gte('date_str', getTodayIsoLocal())
     .order('date_str', { ascending: true })
     .limit(100);
   if (error) throw new SupabaseApiError(`Fetch sponsor events failed: ${error.message}`);
