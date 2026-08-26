@@ -20,6 +20,8 @@ export interface Permissions {
   canExportTenantSurveyAnalytics: boolean;
   /** Can view registrations */
   canViewRegistrations: boolean;
+  /** Can manage sponsorship (proposals + leads) — admin only, viewer TIDAK */
+  canManageSponsorship: boolean;
   /** Can manage settings (landing page, albums, etc.) */
   canManageSettings: boolean;
   /** Can manage users (superadmin only) */
@@ -60,6 +62,7 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
         canViewTenantSurveyResults: false,
         canExportTenantSurveyAnalytics: false,
         canViewRegistrations: false,
+        canManageSponsorship: false,
         canManageSettings: false,
         canManageUsers: false,
         canViewActivityLog: false,
@@ -88,6 +91,7 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
       canViewTenantSurveyResults: isAdmin || isTenantRelation,
       canExportTenantSurveyAnalytics: isAdmin || isTenantRelation,
       canViewRegistrations: isAdmin || isViewer,
+      canManageSponsorship: isAdmin,
       canManageSettings: isAdmin,
       canManageUsers: isSuperadmin,
       canViewActivityLog: isAdmin,

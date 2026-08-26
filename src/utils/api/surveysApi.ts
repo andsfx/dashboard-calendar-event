@@ -415,6 +415,16 @@ export async function fetchPublicTenantRoster(): Promise<TenantRosterItem[]> {
   return [];
 }
 
+/** Direktori tenant publik — MID proxy, tanpa PIC/telp. 429/error → [] (degradasi UI). */
+export async function fetchPublicTenantDirectory(): Promise<TenantRosterItem[]> {
+  try {
+    const res = await fetch('/api/tenant-survey?mode=public&action=directory');
+    if (res.status === 429) return [];
+    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.tenants)) return json.tenants as TenantRosterItem[]; }
+  } catch {}
+  return [];
+}
+
 export async function checkPublicTenantSurveyDuplicate(eventId: string, deviceFingerprint: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/tenant-survey?mode=public&action=check&event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`);

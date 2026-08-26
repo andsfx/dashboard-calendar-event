@@ -14,11 +14,26 @@
 | Minor | 5 |
 | Nit | 6 |
 
+
 **3 temuan teratas:**
 
 1. **[Major] Submit minat support publik tanpa validasi server-side, tanpa rate limit, dan kolom tanpa batas** — klien meng-INSERT langsung ke `sponsor_leads` dengan kunci anon; seluruh validasi hanya ada di client (bisa dilewati). Bandingkan dengan endpoint publik lain di repo yang semuanya lewat proxy + `enforceRateLimit`.
 2. **[Major] Policy INSERT `WITH CHECK (true)` — anon bisa memalsukan `status`, `internal_notes`, custom `id`, dan mengirim pesan 60 KB+** — terverifikasi live: baris `status='agreed'` + `internal_notes` + payload HTML masuk ke DB dari koneksi anon.
 3. **[Major] Cap 20 MB hanya client-side; presign R2 tanpa batas ukuran di server** — siapa pun dengan akses admin (atau pemegang presigned URL selama 5 menit) bisa mengunggah objek sebesar apa pun ke bucket.
+
+## Status Perbaikan (2026-08-26)
+
+| Temuan | Status | Bukti |
+|---|---|---|
+| M-1 Submit publik tanpa validasi server + rate limit | ✅ Diperbaiki | `api/sponsor-lead.js` (zod + `enforceRateLimit` 10/15mnt + sanitize); `submitSponsorLead` kini POST ke proxy |
+| M-2 RLS INSERT `WITH CHECK (true)` permisif | ✅ Diperbaiki | `migrate/fix-sponsor-lead-rls.sql` (DROP policy; live-verified anon INSERT → 401 RLS); zod men-strip status/internal_notes/id |
+| M-3 Cap 20MB hanya client-side | ✅ Diperbaiki | `setEventProposal` HEAD object R2 sebelum upsert, >20MB → hapus + tolak (ContentLength TIDAK ditandatangani saat presign) |
+| M-4 Gating nav viewer vs API 403 | ✅ Diperbaiki | `usePermission.canManageSponsorship = isAdmin`; nav sponsorship memakai permission baru |
+| m-1 Orphan file saat ganti proposal | ⏸ Belum | Perlu hapus file lama sebelum upsert |
+| m-2 Delete R2 fire-and-forget ganda | ⏸ Belum | — |
+| m-3 MIME allowlist tanpa magic bytes | ⏸ Belum | — |
+| m-4 Upload file tidak tercatat activity_logs | ⏸ Belum | — |
+| m-5 internalNotes tanpa batas panjang | ⏸ Belum | — |
 
 ## Hasil Probe RLS Live
 

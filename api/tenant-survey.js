@@ -58,6 +58,7 @@ async function handlePublic(req, res, action) {
     case 'results-list':      return await handlePublicResultsList(req, res);
     case 'results-analytics': return await handlePublicResultsAnalytics(req, res);
     case 'results-roster':    return await handlePublicResultsRoster(req, res);
+    case 'directory':         return await handlePublicDirectory(req, res);
     default:
       return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
   }
@@ -300,6 +301,24 @@ async function handlePublicResultsRoster(req, res) {
       return res.status(502).json({ success: false, error: 'Gagal mengambil data tenant' });
     }
     return res.status(500).json({ success: false, error: 'Gagal mengambil roster tenant' });
+  }
+}
+
+// ─── Public: Tenant directory (no PIC) ────────────────────────────
+
+async function handlePublicDirectory(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
+  // MID upstream mahal — rate limit sama dengan results-roster
+  if (!enforcePublicResultsRateLimit(req, res, 'directory', 12, 60_000)) return;
+  try {
+    const tenants = await fetchMidActiveTenants(); // { id, name, floor, lot, category, logo }, tanpa PIC
+    tenants.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    return res.json({ success: true, tenants, total: tenants.length });
+  } catch (err) {
+    console.error('[tenant-survey/public/directory]', err);
+    if (err?.code === 'CONFIG') return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
+    if (err?.code === 'UPSTREAM') return res.status(502).json({ success: false, error: 'Layanan data tenant sedang bermasalah' });
+    return res.status(500).json({ success: false, error: 'Gagal mengambil direktori tenant' });
   }
 }
 

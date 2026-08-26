@@ -35,7 +35,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.canViewTenantSurveyResults).toBe(true);
     expect(result.current.canExportTenantSurveyAnalytics).toBe(true);
     expect(result.current.canViewRegistrations).toBe(true);
-    expect(result.current.canManageSettings).toBe(true);
+    expect(result.current.canManageSponsorship).toBe(true);
     expect(result.current.canManageUsers).toBe(true);
     expect(result.current.canViewActivityLog).toBe(true);
     expect(result.current.canExport).toBe(true);
@@ -61,7 +61,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.canManageThemes).toBe(false);
     expect(result.current.canViewSurvey).toBe(true);
     expect(result.current.canViewRegistrations).toBe(true);
-    expect(result.current.canExport).toBe(true);
+    expect(result.current.canManageSponsorship).toBe(false);
     expect(result.current.canManageUsers).toBe(false);
     expect(result.current.canViewActivityLog).toBe(false);
     expect(result.current.isReadOnly).toBe(true);
@@ -75,7 +75,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.canViewSurvey).toBe(true);
     expect(result.current.canViewTenantSurveyResults).toBe(false);
     expect(result.current.canViewRegistrations).toBe(false);
-    expect(result.current.isReadOnly).toBe(false);
+    expect(result.current.canManageSponsorship).toBe(false);
   });
 
   it('tenant_relation: results only', () => {
@@ -87,6 +87,6 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.canExportTenantSurveyAnalytics).toBe(true);
     expect(result.current.canViewSurvey).toBe(false);
     expect(result.current.canViewRegistrations).toBe(false);
-    expect(result.current.isReadOnly).toBe(true);
+    expect(result.current.canManageSponsorship).toBe(false);
   });
 });

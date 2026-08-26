@@ -1,0 +1,39 @@
+-- ============================================================================
+-- FIX RLS POLICY SPONSOR_LEADS — audit sponsorship M-2
+-- ============================================================================
+--
+-- MASALAH: migrate/sponsorship.sql:42-43 membuat policy INSERT publik
+--   "Public can insert sponsor leads" ON sponsor_leads FOR INSERT WITH CHECK (true)
+--   — permisif: anon bisa memalsukan status ('agreed'), internal_notes,
+--   custom id, dan mengirim payload raksasa (terverifikasi live di audit).
+--
+-- SOLUSI: insert publik dipindah ke proxy service-role (api/sponsor-lead.js)
+--   yang memvalidasi input (zod + rate limit) dan HANYA menulis kolom
+--   yang diizinkan (event_id, company_name, contact_name, phone, email, message).
+--   Policy INSERT publik dihapus total — tak ada jalur anon tersisa ke tabel.
+--
+--   SELECT/UPDATE/DELETE sponsor_leads memang sudah tertutup (tanpa policy),
+--   jadi setelah migrasi ini seluruh akses mutasi hanya via proxy admin
+--   service-role (api/supabase-admin.js case listSponsorLeads/dst).
+--
+-- IDEMPOTENCY: aman dijalankan berulang (IF EXISTS).
+-- ============================================================================
+
+DROP POLICY IF EXISTS "Public can insert sponsor leads" ON sponsor_leads;
+
+-- ============================================================================
+-- VERIFIKASI (jalankan di SQL editor setelah migrasi):
+--
+-- 1. Pastikan policy INSERT publik sudah hilang:
+--    SELECT policyname, cmd, qual, with_check
+--    FROM pg_policies
+--    WHERE tablename = 'sponsor_leads';
+--    → diharapkan 0 baris (atau hanya policy lain bila ada; policy INSERT publik tidak ada).
+--
+-- 2. Probe anon INSERT (harus DITOLAK — RLS):
+--    -- via koneksi anon key:
+--    INSERT INTO sponsor_leads (event_id, company_name, contact_name, phone)
+--    VALUES ('evt_contoh', 'X', 'Y', '081234567890');
+--    → error "new row violates row-level security policy"
+--    (tanpa policy INSERT, anon tidak bisa insert sama sekali).
+-- ============================================================================

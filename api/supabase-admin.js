@@ -1,5 +1,5 @@
 import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { validateAction } from './_lib/schemas.js';
 
 const R2 = new S3Client({
@@ -13,6 +13,9 @@ const R2 = new S3Client({
 
 const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
 const R2_BUCKET = process.env.R2_BUCKET_NAME || 'metmal-gallery';
+
+/** Cap ukuran file proposal sponsor (sinkron dgn SponsorManagerModal.MAX_FILE_SIZE = 20MB). */
+const MAX_PROPOSAL_BYTES = 20 * 1024 * 1024;
 
 async function deleteR2File(url) {
   if (!url || !R2_PUBLIC_URL) return;
@@ -344,6 +347,35 @@ export default async function handler(req, res) {
         const { eventId, fileUrl, fileName = '', mimeType = '' } = req.body;
         if (!eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
         if (!fileUrl) return res.status(400).json({ success: false, error: 'File URL is required' });
+
+        // M-3: cap 20MB server-side — HEAD object R2 SEBELUM upsert.
+        // (ContentLength TIDAK ditandatangani saat presign di api/r2-upload.js:
+        //  menandatanganinya memaksa klien mengirim Content-Length persis sama,
+        //  mematahkan semua upload < 20MB. Verifikasi post-upload via HEAD.)
+        let key = String(fileUrl);
+        if (R2_PUBLIC_URL && key.startsWith(R2_PUBLIC_URL)) {
+          key = key.slice(R2_PUBLIC_URL.length).replace(/^\//, '');
+        }
+        if (!key) return res.status(400).json({ success: false, error: 'File URL tidak valid' });
+
+        let head;
+        try {
+          head = await R2.send(new HeadObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+        } catch (headErr) {
+          if (headErr?.$metadata?.httpStatusCode === 404) {
+            return res.status(400).json({ success: false, error: 'File tidak ditemukan di storage. Silakan unggah ulang.' });
+          }
+          console.error('[setEventProposal] HEAD R2 failed:', key, headErr.message);
+          throw headErr;
+        }
+
+        const contentLength = Number(head.ContentLength || 0);
+        if (contentLength > MAX_PROPOSAL_BYTES) {
+          // Bersihkan object yang terlalu besar, tolak referensinya
+          await deleteR2File(fileUrl);
+          return res.status(400).json({ success: false, error: 'File melebihi 20MB' });
+        }
+
         const { error } = await sb.from('event_proposals')
           .upsert({ event_id: eventId, file_url: fileUrl, file_name: fileName, mime_type: mimeType }, { onConflict: 'event_id' });
         if (error) throw error;

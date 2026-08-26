@@ -55,16 +55,32 @@ function mapLead(row: Record<string, unknown>): SponsorLead {
   };
 }
 
-function leadInputToDbRow(data: SponsorLeadInput): Record<string, unknown> {
-  const row: Record<string, unknown> = {
-    event_id: data.eventId,
-    company_name: data.companyName,
-    contact_name: data.contactName,
-    phone: data.phone,
-  };
-  if (data.email !== undefined) row.email = data.email;
-  if (data.message !== undefined) row.message = data.message;
-  return row;
+/** Public submit — minat support via proxy service-role (validasi zod + rate limit server-side). */
+export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
+  const response = await fetch('/api/sponsor-lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      eventId: data.eventId,
+      companyName: data.companyName,
+      contactName: data.contactName,
+      phone: data.phone,
+      email: data.email,
+      message: data.message,
+    }),
+  });
+  if (!response.ok) {
+    // 400 validasi / 429 rate limit / 500 — tampilkan pesan dari server
+    let message = 'Submit sponsor lead failed';
+    try {
+      const body = (await response.json()) as { error?: unknown };
+      if (body?.error) message = String(body.error);
+    } catch {
+      // non-JSON body — pakai pesan fallback
+    }
+    throw new SupabaseApiError(message);
+  }
 }
 
 /** Upcoming (masa depan) events with embedded proposals (anon RLS). Date guard keeps stale-status rows out; landing filters `proposal.fileUrl`; admin uses all rows. */
@@ -78,12 +94,6 @@ export async function fetchSponsorEventsWithProposals(): Promise<EventProposalEv
     .limit(100);
   if (error) throw new SupabaseApiError(`Fetch sponsor events failed: ${error.message}`);
   return (data || []).map(row => mapProposalEvent(row as Record<string, unknown>));
-}
-
-/** Public submit — minat support from the sponsor landing form (anon RLS insert). */
-export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
-  const { error } = await supabase.from('sponsor_leads').insert(leadInputToDbRow(data));
-  if (error) throw new SupabaseApiError(`Submit sponsor lead failed: ${error.message}`);
 }
 
 /** Admin list — all leads with event info via service-role proxy. */
