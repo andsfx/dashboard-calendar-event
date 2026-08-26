@@ -20,7 +20,7 @@ const CONFIG: Record<EventStatus, { label: string; className: string; dotClass: 
   },
   past: {
     label: 'Selesai',
-    className: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 ring-1 ring-slate-200 dark:ring-slate-700',
+className: 'bg-slate-100 ui-text-muted dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700',
     dotClass: 'bg-slate-400',
   },
 };

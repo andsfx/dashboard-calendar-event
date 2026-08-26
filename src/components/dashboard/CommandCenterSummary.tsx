@@ -37,15 +37,19 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     isSuperadmin,
   });
 
+  const attentionCount = cards.filter(card => card.attention).length;
+
   return (
     <section aria-labelledby="command-center-title">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h2 id="command-center-title" className="text-lg font-bold text-slate-900 dark:text-white">
+          <h2 id="command-center-title" className="font-display text-xl font-bold text-slate-900 dark:text-white">
             Pusat Komando
           </h2>
           <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
-            Akses cepat modul operasional
+            {attentionCount > 0
+              ? `${attentionCount} modul ditandai butuh tindak lanjut`
+              : 'Tidak ada modul yang butuh tindak lanjut'}
           </p>
         </div>
       </div>
@@ -58,7 +62,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
             className={`group flex items-start gap-3 rounded-2xl border p-4 shadow-[var(--shadow-card-soft)] transition hover:border-brand-primary-300 hover:shadow-md dark:hover:border-brand-primary-700 ui-focus-ring ${
               card.attention
                 ? 'border-brand-primary-200 bg-[var(--brand-card)] dark:border-brand-primary-800 dark:bg-slate-800'
-                : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800'
+                : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800'
             }`}
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300">
@@ -67,19 +71,19 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
 
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-widest ui-text-muted">
                   {card.title}
                 </p>
                 {card.attention && (
-                  <span className="shrink-0 rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
-                    Perlu
+                  <span className="shrink-0 rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                    Perlu tindakan
                   </span>
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-2 text-2xl font-bold tabular-nums text-slate-900 dark:text-white">
+              <div className="font-display mt-1 flex items-center gap-2 text-2xl font-extrabold tabular-nums text-slate-900 dark:text-white">
                 {card.value}
               </div>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 line-clamp-1">
                 {card.subtitle}
               </p>
             </div>

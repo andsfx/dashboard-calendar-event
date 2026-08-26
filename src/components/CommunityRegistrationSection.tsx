@@ -86,7 +86,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
           </div>
           <div>
             <p className="text-sm font-bold text-slate-800 dark:text-white">Pendaftaran Organisasi</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Antrian pendaftaran dari landing page</p>
+            <p className="text-xs ui-text-muted">Antrian pendaftaran dari landing page</p>
           </div>
         </div>
         {pendingCount > 0 && (
@@ -127,7 +127,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
                 orgTypeFilter === 'all'
                   ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
+: 'bg-slate-100 ui-text-muted hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600'
               }`}
             >
               Semua Tipe
@@ -182,13 +182,13 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       <OrgTypeBadge type={reg.organizationType || 'community'} />
                       {reg.organizationType === 'community' && reg.communityType && (
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400">• {reg.communityType}</span>
+                        <span className="text-[10px] ui-text-muted">• {reg.communityType}</span>
                       )}
                     </div>
                   </div>
                   <StatusBadgeReg status={reg.status} />
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs ui-text-muted">
                   <span>PIC: {reg.pic}</span>
                   <span>{reg.phone}</span>
                   <span>{formatDate(reg.createdAt)}</span>
@@ -227,7 +227,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.pic}</td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.phone}</td>
                     <td className="px-4 py-3"><StatusBadgeReg status={reg.status} /></td>
-                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{formatDate(reg.createdAt)}</td>
+                    <td className="px-4 py-3 ui-text-muted">{formatDate(reg.createdAt)}</td>
                     <td className="px-4 py-3">
                       <Eye className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                     </td>

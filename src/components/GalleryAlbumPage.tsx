@@ -181,7 +181,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
         {/* Back button */}
         <button
           onClick={() => navigate('/gallery')}
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Gallery
@@ -256,7 +256,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
               <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
                 {album.name}
               </h1>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ui-text-muted">
                 {album.eventDate && (
                   <span className="flex items-center gap-1.5">
                     <CalendarDays className="h-4 w-4" />
@@ -321,7 +321,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
+<footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
         </div>

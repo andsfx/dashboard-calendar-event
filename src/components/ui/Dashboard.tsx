@@ -16,7 +16,7 @@ export function DashboardLayout({
   return (
     <div className={cn('ui-dashboard-page flex min-h-screen dark:bg-slate-950', className)} {...props}>
       {sidebar && (
-        <aside className="hidden w-64 border-r border-black/[0.06] bg-[var(--brand-card-light)] dark:border-neutral-800/50 dark:bg-neutral-900 md:block">
+        <aside className="hidden w-64 border-r border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-neutral-800/50 dark:bg-neutral-900 md:block">
           {sidebar}
         </aside>
       )}

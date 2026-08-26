@@ -66,7 +66,7 @@ function CountdownCell({ label, value }: { label: string; value: number }) {
       <p className="font-display text-xl font-bold tabular-nums text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] sm:text-2xl">
         {String(value).padStart(2, '0')}
       </p>
-      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">
         {label}
       </p>
     </div>
@@ -94,7 +94,7 @@ function HighlightEventCard({
   const isLive = event.status === 'ongoing';
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
+    <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
       {promoImageUrl && (
         <div
           data-promo-banner
@@ -221,7 +221,7 @@ function EventRailCard({
     <button
       type="button"
       onClick={() => onDetail(event)}
-      className="group flex min-w-0 flex-col items-start gap-4 rounded-[1.5rem] border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
+      className="group flex min-w-0 flex-col items-start gap-4 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
       <div className="flex w-full items-center justify-between gap-3">
         <span
@@ -249,7 +249,7 @@ function EventRailCard({
         <h3 className="line-clamp-2 text-lg font-bold leading-tight text-slate-900 dark:text-white">
           {event.acara}
         </h3>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium ui-text-muted">
           {isLive && event.tanggal && (
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-3 w-3" aria-hidden="true" />
@@ -391,8 +391,8 @@ export function EventsLandingPage({
 
               {!isLoading && (
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
-                  <div className="rounded-2xl border border-black/[0.06] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Total</dt>
+                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">Total</dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{events.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
@@ -477,7 +477,7 @@ export function EventsLandingPage({
                     <CalendarDays className="h-7 w-7 text-[var(--brand-tosca)]" aria-hidden="true" />
                   </div>
                   <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event</p>
-                  <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500 dark:text-slate-400">
+                  <p className="mt-2 max-w-xs text-sm leading-6 ui-text-muted">
                     Jadwal akan muncul di sini setelah event dipublikasikan.
                   </p>
                 </div>
@@ -504,7 +504,7 @@ export function EventsLandingPage({
                       Upcoming & Live
                     </h2>
                   </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-sm ui-text-muted">
                     {railRest.length} event
                   </p>
                 </div>

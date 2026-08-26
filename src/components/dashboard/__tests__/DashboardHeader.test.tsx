@@ -14,7 +14,7 @@ describe('DashboardHeader', () => {
   it('renders admin heading when isAdmin is true', () => {
     render(<DashboardHeader {...mockProps} />)
     expect(screen.getByText('Dashboard Event')).toBeInTheDocument()
-    expect(screen.getByText('Pantau & kelola semua acara')).toBeInTheDocument()
+    expect(screen.getByText('10 acara dalam pipeline · 2 sedang berlangsung')).toBeInTheDocument()
   })
 
   it('renders public heading when isAdmin is false', () => {

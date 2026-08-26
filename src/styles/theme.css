@@ -41,9 +41,9 @@
   --color-slate-50: #f8f7f0;
   --color-slate-100: #fdfcf6;
   --color-slate-200: #edeee2;
-  --color-slate-300: #e0e2d3;
-  --color-slate-400: #b5bbb3;
-  --color-slate-500: #8b9389;
+  --color-slate-300: #bcc1b5;
+  --color-slate-400: #7d8579;
+  --color-slate-500: #586056;
   --color-slate-600: #626b60;
   --color-slate-700: #4a554c;
   --color-slate-800: #2d382f;
@@ -154,17 +154,6 @@
   --radius-3xl: 2rem;           /* 32px */
   --radius-full: 9999px;
 
-  /*
-   * BOX SHADOW SYSTEM
-   */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 
   /*
    * ANIMATION & TRANSITION

@@ -13,11 +13,11 @@ interface StatCardProps {
   trend?: { value: number; label: string };
 }
 
-const VARIANT_CLASSES: Record<StatCardVariant, string> = {
-  primary: 'ui-gradient-primary',
-  slate: 'ui-gradient-slate',
-  emerald: 'ui-gradient-emerald',
-  amber: 'ui-gradient-amber',
+const CHIP_CLASSES: Record<StatCardVariant, string> = {
+  primary: 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300',
+  slate: 'bg-slate-200 text-slate-700 dark:bg-slate-700/70 dark:text-slate-200',
+  emerald: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
+  amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
 };
 
 function useCountUp(target: number, duration = 800, delay = 0) {
@@ -49,32 +49,28 @@ function useCountUp(target: number, duration = 800, delay = 0) {
 
 export const StatCard = memo(function StatCard({ icon, label, value, subtitle, variant, delay = 0, pulse = false, trend }: StatCardProps) {
   const displayed = useCountUp(value, 900, delay);
-  const variantClass = VARIANT_CLASSES[variant];
+  const chipClass = CHIP_CLASSES[variant];
 
   return (
     <div
-      className={`fade-up group relative overflow-hidden rounded-2xl p-3.5 text-white shadow-lg transition-shadow duration-200 hover:shadow-xl sm:p-5 ${variantClass}`}
+      className="fade-up rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-3.5 shadow-[var(--shadow-card-soft)] transition duration-200 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 sm:p-5"
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
-      {/* Decorative blobs */}
-      <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
-      <div className="absolute -right-2 bottom-2 h-14 w-14 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-105" />
-
-      <div className="relative flex items-start justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-white/75 sm:text-xs">{label}</p>
-          <p className="mt-1 text-3xl font-black tracking-tight tabular-nums sm:mt-1.5 sm:text-4xl">{displayed}</p>
-          {subtitle && <p className="mt-1 text-[11px] text-white/65 sm:text-xs">{subtitle}</p>}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300 sm:text-xs">{label}</p>
+          <p className="font-display mt-1 text-3xl font-extrabold leading-none tracking-tight tabular-nums text-slate-900 dark:text-white sm:mt-1.5 sm:text-4xl">{displayed}</p>
+          {subtitle && <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-300 sm:text-xs">{subtitle}</p>}
           {trend && (
             <div className="mt-2 flex items-center gap-1">
-              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-white/90' : 'text-white/60'}`}>
+              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                 {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}
               </span>
-              <span className="text-[10px] text-white/55">{trend.label}</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-300">{trend.label}</span>
             </div>
           )}
         </div>
-        <div className={`rounded-xl bg-white/20 p-2.5 backdrop-blur-sm shadow-inner transition-transform duration-200 group-hover:scale-110 sm:p-3 ${pulse ? 'live-dot' : ''}`}>
+        <div className={`shrink-0 rounded-xl p-2.5 sm:p-3 ${chipClass} ${pulse ? 'live-dot' : ''}`}>
           {icon}
         </div>
       </div>

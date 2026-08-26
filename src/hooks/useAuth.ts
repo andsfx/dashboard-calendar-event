@@ -8,6 +8,10 @@ import type { AuthUser, AuthState, LoginResult } from '../types/auth';
  * On mount, checks existing session via GET /api/auth-me.
  * Provides login, legacyLogin, and logout functions.
  */
+
+// ─── Dev mode auto-login bypass ────────────────────────────────
+const DEV_AUTO_LOGIN = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTO_LOGIN === 'true';
+
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +19,19 @@ export function useAuth() {
 
   // ─── Session check on mount ─────────────────────────────────────
   useEffect(() => {
+    if (DEV_AUTO_LOGIN) {
+      const devUser: AuthUser = {
+        id: 'dev-auto-login',
+        email: 'dev@localhost',
+        display_name: 'Dev Admin',
+        role: 'superadmin',
+      };
+      setUser(devUser);
+      setIsLegacy(false);
+      setIsLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function checkSession() {
@@ -70,6 +87,18 @@ export function useAuth() {
 
   // ─── Login with email + password (Supabase Auth) ────────────────
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
+    if (DEV_AUTO_LOGIN) {
+      const devUser: AuthUser = {
+        id: 'dev-auto-login',
+        email: 'dev@localhost',
+        display_name: 'Dev Admin',
+        role: 'superadmin',
+      };
+      setUser(devUser);
+      setIsLegacy(false);
+      return { ok: true };
+    }
+
     try {
       const res = await fetch('/api/auth?action=login', {
         method: 'POST',
@@ -125,6 +154,19 @@ export function useAuth() {
 
   // ─── Logout ─────────────────────────────────────────────────────
   const logout = useCallback(async () => {
+    if (DEV_AUTO_LOGIN) {
+      // Dev mode: re-login as dev user (logout = reset state)
+      const devUser: AuthUser = {
+        id: 'dev-auto-login',
+        email: 'dev@localhost',
+        display_name: 'Dev Admin',
+        role: 'superadmin',
+      };
+      setUser(devUser);
+      setIsLegacy(false);
+      return;
+    }
+
     try {
       // Use new auth-logout (clears both Supabase + legacy cookies)
       await fetch('/api/auth?action=logout', {

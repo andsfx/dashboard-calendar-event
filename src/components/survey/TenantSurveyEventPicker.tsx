@@ -85,7 +85,7 @@ export default function TenantSurveyEventPicker() {
         </h2>
         <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">{error}</p>
         {isEmptyList && (
-          <p className="mt-3 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-3 max-w-sm text-xs ui-text-muted">
             Hanya event dengan survey aktif yang tampil di sini. Hubungi admin mall jika Anda menerima link/QR tapi event tidak muncul.
           </p>
         )}
@@ -134,7 +134,7 @@ export default function TenantSurveyEventPicker() {
               <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                 {ev.acara}
               </span>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs ui-text-muted">
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />
                   {formatDate(ev.tanggal)}
@@ -164,7 +164,7 @@ export default function TenantSurveyEventPicker() {
 
       {/* Filtered count */}
       {query.trim() && filtered.length > 0 && (
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs ui-text-muted">
           Menampilkan {filtered.length} dari {events.length} event
         </p>
       )}

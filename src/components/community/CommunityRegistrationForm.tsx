@@ -188,7 +188,7 @@ function RegistrationForm() {
         <button
           type="button"
           onClick={() => { setSubmitted(false); setForm({ ...INITIAL_FORM }); }}
-          className={`mt-6 inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing}`}
+          className={`mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing}`}
         >
           Daftar {typeLabel} Lain
         </button>
@@ -344,7 +344,7 @@ function RegistrationForm() {
 
       {error && <p className="mt-4 text-sm text-rose-600 dark:text-rose-400" role="alert">{error}</p>}
 
-      <div className="mt-6 flex flex-col gap-4 border-t border-black/[0.06] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"

@@ -24,12 +24,4 @@ describe('DashboardStats', () => {
     // Values start at 0 due to count-up animation
     expect(screen.getAllByText('0')).toHaveLength(4)
   })
-
-  it('renders subtitles', () => {
-    render(<DashboardStats stats={mockStats} />)
-    expect(screen.getByText('keseluruhan')).toBeInTheDocument()
-    expect(screen.getByText('sedang aktif')).toBeInTheDocument()
-    expect(screen.getByText('akan datang')).toBeInTheDocument()
-    expect(screen.getByText('telah berlangsung')).toBeInTheDocument()
-  })
 })

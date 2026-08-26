@@ -248,7 +248,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             )}
             {/* QR Code (both admin & public) */}
             <details className="group">
-              <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400">
+<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <QrCode className="h-3.5 w-3.5" />
                 <span>QR Code Survey</span>
                 <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
@@ -262,7 +262,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </details>
             {/* QR Code Tenant Self-Assessment */}
             <details className="group">
-              <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-500 hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400">
+<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <ClipboardCheck className="h-3.5 w-3.5" />
                 <span>QR Code Self-Assessment Tenant</span>
                 <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>

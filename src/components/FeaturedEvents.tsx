@@ -66,7 +66,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
     <div>
       <div className="mb-3 flex items-center gap-2">
         <span className="shrink-0">{icon}</span>
-        <h2 className="min-w-0 truncate font-bold text-slate-800 dark:text-white">{title}</h2>
+        <h2 className="min-w-0 truncate font-display font-bold text-slate-800 dark:text-white">{title}</h2>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
           {events.length}
         </span>
@@ -82,7 +82,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
               tabIndex={onDetail ? 0 : undefined}
               aria-label={onDetail ? `Lihat detail: ${ev.acara}` : undefined}
               onKeyDown={onDetail ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } } : undefined}
-              className={`relative overflow-hidden rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
+              className={`relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
             >
               {/* Glow bar */}
               <div
@@ -106,7 +106,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
 
               <h3 className="mb-3 font-bold text-slate-800 leading-snug dark:text-white line-clamp-2">{ev.acara}</h3>
 
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <div className="space-y-1.5 text-xs ui-text-muted">
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-1">{ev.tanggal}</span>

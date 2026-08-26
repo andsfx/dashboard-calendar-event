@@ -47,7 +47,7 @@ function StatCard({
     <div className="ui-dashboard-surface p-4">
       <div className="flex items-center gap-2 text-brand-primary-500 dark:text-brand-primary-400">
         {icon}
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</span>
+        <span className="text-xs font-medium ui-text-muted">{label}</span>
       </div>
       <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
     </div>
@@ -60,7 +60,7 @@ function EmptyState() {
   return (
     <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
       <BarChart3 className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-      <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+      <p className="mt-2 text-sm font-medium ui-text-muted">
         Belum ada data analytics
       </p>
       <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
@@ -73,7 +73,7 @@ function EmptyState() {
 function LoadingState() {
   return (
     <div className="flex items-center justify-center py-12">
-      <div className="flex items-center gap-2 text-sm text-slate-500">
+      <div className="flex items-center gap-2 text-sm ui-text-muted">
         <BarChart3 className="h-4 w-4 animate-pulse" />
         Memuat analytics...
       </div>
@@ -308,7 +308,7 @@ export default function TenantSurveyAnalyticsPanel({
                   >
                     <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{label}</p>
+                      <p className="truncate text-[11px] ui-text-muted">{label}</p>
                       <p className={`text-sm font-bold ${ratingColor(val)}`}>{val?.toFixed(2) || '-'}</p>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export default function TenantSurveyAnalyticsPanel({
                       <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
                         {a.tenant_organization || 'Tenant'}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs ui-text-muted">
                         {a.submitted_surveys} survey terkirim
                       </p>
                     </div>
@@ -347,7 +347,7 @@ export default function TenantSurveyAnalyticsPanel({
                         {a.avg_overall_rating?.toFixed(1)}
                       </p>
                       {a.avg_overall_rating != null && (
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="text-[11px] ui-text-muted">
                           {a.avg_venue_rating != null ? `${a.avg_venue_rating}/5 venue` : ''}
                         </p>
                       )}

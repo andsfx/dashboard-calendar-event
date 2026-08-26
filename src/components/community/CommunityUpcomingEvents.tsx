@@ -76,7 +76,7 @@ function UpcomingEventsSkeleton() {
         <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
           Agenda event
         </h2>
-        <div className="mt-8 overflow-hidden rounded-[2rem] border border-black/[0.06] bg-neutral-100 dark:border-slate-700 dark:bg-slate-800" aria-hidden="true">
+        <div className="mt-8 overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 dark:border-slate-700 dark:bg-slate-800" aria-hidden="true">
           <div className="p-6 sm:p-10 lg:p-12">
             <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
             <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
@@ -144,7 +144,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           <button
             type="button"
             onClick={() => onDetail?.(mainEvent)}
-            className="group text-left rounded-[2rem] border border-black/[0.06] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+            className="group text-left rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
@@ -208,7 +208,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           {/* Right: promo poster — hidden when no poster/flyer */}
           {promoImageUrl && (
             <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-              <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
+              <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
                 <img
                   src={promoImageUrl}
                   alt={`Promo ${mainEvent.acara}`}
@@ -230,7 +230,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-3xl border border-black/[0.06] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start gap-4 rounded-3xl border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200" style={{ backgroundColor: `${color}15` }}>
@@ -256,7 +256,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
 
           {/* Cari sponsor card */}
           {events.length < 4 && (
-            <div className="flex flex-col gap-4 rounded-3xl border border-black/[0.06] bg-[color-mix(in_srgb,var(--brand-tosca)_6%,white)] p-5 dark:border-slate-700 dark:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,black)]">
+            <div className="flex flex-col gap-4 rounded-3xl border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--brand-tosca)_6%,white)] p-5 dark:border-slate-700 dark:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,black)]">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_22%,black)]">
                 <Handshake className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </div>
@@ -281,7 +281,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
         <div className="mt-8 flex justify-center">
           <Link
             to="/events"
-            className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
+            className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
           >
             Lihat Semua Event
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

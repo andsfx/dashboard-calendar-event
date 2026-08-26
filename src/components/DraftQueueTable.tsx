@@ -28,7 +28,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
           <thead>
             <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
               {['Tanggal', 'Event', 'Jam', 'EO', 'PIC', 'No. Telepon', 'Lokasi', 'Progress', 'Aksi'].map(label => (
-                <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</th>
+                <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">{label}</th>
               ))}
             </tr>
           </thead>

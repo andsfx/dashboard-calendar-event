@@ -62,12 +62,12 @@ Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500).
 
 ### Surfaces
 
-- Warm paper: `#f4efe8` (`--brand-paper`)
-- Warm card: `#faf6ef` (`--brand-card`)
+- Warm paper: `#f8f7f0` (`--brand-paper`)
+- Warm card: `#fdfcf6` (`--brand-card`)
 - Light card: `#fffdf9` (`--brand-card-light`)
-- Page neutral: `#fbfaf7` (`--color-neutral-page`)
+- Page neutral: `#f8f7f0` (`--color-neutral-page`)
 - White section: `#ffffff`
-- Ink: `#0f172a` (`--brand-ink`)
+- Ink: `#16211b` (`--brand-ink`)
 - Slate text: Tailwind `slate-950`, `slate-700`, `slate-600`, `slate-500`
 - Dark background: Tailwind `slate-950`, `slate-900`, `slate-800`
 
@@ -113,11 +113,11 @@ Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounde
 
 - `--focus-ring-color`: tosca
 - Light offset: `--focus-ring-offset-light` (card light)
-- Dark offset: `--focus-ring-offset-dark` (`#0f172a`)
+- Dark offset: `--focus-ring-offset-dark` (`#16211b`)
 
 ## Typography
 
-Display: system serif (Iowan/Palatino/Georgia) via `--font-display`. Body: Plus Jakarta Sans via `--font-body`. Hierarchy via weight, size, spacing, line height.
+Display: Bricolage Grotesque via `--font-display`. Body: Geist via `--font-body`. Hierarchy via weight, size, spacing, line height.
 
 ### Landing Page
 
@@ -287,7 +287,7 @@ Known residual (fix when editing that surface):
 - ~~`CommunityRegistrationDetailModal`~~ — fixed → tosca wash (2026-07-16)
 - ~~`eventUtils` draft/Bazaar/Konser purple~~ — fixed: draft=`slate`, Bazaar=tosca, Konser=pink; Hiburan/Teknologi rebalanced (2026-07-16)
 - ~~`SurveyDashboard` / `TenantSurveyResultsPage` violet keys~~ — fixed → `primary` / brand-secondary bars (2026-07-16)
-- ~~`SurveyQRCode` indigo-950 QR ink~~ — fixed → brand ink `#0f172a` (2026-07-16)
+- ~~`SurveyQRCode` indigo-950 QR ink~~ — fixed → brand ink `#16211b` (2026-07-16)
 - Outside `src/` (ignore): `improve/` sandbox + `pdfExport` indigo headers — migrate when those surfaces ship
 
 ## Copy Style

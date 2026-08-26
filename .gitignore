@@ -4,6 +4,9 @@ dist/
 .env*
 .DS_Store
 *.log
+.vite-log.txt
+.vite-out.txt
+.vite-err.txt
 .vercel
 .env*.local
 

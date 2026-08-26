@@ -9,6 +9,11 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    watch: {
+      ignored: ['**/.vite-log.txt', '**/.vite-out.txt', '**/.vite-err.txt'],
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

@@ -83,7 +83,7 @@ export function ActivityLog() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Log Aktivitas</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{total} aktivitas tercatat</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400">{total} aktivitas tercatat</p>
         </div>
         <Activity className="h-5 w-5 text-slate-300 dark:text-slate-600" />
       </div>
@@ -127,7 +127,7 @@ export function ActivityLog() {
       ) : logs.length === 0 ? (
         <div className="ui-dashboard-surface p-6 text-center">
           <Activity className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm text-slate-500">Tidak ada aktivitas ditemukan</p>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Tidak ada aktivitas ditemukan</p>
         </div>
       ) : (
         <div className="ui-dashboard-surface">
@@ -144,12 +144,12 @@ export function ActivityLog() {
                     <p className="text-xs text-slate-700 dark:text-slate-300">
                       <span className="font-semibold">{log.user_email}</span>
                       {' '}
-                      <span className="text-slate-500">{ACTION_LABELS[log.action] || log.action}</span>
+                      <span className="text-slate-600 dark:text-slate-400">{ACTION_LABELS[log.action] || log.action}</span>
                       {log.resource_type && (
-                        <span className="text-slate-500"> {RESOURCE_LABELS[log.resource_type] || log.resource_type}</span>
+                        <span className="text-slate-600 dark:text-slate-400"> {RESOURCE_LABELS[log.resource_type] || log.resource_type}</span>
                       )}
                       {log.resource_id && (
-                        <span className="ml-1 rounded bg-slate-100 px-1 py-0.5 font-mono text-[10px] text-slate-500 dark:bg-slate-700">{log.resource_id.slice(0, 12)}</span>
+                        <span className="ml-1 rounded bg-slate-100 px-1 py-0.5 font-mono text-[10px] ui-text-muted dark:bg-slate-700">{log.resource_id.slice(0, 12)}</span>
                       )}
                     </p>
                     {/* Details */}
@@ -177,7 +177,7 @@ export function ActivityLog() {
             className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300">
             Prev
           </button>
-          <span className="text-xs text-slate-500">{page} / {totalPages}</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400">{page} / {totalPages}</span>
           <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
             className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300">
             Next

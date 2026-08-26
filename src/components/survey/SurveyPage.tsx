@@ -180,7 +180,7 @@ export default function SurveyPage() {
       <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-          <p className="mt-3 text-sm text-slate-500">Memuat survey...</p>
+          <p className="mt-3 text-sm ui-text-muted">Memuat survey...</p>
         </div>
       </PageShell>
     );
@@ -208,7 +208,7 @@ export default function SurveyPage() {
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ClipboardCheck className="h-12 w-12 text-emerald-500" />
           <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Anda Sudah Mengisi Survey</h2>
-          <p className="mt-2 max-w-xs text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-2 max-w-xs text-sm ui-text-muted">
             Terima kasih! Anda sudah pernah mengisi survey untuk event "{event?.acara}".
           </p>
           <button onClick={() => navigate('/dashboard')} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-primary-700">
@@ -239,11 +239,11 @@ export default function SurveyPage() {
           </div>
           <div className="min-w-0">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">{event?.acara}</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs ui-text-muted">
               {event?.tanggal} · {event?.lokasi}
             </p>
             {event?.eo && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">Penyelenggara: {event.eo}</p>
+              <p className="text-xs ui-text-muted">Penyelenggara: {event.eo}</p>
             )}
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function SurveyPage() {
         <div className="space-y-6">
           {/* Type indicator */}
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium ui-text-muted">
               Mengisi sebagai: <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">
                 {surveyType === 'organizer' ? 'Penyelenggara' : 'Peserta / Pengunjung'}
               </span>
@@ -297,7 +297,7 @@ export default function SurveyPage() {
                 Penilaian Pengelola Tempat
               </h3>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs ui-text-muted">
               Berikan penilaian Anda terhadap Metropolitan Mall Bekasi
             </p>
             <div className="space-y-5">
@@ -332,7 +332,7 @@ export default function SurveyPage() {
                   Penilaian Penyelenggara Event
                 </h3>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs ui-text-muted">
                 Berikan penilaian Anda terhadap penyelenggara event: {event?.eo || '-'}
               </p>
               <div className="space-y-5">
@@ -380,7 +380,7 @@ export default function SurveyPage() {
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                 Data Diri <span className="font-normal text-slate-400">(opsional)</span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs ui-text-muted">
                 Tidak wajib diisi. Data hanya digunakan untuk keperluan internal.
               </p>
             </div>
@@ -438,7 +438,7 @@ function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: (
             <button
               type="button"
               onClick={onBack}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ui-text-muted transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               aria-label="Kembali"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -447,7 +447,7 @@ function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: (
           <ClipboardCheck className="h-5 w-5 shrink-0 text-brand-primary-600 dark:text-brand-primary-400" />
           <div>
             <h1 className="text-sm font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Metropolitan Mall Bekasi</p>
+            <p className="text-[11px] ui-text-muted">Metropolitan Mall Bekasi</p>
           </div>
         </div>
       </header>
@@ -480,7 +480,7 @@ function TypeCard({ title, desc, icon, onClick }: { title: string; desc: string;
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{title}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">{desc}</p>
+        <p className="text-xs ui-text-muted">{desc}</p>
       </div>
     </button>
   );

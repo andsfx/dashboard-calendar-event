@@ -158,7 +158,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
       <div className="space-y-4">
         <div className="ui-dashboard-surface p-6 text-center">
           <ClipboardCheck className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-sm font-medium ui-text-muted">
             Belum ada response survey
           </p>
           <p className="mt-1 text-xs text-slate-400">
@@ -185,7 +185,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Survey Kepuasan</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Feedback dari penyelenggara & peserta event</p>
+          <p className="text-xs ui-text-muted">Feedback dari penyelenggara & peserta event</p>
         </div>
         <button
           onClick={fetchStats}
@@ -243,12 +243,12 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
           <div className="flex items-center gap-3">
             <TrendingUp className={`h-5 w-5 ${stats.nps_score >= 50 ? 'text-emerald-500' : stats.nps_score >= 0 ? 'text-yellow-500' : 'text-red-500'}`} />
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Net Promoter Score (NPS)</p>
+              <p className="text-xs ui-text-muted">Net Promoter Score (NPS)</p>
               <p className={`text-xl font-bold ${stats.nps_score >= 50 ? 'text-emerald-600' : stats.nps_score >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
                 {stats.nps_score > 0 ? '+' : ''}{stats.nps_score}
               </p>
             </div>
-            <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+<span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium ui-text-muted dark:bg-slate-700 ">
               {stats.nps_score >= 50 ? 'Excellent' : stats.nps_score >= 0 ? 'Good' : 'Needs Improvement'}
             </span>
           </div>
@@ -430,7 +430,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               {/* Copy link */}
               <button
                 onClick={() => onCopyLink(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted hover:bg-slate-100 dark:hover:bg-slate-700"
                 title="Copy survey link"
               >
                 {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
@@ -467,7 +467,7 @@ function StatMini({ icon, label, value, color }: { icon: React.ReactNode; label:
     <div className="ui-dashboard-surface rounded-xl p-3">
       <div className={`mb-2 inline-flex rounded-lg p-1.5 ${colors[color] || colors.primary}`}>{icon}</div>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
-      <p className="text-[10px] text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="text-[10px] ui-text-muted">{label}</p>
     </div>
   );
 }
@@ -492,7 +492,7 @@ function MiniRating({ label, value }: { label: string; value: number | null }) {
   const v = value ?? 0;
   return (
     <div className="flex items-center justify-between rounded-md bg-[var(--brand-card-light)] px-2 py-1 dark:bg-slate-800">
-      <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
+      <span className="text-[10px] ui-text-muted">{label}</span>
       <span className={`text-[11px] font-bold ${v >= 8 ? 'text-emerald-600' : v >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{v || '-'}</span>
     </div>
   );

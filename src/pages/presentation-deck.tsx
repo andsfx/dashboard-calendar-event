@@ -70,7 +70,7 @@ function DeckChrome({
         </button>
       </div>
       <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-slate-200 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/80">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] ui-text-muted">
           {index + 1} / {TOTAL_SLIDES}
         </span>
         <div className="flex items-center gap-1.5">
@@ -94,7 +94,7 @@ function DeckChrome({
 function DeckFooter({ children }: { children: React.ReactNode }) {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-6 py-5 sm:px-10 sm:py-6">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] ui-text-muted">
         {children}
       </div>
     </div>
@@ -150,7 +150,7 @@ function SlideCover({ isActive }: SlideProps) {
               A
             </div>
             <div className="text-left">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] ui-text-muted">
                 Pemateri
               </div>
               <div className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -160,7 +160,7 @@ function SlideCover({ isActive }: SlideProps) {
           </div>
           <div className="hidden h-8 w-px bg-slate-200 sm:block dark:bg-slate-700" />
           <div className="text-center sm:text-right">
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] ui-text-muted">
               Audiens
             </div>
             <div className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -270,7 +270,7 @@ function SlideProblemSolution({ isActive }: SlideProps) {
                 <XCircle className="h-4.5 w-4.5" strokeWidth={1.75} />
               </span>
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] ui-text-muted">
                   Sebelumnya
                 </div>
                 <h3 className="font-display text-lg text-slate-900 dark:text-white">Masalah</h3>
@@ -518,7 +518,7 @@ function SlideSurvey({ isActive }: SlideProps) {
                 <FileText className="h-4.5 w-4.5" strokeWidth={1.75} />
               </span>
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] ui-text-muted">
                   Evaluasi Tenant
                 </div>
                 <div className="text-sm font-semibold text-slate-900 dark:text-white">

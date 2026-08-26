@@ -158,7 +158,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-black/[0.06] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
@@ -230,7 +230,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
             <div className="mt-6">
               <Link
                 to="/gallery"
-                className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
                 Lihat Semua Gallery
@@ -276,7 +276,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
               href="https://instagram.com/metmalbekasi"
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-2 rounded-full border border-black/[0.06] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+              className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
             >
               <Globe className="h-4 w-4" aria-hidden="true" />
               Follow @metmalbekasi

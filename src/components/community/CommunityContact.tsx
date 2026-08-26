@@ -49,7 +49,7 @@ export function CommunityContact() {
                 key={c.href}
                 href={c.href}
                 {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={`group flex items-center gap-4 rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_8px_20px_rgba(15,23,42,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
+                className={`group flex items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-white p-5 shadow-[0_8px_20px_rgba(15,23,42,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />

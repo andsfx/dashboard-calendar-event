@@ -94,7 +94,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         {/* Back button */}
         <button
           onClick={() => navigate('/')}
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Community
@@ -109,7 +109,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
               Galeri Event
             </h1>
-            <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-base ui-text-muted">
               Dokumentasi event di Metropolitan Mall Bekasi
             </p>
           </div>
@@ -193,7 +193,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                     {theme?.name || 'Lainnya'}
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm ui-text-muted">
                     {theme
                       ? `${formatThemeDate(theme.dateStart)} — ${formatThemeDate(theme.dateEnd)}`
                       : 'Album di luar tema tahunan'
@@ -266,7 +266,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm text-slate-500 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 sm:px-6">
+<footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
         </div>

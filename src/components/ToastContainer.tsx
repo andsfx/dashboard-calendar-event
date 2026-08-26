@@ -44,7 +44,7 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 
       <div className="relative min-w-0 flex-1">
         <p className="text-sm font-semibold text-slate-800 dark:text-white leading-tight">{t.title}</p>
-        {t.message && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{t.message}</p>}
+        {t.message && <p className="mt-0.5 text-xs ui-text-muted leading-relaxed">{t.message}</p>}
       </div>
 
       <button

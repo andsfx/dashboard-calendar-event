@@ -44,7 +44,7 @@ function TrendBar({
           )}
         </div>
       </div>
-      <span className="text-[10px] text-slate-500 dark:text-slate-400">{shortLabel}</span>
+      <span className="text-[10px] ui-text-muted">{shortLabel}</span>
       <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{total}</span>
     </div>
   );
@@ -99,7 +99,7 @@ export default function TenantSurveyTrendChart({
   if (isLoading) {
     return (
       <div className="ui-dashboard-surface p-4">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-sm ui-text-muted">
           <BarChart3 className="h-4 w-4 animate-pulse" />
           Memuat tren...
         </div>
@@ -119,7 +119,7 @@ export default function TenantSurveyTrendChart({
           </h3>
         </div>
         {stats && (
-          <div className="flex items-center gap-4 text-[10px] text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-4 text-[10px] ui-text-muted">
             {stats.submissionsChange !== 0 && (
               <span>
                 Submisi: {stats.submissionsChange > 0 ? '+' : ''}{stats.submissionsChange}
@@ -203,7 +203,7 @@ function TrendStat({
     <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-center gap-1.5 text-brand-primary-500 dark:text-brand-primary-400">
         {icon}
-        <span className="text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
+        <span className="text-[10px] ui-text-muted">{label}</span>
       </div>
       <p className="mt-0.5 text-base font-bold text-slate-800 dark:text-slate-200">{value}</p>
       {change !== 0 && (

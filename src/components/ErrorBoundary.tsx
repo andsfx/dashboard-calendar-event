@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
               Terjadi Kesalahan
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+            <p className="ui-text-muted text-sm mb-6">
               Maaf, aplikasi mengalami masalah. Silakan muat ulang halaman.
             </p>
             <button

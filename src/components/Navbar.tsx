@@ -63,7 +63,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-bold leading-tight text-slate-800 dark:text-white">Dashboard Event</p>
-            <p className="truncate text-[10px] leading-tight text-slate-500 dark:text-slate-400">Metropolitan Mall Bekasi</p>
+            <p className="truncate text-[10px] leading-tight ui-text-muted">Metropolitan Mall Bekasi</p>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               <div className="tooltip-parent hidden sm:block">
                 <button
                   onClick={onToggleDark}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 ${focusRing}`}
+className={`flex h-9 w-9 items-center justify-center rounded-xl ui-text-muted transition hover:bg-slate-100 dark:hover:bg-slate-800 ${focusRing}`}
                   aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
                 >
                   {isDark
@@ -120,7 +120,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               </div>
               <button
                 onClick={onToggleDark}
-                className={`flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
+className={`flex h-9 w-9 items-center justify-center rounded-xl ui-text-muted transition hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
                 aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
               >
                 {isDark

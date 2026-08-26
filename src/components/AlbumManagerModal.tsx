@@ -358,7 +358,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm text-slate-500 dark:text-slate-400">Memuat...</span>
+              <span className="ml-3 text-sm ui-text-muted">Memuat...</span>
             </div>
           )}
 
@@ -370,7 +370,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                 <button
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold text-slate-500 transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:text-slate-400 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
@@ -494,7 +494,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               {albums.length === 0 && !showCreateForm && (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Belum ada album</p>
+                  <p className="text-sm font-medium ui-text-muted">Belum ada album</p>
                   <p className="mt-1 text-xs text-slate-400">Buat album pertama untuk mulai mengelola foto</p>
                 </div>
               )}
@@ -628,7 +628,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               {albumPhotos.length === 0 && (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Belum ada foto</p>
+                  <p className="text-sm font-medium ui-text-muted">Belum ada foto</p>
                   <p className="mt-1 text-xs text-slate-400">Upload foto pertama di bawah</p>
                 </div>
               )}
@@ -700,7 +700,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                       ))}
                     </div>
 
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{uploadFiles.length} foto dipilih</p>
+                    <p className="text-xs ui-text-muted">{uploadFiles.length} foto dipilih</p>
 
                     {/* Progress bar */}
                     {uploading && uploadProgress.total > 0 && (
@@ -711,7 +711,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
                             style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
                           />
                         </div>
-                        <p className="text-xs text-slate-500">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
+                        <p className="text-xs ui-text-muted">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
                     )}
 

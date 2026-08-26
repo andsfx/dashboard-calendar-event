@@ -104,7 +104,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                   {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
                 </div>
               )}
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs ui-text-muted">
                 {formatDate(selectedTheme.dateStart)} - {formatDate(selectedTheme.dateEnd)}
               </p>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
@@ -161,7 +161,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                 <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
                 <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-slate-800 dark:text-slate-100">{theme.name}</p>
               </div>
-              <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+              <p className="mt-0.5 text-[10px] ui-text-muted">
                 {formatDate(theme.dateStart)} - {formatDate(theme.dateEnd)}
               </p>
 

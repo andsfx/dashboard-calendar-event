@@ -167,7 +167,8 @@ export default function TenantSurveyPublicPage() {
       setFormStatus('idle');
       submittingRef.current = false;
       requestAnimationFrame(() => {
-        errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        errorAlertRef.current?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'center' });
       });
       return;
     }
@@ -192,7 +193,8 @@ export default function TenantSurveyPublicPage() {
       setFormStatus('idle');
       submittingRef.current = false;
       requestAnimationFrame(() => {
-        errorAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        errorAlertRef.current?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'center' });
       });
       return;
     }
@@ -233,7 +235,7 @@ export default function TenantSurveyPublicPage() {
       <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
           <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Memuat survey...</p>
+          <p className="mt-3 text-sm ui-text-muted">Memuat survey...</p>
         </div>
       </PageShell>
     );
@@ -308,7 +310,7 @@ export default function TenantSurveyPublicPage() {
             </span>
             dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survey per event.
           </p>
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-xs ui-text-muted">
             Jika ini adalah kesalahan, hubungi tim Metropolitan Mall Bekasi.
           </p>
         </div>
@@ -330,7 +332,7 @@ export default function TenantSurveyPublicPage() {
           <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
             &quot;{event.acara}&quot;
           </p>
-          <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-4 max-w-md text-xs ui-text-muted">
             Masukan Anda sangat berharga untuk meningkatkan kerjasama dan pelayanan kami.
           </p>
           <button
@@ -466,7 +468,7 @@ export default function TenantSurveyPublicPage() {
               <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition ${
                 step.filled
                   ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+: 'bg-slate-200 ui-text-muted dark:bg-slate-700 '
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
@@ -500,7 +502,7 @@ export default function TenantSurveyPublicPage() {
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 1: Informasi Gerai
           </h2>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mb-4 text-xs ui-text-muted">
             Isi informasi dasar tenant dan lokasi gerai Anda di Metropolitan Mall Bekasi.
           </p>
 
@@ -609,7 +611,7 @@ export default function TenantSurveyPublicPage() {
 
             {/* PIC fields (optional) */}
             <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
-              <p className="mb-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <p className="mb-3 text-xs font-medium ui-text-muted">
                 Informasi PIC (opsional)
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -656,7 +658,7 @@ export default function TenantSurveyPublicPage() {
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mb-4 text-xs ui-text-muted">
             Bandingkan kondisi traffic pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
           </p>
 
@@ -687,7 +689,7 @@ export default function TenantSurveyPublicPage() {
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 3: Umpan Balik
           </h2>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mb-4 text-xs ui-text-muted">
             Sampaikan masukan Anda tentang event ini secara bebas (opsional).
           </p>
 
@@ -716,7 +718,7 @@ export default function TenantSurveyPublicPage() {
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-[10px] ui-text-muted">
             <span role="status" aria-live="polite">{progress}% selesai</span>
             <span>{filledCount} dari {requiredCount} field wajib terisi</span>
           </div>
@@ -725,7 +727,7 @@ export default function TenantSurveyPublicPage() {
         {/* Submit — sticky on mobile */}
         <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
           {filledCount < requiredCount && (
-            <p className="text-center text-xs text-slate-500 dark:text-slate-400 sm:text-right">
+            <p className="text-center text-xs ui-text-muted sm:text-right">
               Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
             </p>
           )}
@@ -758,7 +760,7 @@ export default function TenantSurveyPublicPage() {
           </div>
         </div>
 
-        <p className="text-center text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="text-center text-[11px] ui-text-muted">
           <Shield className="mr-1 inline h-3 w-3" />
           Survey ini dapat diakses tanpa login. Identitas Anda akan disimpan secara anonim.
         </p>

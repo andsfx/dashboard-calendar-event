@@ -42,7 +42,7 @@ export default function RatingSlider({ label, description, value, onChange, icon
         <div>
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{label}</p>
           {description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>
+            <p className="text-xs ui-text-muted">{description}</p>
           )}
         </div>
       </div>

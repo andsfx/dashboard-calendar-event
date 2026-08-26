@@ -72,7 +72,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
                   >
                     <div className="min-w-0 space-y-1">
                       <p className="font-semibold text-slate-800 dark:text-white">{event.acara}</p>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                      <div className="flex flex-wrap items-center gap-3 text-xs ui-text-muted">
                         <span className="inline-flex items-center gap-1">
                           <CalendarDays className="h-3.5 w-3.5" />
                           {event.day}, {event.tanggal}
@@ -82,7 +82,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
                           {event.lokasi || '-'}
                         </span>
                       </div>
-                      {event.eo && <p className="text-xs text-slate-500 dark:text-slate-400">EO: {event.eo}</p>}
+                      {event.eo && <p className="text-xs ui-text-muted">EO: {event.eo}</p>}
                     </div>
                     <span className="shrink-0 rounded-lg border border-brand-primary-200 px-3 py-1.5 text-xs font-medium text-brand-primary-600 dark:border-brand-primary-900/50 dark:text-brand-primary-300">
                       Pilih

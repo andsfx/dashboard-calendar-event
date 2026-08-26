@@ -149,7 +149,7 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
     setError(null);
     try {
       const data = await fetchTenantSurveyAnalytics(
-        eventId ? { eventId } : undefined,
+        eventId ? { eventId } : {},
       );
       setAnalytics(data as TenantSurveyAnalytics[]);
     } catch (err) {

@@ -270,12 +270,12 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
       {open && !disabled && (
         <div id={listboxId} role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-xs text-slate-500">
+            <div className="flex items-center justify-center px-4 py-3 text-xs ui-text-muted">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
               Memuat tenant...
             </div>
           ) : tenants.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-slate-500">
+            <div className="px-4 py-3 text-xs ui-text-muted">
               {query.trim().length < 2
                 ? 'Ketik minimal 2 huruf, lalu pilih dari daftar'
                 : `Tidak ada tenant cocok "${query}"`}
@@ -307,7 +307,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
                   <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
                     {t.name}
                   </p>
-                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="truncate text-[11px] ui-text-muted">
                     {t.category || '—'}
                     {t.floor ? ` • ${t.floor}` : ''}
                     {t.lot ? ` • Lot ${t.lot}` : ''}
@@ -319,7 +319,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
         </div>
       )}
       {!value && !error && (
-        <p id={hintId} className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+        <p id={hintId} className="mt-1 text-[11px] ui-text-muted">
           Pilih gerai dari daftar, bukan ketik bebas.
         </p>
       )}

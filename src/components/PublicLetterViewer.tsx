@@ -115,7 +115,7 @@ export function PublicLetterViewer() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="ui-focus-ring rounded-full p-2 text-slate-500 transition hover:bg-[var(--brand-card)] hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+              className="ui-focus-ring rounded-full p-2 ui-text-muted transition hover:bg-[var(--brand-card)] hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
               aria-label="Kembali"
             >
               <ArrowLeft size={20} aria-hidden />
@@ -148,7 +148,7 @@ export function PublicLetterViewer() {
 
       <div className="mx-auto max-w-7xl p-4">
         {pdfSrc ? (
-          <div className="overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[var(--shadow-card-soft)] dark:border-slate-700">
+          <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-white shadow-[var(--shadow-card-soft)] dark:border-slate-700">
             <iframe
               src={pdfSrc}
               className="h-[calc(100vh-120px)] w-full"
@@ -156,7 +156,7 @@ export function PublicLetterViewer() {
             />
           </div>
         ) : (
-          <div className="rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-8 text-center shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-8 text-center shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800">
             <FileText size={48} className="mx-auto mb-4 text-slate-400" />
             <p className="text-slate-600 dark:text-slate-400">
               PDF tidak tersedia untuk surat ini.

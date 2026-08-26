@@ -19,7 +19,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
           <thead>
             <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
               {['Tanggal', 'Event', 'EO', 'PIC', 'Nomor Telepon', 'Progress', 'Status Histori', 'Follow Up'].map(label => (
-                <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</th>
+                <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">{label}</th>
               ))}
             </tr>
           </thead>
@@ -40,7 +40,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.pic}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.phone}</td>
                   <td className="px-4 py-3"><DraftProgressBadge progress={draft.progress} /></td>
-                  <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
+                  <td className="px-4 py-3 text-xs ui-text-muted">
                     {draft.deleted ? (
                       <div>
                         <p className="font-semibold text-rose-600 dark:text-rose-300">Dihapus</p>

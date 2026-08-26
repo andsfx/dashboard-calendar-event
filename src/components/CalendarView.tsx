@@ -58,11 +58,11 @@ interface Props {
 export function CalendarView({ events, holidays, onDetail, variant = 'dashboard' }: Props) {
   const isPublic = variant === 'public';
   const surfaceClass = isPublic
-    ? 'overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900'
+    ? 'overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900'
     : 'ui-dashboard-surface overflow-hidden';
   const headerClass = isPublic
-    ? 'flex items-center justify-between border-b border-black/[0.06] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80'
-    : 'flex items-center justify-between ui-gradient-primary px-5 py-4';
+    ? 'flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80'
+    : 'flex items-center justify-between ui-btn-primary px-5 py-4';
   const headerBtnClass = isPublic
     ? 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700'
     : 'rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white';
@@ -70,7 +70,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
     ? 'text-lg font-bold text-slate-900 dark:text-white'
     : 'text-lg font-bold text-white';
   const headerSubClass = isPublic
-    ? 'text-xs text-slate-500 dark:text-slate-400'
+    ? 'text-xs ui-text-muted'
     : 'text-xs text-white/70';
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -262,7 +262,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-100 px-3 py-3 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400 sm:text-xs">
+<div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-100 px-3 py-3 text-[11px] ui-text-muted dark:border-slate-700 sm:text-xs">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-400" />Selesai</span>
@@ -343,7 +343,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
                                   </div>
                                   <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                  <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                  <div className="mt-2 space-y-1 text-xs ui-text-muted">
                                     {getMultiDayJamDisplay(ev) && (
                                       <div className="flex items-center gap-1.5">
                                         <Clock className="h-3 w-3 shrink-0" />
@@ -375,7 +375,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                         <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-slate-100 pt-5 dark:border-slate-700' : ''}>
                           <div className="mb-3 flex items-center gap-2">
                             <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <p className="text-xs font-semibold ui-text-muted">
                               {group.label} ({groupEvents.length})
                             </p>
                           </div>
@@ -389,11 +389,11 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                   className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
                                     isSelectedCard
                                       ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                                      : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
+                                      : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
                                   }`}
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'ui-text-muted'}`}>
                                       {ev.day}, {ev.tanggal}
                                     </p>
                                     <StatusBadge status={ev.status} size="sm" />
@@ -403,7 +403,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
                                   </div>
                                   <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                  <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                  <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
                                     {ev.jam && (
                                       <div className="flex items-center gap-1.5">
                                         <Clock className="h-3 w-3 shrink-0" />
@@ -456,11 +456,11 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                           className={`rounded-2xl border p-4 text-left shadow-sm ${
                             isSelectedCard
                               ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                              : 'border-black/[0.06] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
+                              : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
                           }`}
                         >
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'ui-text-muted'}`}>
                               {holiday.day}, {holiday.tanggal}
                             </p>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
@@ -469,7 +469,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                           </div>
                           <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
                           {holiday.description && (
-                            <p className="mt-3 line-clamp-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>
+                            <p className="mt-3 line-clamp-3 text-xs ui-text-muted">{holiday.description}</p>
                           )}
                         </div>
                       );
@@ -494,18 +494,18 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
         {/* Monthly summary */}
         {monthEvents.length > 0 && (
           <div className={`${surfaceClass} mt-4 p-4`}>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide ui-text-muted">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {(['ongoing', 'upcoming', 'past'] as const).map(s => {
                 const count = monthEvents.filter(e => e.status === s).length;
                 const label = s === 'ongoing' ? 'Berlangsung' : s === 'upcoming' ? 'Mendatang' : 'Selesai';
-                const color = s === 'ongoing' ? 'text-emerald-600 dark:text-emerald-400' : s === 'upcoming' ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400';
+                const color = s === 'ongoing' ? 'text-emerald-600 dark:text-emerald-400' : s === 'upcoming' ? 'text-amber-600 dark:text-amber-400' : 'ui-text-muted';
                 return (
                   <div key={s} className="text-center">
                     <p className={`text-2xl font-bold ${color}`}>{count}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+                    <p className="text-xs ui-text-muted">{label}</p>
                   </div>
                 );
               })}
@@ -577,7 +577,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                   <CategoryBadges categories={ev.categories} maxVisible={2} />
                                 </div>
                                 <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                <div className="mt-2 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                <div className="mt-2 space-y-1 text-xs ui-text-muted">
                                   {getMultiDayJamDisplay(ev) && (
                                     <div className="flex items-center gap-1.5">
                                       <Clock className="h-3 w-3 shrink-0" />
@@ -608,7 +608,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                       <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-slate-100 pt-4 dark:border-slate-700' : ''}>
                         <div className="mb-3 flex items-center gap-2">
                           <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          <p className="text-xs font-semibold ui-text-muted">
                             {group.label} ({groupEvents.length})
                           </p>
                         </div>
@@ -620,10 +620,10 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                 setSelectedDate(null);
                                 onDetail(ev);
                               }}
-                              className="w-full rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                             >
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ev.day}, {ev.tanggal}</p>
+                                <p className="text-xs font-semibold ui-text-muted">{ev.day}, {ev.tanggal}</p>
                                 <StatusBadge status={ev.status} size="sm" />
                                 {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
                               </div>
@@ -631,7 +631,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                 <CategoryBadges categories={ev.categories} maxVisible={2} />
                               </div>
                               <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                              <div className="mt-3 space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                              <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
                                 {ev.jam && (
                                   <div className="flex items-center gap-1.5">
                                     <Clock className="h-3 w-3 shrink-0" />
@@ -674,15 +674,15 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                       : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
 
                     return (
-                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-black/[0.06] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800/50">
+                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800/50">
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{holiday.day}, {holiday.tanggal}</p>
+                          <p className="text-xs font-semibold ui-text-muted">{holiday.day}, {holiday.tanggal}</p>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
                             {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
                           </span>
                         </div>
                         <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
-                        {holiday.description && <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{holiday.description}</p>}
+                        {holiday.description && <p className="mt-3 text-xs ui-text-muted">{holiday.description}</p>}
                       </div>
                     );
                   })}

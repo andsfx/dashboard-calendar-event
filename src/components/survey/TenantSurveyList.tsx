@@ -312,7 +312,7 @@ export default function TenantSurveyList({
                   className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none dark:text-slate-200"
                 />
                 {availableEvents.length === 0 ? (
-                  <p className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="px-3 py-2 text-xs ui-text-muted">
                     {eventQuery.trim()
                       ? `Tidak ada event cocok "${eventQuery}"`
                       : 'Tidak ada event tersedia untuk draft admin'}
@@ -376,7 +376,7 @@ export default function TenantSurveyList({
                   className={`rounded-full px-1.5 text-[10px] tabular-nums ${
                     statusFilter === tab.key
                       ? 'bg-white/20 text-white'
-                      : 'bg-[var(--brand-card-light)] text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+: 'bg-[var(--brand-card-light)] ui-text-muted dark:bg-slate-800 '
                   }`}
                 >
                   {count}
@@ -421,7 +421,7 @@ export default function TenantSurveyList({
             <button
               type="button"
               onClick={clearFilters}
-              className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold ui-text-muted transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
             >
               <X className="h-3 w-3" />
               Reset filter
@@ -444,7 +444,7 @@ export default function TenantSurveyList({
       {surveys.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
           <ClipboardCheck className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-2 text-sm font-medium ui-text-muted">
             Belum ada self-assessment
           </p>
           <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
@@ -454,7 +454,7 @@ export default function TenantSurveyList({
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
           <Search className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-2 text-sm font-medium ui-text-muted">
             Tidak ada hasil filter
           </p>
           <button
@@ -482,7 +482,7 @@ export default function TenantSurveyList({
                       <p className="truncate text-sm font-bold text-slate-800 dark:text-white">
                         {tenantLabel(survey)}
                       </p>
-                      <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                      <p className="mt-0.5 truncate text-xs ui-text-muted">
                         {ev?.acara || survey.event_id}
                       </p>
                     </div>
@@ -496,7 +496,7 @@ export default function TenantSurveyList({
                     </div>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ui-text-muted">
                     {v3 ? (
                       <>
                         {survey.kategori && (
@@ -554,7 +554,7 @@ export default function TenantSurveyList({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
-                  <tr className="ui-dashboard-muted border-b border-black/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
+<tr className="ui-dashboard-muted border-b border-black/[0.04] text-[11px] font-semibold uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
                     <th className="px-4 py-3">Gerai / Tenant</th>
                     <th className="px-4 py-3">Event</th>
                     <th className="px-4 py-3">Impact</th>
@@ -578,7 +578,7 @@ export default function TenantSurveyList({
                             <p className="truncate font-semibold text-slate-800 dark:text-slate-100">
                               {tenantLabel(survey)}
                             </p>
-                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] ui-text-muted">
                               {v3 ? (
                                 <>
                                   {survey.lokasi_zona && (
@@ -651,7 +651,7 @@ export default function TenantSurveyList({
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                        <td className="px-4 py-3 text-xs tabular-nums ui-text-muted">
                           {formatShortDate(survey.submitted_at || survey.created_at)}
                         </td>
                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -682,7 +682,7 @@ export default function TenantSurveyList({
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 dark:border-slate-700">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs ui-text-muted">
                   Halaman {safePage} / {totalPages}
                   <span className="ml-1 text-slate-400">
                     · {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} dari{' '}
@@ -725,7 +725,7 @@ export default function TenantSurveyList({
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Sebelum
               </button>
-              <span className="text-xs tabular-nums text-slate-500">
+              <span className="text-xs tabular-nums ui-text-muted">
                 {safePage} / {totalPages}
               </span>
               <button
@@ -767,7 +767,7 @@ function KpiCard({
     <div className="ui-dashboard-surface p-3.5">
       <div className={`flex items-center gap-2 ${iconColor}`}>
         {icon}
-        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{label}</span>
+        <span className="text-[11px] font-medium ui-text-muted">{label}</span>
       </div>
       <p className="mt-1 text-2xl font-bold tabular-nums text-slate-800 dark:text-slate-100">{value}</p>
     </div>

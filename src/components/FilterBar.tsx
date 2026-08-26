@@ -196,7 +196,7 @@ export function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
-      <div className="ui-dashboard-muted flex w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist" aria-label="Filter status acara">
+      <div className="ui-dashboard-muted flex w-full gap-1 overflow-x-auto rounded-[0.85rem] border border-[var(--border-subtle)] p-1 dark:border-slate-700" role="tablist" aria-label="Filter status acara">
         {statusTabs.map((tab, index) => (
           <button
             key={tab.key}
@@ -210,7 +210,7 @@ export function FilterBar({
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
               activeFilter === tab.key
                 ? 'bg-[var(--brand-card-light)] text-slate-800 shadow dark:bg-slate-700 dark:text-white'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+: 'ui-text-muted hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             {tab.dot && (

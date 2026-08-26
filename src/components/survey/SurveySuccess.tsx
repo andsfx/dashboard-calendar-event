@@ -22,7 +22,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
       <p className="mb-6 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
         "{eventName}"
       </p>
-      <p className="mb-8 max-w-xs text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 max-w-xs text-sm ui-text-muted">
         telah berhasil disimpan. Masukan Anda sangat berarti untuk meningkatkan kualitas layanan kami.
       </p>
 

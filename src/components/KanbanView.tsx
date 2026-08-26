@@ -94,7 +94,7 @@ function EventCard({
               onClick={() => onDetail(ev)}
               title="Lihat detail"
               aria-label="Lihat detail"
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:outline-none"
+              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:outline-none"
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
@@ -105,7 +105,7 @@ function EventCard({
                   onClick={() => onEdit(ev)}
                   title="Edit"
                   aria-label="Edit acara"
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -115,7 +115,7 @@ function EventCard({
                   onClick={() => onDelete(ev)}
                   title="Hapus"
                   aria-label="Hapus acara"
-                  className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
                 >
                   <Trash2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -125,7 +125,7 @@ function EventCard({
           </div>
         </div>
 
-        <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <div className="space-y-1.5 text-xs ui-text-muted">
           <p className="font-medium text-slate-700 dark:text-slate-200">{ev.tanggal}</p>
           {ev.jam && (
             <div className="flex items-center gap-1.5">

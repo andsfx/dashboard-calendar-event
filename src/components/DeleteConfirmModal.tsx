@@ -46,7 +46,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
           </div>
 
           <h3 id="delete-confirm-title" className="mb-2 text-lg font-bold text-slate-900 dark:text-white">Hapus Acara?</h3>
-          <p className="mb-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mb-1 text-sm ui-text-muted">
             Acara berikut akan dihapus secara permanen:
           </p>
           <div className="mt-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">

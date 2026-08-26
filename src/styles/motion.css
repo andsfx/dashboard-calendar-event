@@ -155,6 +155,7 @@
 
 .fade-up { animation: fade-up 0.4s ease forwards; }
 .fade-in { animation: fade-in 0.3s ease forwards; }
+.dashboard-fade { animation: fade-in 150ms ease-out; }
 
 @keyframes mobile-nav-in {
   from { opacity: 0; transform: translateY(-8px); }
@@ -261,6 +262,7 @@
   .community-hero-in-d4,
   .fade-up,
   .fade-in,
+  .dashboard-fade,
   .count-up,
   .faq-panel,
   .faq-panel-open,

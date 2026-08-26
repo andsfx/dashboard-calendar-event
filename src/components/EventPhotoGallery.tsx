@@ -139,7 +139,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
             Dokumentasi Foto
           </h3>
           {photos.length > 0 && (
-            <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+<span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium ui-text-muted dark:bg-slate-700 ">
               {photos.length}
             </span>
           )}
@@ -244,7 +244,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {!hasContent && canUpload && (
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-8 transition hover:border-brand-primary-300 dark:border-slate-700 dark:hover:border-brand-primary-600">
           <ImagePlus className="h-8 w-8 text-slate-300 dark:text-slate-600" />
-          <p className="text-xs text-slate-500 dark:text-slate-400">Klik untuk upload foto dokumentasi</p>
+          <p className="text-xs ui-text-muted">Klik untuk upload foto dokumentasi</p>
           <p className="text-[10px] text-slate-400">JPG, PNG, WebP · Maks 10 foto</p>
           <input
             type="file"

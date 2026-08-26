@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Navbar } from '../Navbar';
 import { DashboardSkeleton } from '../DashboardSkeleton';
 import { SectionNav } from '../SectionNav';
@@ -51,6 +52,7 @@ export function DashboardShell({
   modals,
   toasts,
 }: DashboardShellProps) {
+  const { pathname } = useLocation();
   return (
     <div className="ui-dashboard-page min-h-screen transition-colors duration-300 dark:bg-slate-950">
       <a
@@ -93,8 +95,10 @@ export function DashboardShell({
         {isLoading ? (
           <DashboardSkeleton isAdmin={isAdmin} />
         ) : (
-          <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-            {children}
+          <main id="main-content" className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 transition-opacity duration-150">
+            <div key={pathname} className="dashboard-fade">
+              {children}
+            </div>
 
             <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
               <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-400 sm:flex-row sm:text-left">

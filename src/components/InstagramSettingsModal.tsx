@@ -112,9 +112,9 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           {/* Hero Background Image */}
           <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hero Background</p>
+            <p className="text-xs font-bold uppercase tracking-wide ui-text-muted">Hero Background</p>
             {heroUrl ? (
-              <div className="relative overflow-hidden rounded-xl border border-black/[0.06] dark:border-slate-700">
+              <div className="relative overflow-hidden rounded-xl border border-[var(--border-subtle)] dark:border-slate-700">
                 <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <button
@@ -132,7 +132,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm text-slate-500 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm ui-text-muted transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
               >
                 {heroUploading ? (
                   <span>Mengupload...</span>
@@ -166,7 +166,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
           <div className="border-t border-slate-100 dark:border-slate-700" />
 
           {/* Instagram Posts */}
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Instagram Gallery</p>
+          <p className="text-xs font-bold uppercase tracking-wide ui-text-muted">Instagram Gallery</p>
           {[0, 1, 2].map(i => (
             <div key={i}>
               <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">

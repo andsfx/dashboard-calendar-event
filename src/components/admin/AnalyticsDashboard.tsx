@@ -27,7 +27,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-slate-900 dark:text-white">Analitik Lanjutan</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">Insight mendalam tentang event & venue</p>
+        <p className="text-xs text-slate-600 dark:text-slate-400">Insight mendalam tentang event & venue</p>
       </div>
 
       {/* 1. Tren Event per Bulan */}
@@ -206,7 +206,7 @@ function CompareCard({ label, current, previous }: { label: string; current: num
 
   return (
     <div className="ui-dashboard-panel rounded-xl p-3">
-      <p className="text-[10px] text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="text-[10px] ui-text-muted">{label}</p>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{current}</p>
       {previous > 0 && (
         <div className={`flex items-center gap-0.5 text-[10px] font-medium ${isUp ? 'text-emerald-600' : isDown ? 'text-red-600' : 'text-slate-400'}`}>

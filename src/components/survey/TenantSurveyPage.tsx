@@ -385,7 +385,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           <div className="space-y-3">
             <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">
               <Calendar className="h-3.5 w-3.5 text-slate-400" />
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Event</span>
+              <span className="text-xs font-medium ui-text-muted">Event</span>
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
@@ -450,7 +450,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
                 {selectedEvent.acara}
               </h2>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-0.5 text-xs ui-text-muted">
                 {selectedEvent.tanggal} &bull; {selectedEvent.lokasi}
               </p>
               <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-400">
@@ -600,37 +600,37 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-7">
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Store className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Gerai</span>
+                <span className="text-xs ui-text-muted">Gerai</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.nama_gerai || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <MapPin className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Lokasi</span>
+                <span className="text-xs ui-text-muted">Lokasi</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.lokasi_zona || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Tag className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Kategori</span>
+                <span className="text-xs ui-text-muted">Kategori</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kategori || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <TrendingUp className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Traffic</span>
+                <span className="text-xs ui-text-muted">Traffic</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_traffic || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Sales</span>
+                <span className="text-xs ui-text-muted">Sales</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_sales || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <User className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">PIC</span>
+                <span className="text-xs ui-text-muted">PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_name || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
                 <Phone className="mb-1 h-4 w-4 text-slate-400" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Telepon PIC</span>
+                <span className="text-xs ui-text-muted">Telepon PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_phone || '-'}</span>
               </div>
             </div>
@@ -648,7 +648,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                     key={key}
                     className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700"
                   >
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
+                    <span className="text-xs ui-text-muted">{label}</span>
                     <span className={`mt-1 text-xl font-bold ${
                       val != null && val >= 4 ? 'text-emerald-500'
                       : val != null && val >= 3 ? 'text-yellow-500'
@@ -751,7 +751,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           } : undefined}
         />
         {duplicateError && (
-          <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-center text-xs ui-text-muted">
             {duplicateError}
           </p>
         )}
@@ -906,7 +906,7 @@ function TenantSurveyEventRow({
 
         <button
           onClick={() => onCopyLink(event.id)}
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted hover:bg-slate-100 dark:hover:bg-slate-700"
           title="Copy survey link"
         >
           {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
@@ -924,7 +924,7 @@ function TenantSurveyEventRow({
 
         <button
           onClick={() => setShowQR(!showQR)}
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted hover:bg-slate-100 dark:hover:bg-slate-700"
           title="QR Code"
         >
           <QrCode className="h-3 w-3" />
@@ -997,7 +997,7 @@ function TenantSurveyManagementSection({
     return (
       <div className="ui-dashboard-surface p-4">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Self-Assessment per Event</h3>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-xs ui-text-muted">
           Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survey tenant.
         </p>
       </div>
@@ -1046,7 +1046,7 @@ function TenantSurveyManagementSection({
           </div>
           <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100 dark:divide-slate-700 dark:border-slate-700">
             {filtered.length === 0 ? (
-              <p className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+              <p className="px-4 py-6 text-center text-xs ui-text-muted">
                 Tidak ada event cocok &quot;{query}&quot;. Cek ejaan atau status event (harus ongoing/past).
               </p>
             ) : (

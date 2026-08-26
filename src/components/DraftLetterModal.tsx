@@ -297,7 +297,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-800 dark:text-white">{step.title}</p>
-                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">{step.description}</p>
+                  <p className="truncate text-xs ui-text-muted">{step.description}</p>
                 </div>
               </div>
             </div>
@@ -324,7 +324,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
         </div>
         <div>
           <h3 className="text-sm font-bold text-slate-800 dark:text-white">Review Draft Surat</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Pastikan data sudah benar sebelum dikirim ke AutoCrat.</p>
+          <p className="text-xs ui-text-muted">Pastikan data sudah benar sebelum dikirim ke AutoCrat.</p>
         </div>
       </div>
       <div className="space-y-2">
@@ -345,7 +345,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
         <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Data Surat</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Isi identitas surat utama sebelum lanjut ke detail event.</p>
+            <p className="text-xs ui-text-muted">Isi identitas surat utama sebelum lanjut ke detail event.</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {renderInput('tanggalSurat', 'Tanggal Surat', undefined, 'date')}
@@ -364,7 +364,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
           <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-white">Penyelenggara</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Data EO dan PIC yang bertanggung jawab.</p>
+              <p className="text-xs ui-text-muted">Data EO dan PIC yang bertanggung jawab.</p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {renderInput('namaEO', 'Nama EO')}
@@ -376,7 +376,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
           <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-white">Detail Event</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Informasi acara yang akan masuk ke surat konfirmasi.</p>
+              <p className="text-xs ui-text-muted">Informasi acara yang akan masuk ke surat konfirmasi.</p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {renderInput('namaEvent', 'Nama Event')}
@@ -397,7 +397,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
         <section className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-white">Jadwal Loading</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
+            <p className="text-xs ui-text-muted">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {renderInput('hariTanggalLoading', 'Hari/Tanggal Loading', undefined, 'date')}
@@ -435,7 +435,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
           <footer className="border-t border-slate-100 bg-[var(--brand-card-light)]/95 px-4 py-4 backdrop-blur sm:px-6 dark:border-slate-700 dark:bg-slate-800/95">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-h-[2rem]">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Langkah {currentStep + 1} dari {STEPS.length}: {currentStepTitle}</p>
+                <p className="text-xs font-semibold ui-text-muted">Langkah {currentStep + 1} dari {STEPS.length}: {currentStepTitle}</p>
                 {shouldShowErrorSummary && (
                   <div className="mt-2 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300" role="alert">
                     <AlertCircle className="h-4 w-4 shrink-0" />

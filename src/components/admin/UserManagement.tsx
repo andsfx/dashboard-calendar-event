@@ -110,7 +110,7 @@ export function UserManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{users.length} user terdaftar</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400">{users.length} user terdaftar</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-primary-700">
@@ -175,7 +175,7 @@ export function UserManagement() {
             return (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
                 {/* Avatar */}
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 ui-text-muted dark:bg-slate-700 ">
                   <Users className="h-4 w-4" />
                 </div>
                 {/* Info */}

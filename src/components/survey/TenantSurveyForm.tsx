@@ -251,7 +251,7 @@ export default function TenantSurveyForm({
         <h3 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
           Informasi Gerai
         </h3>
-        <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mb-4 text-xs ui-text-muted">
           Isi data gerai Anda di Metropolitan Mall Bekasi.
         </p>
 
@@ -365,7 +365,7 @@ export default function TenantSurveyForm({
         <h3 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
           Evaluasi Traffic &amp; Sales
         </h3>
-        <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mb-4 text-xs ui-text-muted">
           Bandingkan pengunjung dan penjualan selama event dengan hari biasa.
         </p>
 
@@ -470,7 +470,7 @@ export default function TenantSurveyForm({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between text-[10px] ui-text-muted">
           <span role="status" aria-live="polite">{progress}% selesai</span>
           <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
         </div>
@@ -534,7 +534,7 @@ export function TenantSurveySuccess({
       <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
         "{eventName}"
       </p>
-      <p className="mt-4 max-w-md text-xs text-slate-500 dark:text-slate-400">
+      <p className="mt-4 max-w-md text-xs ui-text-muted">
         Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
       </p>
       <button
@@ -644,7 +644,7 @@ export function TenantSurveyLoading({ message = 'Memuat survey...' }: { message?
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
       <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-      <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{message}</p>
+      <p className="mt-3 text-sm ui-text-muted">{message}</p>
     </div>
   );
 }

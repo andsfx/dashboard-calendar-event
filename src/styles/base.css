@@ -50,11 +50,11 @@ body {
 
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #4a554c;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #586056;
 }
 
 * {

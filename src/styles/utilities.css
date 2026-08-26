@@ -17,8 +17,8 @@
 }
 
 .dark .ui-dashboard-surface {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: rgb(45 56 47 / 0.5);
+  background: #1a241e;
   box-shadow: none;
 }
 
@@ -29,20 +29,20 @@
 }
 
 .dark .ui-dashboard-panel {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: rgb(45 56 47 / 0.5);
+  background: #1a241e;
 }
 
 .ui-empty-panel {
   border-radius: var(--radius-card-lg);
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed #bcc1b5;
   background: var(--brand-card);
   text-align: center;
 }
 
 .dark .ui-empty-panel {
-  border-color: #334155;
-  background: rgb(30 41 59 / 0.5);
+  border-color: #4a554c;
+  background: rgb(26 36 30 / 0.5);
 }
 
 .ui-alert-panel {
@@ -66,14 +66,6 @@
   color: #fff;
 }
 
-.ui-gradient-primary {
-  background: var(--brand-tosca);
-}
-
-.ui-gradient-primary-hover:hover {
-  background: var(--brand-tosca-dark);
-}
-
 .ui-btn-primary {
   background: var(--brand-tosca);
   color: #fff;
@@ -81,18 +73,6 @@
 
 .ui-btn-primary:hover {
   background: var(--brand-tosca-dark);
-}
-
-.ui-gradient-slate {
-  @apply bg-gradient-to-r from-slate-600 to-slate-700;
-}
-
-.ui-gradient-emerald {
-  @apply bg-gradient-to-r from-emerald-600 to-emerald-700;
-}
-
-.ui-gradient-amber {
-  @apply bg-gradient-to-r from-amber-600 to-amber-700;
 }
 
 .ui-dashboard-card-padded {
@@ -104,8 +84,8 @@
 }
 
 .dark .ui-dashboard-card-padded {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: rgb(45 56 47 / 0.5);
+  background: #1a241e;
   box-shadow: none;
 }
 
@@ -150,11 +130,11 @@
 }
 
 .ui-text-muted {
-  @apply text-slate-600 dark:text-slate-400;
+  @apply text-slate-600 dark:text-slate-300;
 }
 
 .ui-text-secondary {
-  @apply text-slate-600 dark:text-slate-400;
+  @apply text-slate-600 dark:text-slate-300;
 }
 
 .ui-text-strong {

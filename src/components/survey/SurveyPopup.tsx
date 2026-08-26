@@ -87,7 +87,7 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
           <p className="mb-1 text-sm text-slate-600 dark:text-slate-400">
             Event <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">"{targetEvent.acara}"</span> telah selesai.
           </p>
-          <p className="mb-5 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mb-5 text-xs ui-text-muted">
             Bantu kami meningkatkan kualitas layanan dengan mengisi survey singkat.
           </p>
 

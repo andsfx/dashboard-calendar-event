@@ -55,7 +55,7 @@ export default function UpcomingNext({ events }: UpcomingNextProps) {
               </h4>
 
               {/* Details */}
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <div className="space-y-1.5 text-xs ui-text-muted">
                 <div className="flex items-center gap-1.5">
                   <CalendarDays className="w-3 h-3 text-brand-primary-500 flex-shrink-0" />
                   <span>{event.day}, {event.tanggal}</span>

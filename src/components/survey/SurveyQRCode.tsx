@@ -131,7 +131,7 @@ export default function SurveyQRCode({
       <div className="flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
         <canvas ref={canvasRef} className="rounded-lg" />
 
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-center text-xs ui-text-muted">
           Scan QR code atau bagikan link di bawah
         </p>
 
@@ -169,7 +169,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
       className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
         active
           ? 'bg-white text-brand-primary-700 shadow-sm dark:bg-slate-600 dark:text-brand-primary-300'
-          : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+: 'ui-text-muted hover:text-slate-700 '
       }`}
     >
       {children}

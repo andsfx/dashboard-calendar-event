@@ -16,33 +16,29 @@ export const DashboardStats = memo(function DashboardStats({ stats }: DashboardS
     <section id="summary" className="scroll-mt-32">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <StatCard
-          icon={<CalendarDays className="h-5 w-5 text-white" strokeWidth={1.5} />}
+          icon={<CalendarDays className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
           label="Total Acara"
           value={stats.total}
-          subtitle="keseluruhan"
           variant="slate"
         />
         <StatCard
-          icon={<Radio className="h-5 w-5 text-white" strokeWidth={1.5} />}
+          icon={<Radio className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
           label="Sedang Berlangsung"
           value={stats.ongoing}
-          subtitle="sedang aktif"
           variant="emerald"
           pulse
         />
         <StatCard
-          icon={<Clock3 className="h-5 w-5 text-white" strokeWidth={1.5} />}
+          icon={<Clock3 className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
           label="Akan Datang"
           value={stats.upcoming}
-          subtitle="akan datang"
           variant="amber"
         />
         <StatCard
-          icon={<CheckCircle2 className="h-5 w-5 text-white" strokeWidth={1.5} />}
+          icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.5} aria-hidden />}
           label="Selesai"
           value={stats.past}
-          subtitle="telah berlangsung"
-          variant="slate"
+          variant="primary"
         />
       </div>
     </section>

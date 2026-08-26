@@ -93,7 +93,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                       </span>
                     </div>
                     <h4 className="text-lg font-bold text-slate-800 dark:text-white">{theme.name}</h4>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                    <div className="flex items-center gap-1.5 text-xs ui-text-muted mt-1.5">
                       <CalendarDays className="w-3.5 h-3.5" />
                       <span>{formatDateShort(theme.dateStart)} — {formatDateShort(theme.dateEnd)}</span>
                     </div>

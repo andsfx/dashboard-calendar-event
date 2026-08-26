@@ -61,7 +61,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
         <div key={month}>
           {/* Month header */}
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-8 items-center rounded-xl ui-gradient-primary px-4">
+            <div className="flex h-8 items-center rounded-xl ui-btn-primary px-4">
               <span className="text-xs font-bold text-white">{month}</span>
             </div>
             <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-700" />
@@ -119,7 +119,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       >
                         <button
                           onClick={() => onDetail(ev)}
-                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400"
+                          className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400"
                           aria-label="Lihat detail"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -129,7 +129,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                             {onEdit && (
                             <button
                               onClick={() => onEdit(ev)}
-                              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
+                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
                               aria-label="Edit acara"
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -138,7 +138,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                             {onDelete && (
                             <button
                               onClick={() => onDelete(ev)}
-                              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                               aria-label="Hapus acara"
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -151,7 +151,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                   </div>
 
                   {/* Bottom: location & EO */}
-                    <div className="mt-3 flex flex-wrap gap-3 border-t border-slate-100 pt-2 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+<div className="mt-3 flex flex-wrap gap-3 border-t border-slate-100 pt-2 text-xs ui-text-muted dark:border-slate-700 ">
                       {ev.lokasi && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" /> {ev.lokasi}
