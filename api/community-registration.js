@@ -519,25 +519,55 @@ async function handleDirectory(req, res) {
     }
 
     // Event counts: match by organization_id (relasi formal); fallback ke
-    // name-match kolom `eo` untuk event yang belum ter-link.
+    // name-match kolom `eo` untuk events yang belum ter-link. EO yang hanya
+    // muncul di tabel events (belum registrasi/approved) ikut ditambahkan
+    // sebagai tipe 'eo' agar seluruh EO yang pernah menggelar acara tampil.
     const nowIso = new Date().toISOString().slice(0, 10);
-    const events = (eventsRes.data || []).map((ev) => ({
-      orgId: ev.organization_id ? String(ev.organization_id) : null,
-      eoLower: String(ev.eo || '').trim().toLowerCase(),
-      dateEnd: String(ev.date_end || ev.date_str || ''),
-    }));
 
+    const orgById = new Map();
+    const orgByName = new Map();
     for (const org of orgs) {
-      const nameLower = org.name.toLowerCase();
-      for (const ev of events) {
-        if (ev.orgId) {
-          if (ev.orgId !== org.id) continue;
-        } else {
-          if (nameLower.length < 3 || ev.eoLower !== nameLower) continue;
-        }
+      orgById.set(org.id, org);
+      orgByName.set(org.name.toLowerCase(), org);
+    }
+
+    // EO yang hanya ada di events (belum terdaftar/approved) → event-derived.
+    const derivedByName = new Map(); // lowerName -> { name, count, upcoming }
+
+    for (const ev of eventsRes.data || []) {
+      const orgId = ev.organization_id ? String(ev.organization_id) : null;
+      const eoLower = String(ev.eo || '').trim().toLowerCase();
+      const dateEnd = String(ev.date_end || ev.date_str || '');
+      const isUpcoming = dateEnd >= nowIso;
+
+      // 1. Cocokkan ke org approved: via organization_id dulu, fallback nama.
+      let org = orgId ? orgById.get(orgId) : undefined;
+      if (!org && eoLower.length >= 3) org = orgByName.get(eoLower);
+      if (org) {
         org.eventCount += 1;
-        if (ev.dateEnd >= nowIso) org.upcomingEventCount += 1;
+        if (isUpcoming) org.upcomingEventCount += 1;
+        continue;
       }
+
+      // 2. EO event-derived yang belum approved → kumpulkan.
+      if (eoLower.length >= 3) {
+        const d = derivedByName.get(eoLower) ?? { name: String(ev.eo || '').trim(), count: 0, upcoming: 0 };
+        d.count += 1;
+        if (isUpcoming) d.upcoming += 1;
+        derivedByName.set(eoLower, d);
+      }
+    }
+
+    // Tambahkan EO event-derived yang belum ada di approved.
+    for (const [nameLower, d] of derivedByName) {
+      if (orgByName.has(nameLower)) continue; // sudah terhitung di atas
+      orgs.push({
+        id: `ev-${nameLower}`,
+        name: d.name,
+        type: 'eo',
+        eventCount: d.count,
+        upcomingEventCount: d.upcoming,
+      });
     }
 
     const categories = Array.from(new Set(orgs.map((o) => o.type)));
