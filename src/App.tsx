@@ -420,7 +420,13 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Legacy dashboard path → standalone */}
+      {/* Legacy dashboard path → redirect ke /tenant-survey-results */}
+      <Route path="/dashboard/tenant-survey-results" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <RedirectToTenantSurveyResults />
+        </Suspense>
+      } />
+
       {/* Dashboard routes */}
       <Route path="/dashboard/*" element={
         isAdmin ? (
