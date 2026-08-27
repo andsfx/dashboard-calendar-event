@@ -2,9 +2,10 @@ import { getServiceSupabase } from './_lib/auth.js';
 import { enforceRateLimit } from './_lib/rateLimit.js';
 
 /**
- * POST /api/community-registration
+ * GET|POST /api/community-registration
  * 
- * Server-side validation and submission for community registration.
+ * - POST: server-side validation and submission for community registration.
+ * - GET: public directory of approved registrations + event counts (sanitized).
  * 
  * Security features:
  * - Comprehensive input validation (required + optional fields)
@@ -292,7 +293,7 @@ function validateCommunityType(value) {
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   // Handle preflight
