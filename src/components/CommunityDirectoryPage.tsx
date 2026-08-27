@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Moon, Search, SunMedium } from 'lucide-react';
+import { ArrowLeft, Building2, CalendarDays, Moon, Search, Sparkles, SunMedium } from 'lucide-react';
 import { fetchPublicCommunityDirectory } from '../utils/supabaseApi';
 import type { CommunityDirectoryOrganization, OrganizationType } from '../types';
 import { ORG_TYPE_LABELS } from './community/organizationTypeLabels';
@@ -12,6 +12,27 @@ interface Props {
 }
 
 const ALL_CATEGORIES = 'Semua';
+
+// Aksen pastel per tipe organisasi (warna avatar).
+const TYPE_ACCENT: Record<OrganizationType, string> = {
+  community: 'bg-brand-primary-100 text-brand-primary-700',
+  school: 'bg-sky-100 text-sky-700',
+  company: 'bg-violet-100 text-violet-700',
+  eo: 'bg-brand-secondary-100 text-brand-secondary-600',
+  campus: 'bg-amber-100 text-amber-700',
+  government: 'bg-emerald-100 text-emerald-700',
+  ngo: 'bg-rose-100 text-rose-700',
+  other: 'bg-slate-200 text-slate-600',
+};
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const first = parts[0] ?? '';
+  if (parts.length === 1) return first.charAt(0).toUpperCase();
+  const last = parts[parts.length - 1] ?? '';
+  return (first.charAt(0) + last.charAt(0)).toUpperCase();
+}
 
 export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
   const navigate = useNavigate();
@@ -41,6 +62,19 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
       (ORG_TYPE_LABELS[a] ?? a).localeCompare(ORG_TYPE_LABELS[b] ?? b, 'id'));
   }, [organizations]);
 
+  // Jumlah org per kategori untuk ditampilkan di pill filter.
+  const categoryCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    organizations.forEach((o) => map.set(o.type, (map.get(o.type) ?? 0) + 1));
+    return map;
+  }, [organizations]);
+
+  const stats = useMemo(() => {
+    const totalEvents = organizations.reduce((acc, o) => acc + o.eventCount, 0);
+    const upcomingEvents = organizations.reduce((acc, o) => acc + o.upcomingEventCount, 0);
+    return { totalOrgs: organizations.length, totalEvents, upcomingEvents };
+  }, [organizations]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return organizations.filter((o) => {
@@ -54,16 +88,22 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
     });
   }, [organizations, query, activeCategory]);
 
-  // Group by category (preserves categori order above)
+  // Sortir: paling aktif (banyak acara) dulu, lalu alfabetis.
   const grouped = useMemo(() => {
     const map = new Map<string, CommunityDirectoryOrganization[]>();
-    for (const o of filtered) {
+    const sorted = [...filtered].sort((a, b) => {
+      if (b.eventCount !== a.eventCount) return b.eventCount - a.eventCount;
+      return a.name.localeCompare(b.name, 'id');
+    });
+    for (const o of sorted) {
       const arr = map.get(o.type) ?? [];
       arr.push(o);
       map.set(o.type, arr);
     }
     return Array.from(map.entries());
   }, [filtered]);
+
+  const hasActiveFilter = query.trim().length > 0 || activeCategory !== ALL_CATEGORIES;
 
   return (
     <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
@@ -100,16 +140,20 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
         <div className="mb-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Komunitas</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Komunitas Metropolitan Mall Bekasi</h1>
-          <p className="mt-2 text-base ui-text-muted">EO, sekolah, dan komunitas yang pernah menggelar acara di Metropolitan Mall Bekasi</p>
+          <p className="mt-2 max-w-2xl text-base ui-text-muted">EO, sekolah, dan komunitas yang pernah menggelar acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
             <div className="mt-6 flex flex-wrap gap-3">
               <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
-                <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{organizations.length}</p>
-                <p className="text-xs ui-text-muted">Total Komunitas</p>
+                <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.totalOrgs}</p>
+                <p className="text-xs ui-text-muted">Organisasi</p>
               </div>
               <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
-                <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{categories.length}</p>
-                <p className="text-xs ui-text-muted">Kategori</p>
+                <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.totalEvents}</p>
+                <p className="text-xs ui-text-muted">Total Acara</p>
+              </div>
+              <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
+                <p className="text-2xl font-bold tabular-nums text-brand-primary-600 dark:text-brand-primary-400">{stats.upcomingEvents}</p>
+                <p className="text-xs ui-text-muted">Acara Mendatang</p>
               </div>
             </div>
           )}
@@ -134,36 +178,49 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
           </div>
         )}
 
-        {/* Toolbar: search + category pills */}
+        {/* Sticky toolbar: search + category pills */}
         {!isLoading && !fetchError && organizations.length > 0 && (
-          <div className="mb-6 flex flex-col gap-3">
+          <div className="sticky top-16 z-30 -mx-4 mb-6 border-b border-slate-200/70 bg-[#fbfaf7]/90 px-4 py-3 backdrop-blur dark:border-slate-700/70 dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari nama komunitas atau kategori…"
+                placeholder="Cari nama komunitas, EO, atau kategori…"
                 className="ui-focus-ring w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
               />
             </div>
-            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
-              {[ALL_CATEGORIES, ...categories].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setActiveCategory(cat)}
-                  aria-pressed={activeCategory === cat}
-                  className={`ui-focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                    activeCategory === cat
-                      ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {cat === ALL_CATEGORIES ? ALL_CATEGORIES : ORG_TYPE_LABELS[cat as OrganizationType] ?? cat}
-                </button>
-              ))}
+            <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
+              {[ALL_CATEGORIES, ...categories].map((cat) => {
+                const count = cat === ALL_CATEGORIES ? organizations.length : (categoryCounts.get(cat) ?? 0);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setActiveCategory(cat)}
+                    aria-pressed={activeCategory === cat}
+                    className={`ui-focus-ring inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                      activeCategory === cat
+                        ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {cat === ALL_CATEGORIES ? ALL_CATEGORIES : ORG_TYPE_LABELS[cat as OrganizationType] ?? cat}
+                    <span className={`tabular-nums ${activeCategory === cat ? 'text-white/70' : 'text-slate-400'}`}>{count}</span>
+                  </button>
+                );
+              })}
             </div>
+          </div>
+        )}
+
+        {/* Empty result for active filter */}
+        {!isLoading && !fetchError && hasActiveFilter && filtered.length === 0 && (
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-10 text-center dark:border-slate-600 dark:bg-slate-800/40">
+            <Search className="h-8 w-8 text-slate-300 dark:text-slate-600" aria-hidden />
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Tidak ada hasil</p>
+            <p className="text-xs ui-text-muted">Coba kata kunci lain atau pilih kategori berbeda.</p>
           </div>
         )}
 
@@ -181,22 +238,36 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
               {orgs.map((org) => (
                 <div
                   key={org.id}
-                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
+                  className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-700"
                 >
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{org.name}</h3>
-                  {org.description && (
-                    <p className="mt-2 line-clamp-3 text-sm ui-text-muted">{org.description}</p>
-                  )}
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${TYPE_ACCENT[org.type] ?? TYPE_ACCENT.other}`}
+                      aria-hidden
+                    >
+                      {initials(org.name)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="line-clamp-2 text-base font-semibold leading-snug text-slate-900 dark:text-white">{org.name}</h3>
+                      {org.description && (
+                        <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{org.description}</p>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                      <CalendarDays className="h-3.5 w-3.5" aria-hidden />
                       {org.eventCount} acara
                     </span>
                     {org.upcomingEventCount > 0 && (
-                      <span className="rounded-full bg-brand-primary-50 px-2.5 py-1 font-medium text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-primary-50 px-2.5 py-1 font-medium text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden />
                         {org.upcomingEventCount} mendatang
                       </span>
                     )}
                   </div>
+
                   {org.link && (
                     <a
                       href={org.link}
