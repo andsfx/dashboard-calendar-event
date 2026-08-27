@@ -474,8 +474,36 @@ export default async function handler(req, res) {
 }
 
 // ─── Public Directory (GET /api/community-registration) ────────────────
-
 const DIRECTORY_TYPES = new Set(['community', 'school', 'company', 'eo', 'campus', 'government', 'ngo', 'other']);
+
+function directoryNameKey(raw) {
+  const value = String(raw || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[’']/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+  const aliases = {
+    'b one': 'bone',
+    'b-one': 'bone',
+    'ldai light dream anak indonesia': 'ldai',
+    'lulaby tales': 'lulabi tales',
+    'sanggar andini': 'sanggar tari andini',
+    'dragon heart lion dance troupe': 'dragon heart lion dance',
+  };
+  return aliases[value] || value;
+}
+
+function directoryHash(value) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
 
 async function handleDirectory(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -490,7 +518,7 @@ async function handleDirectory(req, res) {
       .from('community_registrations')
       .select('id, organization_name, organization_type, description, instagram, status')
       .order('created_at', { ascending: false });
-    if (orgsRes.error) throw orgsRes.error;
+    const nowIso = new Date().toISOString().slice(0, 10);
 
     // organization_id ada setelah migration DDL; fallback ke nama eo jika kolom belum ada.
     let eventsRes = await supabase.from('events').select('organization_id, eo, date_str, date_end');
@@ -504,69 +532,61 @@ async function handleDirectory(req, res) {
     for (const row of orgsRes.data || []) {
       if (row.status !== 'approved') continue;
       const name = String(row.organization_name || '').trim();
-      if (!name || seen.has(name.toLowerCase())) continue;
-      seen.add(name.toLowerCase());
+      const nameKey = directoryNameKey(name);
+      if (!name || !nameKey || seen.has(nameKey)) continue;
+      seen.add(nameKey);
 
       orgs.push({
-        id: row.id,
+        id: String(row.id),
         name,
         type: DIRECTORY_TYPES.has(row.organization_type) ? row.organization_type : 'other',
         description: String(row.description || '').trim() || undefined,
         link: directoryInstagram(row.instagram),
         eventCount: 0,
         upcomingEventCount: 0,
+        source: 'registered',
       });
     }
-
-    // Event counts: match by organization_id (relasi formal); fallback ke
-    // name-match kolom `eo` untuk events yang belum ter-link. EO yang hanya
-    // muncul di tabel events (belum registrasi/approved) ikut ditambahkan
-    // sebagai tipe 'eo' agar seluruh EO yang pernah menggelar acara tampil.
-    const nowIso = new Date().toISOString().slice(0, 10);
-
     const orgById = new Map();
     const orgByName = new Map();
     for (const org of orgs) {
       orgById.set(org.id, org);
-      orgByName.set(org.name.toLowerCase(), org);
+      orgByName.set(directoryNameKey(org.name), org);
     }
 
-    // EO yang hanya ada di events (belum terdaftar/approved) → event-derived.
-    const derivedByName = new Map(); // lowerName -> { name, count, upcoming }
-
+    const derivedByName = new Map();
     for (const ev of eventsRes.data || []) {
       const orgId = ev.organization_id ? String(ev.organization_id) : null;
-      const eoLower = String(ev.eo || '').trim().toLowerCase();
+      const eoName = String(ev.eo || '').trim();
+      const eoKey = directoryNameKey(eoName);
       const dateEnd = String(ev.date_end || ev.date_str || '');
-      const isUpcoming = dateEnd >= nowIso;
+      const isUpcoming = Boolean(dateEnd) && dateEnd >= nowIso;
 
-      // 1. Cocokkan ke org approved: via organization_id dulu, fallback nama.
       let org = orgId ? orgById.get(orgId) : undefined;
-      if (!org && eoLower.length >= 3) org = orgByName.get(eoLower);
+      if (!org && eoKey.length >= 3) org = orgByName.get(eoKey);
       if (org) {
         org.eventCount += 1;
         if (isUpcoming) org.upcomingEventCount += 1;
         continue;
       }
 
-      // 2. EO event-derived yang belum approved → kumpulkan.
-      if (eoLower.length >= 3) {
-        const d = derivedByName.get(eoLower) ?? { name: String(ev.eo || '').trim(), count: 0, upcoming: 0 };
+      if (eoKey.length >= 3) {
+        const d = derivedByName.get(eoKey) ?? { name: eoName, count: 0, upcoming: 0 };
         d.count += 1;
         if (isUpcoming) d.upcoming += 1;
-        derivedByName.set(eoLower, d);
+        derivedByName.set(eoKey, d);
       }
     }
 
-    // Tambahkan EO event-derived yang belum ada di approved.
-    for (const [nameLower, d] of derivedByName) {
-      if (orgByName.has(nameLower)) continue; // sudah terhitung di atas
+    for (const [nameKey, d] of derivedByName) {
+      if (orgByName.has(nameKey)) continue;
       orgs.push({
-        id: `ev-${nameLower}`,
+        id: `ev-${directoryHash(nameKey)}`,
         name: d.name,
         type: 'eo',
         eventCount: d.count,
         upcomingEventCount: d.upcoming,
+        source: 'event-history',
       });
     }
 

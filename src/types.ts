@@ -137,6 +137,7 @@ export interface CommunityDirectoryOrganization {
   link?: string;
   eventCount: number;
   upcomingEventCount: number;
+  source?: 'registered' | 'event-history';
 }
 
 export interface EventPhoto {
