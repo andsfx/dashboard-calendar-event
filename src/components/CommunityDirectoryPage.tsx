@@ -108,7 +108,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
   return (
     <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
+      <header className="ui-dashboard-chrome sticky top-0 z-40">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
           <div className="flex min-w-0 items-center gap-3">
             <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
@@ -119,7 +119,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
             <button
               type="button"
               onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="ui-focus-ring inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/70 text-slate-600 shadow-sm transition hover:bg-white dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-800"
               aria-label="Toggle dark mode"
             >
               {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -127,7 +127,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
             <button
               type="button"
               onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-white dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <ArrowLeft className="h-4 w-4" />Kembali
             </button>
@@ -143,15 +143,15 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
           <p className="mt-2 max-w-2xl text-base ui-text-muted">EO, sekolah, dan komunitas yang pernah menggelar acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
             <div className="mt-6 flex flex-wrap gap-3">
-              <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
+              <div className="rounded-xl bg-white/80 px-4 py-3 shadow-sm dark:bg-slate-800/80">
                 <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.totalOrgs}</p>
                 <p className="text-xs ui-text-muted">Organisasi</p>
               </div>
-              <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
+              <div className="rounded-xl bg-white/80 px-4 py-3 shadow-sm dark:bg-slate-800/80">
                 <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.totalEvents}</p>
                 <p className="text-xs ui-text-muted">Total Acara</p>
               </div>
-              <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
+              <div className="rounded-xl bg-white/80 px-4 py-3 shadow-sm dark:bg-slate-800/80">
                 <p className="text-2xl font-bold tabular-nums text-brand-primary-600 dark:text-brand-primary-400">{stats.upcomingEvents}</p>
                 <p className="text-xs ui-text-muted">Acara Mendatang</p>
               </div>
@@ -168,19 +168,19 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
           </div>
         )}
         {!isLoading && fetchError && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+          <div className="rounded-2xl bg-red-50 p-6 text-center text-sm text-red-600 shadow-sm dark:bg-red-950/30 dark:text-red-300">
             Gagal memuat direktori organisasi. Silakan coba lagi.
           </div>
         )}
         {!isLoading && !fetchError && organizations.length === 0 && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center ui-text-muted dark:border-slate-700 dark:bg-slate-800">
+          <div className="rounded-2xl bg-white/80 p-10 text-center shadow-sm ui-text-muted dark:bg-slate-800/80">
             Belum ada komunitas terdaftar.
           </div>
         )}
 
         {/* Sticky toolbar: search + category pills */}
         {!isLoading && !fetchError && organizations.length > 0 && (
-          <div className="sticky top-16 z-30 -mx-4 mb-6 border-b border-slate-200/70 bg-[#fbfaf7]/90 px-4 py-3 backdrop-blur dark:border-slate-700/70 dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
+          <div className="sticky top-16 z-30 -mx-4 mb-6 bg-[#fbfaf7]/90 px-4 py-3 backdrop-blur dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input
@@ -188,7 +188,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama komunitas, EO, atau kategori…"
-                className="ui-focus-ring w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-xl bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 dark:bg-slate-800 dark:text-white"
               />
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
@@ -200,10 +200,10 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                     type="button"
                     onClick={() => setActiveCategory(cat)}
                     aria-pressed={activeCategory === cat}
-                    className={`ui-focus-ring inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    className={`ui-focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                       activeCategory === cat
-                        ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                        ? 'bg-brand-primary-600 text-white shadow-sm'
+                        : 'text-slate-600 hover:bg-white hover:shadow-sm dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                   >
                     {cat === ALL_CATEGORIES ? ALL_CATEGORIES : ORG_TYPE_LABELS[cat as OrganizationType] ?? cat}
@@ -217,7 +217,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
 
         {/* Empty result for active filter */}
         {!isLoading && !fetchError && hasActiveFilter && filtered.length === 0 && (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-10 text-center dark:border-slate-600 dark:bg-slate-800/40">
+          <div className="flex flex-col items-center gap-2 rounded-2xl bg-white/60 p-10 text-center shadow-sm dark:bg-slate-800/40">
             <Search className="h-8 w-8 text-slate-300 dark:text-slate-600" aria-hidden />
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Tidak ada hasil</p>
             <p className="text-xs ui-text-muted">Coba kata kunci lain atau pilih kategori berbeda.</p>
@@ -238,7 +238,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
               {orgs.map((org) => (
                 <div
                   key={org.id}
-                  className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-700"
+                  className="group flex flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800"
                 >
                   <div className="flex items-start gap-3">
                     <div
