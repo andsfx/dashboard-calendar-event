@@ -31,6 +31,7 @@ interface DashboardModalsProps {
   editingEvent: EventItem | null;
   events: EventItem[];
   initialEventData?: Partial<EventItem> | null;
+  organizationOptions?: { id: string; name: string }[];
 
   // Draft modal
   showDraftModal: boolean;
@@ -104,10 +105,10 @@ export function DashboardModals({
   showCrudModal,
   onCloseCrudModal,
   onSave,
-  onSaveBatch,
   editingEvent,
   events,
   initialEventData,
+  organizationOptions = [],
   showDraftModal,
   onCloseDraftModal,
   onSaveDraft,
@@ -169,10 +170,10 @@ export function DashboardModals({
             isOpen={showCrudModal}
             onClose={onCloseCrudModal}
             onSave={onSave}
-            onSaveBatch={onSaveBatch}
             editingEvent={editingEvent}
             events={events}
             initialData={initialEventData}
+            organizationOptions={organizationOptions}
           />
         )}
         {showDraftModal && (

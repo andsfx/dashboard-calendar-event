@@ -73,7 +73,7 @@ function sanitizeString(value, maxLength) {
  * Validate organization_type (enum)
  */
 function validateOrganizationType(value) {
-  const validTypes = ['komunitas', 'umkm', 'organisasi', 'lainnya'];
+  const validTypes = ['community', 'school', 'company', 'eo', 'campus', 'government', 'ngo', 'other'];
   if (!value || typeof value !== 'string') {
     return { valid: false, error: 'Tipe organisasi harus diisi.' };
   }

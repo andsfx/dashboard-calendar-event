@@ -5,6 +5,7 @@ import type {
   LetterRequestItem, GeneratedLetter,
   TenantSurveyAnalytics, TenantSurveyEventAnalytics,
   TenantSurveyMonthlyTrend, TenantSurveyEventSummary,
+  CommunityDirectoryOrganization, OrganizationType,
 } from '../../types';
 
 // ─── Community Registrations ────────────────────────────────────
@@ -17,7 +18,7 @@ export async function fetchCommunityRegistrations(): Promise<CommunityRegistrati
     pic: row.pic || '', phone: row.phone || '', email: row.email || '', instagram: row.instagram || '',
     description: row.description || '', preferredDate: row.preferred_date || '',
     status: row.status || 'pending', adminNote: row.admin_note || '', createdAt: row.created_at || '',
-    organizationType: row.organization_type || 'komunitas',
+    organizationType: mapOrganizationType(row.organization_type) as CommunityRegistration['organizationType'],
     organizationName: row.organization_name || row.community_name || '',
     typeSpecificData: row.type_specific_data || {},
   }));
@@ -29,12 +30,14 @@ export async function updateRegistrationStatus(id: string, status: string, admin
 }
 
 function mapOrganizationType(frontendType?: string): string {
-  const typeMap: Record<string, string> = {
-    'community': 'komunitas', 'school': 'organisasi', 'company': 'umkm',
-    'eo': 'organisasi', 'campus': 'organisasi', 'government': 'organisasi',
-    'ngo': 'organisasi', 'other': 'lainnya',
+  // Canonical enum is the 8 English values (must match backend validateOrganizationType).
+  const valid = ['community', 'school', 'company', 'eo', 'campus', 'government', 'ngo', 'other'];
+  if (frontendType && valid.includes(frontendType)) return frontendType;
+  // Legacy Indonesian values -> English (backward-compat for older clients)
+  const legacy: Record<string, string> = {
+    'komunitas': 'community', 'umkm': 'company', 'organisasi': 'ngo', 'lainnya': 'other',
   };
-  return typeMap[frontendType || ''] || 'komunitas';
+  return legacy[frontendType || ''] || 'other';
 }
 
 export async function submitCommunityRegistration(data: {
@@ -458,4 +461,15 @@ export async function submitPublicTenantSurvey(data: PublicTenantSurveySubmissio
   const json = await res.json();
   if (!json.success) { if (json.already_submitted) throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.'); throw new SupabaseApiError(json.error || 'Gagal mengirim survey'); }
   return { id: json.id, created_at: json.created_at };
+}
+
+export async function fetchPublicCommunityDirectory(): Promise<{
+  organizations: CommunityDirectoryOrganization[];
+  categories: OrganizationType[];
+}> {
+  const res = await fetch('/api/community-directory', { method: 'GET' });
+  if (!res.ok) throw new SupabaseApiError(`Gagal memuat direktori organisasi (${res.status})`);
+  const json = await res.json();
+  if (!json.success) throw new SupabaseApiError(json.error || 'Gagal memuat direktori organisasi');
+  return { organizations: json.organizations || [], categories: json.categories || [] };
 }

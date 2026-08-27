@@ -30,6 +30,7 @@ const NewsIndexPage = lazy(() => import('./components/NewsIndexPage').then(m => 
 const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const SponsorLandingPage = lazy(() => import('./components/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
 const TenantDirectoryPage = lazy(() => import('./components/TenantDirectoryPage').then(m => ({ default: m.TenantDirectoryPage })));
+const CommunityDirectoryPage = lazy(() => import('./components/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
@@ -337,6 +338,12 @@ export default function App() {
       <Route path="/tenants" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <TenantDirectoryPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      {/* Komunitas — direktori publik */}
+      <Route path="/community" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <CommunityDirectoryPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
       {/* Survey — standalone page */}

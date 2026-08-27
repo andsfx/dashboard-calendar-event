@@ -195,6 +195,9 @@ export function DashboardPage({
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
   const availableViewTabs = getAvailableViewTabs(permissions.canEditEvents);
+  const organizationOptions = registrations.communityRegistrations
+    .filter((r) => r.status === 'approved' && r.organizationName.trim())
+    .map((r) => ({ id: r.id, name: r.organizationName.trim() }));
   return (
     <DashboardShell
       isAdmin={isAdmin}
@@ -227,6 +230,7 @@ export function DashboardPage({
           onSaveBatch={handlers.handleSaveBatch}
           editingEvent={modalData.editingEvent}
           events={events.events}
+          organizationOptions={organizationOptions}
           showDraftModal={modalState.showDraftModal}
           onCloseDraftModal={() => { modalState.setShowDraftModal(false); modalData.setEditingDraft(null); }}
           onSaveDraft={handlers.handleSaveDraft}

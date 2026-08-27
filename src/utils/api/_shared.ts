@@ -69,6 +69,7 @@ export interface DbEvent {
   event_nominal: string; event_model_notes: string; source_draft_id: string;
   is_multi_day: boolean; day_time_slots: unknown; event_type: string;
   recurrence_group_id: string; is_recurring: boolean; poster_url: string | null;
+  organization_id: string | null;
 }
 
 export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
@@ -94,8 +95,8 @@ export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
     dayTimeSlots: Array.isArray(row.day_time_slots) ? row.day_time_slots as EventItem['dayTimeSlots'] : undefined,
     eventType: (row.event_type as EventItem['eventType']) || 'single',
     recurrenceGroupId: row.recurrence_group_id || '',
-    isRecurring: row.is_recurring || false,
     posterUrl: row.poster_url || '',
+    organizationId: row.organization_id || '',
   };
 }
 
@@ -127,6 +128,7 @@ export function eventItemToDbRow(ev: Partial<EventItem>): Record<string, unknown
   if (ev.recurrenceGroupId !== undefined) row.recurrence_group_id = ev.recurrenceGroupId;
   if (ev.isRecurring !== undefined) row.is_recurring = ev.isRecurring;
   if (ev.posterUrl !== undefined) row.poster_url = ev.posterUrl || null;
+  if (ev.organizationId !== undefined) row.organization_id = ev.organizationId || null;
   return row;
 }
 

@@ -73,6 +73,7 @@ export {
   fetchTenantRoster,
   fetchPublicTenantRoster,
   fetchPublicTenantDirectory,
+  fetchPublicCommunityDirectory,
   checkPublicTenantSurveyDuplicate,
   submitPublicTenantSurvey,
 } from './api/surveysApi';

@@ -19,6 +19,7 @@ interface Props {
   editingEvent: EventItem | null;
   events: EventItem[];
   initialData?: Partial<EventItem> | null;
+  organizationOptions?: { id: string; name: string }[];
 }
 
 function getUniqueSuggestions(events: EventItem[], key: 'jam' | 'lokasi' | 'eo' | 'pic' | 'phone') {
@@ -76,6 +77,7 @@ const EMPTY: {
   recurrenceInterval: number;
   recurrenceEndDate: string;
   posterUrl: string;
+  organizationId: string;
 } = {
   dateStr: '',
   dateEnd: '',
@@ -101,9 +103,10 @@ const EMPTY: {
   recurrenceInterval: 7,
   recurrenceEndDate: '',
   posterUrl: '',
+  organizationId: '',
 };
 
-export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, initialData }: Props) {
+export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, initialData, organizationOptions = [] }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,6 +161,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceInterval: 7,
         recurrenceEndDate: '',
         posterUrl: editingEvent.posterUrl || '',
+        organizationId: editingEvent.organizationId || '',
       });
     } else if (initialData) {
       setForm({
@@ -185,6 +189,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceInterval: 7,
         recurrenceEndDate: '',
         posterUrl: initialData.posterUrl || '',
+        organizationId: initialData.organizationId || '',
       });
     } else {
       setForm(EMPTY);
@@ -401,6 +406,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         eventModel: formData.eventModel,
         eventNominal: formData.eventNominal,
         eventModelNotes: formData.eventModelNotes,
+        organizationId: formData.organizationId || undefined,
       };
 
       const recurringEvents = createRecurringEvents(template, formData.dateStr, rule);
@@ -560,6 +566,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             eoPlaceholder={eoPlaceholder}
             picPlaceholder={picPlaceholder}
             phonePlaceholder={phonePlaceholder}
+            organizationId={form.organizationId}
+            organizationOptions={organizationOptions}
             onFieldChange={set}
             onAddCategory={addCategory}
             onRemoveCategory={removeCategory}

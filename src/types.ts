@@ -44,6 +44,7 @@ export interface EventBase {
   acara: string;
   lokasi: string;
   eo: string;
+  organizationId?: string;
   pic: string;
   phone: string;
   keterangan: string;
@@ -125,6 +126,17 @@ export interface CommunityRegistration {
   organizationType: OrganizationType;
   organizationName: string;
   typeSpecificData: Record<string, string | number>;
+}
+
+/** Organisasi publik di halaman direktori community (tanpa PII). */
+export interface CommunityDirectoryOrganization {
+  id: string;
+  name: string;
+  type: OrganizationType;
+  description?: string;
+  link?: string;
+  eventCount: number;
+  upcomingEventCount: number;
 }
 
 export interface EventPhoto {
