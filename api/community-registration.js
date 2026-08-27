@@ -300,6 +300,12 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
   
+
+  // GET → public directory (approved registrations + event counts)
+  if (req.method === 'GET') {
+    return handleDirectory(req, res);
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -464,4 +470,95 @@ export default async function handler(req, res) {
       error: 'Terjadi kesalahan server. Silakan coba lagi.',
     });
   }
+}
+
+// ─── Public Directory (GET /api/community-registration) ────────────────
+
+const DIRECTORY_TYPES = new Set(['community', 'school', 'company', 'eo', 'campus', 'government', 'ngo', 'other']);
+
+async function handleDirectory(req, res) {
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=240');
+
+  if (!enforceRateLimit(req, res, 'community-directory', 60, 60_000)) return;
+
+  try {
+    const supabase = getServiceSupabase();
+
+    const orgsRes = await supabase
+      .from('community_registrations')
+      .select('id, organization_name, organization_type, description, instagram, status')
+      .order('created_at', { ascending: false });
+    if (orgsRes.error) throw orgsRes.error;
+
+    // organization_id ada setelah migration DDL; fallback ke nama eo jika kolom belum ada.
+    let eventsRes = await supabase.from('events').select('organization_id, eo, date_str, date_end');
+    if (eventsRes.error) {
+      eventsRes = await supabase.from('events').select('eo, date_str, date_end');
+      if (eventsRes.error) throw eventsRes.error;
+    }
+
+    const seen = new Set();
+    const orgs = [];
+    for (const row of orgsRes.data || []) {
+      if (row.status !== 'approved') continue;
+      const name = String(row.organization_name || '').trim();
+      if (!name || seen.has(name.toLowerCase())) continue;
+      seen.add(name.toLowerCase());
+
+      orgs.push({
+        id: row.id,
+        name,
+        type: DIRECTORY_TYPES.has(row.organization_type) ? row.organization_type : 'other',
+        description: String(row.description || '').trim() || undefined,
+        link: directoryInstagram(row.instagram),
+        eventCount: 0,
+        upcomingEventCount: 0,
+      });
+    }
+
+    // Event counts: match by organization_id (relasi formal); fallback ke
+    // name-match kolom `eo` untuk event yang belum ter-link.
+    const nowIso = new Date().toISOString().slice(0, 10);
+    const events = (eventsRes.data || []).map((ev) => ({
+      orgId: ev.organization_id ? String(ev.organization_id) : null,
+      eoLower: String(ev.eo || '').trim().toLowerCase(),
+      dateEnd: String(ev.date_end || ev.date_str || ''),
+    }));
+
+    for (const org of orgs) {
+      const nameLower = org.name.toLowerCase();
+      for (const ev of events) {
+        if (ev.orgId) {
+          if (ev.orgId !== org.id) continue;
+        } else {
+          if (nameLower.length < 3 || ev.eoLower !== nameLower) continue;
+        }
+        org.eventCount += 1;
+        if (ev.dateEnd >= nowIso) org.upcomingEventCount += 1;
+      }
+    }
+
+    const categories = Array.from(new Set(orgs.map((o) => o.type)));
+    return res.status(200).json({ success: true, organizations: orgs, categories });
+  } catch (err) {
+    console.error('[community-directory]', err);
+    return res.status(500).json({ success: false, error: 'Terjadi kesalahan saat mengambil direktori organisasi.' });
+  }
+}
+
+function directoryInstagram(raw) {
+  const v = String(raw || '').trim();
+  if (!v) return undefined;
+  if (v.startsWith('http://') || v.startsWith('https://')) {
+    try {
+      const u = new URL(v);
+      const username = u.pathname.split('/').filter(Boolean)[0];
+      return username ? `https://instagram.com/${encodeURIComponent(username)}` : v;
+    } catch {
+      return v;
+    }
+  }
+  const bare = v.replace(/^@/, '');
+  return /^[A-Za-z0-9._]{1,30}$/.test(bare) ? `https://instagram.com/${encodeURIComponent(bare)}` : v;
 }

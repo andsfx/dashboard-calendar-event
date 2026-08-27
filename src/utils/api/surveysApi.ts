@@ -467,7 +467,7 @@ export async function fetchPublicCommunityDirectory(): Promise<{
   organizations: CommunityDirectoryOrganization[];
   categories: OrganizationType[];
 }> {
-  const res = await fetch('/api/community-directory', { method: 'GET' });
+  const res = await fetch('/api/community-registration', { method: 'GET' });
   if (!res.ok) throw new SupabaseApiError(`Gagal memuat direktori organisasi (${res.status})`);
   const json = await res.json();
   if (!json.success) throw new SupabaseApiError(json.error || 'Gagal memuat direktori organisasi');
