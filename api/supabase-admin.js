@@ -1,5 +1,5 @@
 import { requireAuth, getServiceSupabase, logActivity } from './_lib/auth.js';
-import { S3Client, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { validateAction } from './_lib/schemas.js';
 
 const R2 = new S3Client({
@@ -29,6 +29,45 @@ async function deleteR2File(url) {
   } catch (err) {
     console.warn('[deleteR2File] Failed to delete from R2:', url, err.message);
   }
+}
+
+/** Signature magic-bytes per MIME yang diizinkan (sinkron ALLOWED_MIME di api/_lib/r2Key.js). */
+const MIME_MAGIC = {
+  'image/jpeg': [[0xff, 0xd8, 0xff]],
+  'image/png': [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
+  'image/webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF — konfirmasi 'WEBP' di offset 8
+  'image/gif': [[0x47, 0x49, 0x46, 0x38]],
+  'application/pdf': [[0x25, 0x50, 0x44, 0x46, 0x2d]], // %PDF-
+  'application/msword': [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]], // OLE2
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [[0x50, 0x4b, 0x03, 0x04]], // ZIP (docx)
+};
+
+/**
+ * M-3 (audit): verifikasi isi file via magic bytes, bukan hanya Content-Type yang diklaim.
+ * Fail-closed: tipe yang tidak dikenal atau isi tidak cocok → tolak.
+ */
+async function verifyMimeMagicBytes(key, mimeType) {
+  const ct = String(mimeType || '').split(';')[0].trim().toLowerCase();
+  const signatures = MIME_MAGIC[ct];
+  if (!signatures) return { ok: false, error: 'Tipe file tidak dikenali.' };
+  const obj = await R2.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: key, Range: 'bytes=0-31' }));
+  const buf = Buffer.from(await obj.Body.transformToByteArray());
+  const matchesSig = signatures.some((sig) => sig.every((byte, i) => buf[i] === byte));
+  if (!matchesSig) return { ok: false, error: 'Isi file tidak sesuai dengan tipe yang dipilih.' };
+  if (ct === 'image/webp') {
+    const isWebp = buf.length >= 12 && buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50;
+    if (!isWebp) return { ok: false, error: 'Isi file tidak sesuai dengan tipe WebP.' };
+  }
+  return { ok: true };
+}
+
+/** Delete R2 yang melempar error (untuk alur yang butuh kepastian hapus, lihat m-2). */
+async function deleteR2FileOrThrow(url) {
+  if (!url || !R2_PUBLIC_URL) return;
+  let key = url;
+  if (url.startsWith(R2_PUBLIC_URL)) key = url.slice(R2_PUBLIC_URL.length).replace(/^\//, '');
+  if (!key) return;
+  await R2.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
 }
 
 export default async function handler(req, res) {
@@ -344,9 +383,8 @@ export default async function handler(req, res) {
 
       // ---- Sponsorship ----
       case 'setEventProposal': {
-        const { eventId, fileUrl, fileName = '', mimeType = '' } = req.body;
-        if (!eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
-        if (!fileUrl) return res.status(400).json({ success: false, error: 'File URL is required' });
+        // m-1 (audit): baca file lama sebelum upsert agar bisa dihapus dari R2
+        const { data: existingProp } = await sb.from('event_proposals').select('file_url').eq('event_id', eventId).maybeSingle();
 
         // M-3: cap 20MB server-side — HEAD object R2 SEBELUM upsert.
         // (ContentLength TIDAK ditandatangani saat presign di api/r2-upload.js:
@@ -376,19 +414,44 @@ export default async function handler(req, res) {
           return res.status(400).json({ success: false, error: 'File melebihi 20MB' });
         }
 
+        // m-3 (audit): verifikasi magic bytes — isi harus cocok dengan tipe yang diklaim
+        try {
+          const magic = await verifyMimeMagicBytes(key, mimeType);
+          if (!magic.ok) {
+            await deleteR2File(fileUrl);
+            return res.status(400).json({ success: false, error: magic.error });
+          }
+        } catch (magicErr) {
+          console.error('[setEventProposal] magic-bytes check failed:', key, magicErr.message);
+          throw magicErr;
+        }
         const { error } = await sb.from('event_proposals')
           .upsert({ event_id: eventId, file_url: fileUrl, file_name: fileName, mime_type: mimeType }, { onConflict: 'event_id' });
         if (error) throw error;
         result = { success: true };
         await logActivity(authInfo, 'set_event_proposal', 'event', eventId, { file_name: fileName }, req);
+
+        // m-1 (audit): hapus file lama dari R2 setelah ganti berhasil (best-effort, log kalau gagal)
+        if (existingProp?.file_url && existingProp.file_url !== fileUrl) {
+          await deleteR2File(existingProp.file_url);
+        }
         break;
       }
       case 'deleteEventProposal': {
         if (!req.body.eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
         const { data: existing } = await sb.from('event_proposals').select('file_url').eq('event_id', req.body.eventId).maybeSingle();
+        // m-2 (audit): hapus R2 DULU dengan kepastian (throw) — gagal → 500 dan row tetap ada,
+        // sehingga retry aman dan tidak ada orphan. Row DB baru dihapus setelah file bersih.
+        if (existing?.file_url) {
+          try {
+            await deleteR2FileOrThrow(existing.file_url);
+          } catch (delErr) {
+            console.error('[deleteEventProposal] R2 delete failed:', existing.file_url, delErr.message);
+            return res.status(500).json({ success: false, error: 'Gagal menghapus file dari storage. Coba lagi.' });
+          }
+        }
         const { error } = await sb.from('event_proposals').delete().eq('event_id', req.body.eventId);
         if (error) throw error;
-        await deleteR2File(existing?.file_url || '');
         result = { success: true };
         await logActivity(authInfo, 'delete_event_proposal', 'event', req.body.eventId, null, req);
         break;

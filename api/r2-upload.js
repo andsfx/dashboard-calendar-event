@@ -1,4 +1,4 @@
-import { requireAuth } from './_lib/auth.js';
+import { requireAuth, logActivity } from './_lib/auth.js';
 import { buildSafeObjectKey } from './_lib/r2Key.js';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -50,6 +50,21 @@ export default async function handler(req, res) {
 
     const uploadUrl = await getSignedUrl(R2, command, { expiresIn: 300 });
     const url = `${publicUrl}/${safe.key}`;
+
+    // m-4 (audit): catat momen upload file ke activity_logs (termasuk proposal/)
+    try {
+      await logActivity(
+        authInfo,
+        'upload_r2_file',
+        'r2',
+        safe.key,
+        { folder: safe.key.slice(0, safe.key.lastIndexOf('/') + 1), contentType: safe.contentType },
+        req
+      );
+    } catch (logErr) {
+      console.warn('[r2-upload] logActivity failed:', logErr.message);
+    }
+
     res.status(200).json({
       success: true,
       uploadUrl,

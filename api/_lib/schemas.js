@@ -100,7 +100,7 @@ const ACTION_SCHEMAS = {
     action: z.literal('updateSponsorLeadStatus'),
     id: z.string().min(1),
     status: z.enum(['pending', 'contacted', 'agreed', 'declined']),
-    internalNotes: z.string().optional(),
+    internalNotes: z.string().max(2000).optional(),
   }),
   deleteSponsorLead: z.object({ action: z.literal('deleteSponsorLead'), id: z.string().min(1) }),
 };

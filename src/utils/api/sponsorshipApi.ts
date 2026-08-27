@@ -1,6 +1,6 @@
 import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction } from './_shared';
-import { uploadToR2, deleteFromR2 } from './albumsApi';
+import { uploadToR2 } from './albumsApi';
 import type { SponsorLead, SponsorLeadInput, SponsorLeadStatus, EventProposalEvent } from '../../types';
 import { getTodayIsoLocal } from '../eventDateTime';
 
@@ -124,8 +124,9 @@ export async function setEventProposal(eventId: string, file: File): Promise<voi
   if (!result.success) throw new SupabaseApiError(result.error || 'Set event proposal failed');
 }
 
-export async function deleteEventProposal(eventId: string, fileUrl: string): Promise<void> {
+export async function deleteEventProposal(eventId: string): Promise<void> {
+  // m-2 (audit): hapus file R2 ditangani server (deleteEventProposal di supabase-admin.js:
+  // hapus R2 dulu dengan kepastian, baru row DB) — client tidak memanggil deleteFromR2 lagi.
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEventProposal', { eventId });
   if (!result.success) throw new SupabaseApiError(result.error || 'Delete event proposal failed');
-  if (fileUrl) await deleteFromR2(fileUrl);
 }

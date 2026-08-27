@@ -97,7 +97,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
     setError('');
     setSuccess('');
     try {
-      await deleteEventProposal(item.event.id, item.proposal.fileUrl);
+      await deleteEventProposal(item.event.id);
       setSuccess('Proposal dihapus.');
       await loadData();
     } catch (err) {
