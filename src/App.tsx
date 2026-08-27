@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
 import { EventDetailModal } from './components/EventDetailModal';
+import { AdminLoginPage } from './components/AdminLoginPage';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
@@ -420,36 +421,37 @@ export default function App() {
       } />
 
       {/* Legacy dashboard path → standalone */}
-      <Route path="/dashboard/tenant-survey-results" element={
-        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <RedirectToTenantSurveyResults />
-        </Suspense>
-      } />
-
       {/* Dashboard routes */}
       <Route path="/dashboard/*" element={
-        <DashboardPage
-          isAdmin={isAdmin}
-          isLoading={isLoading}
-          permissions={permissions}
-          canSeeInternalSchedule={canSeeInternalSchedule}
-          isDark={isDark}
-          onToggleDark={toggleDark}
-          dashboardPath={dashboardPath}
-          publicSectionItems={publicSectionItems}
-          toasts={toasts}
-          removeToast={removeToast}
-          auth={dpAuth}
-          events={dpEvents}
-          drafts={dpDrafts}
-          filters={dpFilters}
-          view={dpView}
-          handlers={dpHandlers}
-          modalState={dpModalState}
-          modalData={dpModalData}
-          registrations={dpRegistrations}
-          siteSettings={dpSiteSettings}
-        />
+        isAdmin ? (
+          <DashboardPage
+            isAdmin={isAdmin}
+            isLoading={isLoading}
+            permissions={permissions}
+            canSeeInternalSchedule={canSeeInternalSchedule}
+            isDark={isDark}
+            onToggleDark={toggleDark}
+            dashboardPath={dashboardPath}
+            publicSectionItems={publicSectionItems}
+            toasts={toasts}
+            removeToast={removeToast}
+            auth={dpAuth}
+            events={dpEvents}
+            drafts={dpDrafts}
+            filters={dpFilters}
+            view={dpView}
+            handlers={dpHandlers}
+            modalState={dpModalState}
+            modalData={dpModalData}
+            registrations={dpRegistrations}
+            siteSettings={dpSiteSettings}
+          />
+        ) : (
+          <AdminLoginPage
+            onEmailLogin={auth.login}
+            onLegacyLogin={auth.legacyLogin}
+          />
+        )
       } />
 
       {/* PROTOTYPE: throwaway landing variant */}
