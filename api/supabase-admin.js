@@ -383,6 +383,7 @@ export default async function handler(req, res) {
 
       // ---- Sponsorship ----
       case 'setEventProposal': {
+        const { eventId, fileUrl, fileName, mimeType } = req.body;
         // m-1 (audit): baca file lama sebelum upsert agar bisa dihapus dari R2
         const { data: existingProp } = await sb.from('event_proposals').select('file_url').eq('event_id', eventId).maybeSingle();
 
