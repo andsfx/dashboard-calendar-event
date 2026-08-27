@@ -62,6 +62,22 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
   const featured = events.slice(0, 3);
   const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.amber;
 
+  // acara sering berisi akhiran "- {eo}" (nama + penyelenggara); tampilkan nama bersih di judul.
+  const displayTitle = (ev: EventItem) => {
+    const eo = ev.eo?.trim();
+    const name = ev.acara.trim();
+    if (eo && name.endsWith(` - ${eo}`)) return name.slice(0, -(eo.length + 3)).trim();
+    return name;
+  };
+  // jangan ulangi nama di keterangan bila keterangan hanya mengulang judul/nama.
+  const showKeterangan = (ev: EventItem) => {
+    const k = ev.keterangan?.trim();
+    if (!k) return false;
+    const title = displayTitle(ev).toLowerCase();
+    const norm = k.replace(/\s+/g, ' ').toLowerCase();
+    return !(title && norm === title);
+  };
+
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
@@ -74,13 +90,14 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {featured.map(ev => {
           const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
+          const titleName = displayTitle(ev);
           return (
             <div
               key={ev.id}
               onClick={() => onDetail?.(ev)}
               role={onDetail ? 'button' : undefined}
               tabIndex={onDetail ? 0 : undefined}
-              aria-label={onDetail ? `Lihat detail: ${ev.acara}` : undefined}
+              aria-label={onDetail ? `Lihat detail: ${titleName}` : undefined}
               onKeyDown={onDetail ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } } : undefined}
               className={`relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
             >
@@ -104,7 +121,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
                 </div>
               </div>
 
-              <h3 className="mb-3 font-bold text-slate-800 leading-snug dark:text-white line-clamp-2">{ev.acara}</h3>
+              <h3 className="mb-3 font-bold text-slate-800 leading-snug dark:text-white line-clamp-2">{titleName}</h3>
 
               <div className="space-y-1.5 text-xs ui-text-muted">
                 <div className="flex items-center gap-1.5">
@@ -121,7 +138,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
                 {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">Penyelenggara: {ev.eo}</p>}
               </div>
 
-              {ev.keterangan && (
+              {showKeterangan(ev) && (
                 <p className="mt-3 line-clamp-2 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-2">{ev.keterangan}</p>
               )}
             </div>

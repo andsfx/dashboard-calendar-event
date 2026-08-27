@@ -421,7 +421,7 @@ export function DashboardPage({
       {/* Public: 2. Ringkasan */}
       {!isAdmin && (
         <section id="summary" className="scroll-mt-32">
-          <DashboardStats stats={events.visibleStats} />
+          <DashboardStats stats={events.visibleStats} compact />
         </section>
       )}
 
@@ -441,7 +441,11 @@ export function DashboardPage({
       {/* Public: Jadwal Event (landing) */}
       {!isAdmin && dashboardPath === '/' && (
         <section id="views" className="scroll-mt-20">
-          <div className="mb-4 flex justify-end">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Daftar Acara</h2>
+              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Jelajahi jadwal acara publik</p>
+            </div>
             <ViewToggle
               tabs={availableViewTabs}
               viewMode={view.viewMode}
@@ -479,7 +483,6 @@ export function DashboardPage({
           </Suspense>
         </section>
       )}
-
       {/* 7. Analytics */}
       {permissions.canViewSurvey && dashboardPath === '/analytics' && (
         <section id="category-chart" className="scroll-mt-20">
