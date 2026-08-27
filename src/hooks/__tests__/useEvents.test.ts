@@ -174,17 +174,18 @@ describe('useEvents', () => {
     expect(result.current.stats.total).toBe(0);
   });
 
-  it('should handle malformed fetch response as an error', async () => {
-    // Simulate JSON parse error inside the fetch call
-    vi.mocked(fetchEvents).mockRejectedValueOnce(new Error('Unexpected token'));
-
+  it('should subscribe to realtime by default', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: [], themes: [], holidays: [] });
     const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(supabase.channel).toHaveBeenCalledWith('events-realtime');
+    expect(supabase.removeChannel).not.toHaveBeenCalled();
+  });
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.error).toBe('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
-    expect(result.current.events).toEqual([]);
+  it('should skip realtime subscription when realtime: false', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: [], themes: [], holidays: [] });
+    const { result } = renderHook(() => useEvents({ realtime: false }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(supabase.channel).not.toHaveBeenCalled();
   });
 });

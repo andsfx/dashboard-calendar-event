@@ -3,9 +3,6 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
-import { EventDetailModal } from './components/EventDetailModal';
-import { AdminLoginPage } from './components/AdminLoginPage';
-import { DashboardPage } from './components/dashboard/DashboardPage';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
 import { useEvents } from './hooks/useEvents';
@@ -21,6 +18,9 @@ import PrototypeLandingMetmalV1 from './pages/prototype-landing-metmal-v1';
 
 const PresentationDeck = lazy(() => import('./pages/presentation-deck'));
 const GraphifyLanding = lazy(() => import('./pages/GraphifyLanding'));
+const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
+const AdminLoginPage = lazy(() => import('./components/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
@@ -72,7 +72,7 @@ export default function App() {
     isLoading,
     error,
     refreshEvents,
-  } = useEvents();
+  } = useEvents({ realtime: location.pathname.startsWith('/dashboard') });
   const {
     draftEvents,
     activeDrafts,
@@ -429,35 +429,37 @@ export default function App() {
 
       {/* Dashboard routes */}
       <Route path="/dashboard/*" element={
-        isAdmin ? (
-          <DashboardPage
-            isAdmin={isAdmin}
-            isLoading={isLoading}
-            permissions={permissions}
-            canSeeInternalSchedule={canSeeInternalSchedule}
-            isDark={isDark}
-            onToggleDark={toggleDark}
-            dashboardPath={dashboardPath}
-            publicSectionItems={publicSectionItems}
-            toasts={toasts}
-            removeToast={removeToast}
-            auth={dpAuth}
-            events={dpEvents}
-            drafts={dpDrafts}
-            filters={dpFilters}
-            view={dpView}
-            handlers={dpHandlers}
-            modalState={dpModalState}
-            modalData={dpModalData}
-            registrations={dpRegistrations}
-            siteSettings={dpSiteSettings}
-          />
-        ) : (
-          <AdminLoginPage
-            onEmailLogin={auth.login}
-            onLegacyLogin={auth.legacyLogin}
-          />
-        )
+        <Suspense fallback={<DashboardSkeleton isAdmin={isAdmin} />}>
+          {isAdmin ? (
+            <DashboardPage
+              isAdmin={isAdmin}
+              isLoading={isLoading}
+              permissions={permissions}
+              canSeeInternalSchedule={canSeeInternalSchedule}
+              isDark={isDark}
+              onToggleDark={toggleDark}
+              dashboardPath={dashboardPath}
+              publicSectionItems={publicSectionItems}
+              toasts={toasts}
+              removeToast={removeToast}
+              auth={dpAuth}
+              events={dpEvents}
+              drafts={dpDrafts}
+              filters={dpFilters}
+              view={dpView}
+              handlers={dpHandlers}
+              modalState={dpModalState}
+              modalData={dpModalData}
+              registrations={dpRegistrations}
+              siteSettings={dpSiteSettings}
+            />
+          ) : (
+            <AdminLoginPage
+              onEmailLogin={auth.login}
+              onLegacyLogin={auth.legacyLogin}
+            />
+          )}
+        </Suspense>
       } />
 
       {/* PROTOTYPE: throwaway landing variant */}

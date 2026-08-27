@@ -13,7 +13,8 @@ function normalizeEvent(ev: EventItem): EventItem {
   return normalized;
 }
 
-export function useEvents() {
+export function useEvents(options?: { realtime?: boolean }) {
+  const realtimeEnabled = options?.realtime ?? true;
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
   const [holidays, setHolidays] = useState<HolidayItem[]>([]);
@@ -52,6 +53,7 @@ export function useEvents() {
   // ponytail: full re-fetch, not row-level patch. Upgrade to incremental
   // when payload.new is reliably shaped + zod-parsed.
   useEffect(() => {
+    if (!realtimeEnabled) return;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const scheduleRefresh = () => {
       if (timer) clearTimeout(timer);
@@ -72,7 +74,7 @@ export function useEvents() {
       if (timer) clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [refreshEvents]);
+  }, [refreshEvents, realtimeEnabled]);
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState('');

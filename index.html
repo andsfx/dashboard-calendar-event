@@ -26,16 +26,47 @@
     <meta name="twitter:image" content="/og-image.jpg" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <style>
+      /* Critical CSS: shows skeleton before JS mounts (root.render replaces #root) */
+      #root > .app-skeleton { display: block; }
+      .app-skeleton { background: #f8fafc; min-height: 100vh; color: #64748b; }
+      .app-skeleton .sk-nav { height: 56px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 24px; gap: 12px; }
+      .app-skeleton .sk-brand { width: 120px; height: 20px; border-radius: 6px; background: #e2e8f0; }
+      .app-skeleton .sk-pill { width: 72px; height: 28px; border-radius: 999px; background: #e2e8f0; margin-left: auto; }
+      .app-skeleton .sk-hero { height: 280px; background: linear-gradient(180deg, #e8eef2, #dde6ec); display: flex; align-items: center; padding: 0 32px; }
+      .app-skeleton .sk-hero-inner { width: min(520px, 80%); display: flex; flex-direction: column; gap: 14px; }
+      .app-skeleton .sk-title { height: 28px; border-radius: 6px; background: #cbd5e1; }
+      .app-skeleton .sk-sub { height: 16px; width: 70%; border-radius: 6px; background: #e2e8f0; }
+      .app-skeleton .sk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; padding: 24px 32px; }
+      .app-skeleton .sk-card { height: 140px; border-radius: 16px; background: #e2e8f0; }
+      @media (prefers-color-scheme: dark) {
+        .app-skeleton { background: #0f172a; }
+        .app-skeleton .sk-nav { border-bottom-color: #1e293b; }
+        .app-skeleton .sk-brand, .app-skeleton .sk-pill, .app-skeleton .sk-card, .app-skeleton .sk-sub { background: #1e293b; }
+        .app-skeleton .sk-hero { background: linear-gradient(135deg, #1e293b, #334155); }
+        .app-skeleton .sk-title { background: #334155; }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .app-skeleton .sk-brand, .app-skeleton .sk-pill, .app-skeleton .sk-title, .app-skeleton .sk-sub, .app-skeleton .sk-card, .app-skeleton .sk-hero { animation: sk-pulse 1.6s ease-in-out infinite; }
+        @keyframes sk-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+      }
+    </style>
 
     <!-- Fonts — Graphify stack: Bricolage Grotesque (display) + Geist (body) + Geist Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" /></noscript>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-skeleton" aria-hidden="true">
+        <div class="sk-nav"><div class="sk-brand"></div><div class="sk-pill"></div></div>
+        <div class="sk-hero"><div class="sk-hero-inner"><div class="sk-title"></div><div class="sk-sub"></div><div class="sk-sub" style="width:50%"></div></div></div>
+        <div class="sk-grid"><div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
