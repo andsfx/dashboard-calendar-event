@@ -43,10 +43,9 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
       </header>
         <main className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
           <div className="pt-10">
-            <p className="text-xs font-bold uppercase tracking-widest text-brand-primary-600 dark:text-brand-primary-400">Database Marcomm</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftarkan Organisasi Kamu</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftar Event di Metropolitan Mall Bekasi</h1>
             <p className="mt-3 text-sm leading-7 ui-text-secondary">
-              Data kamu masuk ke database komunitas resmi Marcomm Metropolitan Mall Bekasi — EO, sekolah &amp; universitas, komunitas, organisasi kampus, perusahaan, instansi, dan yayasan. Tim kami memakainya untuk menawarkan peluang event &amp; kolaborasi yang cocok, lalu menghubungi kamu (review 3–5 hari kerja).
+              Terbuka untuk EO, sekolah &amp; universitas, komunitas, organisasi kampus, perusahaan, instansi, dan yayasan yang ingin mengadakan event. Isi datanya, tim kami review dan hubungi kamu dalam 3–5 hari kerja.
             </p>
           </div>
 
