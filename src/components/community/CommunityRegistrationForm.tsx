@@ -52,7 +52,7 @@ const INITIAL_FORM: FormData = {
   typeSpecificData: {},
 };
 
-function RegistrationForm() {
+export function RegistrationForm() {
   const [form, setForm] = useState<FormData>({ ...INITIAL_FORM });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

@@ -31,6 +31,7 @@ const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m
 const SponsorLandingPage = lazy(() => import('./components/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
 const TenantDirectoryPage = lazy(() => import('./components/TenantDirectoryPage').then(m => ({ default: m.TenantDirectoryPage })));
 const CommunityDirectoryPage = lazy(() => import('./components/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
+const RegistrationPage = lazy(() => import('./components/RegistrationPage').then(m => ({ default: m.RegistrationPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
@@ -340,7 +341,12 @@ export default function App() {
           <TenantDirectoryPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
-      {/* Komunitas — direktori publik */}
+      {/* Pendaftaran organisasi — halaman publik khusus */}
+      <Route path="/daftar" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <RegistrationPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
       <Route path="/community" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <CommunityDirectoryPage isDark={isDark} onToggleDark={toggleDark} />

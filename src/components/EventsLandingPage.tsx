@@ -24,7 +24,6 @@ import { thumbUrl } from '../utils/imageOptim';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { CategoryBadges } from './CategoryBadges';
 import { CalendarView } from './CalendarView';
-import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityEyebrow } from './community/CommunityRevealPrimitives';
 
 interface Props {
@@ -352,11 +351,10 @@ export function EventsLandingPage({
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
             </a>
-            <a href="#register" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+            <Link to="/daftar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Daftar
-            </a>
+            </Link>
           </nav>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -417,12 +415,12 @@ export function EventsLandingPage({
                   Highlights
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
                 </a>
-                <a
-                  href="#register"
+                <Link
+                  to="/daftar"
                   className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
                 >
                   Daftar Event
-                </a>
+                </Link>
                 <button
                   type="button"
                   onClick={handleDownloadSchedulePdf}
@@ -453,12 +451,12 @@ export function EventsLandingPage({
                 >
                   Calendar
                 </a>
-                <a
-                  href="#register"
+                <Link
+                  to="/daftar"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
                   Daftar
-                </a>
+                </Link>
               </nav>
             </div>
 
@@ -562,10 +560,25 @@ export function EventsLandingPage({
           </div>
         </section>
 
-        {/* Community registration — same form as /community, scroll target #register */}
-        <div className="border-t border-black/5 dark:border-slate-800">
-          <CommunityRegistrationForm />
-        </div>
+        {/* Pendaftaran organisasi — halaman khusus */}
+        <section className="border-t border-black/5 py-14 sm:py-16 dark:border-slate-800">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center">
+            <div className="max-w-xl">
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Pendaftaran Organisasi</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">Mau mengadakan event di Metmal?</h2>
+              <p className="mt-2 text-sm leading-7 ui-text-secondary">
+                EO, sekolah, komunitas, kampus, perusahaan, hingga instansi — daftarkan organisasimu dan tim Marcomm akan menghubungimu.
+              </p>
+            </div>
+            <Link
+              to="/daftar"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+            >
+              Isi Form Pendaftaran
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
       </main>
 
       <footer className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-18">
@@ -586,9 +599,9 @@ export function EventsLandingPage({
             <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Calendar
             </a>
-            <a href="#register" className="transition hover:text-white ui-focus-ring rounded-sm">
+            <Link to="/daftar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Daftar
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
