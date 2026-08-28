@@ -17,6 +17,7 @@ import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 import PrototypeLandingMetmalV1 from './pages/prototype-landing-metmal-v1';
 
 const PresentationDeck = lazy(() => import('./pages/presentation-deck'));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const GraphifyLanding = lazy(() => import('./pages/GraphifyLanding'));
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
@@ -482,6 +483,13 @@ export default function App() {
       <Route path="/presentasi" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <PresentationDeck />
+        </Suspense>
+      } />
+
+      {/* Catch-all 404 — cegah blank page untuk URL tak dikenal */}
+      <Route path="*" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <NotFoundPage />
         </Suspense>
       } />
     </Routes>
