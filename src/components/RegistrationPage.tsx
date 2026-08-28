@@ -45,7 +45,7 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           <div className="pt-10">
             <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftar Event di Metropolitan Mall Bekasi</h1>
             <p className="mt-3 text-sm leading-7 ui-text-secondary">
-              Terbuka untuk EO, sekolah &amp; universitas, komunitas, organisasi kampus, perusahaan, instansi, dan yayasan yang ingin mengadakan event. Isi datanya, tim kami review dan hubungi kamu dalam 3–5 hari kerja.
+              Terbuka untuk EO, sekolah, universitas, komunitas, organisasi kampus, perusahaan, instansi, dan yayasan yang ingin mengadakan event di Metropolitan Mall Bekasi. Isi datanya, pendaftaranmu akan kami review secepatnya. Tim kami yang menghubungimu untuk langkah selanjutnya.
             </p>
           </div>
 
