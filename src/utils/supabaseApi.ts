@@ -48,6 +48,8 @@ export {
   fetchCommunityRegistrations,
   updateRegistrationStatus,
   submitCommunityRegistration,
+  uploadRegistrationAttachment,
+  type RegistrationProposalUpload,
   fetchGeneratedLetters,
   createGeneratedLetter,
   updateGeneratedLetter,

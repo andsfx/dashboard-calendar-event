@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus } from 'lucide-react';
+import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus, ExternalLink } from 'lucide-react';
 import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../types';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -185,6 +185,22 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <InfoItem icon={<Calendar className="h-4 w-4 text-cyan-500" />} label="Preferensi Tanggal" value={registration.preferredDate} />
             )}
           </div>
+          {registration.proposalFileUrl && (
+            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <FileText className="h-3 w-3" /> Lampiran Proposal
+              </p>
+              <a
+                href={registration.proposalFileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex max-w-full items-center gap-2 text-sm font-semibold text-brand-primary-600 hover:underline dark:text-brand-primary-400"
+              >
+                <ExternalLink className="h-4 w-4 shrink-0" />
+                <span className="truncate">{registration.proposalFileName || 'Buka file proposal'}</span>
+              </a>
+            </div>
+          )}
 
           {/* Type-Specific Data */}
           {registration.typeSpecificData && Object.keys(registration.typeSpecificData).length > 0 && (

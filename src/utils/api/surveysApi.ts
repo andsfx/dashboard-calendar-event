@@ -21,7 +21,36 @@ export async function fetchCommunityRegistrations(): Promise<CommunityRegistrati
     organizationType: mapOrganizationType(row.organization_type) as CommunityRegistration['organizationType'],
     organizationName: row.organization_name || row.community_name || '',
     typeSpecificData: row.type_specific_data || {},
+    proposalFileUrl: row.proposal_file_url || '',
+    proposalFileName: row.proposal_file_name || '',
+    proposalFileSize: typeof row.proposal_file_size === 'number' ? row.proposal_file_size : 0,
   }));
+}
+
+export interface RegistrationProposalUpload {
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+}
+
+/**
+ * Presign + PUT a registration proposal / company profile straight to R2.
+ * Only metadata passes through the serverless function.
+ */
+export async function uploadRegistrationAttachment(file: File): Promise<RegistrationProposalUpload> {
+  const presignRes = await fetch('/api/community-registration', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode: 'presign-registration-file', fileName: file.name, contentType: file.type, fileSize: file.size }),
+  });
+  const presignResult = await presignRes.json().catch(() => ({}));
+  if (!presignRes.ok || !presignResult.success) {
+    throw new SupabaseApiError(presignResult.error || 'Gagal menyiapkan unggahan file.');
+  }
+  const putRes = await fetch(presignResult.uploadUrl, {
+    method: 'PUT', headers: { 'Content-Type': file.type }, body: file,
+  });
+  if (!putRes.ok) throw new SupabaseApiError(`Gagal mengunggah file (${putRes.status}).`);
+  return { fileUrl: presignResult.publicUrl, fileName: presignResult.fileName, fileSize: file.size };
 }
 
 export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
@@ -45,6 +74,7 @@ export async function submitCommunityRegistration(data: {
   email?: string; instagram?: string; description?: string; preferredDate?: string;
   organizationType?: string; organizationName?: string;
   typeSpecificData?: Record<string, string | number>;
+  proposalFileUrl?: string; proposalFileName?: string; proposalFileSize?: number;
 }): Promise<{ id: string }> {
   const response = await fetch('/api/community-registration', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -56,6 +86,9 @@ export async function submitCommunityRegistration(data: {
       preferred_date: data.preferredDate || '',
       community_name: data.communityName, community_type: data.communityType,
       type_specific_data: data.typeSpecificData || {},
+      proposal_file_url: data.proposalFileUrl || '',
+      proposal_file_name: data.proposalFileName || '',
+      proposal_file_size: data.proposalFileSize || 0,
     }),
   });
   if (!response.ok) {

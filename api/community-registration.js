@@ -1,5 +1,114 @@
 import { getServiceSupabase } from './_lib/auth.js';
 import { enforceRateLimit } from './_lib/rateLimit.js';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { validateContentType, buildSafeObjectKey, validateExistingKey } from './_lib/r2Key.js';
+
+// ─── R2 Presign (public registration proposal) ────────────────────────
+
+const R2 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+  },
+});
+
+const R2_BUCKET = process.env.R2_BUCKET_NAME || 'metmal-gallery';
+const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').replace(/\/+$/, '');
+const R2_READY = Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_PUBLIC_URL);
+const MAX_PROPOSAL_SIZE = 20 * 1024 * 1024; // 20 MB
+
+function r2HeadObject(key) {
+  return R2.send(new HeadObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+}
+
+function r2DeleteObject(key) {
+  return R2.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+}
+
+/**
+ * POST {mode:'presign-registration-file', fileName, contentType, fileSize}
+ * Public presign for registration proposal / company profile.
+ * Only metadata passes through this function; the file goes straight to R2.
+ */
+async function handlePresignRegistrationFile(req, res) {
+  // 5 uploads / 15 min per IP (tighter than submit itself)
+  if (!enforceRateLimit(req, res, 'registration-upload', 5, 15 * 60 * 1000)) return;
+
+  const { fileName, contentType, fileSize } = req.body || {};
+
+  const mime = validateContentType(contentType);
+  if (!mime.ok) {
+    return res.status(400).json({ success: false, error: mime.error });
+  }
+
+  const size = Number(fileSize);
+  if (!Number.isFinite(size) || size <= 0 || size > MAX_PROPOSAL_SIZE) {
+    return res.status(400).json({
+      success: false,
+      error: 'Ukuran file melebihi batas. Maksimal 20MB.',
+    });
+  }
+
+  const safe = buildSafeObjectKey({
+    folder: 'registrations/',
+    originalName: typeof fileName === 'string' ? fileName : '',
+    contentType: mime.contentType,
+  });
+  if (!safe.ok) {
+    return res.status(400).json({ success: false, error: safe.error });
+  }
+
+  const uploadUrl = await getSignedUrl(
+    R2,
+    new PutObjectCommand({ Bucket: R2_BUCKET, Key: safe.key, ContentType: safe.contentType }),
+    { expiresIn: 300 },
+  );
+
+  return res.status(200).json({
+    success: true,
+    uploadUrl,
+    publicUrl: `${R2_PUBLIC_URL}/${safe.key}`,
+    fileName: safe.key,
+  });
+}
+
+
+/**
+ * Verify a proposal reference submitted by the client.
+ * Fail closed: URL must match R2_PUBLIC_URL, key must be validateExistingKey-clean
+ * and live under registrations/, the object must exist in R2, and its real size
+ * (from HeadObject, not the client claim) must be <= MAX_PROPOSAL_SIZE.
+ * @returns {{ url: string, key: string, size: number } | null} null = response already sent
+ */
+async function verifyProposalFile(res, rawUrl) {
+  const url = String(rawUrl || '').trim();
+  if (!url || !R2_PUBLIC_URL || !url.startsWith(`${R2_PUBLIC_URL}/`)) {
+    res.status(400).json({ success: false, error: 'File proposal tidak valid. Coba unggah ulang.' });
+    return null;
+  }
+  const key = url.slice(R2_PUBLIC_URL.length + 1).split('?')[0];
+  const keyCheck = validateExistingKey(key);
+  if (!keyCheck.ok || !key.startsWith('registrations/')) {
+    res.status(400).json({ success: false, error: 'File proposal tidak valid. Coba unggah ulang.' });
+    return null;
+  }
+  try {
+    const head = await r2HeadObject(key);
+    if ((head.ContentLength ?? 0) > MAX_PROPOSAL_SIZE) {
+      await r2DeleteObject(key).catch(() => {});
+      res.status(400).json({ success: false, error: 'Ukuran file melebihi batas. Maksimal 20MB.' });
+      return null;
+    }
+    return { url, key, size: head.ContentLength ?? 0 };
+  } catch (headErr) {
+    console.error('[community-registration] proposal head failed:', headErr?.name || headErr);
+    res.status(400).json({ success: false, error: 'File proposal tidak ditemukan atau sudah kedaluwarsa. Coba unggah ulang.' });
+    return null;
+  }
+}
 
 /**
  * GET|POST /api/community-registration
@@ -322,33 +431,34 @@ export default async function handler(req, res) {
     const body = req.body || {};
     const errors = {};
     
+    // ─── Presign Branch (before submit validation) ────────────────────
+
+    if (body.mode === 'presign-registration-file') {
+      if (!R2_READY) {
+        return res.status(503).json({ success: false, error: 'Layanan upload sedang tidak tersedia.' });
+      }
+      return handlePresignRegistrationFile(req, res);
+    }
+
     // ─── Validate Required Fields ─────────────────────────────────────
-    
+
     // 1. organization_type (required)
     const orgTypeResult = validateOrganizationType(body.organization_type);
     if (!orgTypeResult.valid) {
       errors.organization_type = orgTypeResult.error;
     }
-    
+
     // 2. organization_name (required)
     const orgNameResult = validateOrganizationName(body.organization_name);
     if (!orgNameResult.valid) {
       errors.organization_name = orgNameResult.error;
     }
-    
+
     // 3. pic (required)
     const picResult = validatePic(body.pic);
     if (!picResult.valid) {
       errors.pic = picResult.error;
     }
-    
-    // 4. phone (required)
-    const phoneResult = validatePhone(body.phone);
-    if (!phoneResult.valid) {
-      errors.phone = phoneResult.error;
-    }
-    
-    // ─── Validate Optional Fields ─────────────────────────────────────
     
     // 5. email (optional)
     const emailResult = validateEmail(body.email);
@@ -395,6 +505,19 @@ export default async function handler(req, res) {
         details: errors
       });
     }
+
+    // ─── Proposal File (optional, fail closed) ────────────────────────
+
+    let proposal = null;
+    if (body.proposal_file_url || body.proposal_file_name) {
+      if (!R2_READY) {
+        return res.status(503).json({ success: false, error: 'Layanan upload sedang tidak tersedia.' });
+      }
+      proposal = await verifyProposalFile(res, body.proposal_file_url);
+      if (!proposal) return; // response already sent
+    }
+
+
     
     // ─── Insert to Database ───────────────────────────────────────────
     
@@ -414,6 +537,9 @@ export default async function handler(req, res) {
       community_name: communityNameResult.value || '',
       community_type: communityTypeResult.value || '',
       type_specific_data: body.type_specific_data || {},
+      proposal_file_url: proposal ? proposal.url : '',
+      proposal_file_name: proposal ? proposal.key.split('/').pop() || '' : '',
+      proposal_file_size: proposal ? proposal.size : 0,
     };
     
     // Insert to database
@@ -459,10 +585,6 @@ export default async function handler(req, res) {
     });
     
   } catch (error) {
-    console.error('[community-registration] Unexpected error:', error);
-    console.error('[community-registration] Error stack:', error.stack);
-    console.error('[community-registration] Request body:', JSON.stringify(req.body));
-    
     console.error('[community-registration] Unexpected error:', error);
     console.error('[community-registration] Error stack:', error.stack);
     console.error('[community-registration] Request body:', JSON.stringify(req.body));

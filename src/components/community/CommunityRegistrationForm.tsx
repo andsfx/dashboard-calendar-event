@@ -1,6 +1,6 @@
-import { FormEvent, useState } from 'react';
-import { CheckCircle2, Send, ArrowLeft } from 'lucide-react';
-import { submitCommunityRegistration } from '../../utils/supabaseApi';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { CheckCircle2, Send, ArrowLeft, Paperclip, FileText, X } from 'lucide-react';
+import { submitCommunityRegistration, uploadRegistrationAttachment, type RegistrationProposalUpload } from '../../utils/supabaseApi';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields } from './TypeSpecificFields';
@@ -58,6 +58,38 @@ export function RegistrationForm() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [proposalFile, setProposalFile] = useState<File | null>(null);
+
+  const MAX_PROPOSAL_SIZE = 20 * 1024 * 1024; // 20 MB
+  const PROPOSAL_ALLOWED_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ];
+
+  const handleProposalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    e.target.value = '';
+    if (!file) { setProposalFile(null); setError(''); return; }
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!PROPOSAL_ALLOWED_TYPES.includes(file.type) || !['pdf', 'doc', 'docx'].includes(ext)) {
+      setProposalFile(null);
+      setError('Format file belum didukung. Gunakan PDF atau Word.');
+      return;
+    }
+    if (file.size > MAX_PROPOSAL_SIZE) {
+      setProposalFile(null);
+      setError('Ukuran file melebihi batas. Maksimal 20MB.');
+      return;
+    }
+    setProposalFile(file);
+    setError('');
+  };
+
+  const removeProposalFile = () => {
+    setProposalFile(null);
+    setError('');
+  };
 
   const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -151,6 +183,16 @@ export function RegistrationForm() {
 
     setSubmitting(true);
     try {
+      let proposal: RegistrationProposalUpload | undefined;
+      if (proposalFile) {
+        try {
+          proposal = await uploadRegistrationAttachment(proposalFile);
+        } catch (uploadErr) {
+          setError(uploadErr instanceof Error ? uploadErr.message : 'Gagal mengunggah file. Coba lagi.');
+          setSubmitting(false);
+          return;
+        }
+      }
       await submitCommunityRegistration({
         communityName: form.organizationName,
         communityType,
@@ -163,6 +205,9 @@ export function RegistrationForm() {
         organizationType: form.organizationType,
         organizationName: form.organizationName,
         typeSpecificData: form.typeSpecificData,
+        proposalFileUrl: proposal?.fileUrl,
+        proposalFileName: proposal?.fileName,
+        proposalFileSize: proposal?.fileSize,
       });
       setSubmitted(true);
     } catch {
@@ -338,6 +383,44 @@ export function RegistrationForm() {
               <label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</label>
               <textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi..." className={`${inputClass} resize-none`} />
             </div>
+            {/* Proposal / Company Profile Upload (optional) */}
+            <div className="sm:col-span-2">
+              <label className={labelClass}>Lampiran Proposal / Company Profile (opsional)</label>
+              <input
+                id="reg-proposal"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                className="sr-only"
+                onChange={handleProposalChange}
+              />
+              {proposalFile ? (
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-100 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <FileText className="h-4 w-4 shrink-0 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
+                    <span className="truncate text-sm text-slate-800 dark:text-white">{proposalFile.name}</span>
+                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{(proposalFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeProposalFile}
+                    className="shrink-0 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+                    aria-label="Hapus file"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('reg-proposal')?.click()}
+                  className={`flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-slate-100/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-500 dark:bg-slate-700/60 dark:text-slate-300 dark:hover:border-[var(--brand-tosca-soft)] dark:hover:text-white ${focusRing}`}
+                >
+                  <Paperclip className="h-4 w-4" />
+                  Pilih file
+                </button>
+              )}
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF atau Word (doc/docx), maksimal 20MB</p>
+            </div>
           </div>
         </div>
       )}
@@ -376,6 +459,23 @@ export function CommunityRegistrationForm() {
               Chat via WhatsApp
             </a>
           </p>
+          <div className="mt-8">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Cara mengisi form pendaftaran event</h3>
+            <ol className="mt-3 space-y-2.5 text-sm leading-6 ui-text-secondary">
+              <li className="flex gap-2.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">1</span>
+                Pilih tipe organisasi kamu di bagian atas form.
+              </li>
+              <li className="flex gap-2.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">2</span>
+                Lengkapi data organisasi dan PIC. Kalau ada proposal atau company profile, lampirkan filenya (opsional, PDF atau Word maksimal 20MB).
+              </li>
+              <li className="flex gap-2.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">3</span>
+                Kirim pendaftaran, tim kami akan review dan hubungi kamu lewat WhatsApp.
+              </li>
+            </ol>
+          </div>
           <div className="mt-8 space-y-4">
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">

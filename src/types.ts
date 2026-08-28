@@ -126,6 +126,9 @@ export interface CommunityRegistration {
   organizationType: OrganizationType;
   organizationName: string;
   typeSpecificData: Record<string, string | number>;
+  proposalFileUrl: string;
+  proposalFileName: string;
+  proposalFileSize: number;
 }
 
 /** Organisasi publik di halaman direktori community (tanpa PII). */

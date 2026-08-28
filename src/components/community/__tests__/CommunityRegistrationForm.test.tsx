@@ -6,6 +6,7 @@ import * as supabaseApi from '../../../utils/supabaseApi'
 
 vi.mock('../../../utils/supabaseApi', () => ({
   submitCommunityRegistration: vi.fn(),
+  uploadRegistrationAttachment: vi.fn(),
 }))
 
 describe('CommunityRegistrationForm', () => {

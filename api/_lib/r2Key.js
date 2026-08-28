@@ -23,7 +23,7 @@ const MIME_EXT = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
 
-const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/', 'proposals/'];
+const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/', 'proposals/', 'registrations/'];
 
 /**
  * @param {string} contentType
