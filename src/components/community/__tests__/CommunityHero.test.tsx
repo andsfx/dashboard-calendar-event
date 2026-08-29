@@ -4,9 +4,12 @@ import '@testing-library/jest-dom'
 import { CommunityHero } from '../CommunityHero'
 
 describe('CommunityHero', () => {
-  it('renders main heading', () => {
+  it('renders main heading with the highlighted "Gratis"', () => {
     render(<CommunityHero />)
-    expect(screen.getByText(/Panggung Gratis/)).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toHaveTextContent('Panggung Gratis untuk Komunitas Bekasi')
+    const highlight = screen.getByText('Gratis')
+    expect(highlight).toHaveClass('text-brand-primary-300')
   })
 
   it('renders CTA buttons', () => {

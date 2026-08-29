@@ -61,7 +61,7 @@ export function CommunityHero({ heroImageUrl, stats, isLoading = false }: Commun
           </div>
 
           <h1 className="community-hero-in community-hero-in-d1 mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl lg:text-[5rem]">
-            Panggung Gratis untuk Komunitas Bekasi
+            Panggung <strong className="text-brand-primary-300">Gratis</strong> untuk Komunitas Bekasi
           </h1>
 
           <div className="community-hero-in community-hero-in-d2">
