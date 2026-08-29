@@ -148,10 +148,9 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         {/* Hero */}
         <div className="mb-10 max-w-3xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Sponsorship</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Dukung Event di Metropolitan Mall Bekasi</h1>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
-            Jadilah bagian dari event yang menghidupkan Metropolitan Mall Bekasi. Pilih event, unduh proposal, dan
-            kirim minat support — tim Marcomm kami akan menghubungi Anda.
+            Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.
           </p>
         </div>
 

@@ -5,14 +5,14 @@ import { RevealSection } from './CommunityRevealPrimitives';
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: string }> = [
   {
     icon: <HandCoins className="h-6 w-6" aria-hidden="true" />,
-    title: 'Dukungan Sponsorship',
-    desc: 'Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.',
+    title: 'Bantuan Cari Sponsor',
+    desc: 'Kami bantu cariin brand dan tenant yang relevan buat event kamu.',
     color: 'var(--brand-pink)',
   },
   {
     icon: <Megaphone className="h-6 w-6" aria-hidden="true" />,
     title: 'Promosi & Marketing',
-    desc: 'Tim marketing kami bantu promosikan event kamu lewat media sosial, digital signage, dan kanal mall lainnya.',
+    desc: 'Event kamu kami promosiin lewat media sosial, digital signage, dan kanal mall lainnya.',
     color: 'var(--brand-tosca)',
   },
   {
@@ -24,7 +24,7 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string; color: str
   {
     icon: <PackageCheck className="h-6 w-6" aria-hidden="true" />,
     title: 'Venue & Peralatan Gratis',
-    desc: 'Panggung, sound system, lighting, kursi penonton - semua GRATIS. Kamu tinggal fokus bikin acara yang seru.',
+    desc: 'Panggung, sound system, lighting, kursi penonton — semuanya gratis. Kamu tinggal fokus bikin acaranya.',
     color: 'var(--brand-tosca)',
   },
 ];
@@ -36,10 +36,10 @@ export function CommunityBenefits() {
         <div className="grid gap-8 lg:grid-cols-[2fr_3fr] lg:items-end">
           <div>
             <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-              Bukan cuma dikasih space.
+              Bukan cuma dikasih tempat.
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 ui-text-secondary">
-              Kamu juga didukung untuk berkembang. Dari sponsorship sampai promosi, semua untuk memperbesar jangkauan komunitas kamu.
+              Kamu juga didukung buat berkembang. Dari sponsorship sampai promosi, semuanya buat memperbesar jangkauan.
             </p>
           </div>
 

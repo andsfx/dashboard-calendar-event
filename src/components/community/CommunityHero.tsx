@@ -69,10 +69,10 @@ export function CommunityHero({ heroImageUrl, stats, isLoading = false }: Commun
               Cari venue untuk event komunitas? Metropolitan Mall Bekasi siapkan tempatnya <strong className="text-white">gratis</strong>.
             </p>
             <p className="mt-3 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
-              Venue, sound system, dan lighting sudah tersedia. Terbuka untuk komunitas, sekolah, perusahaan, dan organisasi lain.
+              Venue, sound system, dan lighting sudah lengkap. Kamu tinggal bawa konsep acaranya.
             </p>
             <p className="mt-4 max-w-md text-sm font-medium text-white/75">
-              Slot bulanan terbatas. Daftar sebelum jadwal penuh.
+              Slot tiap bulan terbatas. Amankan tanggal acaramu.
             </p>
           </div>
 

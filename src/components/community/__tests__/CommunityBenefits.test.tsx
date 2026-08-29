@@ -6,23 +6,23 @@ import { CommunityBenefits } from '../CommunityBenefits'
 describe('CommunityBenefits', () => {
   it('renders section heading', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText('Bukan cuma dikasih space.')).toBeInTheDocument()
+    expect(screen.getByText('Bukan cuma dikasih tempat.')).toBeInTheDocument()
   })
 
   it('renders all benefit cards', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText('Dukungan Sponsorship')).toBeInTheDocument()
+    expect(screen.getByText('Bantuan Cari Sponsor')).toBeInTheDocument()
     expect(screen.getByText('Promosi & Marketing')).toBeInTheDocument()
   })
 
   it('renders benefit descriptions', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText(/Dapatkan dukungan sponsorship/)).toBeInTheDocument()
-    expect(screen.getByText(/Tim marketing kami bantu promosikan/)).toBeInTheDocument()
+    expect(screen.getByText(/Kami bantu cariin/)).toBeInTheDocument()
+    expect(screen.getByText(/Event kamu kami promosiin/)).toBeInTheDocument()
   })
 
   it('renders support copy', () => {
     render(<CommunityBenefits />)
-    expect(screen.getByText(/didukung untuk berkembang/)).toBeInTheDocument()
+    expect(screen.getByText(/didukung buat berkembang/)).toBeInTheDocument()
   })
 })

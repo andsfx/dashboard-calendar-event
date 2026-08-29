@@ -21,7 +21,7 @@ export function CommunityFAQ() {
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-            Pertanyaan yang sering muncul.
+            Masih ragu? Ini jawabannya.
           </h2>
         </div>
         <div className="mt-10 space-y-3">

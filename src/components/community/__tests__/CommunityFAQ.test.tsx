@@ -6,7 +6,7 @@ import { CommunityFAQ } from '../CommunityFAQ'
 describe('CommunityFAQ', () => {
   it('renders section heading', () => {
     render(<CommunityFAQ />)
-    expect(screen.getByText('Pertanyaan yang sering muncul.')).toBeInTheDocument()
+    expect(screen.getByText('Masih ragu? Ini jawabannya.')).toBeInTheDocument()
   })
 
   it('renders all FAQ questions', () => {

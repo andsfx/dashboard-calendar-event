@@ -451,7 +451,7 @@ export function CommunityRegistrationForm() {
             Daftarkan Komunitas Kamu
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
-            Isi form di bawah untuk mendaftarkan komunitas kamu. Tim kami akan mereview dan menghubungi kamu secepatnya.
+            Isi form di bawah buat daftarin komunitas kamu. Tim kami bakal review dan hubungi kamu secepatnya.
           </p>
           <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
             Mau bertanya dulu?{' '}

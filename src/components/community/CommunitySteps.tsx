@@ -4,7 +4,7 @@ const STEPS: Array<{ num: string; title: string; desc: string }> = [
   { num: '01', title: 'Daftar & Kirim', desc: 'Pilih tipe organisasi, isi form pendaftaran, dan ceritakan rencana event kamu.' },
   { num: '02', title: 'Review Tim Mall', desc: 'Tim kami meninjau proposal kamu dan diskusi soal jadwal, kebutuhan, dan konsep acara.' },
   { num: '03', title: 'Konfirmasi & Persiapan', desc: 'Setelah deal, kami siapkan venue dan semua perlengkapan yang kamu butuhkan.' },
-  { num: '04', title: 'Hari H!', desc: 'Hari H tiba! Kamu fokus membuat acara seru, sisanya diurus tim mall.' },
+  { num: '04', title: 'Hari H!', desc: 'Hari H tiba! Kamu tinggal bikin seru, sisanya diurus tim mall.' },
 ];
 
 export function CommunitySteps() {

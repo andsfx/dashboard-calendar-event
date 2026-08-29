@@ -5,8 +5,8 @@ import { RevealSection } from './CommunityRevealPrimitives';
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
   { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
   { icon: <Speaker className="h-5 w-5" aria-hidden="true" />, title: 'Sound System 10K Watt', detail: 'Sound system profesional 10.000 watt lengkap dengan operator berpengalaman.' },
-  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin standout dan memorable.' },
-  { icon: <Armchair className="h-5 w-5" aria-hidden="true" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa di-arrange sesuai kebutuhan acara kamu.' },
+  { icon: <Lightbulb className="h-5 w-5" aria-hidden="true" />, title: 'Lighting System', detail: 'Lighting profesional yang bikin panggung kamu makin berkesan.' },
+  { icon: <Armchair className="h-5 w-5" aria-hidden="true" />, title: '50 Kursi Penonton', detail: '50 kursi penonton yang bisa ditata ulang sesuai kebutuhan acara kamu.' },
   { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: 'Area Lantai 3', detail: 'Lokasi strategis di lantai 3 Metropolitan Mall Bekasi, mudah diakses pengunjung.' },
   { icon: <Gavel className="h-5 w-5" aria-hidden="true" />, title: 'Meja Juri', detail: 'Meja juri tersedia untuk kompetisi, audisi, atau ujian kenaikan kelas.' },
 ];
@@ -25,7 +25,7 @@ export function CommunityFacilities() {
             </p>
           </div>
           <p className="max-w-md text-sm leading-7 ui-text-secondary">
-            Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang memorable!
+            Kamu nggak perlu pusing soal venue dan peralatan. Fokus aja bikin acara yang berkesan!
           </p>
         </div>
 
