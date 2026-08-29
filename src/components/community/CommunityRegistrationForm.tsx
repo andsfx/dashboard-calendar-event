@@ -227,8 +227,8 @@ export function RegistrationForm() {
         </div>
         <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
-          Terima kasih udah daftar! Tim kami akan review dan hubungi kamu dalam 3-5 hari kerja.
-          <br />Sambil nunggu, follow <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> buat update terbaru!
+          Terima kasih sudah mendaftar! Tim kami akan mereview dan menghubungi kamu segera.
+          <br />Sambil menunggu, ikuti <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> untuk update terbaru!
         </p>
         <button
           type="button"
@@ -448,13 +448,13 @@ export function CommunityRegistrationForm() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
-            Yuk, gabung!
+            Daftarkan Komunitas Kamu
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
-            Isi form di bawah dan ceritain tentang organisasi kamu. Tim kami akan review dan hubungi kamu secepatnya.
+            Isi form di bawah untuk mendaftarkan komunitas kamu. Tim kami akan mereview dan menghubungi kamu secepatnya.
           </p>
           <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-            Mau tanya-tanya dulu?{' '}
+            Mau bertanya dulu?{' '}
             <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Chat via WhatsApp
             </a>
@@ -481,19 +481,19 @@ export function CommunityRegistrationForm() {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Proses review 3-5 hari kerja</p>
+              <p className="text-sm leading-6 ui-text-secondary">Pendaftaran direview oleh tim kami</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Semua fasilitas 100% gratis</p>
+              <p className="text-sm leading-6 ui-text-secondary">Fasilitas 100% gratis untuk komunitas</p>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
                 <CheckCircle2 className="h-4 w-4 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
               </div>
-              <p className="text-sm leading-6 ui-text-secondary">Terbuka untuk semua jenis organisasi</p>
+              <p className="text-sm leading-6 ui-text-secondary">Terbuka untuk semua jenis komunitas</p>
             </div>
           </div>
         </div>

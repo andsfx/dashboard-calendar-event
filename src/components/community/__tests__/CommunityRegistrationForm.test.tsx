@@ -12,7 +12,7 @@ vi.mock('../../../utils/supabaseApi', () => ({
 describe('CommunityRegistrationForm', () => {
   it('renders form heading', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Yuk, gabung!')).toBeInTheDocument()
+    expect(screen.getByText('Daftarkan Komunitas Kamu')).toBeInTheDocument()
   })
 
   function clickCommunityType() {
@@ -30,7 +30,7 @@ describe('CommunityRegistrationForm', () => {
 
   it('renders form with required fields', () => {
     render(<CommunityRegistrationForm />)
-    expect(screen.getByText('Yuk, gabung!')).toBeInTheDocument()
+    expect(screen.getByText('Daftarkan Komunitas Kamu')).toBeInTheDocument()
     expect(screen.getByText('Kirim Pendaftaran')).toBeInTheDocument()
   })
 

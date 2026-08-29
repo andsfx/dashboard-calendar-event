@@ -13,7 +13,7 @@ interface Props {
 
 const WA_TEMPLATES: Record<string, string> = {
   reviewed:
-    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sedang kami review. Kami akan menghubungi kamu dalam 3-5 hari kerja.\n\nSalam,\nTim Metropolitan Mall Bekasi',
+    'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sedang kami review. Kami akan menghubungi kamu segera.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   approved:
     'Halo {PIC}, pendaftaran {TIPE} {NAMA} di Metmal Community Space sudah disetujui! Silakan hubungi kami untuk diskusi jadwal dan kebutuhan event.\n\nSalam,\nTim Metropolitan Mall Bekasi',
   rejected:
