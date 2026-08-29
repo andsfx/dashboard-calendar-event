@@ -33,7 +33,7 @@ export async function deleteDraftEvent(id: string): Promise<void> {
 
 export async function publishDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('publishDraft', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Publish draft failed');
+  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menerbitkan draft');
 }
 
 export async function restoreDraftEvent(id: string): Promise<void> {

@@ -38,8 +38,8 @@ const RESOURCE_LABELS: Record<string, string> = {
   event: 'Event',
   draft: 'Draft',
   theme: 'Tema',
-  user: 'User',
-  survey_config: 'Survey Config',
+  user: 'Pengguna',
+  survey_config: 'Konfigurasi Survey',
   registration: 'Registrasi',
 };
 
@@ -106,9 +106,9 @@ export function ActivityLog() {
           <option value="">Semua Resource</option>
           <option value="event">Event</option>
           <option value="draft">Draft</option>
-          <option value="user">User</option>
+          <option value="user">Pengguna</option>
           <option value="theme">Tema</option>
-          <option value="survey_config">Survey</option>
+          <option value="survey_config">Konfigurasi Survey</option>
         </select>
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300" />

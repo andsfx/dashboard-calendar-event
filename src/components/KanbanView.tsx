@@ -103,8 +103,8 @@ function EventCard({
                 {onEdit && (
                 <button
                   onClick={() => onEdit(ev)}
-                  title="Edit"
-                  aria-label="Edit acara"
+                  title="Ubah"
+                  aria-label="Ubah acara"
                   className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />

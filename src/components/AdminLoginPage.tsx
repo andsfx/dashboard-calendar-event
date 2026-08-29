@@ -106,7 +106,7 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
               }`}
             >
               <Mail className="h-3.5 w-3.5" />
-              Email Login
+              Login Email
             </button>
             <button
               type="button"
@@ -194,7 +194,7 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
 
               {tab === 'legacy' && (
                 <p className="text-center text-[10px] text-slate-400 dark:text-slate-500">
-                  Login password akan dihapus. Gunakan Email Login.
+                  Login password akan dihapus. Gunakan Login Email.
                 </p>
               )}
             </form>

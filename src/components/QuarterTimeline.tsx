@@ -100,7 +100,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               </div>
               {isAdmin && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Edit</button>}
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
                   {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
                 </div>
               )}

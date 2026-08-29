@@ -50,7 +50,7 @@ export function getSuggestionPlaceholder(values: string[], fallback: string) {
 }
 
 export function formatDraftPublishedAt(value?: string) {
-  if (!value) return 'Belum dipublish';
+  if (!value) return 'Belum diterbitkan';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString('id-ID', {

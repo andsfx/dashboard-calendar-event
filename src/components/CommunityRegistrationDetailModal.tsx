@@ -48,14 +48,14 @@ const TYPE_SPECIFIC_LABELS: Record<string, string> = {
   teamSize: 'Jumlah Tim',
   universityName: 'Universitas',
   faculty: 'Fakultas',
-  campusOrgType: 'Tipe Organisasi',
+  campusOrgType: 'Jenis Organisasi',
   department: 'Departemen',
   programName: 'Nama Program',
   focusArea: 'Bidang Fokus',
   registrationNumber: 'Nomor Registrasi',
   programDescription: 'Deskripsi Program',
-  customOrgType: 'Tipe Organisasi',
-  additionalInfo: 'Info Tambahan',
+  customOrgType: 'Jenis Organisasi',
+  additionalInfo: 'Informasi Tambahan',
 };
 
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -72,10 +72,10 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
 
 function StatusBadge({ status }: { status: RegistrationStatus }) {
   const map: Record<RegistrationStatus, { bg: string; text: string; label: string }> = {
-    pending: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', label: 'Pending' },
-    reviewed: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', label: 'Reviewed' },
-    approved: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Approved' },
-    rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'Rejected' },
+    pending: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', label: 'Menunggu' },
+    reviewed: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', label: 'Direview' },
+    approved: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Disetujui' },
+    rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'Ditolak' },
   };
   const s = map[status] ?? map.pending;
   return (
@@ -266,10 +266,10 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               onChange={e => setWaTemplate(e.target.value)}
               className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
             >
-              <option value="reviewed">Reviewed</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="custom">Custom</option>
+              <option value="reviewed">Direview</option>
+              <option value="approved">Disetujui</option>
+              <option value="rejected">Ditolak</option>
+              <option value="custom">Kustom</option>
             </select>
 
             <textarea
@@ -310,7 +310,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               disabled={isSubmitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
-              <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tandai Reviewed'}
+              <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tandai Direview'}
             </button>
           )}
           {canApproveReject && (
@@ -319,7 +319,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               disabled={isSubmitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-95 disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Approve'}
+              <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Setujui'}
             </button>
           )}
           {canApproveReject && (
@@ -328,7 +328,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               disabled={isSubmitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
             >
-              <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Reject'}
+              <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tolak'}
             </button>
           )}
           <button

@@ -178,7 +178,7 @@ export function validateTenantSurvey(
 
   // event_id always required
   if (!data.event_id || typeof data.event_id !== 'string' || !data.event_id.trim()) {
-    errors.push('Event ID wajib diisi.');
+    errors.push('ID event wajib diisi.');
   }
 
   // nama_gerai: required, 1-100 chars after trim
@@ -223,11 +223,21 @@ export function validateTenantSurvey(
     ['pic_name', 100],
     ['pic_phone', 20],
   ];
+  // Label tampilan untuk pesan error — hindari bocor nama field snake_case ke user
+  const TEXT_FIELD_LABELS: Record<string, string> = {
+    feedback_teks: 'Teks masukan',
+    feedback_comment: 'Komentar',
+    improvement_suggestion: 'Saran perbaikan',
+    tenant_organization: 'Nama organisasi tenant',
+    pic_name: 'Nama penanggung jawab',
+    pic_phone: 'Nomor telepon penanggung jawab',
+  };
+
 
   for (const [field, maxLen] of textLimits) {
     const val = data[field] as string;
     if (val && val.length > maxLen) {
-      errors.push(`Kolom "${field}" maksimal ${maxLen} karakter.`);
+      errors.push(`Kolom "${TEXT_FIELD_LABELS[field] ?? field}" maksimal ${maxLen} karakter.`);
     }
   }
 

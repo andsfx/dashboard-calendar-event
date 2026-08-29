@@ -135,7 +135,7 @@ export function RecurringEventFields({
         return (
           <div className="rounded-xl border border-brand-primary-300 bg-white p-3 dark:border-brand-primary-700 dark:bg-slate-800/60">
             <p className="mb-2 text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
-              Preview: {dates.length} event akan dibuat{isDraft ? ' saat dipublish' : ''}
+              Preview: {dates.length} event akan dibuat{isDraft ? ' saat diterbitkan' : ''}
             </p>
             <div className="max-h-40 space-y-1 overflow-y-auto">
               {dates.map((dateStr) => {

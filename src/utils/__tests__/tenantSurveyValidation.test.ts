@@ -46,7 +46,7 @@ describe('validateTenantSurvey', () => {
       data.event_id = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('Event ID'))).toBe(true);
+      expect(result.errors.some(e => e.includes('ID event'))).toBe(true);
     });
 
     it('should reject missing nama_gerai for submit', () => {
@@ -151,7 +151,7 @@ describe('validateTenantSurvey', () => {
       };
       const result = validateTenantSurvey(data, true);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('Event ID'))).toBe(true);
+      expect(result.errors.some(e => e.includes('ID event'))).toBe(true);
     });
 
     it('should still validate nama_gerai length in draft mode', () => {
@@ -171,7 +171,7 @@ describe('validateTenantSurvey', () => {
       data.feedback_teks = 'a'.repeat(2001);
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('feedback_teks'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Teks masukan'))).toBe(true);
     });
 
     it('should reject overly long feedback_comment (legacy)', () => {
@@ -179,7 +179,7 @@ describe('validateTenantSurvey', () => {
       data.feedback_comment = 'a'.repeat(2001);
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('feedback_comment'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Komentar'))).toBe(true);
     });
 
     it('should reject overly long improvement_suggestion', () => {
@@ -201,7 +201,7 @@ describe('validateTenantSurvey', () => {
       data.pic_name = 'p'.repeat(101);
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('pic_name'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Nama penanggung jawab'))).toBe(true);
     });
 
     it('should reject overly long pic_phone', () => {
@@ -209,7 +209,7 @@ describe('validateTenantSurvey', () => {
       data.pic_phone = '0'.repeat(21);
       const result = validateTenantSurvey(data);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('pic_phone'))).toBe(true);
+      expect(result.errors.some(e => e.includes('Nomor telepon penanggung jawab'))).toBe(true);
     });
 
     it('should accept empty comment fields', () => {

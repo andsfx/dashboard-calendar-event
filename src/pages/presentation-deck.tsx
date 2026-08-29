@@ -307,7 +307,7 @@ function SlideProblemSolution({ isActive }: SlideProps) {
           </div>
           <ul className="space-y-3">
             <SolutionItem body="Form online terpusat &mdash; setiap pendaftaran langsung masuk ke sistem." />
-            <SolutionItem body="Status otomatis: draft &rarr; publish, dengan jejak yang tercatat." />
+            <SolutionItem body="Status otomatis: draft &rarr; terbit, dengan jejak yang tercatat." />
             <SolutionItem body="Dashboard real-time untuk seluruh tim Marcomm dan Pimpinan Unit." />
           </ul>
         </div>
@@ -606,8 +606,8 @@ type ImplItem = {
 
 const IMPL_ITEMS: ImplItem[] = [
   {
-    title: 'Draft → publish otomatis',
-    body: 'Status event berubah dari draft ke publish dengan jejak tercatat di sistem.',
+    title: 'Draft → terbit otomatis',
+    body: 'Status event berubah dari draft ke terbit dengan jejak tercatat di sistem.',
     status: 'done',
     icon: <CheckCircle2 className="h-4 w-4" strokeWidth={2} />,
   },
@@ -691,7 +691,7 @@ type Roadmap = {
 const ROADMAP: Roadmap[] = [
   {
     title: 'Surat PDF via Supabase',
-    body: 'Pembuatan surat resmi otomatis dari event yang dipublish, di-archive di Supabase Storage.',
+    body: 'Pembuatan surat resmi otomatis dari event yang diterbitkan, di-archive di Supabase Storage.',
     icon: <FileText className="h-4 w-4" strokeWidth={1.75} />,
   },
   {

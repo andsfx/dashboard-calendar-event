@@ -165,7 +165,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                         onClick={() => onEdit(ev)}
                         className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"
                       >
-                        <Edit2 className="h-3.5 w-3.5" aria-hidden /> Edit
+                        <Edit2 className="h-3.5 w-3.5" aria-hidden /> Ubah
                       </button>
                   )}
                   {onDelete && (

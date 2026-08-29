@@ -109,12 +109,12 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date Start <span className="text-red-500">*</span></label>
+              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Mulai <span className="text-red-500">*</span></label>
               <input type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateStart && <p className="mt-1 text-xs text-red-500">{errors.dateStart}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Date End <span className="text-red-500">*</span></label>
+              <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Selesai <span className="text-red-500">*</span></label>
               <input type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
             </div>

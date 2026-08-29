@@ -32,7 +32,7 @@ const BULAN_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Ju
 const STEPS = [
   { title: 'Data Surat', description: 'Nomor dan tanggal surat' },
   { title: 'Data EO & Event', description: 'Informasi penyelenggara dan acara' },
-  { title: 'Loading & Review', description: 'Jadwal loading dan final check' },
+  { title: 'Loading & Review', description: 'Jadwal bongkar muat dan pemeriksaan akhir' },
 ] as const;
 
 const REQUIRED_FIELDS = new Set<keyof LetterRequestItem>([

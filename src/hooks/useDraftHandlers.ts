@@ -78,16 +78,16 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
   }, [deleteDraft, showToast]);
 
   const handlePublishDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.published) { showToast('warning', 'Sudah dipublish', 'Draft ini sudah dipublish.'); return; }
-    if (draft.deleted) { showToast('warning', 'Draft terhapus', 'Pulihkan draft dulu sebelum publish.'); return; }
-    if (!canPublishDraft(draft)) { showToast('warning', 'Belum bisa publish', 'Draft harus berstatus confirm sebelum Publish Draft.'); return; }
-    if (!window.confirm(`Publish Draft "${draft.acara}" ke jadwal Event resmi?`)) return;
+    if (draft.published) { showToast('warning', 'Sudah diterbitkan', 'Draft ini sudah diterbitkan.'); return; }
+    if (draft.deleted) { showToast('warning', 'Draft terhapus', 'Pulihkan draft dulu sebelum menerbitkan.'); return; }
+    if (!canPublishDraft(draft)) { showToast('warning', 'Belum bisa terbitkan', 'Draft harus berstatus Konfirmasi sebelum diterbitkan.'); return; }
+    if (!window.confirm(`Terbitkan draft "${draft.acara}" ke jadwal Event resmi?`)) return;
     const success = await publishDraft(draft.id);
     if (success) {
       await refreshEvents();
-      showToast('success', 'Draft dipublish', `"${draft.acara}" sudah jadi Event di jadwal resmi.`);
+      showToast('success', 'Draft diterbitkan', `"${draft.acara}" sudah jadi Event di jadwal resmi.`);
     } else {
-      showToast('error', 'Gagal Publish Draft', 'Publish ke jadwal Event belum berhasil.');
+      showToast('error', 'Gagal menerbitkan draft', 'Draft belum berhasil diterbitkan ke jadwal Event.');
     }
   }, [publishDraft, refreshEvents, showToast]);
 
@@ -98,7 +98,7 @@ export function useDraftHandlers(deps: DraftHandlersDeps): DraftHandlersResult {
   }, [updateDraft, showToast]);
 
   const handleRestoreDraft = useCallback(async (draft: DraftEventItem) => {
-    if (draft.published) { showToast('warning', 'Tidak bisa dipulihkan', 'Draft yang sudah dipublish tidak dapat dipulihkan.'); return; }
+    if (draft.published) { showToast('warning', 'Tidak bisa dipulihkan', 'Draft yang sudah diterbitkan tidak dapat dipulihkan.'); return; }
     if (!window.confirm(`Pulihkan draft event "${draft.acara}" ke queue aktif?`)) return;
     const success = await restoreDraft(draft.id);
     if (success) showToast('success', 'Draft dipulihkan', `"${draft.acara}" kembali ke queue aktif.`);

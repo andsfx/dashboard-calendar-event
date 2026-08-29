@@ -295,7 +295,7 @@ export default async function handler(req, res) {
     if (!auth) return;
 
     const { user_id, role, is_active, display_name, eo_organization, assigned_events } = req.body || {};
-    if (!user_id) return res.status(400).json({ success: false, error: 'user_id wajib diisi' });
+    if (!user_id) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
 
     // Prevent self-demotion from superadmin
     if (user_id === auth.user?.id && role && role !== 'superadmin') {
@@ -320,7 +320,7 @@ export default async function handler(req, res) {
 
     if (updateErr) {
       console.error('[auth/update-user] error:', updateErr.message);
-      return res.status(500).json({ success: false, error: 'Gagal mengupdate user' });
+      return res.status(500).json({ success: false, error: 'Gagal memperbarui user.' });
     }
 
     await logActivity(auth, 'update', 'user', user_id, { changes: updates }, req);
@@ -334,7 +334,7 @@ export default async function handler(req, res) {
     if (!auth) return;
 
     const { user_id } = req.body || {};
-    if (!user_id) return res.status(400).json({ success: false, error: 'user_id wajib diisi' });
+    if (!user_id) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
 
     // Prevent self-deletion
     if (user_id === auth.user?.id) {

@@ -532,7 +532,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" />
                     {(survey.status === 'draft' || isAdmin) && (
-                      <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Edit" />
+                      <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Ubah" />
                     )}
                     {survey.status === 'draft' && (
                       <ActionBtn
@@ -658,7 +658,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                           <div className="flex items-center justify-end gap-1.5">
                             <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" compact />
                             {(survey.status === 'draft' || isAdmin) && (
-                              <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Edit" compact />
+                              <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Ubah" compact />
                             )}
                             {survey.status === 'draft' && (
                               <ActionBtn

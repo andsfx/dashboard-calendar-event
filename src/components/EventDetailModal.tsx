@@ -296,7 +296,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
               onClick={() => { onClose(); onEdit(event); }}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
-              <Edit2 className="h-3.5 w-3.5" /> Edit
+              <Edit2 className="h-3.5 w-3.5" /> Ubah
             </button>
           )}
           {onDelete && (

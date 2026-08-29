@@ -232,7 +232,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               }`}
             >
               {isPreviewMode ? <EyeOff size={16} /> : <Eye size={16} />}
-              {isPreviewMode ? 'Edit' : 'Pratinjau'}
+              {isPreviewMode ? 'Ubah' : 'Pratinjau'}
             </button>
             
             <button

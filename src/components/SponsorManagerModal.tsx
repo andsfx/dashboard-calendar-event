@@ -20,10 +20,10 @@ interface Props {
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB — proposal file (PDF/docx/gambar)
 
 const STATUS_LABELS: Record<SponsorLeadStatus, string> = {
-  pending: 'Pending',
-  contacted: 'Contacted',
-  agreed: 'Agreed',
-  declined: 'Declined',
+  pending: 'Menunggu',
+  contacted: 'Dihubungi',
+  agreed: 'Sepakat',
+  declined: 'Menolak',
 };
 
 const STATUS_CLASSES: Record<SponsorLeadStatus, string> = {

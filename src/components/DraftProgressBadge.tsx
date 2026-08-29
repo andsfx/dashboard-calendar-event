@@ -8,12 +8,12 @@ const CONFIG: Record<DraftProgress, { label: string; className: string; dot: str
     dot: 'bg-brand-primary-400',
   },
   confirm: {
-    label: 'Confirm',
+    label: 'Konfirmasi',
     className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 ring-1 ring-emerald-300 dark:ring-emerald-700',
     dot: 'bg-emerald-500',
   },
   cancel: {
-    label: 'Cancel',
+    label: 'Batal',
     className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 ring-1 ring-rose-300 dark:ring-rose-700',
     dot: 'bg-rose-400',
   },

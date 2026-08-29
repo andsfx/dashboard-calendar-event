@@ -11,11 +11,11 @@ describe('DraftProgressBadge', () => {
 
   it('renders confirm progress', () => {
     render(<DraftProgressBadge progress="confirm" />)
-    expect(screen.getByText('Confirm')).toBeInTheDocument()
+    expect(screen.getByText('Konfirmasi')).toBeInTheDocument()
   })
 
   it('renders cancel progress', () => {
     render(<DraftProgressBadge progress="cancel" />)
-    expect(screen.getByText('Cancel')).toBeInTheDocument()
+    expect(screen.getByText('Batal')).toBeInTheDocument()
   })
 })

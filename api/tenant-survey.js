@@ -344,10 +344,17 @@ function pushTextLimitErrors(body, errors) {
     ['pic_name', 100],
     ['pic_phone', 20],
   ];
+  const FIELD_LABELS = {
+    feedback_teks: 'Teks masukan',
+    feedback_comment: 'Komentar',
+    improvement_suggestion: 'Saran perbaikan',
+    pic_name: 'Nama penanggung jawab',
+    pic_phone: 'Nomor telepon penanggung jawab',
+  };
   for (const [field, max] of limits) {
     const raw = body[field];
     if (raw != null && String(raw).length > max) {
-      errors.push(`${field} maksimal ${max} karakter`);
+      errors.push(`${FIELD_LABELS[field] ?? field} maksimal ${max} karakter`);
     }
   }
 }
@@ -356,28 +363,28 @@ function validateSurveyBody(body, isDraft = false) {
   const errors = [];
 
   if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
-    errors.push('event_id wajib diisi');
+    errors.push('ID event wajib diisi.');
   }
 
   if (!isDraft) {
     if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length || sanitize(body.nama_gerai).length > 100) {
-      errors.push('nama_gerai wajib diisi (maksimal 100 karakter)');
+      errors.push('Nama gerai wajib diisi (maksimal 100 karakter).');
     }
 
     if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
-      errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
+      errors.push(`Lokasi/zona wajib dipilih dari daftar yang tersedia.`);
     }
 
     if (!body.kategori || !SURVEY_OPTIONS.kategori.includes(body.kategori)) {
-      errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
+      errors.push(`Kategori wajib dipilih dari daftar yang tersedia.`);
     }
 
     if (!body.kenaikan_traffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
-      errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
+      errors.push(`Kenaikan traffic wajib dipilih dari daftar yang tersedia.`);
     }
 
     if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
-      errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
+      errors.push(`Kenaikan sales wajib dipilih dari daftar yang tersedia.`);
     }
   }
 
@@ -389,29 +396,29 @@ function validatePublicSubmission(body) {
   const errors = [];
 
   if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
-    errors.push('event_id wajib diisi');
+    errors.push('ID event wajib diisi.');
   }
 
   if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length) {
-    errors.push('nama_gerai wajib diisi');
+    errors.push('Nama gerai wajib diisi.');
   } else if (sanitize(body.nama_gerai).length > 100) {
-    errors.push('nama_gerai maksimal 100 karakter');
+    errors.push('Nama gerai maksimal 100 karakter.');
   }
 
   if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
-    errors.push(`lokasi_zona harus salah satu dari: ${SURVEY_OPTIONS.lokasi_zona.join(', ')}`);
+    errors.push('Lokasi/zona wajib dipilih dari daftar yang tersedia.');
   }
 
   if (!body.kategori || !SURVEY_OPTIONS.kategori.includes(body.kategori)) {
-    errors.push(`kategori harus salah satu dari: ${SURVEY_OPTIONS.kategori.join(', ')}`);
+    errors.push('Kategori wajib dipilih dari daftar yang tersedia.');
   }
 
   if (!body.kenaikan_traffic || !SURVEY_OPTIONS.kenaikan_traffic.includes(body.kenaikan_traffic)) {
-    errors.push(`kenaikan_traffic harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_traffic.join(', ')}`);
+    errors.push('Kenaikan traffic wajib dipilih dari daftar yang tersedia.');
   }
 
   if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
-    errors.push(`kenaikan_sales harus salah satu dari: ${SURVEY_OPTIONS.kenaikan_sales.join(', ')}`);
+    errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
   }
 
   pushTextLimitErrors(body, errors);
@@ -521,7 +528,7 @@ async function handlePublicTenantDetail(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
   const id = String(req.query?.id || '').trim();
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const API_KEY = process.env.MID_API_KEY;
   const API_URL = 'https://apiloyalty.metropolitanland.com/getAllTenants';
@@ -568,7 +575,7 @@ async function handlePublicEventInfo(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   const sb = getServiceSupabase();
   const { data, error } = await sb
@@ -593,7 +600,7 @@ async function handlePublicCheck(req, res) {
   const eventId = String(req.query?.event_id || '').trim();
   const fingerprint = String(req.query?.fingerprint || '').trim();
 
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
   if (!fingerprint) return res.json({ success: true, submitted: false });
 
   const sb = getServiceSupabase();
@@ -779,7 +786,7 @@ async function handleGet(req, res) {
   if (!auth) return;
 
   const id = String(req.query?.id || '').trim();
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const sb = getServiceSupabase();
   const { data, error } = await sb
@@ -789,16 +796,16 @@ async function handleGet(req, res) {
     .single();
 
   if (error) {
-    return res.status(404).json({ success: false, error: 'Survey not found' });
+    return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
   }
 
   const canSeeAll = isStaff(auth.role) || auth.role === 'tenant_relation';
   if (!canSeeAll && data.tenant_user_id !== auth.user?.id) {
-    return res.status(403).json({ success: false, error: 'Not authorized to view this survey' });
+    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
   }
 
   if (auth.role === 'tenant_relation' && data.status === 'draft') {
-    return res.status(403).json({ success: false, error: 'Not authorized to view this survey' });
+    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
   }
 
   const payload = auth.role === 'tenant_relation' ? stripSurveyPii(data) : data;
@@ -888,7 +895,7 @@ async function handleUpdate(req, res) {
 
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const sb = getServiceSupabase();
 
@@ -900,15 +907,15 @@ async function handleUpdate(req, res) {
     .single();
 
   if (!existing) {
-    return res.status(404).json({ success: false, error: 'Survey not found' });
+    return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
   }
 
   if (existing.tenant_user_id !== auth.user?.id && auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Not authorized' });
+    return res.status(403).json({ success: false, error: 'Tidak berhak melakukan aksi ini.' });
   }
 
   if (existing.status !== 'draft' && auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(400).json({ success: false, error: 'Can only update draft surveys' });
+    return res.status(400).json({ success: false, error: 'Hanya survey berstatus draft yang bisa diperbarui.' });
   }
 
   // Build updates
@@ -970,7 +977,7 @@ async function handleSubmit(req, res) {
 
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const sb = getServiceSupabase();
 
@@ -982,11 +989,11 @@ async function handleSubmit(req, res) {
     .single();
 
   if (!existing) {
-    return res.status(404).json({ success: false, error: 'Survey not found' });
+    return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
   }
 
   if (existing.tenant_user_id !== auth.user?.id && auth.role !== 'superadmin' && auth.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Not authorized' });
+    return res.status(403).json({ success: false, error: 'Tidak berhak melakukan aksi ini.' });
   }
 
   const now = new Date().toISOString();
@@ -1017,7 +1024,7 @@ async function handleReview(req, res) {
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
   const reviewNotes = sanitize(body.review_notes || '', 2000);
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const sb = getServiceSupabase();
   const now = new Date().toISOString();
@@ -1053,7 +1060,7 @@ async function handleDelete(req, res) {
 
   const body = req.body || {};
   const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'id required' });
+  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
   const sb = getServiceSupabase();
   const { data: existing, error: findErr } = await sb
@@ -1067,7 +1074,7 @@ async function handleDelete(req, res) {
     return res.status(500).json({ success: false, error: 'Gagal memeriksa survey' });
   }
   if (!existing) {
-    return res.status(404).json({ success: false, error: 'Survey not found' });
+    return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
   }
 
   const { error } = await sb
@@ -1124,7 +1131,7 @@ async function handleSummary(req, res) {
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   const sb = getServiceSupabase();
 
@@ -1151,7 +1158,7 @@ async function handleConfigGet(req, res) {
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   const sb = getServiceSupabase();
   const { data } = await sb
@@ -1183,7 +1190,7 @@ async function handleConfigSet(req, res) {
 
   const body = req.body || {};
   const eventId = sanitize(body.event_id || '', 200);
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   const now = new Date().toISOString();
   const isActive = !!body.is_active;
@@ -1244,7 +1251,7 @@ async function handleExport(req, res) {
   if (!auth) return;
 
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   const sb = getServiceSupabase();
   // Include submitted + reviewed (draft stays out of export)

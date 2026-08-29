@@ -476,7 +476,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               value={form.internalNote}
               onChange={e => set('internalNote', e.target.value)}
               rows={2}
-              placeholder="Catatan admin internal, tidak ikut dipublish ke event utama"
+              placeholder="Catatan admin internal, tidak ikut diterbitkan ke event utama"
               className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>

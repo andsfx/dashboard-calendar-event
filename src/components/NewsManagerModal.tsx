@@ -275,7 +275,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                                 : 'rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400'
                             }
                           >
-                            {article.status === 'published' ? 'Published' : 'Draft'}
+                            {article.status === 'published' ? 'Terbit' : 'Draft'}
                           </span>
                           <span>{formatDate(article.publishedAt || article.createdAt)}</span>
                         </div>
@@ -300,7 +300,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                               : 'rounded-lg bg-brand-primary-600 px-2 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700'
                           }
                         >
-                          {article.status === 'published' ? 'Unpublish' : 'Publish'}
+                          {article.status === 'published' ? 'Tarik Terbit' : 'Terbitkan'}
                         </button>
                         <button
                           type="button"
