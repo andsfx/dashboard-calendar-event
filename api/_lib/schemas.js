@@ -111,7 +111,7 @@ const ACTION_SCHEMAS = {
  */
 export function validateAction(body) {
   const action = String(body?.action || '').trim();
-  if (!action) return { ok: false, error: 'Action is required' };
+  if (!action) return { ok: false, error: 'Action wajib diisi' };
 
   const schema = ACTION_SCHEMAS[action];
   if (!schema) {
@@ -122,7 +122,7 @@ export function validateAction(body) {
   const result = schema.safeParse(body);
   if (!result.success) {
     const msg = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
-    return { ok: false, error: `Validation failed: ${msg}` };
+    return { ok: false, error: `Validasi gagal: ${msg}` };
   }
   return { ok: true, data: result.data };
 }

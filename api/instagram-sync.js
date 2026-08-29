@@ -54,11 +54,11 @@ export default async function handler(req, res) {
 
   const { urls } = req.body || {};
   if (!urls || !Array.isArray(urls) || urls.length === 0) {
-    return res.status(400).json({ success: false, error: 'urls array is required' });
+    return res.status(400).json({ success: false, error: 'Parameter urls wajib diisi' });
   }
 
   if (!APIFY_TOKEN) {
-    return res.status(500).json({ success: false, error: 'APIFY_API_TOKEN not configured' });
+    return res.status(500).json({ success: false, error: 'APIFY_API_TOKEN belum dikonfigurasi' });
   }
 
   try {
@@ -157,6 +157,6 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('Instagram sync error:', err);
-    return res.status(500).json({ success: false, error: err.message || 'Sync failed' });
+    return res.status(500).json({ success: false, error: err.message || 'Sinkronisasi gagal' });
   }
 }

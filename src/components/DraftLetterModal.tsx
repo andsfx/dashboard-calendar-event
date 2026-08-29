@@ -32,7 +32,7 @@ const BULAN_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Ju
 const STEPS = [
   { title: 'Data Surat', description: 'Nomor dan tanggal surat' },
   { title: 'Data EO & Event', description: 'Informasi penyelenggara dan acara' },
-  { title: 'Loading & Review', description: 'Jadwal bongkar muat dan pemeriksaan akhir' },
+  { title: 'Bongkar Muat & Pemeriksaan', description: 'Jadwal bongkar muat dan pemeriksaan akhir' },
 ] as const;
 
 const REQUIRED_FIELDS = new Set<keyof LetterRequestItem>([
@@ -65,8 +65,8 @@ const REQUIRED_ERROR_MESSAGES: Record<keyof LetterRequestItem, string> = {
   hariTanggalPelaksanaan: 'Hari/Tanggal pelaksanaan wajib diisi',
   waktuPelaksanaan: '',
   nomorTelepon: '',
-  hariTanggalLoading: 'Hari/Tanggal loading wajib diisi',
-  waktuLoading: 'Waktu loading wajib diisi',
+  hariTanggalLoading: 'Hari/tanggal bongkar muat wajib diisi',
+  waktuLoading: 'Waktu bongkar muat wajib diisi',
 };
 
 function parseIsoDate(value: string) {
@@ -400,9 +400,9 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             <p className="text-xs ui-text-muted">Lengkapi kebutuhan loading sesuai koordinasi event.</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {renderInput('hariTanggalLoading', 'Hari/Tanggal Loading', undefined, 'date')}
+            {renderInput('hariTanggalLoading', 'Hari/Tanggal Bongkar Muat', undefined, 'date')}
             <div>
-              {renderInput('waktuLoading', 'Waktu Loading', '06.00 - 20.00')}
+              {renderInput('waktuLoading', 'Waktu Bongkar Muat', '06.00 - 20.00')}
               <p className="mt-1 text-xs text-slate-400">Contoh: 06.00 - 20.00</p>
             </div>
           </div>

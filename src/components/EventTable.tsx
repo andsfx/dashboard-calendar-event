@@ -305,7 +305,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                             <button
                               type="button"
                               onClick={() => onEdit(ev)}
-                              aria-label="Edit acara"
+                              aria-label='Ubah acara'
                               className="ui-focus-ring rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />

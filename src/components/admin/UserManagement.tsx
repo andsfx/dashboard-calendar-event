@@ -137,10 +137,10 @@ export function UserManagement() {
             </button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input type="email" placeholder="Email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+            <input type="email" placeholder="Alamat email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
             {showForm === 'create' && (
-              <input type="password" placeholder="Password (min 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
+              <input type="password" placeholder="Password (minimal 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
             )}
             <input type="text" placeholder="Nama Tampilan" value={formData.display_name} onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}

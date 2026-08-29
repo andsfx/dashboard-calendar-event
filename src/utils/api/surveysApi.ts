@@ -137,7 +137,7 @@ export async function createGeneratedLetter(params: {
     pdf_url: params.pdfUrl || null, created_by: params.createdBy || null, status: 'active',
   }).select().single();
   if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('No data returned after insert');
+  if (!data) throw new SupabaseApiError('Data surat tidak tersedia setelah disimpan');
   return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
 }
 
@@ -152,7 +152,7 @@ export async function updateGeneratedLetter(
   const { data, error } = await supabase.from('generated_letters')
     .update(dbUpdates).eq('id', id).select().single();
   if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('No data returned after update');
+  if (!data) throw new SupabaseApiError('Data surat tidak tersedia setelah diperbarui');
   return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
 }
 
@@ -253,7 +253,7 @@ export async function fetchPublicTenantSurveyResults(eventId?: string): Promise<
 export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
   const { data, error } = await supabase.from('tenant_event_surveys').select('*').eq('id', id).single();
   if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('Survey not found');
+  if (!data) throw new SupabaseApiError('Survey tidak ditemukan');
   return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
 }
 
@@ -273,7 +273,7 @@ export async function createTenantSurvey(formData: TenantSurveyFormData): Promis
     if (error.code === '23505') throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
     throw new SupabaseApiError(error.message);
   }
-  if (!data) throw new SupabaseApiError('No data returned after insert');
+  if (!data) throw new SupabaseApiError('Data survey tidak tersedia setelah disimpan');
   return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
 }
 
@@ -290,7 +290,7 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
   if (updates.status !== undefined) { dbUpdates.status = updates.status; if (updates.status === 'submitted') dbUpdates.submitted_at = new Date().toISOString(); }
   const { data, error } = await supabase.from('tenant_event_surveys').update(dbUpdates).eq('id', id).select().single();
   if (error) { if (error.code === '23505') throw new SupabaseApiError('Survey sudah pernah dikirim untuk event ini.'); throw new SupabaseApiError(error.message); }
-  if (!data) throw new SupabaseApiError('No data returned after update');
+  if (!data) throw new SupabaseApiError('Data survey tidak tersedia setelah diperbarui');
   return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
 }
 

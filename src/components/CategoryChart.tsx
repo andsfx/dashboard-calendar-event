@@ -93,7 +93,7 @@ export function CategoryChart({ events }: Props) {
               <text x="50" y="58" textAnchor="middle" fontSize="7"
                 style={{ fill: '#94a3b8' }}
                 className="select-none">
-                {hoveredCat ? hoveredCat.slice(0, 8) : 'total'}
+                {hoveredCat ? hoveredCat.slice(0, 8) : 'Total'}
               </text>
             </svg>
           </div>

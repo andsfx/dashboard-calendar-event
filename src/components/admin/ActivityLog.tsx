@@ -94,16 +94,16 @@ export function ActivityLog() {
         <select value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
           <option value="">Semua Aksi</option>
-          <option value="create">Create</option>
-          <option value="update">Update</option>
-          <option value="delete">Delete</option>
+          <option value="create">Buat</option>
+          <option value="update">Perbarui</option>
+          <option value="delete">Hapus</option>
           <option value="login">Login</option>
           <option value="logout">Logout</option>
-          <option value="invite">Invite</option>
+          <option value="invite">Undang</option>
         </select>
         <select value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
-          <option value="">Semua Resource</option>
+          <option value="">Semua Tipe</option>
           <option value="event">Event</option>
           <option value="draft">Draft</option>
           <option value="user">Pengguna</option>
@@ -117,7 +117,7 @@ export function ActivityLog() {
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300" />
         {(filterAction || filterResource || dateFrom || dateTo) && (
           <button onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-            className="text-[10px] text-brand-primary-600 hover:underline dark:text-brand-primary-400">Reset</button>
+            className="text-[10px] text-brand-primary-600 hover:underline dark:text-brand-primary-400">Atur Ulang</button>
         )}
       </div>
 

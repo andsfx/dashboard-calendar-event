@@ -472,7 +472,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       >
         <ModalHeader
           titleId="event-crud-title"
-          title={isEdit ? 'Edit Acara' : 'Tambah Acara Baru'}
+          title={isEdit ? 'Ubah Acara' : 'Tambah Acara Baru'}
           subtitle={isEdit ? `Mengubah: ${editingEvent.acara}` : 'Isi detail acara di bawah'}
           icon={<Calendar />}
           onClose={onClose}

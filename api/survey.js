@@ -30,11 +30,11 @@ export default async function handler(req, res) {
       case 'stats':     return handleStats(req, res);
       case 'export':    return handleExport(req, res);
       default:
-        return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
+        return res.status(400).json({ success: false, error: `Aksi tidak dikenal: ${action || '(kosong)'}` });
     }
   } catch (err) {
     console.error(`[survey/${action}]`, err);
-    return res.status(500).json({ success: false, error: 'Internal server error' });
+    return res.status(500).json({ success: false, error: 'Terjadi kesalahan server' });
   }
 }
 
@@ -204,7 +204,7 @@ async function handleSummary(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
   const eventId = String(req.query?.event_id || '').trim();
-  if (!eventId) return res.status(400).json({ success: false, error: 'event_id required' });
+  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
 
   const sb = getAnonSupabase();
   const { data, error } = await sb.rpc('get_survey_summary', { p_event_id: eventId });

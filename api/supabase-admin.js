@@ -81,7 +81,7 @@ export default async function handler(req, res) {
 
   const action = String(req.body?.action || '').trim();
   if (!action) {
-    return res.status(400).json({ success: false, error: 'Action is required' });
+    return res.status(400).json({ success: false, error: 'Action wajib diisi' });
   }
 
   // Boundary: unknown → trusted (zod schema per action)
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateEvent': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Event ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID event wajib diisi' });
         const { error } = await sb.from('events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteEvent': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Event ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID event wajib diisi' });
         const { error } = await sb.from('events').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
       case 'batchCreateEvents': {
         const rows = req.body.data;
         if (!Array.isArray(rows) || rows.length === 0) {
-          result = { success: false, error: 'No events data provided' };
+          result = { success: false, error: 'Data event tidak tersedia' };
           break;
         }
         const { data, error } = await sb.from('events').insert(rows).select('id');
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
       case 'deleteRecurringSeries': {
         const groupId = req.body.groupId;
         if (!groupId) {
-          result = { success: false, error: 'Group ID is required' };
+          result = { success: false, error: 'ID grup wajib diisi' };
           break;
         }
         const { data, error } = await sb.from('events').delete().eq('recurrence_group_id', groupId).select('id');
@@ -156,7 +156,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateTheme': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Theme ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID tema wajib diisi' });
         const { error } = await sb.from('annual_themes').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteTheme': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Theme ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID tema wajib diisi' });
         const { error } = await sb.from('annual_themes').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -187,7 +187,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateDraft': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID draft wajib diisi' });
         const { error } = await sb.from('draft_events').update(req.body.data).eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -195,7 +195,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteDraft': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID draft wajib diisi' });
         const now = new Date().toISOString();
         const { error } = await sb.from('draft_events').update({
           progress: 'cancel',
@@ -209,20 +209,20 @@ export default async function handler(req, res) {
       }
       case 'publishDraft': {
         const draftId = req.body.id;
-        if (!draftId) return res.status(400).json({ success: false, error: 'Draft ID is required' });
+        if (!draftId) return res.status(400).json({ success: false, error: 'ID draft wajib diisi' });
         // 1. Fetch the draft
         const { data: draft, error: fetchErr } = await sb.from('draft_events').select('*').eq('id', draftId).single();
         if (fetchErr) throw fetchErr;
-        if (!draft) throw new Error('Draft not found');
+        if (!draft) throw new Error('Draft tidak ditemukan');
         // Hard forbid re-publish (T-002 / ADR 001) — no second Event spawn
         if (draft.published) {
-          return res.status(409).json({ success: false, error: 'Draft already published' });
+          return res.status(409).json({ success: false, error: 'Draft sudah diterbitkan' });
         }
         if (draft.deleted) {
-          return res.status(400).json({ success: false, error: 'Draft is deleted' });
+          return res.status(400).json({ success: false, error: 'Draft sudah dihapus' });
         }
         if (draft.progress !== 'confirm') {
-          return res.status(400).json({ success: false, error: 'Draft must be confirmed before publishing' });
+          return res.status(400).json({ success: false, error: 'Draft harus berstatus Konfirmasi sebelum diterbitkan' });
         }
 
         // 2. Idempotency: event may exist from partial prior attempt
@@ -272,7 +272,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'restoreDraft': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Draft ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID draft wajib diisi' });
         const { error } = await sb.from('draft_events').update({
           progress: 'draft',
           deleted: false,
@@ -306,7 +306,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteAlbum': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Album ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID album wajib diisi' });
         // Fetch all photo URLs before deleting DB rows
         const { data: photos } = await sb.from('event_photos').select('id, url').eq('album_id', req.body.id);
         // Delete photo rows from DB
@@ -359,7 +359,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateNewsArticle': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'News ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID berita wajib diisi' });
         const updateData = { ...req.body.data };
         if (updateData.status === 'published') {
           updateData.published_at = new Date().toISOString();
@@ -371,7 +371,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteNewsArticle': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'News ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID berita wajib diisi' });
         const { data: existing } = await sb.from('news_articles').select('cover_image_url').eq('id', req.body.id).single();
         const { error } = await sb.from('news_articles').delete().eq('id', req.body.id);
         if (error) throw error;
@@ -439,7 +439,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteEventProposal': {
-        if (!req.body.eventId) return res.status(400).json({ success: false, error: 'Event ID is required' });
+        if (!req.body.eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi' });
         const { data: existing } = await sb.from('event_proposals').select('file_url').eq('event_id', req.body.eventId).maybeSingle();
         // m-2 (audit): hapus R2 DULU dengan kepastian (throw) — gagal → 500 dan row tetap ada,
         // sehingga retry aman dan tidak ada orphan. Row DB baru dihapus setelah file bersih.
@@ -466,7 +466,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'updateSponsorLeadStatus': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Lead ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID lead wajib diisi' });
         const updateData = { status: req.body.status };
         if (req.body.internalNotes !== undefined) updateData.internal_notes = req.body.internalNotes;
         const { error } = await sb.from('sponsor_leads').update(updateData).eq('id', req.body.id);
@@ -476,7 +476,7 @@ export default async function handler(req, res) {
         break;
       }
       case 'deleteSponsorLead': {
-        if (!req.body.id) return res.status(400).json({ success: false, error: 'Lead ID is required' });
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID lead wajib diisi' });
         const { error } = await sb.from('sponsor_leads').delete().eq('id', req.body.id);
         if (error) throw error;
         result = { success: true };
@@ -523,7 +523,7 @@ export default async function handler(req, res) {
       case 'updateEventPhotoOrder': {
         const updates = req.body.data;
         if (!Array.isArray(updates)) {
-          result = { success: false, error: 'Invalid data' };
+          result = { success: false, error: 'Data tidak valid' };
           break;
         }
         // Batch: single update with IN clause + per-row CASE
@@ -539,7 +539,7 @@ export default async function handler(req, res) {
         const albumId = req.body.id || req.body.albumId;
         const eventId = req.body.eventId || req.body.event_id;
         if (!albumId || !eventId) {
-          result = { success: false, error: 'albumId and eventId required' };
+          result = { success: false, error: 'albumId dan eventId wajib diisi' };
           break;
         }
         const { error } = await sb
@@ -553,12 +553,12 @@ export default async function handler(req, res) {
       }
 
       default:
-        result = { success: false, error: `Unknown action: ${action}` };
+        result = { success: false, error: `Aksi tidak dikenal: ${action}` };
     }
 
     res.status(200).json(result);
   } catch (error) {
     console.error(`Supabase admin action '${action}' error:`, error);
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: error.message || 'Terjadi kesalahan server' });
   }
 }

@@ -52,7 +52,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
       const { data: urlData } = supabase.storage.from('event-photos').getPublicUrl(fileName);
       setHeroUrl(urlData.publicUrl);
     } catch (err: any) {
-      setError(`Upload gagal: ${err.message || 'Unknown error'}`);
+      setError(`Upload gagal: ${err.message || 'Kesalahan tidak dikenal'}`);
     } finally {
       setHeroUploading(false);
     }

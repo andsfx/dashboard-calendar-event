@@ -506,7 +506,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                        Hari/Tanggal Loading *
+                        Hari/Tanggal Bongkar Muat *
                       </label>
                       <EditableText
                         value={letter.hariTanggalLoading}
@@ -518,7 +518,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                        Waktu Loading *
+                        Waktu Bongkar Muat *
                       </label>
                       <EditableText
                         value={letter.waktuLoading}

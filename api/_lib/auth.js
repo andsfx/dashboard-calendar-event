@@ -25,7 +25,7 @@ export function requireAdminSession(req, res) {
 
   const actual = getCookie(req, 'admin_session');
   if (!actual || actual !== expected) {
-    res.status(401).json({ success: false, error: 'Unauthorized admin session' });
+    res.status(401).json({ success: false, error: 'Sesi admin tidak valid' });
     return false;
   }
 
@@ -208,7 +208,7 @@ export async function requireAuth(req, res, allowedRoles = ['superadmin', 'admin
   }
 
   // 4. All auth methods failed
-  res.status(401).json({ success: false, error: 'Unauthorized — silakan login' });
+  res.status(401).json({ success: false, error: 'Tidak terautentikasi — silakan login' });
   return false;
 }
 

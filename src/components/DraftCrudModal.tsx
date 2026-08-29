@@ -338,7 +338,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       >
         <ModalHeader
           titleId="draft-crud-title"
-          title={isEdit ? 'Edit Draft Event' : 'Tambah Draft Event'}
+          title={isEdit ? 'Ubah Draft Event' : 'Tambah Draft Event'}
           subtitle={isEdit && editingDraft ? `Mengubah: ${editingDraft.acara}` : 'Isi data antrian event untuk ditindaklanjuti'}
           icon={<FileEdit />}
           onClose={onClose}
@@ -446,8 +446,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             >
               <option value="draft">Draft</option>
-              <option value="confirm">Confirm</option>
-              <option value="cancel">Cancel</option>
+              <option value="confirm">Konfirmasi</option>
+              <option value="cancel">Batal</option>
             </select>
           </div>
 

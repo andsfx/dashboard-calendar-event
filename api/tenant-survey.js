@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     return await handleAuth(req, res, action);
   } catch (err) {
     console.error(`[tenant-survey/${mode}/${action}]`, err);
-    return res.status(500).json({ success: false, error: 'Internal server error' });
+    return res.status(500).json({ success: false, error: 'Terjadi kesalahan server' });
   }
 }
 
@@ -60,7 +60,7 @@ async function handlePublic(req, res, action) {
     case 'results-roster':    return await handlePublicResultsRoster(req, res);
     case 'directory':         return await handlePublicDirectory(req, res);
     default:
-      return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
+      return res.status(400).json({ success: false, error: `Aksi tidak dikenal: ${action || '(kosong)'}` });
   }
 }
 
@@ -80,7 +80,7 @@ async function handleAuth(req, res, action) {
     case 'export':    return await handleExport(req, res);
     case 'tenant-roster': return await handleTenantRoster(req, res);
     default:
-      return res.status(400).json({ success: false, error: `Unknown action: ${action || '(empty)'}` });
+      return res.status(400).json({ success: false, error: `Aksi tidak dikenal: ${action || '(kosong)'}` });
   }
 }
 

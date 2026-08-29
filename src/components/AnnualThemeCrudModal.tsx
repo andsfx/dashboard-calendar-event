@@ -92,8 +92,8 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
       <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         <ModalHeader
           titleId="annual-theme-title"
-          title={editingTheme ? 'Edit Tema Tahunan' : 'Tambah Tema Tahunan'}
-          subtitle="Kelola tema yang tampil di section Tema Tahunan."
+          title={editingTheme ? 'Ubah Tema Tahunan' : 'Tambah Tema Tahunan'}
+          subtitle='Kelola tema yang tampil di bagian Tema Tahunan.'
           icon={<CalendarDays />}
           onClose={onClose}
           closeDisabled={isSubmitting}
