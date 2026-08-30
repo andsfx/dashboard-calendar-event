@@ -97,14 +97,20 @@ export default function TenantSurveyEventPicker() {
     <div className="space-y-6">
       {/* Header description */}
       <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-        Evaluasi dampak event terhadap gerai Anda. Isi informasi tenant, traffic, dan penjualan selama event berlangsung.
+        Pilih event untuk menilai perubahan traffic dan penjualan gerai Anda.
+      </p>
+
+      <p className="text-xs ui-text-muted">
+        Isi survey ini jika gerai Anda ikut dalam event yang dipilih. Waktu pengisian sekitar 2 menit.
       </p>
 
       {/* Search */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <label htmlFor="tenant-survey-event-search" className="sr-only">Cari event</label>
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
           <input
+            id="tenant-survey-event-search"
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -124,8 +130,10 @@ export default function TenantSurveyEventPicker() {
             key={ev.id}
             type="button"
             onClick={() => navigate(`/tenant-survey/${ev.id}`)}
+            aria-label={`Isi survey tenant untuk event ${ev.acara}, tanggal ${formatDate(ev.tanggal)}${ev.lokasi ? `, lokasi ${ev.lokasi}` : ''}${ev.eo ? `, penyelenggara ${ev.eo}` : ''}`}
             className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-brand-primary-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
           >
+
             {/* Status indicator bar */}
             <div className="hidden h-12 w-1 shrink-0 rounded-full bg-slate-300 sm:block dark:bg-slate-600" />
 
