@@ -188,10 +188,10 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                     <CountdownPill label="Menit" value={countdown.minutes} color={catColor} />
                   </div>
                 </>
-              ) : (
+              ) : showOngoing ? null : (
                 <div className="rounded-2xl border px-5 py-4" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}12` }}>
                   <p className="text-xl font-bold sm:text-2xl" style={{ color: catColor }}>
-                    {showOngoing ? 'Sedang Berlangsung' : 'Hari Ini'}
+                    Hari Ini
                   </p>
                 </div>
               )}
