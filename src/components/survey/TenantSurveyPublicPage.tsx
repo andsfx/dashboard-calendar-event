@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
-  Send, ArrowLeft, MapPin, Calendar,
+  Send, ArrowLeft, MapPin, Calendar, User,
   ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, Phone,
 } from 'lucide-react';
 import {
@@ -433,7 +433,7 @@ export default function TenantSurveyPublicPage() {
             <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
               Self-Assessment Tenant
             </span>
-            <h1 className="mt-0.5 truncate text-lg font-bold text-brand-primary-900 dark:text-brand-primary-100">
+            <h1 className="mt-0.5 break-words text-lg font-bold leading-snug text-brand-primary-900 dark:text-brand-primary-100">
               {event.acara}
             </h1>
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
@@ -472,7 +472,7 @@ export default function TenantSurveyPublicPage() {
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
-              <span className="hidden truncate text-[11px] font-medium text-slate-600 dark:text-slate-400 sm:block">{step.label}</span>
+              <span className="sr-only truncate text-[11px] font-medium text-slate-600 dark:text-slate-400 sm:not-sr-only">{step.label}</span>
             </div>
           ))}
         </div>
@@ -617,7 +617,7 @@ export default function TenantSurveyPublicPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                    <Building2 className="h-3.5 w-3.5" />
+                    <User className="h-3.5 w-3.5" />
                     Nama PIC
                   </label>
                   <input

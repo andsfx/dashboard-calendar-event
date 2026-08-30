@@ -94,7 +94,7 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
         })}
       </div>
       {error && (
-        <p id={errorId} className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
+        <p id={errorId} role="alert" className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
           <AlertTriangle className="h-3 w-3" />
           {error}
         </p>
