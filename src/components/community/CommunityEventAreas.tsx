@@ -71,7 +71,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
         <div className="max-w-2xl">
           <CommunityEyebrow>Foto Area Event</CommunityEyebrow>
           <h2 className="font-display mt-2 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
-            Arena di Metropolitan Mall.
+            Area di Metropolitan Mall Bekasi
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
             Masih bingung milih spot buat acaramu? Lihat area lebih detail.
