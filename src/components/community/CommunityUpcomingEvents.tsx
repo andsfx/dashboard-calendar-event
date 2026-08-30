@@ -128,10 +128,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   const catColor = CATEGORY_COLORS[mainCat] ?? CATEGORY_COLORS.Umum;
 
   const countdownTarget = getCountdownTarget(mainEvent.dateStr, mainEvent.jam);
-  const isMultiDay = !!mainEvent.dateEnd && mainEvent.dateEnd !== mainEvent.dateStr;
   const countdownDiff = countdownTarget - now;
   const showCountdown = countdownDiff > 0 && mainEvent.status !== 'ongoing';
-  const showOngoing = !showCountdown && (!!mainEvent.jam || isMultiDay);
+  const showOngoing = mainEvent.status === 'ongoing';
   const countdown = showCountdown ? getCountdownFromDiff(countdownDiff) : null;
   const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
   const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
@@ -150,9 +149,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
                 <span className="relative flex h-2 w-2 items-center justify-center">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:hidden" style={{ backgroundColor: catColor }}></span>
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
+                                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
                 </span>
-                Event Berikutnya
+                {showOngoing ? 'Sedang Berlangsung' : 'Event Berikutnya'}
               </span>
               <h3 className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 {mainEvent.acara}
@@ -193,9 +192,6 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 <div className="rounded-2xl border px-5 py-4" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}12` }}>
                   <p className="text-xl font-bold sm:text-2xl" style={{ color: catColor }}>
                     {showOngoing ? 'Sedang Berlangsung' : 'Hari Ini'}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                    {showOngoing ? (mainEvent.jam || mainEvent.tanggal) : (mainEvent.jam || 'Sepanjang hari')}
                   </p>
                 </div>
               )}
