@@ -45,6 +45,17 @@ export {
 } from './api/albumsApi';
 
 export {
+  fetchEventAreas,
+  createEventArea,
+  updateEventArea,
+  deleteEventArea,
+  fetchAreaPhotos,
+  uploadAreaPhoto,
+  deleteAreaPhoto,
+  updateAreaPhotoOrder,
+} from './api/albumsApi';
+
+export {
   fetchCommunityRegistrations,
   updateRegistrationStatus,
   submitCommunityRegistration,

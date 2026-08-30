@@ -126,7 +126,9 @@ export default function App() {
     heroImageUrl,
     showNewsManager, setShowNewsManager,
     showSponsorManager, setShowSponsorManager,
+    showEventAreaManager, setShowEventAreaManager,
     landingAlbums,
+    eventAreas,
     communityRegistrations,
     isRegLoading,
     showRegDetail, setShowRegDetail,
@@ -250,7 +252,7 @@ export default function App() {
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
-  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager };
+  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
   return (
     <Routes>
       {/* Community Landing Page */}
@@ -265,6 +267,7 @@ export default function App() {
             onEventDetail={handleDetailClick}
             heroImageUrl={heroImageUrl}
             albums={landingAlbums}
+            areas={eventAreas}
             isLoading={isLoading}
             stats={communityStats}
           />

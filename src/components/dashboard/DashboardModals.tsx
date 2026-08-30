@@ -14,6 +14,7 @@ const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({
 const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
 const SponsorManagerModal = lazy(() => import('../SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
 const CommunityRegistrationDetailModal = lazy(() => import('../CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
+const EventAreaManagerModal = lazy(() => import('../EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
 import type { LoginResult } from '../../types/auth';
 
 interface DashboardModalsProps {
@@ -89,6 +90,9 @@ interface DashboardModalsProps {
   onCloseNewsManager: () => void;
   showSponsorManager: boolean;
   onCloseSponsorManager: () => void;
+  showEventAreaManager: boolean;
+  onCloseEventAreaManager: () => void;
+
   // Registration detail modal
   showRegDetail: boolean;
   onCloseRegDetail: () => void;
@@ -150,6 +154,8 @@ export function DashboardModals({
   onCloseNewsManager,
   showSponsorManager,
   onCloseSponsorManager,
+  showEventAreaManager,
+  onCloseEventAreaManager,
   showRegDetail,
   onCloseRegDetail,
   selectedRegistration,
@@ -257,6 +263,12 @@ export function DashboardModals({
           <SponsorManagerModal
             isOpen={showSponsorManager}
             onClose={onCloseSponsorManager}
+          />
+        )}
+        {showEventAreaManager && (
+          <EventAreaManagerModal
+            isOpen={showEventAreaManager}
+            onClose={onCloseEventAreaManager}
           />
         )}
         {showRegDetail && (

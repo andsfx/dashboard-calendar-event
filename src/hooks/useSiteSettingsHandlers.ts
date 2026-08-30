@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ToastMessage, PhotoAlbum } from '../types';
-import { fetchSiteSettings, updateSiteSettings, fetchAlbums } from '../utils/supabaseApi';
+import { ToastMessage, PhotoAlbum, EventArea } from '../types';
+import { fetchSiteSettings, updateSiteSettings, fetchAlbums, fetchEventAreas } from '../utils/supabaseApi';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 
@@ -21,8 +21,11 @@ export interface SiteSettingsHandlersResult {
   setShowNewsManager: (v: boolean) => void;
   showSponsorManager: boolean;
   setShowSponsorManager: (v: boolean) => void;
+  showEventAreaManager: boolean;
+  setShowEventAreaManager: (v: boolean) => void;
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
+  eventAreas: EventArea[];
   handleSaveInstagramPosts: (posts: string[]) => Promise<boolean>;
   handleSaveHeroImage: (url: string) => Promise<boolean>;
   handleLogout: () => void;
@@ -37,8 +40,10 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
   const [showAlbumManager, setShowAlbumManager] = useState(false);
   const [showNewsManager, setShowNewsManager] = useState(false);
   const [showSponsorManager, setShowSponsorManager] = useState(false);
+  const [showEventAreaManager, setShowEventAreaManager] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [landingAlbums, setLandingAlbums] = useState<PhotoAlbum[]>([]);
+  const [eventAreas, setEventAreas] = useState<EventArea[]>([]);
 
   useEffect(() => {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
@@ -48,6 +53,7 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
       if (url && typeof url === 'string') setHeroImageUrl(url);
     }).catch(() => {});
     fetchAlbums().then(setLandingAlbums).catch(() => {});
+    fetchEventAreas().then(setEventAreas).catch(() => {});
   }, []);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
@@ -85,7 +91,8 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
     showAlbumManager, setShowAlbumManager,
     showNewsManager, setShowNewsManager,
     showSponsorManager, setShowSponsorManager,
-    heroImageUrl, landingAlbums,
+    showEventAreaManager, setShowEventAreaManager,
+    heroImageUrl, landingAlbums, eventAreas,
     handleSaveInstagramPosts, handleSaveHeroImage,
     handleLogout,
   };

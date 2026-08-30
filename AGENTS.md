@@ -60,6 +60,8 @@ There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification 
 
 Env vars — client: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_R2_PUBLIC_URL`, `VITE_DEV_AUTO_LOGIN`. Server-only: `SUPABASE_SERVICE_ROLE_KEY`, `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL`, `ADMIN_PASSWORD`/`ADMIN_SESSION_TOKEN`/`ALLOW_LEGACY_ADMIN`, `APPS_SCRIPT_URL`/`ADMIN_API_TOKEN` (legacy GAS migration proxy), `APIFY_API_TOKEN`, `MID_API_KEY`. **Never expose these values in code, docs, or output**; remote git URL may contain a credential — never copy it. (README's `VITE_R2_*` credential example is stale; code reads server-only `R2_*`.)
 
+**Migrasi SQL** — `node migrate/run-schema.mjs [file.sql]` (default `supabase-schema.sql`) membaca env khusus `.env.supabase` (gitignored): `VITE_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ACCESS_TOKEN` (PAT `sbp_...` dari dashboard.supabase.com → Account → Access Tokens). PAT wajib: endpoint legacy `/pg/query` sudah ditutup Supabase — satu-satunya jalur DDL tanpa CLI adalah Management API (`POST https://api.supabase.com/v1/projects/<ref>/database/query`). Service role key hanya untuk CRUD REST, bukan DDL.
+
 ## Runtime/Tooling Preferences
 
 - **npm is canonical** (`package-lock.json` is the lockfile of record; `pnpm-lock.yaml`/`pnpm-workspace.yaml` are ignored leftovers — never commit them). Node 24.x on Vercel; project `metmal-community-hub`; deploy = push to `main`.

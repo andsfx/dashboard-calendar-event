@@ -152,6 +152,24 @@ export interface EventPhoto {
   albumId?: string;
 }
 
+export interface EventArea {
+  id: string;
+  name: string;
+  description: string;
+  coverPhotoUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+  photoCount?: number;
+}
+
+export interface AreaPhoto {
+  id: string;
+  url: string;
+  caption: string;
+  areaId: string;
+  sortOrder: number;
+}
+
 export interface PhotoAlbum {
   id: string;
   name: string;

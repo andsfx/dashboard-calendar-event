@@ -1,6 +1,6 @@
 import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction, slugify } from './_shared';
-import type { EventPhoto, PhotoAlbum } from '../../types';
+import type { AreaPhoto, EventArea, EventPhoto, PhotoAlbum } from '../../types';
 
 // ─── Event Photos ───────────────────────────────────────────────
 
@@ -152,4 +152,105 @@ export async function deleteAlbumPhoto(id: string, url: string): Promise<void> {
   await deleteFromR2(url);
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbumPhoto', { id });
   if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
+}
+
+// ─── Foto Area Event ──────────────────────────────────────────────
+
+interface DbEventAreaRow {
+  id: string;
+  name: string;
+  description: string;
+  cover_photo_url: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export async function fetchEventAreas(): Promise<EventArea[]> {
+  const { data: areas, error } = await supabase
+    .from('event_areas')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw new SupabaseApiError(`Fetch event areas failed: ${error.message}`);
+  const { data: photos } = await supabase.from('area_photos').select('area_id');
+  const countMap = new Map<string, number>();
+  for (const p of photos || []) {
+    if (p.area_id) countMap.set(p.area_id, (countMap.get(p.area_id) || 0) + 1);
+  }
+  return (areas || []).map(row => dbEventAreaToEventArea(row as DbEventAreaRow, countMap.get((row as DbEventAreaRow).id) || 0));
+}
+
+/** DB → app mapper (boundary: snake_case → camelCase, pola dbAlbum → PhotoAlbum). */
+export function dbEventAreaToEventArea(row: DbEventAreaRow, photoCount = 0): EventArea {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description || '',
+    coverPhotoUrl: row.cover_photo_url || '',
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active ?? true,
+    photoCount: photoCount || 0,
+  };
+}
+
+/** Foto milik satu area, urut sort_order (DB → app mapper). */
+export async function fetchAreaPhotos(areaId: string): Promise<AreaPhoto[]> {
+  const { data, error } = await supabase
+    .from('area_photos')
+    .select('*')
+    .eq('area_id', areaId)
+    .order('sort_order', { ascending: true });
+  if (error) throw new SupabaseApiError(`Fetch area photos failed: ${error.message}`);
+  return (data || []).map(p => ({
+    id: p.id, url: p.url, caption: p.caption || '', areaId: p.area_id, sortOrder: p.sort_order || 0,
+  }));
+}
+
+export async function createEventArea(name: string, description: string, coverPhotoUrl?: string): Promise<EventArea> {
+  const result = await adminAction<{ success: boolean; error?: string; id?: string }>(
+    'createEventArea',
+    { data: { name, description, cover_photo_url: coverPhotoUrl || '', sort_order: 0, is_active: true } },
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create event area failed');
+  return {
+    id: result.id || '', name, description, coverPhotoUrl: coverPhotoUrl || '',
+    sortOrder: 0, isActive: true, photoCount: 0,
+  };
+}
+
+export async function updateEventArea(id: string, data: Partial<EventArea>): Promise<void> {
+  const row: Record<string, unknown> = {};
+  if (data.name !== undefined) row.name = data.name;
+  if (data.description !== undefined) row.description = data.description;
+  if (data.coverPhotoUrl !== undefined) row.cover_photo_url = data.coverPhotoUrl;
+  if (data.sortOrder !== undefined) row.sort_order = data.sortOrder;
+  if (data.isActive !== undefined) row.is_active = data.isActive;
+  const result = await adminAction<{ success: boolean; error?: string }>('updateEventArea', { id, data: row });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Update event area failed');
+}
+
+export async function deleteEventArea(id: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteEventArea', { id });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Delete event area failed');
+}
+
+/** Upload + buat record foto area (cover & galeri). Folder R2 'areas/'. */
+export async function uploadAreaPhoto(areaId: string, file: File, caption?: string): Promise<AreaPhoto> {
+  const finalCaption = caption?.trim() || file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+  const url = await uploadToR2(file, 'areas/');
+  const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
+    'createAreaPhoto', { data: { url, caption: finalCaption, area_id: areaId } },
+  );
+  if (!result.success) throw new SupabaseApiError(result.error || 'Create area photo failed');
+  return { id: result.id || '', url, caption: finalCaption, areaId, sortOrder: result.sortOrder || 0 };
+}
+
+export async function deleteAreaPhoto(id: string, url: string): Promise<void> {
+  await deleteFromR2(url);
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteAreaPhoto', { id });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Delete area photo failed');
+}
+
+export async function updateAreaPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('updateAreaPhotoOrder', { data: photos });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Update area photo order failed');
 }

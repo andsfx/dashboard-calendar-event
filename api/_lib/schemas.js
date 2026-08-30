@@ -77,6 +77,21 @@ const ACTION_SCHEMAS = {
   }),
   deleteEventPhoto: z.object({ action: z.literal('deleteEventPhoto'), id: z.string().min(1), url: z.string().optional() }),
   readRegistrations: z.object({ action: z.literal('readRegistrations') }),
+  createEventArea: z.object({
+    action: z.literal('createEventArea'),
+    data: z.object({ name: z.string().min(1, 'Nama area wajib diisi') }).passthrough(),
+  }),
+  updateEventArea: z.object({ action: z.literal('updateEventArea'), id: z.string().min(1), data: z.object({}).passthrough() }),
+  deleteEventArea: z.object({ action: z.literal('deleteEventArea'), id: z.string().min(1) }),
+  createAreaPhoto: z.object({
+    action: z.literal('createAreaPhoto'),
+    data: z.object({ url: z.string().min(1), area_id: z.string().min(1) }).passthrough(),
+  }),
+  deleteAreaPhoto: z.object({ action: z.literal('deleteAreaPhoto'), id: z.string().min(1) }),
+  updateAreaPhotoOrder: z.object({
+    action: z.literal('updateAreaPhotoOrder'),
+    data: z.array(z.object({ id: z.string(), sortOrder: z.number() })),
+  }),
   updateRegistrationStatus: z.object({
     action: z.literal('updateRegistrationStatus'),
     id: z.string().min(1),

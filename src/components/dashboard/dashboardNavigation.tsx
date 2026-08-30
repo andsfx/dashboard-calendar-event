@@ -10,6 +10,7 @@ import {
   Handshake,
   Images,
   LayoutDashboard,
+  MapPin,
   Newspaper,
   Palette,
   Store,
@@ -39,12 +40,14 @@ export interface DashboardNavGroup {
   label: string;
   items: DashboardNavItem[];
 }
+
 interface DashboardNavCallbacks {
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
   onOpenLetterPicker: () => void;
   onOpenNewsManager: () => void;
   onOpenSponsorManager: () => void;
+  onOpenEventAreaManager: () => void;
 }
 
 interface CommandCenterCard {
@@ -115,6 +118,7 @@ export function getDashboardNavGroups(
         ...(permissions.canManageSettings ? [
           { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenInstagramSettings },
           { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenAlbumManager },
+          { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenEventAreaManager },
           { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenLetterPicker },
           { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenNewsManager },
         ] : []),
@@ -130,6 +134,7 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
     onOpenLetterPicker: () => undefined,
     onOpenNewsManager: () => undefined,
     onOpenSponsorManager: () => undefined,
+    onOpenEventAreaManager: () => undefined,
   })
     .flatMap(group => group.items)
     .filter(item => item.action === 'route' && item.route)

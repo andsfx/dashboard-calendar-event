@@ -222,6 +222,51 @@ export const deleteEventPhotoSchema = z.object({
   url: z.string().optional().default(''),
 });
 
+// Event area schemas
+export const createEventAreaSchema = z.object({
+  action: z.literal('createEventArea'),
+  data: z.object({
+    name: z.string().min(1, 'Nama area wajib diisi'),
+    description: z.string().optional().default(''),
+    cover_photo_url: z.string().optional().default(''),
+    sort_order: z.number().optional().default(0),
+    is_active: z.boolean().optional().default(true),
+  }).passthrough(),
+});
+
+export const updateEventAreaSchema = z.object({
+  action: z.literal('updateEventArea'),
+  id: z.string().min(1, 'Area ID is required'),
+  data: z.object({}).passthrough(),
+});
+
+export const deleteEventAreaSchema = z.object({
+  action: z.literal('deleteEventArea'),
+  id: z.string().min(1, 'Area ID is required'),
+});
+
+export const createAreaPhotoSchema = z.object({
+  action: z.literal('createAreaPhoto'),
+  data: z.object({
+    url: z.string().min(1),
+    caption: z.string().optional().default(''),
+    area_id: z.string().min(1),
+  }).passthrough(),
+});
+
+export const deleteAreaPhotoSchema = z.object({
+  action: z.literal('deleteAreaPhoto'),
+  id: z.string().min(1),
+});
+
+export const updateAreaPhotoOrderSchema = z.object({
+  action: z.literal('updateAreaPhotoOrder'),
+  data: z.array(z.object({
+    id: z.string(),
+    sortOrder: z.number(),
+  })),
+});
+
 // Registration schemas
 export const readRegistrationsSchema = z.object({
   action: z.literal('readRegistrations'),
@@ -263,6 +308,12 @@ export const ACTION_SCHEMAS: Record<string, z.ZodType> = {
   deleteEventPhoto: deleteEventPhotoSchema,
   readRegistrations: readRegistrationsSchema,
   updateRegistrationStatus: updateRegistrationStatusSchema,
+  createEventArea: createEventAreaSchema,
+  updateEventArea: updateEventAreaSchema,
+  deleteEventArea: deleteEventAreaSchema,
+  createAreaPhoto: createAreaPhotoSchema,
+  deleteAreaPhoto: deleteAreaPhotoSchema,
+  updateAreaPhotoOrder: updateAreaPhotoOrderSchema,
 };
 
 // ─── Typed client errors ─────────────────────────────────────────

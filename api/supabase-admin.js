@@ -535,6 +535,69 @@ export default async function handler(req, res) {
         result = { success: true };
         break;
       }
+      // ---- Foto Area Event ----
+      case 'createEventArea': {
+        const { data, error } = await sb.from('event_areas').insert(req.body.data).select('id').single();
+        if (error) throw error;
+        result = { success: true, id: data.id };
+        await logActivity(authInfo, 'create_event_area', 'event_area', data.id, { name: req.body.data?.name }, req);
+        break;
+      }
+      case 'updateEventArea': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID area wajib diisi' });
+        const { error } = await sb.from('event_areas').update(req.body.data).eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'update_event_area', 'event_area', req.body.id, { fields: Object.keys(req.body.data || {}) }, req);
+        break;
+      }
+      case 'deleteEventArea': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID area wajib diisi' });
+        // Fetch all photo URLs before deleting DB rows
+        const { data: photos } = await sb.from('area_photos').select('id, url').eq('area_id', req.body.id);
+        // Delete photo rows from DB
+        const { error: photoDeleteErr } = await sb.from('area_photos').delete().eq('area_id', req.body.id);
+        if (photoDeleteErr) throw photoDeleteErr;
+        // Delete files from R2 (fire-and-forget per file, don't block on failures)
+        if (photos && photos.length > 0) {
+          await Promise.allSettled(photos.map(p => deleteR2File(p.url)));
+        }
+        const { error } = await sb.from('event_areas').delete().eq('id', req.body.id);
+        if (error) throw error;
+        result = { success: true };
+        await logActivity(authInfo, 'delete_event_area', 'event_area', req.body.id, null, req);
+        break;
+      }
+      case 'createAreaPhoto': {
+        const { data: maxData } = await sb.from('area_photos').select('sort_order').eq('area_id', req.body.data.area_id).order('sort_order', { ascending: false }).limit(1);
+        const nextOrder = (maxData?.[0]?.sort_order ?? -1) + 1;
+        const photoRow = { ...req.body.data, sort_order: nextOrder };
+        const { data, error } = await sb.from('area_photos').insert(photoRow).select('id, sort_order').single();
+        if (error) throw error;
+        result = { success: true, id: data.id, sortOrder: data.sort_order };
+        break;
+      }
+      case 'deleteAreaPhoto': {
+        if (!req.body.id) return res.status(400).json({ success: false, error: 'ID foto wajib diisi' });
+        const { data: existing } = await sb.from('area_photos').select('url').eq('id', req.body.id).single();
+        const { error } = await sb.from('area_photos').delete().eq('id', req.body.id);
+        if (error) throw error;
+        await deleteR2File(existing?.url || '');
+        result = { success: true };
+        break;
+      }
+      case 'updateAreaPhotoOrder': {
+        const updates = req.body.data;
+        if (!Array.isArray(updates)) {
+          result = { success: false, error: 'Data tidak valid' };
+          break;
+        }
+        await Promise.all(updates.map(item =>
+          sb.from('area_photos').update({ sort_order: item.sortOrder }).eq('id', item.id)
+        ));
+        result = { success: true };
+        break;
+      }
       case 'linkAlbumToEvent': {
         const albumId = req.body.id || req.body.albumId;
         const eventId = req.body.eventId || req.body.event_id;

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
-import { EventItem, PhotoAlbum } from '../types';
+import { EventItem, PhotoAlbum, EventArea } from '../types';
 import { filterUpcomingForMonth } from './community/upcomingFilter';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CommunityHero } from './community/CommunityHero';
 import { CommunityBenefits } from './community/CommunityBenefits';
 import { CommunityFacilities } from './community/CommunityFacilities';
+import { CommunityEventAreas } from './community/CommunityEventAreas';
 import { CommunitySteps } from './community/CommunitySteps';
 import { CommunityRegistrationForm } from './community/CommunityRegistrationForm';
 import { CommunityFAQ } from './community/CommunityFAQ';
@@ -43,6 +44,7 @@ interface CommunityLandingProps {
   onEventDetail?: (ev: EventItem) => void;
   heroImageUrl?: string;
   albums?: PhotoAlbum[];
+  areas?: EventArea[];
   isLoading?: boolean;
   stats?: CommunityStats;
 }
@@ -50,6 +52,7 @@ interface CommunityLandingProps {
 const NAV_ITEMS = [
   { href: '#upcoming-events', label: 'Event' },
   { href: '#benefits', label: 'Keuntungan' },
+  { href: '#areas', label: 'Area' },
   { href: '#how', label: 'Cara Daftar' },
   { href: '#faq', label: 'FAQ' },
   { href: '#gallery', label: 'Galeri' },
@@ -58,7 +61,7 @@ const NAV_ITEMS = [
   { href: '#register', label: 'Daftar' },
   { href: '#contact', label: 'Kontak' },
 ] as const;
-export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], isLoading = false, stats }: CommunityLandingProps) {
+export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
@@ -239,6 +242,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} isLoading={isLoading} />
         <CommunityBenefits />
         <CommunityFacilities />
+        <CommunityEventAreas areas={areas} isLoading={isLoading} />
         <CommunitySteps />
         <CommunityFAQ />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />

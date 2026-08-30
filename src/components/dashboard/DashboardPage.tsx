@@ -160,6 +160,7 @@ export interface DashboardPageSiteSettings {
   showAlbumManager: boolean;       setShowAlbumManager: (v: boolean) => void;
   showNewsManager: boolean;        setShowNewsManager: (v: boolean) => void;
   showSponsorManager: boolean;     setShowSponsorManager: (v: boolean) => void;
+  showEventAreaManager: boolean;   setShowEventAreaManager: (v: boolean) => void;
 }
 
 export interface DashboardPageProps {
@@ -213,6 +214,7 @@ export function DashboardPage({
       onOpenAlbumManager={() => siteSettings.setShowAlbumManager(true)}
       onOpenNewsManager={() => siteSettings.setShowNewsManager(true)}
       onOpenSponsorManager={() => siteSettings.setShowSponsorManager(true)}
+      onOpenEventAreaManager={() => siteSettings.setShowEventAreaManager(true)}
       onOpenLetterPicker={handlers.handleOpenLetterPicker}
       onLoginClick={() => modalState.setShowLoginModal(true)}
       ongoingCount={events.visibleStats.ongoing}
@@ -270,6 +272,8 @@ export function DashboardPage({
           onCloseNewsManager={() => siteSettings.setShowNewsManager(false)}
           showSponsorManager={siteSettings.showSponsorManager}
           onCloseSponsorManager={() => siteSettings.setShowSponsorManager(false)}
+          showEventAreaManager={siteSettings.showEventAreaManager}
+          onCloseEventAreaManager={() => siteSettings.setShowEventAreaManager(false)}
           pastEvents={events.events.filter(e => e.status === 'past')}
           annualThemes={events.annualThemes}
           showRegDetail={registrations.showRegDetail}
