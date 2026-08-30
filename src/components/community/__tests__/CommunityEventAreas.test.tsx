@@ -69,17 +69,19 @@ describe('CommunityEventAreas', () => {
       mockFetchAreaPhotos.mockReset();
     });
 
-    it('clicking a card with photos opens lightbox showing the first photo', async () => {
+    it('clicking a card with photos opens lightbox showing the first photo (photo only, no filename caption)', async () => {
       mockFetchAreaPhotos.mockResolvedValue(AREA_PHOTOS);
       render(<CommunityEventAreas areas={AREAS} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'Lihat 7 foto Panggung Lt. 3' }));
 
       expect(mockFetchAreaPhotos).toHaveBeenCalledWith('era_1');
-      const dialog = await screen.findByRole('dialog');
+      const dialog = await screen.findByRole('dialog', { name: 'Foto: Panggung Lt. 3' });
       expect(dialog).toHaveAttribute('aria-modal', 'true');
-      expect(await screen.findByText('Suasana panggung')).toBeInTheDocument();
-      expect(screen.getByText('1 / 2')).toBeInTheDocument();
+      expect(await screen.findByText('1 / 2')).toBeInTheDocument();
+      // Caption (nama file) tidak ditampilkan — hanya foto + counter
+      expect(screen.queryByText('Suasana panggung')).not.toBeInTheDocument();
+      expect(dialog.querySelector('img')).toHaveAttribute('alt', 'Panggung Lt. 3 — 1');
     });
 
     it('navigates to the next photo and closes with Escape', async () => {
@@ -87,11 +89,10 @@ describe('CommunityEventAreas', () => {
       render(<CommunityEventAreas areas={AREAS} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'Lihat 7 foto Panggung Lt. 3' }));
-      await screen.findByText('Suasana panggung');
+      await screen.findByText('1 / 2');
 
       fireEvent.click(screen.getByRole('button', { name: 'Foto berikutnya' }));
-      expect(screen.getByText('View dari samping')).toBeInTheDocument();
-      expect(screen.getByText('2 / 2')).toBeInTheDocument();
+      expect(await screen.findByText('2 / 2')).toBeInTheDocument();
 
       fireEvent.keyDown(window, { key: 'Escape' });
       await waitFor(() => {

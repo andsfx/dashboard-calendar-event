@@ -159,6 +159,8 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             <PhotoLightbox
               photos={photos}
               currentIndex={lightbox.index}
+              hideCaption
+              title={lightboxArea.name}
               onClose={closeLightbox}
               onPrev={() => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + photos.length) % photos.length } : lb)}
               onNext={() => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % photos.length } : lb)}

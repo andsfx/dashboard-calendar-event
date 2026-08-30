@@ -10,12 +10,16 @@ export interface LightboxPhoto {
 }
 
 /* ─── Standalone Lightbox (shared: galeri publik + foto area event) ─── */
-export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }: {
+export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, hideCaption = false, title }: {
   photos: LightboxPhoto[];
   currentIndex: number;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  /** Sembunyikan caption & tanggal (mis. caption area = nama file mentah); counter tetap tampil. */
+  hideCaption?: boolean;
+  /** Judul aksesibilitas dialog saat caption disembunyikan (mis. nama area). */
+  title?: string;
 }) {
   const photo = photos[currentIndex];
   const lightboxRef = useRef<HTMLDivElement>(null);
@@ -67,7 +71,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }:
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={`Foto: ${photo.caption}`}
+      aria-label={hideCaption ? `Foto: ${title || photo.caption}` : `Foto: ${photo.caption}`}
     >
       {/* Close button */}
       <button
@@ -103,14 +107,14 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext }:
       <div className="max-w-4xl px-16" onClick={(e) => e.stopPropagation()}>
         <img
           src={lightboxUrl(photo.url)}
-          alt={photo.caption}
+          alt={hideCaption ? `${title || 'Foto'} — ${currentIndex + 1}` : photo.caption}
           className="max-h-[80vh] w-full rounded-lg object-contain"
           onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
         />
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-white">{photo.caption}</p>
-          {photo.eventDate && <p className="mt-1 text-sm text-white/60">{photo.eventDate}</p>}
-          <p className="mt-2 text-xs text-white/40">{currentIndex + 1} / {photos.length}</p>
+          {!hideCaption && <p className="text-lg font-semibold text-white">{photo.caption}</p>}
+          {!hideCaption && photo.eventDate && <p className="mt-1 text-sm text-white/60">{photo.eventDate}</p>}
+          <p className="text-xs text-white/40">{currentIndex + 1} / {photos.length}</p>
         </div>
       </div>
     </div>
