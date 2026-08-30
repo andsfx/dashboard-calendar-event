@@ -49,6 +49,9 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - Statistik (total, berlangsung, mendatang, selesai)
 - Tema tahunan (quarter timeline)
 - **Community Hub** + **Jadwal publik** (`/events`) + unduh PDF jadwal
+- **Foto Area Event** di landing — kartu area bisa diklik, membuka lightbox galeri foto (prev/next, Escape untuk tutup)
+- **Direktori Komunitas** publik (`/community`) — EO/komunitas yang pernah buat event, statistik & aktivitas
+- Halaman pendaftaran publik **`/daftar`** — form pengajuan event komunitas + upload proposal; form landing di community hub mengarah ke sini
 - **Gallery** album foto
 - **Survey Kepuasan** (pengunjung/organizer) — terpisah dari **Evaluasi Tenant**
 - **Superadmin** — user management, activity log
@@ -59,6 +62,8 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - Status Event dihitung dari tanggal (bukan workflow manual)
 - Surat: generator PDF → **GeneratedLetter** (Supabase); bukan Google Apps Script
 - Pendaftaran komunitas: approve **tidak** auto-buat Draft (CTA manual “Buat Draft dari pendaftaran”)
+- **Foto Area Event** — CRUD area & foto (cover, urutan, aktif/nonaktif); yang aktif tampil di landing
+- Event bisa dikaitkan ke **organisasi terdaftar** (dropdown pencarian EO; nama organisasi terisi otomatis)
 
 ## Cara Menjalankan
 
