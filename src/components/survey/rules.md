@@ -18,7 +18,6 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Role | Path |
 |------|------|
 | Public form | `src/components/survey/TenantSurveyPublicPage.tsx` |
-| Public event picker | `src/components/survey/TenantSurveyEventPicker.tsx` |
 | Shared UI (RadioGroup, TenantSearchSelect, helpers) | `src/components/survey/TenantSurveyShared.tsx` |
 | Dashboard shell (ops) | `src/components/survey/TenantSurveyPage.tsx` |
 | TR / admin results (read-only) | `src/components/survey/TenantSurveyResultsPage.tsx` |
@@ -65,10 +64,7 @@ Display legacy: pakai `isV3Survey` (`src/utils/surveyUtils.ts`). Jangan hapus ko
 ## Public flow (no login)
 
 ```
-/tenant-survey
-  → TenantSurveyEventPicker
-  → GET /api/tenant-survey?mode=public&action=events
-
+/tenant-survey  → redirect ke /events (event landing; daftar event via EventsLandingPage)
 /tenant-survey/:eventId
   → TenantSurveyPublicPage
   → event-info + check(fingerprint) + tenants(search)
