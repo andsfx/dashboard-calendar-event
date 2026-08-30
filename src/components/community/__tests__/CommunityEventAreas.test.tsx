@@ -1,8 +1,21 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { CommunityEventAreas } from '../CommunityEventAreas';
-import type { EventArea } from '../../../types';
+import type { AreaPhoto, EventArea } from '../../../types';
+import { fetchAreaPhotos } from '../../../utils/supabaseApi';
+
+vi.mock('../../../utils/supabaseApi', async (orig) => ({
+  ...(await orig()),
+  fetchAreaPhotos: vi.fn(),
+}));
+
+const mockFetchAreaPhotos = vi.mocked(fetchAreaPhotos);
+
+const AREA_PHOTOS: AreaPhoto[] = [
+  { id: 'aph_1', url: 'https://cdn.example.com/areas/1.jpg', caption: 'Suasana panggung', areaId: 'era_1', sortOrder: 0 },
+  { id: 'aph_2', url: 'https://cdn.example.com/areas/2.jpg', caption: 'View dari samping', areaId: 'era_1', sortOrder: 1 },
+];
 
 const AREAS: EventArea[] = [
   {
@@ -49,5 +62,57 @@ describe('CommunityEventAreas', () => {
   it('renders nothing when no active areas and not loading', () => {
     const { container } = render(<CommunityEventAreas areas={[]} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  describe('klik kartu membuka lightbox', () => {
+    beforeEach(() => {
+      mockFetchAreaPhotos.mockReset();
+    });
+
+    it('clicking a card with photos opens lightbox showing the first photo', async () => {
+      mockFetchAreaPhotos.mockResolvedValue(AREA_PHOTOS);
+      render(<CommunityEventAreas areas={AREAS} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Lihat 7 foto Panggung Lt. 3' }));
+
+      expect(mockFetchAreaPhotos).toHaveBeenCalledWith('era_1');
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+      expect(await screen.findByText('Suasana panggung')).toBeInTheDocument();
+      expect(screen.getByText('1 / 2')).toBeInTheDocument();
+    });
+
+    it('navigates to the next photo and closes with Escape', async () => {
+      mockFetchAreaPhotos.mockResolvedValue(AREA_PHOTOS);
+      render(<CommunityEventAreas areas={AREAS} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Lihat 7 foto Panggung Lt. 3' }));
+      await screen.findByText('Suasana panggung');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Foto berikutnya' }));
+      expect(screen.getByText('View dari samping')).toBeInTheDocument();
+      expect(screen.getByText('2 / 2')).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
+    it('fetch resolves empty → lightbox closes without dialog', async () => {
+      mockFetchAreaPhotos.mockResolvedValue([]);
+      render(<CommunityEventAreas areas={AREAS} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Lihat 7 foto Panggung Lt. 3' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
+    it('card without photos is not clickable', () => {
+      render(<CommunityEventAreas areas={AREAS} />);
+      expect(screen.queryByRole('button', { name: /foto Atrium 2/ })).not.toBeInTheDocument();
+      expect(mockFetchAreaPhotos).not.toHaveBeenCalled();
+    });
   });
 });
