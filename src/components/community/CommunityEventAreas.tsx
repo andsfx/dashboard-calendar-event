@@ -74,7 +74,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             Arena di Metropolitan Mall.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
-            Masih bingung milih spot buat acaramu? Klik kartunya, lihat dulu kondisi tiap area.
+            Masih bingung milih spot buat acaramu? Lihat area lebih detail di sini.
           </p>
         </div>
 
