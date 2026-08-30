@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, Loader2, MapPin } from 'lucide-react';
 import type { AreaPhoto, EventArea } from '../../types';
 import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
@@ -142,11 +143,12 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
           </div>
         )}
 
-        {/* Lightbox foto area — klik kartu */}
-        {lightboxVisible && lightboxArea && (
+        {/* Lightbox foto area — klik kartu (portal ke body: RevealSection pakai transform,
+            tanpa portal overlay fixed terjebak di dalam section & tidak menutupi header) */}
+        {lightboxVisible && lightboxArea && createPortal(
           lightboxLoading ? (
             <div
-              className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-slate-950/70 backdrop-blur-xl"
+              className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-slate-950/85"
               onClick={closeLightbox}
               role="dialog"
               aria-modal="true"
@@ -165,7 +167,8 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
               onPrev={() => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + photos.length) % photos.length } : lb)}
               onNext={() => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % photos.length } : lb)}
             />
-          )
+          ),
+          document.body
         )}
       </div>
     </RevealSection>

@@ -67,7 +67,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
   return (
     <div
       ref={lightboxRef}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 backdrop-blur-xl"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/85"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
