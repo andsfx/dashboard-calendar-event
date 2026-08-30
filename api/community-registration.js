@@ -454,10 +454,16 @@ export default async function handler(req, res) {
       errors.organization_name = orgNameResult.error;
     }
 
-    // 3. pic (required)
+        // 3. pic (required)
     const picResult = validatePic(body.pic);
     if (!picResult.valid) {
       errors.pic = picResult.error;
+    }
+    
+    // 4. phone (required)
+    const phoneResult = validatePhone(body.phone);
+    if (!phoneResult.valid) {
+      errors.phone = phoneResult.error;
     }
     
     // 5. email (optional)
