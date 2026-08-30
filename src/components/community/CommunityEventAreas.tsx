@@ -146,7 +146,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
         {lightboxVisible && lightboxArea && (
           lightboxLoading ? (
             <div
-              className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-black/90 backdrop-blur-sm"
+              className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-3 bg-slate-950/70 backdrop-blur-xl"
               onClick={closeLightbox}
               role="dialog"
               aria-modal="true"
