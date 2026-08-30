@@ -121,7 +121,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
       </RevealSection>
     );
   }
-  const otherEvents = events.slice(1);
+  const otherEvents = events.slice(1, 3);
 
   // Derive category color from mainEvent
   const mainCat = (mainEvent.categories?.length ? mainEvent.categories[0] : mainEvent.category) || 'Umum';

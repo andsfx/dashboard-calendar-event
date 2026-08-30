@@ -78,17 +78,17 @@ export function CommunityHero({ heroImageUrl, stats, isLoading = false }: Commun
 
           <div className="community-hero-in community-hero-in-d3 mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start">
             <a
-              href="#register"
+              href="/daftar"
               className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
             >
               Daftar Sekarang
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
             </a>
             <a
-              href="#benefits"
+              href="#register"
               className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
             >
-              Lihat Keuntungan
+              Isi Form di Halaman Ini
             </a>
           </div>
 
