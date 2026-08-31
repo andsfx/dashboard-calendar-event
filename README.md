@@ -54,6 +54,7 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - Halaman pendaftaran publik **`/daftar`** — form pengajuan event komunitas + upload proposal; form landing di community hub mengarah ke sini
 - **Gallery** album foto
 - **Survey Kepuasan** (pengunjung/organizer) — terpisah dari **Evaluasi Tenant**
+- **Evaluasi Tenant** (`/tenant-survey`) — self-assessment anonim tenant untuk event; picker event → form publik (`/tenant-survey/:eventId`) tanpa login; hasil agregat publik `/tenant-survey-results`
 - **Superadmin** — user management, activity log
 
 ### Admin Mode
@@ -81,15 +82,20 @@ npm run build
 ## Testing
 
 ```bash
-# Run tests in watch mode
+# Watch mode
 npm run test
 
-# Run tests with UI
+# UI mode
 npm run test:ui
 
-# Generate coverage report
+# Coverage
 npm run test:coverage
+
+# Sekali jalan (tanpa watch) — penting di Windows:
+NODE_ENV=test npx vitest run
 ```
+
+Unit (vitest) men-cover domain guards: status derive, publish Draft, permission matrix, letter no-GAS, schedule PDF filter, dsb.
 
 ## Domain docs (bahasa bersama)
 
@@ -99,25 +105,25 @@ npm run test:coverage
 - [docs/tickets/](./docs/tickets/) — board T-* / H-*
 - [docs/adr/](./docs/adr/) — keputusan keras (Draft/Event, status, registration, letter)
 
-## Testing
-
-Unit (vitest) cover domain guards: status derive, publish Draft, permission matrix, letter no-GAS, schedule PDF filter, dsb.
-
-```bash
-npx vitest run --dir src --maxWorkers=2
-```
-
 ## Konfigurasi
-
-Buat file `.env` dengan:
+Env var **client** (Vite, prefix `VITE_`) — buat file `.env` di root:
 
 ```env
 VITE_SUPABASE_URL=YOUR_SUPABASE_URL
 VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
-VITE_R2_ACCESS_KEY_ID=YOUR_R2_ACCESS_KEY_ID
-VITE_R2_SECRET_ACCESS_KEY=YOUR_R2_SECRET_ACCESS_KEY
-VITE_R2_BUCKET_NAME=YOUR_R2_BUCKET_NAME
-VITE_R2_ENDPOINT=YOUR_R2_ENDPOINT
+VITE_R2_PUBLIC_URL=YOUR_R2_PUBLIC_URL
+# Opsional — auto-login saat dev:
+# VITE_DEV_AUTO_LOGIN=true
+```
+
+Env var **server-only** (secret, set di Vercel / `.env.supabase`, jangan commit):
+
+```env
+SUPABASE_SERVICE_ROLE_KEY
+R2_ACCOUNT_ID   R2_ACCESS_KEY_ID   R2_SECRET_ACCESS_KEY
+R2_BUCKET_NAME  R2_PUBLIC_URL
+ADMIN_PASSWORD  ADMIN_SESSION_TOKEN  ALLOW_LEGACY_ADMIN
+APPS_SCRIPT_URL ADMIN_API_TOKEN      APIFY_API_TOKEN  MID_API_KEY
 ```
 
 ## Struktur Folder
@@ -138,8 +144,9 @@ src/
 
 ## Demo
 
-- [Live Demo](https://metmal-community-hub.vercel.app/)
-- [Admin Dashboard](https://metmal-community-hub.vercel.app/dashboard)
+- [Live Demo](https://www.metmalcommunityspace.web.id/)
+- [Jadwal Event](https://www.metmalcommunityspace.web.id/events)
+- [Admin Dashboard](https://www.metmalcommunityspace.web.id/dashboard)
 
 ## Lisensi
 
