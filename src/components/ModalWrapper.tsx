@@ -58,8 +58,13 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     if (shouldRender || !triggerRef.current) return;
     const target = triggerRef.current;
     triggerRef.current = null;
-    // Defer focus restoration so it runs after the DOM settles post-animation
+    // Defer focus restoration so it runs after the DOM settles post-animation.
+    // Skip restoration when another dialog took focus in the meantime (modal chain:
+    // detail → edit/delete opens a new modal; its auto-focus already owns the user).
     requestAnimationFrame(() => {
+      const current = document.activeElement;
+      const focusTaken = current instanceof HTMLElement && current.closest('[role="dialog"]');
+      if (focusTaken) return;
       if (document.contains(target)) target.focus();
     });
   }, [shouldRender]);
@@ -91,9 +96,13 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     const panel = panelRef.current;
     const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-    // Auto-focus first focusable element
+    // Focus the dialog panel itself (tabIndex=-1) so screen readers announce the
+    // dialog's accessible name first, then the first focusable control.
+    panel.focus();
     const firstFocusable = panel.querySelector<HTMLElement>(focusableSelector);
-    (firstFocusable ?? panel).focus();
+    if (document.activeElement === panel && firstFocusable) {
+      firstFocusable.focus({ preventScroll: true });
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;

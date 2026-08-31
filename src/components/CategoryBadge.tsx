@@ -10,9 +10,10 @@ const DARK_TEXT_CATEGORIES = new Set([
   'Olahraga',   // #22c55e (green)
   'Seni',       // #f97316 (orange)
   'Workshop',   // #06b6d4 (cyan — light, needs dark text)
+  'Seminar',    // #3b82f6 (blue-500 — white on it = 3.68:1 < AA)
+  'Kompetisi',  // #f43f5e (rose-500 — white on it = 3.67:1 < AA)
   'Pameran',    // #10b981 (emerald — light, needs dark text)
-  'Hiburan',    // #0ea5e9 (sky blue — light, needs dark text)
-  'Sosial',     // #14b8a6 (teal — light, needs dark text)
+  'Hiburan',    // #0ea5e9 (sky-500 — white on it = 2.77:1, worst offender)
 ]);
 
 export const CategoryBadge = memo(function CategoryBadge({ category }: { category: string }) {

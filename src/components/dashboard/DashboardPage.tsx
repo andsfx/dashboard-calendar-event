@@ -290,6 +290,7 @@ export function DashboardPage({
         searchQuery={filters.searchQuery}
         onSearchChange={filters.setSearchQuery}
         onAddNew={permissions.canEditEvents ? handlers.handleAddNew : undefined}
+        stats={{ total: events.visibleStats.total, ongoing: events.visibleStats.ongoing }}
       />
 
       {/* 1. Overview */}

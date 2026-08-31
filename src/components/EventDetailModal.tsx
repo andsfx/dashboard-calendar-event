@@ -54,7 +54,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
-      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden">
+      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         {/* Color accent header */}
         <div
           className="relative px-4 pb-5 pt-6 sm:px-6"

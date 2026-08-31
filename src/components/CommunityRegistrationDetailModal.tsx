@@ -162,7 +162,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <h2 id="reg-detail-title" className="font-bold text-slate-800 dark:text-white">
                 Detail Pendaftaran
               </h2>
-              <p className="truncate text-xs text-slate-400">{registration.organizationName || registration.communityName}</p>
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">{registration.organizationName || registration.communityName}</p>
             </div>
           </div>
         </div>

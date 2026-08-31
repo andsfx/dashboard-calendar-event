@@ -25,6 +25,11 @@ function useCountUp(target: number, duration = 800, delay = 0) {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // Respect prefers-reduced-motion: jump straight to the final value
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCount(target);
+      return;
+    }
     const timeout = setTimeout(() => {
       const start = performance.now();
       const tick = (now: number) => {

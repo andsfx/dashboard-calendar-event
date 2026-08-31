@@ -161,7 +161,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={previewUrl ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
-      <div className="overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
+      <div className="max-h-[90vh] overflow-y-auto rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-500">Laporan PDF</p>

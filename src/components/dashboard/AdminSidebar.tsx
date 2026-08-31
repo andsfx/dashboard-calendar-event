@@ -51,9 +51,18 @@ export const AdminSidebar = memo(function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const asideRef = useRef<HTMLElement>(null);
   const wasOpenRef = useRef(false);
+
+  // Track lg breakpoint so `inert` only applies to the closed mobile drawer
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   const navGroups = useMemo(() => getDashboardNavGroups(permissions, {
     onOpenInstagramSettings,
     onOpenAlbumManager,
@@ -144,7 +153,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">
         {navGroups.map((group, groupIdx) => (
           <div key={groupIdx}>
-            <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
               {group.label}
             </h3>
             <div className="space-y-1">
@@ -213,7 +222,7 @@ export const AdminSidebar = memo(function AdminSidebar({
               <p className="truncate text-xs font-semibold text-slate-700 dark:text-slate-300">
                 {user?.display_name || 'Admin'}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-slate-600 dark:text-slate-300">
                 {isSuperadmin ? 'Superadmin' : isLegacy ? 'Admin (legacy)' : 'Administrator'}
               </p>
             </div>
@@ -247,10 +256,12 @@ export const AdminSidebar = memo(function AdminSidebar({
       </button>
 
       {isMobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+        <button
+          type="button"
           onClick={closeMobile}
-          aria-hidden="true"
+          className="fixed inset-0 z-40 h-full w-full cursor-default bg-black/50 backdrop-blur-sm lg:hidden"
+          aria-label="Tutup menu"
+          tabIndex={-1}
         />
       )}
 
@@ -261,6 +272,7 @@ export const AdminSidebar = memo(function AdminSidebar({
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Menu admin"
+        inert={!isMobileOpen && !isDesktop}
       >
         {sidebarContent}
       </aside>

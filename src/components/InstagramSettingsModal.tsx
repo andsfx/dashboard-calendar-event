@@ -97,9 +97,10 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg" ariaLabelledBy="instagram-settings-title">
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         <ModalHeader
+          titleId="instagram-settings-title"
           title="Landing Page Settings"
           subtitle="Hero background & Instagram gallery"
           icon={<Settings />}

@@ -115,7 +115,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     <div className="min-w-0">
                       <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-400">{ev.keterangan}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{ev.keterangan}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -141,7 +141,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                      <div className="flex items-center gap-1.5">
                        <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                        <span>{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</span>
-                       {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-slate-400">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
+                       {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-slate-500 dark:text-slate-400">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
                      </div>
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
@@ -187,11 +187,11 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[750px] text-sm">
           <caption className="sr-only">Tabel jadwal event</caption>
-          <thead>
-            <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
+          <thead className="sticky top-0 z-10 bg-[var(--brand-card-light)] dark:bg-[#1a241e]">
+            <tr className="ui-dashboard-muted border-b border-black/[0.08] dark:border-slate-700">
               <th className="px-4 py-3 text-left">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide ui-text-muted">
-                  <ArrowUpDown className="h-3 w-3" /> Tanggal
+                  <ArrowUpDown className="h-3 w-3" aria-hidden="true" /> Tanggal
                 </span>
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Waktu</th>
@@ -229,7 +229,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                       ) : (
                         <>
                           <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{ev.day}</div>
-                          <div className="text-xs text-slate-400">{ev.tanggal}</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">{ev.tanggal}</div>
                         </>
                       )}
                     </td>
@@ -244,7 +244,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     <td className="px-4 py-3">
                       <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">{ev.keterangan}</p>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-slate-500 dark:text-slate-400">{ev.keterangan}</p>
                       )}
                       {isAdmin && (
                         <div className="mt-1">
@@ -295,7 +295,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                           type="button"
                           onClick={() => onDetail(ev)}
                           aria-label="Lihat detail"
-                          className="ui-focus-ring rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400"
+                          className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
@@ -306,7 +306,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                               type="button"
                               onClick={() => onEdit(ev)}
                               aria-label='Ubah acara'
-                              className="ui-focus-ring rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
@@ -316,7 +316,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                               type="button"
                               onClick={() => onDelete(ev)}
                               aria-label="Hapus acara"
-                              className="ui-focus-ring rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
@@ -334,7 +334,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
       </div>
       {/* Footer */}
       <div className="ui-dashboard-muted flex items-center justify-between border-t border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-        <p className="text-xs text-slate-400">Menampilkan {events.length} acara</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Menampilkan {events.length} acara</p>
         {isAdmin && (
           <button
             type="button"

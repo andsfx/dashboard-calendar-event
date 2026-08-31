@@ -515,15 +515,15 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
         </div>
       </div>
 
-      <ModalWrapper isOpen={isDayPopupOpen} onClose={() => setSelectedDate(null)} maxWidth="max-w-2xl">
+      <ModalWrapper isOpen={isDayPopupOpen} onClose={() => setSelectedDate(null)} maxWidth="max-w-2xl" ariaLabelledBy="calendar-day-title">
         <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
             <div>
-              <p className="font-bold text-slate-800 dark:text-white">Agenda Tanggal</p>
-              <p className="text-xs text-slate-400">{selectedDayTitle}</p>
+              <p id="calendar-day-title" className="font-bold text-slate-800 dark:text-white">Agenda {selectedDayTitle}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
             </div>
-            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700">
-              <X className="h-4 w-4" />
+            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup">
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
@@ -531,7 +531,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
             <section className="space-y-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                <p className="text-xs text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
               </div>
 
               {selectedDayEvents.length > 0 ? (

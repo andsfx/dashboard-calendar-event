@@ -53,7 +53,7 @@ export function ModalHeader({
             {title}
           </p>
           {subtitle != null && subtitle !== '' && (
-            <p className="truncate text-xs text-slate-400">{subtitle}</p>
+            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
           )}
         </div>
       </div>

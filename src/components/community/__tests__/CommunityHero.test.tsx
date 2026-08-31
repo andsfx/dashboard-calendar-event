@@ -15,7 +15,7 @@ describe('CommunityHero', () => {
   it('renders CTA buttons', () => {
     render(<CommunityHero />)
     expect(screen.getByText('Daftar Sekarang')).toBeInTheDocument()
-    expect(screen.getByText('Lihat Keuntungan')).toBeInTheDocument()
+    expect(screen.getByText('Isi Form di Halaman Ini')).toBeInTheDocument()
   })
 
   it('renders quick stats', () => {

@@ -167,46 +167,49 @@ export function DashboardViewsSection(props: Props) {
         </div>
       )}
 
-      {!error && visibleEvents.length === 0 && visibleStats.total > 0 && (
-        <div className="ui-empty-panel flex flex-col items-center gap-3 py-16">
-          <SearchX className="h-10 w-10 text-slate-400" />
-          <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
-          <p className="text-sm text-slate-400">Coba ubah atau reset filter.</p>
-          <button
-            onClick={resetFilters}
-            className="ui-focus-ring mt-1 rounded-xl bg-brand-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-primary-700"
-          >
-            Reset Filter
-          </button>
-        </div>
-      )}
 
-      {(!error && (visibleEvents.length > 0 || visibleStats.total === 0)) && (
+      {!error && (
         <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="ui-focus-ring-panel">
-          {viewMode === 'table' && (
-            <EventTable
-              events={visibleEvents}
-              isAdmin={isAdmin}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onDetail={onDetail}
-            />
-          )}
-          {canUseCalendarKanban && viewMode === 'calendar' && (
-            <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
-          )}
-          {canUseCalendarKanban && viewMode === 'kanban' && (
-            <KanbanView
-              events={visibleEvents}
-              isAdmin={isAdmin}
-              showInternalDraftColumn={showInternalDraftFilter}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onDetail={onDetail}
-            />
-          )}
-          {viewMode === 'timeline' && (
-            <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+          {visibleEvents.length === 0 && visibleStats.total > 0 ? (
+            <div className="ui-empty-panel flex flex-col items-center gap-3 py-16" role="status" aria-live="polite">
+              <SearchX className="h-10 w-10 text-slate-400" aria-hidden="true" />
+              <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Coba ubah atau reset filter.</p>
+              <button
+                onClick={resetFilters}
+                className="ui-focus-ring mt-1 rounded-xl bg-brand-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-primary-700"
+              >
+                Reset Filter
+              </button>
+            </div>
+          ) : (
+            <>
+              {viewMode === 'table' && (
+                <EventTable
+                  events={visibleEvents}
+                  isAdmin={isAdmin}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onDetail={onDetail}
+                />
+              )}
+              {canUseCalendarKanban && viewMode === 'calendar' && (
+                <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
+              )}
+              {canUseCalendarKanban && viewMode === 'kanban' && (
+                <KanbanView
+                  events={visibleEvents}
+                  isAdmin={isAdmin}
+                  showInternalDraftColumn={showInternalDraftFilter}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onDetail={onDetail}
+                />
+              )}
+              {viewMode === 'timeline' && (
+                <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
+              )}
+            </>
           )}
         </section>
       )}

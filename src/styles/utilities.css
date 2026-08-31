@@ -67,7 +67,8 @@
 }
 
 .ui-btn-primary {
-  background: var(--brand-tosca);
+  /* AA: white-on-tosca-600 = 5.18:1 (design intent documented in tokens.css) */
+  background: var(--brand-tosca-600);
   color: #fff;
 }
 
@@ -161,7 +162,8 @@
   position: relative;
 }
 
-.tooltip-parent:hover .tooltip-box {
+.tooltip-parent:hover .tooltip-box,
+.tooltip-parent:focus-within .tooltip-box {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;

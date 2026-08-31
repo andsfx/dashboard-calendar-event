@@ -114,7 +114,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {picSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.pic && <p id={picErrorId} className="mt-1 text-xs text-red-500">{errors.pic}</p>}
+          {errors.pic && <p id={picErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.pic}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-phone`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -139,7 +139,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {phoneSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.phone && <p id={phoneErrorId} className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+          {errors.phone && <p id={phoneErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.phone}</p>}
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               </span>
             ))}
           </div>
-          {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-500">{errors.categories}</p>}
+          {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.categories}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-priority`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>

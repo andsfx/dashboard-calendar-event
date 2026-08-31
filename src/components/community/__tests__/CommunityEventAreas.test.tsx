@@ -32,7 +32,7 @@ describe('CommunityEventAreas', () => {
   it('renders heading and visible cards', () => {
     render(<CommunityEventAreas areas={AREAS} />);
     expect(screen.getByText('Foto Area Event')).toBeInTheDocument();
-    expect(screen.getByText('Arena di Metropolitan Mall.')).toBeInTheDocument();
+    expect(screen.getByText('Area di Metropolitan Mall Bekasi')).toBeInTheDocument();
     expect(screen.getByText('Panggung Lt. 3')).toBeInTheDocument();
     expect(screen.getByText('Atrium 2')).toBeInTheDocument();
   });

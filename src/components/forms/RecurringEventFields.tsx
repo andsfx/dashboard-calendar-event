@@ -35,8 +35,9 @@ export function RecurringEventFields({
     <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       {/* Frequency selector */}
       <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
+        <label htmlFor="recurrence-frequency" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Frekuensi</label>
         <select
+          id="recurrence-frequency"
           value={recurrenceFrequency}
           onChange={e => onFieldChange('recurrenceFrequency', e.target.value)}
           className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
@@ -51,8 +52,8 @@ export function RecurringEventFields({
       {/* Days of week for weekly/biweekly */}
       {(recurrenceFrequency === 'weekly' || recurrenceFrequency === 'biweekly') && (
         <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Hari</label>
-          <div className="flex flex-wrap gap-2">
+          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300" id="recurrence-days-label">Hari</label>
+          <div className="flex flex-wrap gap-2" role="group" aria-labelledby="recurrence-days-label" aria-describedby={errors.recurrenceDaysOfWeek ? 'recurrence-days-error' : undefined}>
             {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, idx) => (
               <button
                 key={idx}
@@ -68,7 +69,7 @@ export function RecurringEventFields({
               </button>
             ))}
           </div>
-          {errors.recurrenceDaysOfWeek && <p className="mt-1 text-xs text-red-500">{errors.recurrenceDaysOfWeek}</p>}
+          {errors.recurrenceDaysOfWeek && <p id="recurrence-days-error" className="mt-1 text-xs text-red-500" role="alert">{errors.recurrenceDaysOfWeek}</p>}
         </div>
       )}
 
@@ -103,20 +104,23 @@ export function RecurringEventFields({
 
       {/* End date */}
       <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <label htmlFor="recurrence-end-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
           Sampai tanggal <span className="text-red-500">*</span>
         </label>
         <input
+          id="recurrence-end-date"
           type="date"
           value={recurrenceEndDate}
           onChange={e => onFieldChange('recurrenceEndDate', e.target.value)}
+          aria-invalid={!!errors.recurrenceEndDate || undefined}
+          aria-describedby={errors.recurrenceEndDate ? 'recurrence-end-error' : undefined}
           className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
             errors.recurrenceEndDate
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.recurrenceEndDate && <p className="mt-1 text-xs text-red-500">{errors.recurrenceEndDate}</p>}
+        {errors.recurrenceEndDate && <p id="recurrence-end-error" className="mt-1 text-xs text-red-500" role="alert">{errors.recurrenceEndDate}</p>}
       </div>
 
       {/* Preview */}

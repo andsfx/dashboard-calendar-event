@@ -6,6 +6,7 @@ interface DashboardHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onAddNew?: () => void;
+  stats?: { total: number; ongoing: number };
 }
 
 export function DashboardHeader({
@@ -13,6 +14,7 @@ export function DashboardHeader({
   searchQuery,
   onSearchChange,
   onAddNew,
+  stats,
 }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -22,7 +24,9 @@ export function DashboardHeader({
         </h1>
         <p className="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-400">
           {isAdmin
-            ? '10 acara dalam pipeline · 2 sedang berlangsung'
+            ? stats
+              ? `${stats.total} acara dalam pipeline · ${stats.ongoing} sedang berlangsung`
+              : 'Memuat statistik acara…'
             : 'Jadwal acara publik Metropolitan Mall Bekasi'}
         </p>
       </div>

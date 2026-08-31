@@ -33,20 +33,23 @@ export function MultiDayEventFields({
   return (
     <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <label htmlFor={`${datalistId}-date-end`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
           Tanggal Selesai <span className="text-red-500">*</span>
         </label>
         <input
+          id={`${datalistId}-date-end`}
           type="date"
           value={dateEnd}
           onChange={e => onDateEndChange(e.target.value)}
+          aria-invalid={!!errors.dateEnd || undefined}
+          aria-describedby={errors.dateEnd ? `${datalistId}-date-end-error` : undefined}
           className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${
             errors.dateEnd
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.dateEnd && <p className="mt-1 text-xs text-red-500">{errors.dateEnd}</p>}
+        {errors.dateEnd && <p id={`${datalistId}-date-end-error`} className="mt-1 text-xs text-red-500" role="alert">{errors.dateEnd}</p>}
       </div>
 
       {dayTimeSlots.length > 0 && (

@@ -9,12 +9,18 @@ describe('DashboardHeader', () => {
     searchQuery: '',
     onSearchChange: vi.fn(),
     onAddNew: vi.fn(),
+    stats: { total: 42, ongoing: 7 },
   }
 
-  it('renders admin heading when isAdmin is true', () => {
+  it('renders admin heading with real stats when isAdmin is true', () => {
     render(<DashboardHeader {...mockProps} />)
     expect(screen.getByText('Dashboard Event')).toBeInTheDocument()
-    expect(screen.getByText('10 acara dalam pipeline · 2 sedang berlangsung')).toBeInTheDocument()
+    expect(screen.getByText('42 acara dalam pipeline · 7 sedang berlangsung')).toBeInTheDocument()
+  })
+
+  it('renders loading subtitle when stats not provided', () => {
+    render(<DashboardHeader isAdmin searchQuery="" onSearchChange={vi.fn()} />)
+    expect(screen.getByText('Memuat statistik acara…')).toBeInTheDocument()
   })
 
   it('renders public heading when isAdmin is false', () => {

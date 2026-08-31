@@ -59,7 +59,7 @@ export function ViewToggle({ tabs, viewMode, onSelect, panelId, className = '' }
             className={`ui-focus-ring inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition ${
               active
                 ? 'bg-[var(--brand-card-light)] text-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:bg-slate-700 dark:text-slate-100 dark:shadow-none'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-100'
             }`}
           >
             {tab.icon}

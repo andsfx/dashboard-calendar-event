@@ -16,6 +16,7 @@
   --color-brand-primary-200: #99dfde;
   --color-brand-primary-300: #66cfcd;
   --color-brand-primary-400: #33bfbc;
+  /* M2 fix: CTA surface = 600 (AA 5.18:1 with white); 500 stays decorative/brand accent */
   --color-brand-primary-500: #00918e;
   --color-brand-primary-600: #007a78;
   --color-brand-primary-700: #006260;

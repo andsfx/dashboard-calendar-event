@@ -59,6 +59,27 @@ function sortHighlightCandidates(list: EventItem[]) {
   });
 }
 
+/**
+ * Chip text on a `12`-alpha color wash (e.g. amber #f59e0b at 7% over white)
+ * fails AA at small sizes (~2:1 for amber-500). Darkening 500→700 tone passes.
+ * Map: tosca→dark, pink→700; unknown catColor gets `00` darkened ~45%.
+ */
+function darkenChipText(hex: string): string {
+  const TOSCA = '#00918e';
+  const map: Record<string, string> = {
+    [TOSCA]: 'var(--brand-tosca-dark)',
+    '#e24378': '#a82150',
+    '#f59e0b': '#b45309',
+  };
+  const key = hex.toLowerCase();
+  if (map[key]) return map[key];
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const dark = (v: number) => Math.max(0, Math.round(v * 0.55));
+  return `#${[r, g, b].map(v => dark(v).toString(16).padStart(2, '0')).join('')}`;
+}
+
 function CountdownCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-[color-mix(in_srgb,var(--brand-tosca)_28%,transparent)] bg-[color-mix(in_srgb,var(--brand-tosca)_9%,white)] px-3 py-2.5 text-center dark:border-[color-mix(in_srgb,var(--brand-tosca)_40%,black)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_18%,black)]">
@@ -123,7 +144,8 @@ function HighlightEventCard({
           <span
             className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em]"
             style={{
-              color: catColor,
+              /* amber-500 10px on 7% wash = 2.0:1 fail; 700 passes AA (4.68:1 on wash) */
+              color: isLive ? catColor : darkenChipText(catColor),
               borderColor: `${catColor}40`,
               backgroundColor: `${catColor}12`,
             }}
@@ -176,7 +198,7 @@ function HighlightEventCard({
       <div className="border-t border-black/5 bg-[var(--brand-card-light)] p-6 sm:p-8 dark:border-slate-700 dark:bg-slate-800/60">
         {!isLive && (
           <>
-            <p className="mb-3 text-xs font-bold tracking-wide" style={{ color: catColor }}>
+            <p className="mb-3 text-xs font-bold tracking-wide" style={{ color: darkenChipText(catColor) }}>
               Countdown
             </p>
             <div className="mb-5 grid max-w-sm grid-cols-3 gap-2.5">

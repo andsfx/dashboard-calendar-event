@@ -53,7 +53,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
                 : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
             }`}
           />
-          {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-500">{errors.dateStr}</p>}
+          {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.dateStr}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-time`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jam</label>
@@ -89,7 +89,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.acara && <p id={nameErrorId} className="mt-1 text-xs text-red-500">{errors.acara}</p>}
+        {errors.acara && <p id={nameErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.acara}</p>}
       </div>
 
       {/* Location */}
@@ -114,7 +114,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
         <datalist id={`${datalistId}-lokasi-suggestions`}>
           {lokasiSuggestions.map(item => <option key={item} value={item} />)}
         </datalist>
-        {errors.lokasi && <p id={locationErrorId} className="mt-1 text-xs text-red-500">{errors.lokasi}</p>}
+        {errors.lokasi && <p id={locationErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.lokasi}</p>}
       </div>
     </>
   );
