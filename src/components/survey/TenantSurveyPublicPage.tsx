@@ -282,7 +282,7 @@ export default function TenantSurveyPublicPage() {
           </p>
           <button
             type="button"
-            onClick={() => navigate('/events')}
+            onClick={() => navigate('/tenant-survey')}
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />

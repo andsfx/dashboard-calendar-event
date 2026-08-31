@@ -36,6 +36,7 @@ const RegistrationPage = lazy(() => import('./components/RegistrationPage').then
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
+const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
 const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSurveyResultsPage'));
 function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
@@ -361,8 +362,33 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Public Tenant Self-Assessment: bare /tenant-survey redirects to event landing */}
-      <Route path="/tenant-survey" element={<Navigate to="/events" replace />} />
+      {/* Public Tenant Self-Assessment */}
+      <Route path="/tenant-survey" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
+            <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
+                  <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Evaluasi Tenant</span>
+                </div>
+                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/')} className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400">
+                  <ArrowLeft className="h-4 w-4" />Kembali
+                </button>
+              </div>
+              <div className="ui-dashboard-surface overflow-hidden">
+                <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-white">Evaluasi Dampak Event</h1>
+                  <p className="mt-1 text-sm ui-text-muted">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap gerai Anda.</p>
+                </div>
+                <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
+              </div>
+              <p className="mt-6 text-center text-[11px] text-slate-400 dark:text-slate-500">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
+            </div>
+          </div>
+        </Suspense>
+      } />
       <Route path="/tenant-survey/:eventId" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <TenantSurveyPublicPage />

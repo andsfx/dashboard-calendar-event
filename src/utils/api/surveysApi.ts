@@ -398,6 +398,17 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
   return { ...(data as PublicTenantSurveyEventInfo), is_active: false };
 }
 
+export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurveyEventInfo[]> {
+  try {
+    const res = await fetch('/api/tenant-survey?mode=public&action=events');
+    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.events)) return json.events; }
+  } catch {}
+  const { data, error } = await supabase.from('events').select('id, acara, tanggal, lokasi, eo, status')
+    .in('status', ['past', 'ongoing']).order('tanggal', { ascending: false }).limit(200);
+  if (error || !data) return [];
+  return data as PublicTenantSurveyEventInfo[];
+}
+
 export interface TenantDropdownOption {
   id: string; name: string; floor: string; lot: string; category: string;
   pic: string; picTelp: string; logo: string; status: string; participantEvoucher: string;

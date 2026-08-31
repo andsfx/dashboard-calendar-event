@@ -80,6 +80,7 @@ export {
   fetchPublicTenantSurveyMonthlyTrend,
   fetchTenantSurveyEventSummary,
   fetchPublicTenantSurveyEvent,
+  fetchPublicTenantSurveyEvents,
   fetchTenantDetail,
   fetchActiveTenants,
   fetchTenantRoster,
