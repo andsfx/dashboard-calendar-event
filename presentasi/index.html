@@ -690,66 +690,90 @@
     }
     .notes-overlay.show { display: block; }
     @media print { .notes-toggle, .notes-overlay { display: none !important; } }
-       /* --- FEATURE GRIDS ported from Deck B (fixed px @1920) --- */
-    .parts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 2rem; }
-    .part-card { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 1rem; padding: 1.1rem 1rem; display: flex; flex-direction: column; justify-content: space-between; }
-    .part-card .part-head { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem; }
-    .part-card h4 { margin: 0 0 0.4rem; font-size: 19px; line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); font-family: "Iowan Old Style", Palatino, Georgia, serif; }
-    .part-card p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+    /* --- FEATURE sections (deck B content, deck A scale) --- */
 
-    .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.6rem; }
-    .view-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .view-card .v-glyph { display: grid; place-items: center; height: 3.1rem; border-radius: 0.6rem; background: var(--accent-soft); color: var(--accent-deep); font-size: 20px; font-weight: 700; font-family: "Iowan Old Style", Palatino, Georgia, serif; letter-spacing: -0.04em; }
-    .view-card h3 { margin: 0; font-size: 15px; line-height: 1.2; color: var(--fg); }
-    .view-card p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--muted); }
-    .auto-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin-top: 1rem; }
-    .feature-chip { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 0.9rem; padding: 0.85rem 0.95rem; }
-    .feature-chip strong { display: block; font-size: 13px; color: var(--fg); margin-bottom: 0.35rem; font-weight: 600; }
-    .feature-chip span { color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+    /* slide 08 - empat bagian */
+    .parts { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 34px; margin-top: 34px; flex: 1 1 auto; min-height: 0; align-content: stretch; }
+    [data-od-id="slide-feature-parts"] .main { display: flex; flex-direction: column; }
+    [data-od-id="slide-feature-parts"] .wrap { padding-bottom: 110px; }
+    [data-od-id="slide-feature-parts"] .part-card { height: 100%; }
+    .part-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px 38px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+    .part-card .part-head { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+    .part-card .part-glyph { position: absolute; right: 26px; top: 22px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 56px; font-weight: 600; line-height: 1; color: var(--accent-soft); }
+    .part-card h4 { margin: 0; font-size: 32px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
+    .part-card p { margin: 0; font-size: 19px; color: var(--muted); line-height: 1.5; max-width: 34ch; }
+    .part-card { position: relative; overflow: hidden; }
+    .part-card.hot { background: var(--accent-soft); border-color: var(--accent-mid); }
 
-    .route-table { display: grid; gap: 0.6rem; margin-top: 1.3rem; }
-    .route-row { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: center; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 0.95rem; padding: 0.8rem 1rem; }
-    .route-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent-deep); font-weight: 700; background: var(--accent-soft); border-radius: 0.5rem; padding: 0.35rem 0.55rem; align-self: center; white-space: nowrap; }
-    .route-row h3 { margin: 0 0 0.3rem; font-size: 14px; line-height: 1.25; color: var(--fg); }
-    .route-row p { margin: 0; font-size: 12px; color: var(--muted); }
+    /* slide 09 - empat panel */
+    .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 44px; }
+    .view-card { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 34px 28px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+    .view-card .v-glyph { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 600; }
+    .view-card h3 { margin: 0; font-size: 24px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
+    .view-card p { margin: 0; font-size: 17px; line-height: 1.45; color: var(--muted); }
+    .auto-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 36px; padding-top: 32px; border-top: 1px solid var(--border); }
+    .feature-chip { display: flex; flex-direction: column; gap: 4px; }
+    .feature-chip strong { font-size: 19px; font-weight: 600; color: var(--fg); }
+    .feature-chip span { font-size: 16px; line-height: 1.45; color: var(--muted); }
 
-    .tenant-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1.2rem; margin-top: 1.4rem; align-items: stretch; }
-    .tenant-panel { border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); padding: 1.1rem; display: flex; flex-direction: column; gap: 0.8rem; }
-    .tenant-nums { display: grid; place-items: center; flex: 1; background: var(--bg-soft); border-radius: 0.9rem; border: 1px solid var(--border); }
-    .tenant-nums .big-num { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 58px; line-height: 1; color: var(--accent-deep); font-weight: 600; }
-    .tenant-nums .small-label { font-size: 11px; color: var(--muted); margin-top: 0.3rem; text-align: center; }
-    .tenant-flow h4 { margin: 0 0 0.4rem; font-size: 14px; color: var(--fg); font-weight: 600; }
-    .tenant-flow p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
-    .tenant-steps { display: flex; flex-direction: column; gap: 0.55rem; font-size: 13px; color: var(--muted); }
+    /* slide 10 - jalur publik */
+    .route-table { display: flex; flex-direction: column; flex: 1 1 auto; margin-top: 10px; }
+    .route-row { display: grid; grid-template-columns: 340px 1fr; gap: 44px; align-items: center; flex: 1 1 0; padding: 20px 8px; border-bottom: 1px solid var(--border); }
+    .route-row:first-child { border-top: 1px solid var(--border); }
+    .route-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 23px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 12px 20px; white-space: nowrap; justify-self: start; }
+    .route-row h3 { margin: 0 0 7px; font-size: 25px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.1; color: var(--fg); }
+    .route-row p { margin: 0; font-size: 18px; color: var(--muted); line-height: 1.4; }
 
-    .role-rail { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin: 1.1rem 0 1.3rem; }
-    .role-chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 700; color: var(--accent-deep); background: var(--accent-soft); border: 1px solid var(--accent-mid); border-radius: 0.55rem; padding: 0.4rem 0.7rem; }
-    .role-arrow { color: var(--pink); font-weight: 900; font-size: 18px; }
-    .qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 0.4rem; }
-    .qa-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; padding: 1rem 1.1rem; }
-    .qa-card .card-tag { margin-bottom: 0.7rem; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
-    .qa-card p { font-size: 12.5px; margin: 0; line-height: 1.45; color: var(--muted); }
-    .qa-card p b { color: var(--fg); font-weight: 600; }
-    .qa-stat { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 28px; color: var(--accent-deep); line-height: 1.1; margin-top: 0.4rem; }
-    .qa-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.2rem; }
-    .qa-stat-box { text-align: center; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 0.9rem; }
-    .qa-stat-box .sub { font-size: 12px; color: var(--muted); margin-top: 0.4rem; }
-    .qa-stat-box .sub b { color: var(--fg); }
+    /* slide 11 - mekanisme tenant */
+    [data-od-id="slide-feature-tenant"] .main { display: flex; flex-direction: column; }
+    .tenant-grid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 48px; flex: 1 1 auto; align-items: stretch; margin-top: 30px; }
+    .tenant-panel { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 34px 36px; display: flex; flex-direction: column; justify-content: center; }
+    .tenant-panel.hot { background: var(--accent-soft); border-color: var(--accent-mid); }
+    .tenant-nums { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .tenant-nums .big-num { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 128px; line-height: 0.84; font-weight: 600; letter-spacing: -0.03em; color: var(--accent); }
+    .tenant-nums .small-label { font-size: 18px; color: var(--fg); text-align: center; }
+    .tenant-nums .split { margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--border); font-size: 17px; color: var(--muted); line-height: 1.7; text-align: center; }
+    .tenant-steps { display: flex; flex-direction: column; gap: 0; }
+    .tenant-step { display: grid; grid-template-columns: 52px 1fr; gap: 20px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); }
+    .tenant-step:last-child { border-bottom: 0; }
+    .tenant-step .n { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 30px; font-weight: 600; line-height: 1; color: var(--accent); }
+    .tenant-step .t { font-size: 20px; font-weight: 600; color: var(--fg); line-height: 1.35; }
+    .tenant-step .d { display: block; margin-top: 5px; font-size: 16.5px; font-weight: 400; color: var(--muted); line-height: 1.45; }
+    .tenant-foot { margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--border); font-size: 17px; color: var(--muted); line-height: 1.55; }
 
-    .matrix { display: grid; gap: 0.55rem; margin-top: 1.2rem; }
-    .mx-head, .mx-row { display: grid; grid-template-columns: 10.5rem 1fr 1fr; gap: 0.8rem; align-items: stretch; }
-    .mx-head { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding: 0 0.2rem 0.3rem; }
-    .mx-row { background: var(--surface); border: 1px solid var(--border); border-radius: 0.9rem; padding: 0.75rem 0.8rem; }
-    .mx-dim { font-weight: 700; font-size: 13px; color: var(--fg); display: grid; align-content: center; }
-    .mx-cell { font-size: 12px; line-height: 1.42; color: var(--muted); display: grid; align-content: center; }
-    .mx-cell.before { color: #8a6d3b; }
-    .mx-cell.after { color: var(--accent-deep); }
-    .mx-cell.before::before { content: "\2715"; color: var(--pink); font-weight: 900; margin-right: 0.4rem; }
-    .mx-cell.after::before { content: "\2713"; color: var(--accent); font-weight: 900; margin-right: 0.4rem; }
+    /* slide 13 - kontrol & jaminan */
+    .role-rail { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 28px 0 30px; }
+    .role-chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 18px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent-mid); border-radius: 10px; padding: 9px 16px; }
+    .role-arrow { color: var(--pink); font-weight: 600; font-size: 22px; }
+    .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+    .qa-item { display: grid; grid-template-columns: 48px 1fr; gap: 20px; align-items: start; padding: 22px 0; border-bottom: 1px solid var(--border); }
+    .qa-item .card-tag { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-size: 19px; }
+    .qa-item p { margin: 0; font-size: 20px; line-height: 1.45; color: var(--fg); }
+    .qa-item p b { font-weight: 600; }
+    .qa-item p small { display: block; margin-top: 4px; font-size: 17px; color: var(--muted); line-height: 1.45; }
+    .qa-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 26px; }
+    .qa-stat-box { display: flex; align-items: baseline; gap: 16px; padding: 20px 26px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .qa-stat { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 64px; font-weight: 600; line-height: 0.84; letter-spacing: -0.02em; color: var(--accent); }
+    .qa-stat-box .sub { font-size: 18px; line-height: 1.4; color: var(--muted); }
+    .qa-stat-box .sub b { color: var(--fg); font-weight: 600; }
 
-    .close-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.8rem; }
-    .close-title { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 58px; line-height: 1.12; color: var(--fg); font-weight: 600; max-width: 24ch; letter-spacing: -0.015em; }
-    .close-byline { font-size: 16px; color: var(--muted); max-width: 56ch; line-height: 1.55; }
+    /* slide 15 - sebelum / sesudah */
+    .matrix { display: flex; flex-direction: column; flex: 1 1 auto; justify-content: center; margin-top: 24px; }
+    .mx-head, .mx-row { display: grid; grid-template-columns: 280px 1fr 1fr; gap: 48px; align-items: stretch; }
+    .mx-head { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding: 0 0 14px; }
+    .mx-row { padding: 24px 0; border-bottom: 1px solid var(--border); flex: 1 1 0; align-items: center; }
+    .mx-row:last-child { border-bottom: 0; }
+    .mx-dim { font-size: 23px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; color: var(--fg); display: grid; align-content: center; }
+    .mx-cell { font-size: 19px; line-height: 1.4; color: var(--muted); display: grid; align-content: center; }
+    .mx-cell.before { color: var(--danger-ink, #8a6d3b); }
+    .mx-cell.after { color: var(--accent-deep); font-weight: 500; }
+    .mx-cell.before::before { content: "\2715"; font-weight: 600; color: var(--pink); margin-right: 12px; }
+    .mx-cell.after::before { content: "\2713"; font-weight: 600; color: var(--accent); margin-right: 12px; }
+
+    /* slide 16 - penutup */
+    .close-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 34px; }
+    .close-title { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 76px; line-height: 1.06; color: var(--fg); font-weight: 600; max-width: 22ch; letter-spacing: -0.02em; }
+    .close-byline { font-size: 25px; color: var(--muted); max-width: 54ch; line-height: 1.55; }
   </style>
    <script>
      window.deckAssetFallback = function (img) {
@@ -1059,32 +1083,24 @@
           <div class="main">
             <div class="parts">
               <div class="part-card" data-od-id="part-drafts">
-                <div>
-                  <div class="part-head">Bagian 1 &#183; internal</div>
-                  <h4>Draft pengajuan</h4>
-                  <p>Komunitas atau EO mengisi formulir terstruktur. Tim meninjau, menahan, atau meminta revisi sebelum publikasi.</p>
-                </div>
+                <div class="part-head">Bagian 1 &#183; internal</div>
+                <h4>Draft pengajuan</h4>
+                <p>Komunitas atau EO mengisi formulir terstruktur. Tim meninjau, menahan, atau meminta revisi sebelum publikasi.</p>
               </div>
               <div class="part-card" data-od-id="part-publish">
-                <div>
-                  <div class="part-head">Bagian 2 &#183; publik</div>
-                  <h4>Event terpublikasi</h4>
-                  <p>Setelah disetujui, event tampil di halaman komunitas. Satu sumber data yang sama untuk seluruh siklus.</p>
-                </div>
+                <div class="part-head">Bagian 2 &#183; publik</div>
+                <h4>Event terpublikasi</h4>
+                <p>Setelah disetujui, event tampil di halaman komunitas. Satu sumber data yang sama untuk seluruh siklus.</p>
               </div>
               <div class="part-card" data-od-id="part-survey">
-                <div>
-                  <div class="part-head">Bagian 3 &#183; lapangan</div>
-                  <h4>Evaluasi tenant</h4>
-                  <p>Pasca-event, tenant mengisi survey dampak lewat tautan atau QR, tanpa login, satu jawaban per perangkat.</p>
-                </div>
+                <div class="part-head">Bagian 3 &#183; lapangan</div>
+                <h4>Evaluasi tenant</h4>
+                <p>Pasca-event, tenant mengisi survey dampak lewat tautan atau QR &#8212; tanpa login, satu jawaban per perangkat.</p>
               </div>
-              <div class="part-card" data-od-id="part-results">
-                <div>
-                  <div class="part-head">Bagian 4 &#183; keputusan</div>
-                  <h4>Hasil evaluasi</h4>
-                  <p>Rekap trafik dan penjualan tenant per event. Menjadi bahan diskusi untuk keputusan berikutnya.</p>
-                </div>
+              <div class="part-card hot" data-od-id="part-results">
+                <div class="part-head">Bagian 4 &#183; keputusan</div>
+                <h4>Hasil evaluasi</h4>
+                <p>Rekap trafik dan penjualan tenant per event. Menjadi bahan diskusi untuk keputusan berikutnya.</p>
               </div>
             </div>
           </div>
@@ -1103,44 +1119,46 @@
              <div class="kicker">09 &#183; Alat kerja tim</div>
              <h1 class="h1" data-od-id="feature-views-title">Empat panel untuk tugas berbeda.</h1>
           </div>
-           <div class="view-grid">
-            <div class="view-card" data-od-id="view-events">
-              <div class="v-glyph">E</div>
-              <h3>Event &amp; draft</h3>
-              <p>Tinjau usulan, kelola jadwal, publikasikan ke halaman publik.</p>
+          <div class="main" style="display:flex;flex-direction:column;justify-content:center;">
+            <div class="view-grid">
+              <div class="view-card" data-od-id="view-events">
+                <div class="v-glyph">E</div>
+                <h3>Event &amp; draft</h3>
+                <p>Tinjau usulan, kelola jadwal, publikasikan ke halaman publik.</p>
+              </div>
+              <div class="view-card" data-od-id="view-surveys">
+                <div class="v-glyph">S</div>
+                <h3>Survey &amp; hasil</h3>
+                <p>Pantau respons tenant dan agregat dampak per event.</p>
+              </div>
+              <div class="view-card" data-od-id="view-news">
+                <div class="v-glyph">B</div>
+                <h3>Berita &amp; galeri</h3>
+                <p>Konten non-event: pengumuman, artikel, arsip foto.</p>
+              </div>
+              <div class="view-card" data-od-id="view-tenants">
+                <div class="v-glyph">T</div>
+                <h3>Penyewa &amp; katalog</h3>
+                <p>Data tenant, kategori, dan direktori fasilitas mall.</p>
+              </div>
             </div>
-            <div class="view-card" data-od-id="view-surveys">
-              <div class="v-glyph">S</div>
-              <h3>Survey &amp; hasil</h3>
-              <p>Pantau respons tenant dan agregat dampak per event.</p>
-            </div>
-            <div class="view-card" data-od-id="view-news">
-              <div class="v-glyph">B</div>
-              <h3>Berita &amp; galeri</h3>
-              <p>Konten non-event: pengumuman, artikel, arsip foto.</p>
-            </div>
-            <div class="view-card" data-od-id="view-tenants">
-              <div class="v-glyph">T</div>
-              <h3>Penyewa &amp; katalog</h3>
-              <p>Data tenant, kategori, dan direktori fasilitas mall.</p>
-            </div>
-          </div>
-           <div class="auto-strip">
-            <div class="feature-chip">
-              <strong>Aktivitas log</strong>
-              <span>Setiap perubahan tercatat: siapa dan kapan.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Export CSV/PDF</strong>
-              <span>Unduh rekap dari data yang sama.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Realtime</strong>
-              <span>Perubahan tampil tanpa muat ulang.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Akses per peran</strong>
-              <span>Panel tampil sesuai hak pengguna.</span>
+            <div class="auto-strip">
+              <div class="feature-chip" data-od-id="feat-log">
+                <strong>Aktivitas log</strong>
+                <span>Setiap perubahan tercatat: siapa dan kapan.</span>
+              </div>
+              <div class="feature-chip" data-od-id="feat-export">
+                <strong>Export CSV/PDF</strong>
+                <span>Unduh rekap dari data yang sama.</span>
+              </div>
+              <div class="feature-chip" data-od-id="feat-realtime">
+                <strong>Realtime</strong>
+                <span>Perubahan tampil tanpa muat ulang.</span>
+              </div>
+              <div class="feature-chip" data-od-id="feat-roles">
+                <strong>Akses per peran</strong>
+                <span>Panel tampil sesuai hak pengguna.</span>
+              </div>
             </div>
           </div>
           <div class="overflow-stop"></div>
@@ -1158,6 +1176,7 @@
              <div class="kicker">10 &#183; Untuk pengunjung</div>
              <h1 class="h1" data-od-id="feature-routes-title">Halaman publik yang bisa dikunjungi langsung.</h1>
           </div>
+          <div class="main">
           <div class="route-table">
             <div class="route-row" data-od-id="route-community">
               <div class="route-path">/community</div>
@@ -1188,12 +1207,13 @@
               </div>
             </div>
             <div class="route-row" data-od-id="route-news">
-              <div class="route-path">/news</div>
+             <div class="route-path">/news</div>
               <div>
                 <h3>Berita</h3>
                 <p>Pengumuman resmi dan artikel kegiatan mall.</p>
               </div>
             </div>
+          </div>
           </div>
           <div class="overflow-stop"></div>
           <div class="footer">
@@ -1208,35 +1228,39 @@
         <div class="wrap">
           <div class="head-block">
              <div class="kicker">11 &#183; Survey pasca-event</div>
-             <h1 class="h1" data-od-id="feature-tenant-title">Survey tenant: tanpa login, tetap terstruktur.</h1>
+             <h1 class="h1" data-od-id="feature-tenant-title">Tanpa login, tetap terstruktur.</h1>
           </div>
+          <div class="main">
           <div class="tenant-grid">
             <div class="tenant-panel" data-od-id="tenant-process">
-              <div class="tenant-flow">
-                <h4>Alur pengisian</h4>
-                <div class="tenant-steps">
-                  <div>1 &#183; Event selesai, tautan survey dibagikan ke tenant</div>
-                  <div>2 &#183; Tenant membuka via HP &#8212; tautan atau QR, tanpa akun</div>
-                  <div>3 &#183; Jawaban kategorikal: trafik dan penjualan</div>
-                  <div>4 &#183; Satu jawaban per perangkat &#183; langsung masuk database</div>
+              <div class="tenant-steps">
+                <div class="tenant-step">
+                  <span class="n">1</span>
+                  <div><span class="t">Tautan dibagikan pasca-event<small class="d">Tenant menerima tautan atau QR dari tim marcomm.</small></span></div>
+                </div>
+                <div class="tenant-step">
+                  <span class="n">2</span>
+                  <div><span class="t">Tenant membuka lewat HP<small class="d">Tanpa akun, tanpa login &#8212; cukup tautan.</small></span></div>
+                </div>
+                <div class="tenant-step">
+                  <span class="n">3</span>
+                  <div><span class="t">Jawaban kategorikal<small class="d">Trafik dan penjualan, pilihan tetap &#8212; bukan angka bebas.</small></span></div>
+                </div>
+                <div class="tenant-step">
+                  <span class="n">4</span>
+                  <div><span class="t">Satu jawaban per perangkat<small class="d">Data tidak tercemar; langsung masuk database.</small></span></div>
                 </div>
               </div>
-              <div style="font-size:12.5px;color:var(--muted);border-top:1px solid var(--border);padding-top:0.8rem;">
-                Satu jawaban per perangkat menjaga data tidak tercemar. Hasil langsung terlihat tim tanpa rekap manual.
-              </div>
+              <div class="tenant-foot">Hasil langsung terlihat tim tanpa rekap manual.</div>
             </div>
-            <div class="tenant-panel" data-od-id="tenant-data">
+            <div class="tenant-panel hot" data-od-id="tenant-data">
               <div class="tenant-nums">
-                <div>
-                  <div class="big-num">38</div>
-                  <div class="small-label">evaluasi tenant</div>
-                </div>
-              </div>
-              <div class="tenant-flow">
-                <h4>Dua event uji coba</h4>
-                <p>Bekasi Criterium 2.0 &#183; 22 respons<br>Kids Fun Run 2026 &#183; 16 respons</p>
+                <div class="big-num">38</div>
+                <div class="small-label">evaluasi tenant</div>
+                <div class="split">Bekasi Criterium 2.0 &#183; 22<br>Kids Fun Run 2026 &#183; 16</div>
               </div>
             </div>
+          </div>
           </div>
           <div class="overflow-stop"></div>
           <div class="footer">
@@ -1306,43 +1330,45 @@
              <div class="kicker">13 &#183; Kontrol &amp; jaminan</div>
              <h1 class="h1" data-od-id="feature-controls-title">Kesalahan dicegah sistem, bukan ingatan.</h1>
           </div>
-           <div class="role-rail" data-od-id="controls-roles">
-            <span class="role-chip">superadmin</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">admin</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">viewer</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">eo_tenant</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">tenant_relation</span>
-          </div>
-          <div class="qa-grid">
-            <div class="qa-card" data-od-id="control-draft">
-              <div class="card-tag">Kontrol 1</div>
-              <p><b>Draft tidak bocor.</b> Usulan internal tidak tampil ke publik sebelum disetujui.</p>
+          <div class="main" style="display:flex;flex-direction:column;justify-content:center;">
+            <div class="role-rail" data-od-id="controls-roles">
+              <span class="role-chip">superadmin</span>
+              <span class="role-arrow">&#8594;</span>
+              <span class="role-chip">admin</span>
+              <span class="role-arrow">&#8594;</span>
+              <span class="role-chip">viewer</span>
+              <span class="role-arrow">&#8594;</span>
+              <span class="role-chip">eo_tenant</span>
+              <span class="role-arrow">&#8594;</span>
+              <span class="role-chip">tenant_relation</span>
             </div>
-            <div class="qa-card" data-od-id="control-status">
-              <div class="card-tag">Kontrol 2</div>
-              <p><b>Status tidak basi.</b> Status event diturunkan dari tanggal, tidak disimpan manual.</p>
+            <div class="qa-grid">
+              <div class="qa-item" data-od-id="control-draft">
+                <span class="card-tag">1</span>
+                <p><b>Draft tidak bocor.</b><small>Usulan internal tidak tampil ke publik sebelum disetujui.</small></p>
+              </div>
+              <div class="qa-item" data-od-id="control-status">
+                <span class="card-tag">2</span>
+                <p><b>Status tidak basi.</b><small>Status event diturunkan dari tanggal, tidak disimpan manual.</small></p>
+              </div>
+              <div class="qa-item" data-od-id="control-survey">
+                <span class="card-tag">3</span>
+                <p><b>Survey tidak tercemar.</b><small>Satu jawaban per perangkat, tanpa login, tanpa duplikat.</small></p>
+              </div>
+              <div class="qa-item" data-od-id="qa-audit">
+                <span class="card-tag">&#10003;</span>
+                <p><b>Audit trail + validasi.</b><small>Setiap perubahan tercatat; zod memvalidasi batas; RLS aktif.</small></p>
+              </div>
             </div>
-            <div class="qa-card" data-od-id="control-survey">
-              <div class="card-tag">Kontrol 3</div>
-              <p><b>Survey tidak tercemar.</b> Satu jawaban per perangkat, tanpa login, tanpa duplikat.</p>
-            </div>
-            <div class="qa-card" data-od-id="qa-audit">
-              <div class="card-tag">Jaminan</div>
-              <p><b>Audit trail + validasi.</b> Setiap perubahan tercatat; zod memvalidasi setiap batas; RLS aktif di database.</p>
-            </div>
-          </div>
-           <div class="qa-stat-row">
-            <div class="qa-stat-box" data-od-id="qa-tests">
-              <div class="qa-stat">41</div>
-              <div class="sub"><b>unit test</b> &#183; Vitest</div>
-            </div>
-            <div class="qa-stat-box" data-od-id="qa-e2e">
-              <div class="qa-stat">4</div>
-              <div class="sub"><b>e2e spec</b> &#183; Playwright</div>
+            <div class="qa-stat-row">
+              <div class="qa-stat-box" data-od-id="qa-tests">
+                <span class="qa-stat">41</span>
+                <span class="sub"><b>unit test</b> &#183; Vitest</span>
+              </div>
+              <div class="qa-stat-box" data-od-id="qa-e2e">
+                <span class="qa-stat">4</span>
+                <span class="sub"><b>e2e spec</b> &#183; Playwright</span>
+              </div>
             </div>
           </div>
           <div class="overflow-stop"></div>
@@ -1406,6 +1432,7 @@
              <div class="kicker">15 &#183; Sebelum / sesudah</div>
              <h1 class="h1" data-od-id="feature-matrix-title">Lima dimensi yang berubah.</h1>
           </div>
+          <div class="main">
           <div class="matrix">
             <div class="mx-head">
               <span>Dimensi</span>
@@ -1414,29 +1441,30 @@
             </div>
             <div class="mx-row" data-od-id="matrix-submission">
               <div class="mx-dim">Pengajuan</div>
-              <div class="mx-cell before"><span>Chat &amp; catatan tersebar</span></div>
-              <div class="mx-cell after"><span>Antrian draft terstruktur</span></div>
+              <div class="mx-cell before">Chat &amp; catatan tersebar</div>
+              <div class="mx-cell after">Antrian draft terstruktur</div>
             </div>
             <div class="mx-row" data-od-id="matrix-discovery">
               <div class="mx-dim">Publikasi</div>
-              <div class="mx-cell before"><span>Menunggu admin posting manual</span></div>
-              <div class="mx-cell after"><span>Satu sumber, langsung tampil</span></div>
+              <div class="mx-cell before">Menunggu admin posting manual</div>
+              <div class="mx-cell after">Satu sumber, langsung tampil</div>
             </div>
             <div class="mx-row" data-od-id="matrix-evaluation">
               <div class="mx-dim">Evaluasi</div>
-              <div class="mx-cell before"><span>Berhenti di foto keramaian</span></div>
-              <div class="mx-cell after"><span>Survey dampak terukur</span></div>
+              <div class="mx-cell before">Berhenti di foto keramaian</div>
+              <div class="mx-cell after">Survey dampak terukur</div>
             </div>
             <div class="mx-row" data-od-id="matrix-access">
               <div class="mx-dim">Akses</div>
-              <div class="mx-cell before"><span>Satu akun untuk semua</span></div>
-              <div class="mx-cell after"><span>Lima peran, hak per tugas</span></div>
+              <div class="mx-cell before">Satu akun untuk semua</div>
+              <div class="mx-cell after">Lima peran, hak per tugas</div>
             </div>
             <div class="mx-row" data-od-id="matrix-recap">
               <div class="mx-dim">Rekap</div>
-              <div class="mx-cell before"><span>Rakit manual per laporan</span></div>
-              <div class="mx-cell after"><span>Export dari data yang sama</span></div>
+              <div class="mx-cell before">Rakit manual per laporan</div>
+              <div class="mx-cell after">Export dari data yang sama</div>
             </div>
+          </div>
           </div>
           <div class="overflow-stop"></div>
           <div class="footer">
@@ -1451,8 +1479,8 @@
         <div class="wrap wrap--center">
           <div class="close-wrap">
             <h1 class="close-title" data-od-id="closing-statement">Terencana matang. Terpublikasi luas. Terevaluasi akurat.</h1>
-            <p class="close-byline" data-od-id="closing-byline">Satu platform untuk seluruh siklus event Metropolitan Mall Bekasi &#8212; dari pengajuan sampai bukti dampak. Berjalan pada snapshot Agustus 2026.</p>
-            <p style="font-size:16px;color:var(--fg);margin-top:6px;"><b>Andy Safii</b>, Marcomm, Metropolitan Mall Bekasi.</p>
+            <p class="close-byline" data-od-id="closing-byline">Satu platform untuk seluruh siklus event Metropolitan Mall Bekasi &#8212; dari pengajuan sampai bukti dampak.</p>
+            <p style="font-size:18px;color:var(--fg);"><b>Andy Safii</b>, Marcomm, Metropolitan Mall Bekasi.</p>
           </div>
           <div class="footer">
             <span>1 Platform untuk Semua Event</span>
