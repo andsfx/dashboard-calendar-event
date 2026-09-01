@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inovasi Manajemen Event — Metropolitan Mall Bekasi</title>
+  <title>Dashboard Calendar Event — Ekosistem Manajemen Event Metropolitan Mall Bekasi</title>
   <style>
     :root {
       --paper: #fbfaf7;
@@ -22,6 +22,7 @@
       --emerald: #047857;
       --display: Iowan Old Style, Palatino, Georgia, serif;
       --body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+      --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
       --shadow: 0 18px 45px rgba(15, 23, 42, .08);
       --shadow-soft: 0 12px 28px rgba(15, 23, 42, .05);
       --ease: cubic-bezier(.22, 1, .36, 1);
@@ -34,31 +35,31 @@
     .deck { width: 100vw; height: 100vh; position: relative; background: var(--paper-deep); }
     .stage { width: min(100vw, 177.7778vh); height: min(100vh, 56.25vw); min-height: 560px; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); background: var(--paper); overflow: hidden; }
     .stage::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .28; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Ccircle cx='1' cy='1' r='.55' fill='%230f172a' fill-opacity='.12'/%3E%3C/svg%3E"); background-size: 13px 13px; mix-blend-mode: multiply; }
-    .slide { position: absolute; inset: 0; padding: 5.2% 7.2% 8.3%; display: grid; align-content: center; opacity: 0; transform: translateX(28px); pointer-events: none; transition: opacity .42s var(--ease), transform .5s var(--ease); }
+    .slide { position: absolute; inset: 0; padding: 5% 6.8% 8%; display: grid; align-content: center; opacity: 0; transform: translateX(28px); pointer-events: none; transition: opacity .42s var(--ease), transform .5s var(--ease); }
     .slide.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
     .slide.is-before { transform: translateX(-28px); }
-    .slide::after { content: attr(data-slide); position: absolute; right: 7.2%; top: 5.4%; font-size: clamp(9px, .72vw, 12px); letter-spacing: .16em; color: var(--muted); font-weight: 700; }
-    .kicker { margin: 0 0 1.4rem; color: var(--tosca-dark); font-size: clamp(9px, .8vw, 13px); letter-spacing: .19em; line-height: 1.2; text-transform: uppercase; font-weight: 800; }
+    .slide::after { content: attr(data-slide); position: absolute; right: 6.8%; top: 4.6%; font-size: clamp(9px, .72vw, 12px); letter-spacing: .16em; color: var(--muted); font-weight: 700; }
+    .kicker { margin: 0 0 1.2rem; color: var(--tosca-dark); font-size: clamp(9px, .8vw, 13px); letter-spacing: .19em; line-height: 1.2; text-transform: uppercase; font-weight: 800; }
     h1, h2, h3, p { margin-top: 0; }
     h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: -.045em; }
-    h1 { max-width: 9.5em; margin-bottom: 1.1rem; font-size: clamp(38px, 5.3vw, 86px); line-height: .98; }
-    h2 { max-width: 12em; margin-bottom: .9rem; font-size: clamp(32px, 4vw, 67px); line-height: 1.02; }
-    h3 { margin-bottom: .5rem; font-size: clamp(14px, 1.35vw, 22px); line-height: 1.18; letter-spacing: -.02em; }
-    p { color: var(--muted); font-size: clamp(12px, 1.15vw, 18px); line-height: 1.55; }
-    .lead { max-width: 39rem; font-size: clamp(15px, 1.35vw, 22px); line-height: 1.5; }
+    h1 { max-width: 9.5em; margin-bottom: 1.1rem; font-size: clamp(36px, 5.1vw, 82px); line-height: .98; }
+    h2 { max-width: 14em; margin-bottom: .85rem; font-size: clamp(28px, 3.6vw, 60px); line-height: 1.02; }
+    h3 { margin-bottom: .5rem; font-size: clamp(13px, 1.3vw, 21px); line-height: 1.18; letter-spacing: -.02em; }
+    p { color: var(--muted); font-size: clamp(11.5px, 1.1vw, 17px); line-height: 1.55; }
+    .lead { max-width: 42rem; font-size: clamp(14px, 1.3vw, 21px); line-height: 1.5; }
     .serif { font-family: var(--display); }
     .pink { color: var(--pink); }
     .tosca { color: var(--tosca-dark); }
-    .brand { position: absolute; top: 4.8%; left: 7.2%; display: flex; align-items: center; gap: .6rem; z-index: 3; }
+    .brand { position: absolute; top: 4.8%; left: 6.8%; display: flex; align-items: center; gap: .6rem; z-index: 3; }
     .brand img { width: clamp(30px, 3.2vw, 52px); height: clamp(30px, 3.2vw, 52px); object-fit: contain; }
     .brand span { color: var(--tosca-dark); font-weight: 800; font-size: clamp(10px, .78vw, 13px); letter-spacing: .11em; text-transform: uppercase; }
-    .rule { width: 58px; height: 4px; background: var(--tosca); margin: 1.7rem 0; }
+    .rule { width: 58px; height: 4px; background: var(--tosca); margin: 1.5rem 0; }
     .btn { border: 0; border-radius: 999px; cursor: pointer; padding: .76rem 1.1rem; font-weight: 800; font-size: clamp(11px, .9vw, 14px); transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
     .btn:hover { transform: translateY(-2px); }
     .btn-primary { color: white; background: var(--tosca-dark); box-shadow: 0 9px 18px rgba(0,85,76,.16); }
     .btn-primary:hover { background: var(--tosca); }
-    .btn-ghost { color: var(--tosca-dark); border: 1px solid rgba(0,85,76,.25); background: transparent; }
-    .btn-ghost:hover { background: var(--tosca-soft); }
+
+    /* --- cover --- */
     .hero { align-content: end; padding-bottom: 12%; }
     .hero h1 { max-width: 8em; }
     .hero-copy { display: flex; justify-content: space-between; align-items: end; gap: 5%; }
@@ -66,67 +67,145 @@
     .hero-mark { position: absolute; right: 7%; top: 19%; width: 30%; aspect-ratio: 1; border-radius: 50%; background: var(--tosca-dark); opacity: .96; display: grid; place-items: center; transform: rotate(-11deg); box-shadow: 22px 28px 0 rgba(226,67,120,.12); }
     .hero-mark::before, .hero-mark::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.26); inset: 11%; }
     .hero-mark::after { inset: 21%; border-color: rgba(255,255,255,.16); }
-    .hero-mark strong { position: relative; z-index: 1; color: white; font-family: var(--display); font-size: clamp(32px, 5vw, 78px); line-height: .83; text-align: center; letter-spacing: -.08em; }
+    .hero-mark strong { position: relative; z-index: 1; color: white; font-family: var(--display); font-size: clamp(30px, 4.8vw, 74px); line-height: .83; text-align: center; letter-spacing: -.08em; }
     .hero-mark small { position: absolute; bottom: 15%; color: #a9e5df; font-weight: 800; letter-spacing: .2em; font-size: clamp(8px, .75vw, 12px); }
     .hero-attribution { position: absolute; right: 7%; bottom: 14%; text-align: right; }
     .hero-attribution .name { display: block; color: var(--tosca-dark); font-weight: 800; font-size: clamp(12px, 1.05vw, 17px); }
     .hero-attribution .role { display: block; color: var(--muted); font-size: clamp(10px, .82vw, 13px); margin-top: .2rem; }
-    .slide-footer { position: absolute; left: 7.2%; right: 7.2%; bottom: 4%; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: clamp(9px, .72vw, 12px); }
+    .slide-footer { position: absolute; left: 6.8%; right: 6.8%; bottom: 3.6%; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: clamp(9px, .72vw, 12px); }
     .note { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); font-size: clamp(10px, .82vw, 13px); }
     .note::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 7%; align-items: center; }
-    .two-col.wide-right { grid-template-columns: .78fr 1.22fr; }
+
+    /* --- layout helpers --- */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6%; align-items: center; }
+    .two-col.wide-right { grid-template-columns: .72fr 1.28fr; }
     .two-col.wide-left { grid-template-columns: 1.18fr .82fr; }
     .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .card { background: var(--card); border: 1px solid var(--line-soft); box-shadow: var(--shadow-soft); border-radius: 1.1rem; padding: 1.15rem; }
+    .cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .cards.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .card { background: var(--card); border: 1px solid var(--line-soft); box-shadow: var(--shadow-soft); border-radius: 1.1rem; padding: 1.05rem; }
     .card.warm { background: var(--card-warm); }
-    .card p { margin-bottom: 0; font-size: clamp(11px, .98vw, 15px); }
-    .card-tag { color: var(--tosca-dark); font-size: clamp(9px, .7vw, 11px); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1.2rem; }
-    .card-icon { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; border-radius: .75rem; margin-bottom: 1.2rem; background: var(--tosca-soft); color: var(--tosca-dark); font-weight: 900; font-size: 1.1rem; }
-    .problem-list { display: grid; gap: .7rem; margin: 1.8rem 0 0; padding: 0; list-style: none; }
-    .problem-list li { display: flex; gap: .8rem; align-items: baseline; border-bottom: 1px solid var(--line); padding: .7rem 0; color: var(--ink); font-size: clamp(12px, 1.05vw, 16px); }
+    .card p { margin-bottom: 0; font-size: clamp(10.5px, .95vw, 14.5px); }
+    .card-tag { color: var(--tosca-dark); font-size: clamp(9px, .7vw, 11px); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1rem; }
+    .card-icon { display: grid; place-items: center; width: 2.3rem; height: 2.3rem; border-radius: .75rem; margin-bottom: 1rem; background: var(--tosca-soft); color: var(--tosca-dark); font-weight: 900; font-size: 1.05rem; }
+
+    /* --- problem list --- */
+    .problem-list { display: grid; gap: .55rem; margin: 1.4rem 0 0; padding: 0; list-style: none; }
+    .problem-list li { display: flex; gap: .8rem; align-items: baseline; border-bottom: 1px solid var(--line); padding: .6rem 0; color: var(--ink); font-size: clamp(11px, .98vw, 15px); }
     .problem-list b { color: var(--pink); font-family: var(--display); font-size: 1.4em; font-weight: 600; }
+    .problem-list strong { color: var(--ink); font-weight: 700; }
+    .problem-list span { color: var(--muted); }
+
+    /* --- quote --- */
     .quote-box { background: var(--tosca-dark); color: white; border-radius: 1.4rem; padding: 2rem; box-shadow: var(--shadow); position: relative; overflow: hidden; }
     .quote-box::after { content: ""; position: absolute; width: 9rem; height: 9rem; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; right: -2rem; bottom: -3rem; }
-    .quote-box p { color: #d3efeb; font-family: var(--display); font-size: clamp(20px, 2.3vw, 36px); line-height: 1.1; max-width: 10em; position: relative; z-index: 1; }
+    .quote-box p { color: #d3efeb; font-family: var(--display); font-size: clamp(19px, 2.2vw, 34px); line-height: 1.12; max-width: 11em; position: relative; z-index: 1; }
     .quote-box small { color: #a9e5df; font-size: clamp(10px, .8vw, 12px); letter-spacing: .08em; text-transform: uppercase; font-weight: 800; }
-    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 2.3rem 0 1.3rem; position: relative; }
-    .flow::before { content: ""; position: absolute; left: 8%; right: 8%; top: 1.75rem; height: 1px; background: var(--tosca); opacity: .38; }
-    .flow-step { position: relative; text-align: center; padding: 0 .35rem; }
-    .flow-step .num { margin: 0 auto 1rem; width: 3.45rem; height: 3.45rem; border: 1px solid var(--tosca); background: var(--paper); border-radius: 50%; display: grid; place-items: center; color: var(--tosca-dark); font-family: var(--display); font-size: 1.45rem; position: relative; }
-    .flow-step strong { display: block; font-size: clamp(11px, 1vw, 15px); line-height: 1.2; }
-    .flow-step span { display: block; margin-top: .45rem; color: var(--muted); font-size: clamp(9px, .75vw, 12px); line-height: 1.25; }
-    .proof-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 1.2rem; align-items: stretch; }
-    .proof-main { min-height: 260px; }
-    .proof-side { display: grid; gap: 1.2rem; }
-    .proof { position: relative; overflow: hidden; border-radius: 1rem; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft); padding: .7rem; }
-    .proof img { display: block; width: 100%; height: 100%; min-height: 115px; object-fit: cover; object-position: top left; border-radius: .55rem; }
-    .proof-main img { min-height: 276px; }
-    .proof-label { position: absolute; left: 1.2rem; top: 1.2rem; border-radius: 999px; padding: .35rem .6rem; color: white; background: rgba(0,85,76,.92); font-size: clamp(9px, .7vw, 11px); font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
-    .proof-copy { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; margin-bottom: 1.3rem; }
-    .proof-copy p { max-width: 31rem; margin-bottom: 0; }
-    .module-cloud { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; max-width: 42rem; }
-    .module { border: 1px solid rgba(0,145,142,.23); background: var(--card); color: var(--tosca-dark); border-radius: 999px; padding: .58rem .82rem; font-size: clamp(10px, .82vw, 13px); font-weight: 700; }
+
+    /* --- pillars (slide 3) --- */
+    .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1.6rem; }
+    .pillar { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1.1rem; padding: 1.1rem 1rem; box-shadow: var(--shadow-soft); display: flex; flex-direction: column; gap: .5rem; }
+    .pillar .p-num { font-family: var(--display); color: var(--tosca-dark); font-size: clamp(20px, 2vw, 32px); line-height: 1; }
+    .pillar h3 { margin: 0; font-size: clamp(12px, 1.05vw, 17px); }
+    .pillar p { margin: 0; font-size: clamp(10px, .88vw, 13.5px); }
+    .pillar.hot { background: var(--tosca-soft); border-color: rgba(0,145,142,.25); }
+
+    /* --- module cloud --- */
+    .module-cloud { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.3rem; max-width: 46rem; }
+    .module { border: 1px solid rgba(0,145,142,.23); background: var(--card); color: var(--tosca-dark); border-radius: 999px; padding: .52rem .78rem; font-size: clamp(9.5px, .8vw, 12.5px); font-weight: 700; }
     .module.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: .45rem; background: var(--emerald); vertical-align: 1px; }
-    .split-band { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.7rem; }
-    .band { padding: 1.1rem 1.2rem; border-radius: 1rem; border: 1px solid var(--line); background: var(--card); }
-    .band strong { display: block; margin-bottom: .35rem; font-size: clamp(13px, 1.05vw, 16px); }
-    .band span { color: var(--muted); font-size: clamp(10px, .82vw, 13px); line-height: 1.4; }
-    .steps { display: grid; gap: .75rem; margin-top: 1.5rem; }
-    .step-row { display: grid; grid-template-columns: 2.4rem 1fr; gap: .8rem; align-items: center; padding: .85rem 1rem; background: var(--card); border: 1px solid var(--line-soft); border-radius: .9rem; }
-    .step-row i { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; background: var(--tosca-soft); color: var(--tosca-dark); border-radius: 50%; font-style: normal; font-weight: 900; font-size: .8rem; }
-    .step-row strong { display: block; font-size: clamp(11px, .9vw, 14px); }
-    .step-row span { color: var(--muted); font-size: clamp(10px, .78vw, 12px); }
-    .measure { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
-    .measure .card { min-height: 140px; }
-    .measure .card h3 { font-family: var(--display); color: var(--tosca-dark); font-size: clamp(19px, 2vw, 30px); }
-    .measure .card p { font-size: clamp(10px, .82vw, 13px); }
+    .module-label { width: 100%; color: var(--muted); font-size: clamp(9px, .75vw, 11px); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin: .2rem 0 0; padding-left: .1rem; }
+
+    /* --- views showcase (slide 5) --- */
+    .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1.4rem; }
+    .view-card { border: 1px solid var(--line); border-radius: 1rem; background: var(--card); padding: 1rem; display: flex; flex-direction: column; gap: .4rem; }
+    .view-card .v-glyph { display: grid; place-items: center; height: 3.1rem; border-radius: .6rem; background: var(--tosca-soft); color: var(--tosca-dark); font-size: clamp(18px, 1.8vw, 30px); font-weight: 900; font-family: var(--display); letter-spacing: -.04em; }
+    .view-card h3 { margin: 0; font-size: clamp(11.5px, 1vw, 16px); }
+    .view-card p { margin: 0; font-size: clamp(9.5px, .82vw, 12.5px); }
+    .feature-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1rem; }
+    .feature-chip { background: var(--card-warm); border: 1px solid var(--line); border-radius: .9rem; padding: .85rem .95rem; }
+    .feature-chip strong { display: block; font-size: clamp(11px, .95vw, 14.5px); color: var(--tosca-dark); margin-bottom: .25rem; }
+    .feature-chip span { color: var(--muted); font-size: clamp(9.5px, .8vw, 12px); line-height: 1.4; }
+
+    /* --- route table (slide 6) --- */
+    .route-table { display: grid; gap: .6rem; margin-top: 1.3rem; }
+    .route-row { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: start; background: var(--card); border: 1px solid var(--line-soft); border-radius: .95rem; padding: .8rem 1rem; box-shadow: var(--shadow-soft); }
+    .route-path { font-family: var(--mono); font-size: clamp(10.5px, .92vw, 14.5px); color: var(--tosca-dark); font-weight: 700; background: var(--tosca-soft); border-radius: .5rem; padding: .35rem .55rem; align-self: center; }
+    .route-row h3 { margin: 0 0 .2rem; font-size: clamp(11.5px, 1vw, 16px); }
+    .route-row p { margin: 0; font-size: clamp(9.5px, .85vw, 13px); }
+
+    /* --- flow (slide 8) --- */
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 2rem 0 1.1rem; position: relative; }
+    .flow::before { content: ""; position: absolute; left: 8%; right: 8%; top: 1.75rem; height: 1px; background: var(--tosca); opacity: .38; }
+    .flow-step { position: relative; text-align: center; padding: 0 .3rem; }
+    .flow-step .num { margin: 0 auto .9rem; width: 3.45rem; height: 3.45rem; border: 1px solid var(--tosca); background: var(--paper); border-radius: 50%; display: grid; place-items: center; color: var(--tosca-dark); font-family: var(--display); font-size: 1.45rem; position: relative; }
+    .flow-step strong { display: block; font-size: clamp(10.5px, .98vw, 15px); line-height: 1.2; }
+    .flow-step .step-path { display: block; margin: .3rem auto 0; font-family: var(--mono); font-size: clamp(8.5px, .72vw, 11px); color: var(--tosca-dark); background: var(--tosca-soft); border-radius: .4rem; padding: .18rem .4rem; width: fit-content; }
+    .flow-step span { display: block; margin-top: .4rem; color: var(--muted); font-size: clamp(9px, .74vw, 12px); line-height: 1.3; }
+
+    /* --- tech stack (slide 9) --- */
+    .stack-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 1.1rem; margin-top: 1.4rem; }
+    .stack-col { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1.1rem; padding: 1.1rem 1.2rem; box-shadow: var(--shadow-soft); }
+    .stack-col h3 { font-size: clamp(12px, 1.05vw, 17px); color: var(--tosca-dark); margin-bottom: .8rem; }
+    .stack-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+    .stack-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-bottom: 1px solid var(--line-soft); padding: .42rem 0; font-size: clamp(10.5px, .92vw, 14px); }
+    .stack-list li:last-child { border-bottom: 0; }
+    .stack-list .t-name { font-weight: 700; color: var(--ink); }
+    .stack-list .t-name small { display: block; font-weight: 400; color: var(--muted); font-size: clamp(9px, .76vw, 11.5px); }
+    .stack-list .t-ver { font-family: var(--mono); font-size: clamp(9px, .78vw, 12px); color: var(--tosca-dark); background: var(--tosca-soft); border-radius: .4rem; padding: .15rem .45rem; white-space: nowrap; }
+    .infra-note { display: flex; gap: .6rem; margin-top: .9rem; background: var(--card-warm); border: 1px solid var(--line); border-radius: .85rem; padding: .7rem .9rem; font-size: clamp(9.5px, .82vw, 12.5px); color: var(--muted); align-items: center; }
+    .infra-note strong { color: var(--ink); }
+
+    /* --- code tree (slide 10) --- */
+    .tree-box { background: #10231f; color: #d7efe9; border-radius: 1.1rem; padding: 1.2rem 1.4rem; font-family: var(--mono); font-size: clamp(9.5px, .84vw, 13px); line-height: 1.62; box-shadow: var(--shadow); overflow: hidden; }
+    .tree-box .t-cmt { color: #79b8ac; }
+    .tree-box .t-dir { color: #ffd28a; font-weight: 700; }
+    .tree-box .t-key { color: #8ad8c8; font-weight: 700; }
+    .arch-note { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: 1rem; }
+    .arch-note .feature-chip { background: var(--tosca-soft); border-color: rgba(0,145,142,.25); }
+
+    /* --- QA / security (slide 11) --- */
+    .role-rail { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 1rem 0 1.2rem; }
+    .role-chip { font-family: var(--mono); font-size: clamp(10px, .88vw, 14px); font-weight: 700; color: var(--tosca-dark); background: var(--tosca-soft); border: 1px solid rgba(0,145,142,.3); border-radius: .55rem; padding: .4rem .7rem; }
+    .role-arrow { color: var(--pink); font-weight: 900; font-size: clamp(13px, 1.2vw, 19px); }
+    .qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+    .qa-card { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1rem; padding: 1rem 1.1rem; box-shadow: var(--shadow-soft); }
+    .qa-card .card-tag { margin-bottom: .7rem; }
+    .qa-card p { font-size: clamp(10px, .88vw, 13.5px); }
+    .qa-card p b { color: var(--ink); }
+    .qa-stat { font-family: var(--display); font-size: clamp(20px, 2.1vw, 34px); color: var(--tosca-dark); line-height: 1; }
+
+    /* --- transformation matrix (slide 12) --- */
+    .matrix { display: grid; gap: .55rem; margin-top: 1.2rem; }
+    .mx-head, .mx-row { display: grid; grid-template-columns: 10.5rem 1fr 1fr; gap: .8rem; align-items: stretch; }
+    .mx-head { font-size: clamp(9px, .74vw, 11px); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--tosca-dark); padding: 0 .2rem .2rem; }
+    .mx-row { background: var(--card); border: 1px solid var(--line-soft); border-radius: .9rem; padding: .65rem .8rem; box-shadow: var(--shadow-soft); }
+    .mx-dim { font-weight: 800; font-size: clamp(10.5px, .92vw, 14.5px); color: var(--ink); display: grid; align-content: center; }
+    .mx-cell { font-size: clamp(9.5px, .84vw, 13px); line-height: 1.42; color: var(--muted); display: grid; align-content: center; }
+    .mx-cell.before { color: #8a6d3b; }
+    .mx-cell.after { color: #0b5a52; }
+    .mx-cell.before::before, .mx-cell.after::before { content: "✕"; color: var(--pink); font-weight: 900; margin-right: .4rem; }
+    .mx-cell.after::before { content: "✓"; color: var(--emerald); }
+    .mx-cell span { display: inline; }
+
+    /* --- roadmap (slide 13) --- */
+    .road-list { display: grid; gap: .65rem; margin-top: 1.2rem; }
+    .road-row { display: grid; grid-template-columns: 2.4rem 15rem 1fr; gap: .9rem; align-items: center; background: var(--card); border: 1px solid var(--line-soft); border-radius: .95rem; padding: .7rem .95rem; box-shadow: var(--shadow-soft); }
+    .road-row i { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; background: var(--tosca-soft); color: var(--tosca-dark); border-radius: 50%; font-style: normal; font-weight: 900; font-size: .8rem; }
+    .road-row strong { font-size: clamp(11px, .98vw, 15px); }
+    .road-row span { color: var(--muted); font-size: clamp(9.5px, .84vw, 13px); line-height: 1.45; }
+
+    /* --- closing (slide 14) --- */
     .cta { align-content: center; }
-    .cta-box { background: var(--tosca-dark); color: white; border-radius: 1.6rem; padding: 4.2% 5%; display: grid; grid-template-columns: 1fr auto; gap: 5%; align-items: center; box-shadow: var(--shadow); }
-    .cta-box h2 { color: white; margin-bottom: .8rem; max-width: 9em; }
-    .cta-box p { color: #d3efeb; max-width: 35rem; margin-bottom: 0; }
-    .cta-box .btn { background: white; color: var(--tosca-dark); white-space: nowrap; }
-    .controls { position: absolute; z-index: 10; left: 7.2%; right: 7.2%; bottom: 1.25%; display: flex; align-items: center; gap: .8rem; }
+    .cta-box { background: var(--tosca-dark); color: white; border-radius: 1.6rem; padding: 4% 5%; display: grid; grid-template-columns: 1.35fr .65fr; gap: 5%; align-items: center; box-shadow: var(--shadow); }
+    .cta-box h2 { color: white; margin-bottom: .8rem; max-width: 12em; }
+    .cta-box p { color: #d3efeb; max-width: 38rem; margin-bottom: 0; }
+    .cta-pill { border: 1px solid rgba(255,255,255,.3); border-radius: 1.1rem; padding: 1rem 1.1rem; background: rgba(255,255,255,.06); }
+    .cta-pill strong { display: block; font-size: clamp(10px, .8vw, 12px); letter-spacing: .12em; text-transform: uppercase; color: #a9e5df; margin-bottom: .4rem; }
+    .cta-pill span { font-family: var(--mono); font-size: clamp(12px, 1.1vw, 17px); color: white; }
+
+    /* --- controls --- */
+    .controls { position: absolute; z-index: 10; left: 6.8%; right: 6.8%; bottom: 1.1%; display: flex; align-items: center; gap: .8rem; }
     .control-btn { width: 2rem; height: 2rem; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,253,249,.9); color: var(--tosca-dark); cursor: pointer; display: grid; place-items: center; font-size: 1.05rem; line-height: 1; }
     .control-btn:hover { border-color: var(--tosca); background: var(--tosca-soft); }
     .progress { height: 3px; flex: 1; background: var(--line); border-radius: 99px; overflow: hidden; }
@@ -134,14 +213,7 @@
     .dots { display: flex; gap: .35rem; align-items: center; }
     .dot { width: .5rem; height: .5rem; border: 0; border-radius: 50%; background: #c7cec9; cursor: pointer; padding: 0; }
     .dot.is-active { width: 1.25rem; border-radius: 99px; background: var(--tosca-dark); }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-    .shift-visual { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: center; margin-top: 2rem; }
-    .shift-side { padding: 1.4rem; border-radius: 1.1rem; }
-    .shift-side.before { background: var(--card-warm); border: 1px solid var(--line); }
-    .shift-side.after { background: var(--tosca-soft); border: 1px solid rgba(0,145,142,.25); }
-    .shift-side h3 { margin-bottom: .4rem; }
-    .shift-side p { font-size: clamp(10px, .82vw, 13px); margin-bottom: 0; }
-    .shift-arrow { color: var(--tosca); font-size: clamp(24px, 2.5vw, 40px); font-weight: 300; }
+
     @media (max-aspect-ratio: 4/3) {
       body { overflow: auto; }
       .deck { min-height: 100vh; height: auto; padding: 1rem 0; }
@@ -162,15 +234,15 @@
       .hero-copy, .two-col, .two-col.wide-right, .two-col.wide-left, .cta-box { display: block; }
       .hero-mark { position: relative; right: auto; top: auto; width: 45%; margin: 2rem 0 0 auto; }
       .hero-attribution { position: relative; right: auto; bottom: auto; text-align: left; margin-top: 1.5rem; }
-      .cards, .measure, .split-band { grid-template-columns: 1fr; }
+      .cards, .cards.cols-2, .cards.cols-4, .feature-strip, .view-grid, .pillars, .qa-grid, .arch-note, .stack-grid { grid-template-columns: 1fr; }
       .flow { gap: .2rem; }
       .flow-step .num { width: 2.3rem; height: 2.3rem; font-size: 1rem; }
       .flow::before { top: 1.15rem; }
-      .proof-grid { display: block; }
-      .proof-main { margin-bottom: 1rem; }
-      .proof-side { grid-template-columns: 1fr 1fr; }
-      .shift-visual { grid-template-columns: 1fr; gap: 1rem; }
-      .shift-arrow { text-align: center; }
+      .route-row { grid-template-columns: 1fr; }
+      .mx-head { display: none; }
+      .mx-row { grid-template-columns: 1fr; }
+      .road-row { grid-template-columns: 2.4rem 1fr; }
+      .road-row span { grid-column: 2; }
       .cta-box .btn { margin-top: 1.5rem; }
       .dots { display: none; }
     }
@@ -180,166 +252,265 @@
   </style>
 </head>
 <body>
-  <main class="deck" aria-label="Presentasi Inovasi Manajemen Event Metropolitan Mall Bekasi">
+  <main class="deck" aria-label="Presentasi Dashboard Calendar Event — Metropolitan Mall Bekasi">
     <section class="stage" data-od-id="presentation-stage" aria-live="polite">
       <div class="brand" data-od-id="brand-mark"><img src="assets/logo-metmal.svg" alt="Logo Metropolitan Mall Bekasi"><span>Metropolitan Mall Bekasi</span></div>
 
-      <!-- 01 · Cover -->
-      <section class="slide hero is-active" data-slide="01 / 11" data-od-id="slide-cover" aria-roledescription="slide" aria-label="Sampul">
-        <p class="kicker">Inovasi Marcomm · Metropolitan Mall Bekasi</p>
-        <h1>Manajemen Event<br><span class="tosca">yang terpusat</span><br>dan terukur.</h1>
+      <!-- 01 · Judul & Pembuka -->
+      <section class="slide hero is-active" data-slide="01 / 14" data-od-id="slide-cover" aria-roledescription="slide" aria-label="Judul dan pembuka">
+        <p class="kicker">Transformasi Digital · Metropolitan Mall Bekasi</p>
+        <h1>Dashboard<br>Calendar <span class="tosca">Event</span></h1>
         <div class="rule"></div>
         <div class="hero-copy">
-          <p class="lead">Sebuah sistem yang mengubah cara tim event mengelola seluruh siklus — dari perencanaan hingga pelaporan — menjadi satu alur yang jelas.</p>
-          <button class="btn btn-primary" data-go="7">Lihat dampaknya</button>
+          <p class="lead">Ekosistem manajemen event &amp; hub komunitas — menyatukan perencanaan event, publikasi informasi, dan evaluasi tenant dalam satu platform terpadu. Sudah live, bukan konsep.</p>
+          <button class="btn btn-primary" data-go="7">Lihat fiturnya</button>
         </div>
         <div class="hero-mark" aria-hidden="true"><strong>EVENT<br>FLOW</strong><small>METMAL / MARCOMM</small></div>
         <div class="hero-attribution"><span class="name">Andy Safii</span><span class="role">Marcomm · Inisiator proyek</span></div>
-        <div class="slide-footer"><span>Inisiatif pribadi → dampak operasional</span><span class="note">Bukti nyata, bukan konsep</span></div>
+        <div class="slide-footer"><span>metmalcommunityspace.web.id</span><span class="note">14 slide · v2.0</span></div>
       </section>
 
-      <!-- 02 · Problem observed -->
-      <section class="slide" data-slide="02 / 11" data-od-id="slide-problem" aria-roledescription="slide" aria-label="Masalah yang dilihat">
+      <!-- 02 · Latar Belakang & Problem -->
+      <section class="slide" data-slide="02 / 14" data-od-id="slide-problem" aria-roledescription="slide" aria-label="Latar belakang dan permasalahan">
         <div class="two-col wide-right">
           <div>
-            <p class="kicker">Yang dilihat sehari-hari</p>
-            <h2>Proses event masih berjalan sendiri-sendiri.</h2>
-            <p class="lead">Setiap bagian berjalan dengan caranya sendiri: jadwal di satu tempat, draft di tempat lain, survey di spreadsheet terpisah.</p>
-            <ul class="problem-list">
-              <li><b>01</b><span>Jadwal event dan rencana konten tidak saling terhubung.</span></li>
-              <li><b>02</b><span>Review draft, pendaftaran, dan survey perlu dilacak manual.</span></li>
-              <li><b>03</b><span>Laporan dibuat ulang setiap kali, dari data yang berbeda-beda.</span></li>
+            <p class="kicker">Latar Belakang</p>
+            <h2>Tantangan operasional sehari-hari.</h2>
+            <p class="lead">Operasional event berjalan terpisah-pisah: data tersebar, proses manual, evaluasi tidak terhubung.</p>
+          </div>
+          <ul class="problem-list">
+            <li><b>01</b><span><strong>Fragmentasi data</strong> — jadwal tersebar di berbagai media, risiko miskomunikasi.</span></li>
+            <li><b>02</b><span><strong>Visibility rendah</strong> — distribusi event sulit dipantau; overlap baru ketahuan saat bentrok.</span></li>
+            <li><b>03</b><span><strong>Pengajuan manual</strong> — pendaftaran komunitas &amp; upload proposal belum terpusat.</span></li>
+            <li><b>04</b><span><strong>Evaluasi terfragmentasi</strong> — survey pengunjung dan tenant terpisah, sulit direkap.</span></li>
+            <li><b>05</b><span><strong>Dokumentasi tidak efisien</strong> — surat resmi dan dokumentasi area masih manual.</span></li>
+          </ul>
+        </div>
+        <div class="slide-footer"><span>Satu jadwal event = biaya koordinasi tersembunyi</span><span>02</span></div>
+      </section>
+
+      <!-- 03 · Solusi: Ekosistem Terpadu -->
+      <section class="slide" data-slide="03 / 14" data-od-id="slide-solution" aria-roledescription="slide" aria-label="Solusi ekosistem terpadu">
+        <p class="kicker">Solusi</p>
+        <h2>Satu platform, empat pilar.</h2>
+        <p class="lead">Menghubungkan Admin, Komunitas, dan Tenant dalam satu ekosistem — satu data, banyak pemakai.</p>
+        <div class="pillars">
+          <article class="pillar"><div class="p-num">1</div><h3>Admin Dashboard</h3><p>Kontrol penuh atas jadwal, draft, dan dokumen resmi — dari satu tempat.</p></article>
+          <article class="pillar hot"><div class="p-num">2</div><h3>Community Hub</h3><p>Gerbang publik: jadwal event, pendaftaran komunitas, dan direktori komunitas.</p></article>
+          <article class="pillar"><div class="p-num">3</div><h3>Tenant Feedback Loop</h3><p>Evaluasi anonim pasca-event; hasil agregat jadi ukuran dampak.</p></article>
+          <article class="pillar"><div class="p-num">4</div><h3>Visual Asset Management</h3><p>Galeri foto area event — visualisasi lokasi sebelum memilih.</p></article>
+        </div>
+        <div class="slide-footer"><span>Ekosistem terpadu — bukan tumpukan alat terpisah</span><span>03</span></div>
+      </section>
+
+      <!-- 04 · Tujuan Utama -->
+      <section class="slide" data-slide="04 / 14" data-od-id="slide-goals" aria-roledescription="slide" aria-label="Tujuan utama project">
+        <p class="kicker">Tujuan Project</p>
+        <h2>Dari alat penjadwalan menjadi siklus yang utuh.</h2>
+        <div class="cards" data-od-id="goals-grid" style="margin-top:1.6rem">
+          <article class="card"><div class="card-tag">Centralization</div><h3>Satu sumber kebenaran</h3><p>Seluruh jadwal event hidup di satu database — tidak ada versi ganda.</p></article>
+          <article class="card warm"><div class="card-tag">Streamlining</div><h3>Alur disederhanakan</h3><p>Pengajuan → Proposal → Draft → Event Resmi. Setiap langkah tercatat.</p></article>
+          <article class="card"><div class="card-tag">Engagement</div><h3>Database komunitas</h3><p>Direktori Komunitas membangun data EO/komunitas yang terukur dan bisa dicari.</p></article>
+          <article class="card warm"><div class="card-tag">Data-Driven</div><h3>Evaluasi berbasis data</h3><p>Survey agregat dipakai untuk menaikkan kualitas event berikutnya.</p></article>
+          <article class="card"><div class="card-tag">Transparansi</div><h3>Status otomatis</h3><p>Status event terupdate real-time dari tanggal — tanpa rekap manual.</p></article>
+          <article class="card warm"><div class="card-tag">Dokumentasi</div><h3>Surat otomatis</h3><p>Surat resmi digenerate sistem, arsip tersimpan — bukan dikerjakan ulang.</p></article>
+        </div>
+        <div class="slide-footer"><span>Terpusat · terukur · transparan — dari pengajuan sampai evaluasi</span><span>04</span></div>
+      </section>
+
+      <!-- 05 · Fitur Admin Dashboard -->
+      <section class="slide" data-slide="05 / 14" data-od-id="slide-admin" aria-roledescription="slide" aria-label="Fitur admin dashboard">
+        <p class="kicker">Fitur Unggulan · Admin</p>
+        <h2>Kendali operasional tingkat tinggi.</h2>
+        <p class="lead">Satu set data event, empat tampilan analitis — plus otomatisasi yang menghapus pekerjaan manual.</p>
+        <div class="view-grid">
+          <article class="view-card"><div class="v-glyph">≡</div><h3>Tabel</h3><p>Manajemen data detail — cari, filter, sort seluruh event.</p></article>
+          <article class="view-card"><div class="v-glyph">▦</div><h3>Kalender</h3><p>Distribusi bulanan — langsung terlihat mana yang padat.</p></article>
+          <article class="view-card"><div class="v-glyph">▤</div><h3>Kanban</h3><p>Pipeline status: Mendatang → Berlangsung → Selesai.</p></article>
+          <article class="view-card"><div class="v-glyph">═</div><h3>Timeline</h3><p>Analisis rentang waktu &amp; quarter — pola setahun sekilas.</p></article>
+        </div>
+        <div class="feature-strip">
+          <div class="feature-chip"><strong>Smart Automation</strong><span>Status event dihitung otomatis dari tanggal &amp; jam system.</span></div>
+          <div class="feature-chip"><strong>Organization Linking</strong><span>Event terhubung ke database EO/organisasi terdaftar.</span></div>
+          <div class="feature-chip"><strong>Asset Management</strong><span>CRUD foto area event — terintegrasi landing page.</span></div>
+          <div class="feature-chip"><strong>PDF Generator</strong><span>Surat resmi otomatis via GeneratedLetter (Supabase).</span></div>
+        </div>
+        <div class="slide-footer"><span>Multi-View Engine: Tabel · Kalender · Kanban · Timeline</span><span>05</span></div>
+      </section>
+
+      <!-- 06 · Community Hub (Publik) -->
+      <section class="slide" data-slide="06 / 14" data-od-id="slide-community" aria-roledescription="slide" aria-label="Community hub publik">
+        <p class="kicker">Fitur Unggulan · Publik</p>
+        <h2>Interaksi tanpa hambatan.</h2>
+        <p class="lead">Halaman publik yang melayani pengunjung, komunitas, dan tenant — tanpa login.</p>
+        <div class="route-table">
+          <div class="route-row"><code class="route-path">/events</code><div><h3>Public Event Page</h3><p>Jadwal real-time dengan filter kategori — bisa diunduh PDF dalam satu klik.</p></div></div>
+          <div class="route-row"><code class="route-path">/daftar</code><div><h3>Digital Registration</h3><p>Form pengajuan event komunitas lengkap upload proposal (PDF/Word, maks 20MB).</p></div></div>
+          <div class="route-row"><code class="route-path">/community</code><div><h3>Community Directory</h3><p>Portofolio publik EO + statistik aktivitas: total acara &amp; acara mendatang.</p></div></div>
+          <div class="route-row"><code class="route-path">/gallery</code><div><h3>Area Visualizer</h3><p>Galeri foto area mall dengan lightbox — komunitas bisa pilih lokasi sebelum mendaftar.</p></div></div>
+          <div class="route-row"><code class="route-path">/survey/:id</code><div><h3>Feedback System</h3><p>Survey kepuasan pengunjung &amp; organizer — rating mall dan EO.</p></div></div>
+        </div>
+        <div class="slide-footer"><span>Semua route publik — tanpa login, tanpa admin perantara</span><span>06</span></div>
+      </section>
+
+      <!-- 07 · Evaluasi Tenant -->
+      <section class="slide" data-slide="07 / 14" data-od-id="slide-tenant" aria-roledescription="slide" aria-label="Evaluasi tenant">
+        <p class="kicker">Fitur Unggulan · Tenant</p>
+        <h2>Self-assessment anonim.</h2>
+        <p class="lead">Tenant menilai dampak event terhadap gerainya — tanpa login, hasil terkumpul otomatis.</p>
+        <div class="cards cols-2" style="margin-top:1.4rem">
+          <article class="card"><div class="card-tag">Alur pengisian</div><h3>Tiga langkah, nol akun</h3><p>Buka <code>/tenant-survey</code> → pilih event (Event Picker) → isi form di <code>/tenant-survey/:eventId</code>. Pilih gerai dari daftar MID, isi skala kenaikan traffic &amp; sales, kirim.</p></article>
+          <article class="card warm"><div class="card-tag">Hasil agregat</div><h3>Terbuka &amp; real-time</h3><p><code>/tenant-survey-results</code> — dashboard publik read-only: KPI traffic/sales, filter event, tren per bulan. Admin/TR bisa ekspor PDF.</p></article>
+          <article class="card warm"><div class="card-tag">Anti-spam</div><h3>Fingerprint + rate limit</h3><p>Deteksi duplikat per device+event, rate limit IP server-side, konfigurasi per-event (buka/tutup form) — default tertutup.</p></article>
+          <article class="card"><div class="card-tag">Manfaat</div><h3>Insight objektif</h3><p>Data dampak event ke traffic/sales gerai — bahan evaluasi &amp; negosiasi sponsorship, tanpa admin jadi perantara.</p></article>
+        </div>
+        <div class="slide-footer"><span>Feedback loop tenant → data agregat → keputusan event berikutnya</span><span>07</span></div>
+      </section>
+
+      <!-- 08 · Alur Kerja End-to-End -->
+      <section class="slide" data-slide="08 / 14" data-od-id="slide-workflow" aria-roledescription="slide" aria-label="Alur kerja end-to-end">
+        <p class="kicker">Alur Kerja Sistem</p>
+        <h2>Siklus hidup event, ujung ke ujung.</h2>
+        <div class="flow" data-od-id="workflow-flow">
+          <div class="flow-step"><div class="num">01</div><strong>Submission</strong><span class="step-path">/daftar</span><span>Komunitas mendaftar &amp; upload proposal.</span></div>
+          <div class="flow-step"><div class="num">02</div><strong>Review</strong><span class="step-path">dashboard</span><span>Admin meninjau — &ldquo;Buat Draft dari Pendaftaran&rdquo;.</span></div>
+          <div class="flow-step"><div class="num">03</div><strong>Planning</strong><span class="step-path">draft</span><span>Olah draft: area, tanggal, approval.</span></div>
+          <div class="flow-step"><div class="num">04</div><strong>Execution</strong><span class="step-path">/events</span><span>Publish jadi Event Resmi — tampil publik.</span></div>
+          <div class="flow-step"><div class="num">05</div><strong>Evaluation</strong><span class="step-path">survey</span><span>Tenant &amp; pengunjung mengisi — hasil agregat.</span></div>
+        </div>
+        <p class="note">Status berpindah otomatis mengikuti tanggal sistem — Mendatang → Berlangsung → Selesai — tanpa intervensi manual.</p>
+        <div class="slide-footer"><span>Submission → Review → Planning → Execution → Evaluation</span><span>08</span></div>
+      </section>
+
+      <!-- 09 · Tech Stack -->
+      <section class="slide" data-slide="09 / 14" data-od-id="slide-stack" aria-roledescription="slide" aria-label="Tech stack">
+        <p class="kicker">Arsitektur Modern</p>
+        <h2>Stack current, bukan legacy.</h2>
+        <div class="stack-grid">
+          <div class="stack-col">
+            <h3>Frontend</h3>
+            <ul class="stack-list">
+              <li><span class="t-name">React<small>UI library — concurrent features</small></span><span class="t-ver">19.0.0</span></li>
+              <li><span class="t-name">TypeScript<small>Type safety seluruh kodebase</small></span><span class="t-ver">^5.9.3</span></li>
+              <li><span class="t-name">Tailwind CSS<small>Styling — dark mode penuh</small></span><span class="t-ver">^4.0.0</span></li>
+              <li><span class="t-name">React Router<small>SPA + lazy loading tiap route</small></span><span class="t-ver">^7.14.2</span></li>
+              <li><span class="t-name">Vite<small>Build tool — instant HMR</small></span><span class="t-ver">^6.1.1</span></li>
+              <li><span class="t-name">date-fns<small>Manipulasi tanggal presisi</small></span><span class="t-ver">^4.1.0</span></li>
             </ul>
           </div>
-          <div class="quote-box"><p>&ldquo;Setiap event terasa seperti dimulai dari nol.&rdquo;</p><small>Pengamatan langsung</small></div>
-        </div>
-        <div class="slide-footer"><span>Masalah: tidak ada satu tempat untuk melihat semuanya</span><span>02</span></div>
-      </section>
-
-      <!-- 03 · The initiative -->
-      <section class="slide" data-slide="03 / 11" data-od-id="slide-initiative" aria-roledescription="slide" aria-label="Inisiatif">
-        <p class="kicker">Inisiatif</p>
-        <h2>Dari manual menjadi <span class="tosca">terpusat.</span></h2>
-        <p class="lead">Alih-alih menunggu, saya mengambil inisiatif untuk membangun sistem yang menghubungkan semua bagian event ke dalam satu dashboard.</p>
-        <div class="shift-visual" data-od-id="shift-visual">
-          <div class="shift-side before"><h3>Sebelum</h3><p>Jadwal tersebar · Draft di-review manual · Survey di spreadsheet · Laporan dibuat ulang setiap kali</p></div>
-          <div class="shift-arrow">&rarr;</div>
-          <div class="shift-side after"><h3>Sesudah</h3><p>Satu dashboard · Alur draft terstruktur · Survey tercatat otomatis · Data siap dilaporkan</p></div>
-        </div>
-        <div class="slide-footer"><span>Inisiatif: bangun sistem, bukan tunggu instruksi</span><span>03</span></div>
-      </section>
-
-      <!-- 04 · What runs today -->
-      <section class="slide" data-slide="04 / 11" data-od-id="slide-live" aria-roledescription="slide" aria-label="Sudah berjalan">
-        <p class="kicker">Fase 1 · Sudah live</p>
-        <h2>Bukan rencana. <span class="tosca">Sudah berjalan.</span></h2>
-        <p class="lead">Sistem ini bukan proposal di atas kertas. Modul-modul berikut sudah aktif dan bisa digunakan hari ini.</p>
-        <div class="module-cloud" data-od-id="live-module-list">
-          <span class="module live">Pusat Komando</span><span class="module live">Analitik</span><span class="module live">Jadwal Event</span><span class="module live">Antrian Draft</span><span class="module live">Tema Tahunan</span><span class="module live">Pendaftaran</span><span class="module live">Survey Kepuasan</span><span class="module live">Evaluasi Tenant</span><span class="module live">Hasil Evaluasi Tenant</span><span class="module live">Manajemen Pengguna</span><span class="module live">Log Aktivitas</span><span class="module live">Konten</span>
-        </div>
-        <div class="split-band" style="margin-top:1.8rem">
-          <div class="band"><strong>Admin</strong><span>Dashboard terpusat untuk mengelola seluruh siklus event — dari draft hingga laporan.</span></div>
-          <div class="band"><strong>Publik</strong><span>Landing event, galeri, survey, dan pendaftaran — sisi yang dilihat pengunjung dan tenant.</span></div>
-        </div>
-        <div class="slide-footer"><span>Fase 1: modul inti sudah aktif dan teruji</span><span>04</span></div>
-      </section>
-
-      <!-- 05 · Proof screenshots -->
-      <section class="slide" data-slide="05 / 11" data-od-id="slide-proof" aria-roledescription="slide" aria-label="Bukti nyata">
-        <div class="proof-copy"><div><p class="kicker">Bukti nyata</p><h2>Sistem berjalan, bukan mockup.</h2></div><p>Screenshot dari dashboard yang sudah aktif. Ini bukan konsep — ini yang digunakan tim.</p></div>
-        <div class="proof-grid" data-od-id="proof-gallery">
-          <figure class="proof proof-main"><span class="proof-label">Dashboard · Jadwal</span><img src="public/screenshots/dashboard-timeline-content.png" alt="Screenshot dashboard menampilkan timeline event dan area konten"></figure>
-          <div class="proof-side">
-            <figure class="proof"><span class="proof-label">Tabel event</span><img src="public/screenshots/dashboard-table-content.png" alt="Screenshot dashboard menampilkan tabel event dan konten"></figure>
-            <figure class="proof"><span class="proof-label">Cari &amp; filter</span><img src="public/screenshots/dashboard-search-filter.png" alt="Screenshot dashboard menampilkan pencarian dan filter event"></figure>
+          <div class="stack-col">
+            <h3>Backend &amp; Infra</h3>
+            <ul class="stack-list">
+              <li><span class="t-name">Supabase<small>PostgreSQL · Auth RBAC · Storage</small></span><span class="t-ver">^2.104.1</span></li>
+              <li><span class="t-name">Vercel Serverless<small>10+ endpoint di <code>api/*</code></small></span><span class="t-ver">runtime</span></li>
+              <li><span class="t-name">Cloudflare R2<small>Media storage — egress gratis</small></span><span class="t-ver">S3 API</span></li>
+              <li><span class="t-name">zod<small>Validasi schema FE/BE shared</small></span><span class="t-ver">^4.4.3</span></li>
+              <li><span class="t-name">@react-pdf/renderer<small>Generate surat &amp; jadwal</small></span><span class="t-ver">^4.5.1</span></li>
+              <li><span class="t-name">Vercel Analytics<small>Monitoring performa &amp; traffic</small></span><span class="t-ver">^2.0.1</span></li>
+            </ul>
           </div>
         </div>
-        <div class="slide-footer"><span class="note">Screenshot dari sistem live, bukan mockup</span><span>05</span></div>
+        <div class="infra-note"><strong>Channel terpisah:</strong><span>Publik → Supabase anon + RLS · Admin → serverless service role. Kunci server tidak pernah menyentuh browser.</span></div>
+        <div class="slide-footer"><span>React 19 · TypeScript · Supabase · Vercel · R2</span><span>09</span></div>
       </section>
 
-      <!-- 06 · Impact -->
-      <section class="slide" data-slide="06 / 11" data-od-id="slide-impact" aria-roledescription="slide" aria-label="Dampak">
-        <p class="kicker">Dampak</p>
-        <h2>Apa yang berubah.</h2>
-        <div class="measure" data-od-id="impact-grid">
-          <article class="card"><div class="card-tag">Koordinasi</div><h3>Satu tempat, bukan banyak</h3><p>Tim tidak lagi mencari jadwal di satu file, draft di tempat lain, dan survey di spreadsheet terpisah.</p></article>
-          <article class="card warm"><div class="card-tag">Visibilitas</div><h3>Semua terlihat jelas</h3><p>Status event, draft yang perlu review, hasil survey — semua bisa dilihat dari satu titik tanpa bertanya ke banyak orang.</p></article>
-          <article class="card"><div class="card-tag">Pelaporan</div><h3>Data siap pakai</h3><p>Laporan tidak perlu dibuat ulang dari nol. Data proses sudah tercatat dan bisa langsung digunakan.</p></article>
-        </div>
-        <p class="note" style="margin-top:1.5rem">Tidak ada angka hasil yang dijanjikan di muka — dampak diukur dari pemakaian nyata.</p>
-        <div class="slide-footer"><span>Dampak: koordinasi, visibilitas, pelaporan</span><span>06</span></div>
-      </section>
-
-      <!-- 07 · Still evolving -->
-      <section class="slide" data-slide="07 / 11" data-od-id="slide-evolving" aria-roledescription="slide" aria-label="Masih berkembang">
-        <p class="kicker">Momentum</p>
-        <h2>Ini baru <span class="tosca">fase pertama.</span></h2>
-        <p class="lead">Sistem ini terus berkembang. Setiap iterasi menambah kemampuan berdasarkan kebutuhan operasional yang nyata.</p>
-        <div class="flow" data-od-id="evolution-flow">
-          <div class="flow-step"><div class="num">01</div><strong>Fase 1 · Live</strong><span>Modul inti sudah berjalan</span></div>
-          <div class="flow-step"><div class="num">02</div><strong>Fase 2 · Keamanan</strong><span>Penguatan sistem berlanjut</span></div>
-          <div class="flow-step"><div class="num">03</div><strong>Fase 3 · Ekspansi</strong><span>Fitur tambahan sesuai kebutuhan</span></div>
-          <div class="flow-step"><div class="num">04</div><strong>Fase 4 · Integrasi</strong><span>Hubungkan ke sistem mall lain</span></div>
-          <div class="flow-step"><div class="num">05</div><strong>Fase 5 · Optimal</strong><span>Alur kerja yang semakin efisien</span></div>
-        </div>
-        <p class="note">Roadmap menunjukkan komitmen jangka panjang, bukan proyek satu kali.</p>
-        <div class="slide-footer"><span>Momentum: setiap fase membangun di atas yang sudah terbukti</span><span>07</span></div>
-      </section>
-
-      <!-- 08 · Roadmap -->
-      <section class="slide" data-slide="08 / 11" data-od-id="slide-roadmap" aria-roledescription="slide" aria-label="Langkah berikutnya">
-        <p class="kicker">Langkah berikutnya</p>
-        <h2>Yang sedang dikerjakan.</h2>
-        <div class="steps" data-od-id="roadmap-steps">
-          <div class="step-row"><i>01</i><div><strong>Keamanan berlanjut</strong><span>Penguatan sistem keamanan terus berjalan — rotasi kredensial, kontrol akses, dan pengujian berkala.</span></div></div>
-          <div class="step-row"><i>02</i><div><strong>Penyempurnaan alur</strong><span>Optimasi workflow berdasarkan feedback penggunaan sehari-hari.</span></div></div>
-          <div class="step-row"><i>03</i><div><strong>Fitur tambahan</strong><span>Modul baru sesuai prioritas operasional — misalnya notifikasi otomatis dan integrasi kalender.</span></div></div>
-        </div>
-        <div class="slide-footer"><span>Roadmap: keamanan, alur, fitur — semua berdasarkan kebutuhan nyata</span><span>08</span></div>
-      </section>
-
-      <!-- 09 · GM involvement -->
-      <section class="slide" data-slide="09 / 11" data-od-id="slide-gm-input" aria-roledescription="slide" aria-label="Arahkan langkah">
-        <div class="two-col">
+      <!-- 10 · Struktur Organisasi Kode -->
+      <section class="slide" data-slide="10 / 14" data-od-id="slide-structure" aria-roledescription="slide" aria-label="Struktur kode">
+        <p class="kicker">Arsitektur Frontend</p>
+        <h2>Struktur kode yang terdisiplin.</h2>
+        <div class="two-col wide-left" style="align-items:stretch;margin-top:.8rem">
+          <div class="tree-box" role="img" aria-label="Diagram struktur folder src"><pre style="margin:0;font:inherit;font-size:clamp(8.5px,.76vw,11.5px);line-height:1.55">src/
+├── components/
+│   ├── admin/       <span class="t-cmt"># Manajemen pengguna, log aktivitas</span>
+│   ├── community/   <span class="t-cmt"># Hub publik: direktori, registrasi</span>
+│   ├── dashboard/   <span class="t-cmt"># Kalender, Kanban, Timeline</span>
+│   ├── survey/      <span class="t-cmt"># Survey tenant &amp; pengunjung</span>
+│   ├── forms/       <span class="t-cmt"># Form event: basic, multi-day</span>
+│   ├── pdf/         <span class="t-cmt"># Dokumen: jadwal, surat, hasil</span>
+│   └── ui/          <span class="t-cmt"># Shared primitives</span>
+├── hooks/            <span class="t-cmt"># useEvents, useAuth, usePermission</span>
+├── utils/            <span class="t-cmt"># api/, validation, eventUtils</span>
+├── lib/              <span class="t-cmt"># supabase.ts, schemas.ts (zod)</span>
+├── types.ts          <span class="t-cmt"># Domain interfaces</span>
+└── App.tsx           <span class="t-cmt"># Routing v7, lazy loading</span></pre></div>
           <div>
-            <p class="kicker">Keterlibatan</p>
-            <h2>Arahkan langkah berikutnya.</h2>
-            <p class="lead">Sistem ini dibangun untuk melayani kebutuhan operasional. Prioritas berikutnya bisa ditentukan bersama — mana yang paling penting untuk tim.</p>
-          </div>
-          <div class="cards" style="grid-template-columns:1fr">
-            <article class="card"><div class="card-tag">Opsi 1</div><h3>Perkuat keamanan</h3><p>Prioritaskan penguatan sistem sebelum ekspansi fitur.</p></article>
-            <article class="card warm"><div class="card-tag">Opsi 2</div><h3>Tambah fitur</h3><p>Prioritaskan modul baru yang paling dibutuhkan tim operasional.</p></article>
-            <article class="card"><div class="card-tag">Opsi 3</div><h3>Seimbangkan</h3><p>Jalankan keduanya secara paralel dengan alokasi yang tepat.</p></article>
+            <div class="arch-note" style="margin-top:0">
+              <div class="feature-chip"><strong>No global store</strong><span>Tidak ada context/redux. Data hidup di hooks, dioper via props — modal diorkestrasi terpusat.</span></div>
+              <div class="feature-chip"><strong>Explicit mappers</strong><span>Setiap baca/tulis melewati mapper snake_case ↔ camelCase. PostgREST menolak insert yang tidak terpetakan.</span></div>
+              <div class="feature-chip"><strong>Folder = domain</strong><span>Hierarki folder mengikuti domain bisnis (admin, community, survey) — bukan lapisan teknis.</span></div>
+              <div class="feature-chip"><strong>Enum single source</strong><span>Opsi survey didefinisikan satu kali, dipakai FE + BE + RPC — tidak ada drift label.</span></div>
+            </div>
           </div>
         </div>
-        <div class="slide-footer"><span>GM diundang untuk mengarahkan prioritas</span><span>09</span></div>
+        <div class="slide-footer"><span>React 19 + TypeScript strict — organisasi folder mengikuti domain</span><span>10</span></div>
       </section>
 
-      <!-- 10 · Value summary -->
-      <section class="slide" data-slide="10 / 11" data-od-id="slide-value" aria-roledescription="slide" aria-label="Nilai">
-        <p class="kicker">Nilai</p>
-        <h2>Inisiatif yang sudah <span class="tosca">memberikan hasil.</span></h2>
-        <div class="split-band" style="margin-top:2rem">
-          <div class="band"><strong>Dari marcomm</strong><span>Proaktif mengidentifikasi masalah, mengambil inisiatif, dan mengeksekusi solusi — bukan menunggu instruksi.</span></div>
-          <div class="band"><strong>Untuk operasional</strong><span>Sistem yang mempermudah tim event mengelola seluruh siklus — dari perencanaan hingga pelaporan — dalam satu tempat.</span></div>
+      <!-- 11 · QA & Security -->
+      <section class="slide" data-slide="11 / 14" data-od-id="slide-qa" aria-roledescription="slide" aria-label="Quality assurance dan security">
+        <p class="kicker">Keamanan &amp; Kualitas</p>
+        <h2>Empat lapis jaminan.</h2>
+        <div class="role-rail" aria-label="Hierarki role akses">
+          <span class="role-chip">superadmin</span><span class="role-arrow">→</span>
+          <span class="role-chip">admin</span><span class="role-arrow">→</span>
+          <span class="role-chip">viewer</span><span class="role-arrow">→</span>
+          <span class="role-chip">eo_tenant</span><span class="role-arrow">|</span>
+          <span class="role-chip">tenant_relation</span>
+          <span style="color:var(--muted);font-size:clamp(10px,.85vw,13px)">18 permission granular di <code>usePermission</code></span>
         </div>
-        <div class="rule"></div>
-        <p class="lead" style="max-width:36rem">Proyek ini menunjukkan bahwa inovasi tidak harus menunggu anggaran besar atau tim khusus. Satu inisiatif yang tepat bisa mengubah cara kerja.</p>
-        <div class="slide-footer"><span>Nilai: proaktif · eksekusi · dampak nyata</span><span>10</span></div>
+        <div class="qa-grid">
+          <article class="qa-card"><div class="card-tag">Audit trail</div><p><span class="qa-stat">6</span> jenis aksi tercatat otomatis di Log Aktivitas: Membuat, Mengubah, Menghapus, Login, Logout, Mengundang — lengkap IP, user, dan timestamp.</p></article>
+          <article class="qa-card"><div class="card-tag">Automated testing</div><p><span class="qa-stat">41</span> file test Vitest (status event, permission matrix, validasi form, publish Draft→Event) <b>+ 4</b> E2E Playwright untuk alur tenant survey.</p></article>
+          <article class="qa-card"><div class="card-tag">Validasi di setiap boundary</div><p>Zod schemas memvalidasi payload <b>di klien dan server</b> — schema yang sama, tidak ada celah validasi ganda.</p></article>
+          <article class="qa-card"><div class="card-tag">Status tidak bisa basi</div><p>Status event <b>diderivasi dari tanggal</b> (zona Asia/Jakarta) — tidak ada status salah karena lupa update manual. RLS menjaga channel publik vs admin.</p></article>
+        </div>
+        <div class="slide-footer"><span>RBAC · Audit trail · 40+ test file · zod di setiap boundary</span><span>11</span></div>
       </section>
 
-      <!-- 11 · Closing -->
-      <section class="slide cta" data-slide="11 / 11" data-od-id="slide-closing" aria-roledescription="slide" aria-label="Penutup">
+      <!-- 12 · Analisis Dampak -->
+      <section class="slide" data-slide="12 / 14" data-od-id="slide-impact" aria-roledescription="slide" aria-label="Analisis dampak">
+        <p class="kicker">Sebelum vs Sesudah</p>
+        <h2>Transformasi operasional.</h2>
+        <div class="matrix" data-od-id="impact-matrix">
+          <div class="mx-head"><span>Dimensi</span><span>Sebelum — manual/fragmented</span><span>Sesudah — ekosistem terintegrasi</span></div>
+          <div class="mx-row"><div class="mx-dim">Pengajuan Event</div><div class="mx-cell before"><span>Chat/email, proposal file terpisah, tidak terarsip.</span></div><div class="mx-cell after"><span>Form terpusat <code>/daftar</code> + upload proposal, status terlacak.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Monitoring</div><div class="mx-cell before"><span>Cek manual di Excel/kalender fisik, rawan overlap.</span></div><div class="mx-cell after"><span>Dashboard 4 view real-time — overlap terlihat sebelum terjadi.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Publikasi</div><div class="mx-cell before"><span>Update manual di banyak kanal, tidak konsisten.</span></div><div class="mx-cell after"><span>Auto-sync ke public page + PDF jadwal siap unduh.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Evaluasi</div><div class="mx-cell before"><span>Rekap manual, sering terlewat, tanpa agregasi.</span></div><div class="mx-cell after"><span>Survey digital → hasil agregat real-time + tren.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Visualisasi Area</div><div class="mx-cell before"><span>Foto dikirim via chat satu per satu.</span></div><div class="mx-cell after"><span>Galeri area interaktif dengan lightbox — self-service.</span></div></div>
+        </div>
+        <div class="slide-footer"><span>Lima dimensi berubah fundamental — dari manual ke terintegrasi</span><span>12</span></div>
+      </section>
+
+      <!-- 13 · Roadmap -->
+      <section class="slide" data-slide="13 / 14" data-od-id="slide-roadmap" aria-roledescription="slide" aria-label="Roadmap pengembangan">
+        <p class="kicker">Rencana Pengembangan</p>
+        <h2>Lima langkah berikutnya.</h2>
+        <p class="lead">Arah pengembangan mengikuti prioritas operasional — bukan fitur untuk fitur.</p>
+        <div class="road-list" data-od-id="roadmap-list">
+          <div class="road-row"><i>01</i><strong>Automated Notification</strong><span>Notifikasi WhatsApp API ke komunitas saat proposal di-approve &amp; pengingat event — mengurangi komunikasi manual.</span></div>
+          <div class="road-row"><i>02</i><strong>Advanced Analytics</strong><span>Dashboard tren kategori event paling diminati pengunjung — keputusan berbasis data.</span></div>
+          <div class="road-row"><i>03</i><strong>Booking System</strong><span>Pemesanan area event real-time berbasis slot — kalender ketersediaan + konfirmasi otomatis.</span></div>
+          <div class="road-row"><i>04</i><strong>Tenant Portal</strong><span>Akun tenant: riwayat event yang diikuti &amp; hasil evaluasi mereka — meningkatkan engagement.</span></div>
+          <div class="road-row"><i>05</i><strong>External Calendar Sync</strong><span>Sinkronisasi 2-way dengan Google Calendar/iCal — jadwal tercermin di kedua sisi.</span></div>
+        </div>
+        <div class="slide-footer"><span>Notifikasi → Analitik → Booking → Portal → Sync</span><span>13</span></div>
+      </section>
+
+      <!-- 14 · Penutup -->
+      <section class="slide cta" data-slide="14 / 14" data-od-id="slide-closing" aria-roledescription="slide" aria-label="Penutup">
         <div class="cta-box">
           <div>
             <p class="kicker" style="color:#a9e5df">Penutup</p>
-            <h2>Inovasi sudah berjalan. Langkah berikutnya, bersama.</h2>
-            <p>Sistem ini adalah bukti bahwa perbaikan bisa dimulai dari inisiatif. Saya mengundang arahan untuk menentukan prioritas berikutnya.</p>
+            <h2>Dari alat penjadwalan menjadi ekosistem komprehensif.</h2>
+            <p>Setiap event di Metropolitan Mall Bekasi kini <b style="color:#fff">terencana dengan matang, terpublikasi dengan luas, dan terevaluasi dengan akurat</b> — dari pendaftaran, visualisasi area, hingga evaluasi tenant, dalam satu platform.</p>
           </div>
-          <button class="btn" data-go="8">Kembali ke roadmap</button>
+          <div class="cta-pill">
+            <strong>Live di</strong>
+            <span>metmalcommunityspace.web.id</span>
+          </div>
         </div>
-        <div class="hero-attribution" style="position:relative;right:auto;bottom:auto;text-align:left;margin-top:2rem"><span class="name" style="color:white">Andy Safii</span><span class="role" style="color:#a9e5df">Marcomm · Inisiator proyek · Metropolitan Mall Bekasi</span></div>
-        <div class="slide-footer"><span>Inovasi Manajemen Event — Metropolitan Mall Bekasi</span><span>11</span></div>
+        <div class="hero-attribution" style="position:relative;right:auto;bottom:auto;text-align:left;margin-top:2rem"><span class="name" style="color:var(--tosca-dark)">Andy Safii</span><span class="role">Marcomm · Inisiator proyek · Metropolitan Mall Bekasi</span></div>
+        <div class="slide-footer"><span>Dashboard Calendar Event v2.0</span><span>14</span></div>
       </section>
 
       <nav class="controls" data-od-id="slide-controls" aria-label="Navigasi slide">

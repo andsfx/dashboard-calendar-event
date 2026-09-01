@@ -690,67 +690,7 @@
     }
     .notes-overlay.show { display: block; }
     @media print { .notes-toggle, .notes-overlay { display: none !important; } }
-       /* --- FEATURE GRIDS ported from Deck B (fixed px @1920) --- */
-    .parts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 2rem; }
-    .part-card { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 1rem; padding: 1.1rem 1rem; display: flex; flex-direction: column; justify-content: space-between; }
-    .part-card .part-head { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem; }
-    .part-card h4 { margin: 0 0 0.4rem; font-size: 19px; line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); font-family: "Iowan Old Style", Palatino, Georgia, serif; }
-    .part-card p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
-
-    .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.6rem; }
-    .view-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .view-card .v-glyph { display: grid; place-items: center; height: 3.1rem; border-radius: 0.6rem; background: var(--accent-soft); color: var(--accent-deep); font-size: 20px; font-weight: 700; font-family: "Iowan Old Style", Palatino, Georgia, serif; letter-spacing: -0.04em; }
-    .view-card h3 { margin: 0; font-size: 15px; line-height: 1.2; color: var(--fg); }
-    .view-card p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--muted); }
-    .auto-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin-top: 1rem; }
-    .feature-chip { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 0.9rem; padding: 0.85rem 0.95rem; }
-    .feature-chip strong { display: block; font-size: 13px; color: var(--fg); margin-bottom: 0.35rem; font-weight: 600; }
-    .feature-chip span { color: var(--muted); font-size: 11.5px; line-height: 1.4; }
-
-    .route-table { display: grid; gap: 0.6rem; margin-top: 1.3rem; }
-    .route-row { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: center; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 0.95rem; padding: 0.8rem 1rem; }
-    .route-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent-deep); font-weight: 700; background: var(--accent-soft); border-radius: 0.5rem; padding: 0.35rem 0.55rem; align-self: center; white-space: nowrap; }
-    .route-row h3 { margin: 0 0 0.3rem; font-size: 14px; line-height: 1.25; color: var(--fg); }
-    .route-row p { margin: 0; font-size: 12px; color: var(--muted); }
-
-    .tenant-grid { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 1.2rem; margin-top: 1.4rem; align-items: stretch; }
-    .tenant-panel { border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); padding: 1.1rem; display: flex; flex-direction: column; gap: 0.8rem; }
-    .tenant-nums { display: grid; place-items: center; flex: 1; background: var(--bg-soft); border-radius: 0.9rem; border: 1px solid var(--border); }
-    .tenant-nums .big-num { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 58px; line-height: 1; color: var(--accent-deep); font-weight: 600; }
-    .tenant-nums .small-label { font-size: 11px; color: var(--muted); margin-top: 0.3rem; text-align: center; }
-    .tenant-flow h4 { margin: 0 0 0.4rem; font-size: 14px; color: var(--fg); font-weight: 600; }
-    .tenant-flow p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
-    .tenant-steps { display: flex; flex-direction: column; gap: 0.55rem; font-size: 13px; color: var(--muted); }
-
-    .role-rail { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin: 1.1rem 0 1.3rem; }
-    .role-chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 700; color: var(--accent-deep); background: var(--accent-soft); border: 1px solid var(--accent-mid); border-radius: 0.55rem; padding: 0.4rem 0.7rem; }
-    .role-arrow { color: var(--pink); font-weight: 900; font-size: 18px; }
-    .qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 0.4rem; }
-    .qa-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; padding: 1rem 1.1rem; }
-    .qa-card .card-tag { margin-bottom: 0.7rem; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
-    .qa-card p { font-size: 12.5px; margin: 0; line-height: 1.45; color: var(--muted); }
-    .qa-card p b { color: var(--fg); font-weight: 600; }
-    .qa-stat { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 28px; color: var(--accent-deep); line-height: 1.1; margin-top: 0.4rem; }
-    .qa-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.2rem; }
-    .qa-stat-box { text-align: center; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 0.9rem; }
-    .qa-stat-box .sub { font-size: 12px; color: var(--muted); margin-top: 0.4rem; }
-    .qa-stat-box .sub b { color: var(--fg); }
-
-    .matrix { display: grid; gap: 0.55rem; margin-top: 1.2rem; }
-    .mx-head, .mx-row { display: grid; grid-template-columns: 10.5rem 1fr 1fr; gap: 0.8rem; align-items: stretch; }
-    .mx-head { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding: 0 0.2rem 0.3rem; }
-    .mx-row { background: var(--surface); border: 1px solid var(--border); border-radius: 0.9rem; padding: 0.75rem 0.8rem; }
-    .mx-dim { font-weight: 700; font-size: 13px; color: var(--fg); display: grid; align-content: center; }
-    .mx-cell { font-size: 12px; line-height: 1.42; color: var(--muted); display: grid; align-content: center; }
-    .mx-cell.before { color: #8a6d3b; }
-    .mx-cell.after { color: var(--accent-deep); }
-    .mx-cell.before::before { content: "\2715"; color: var(--pink); font-weight: 900; margin-right: 0.4rem; }
-    .mx-cell.after::before { content: "\2713"; color: var(--accent); font-weight: 900; margin-right: 0.4rem; }
-
-    .close-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.8rem; }
-    .close-title { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 58px; line-height: 1.12; color: var(--fg); font-weight: 600; max-width: 24ch; letter-spacing: -0.015em; }
-    .close-byline { font-size: 16px; color: var(--muted); max-width: 56ch; line-height: 1.55; }
-  </style>
+   </style>
    <script>
      window.deckAssetFallback = function (img) {
        var name = img.getAttribute('data-asset-name');
@@ -778,11 +718,7 @@
     <div class="deck-stage" id="deck-stage">
 
        <!-- ============ SLIDE 01 - COVER ============ -->
-       
-
-<!-- ============ SLIDE 01 - COVER (deck A) ============ -->
-
-<section class="slide active" data-screen-label="01 Cover" data-od-id="slide-cover">
+       <section class="slide active" data-screen-label="01 Cover" data-od-id="slide-cover">
         <div class="wrap wrap--spread">
           <div class="cover-grid">
             <div class="cover-left">
@@ -815,9 +751,8 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 02 - MASALAH (deck A) ============ -->
-
-<section class="slide" data-screen-label="02 Masalah" data-od-id="slide-problem">
+       <!-- ============ SLIDE 02 - MASALAH ============ -->
+       <section class="slide" data-screen-label="02 Masalah" data-od-id="slide-problem">
         <div class="wrap">
           <div class="head-block">
             <h1 class="h1" data-od-id="problem-title">Setiap event masuk lewat chat. Jawabannya tercecer di history.</h1>
@@ -857,9 +792,8 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 03 - BASELINE WHATSAPP (deck A) ============ -->
-
-<section class="slide" data-screen-label="03 Baseline WhatsApp" data-od-id="slide-wa-baseline">
+<!-- ============ SLIDE 03 - BASELINE WHATSAPP ============ -->
+       <section class="slide" data-screen-label="03 Baseline WhatsApp" data-od-id="slide-wa-baseline">
         <div class="wrap">
           <div class="head-block">
              <h1 class="h1" data-od-id="wa-title">Pengajuan masuk lewat WhatsApp. Tindak lanjutnya sulit dilacak.</h1>
@@ -896,9 +830,9 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 04 - RISET LOKAL (deck A) ============ -->
 
-<section class="slide" data-screen-label="04 Riset lokal" data-od-id="slide-local-scan">
+<!-- ============ SLIDE 04 - RISET LOKAL ============ -->
+       <section class="slide" data-screen-label="04 Riset lokal" data-od-id="slide-local-scan">
         <div class="wrap">
           <div class="head-block">
              <h1 class="h1" data-od-id="local-scan-title">Halaman publik mall belum menutup seluruh alur event.</h1>
@@ -919,9 +853,8 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 05 - PASAR (deck A) ============ -->
-
-<section class="slide" data-screen-label="05 Pasar" data-od-id="slide-market">
+<!-- ============ SLIDE 05 - PASAR ============ -->
+       <section class="slide" data-screen-label="05 Pasar" data-od-id="slide-market">
         <div class="wrap">
           <div class="head-block">
              <h1 class="h1" data-od-id="market-title">Kebutuhannya ada di pasar. Bentuknya terpisah-pisah.</h1>
@@ -954,9 +887,8 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 06 - DISCOVERY (deck A) ============ -->
-
-<section class="slide" data-screen-label="06 Discovery" data-od-id="slide-discovery">
+<!-- ============ SLIDE 06 - DISCOVERY ============ -->
+       <section class="slide" data-screen-label="06 Discovery" data-od-id="slide-discovery">
         <div class="wrap">
           <div class="head-block">
              <h1 class="h1" data-od-id="discovery-title">Event yang sulit ditemukan sulit dinilai hasilnya.</h1>
@@ -990,10 +922,8 @@
           </div>
         </div>
       </section>
-
-<!-- ============ SLIDE 07 - SATU SIKLUS (deck A) ============ -->
-
-<section class="slide" data-screen-label="07 Satu siklus" data-od-id="slide-cycle">
+<!-- ============ SLIDE 07 - SATU SIKLUS ============ -->
+       <section class="slide" data-screen-label="07 Satu siklus" data-od-id="slide-cycle">
         <div class="wrap">
           <div class="head-block">
             <div class="kicker">07 &#183; Solusi</div>
@@ -1049,206 +979,8 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 08 - EMPAT BAGIAN ============ -->
-      <section class="slide" data-screen-label="08 Di dalam platform" data-od-id="slide-feature-parts">
-        <div class="wrap">
-          <div class="head-block">
-             <div class="kicker">08 &#183; Di dalam platform</div>
-             <h1 class="h1" data-od-id="feature-parts-title">Satu sistem, empat bagian kerja.</h1>
-          </div>
-          <div class="main">
-            <div class="parts">
-              <div class="part-card" data-od-id="part-drafts">
-                <div>
-                  <div class="part-head">Bagian 1 &#183; internal</div>
-                  <h4>Draft pengajuan</h4>
-                  <p>Komunitas atau EO mengisi formulir terstruktur. Tim meninjau, menahan, atau meminta revisi sebelum publikasi.</p>
-                </div>
-              </div>
-              <div class="part-card" data-od-id="part-publish">
-                <div>
-                  <div class="part-head">Bagian 2 &#183; publik</div>
-                  <h4>Event terpublikasi</h4>
-                  <p>Setelah disetujui, event tampil di halaman komunitas. Satu sumber data yang sama untuk seluruh siklus.</p>
-                </div>
-              </div>
-              <div class="part-card" data-od-id="part-survey">
-                <div>
-                  <div class="part-head">Bagian 3 &#183; lapangan</div>
-                  <h4>Evaluasi tenant</h4>
-                  <p>Pasca-event, tenant mengisi survey dampak lewat tautan atau QR, tanpa login, satu jawaban per perangkat.</p>
-                </div>
-              </div>
-              <div class="part-card" data-od-id="part-results">
-                <div>
-                  <div class="part-head">Bagian 4 &#183; keputusan</div>
-                  <h4>Hasil evaluasi</h4>
-                  <p>Rekap trafik dan penjualan tenant per event. Menjadi bahan diskusi untuk keputusan berikutnya.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="overflow-stop"></div>
-          <div class="footer">
-            <span>Empat bagian, satu catatan kerja &#183; pengajuan sampai bukti dampak</span>
-            <span class="foot-note">Detail tiap bagian di slide berikutnya</span>
-          </div>
-        </div>
-      </section>
-
-<!-- ============ SLIDE 09 - EMPAT PANEL ADMIN ============ -->
-      <section class="slide" data-screen-label="09 Panel admin" data-od-id="slide-feature-views">
-        <div class="wrap">
-          <div class="head-block">
-             <div class="kicker">09 &#183; Alat kerja tim</div>
-             <h1 class="h1" data-od-id="feature-views-title">Empat panel untuk tugas berbeda.</h1>
-          </div>
-           <div class="view-grid">
-            <div class="view-card" data-od-id="view-events">
-              <div class="v-glyph">E</div>
-              <h3>Event &amp; draft</h3>
-              <p>Tinjau usulan, kelola jadwal, publikasikan ke halaman publik.</p>
-            </div>
-            <div class="view-card" data-od-id="view-surveys">
-              <div class="v-glyph">S</div>
-              <h3>Survey &amp; hasil</h3>
-              <p>Pantau respons tenant dan agregat dampak per event.</p>
-            </div>
-            <div class="view-card" data-od-id="view-news">
-              <div class="v-glyph">B</div>
-              <h3>Berita &amp; galeri</h3>
-              <p>Konten non-event: pengumuman, artikel, arsip foto.</p>
-            </div>
-            <div class="view-card" data-od-id="view-tenants">
-              <div class="v-glyph">T</div>
-              <h3>Penyewa &amp; katalog</h3>
-              <p>Data tenant, kategori, dan direktori fasilitas mall.</p>
-            </div>
-          </div>
-           <div class="auto-strip">
-            <div class="feature-chip">
-              <strong>Aktivitas log</strong>
-              <span>Setiap perubahan tercatat: siapa dan kapan.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Export CSV/PDF</strong>
-              <span>Unduh rekap dari data yang sama.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Realtime</strong>
-              <span>Perubahan tampil tanpa muat ulang.</span>
-            </div>
-            <div class="feature-chip">
-              <strong>Akses per peran</strong>
-              <span>Panel tampil sesuai hak pengguna.</span>
-            </div>
-          </div>
-          <div class="overflow-stop"></div>
-          <div class="footer">
-            <span>Peran menentukan panel yang terlihat</span>
-            <span class="foot-note">Bukan dashboard serba bisa &#183; fokus per tugas</span>
-          </div>
-        </div>
-      </section>
-
-<!-- ============ SLIDE 10 - JALUR PUBLIK ============ -->
-      <section class="slide" data-screen-label="10 Jalur publik" data-od-id="slide-feature-routes">
-        <div class="wrap">
-          <div class="head-block">
-             <div class="kicker">10 &#183; Untuk pengunjung</div>
-             <h1 class="h1" data-od-id="feature-routes-title">Halaman publik yang bisa dikunjungi langsung.</h1>
-          </div>
-          <div class="route-table">
-            <div class="route-row" data-od-id="route-community">
-              <div class="route-path">/community</div>
-              <div>
-                <h3>Halaman komunitas</h3>
-                <p>Jadwal event mendatang dan yang sedang berlangsung. Pintu utama pengunjung.</p>
-              </div>
-            </div>
-            <div class="route-row" data-od-id="route-events">
-              <div class="route-path">/events</div>
-              <div>
-                <h3>Semua event</h3>
-                <p>Daftar lengkap dengan filter, pencarian, dan tautan ke tiap detail.</p>
-              </div>
-            </div>
-            <div class="route-row" data-od-id="route-tenants">
-              <div class="route-path">/tenants</div>
-              <div>
-                <h3>Direktori penyewa</h3>
-                <p>Toko, restoran, dan fasilitas mall beserta kategorinya.</p>
-              </div>
-            </div>
-            <div class="route-row" data-od-id="route-gallery">
-              <div class="route-path">/gallery</div>
-              <div>
-                <h3>Galeri foto</h3>
-                <p>Arsip visual dokumentasi event sebelumnya.</p>
-              </div>
-            </div>
-            <div class="route-row" data-od-id="route-news">
-              <div class="route-path">/news</div>
-              <div>
-                <h3>Berita</h3>
-                <p>Pengumuman resmi dan artikel kegiatan mall.</p>
-              </div>
-            </div>
-          </div>
-          <div class="overflow-stop"></div>
-          <div class="footer">
-            <span>Lima jalur utama tanpa login &#183; mudah dibagikan, mudah ditemukan</span>
-            <span class="foot-note">Detail per event menyusul &#183; lihat peta kemampuan</span>
-          </div>
-        </div>
-      </section>
-
-<!-- ============ SLIDE 11 - MEKANISME EVALUASI TENANT ============ -->
-      <section class="slide" data-screen-label="11 Mekanisme tenant" data-od-id="slide-feature-tenant">
-        <div class="wrap">
-          <div class="head-block">
-             <div class="kicker">11 &#183; Survey pasca-event</div>
-             <h1 class="h1" data-od-id="feature-tenant-title">Survey tenant: tanpa login, tetap terstruktur.</h1>
-          </div>
-          <div class="tenant-grid">
-            <div class="tenant-panel" data-od-id="tenant-process">
-              <div class="tenant-flow">
-                <h4>Alur pengisian</h4>
-                <div class="tenant-steps">
-                  <div>1 &#183; Event selesai, tautan survey dibagikan ke tenant</div>
-                  <div>2 &#183; Tenant membuka via HP &#8212; tautan atau QR, tanpa akun</div>
-                  <div>3 &#183; Jawaban kategorikal: trafik dan penjualan</div>
-                  <div>4 &#183; Satu jawaban per perangkat &#183; langsung masuk database</div>
-                </div>
-              </div>
-              <div style="font-size:12.5px;color:var(--muted);border-top:1px solid var(--border);padding-top:0.8rem;">
-                Satu jawaban per perangkat menjaga data tidak tercemar. Hasil langsung terlihat tim tanpa rekap manual.
-              </div>
-            </div>
-            <div class="tenant-panel" data-od-id="tenant-data">
-              <div class="tenant-nums">
-                <div>
-                  <div class="big-num">38</div>
-                  <div class="small-label">evaluasi tenant</div>
-                </div>
-              </div>
-              <div class="tenant-flow">
-                <h4>Dua event uji coba</h4>
-                <p>Bekasi Criterium 2.0 &#183; 22 respons<br>Kids Fun Run 2026 &#183; 16 respons</p>
-              </div>
-            </div>
-          </div>
-          <div class="overflow-stop"></div>
-          <div class="footer">
-            <span>Indikasi awal &#183; jawaban kategorikal, bukan omzet absolut</span>
-            <span class="foot-note">Sumber: Supabase &#183; Agustus 2026</span>
-          </div>
-        </div>
-      </section>
-
-<!-- ============ SLIDE 12 - HASIL PERTAMA (deck A) ============ -->
-
-<section class="slide" data-screen-label="12 Hasil pertama" data-od-id="slide-impact">
+<!-- ============ SLIDE 08 - HASIL PERTAMA ============ -->
+       <section class="slide" data-screen-label="08 Hasil pertama" data-od-id="slide-impact">
         <div class="wrap">
           <div class="head-block">
              <h1 class="h1" data-od-id="impact-title">Sekarang hasil event bisa dibahas dengan data.</h1>
@@ -1299,66 +1031,50 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 13 - KONTROL & JAMINAN ============ -->
-      <section class="slide" data-screen-label="13 Kontrol &amp; jaminan" data-od-id="slide-feature-controls">
+<!-- ============ SLIDE 09 - OPERASIONAL ============ -->
+       <section class="slide" data-screen-label="09 Yang berubah" data-od-id="slide-operations">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">13 &#183; Kontrol &amp; jaminan</div>
-             <h1 class="h1" data-od-id="feature-controls-title">Kesalahan dicegah sistem, bukan ingatan.</h1>
+             <h1 class="h1" data-od-id="operations-title">Beberapa kesalahan tidak lagi bergantung pada ingatan.</h1>
           </div>
-           <div class="role-rail" data-od-id="controls-roles">
-            <span class="role-chip">superadmin</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">admin</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">viewer</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">eo_tenant</span>
-            <span class="role-arrow">&#8594;</span>
-            <span class="role-chip">tenant_relation</span>
-          </div>
-          <div class="qa-grid">
-            <div class="qa-card" data-od-id="control-draft">
-              <div class="card-tag">Kontrol 1</div>
-              <p><b>Draft tidak bocor.</b> Usulan internal tidak tampil ke publik sebelum disetujui.</p>
+           <div class="main ops-proof">
+             <div class="ops">
+                <div class="ops-panel" data-od-id="operations-controls">
+              <div class="ops-title">Tiga kontrol yang dijaga sistem</div>
+              <div class="flow-seq" style="gap:16px; margin-top:16px; justify-content:center;">
+                <span class="flow-node" style="font-size:16px; padding:12px 16px;">Draft tidak bocor</span>
+                <span class="flow-arrow">&#8594;</span>
+                <span class="flow-node" style="font-size:16px; padding:12px 16px;">Status tidak basi</span>
+                <span class="flow-arrow">&#8594;</span>
+                <span class="flow-node goodfin" style="font-size:16px; padding:12px 16px;">Survey tidak tercemar</span>
+              </div>
+              <div style="margin-top:14px;font-size:15px;color:var(--muted);">Ketiga kontrol dibangun di dalam alur kerja, bukan di luar sebagai lembar prosedur.</div>
             </div>
-            <div class="qa-card" data-od-id="control-status">
-              <div class="card-tag">Kontrol 2</div>
-              <p><b>Status tidak basi.</b> Status event diturunkan dari tanggal, tidak disimpan manual.</p>
+                <div class="ops-panel" data-od-id="operations-outcomes">
+              <div class="ops-title">Dua hasil kerja konkret</div>
+              <div class="ops-list">
+                <div class="ops-item"><span class="ops-check">&#10003;</span><p>Publikasi tanpa menyalin data ke banyak tempat.<small>Satu sumber data yang sama.</small></p></div>
+                <div class="ops-item"><span class="ops-check">&#10003;</span><p>Rekap survey dan jadwal bisa diekspor.<small>Dari data yang sama, bukan rakit ulang.</small></p></div>
+               </div>
+              </div>
+             </div>
+             <figure class="proof-shot" data-od-id="operations-dashboard-proof">
+                <img src="assets/clip-drafts.png" alt="Antrian draft — event ditinjau sebelum dipublikasikan" width="1750" height="1125" decoding="async" onerror="deckAssetFallback(this)" />
+<figcaption>Antrian draft &#183; usulan ditinjau sebelum tampil ke publik</figcaption>
+              </figure>
             </div>
-            <div class="qa-card" data-od-id="control-survey">
-              <div class="card-tag">Kontrol 3</div>
-              <p><b>Survey tidak tercemar.</b> Satu jawaban per perangkat, tanpa login, tanpa duplikat.</p>
-            </div>
-            <div class="qa-card" data-od-id="qa-audit">
-              <div class="card-tag">Jaminan</div>
-              <p><b>Audit trail + validasi.</b> Setiap perubahan tercatat; zod memvalidasi setiap batas; RLS aktif di database.</p>
-            </div>
-          </div>
-           <div class="qa-stat-row">
-            <div class="qa-stat-box" data-od-id="qa-tests">
-              <div class="qa-stat">41</div>
-              <div class="sub"><b>unit test</b> &#183; Vitest</div>
-            </div>
-            <div class="qa-stat-box" data-od-id="qa-e2e">
-              <div class="qa-stat">4</div>
-              <div class="sub"><b>e2e spec</b> &#183; Playwright</div>
-            </div>
-          </div>
           <div class="overflow-stop"></div>
           <div class="footer">
-            <span>Kontrol dibangun di dalam alur &#183; bukan lembar prosedur</span>
-            <span class="foot-note">Detail teknis tersedia bila ditanya</span>
+            <span>Kontrol dibangun di dalam alur, bukan lembar prosedur.</span>
+            <span class="foot-note">Detail teknis tersedia bila ditanya.</span>
           </div>
         </div>
       </section>
-
-<!-- ============ SLIDE 14 - MASIH TERTINGGAL (deck A) ============ -->
-
-<section class="slide" data-screen-label="14 Masih tertinggal" data-od-id="slide-gaps">
+<!-- ============ SLIDE 10 - MASIH TERTINGGAL ============ -->
+       <section class="slide" data-screen-label="10 Masih tertinggal" data-od-id="slide-gaps">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">14 &#183; Peta kemampuan</div>
+            <div class="kicker">10 &#183; Peta kemampuan</div>
              <h1 class="h1" data-od-id="gaps-title">Alur internal sudah tersusun. Discovery dan ruang masih perlu dirapikan.</h1>
           </div>
           <div class="main regions">
@@ -1399,60 +1115,105 @@
         </div>
       </section>
 
-<!-- ============ SLIDE 15 - SEBELUM / SESUDAH ============ -->
-      <section class="slide" data-screen-label="15 Sebelum / sesudah" data-od-id="slide-feature-matrix">
+<!-- ============ SLIDE 11 - LANGKAH BERIKUTNYA ============ -->
+       <section class="slide" data-screen-label="11 Langkah berikutnya" data-od-id="slide-next-steps">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">15 &#183; Sebelum / sesudah</div>
-             <h1 class="h1" data-od-id="feature-matrix-title">Lima dimensi yang berubah.</h1>
+             <h1 class="h1" data-od-id="next-steps-title">Langkah berikutnya bisa dipilih dari kebutuhan lapangan.</h1>
           </div>
-          <div class="matrix">
-            <div class="mx-head">
-              <span>Dimensi</span>
-              <span>Sebelum</span>
-              <span>Sesudah</span>
+          <div class="main paths">
+            <div class="skm">Fase berjalan dalam satu sistem: alur event &#183; draft &#183; publikasi &#183; survey &#183; hasil evaluasi.</div>
+             <div class="path" data-od-id="path-operations">
+              <div class="path-name">Stabilisasi operasional</div>
+              <div class="path-desc">Penguatan detail page &amp; metadata event, peringatan bentrok slot, dan pengingat operasional agar alur tidak bergantung pada ingatan.</div>
             </div>
-            <div class="mx-row" data-od-id="matrix-submission">
-              <div class="mx-dim">Pengajuan</div>
-              <div class="mx-cell before"><span>Chat &amp; catatan tersebar</span></div>
-              <div class="mx-cell after"><span>Antrian draft terstruktur</span></div>
+             <div class="path" data-od-id="path-reporting">
+              <div class="path-name">Penguatan laporan</div>
+              <div class="path-desc">Mengunci KPI dari event berikutnya dan memperdalam rekap evaluasi untuk keputusan manajemen.</div>
             </div>
-            <div class="mx-row" data-od-id="matrix-discovery">
-              <div class="mx-dim">Publikasi</div>
-              <div class="mx-cell before"><span>Menunggu admin posting manual</span></div>
-              <div class="mx-cell after"><span>Satu sumber, langsung tampil</span></div>
-            </div>
-            <div class="mx-row" data-od-id="matrix-evaluation">
-              <div class="mx-dim">Evaluasi</div>
-              <div class="mx-cell before"><span>Berhenti di foto keramaian</span></div>
-              <div class="mx-cell after"><span>Survey dampak terukur</span></div>
-            </div>
-            <div class="mx-row" data-od-id="matrix-access">
-              <div class="mx-dim">Akses</div>
-              <div class="mx-cell before"><span>Satu akun untuk semua</span></div>
-              <div class="mx-cell after"><span>Lima peran, hak per tugas</span></div>
-            </div>
-            <div class="mx-row" data-od-id="matrix-recap">
-              <div class="mx-dim">Rekap</div>
-              <div class="mx-cell before"><span>Rakit manual per laporan</span></div>
-              <div class="mx-cell after"><span>Export dari data yang sama</span></div>
-            </div>
+             <div class="skm" style="color:var(--accent);">Prinsip: tambah kontrol dan bukti pada sistem yang sudah dipakai. Jangan membangun ulang dari awal.</div>
           </div>
           <div class="overflow-stop"></div>
           <div class="footer">
-            <span>Perubahan pada cara kerja &#183; bukan sekadar alat baru</span>
-            <span class="foot-note">Berdasarkan snapshot aplikasi Agustus 2026</span>
+            <span>Dua jalur berangkat dari sistem yang sama, bukan roadmap berurutan.</span>
+             <span class="foot-note">Status: uji coba internal &#183; belum live production</span>
           </div>
         </div>
       </section>
 
-<!-- ============ SLIDE 16 - PENUTUP ============ -->
-      <section class="slide" data-screen-label="16 Penutup" data-od-id="slide-feature-closing">
+<!-- ============ SLIDE 12 - SYARAT DIPAKAI BERSAMA ============ -->
+       <section class="slide" data-screen-label="12 Syarat dipakai bersama" data-od-id="slide-usage-rules">
+        <div class="wrap">
+          <div class="head-block">
+             <h1 class="h1" data-od-id="usage-title">Platformnya sudah ada. Cara pakainya perlu disepakati.</h1>
+          </div>
+          <div class="main usage">
+             <div class="rule" data-od-id="usage-owner"><span class="n">1</span><p>Tetapkan satu pemilik proses untuk memeriksa pengajuan dan menjaga kalender publik.</p></div>
+             <div class="rule" data-od-id="usage-survey"><span class="n">2</span><p>Gunakan evaluasi tenant pada event yang dipilih bersama, dengan periode pengisian yang dicatat.</p></div>
+             <div class="rule" data-od-id="usage-record"><span class="n">3</span><p>Simpan keputusan perubahan jadwal, status event, dan hasil evaluasi di platform. Jangan mengandalkan chat saja.</p></div>
+             <div class="rule" data-od-id="usage-review"><span class="n">4</span><p>Tinjau hasil setelah beberapa event. Jangan menarik kesimpulan dari satu event atau satu lokasi.</p></div>
+            <div style="margin-top:24px; padding:18px 22px; border:1px solid var(--border); border-radius:10px; background:var(--surface); font-size:16px; display:flex; gap:32px; align-items:center; flex-wrap:wrap;">
+              <div><span style="color:var(--muted);font-size:12px;letter-spacing:.08em;">CONTOH CATATAN</span><br><b>Music Bazaar</b> &middot; Atrium Utama</div>
+              <div><span style="color:var(--muted);font-size:12px;">Status</span><br><span style="color:var(--accent);font-weight:600;">Akan datang</span></div>
+              <div><span style="color:var(--muted);font-size:12px;">Tanggal</span><br>Sabtu, 29 Agu 2026</div>
+              <div><span style="color:var(--muted);font-size:12px;">Tindakan terakhir</span><br>Persetujuan jadwal final</div>
+            </div>
+          </div>
+          <div class="overflow-stop"></div>
+          <div class="footer">
+            <span>Penggunaan harian harus punya pemilik selain Andy.</span>
+            <span class="foot-note">Berpindah dari inisiatif personal ke cara kerja tim.</span>
+          </div>
+        </div>
+      </section>
+
+<!-- ============ SLIDE 13 - KEPUTUSAN ============ -->
+       <section class="slide" data-screen-label="13 Keputusan" data-od-id="slide-decision">
+        <div class="wrap">
+          <div class="head-block">
+            <div class="kicker">13 &#183; Keputusan</div>
+             <h1 class="h1" data-od-id="decision-title">Tiga keputusan untuk tahap berikutnya.</h1>
+          </div>
+          <div class="main dec-layout">
+            <div>
+               <div class="dec-item" data-od-id="decision-survey">
+                <span class="n first">1</span>
+                <div><h3>Evaluasi tenant sebagai baseline</h3><p>Dijalankan pada 2-3 event berikutnya sebagai baseline resmi.</p></div>
+              </div>
+               <div class="dec-item" data-od-id="decision-owner">
+                <span class="n">2</span>
+                <div><h3>Pemilik proses &amp; akses per peran</h3><p>Agar penggunaan tidak bergantung pada satu orang.</p></div>
+              </div>
+               <div class="dec-item" data-od-id="decision-priority">
+                <span class="n">3</span>
+                <div><h3>Prioritas pertama yang dipilih</h3><p>Discovery publik, kontrol ruang, atau penguatan laporan KPI.</p></div>
+              </div>
+            </div>
+             <div class="order-panel" data-od-id="decision-order">
+              <h3>Urutan tanya di ruang presentasi</h3>
+              <ol>
+                <li>Mulai dari <b>pemilik proses</b>.</li>
+                <li>Lanjut ke <b>jumlah event uji</b>.</li>
+                <li>Tutup dengan <b>prioritas perbaikan</b>.</li>
+              </ol>
+              <p style="margin-top:22px; font-size:16px; color:var(--muted); line-height:1.5;">Urutan ini mencegah diskusi langsung melompat ke fitur.</p>
+            </div>
+          </div>
+          <div class="overflow-stop"></div>
+          <div class="footer">
+             <span style="font-size:16px;"><b>Terima kasih.</b> Andy Safii, Marcomm, Metropolitan Mall Bekasi.</span>
+            <span class="foot-note">Tiga pilihan, satu keputusan utama.</span>
+          </div>
+        </div>
+      </section>
+
+       <!-- ============ SLIDE 14 - PENUTUP ============ -->
+       <section class="slide" data-screen-label="14 Penutup" data-od-id="slide-closing">
         <div class="wrap wrap--center">
-          <div class="close-wrap">
-            <h1 class="close-title" data-od-id="closing-statement">Terencana matang. Terpublikasi luas. Terevaluasi akurat.</h1>
-            <p class="close-byline" data-od-id="closing-byline">Satu platform untuk seluruh siklus event Metropolitan Mall Bekasi &#8212; dari pengajuan sampai bukti dampak. Berjalan pada snapshot Agustus 2026.</p>
-            <p style="font-size:16px;color:var(--fg);margin-top:6px;"><b>Andy Safii</b>, Marcomm, Metropolitan Mall Bekasi.</p>
+          <div style="text-align:center;display:flex;flex-direction:column;gap:28px;align-items:center;">
+            <h1 class="h1" style="max-width:none;text-align:center;font-size:72px;" data-od-id="closing-title">Terima kasih.</h1>
+            <p style="font-size:22px;color:var(--muted);max-width:34ch;text-align:center;">Satu sistem, satu catatan kerja — dari pengajuan sampai evaluasi.</p>
+            <p style="font-size:18px;color:var(--fg);margin-top:12px;"><b>Andy Safii</b>, Marcomm, Metropolitan Mall Bekasi.</p>
           </div>
           <div class="footer">
             <span>1 Platform untuk Semua Event</span>
@@ -1461,9 +1222,8 @@
         </div>
       </section>
 
-<!-- ============ APPENDIX A1 - METODOLOGI (deck A) ============ -->
-
-<section class="slide" data-screen-label="A1 Metodologi scan" data-od-id="slide-appendix-method">
+<!-- ============ APPENDIX A1 - METODOLOGI SCAN ============ -->
+       <section class="slide" data-screen-label="A1 Metodologi scan" data-od-id="slide-appendix-method">
         <div class="wrap">
           <div class="head-block">
             <div class="kicker">Appendix &#183; A1</div>
@@ -1497,9 +1257,8 @@
         </div>
       </section>
 
-<!-- ============ APPENDIX A2 - DISTRIBUSI (deck A) ============ -->
-
-<section class="slide" data-screen-label="A2 Distribusi evaluasi" data-od-id="slide-appendix-distribution">
+<!-- ============ APPENDIX A2 - DISTRIBUSI EVALUASI ============ -->
+       <section class="slide" data-screen-label="A2 Distribusi evaluasi" data-od-id="slide-appendix-distribution">
         <div class="wrap">
           <div class="head-block">
             <div class="kicker">Appendix &#183; A2</div>
@@ -1595,9 +1354,8 @@
         </div>
       </section>
 
-<!-- ============ APPENDIX A3 - MATRIKS AKSES (deck A) ============ -->
-
-<section class="slide" data-screen-label="A3 Matriks akses" data-od-id="slide-appendix-access">
+<!-- ============ APPENDIX A3 - MATRIKS AKSES ============ -->
+       <section class="slide" data-screen-label="A3 Matriks akses" data-od-id="slide-appendix-access">
         <div class="wrap">
           <div class="head-block">
             <div class="kicker">Appendix &#183; A3</div>
@@ -1635,7 +1393,6 @@
           </div>
         </div>
       </section>
-
 
 
     </div>
@@ -1745,26 +1502,20 @@
         var overlay = document.createElement('div');
         overlay.className = 'notes-overlay';
         document.body.appendChild(overlay);
-        var notes = null;
-        function getNotes() {
-          if (notes) return notes;
-          try {
-            var raw = document.getElementById('speaker-notes');
-            if (raw) notes = JSON.parse(raw.textContent);
-          } catch (_) {}
-          return notes = notes || [];
-        }
+        var notes = [];
+        try {
+          var raw = document.getElementById('speaker-notes');
+          if (raw) notes = JSON.parse(raw.textContent);
+        } catch (_) {}
         function show(i) {
-          var ns = getNotes();
-          if (ns[i]) { overlay.textContent = ns[i]; overlay.classList.add('show'); }
+          if (notes[i]) { overlay.textContent = notes[i]; overlay.classList.add('show'); }
           else overlay.classList.remove('show');
         }
         if (btn) {
           btn.addEventListener('click', function () {
             var on = overlay.classList.toggle('show');
             btn.classList.toggle('on', on);
-            var ns = getNotes();
-            if (on && ns.length) overlay.textContent = ns[idx] || '';
+            if (on && notes.length) overlay.textContent = notes[idx] || '';
           });
         }
         var origPaint = paint;
@@ -1775,7 +1526,7 @@
   </script>
 
 <script type="application/json" id="speaker-notes">
-["Yang ingin saya tunjukkan bukan daftar fitur, tetapi satu platform yang menyatukan seluruh siklus event Metmal.","Andy melihat tiga masalah berulang di tim: jadwal terserak di chat dan spreadsheet, pendaftaran tidak punya alur tinjauan, dan evaluasi berhenti di foto keramaian. Jawabannya: satu sistem yang mencatat dari pengajuan sampai evaluasi.","WhatsApp tetap bisa menjadi pintu awal komunikasi. Kendalanya muncul setelah pesan masuk. Siapa yang follow-up, apa yang masih kurang, dan pengajuan ini sudah sampai mana? Platform memberi kedua pihak satu catatan yang bisa dilihat bersama.","Kalau masalahnya berulang, saya perlu melihat apakah pola yang sama terjadi di venue lain. Saya memeriksa kanal publik 22 mall Jabodetabek (18 Agustus 2026). Event publik sudah umum, tetapi alur pengajuan sampai evaluasi belum terlihat sebagai satu rangkaian.","Pasar memberi pola per bagian. Riset ini membantu kita memilih apa yang perlu dipakai sekarang, bukan membangun atau membeli semuanya sekaligus.","Gen Z dipakai sebagai konteks discovery, bukan janji akuisisi. Event perlu mudah ditemukan dan tercatat agar hasilnya bisa dibahas.","Setelah melihat pola di venue lain, saya susun alur yang menyatukan seluruh tahap: dari pengajuan, tinjauan, publikasi, pelaksanaan, sampai evaluasi. Lima tahap ini menunjukkan satu catatan kerja.","Jembatan ke bagian produk: setelah siklus, saya tunjukkan bentuknya di dalam platform. Empat bagian — draft pengajuan, event terpublikasi, evaluasi tenant, dan hasil evaluasi — satu alur tertutup, bukan halaman terpisah. Tiga slide berikutnya membedah tiap bagian.","Tim bekerja dengan empat panel: event & draft, survey & hasil, berita & galeri, dan penyewa. Setiap panel fokus satu tugas, bukan dashboard serba bisa. Panel yang terlihat mengikuti peran pengguna.","Untuk pengunjung: komunitas, semua event, direktori penyewa, galeri, dan berita. Semuanya publik tanpa login. Mudah dibagikan, mudah ditemukan — dasar discovery yang slide 6 bicarakan.","Mekanisme evaluasi: tautan atau QR pasca-event, tanpa login, satu jawaban per perangkat. Dua event uji coba menghasilkan 38 evaluasi — 22 Criterium, 16 Kids Run. Jawaban kategorikal: indikasi awal, bukan omzet.","Nilai pertama bukan membuktikan semua event berhasil. Nilainya adalah kita mulai melihat pola, termasuk jawaban yang tidak naik. Sumber: Supabase, Agustus 2026, dua event uji coba.","Kontrol dibangun di dalam alur: draft tidak bocor, status tidak basi, survey tidak tercemar. Jaminan tambahan: audit trail, validasi zod di setiap batas, RLS di database. Kualitas dijaga 41 unit test Vitest dan 4 e2e Playwright.","Alur internal sudah tersedia pada snapshot ini. Discovery publik dan pengelolaan ruang tetap menjadi prioritas yang perlu dipilih.","Ringkasan perubahan di lima dimensi: pengajuan, publikasi, evaluasi, akses, dan rekap. Dari chat tersebar ke antrian terstruktur; dari posting manual ke satu sumber; dari foto keramaian ke survey terukur; dari satu akun ke lima peran; dari rakit manual ke export satu sumber.","Penutup: satu platform — terencana matang, terpublikasi luas, terevaluasi akurat. Ini pernyataan status produk pada snapshot Agustus 2026. Terima kasih.","Appendix A1: metodologi scan — 22 mall Jabodetabek, 18 Agustus 2026, hanya kanal publik. Dibuka hanya bila forum meminta cara risetnya.","Appendix A2: distribusi penuh jawaban evaluasi (kategori, bukan omzet). Untuk menjawab bagaimana data dikumpulkan.","Appendix A3: matriks akses dari logika produk (usePermission.ts). Cukup tunjukkan hierarki superadmin ke admin ke viewer bila ditanya soal keamanan."]
+["Yang ingin saya tunjukkan bukan daftar fitur, tetapi satu platform yang menyatukan seluruh siklus event Metmal.","Andy melihat tiga masalah berulang di tim: jadwal terserak di chat dan spreadsheet, pendaftaran tidak punya alur tinjauan, dan evaluasi berhenti di foto keramaian. Jawabannya: satu sistem yang mencatat dari pengajuan sampai evaluasi.","WhatsApp tetap bisa menjadi pintu awal komunikasi. Kendalanya muncul setelah pesan masuk. Siapa yang follow-up, apa yang masih kurang, dan pengajuan ini sudah sampai mana? Platform memberi kedua pihak satu catatan yang bisa dilihat bersama.","Kalau masalahnya berulang, saya perlu melihat apakah pola yang sama terjadi di venue lain. Saya memeriksa kanal publik 22 mall Jabodetabek (18 Agustus 2026). Event publik sudah umum, tetapi alur pengajuan sampai evaluasi belum terlihat sebagai satu rangkaian.","Pasar memberi pola per bagian. Riset ini membantu kita memilih apa yang perlu dipakai sekarang, bukan membangun atau membeli semuanya sekaligus.","Gen Z dipakai sebagai konteks discovery, bukan janji akuisisi. Event perlu mudah ditemukan dan tercatat agar hasilnya bisa dibahas.","Setelah melihat pola di venue lain, saya susun alur yang menyatukan seluruh tahap: dari pengajuan, tinjauan, publikasi, pelaksanaan, sampai evaluasi. Lima tahap ini menunjukkan satu catatan kerja.","Nilai pertama bukan membuktikan semua event berhasil. Nilainya adalah kita mulai melihat pola, termasuk jawaban yang tidak naik. Sumber: Supabase, Agustus 2026, dua event uji coba.","Kontrol dibangun di dalam alur: draft tidak bocor, status tidak basi, dan survey tidak mudah diisi berulang.","Alur internal sudah tersedia pada snapshot ini. Discovery publik dan pengelolaan ruang tetap menjadi prioritas yang perlu dipilih.","Dua jalur berangkat dari sistem yang sama. Pilih berdasarkan kebutuhan lapangan, bukan roadmap yang belum disepakati.","Penggunaan harian perlu pemilik proses selain Andy. Empat aturan ini mengubah inisiatif personal menjadi cara kerja tim.","Tiga keputusan yang diminta: pemilik proses, jumlah event uji, dan prioritas perbaikan pertama.","Satu sistem, satu catatan kerja. Tiga keputusan sudah diajukan — sekarang di tangan Bapak/Ibu untuk tahap berikutnya.","Appendix A1: metodologi scan — 22 mall Jabodetabek, 18 Agustus 2026, hanya kanal publik. Dibuka hanya bila forum meminta cara risetnya.","Appendix A2: distribusi penuh jawaban evaluasi (kategori, bukan omzet). Untuk menjawab bagaimana data dikumpulkan.","Appendix A3: matriks akses dari logika produk (usePermission.ts). Cukup tunjukkan hierarki superadmin ke admin ke viewer bila ditanya soal keamanan."]
     </script>
 </body>
 </html>
