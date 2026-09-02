@@ -402,7 +402,7 @@
             <h3>Backend &amp; Infra</h3>
             <ul class="stack-list">
               <li><span class="t-name">Supabase<small>PostgreSQL · Auth RBAC · Storage</small></span><span class="t-ver">^2.104.1</span></li>
-              <li><span class="t-name">Vercel Serverless<small>10+ endpoint di <code>api/*</code></small></span><span class="t-ver">runtime</span></li>
+              <li><span class="t-name">Vercel Serverless<small>12 endpoint di <code>api/*</code></small></span><span class="t-ver">runtime</span></li>
               <li><span class="t-name">Cloudflare R2<small>Media storage — egress gratis</small></span><span class="t-ver">S3 API</span></li>
               <li><span class="t-name">zod<small>Validasi schema FE/BE shared</small></span><span class="t-ver">^4.4.3</span></li>
               <li><span class="t-name">@react-pdf/renderer<small>Generate surat &amp; jadwal</small></span><span class="t-ver">^4.5.1</span></li>
@@ -459,11 +459,11 @@
         </div>
         <div class="qa-grid">
           <article class="qa-card"><div class="card-tag">Audit trail</div><p><span class="qa-stat">6</span> jenis aksi tercatat otomatis di Log Aktivitas: Membuat, Mengubah, Menghapus, Login, Logout, Mengundang — lengkap IP, user, dan timestamp.</p></article>
-          <article class="qa-card"><div class="card-tag">Automated testing</div><p><span class="qa-stat">41</span> file test Vitest (status event, permission matrix, validasi form, publish Draft→Event) <b>+ 4</b> E2E Playwright untuk alur tenant survey.</p></article>
+          <article class="qa-card"><div class="card-tag">Automated testing</div><p><span class="qa-stat">47</span> file test Vitest (status event, permission matrix, validasi form, publish Draft→Event) <b>+ 4</b> E2E Playwright untuk alur tenant survey.</p></article>
           <article class="qa-card"><div class="card-tag">Validasi di setiap boundary</div><p>Zod schemas memvalidasi payload <b>di klien dan server</b> — schema yang sama, tidak ada celah validasi ganda.</p></article>
           <article class="qa-card"><div class="card-tag">Status tidak bisa basi</div><p>Status event <b>diderivasi dari tanggal</b> (zona Asia/Jakarta) — tidak ada status salah karena lupa update manual. RLS menjaga channel publik vs admin.</p></article>
         </div>
-        <div class="slide-footer"><span>RBAC · Audit trail · 40+ test file · zod di setiap boundary</span><span>11</span></div>
+        <div class="slide-footer"><span>RBAC · Audit trail · 47 test file · zod di setiap boundary</span><span>11</span></div>
       </section>
 
       <!-- 12 · Analisis Dampak -->
