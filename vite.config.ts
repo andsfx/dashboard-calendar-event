@@ -51,7 +51,7 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: { passes: 2, booleans_as_integers: true },
-      format: { comments: false },
+      format: { comments: false, semicolons: false },
     },
   },
 });
