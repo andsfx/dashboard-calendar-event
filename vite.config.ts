@@ -40,7 +40,7 @@ export default defineConfig({
     },
     minify: 'terser',
     terserOptions: {
-      compress: { passes: 3, booleans_as_integers: true, pure_getters: true, keep_fargs: false, unsafe: true },
+      compress: { passes: 3, booleans_as_integers: true, pure_getters: true, keep_fargs: false, unsafe: true, unsafe_comps: true },
       format: { comments: false, semicolons: false },
     },
   },
