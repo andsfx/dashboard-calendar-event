@@ -17,6 +17,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      // jsPDF .html()/.svg() tidak dipakai — deps render-DOM (canvg,
+      // dompurify, html2canvas, ~380 kB) di-stub agar keluar dari bundle.
+      "canvg": path.resolve(__dirname, "src/stubs/empty.js"),
+      "dompurify": path.resolve(__dirname, "src/stubs/empty.js"),
+      "html2canvas": path.resolve(__dirname, "src/stubs/empty.js"),
     },
   },
   build: {
@@ -28,7 +33,10 @@ export default defineConfig({
           if (id.includes("@supabase/supabase-js")) return "supabase";
           if (id.includes("@aws-sdk")) return "aws-sdk";
           if (id.includes("react-router")) return "router";
-          if (id.includes("@react-pdf") || id.includes("pdfkit") || id.includes("fontkit") || id.includes("yoga-layout") || id.includes("linebreak") || id.includes("unicode-properties")) return "pdf";
+          if (id.includes("jspdf")) return "pdf"; // jspdf + jspdf-autotable
+          // Deps jspdf lainnya (fflate, fast-png, @babel/runtime) — chunk pdf
+          // lazy, bukan vendor eager.
+          if (id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime")) return "pdf";
           if (id.includes("@vercel/analytics") || id.includes("@vercel/speed-insights")) return "vercel";
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
           if (id.includes("lucide-react")) return "icons";
