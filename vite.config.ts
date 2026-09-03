@@ -40,7 +40,6 @@ export default defineConfig({
           if (id.includes("date-fns")) return "dates";
           if (id.includes("qrcode")) return "qrcode";
           if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
-          if (id.includes("react")) return "react-core";
           return "vendor";
         },
       },
