@@ -36,7 +36,6 @@ export default defineConfig({
           // Deps jspdf lainnya (fflate, fast-png, @babel/runtime) — chunk pdf
           // lazy, bukan vendor eager.
           if (id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime")) return "pdf";
-          if (id.includes("@vercel/analytics") || id.includes("@vercel/speed-insights")) return "vercel";
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
           if (id.includes("lucide-react")) return "icons";
           if (id.includes("date-fns")) return "dates";
