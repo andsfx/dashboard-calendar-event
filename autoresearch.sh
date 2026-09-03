@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # autoresearch harness: ukur bundle produksi Vite secara deterministik.
-# Workload: tsc && vite build (tanpa network setelah npm install; hash nama file
-# bergantung isi, jadi ukuran deterministik). Primary metric: bundle_js_kb.
+# Workload: tsc && vite build (nama file hash mengikuti isi → ukuran deterministik).
+# Hanya pakai bash builtin + npm/node agar jalan di shim bash minimal (tanpa coreutils).
+# Primary metric: bundle_js_kb.
 set -euo pipefail
-cd "$(dirname "$0")"
+case "$0" in */*) cd "${0%/*}" || exit 1 ;; esac
 
-t0=$(date +%s)
+t0=$SECONDS
 npm run build >/dev/null
-t1=$(date +%s)
+echo "METRIC build_ms=$(( (SECONDS - t0) * 1000 ))"
 
 node autoresearch.metrics.mjs
-echo "METRIC build_ms=$(( (t1 - t0) * 1000 ))"
