@@ -28,7 +28,7 @@ export default defineConfig({
     target: 'es2022',
     rollupOptions: {
       output: {
-        experimentalMinChunkSize: 65536,
+        experimentalMinChunkSize: 131072,
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           // More specific matches first
