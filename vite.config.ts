@@ -41,6 +41,7 @@ export default defineConfig({
     },
     minify: 'terser',
     terserOptions: {
+      ecma: 2022,
       compress: { passes: 3, booleans_as_integers: true, pure_getters: true, keep_fargs: false, unsafe: true, unsafe_comps: true, unsafe_Function: true, unsafe_math: true, unsafe_symbols: true, unsafe_proto: true },
       format: { comments: false, semicolons: false },
     },
