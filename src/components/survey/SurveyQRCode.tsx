@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import QRCode from 'qrcode';
+import QrCreator from 'qr-creator';
 import { Download, QrCode, Copy, Check } from 'lucide-react';
 
 interface SurveyQRCodeProps {
@@ -36,23 +36,30 @@ export default function SurveyQRCode({
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    QRCode.toCanvas(canvasRef.current, surveyUrl, {
-      width: compact ? 160 : 200,
-      margin: 2,
-      color: { dark: '#0f172a', light: '#ffffff' },
-      errorCorrectionLevel: 'M',
-    });
+    QrCreator.render({
+      text: surveyUrl,
+      size: compact ? 160 : 200,
+      quiet: 2,
+      fill: '#0f172a',
+      background: '#ffffff',
+      ecLevel: 'M',
+      radius: 0,
+    }, canvasRef.current);
   }, [surveyUrl, compact]);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = useCallback(() => {
     try {
-      // Generate QR as data URL
-      const qrDataUrl = await QRCode.toDataURL(surveyUrl, {
-        width: 400,
-        margin: 2,
-        color: { dark: '#0f172a', light: '#ffffff' },
-        errorCorrectionLevel: 'M',
-      });
+      // Render QR langsung ke canvas agar tidak membuat objek Image async.
+      const qrCanvas = document.createElement('canvas');
+      QrCreator.render({
+        text: surveyUrl,
+        size: 400,
+        quiet: 2,
+        fill: '#0f172a',
+        background: '#ffffff',
+        ecLevel: 'M',
+        radius: 0,
+      }, qrCanvas);
 
       // Create canvas with branding
       const downloadCanvas = document.createElement('canvas');
@@ -68,33 +75,29 @@ export default function SurveyQRCode({
       ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
 
       // Draw QR image
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, padding, padding, size, size);
+      ctx.drawImage(qrCanvas, padding, padding, size, size);
 
-        // Title text
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 16px Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(label, downloadCanvas.width / 2, size + padding + 30);
+      // Title text
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 16px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, downloadCanvas.width / 2, size + padding + 30);
 
-        ctx.font = '12px Arial, sans-serif';
-        ctx.fillStyle = '#64748b';
-        const truncName = eventName.length > 40 ? eventName.slice(0, 37) + '...' : eventName;
-        ctx.fillText(truncName, downloadCanvas.width / 2, size + padding + 50);
+      ctx.font = '12px Arial, sans-serif';
+      ctx.fillStyle = '#64748b';
+      const truncName = eventName.length > 40 ? eventName.slice(0, 37) + '...' : eventName;
+      ctx.fillText(truncName, downloadCanvas.width / 2, size + padding + 50);
 
-        ctx.font = '10px Arial, sans-serif';
-        ctx.fillText('Metropolitan Mall Bekasi', downloadCanvas.width / 2, size + padding + 68);
+      ctx.font = '10px Arial, sans-serif';
+      ctx.fillText('Metropolitan Mall Bekasi', downloadCanvas.width / 2, size + padding + 68);
 
-        // Download
-        const link = document.createElement('a');
-        link.download = `survey-qr-${eventId}${showTypeTabs ? `-${activeType}` : ''}.png`;
-        link.href = downloadCanvas.toDataURL('image/png');
-        link.click();
-      };
-      img.src = qrDataUrl;
+      // Download
+      const link = document.createElement('a');
+      link.download = `survey-qr-${eventId}${showTypeTabs ? `-${activeType}` : ''}.png`;
+      link.href = downloadCanvas.toDataURL('image/png');
+      link.click();
     } catch { /* ignore */ }
-  }, [surveyUrl, eventId, eventName, activeType, label]);
+  }, [surveyUrl, eventId, eventName, activeType, label, showTypeTabs]);
 
   const handleCopy = useCallback(async () => {
     try {
