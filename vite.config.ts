@@ -39,7 +39,6 @@ export default defineConfig({
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
           if (id.includes("date-fns")) return "dates";
           if (id.includes("qrcode")) return "qrcode";
-          if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
           return "vendor";
         },
       },
