@@ -30,7 +30,6 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           // More specific matches first
-          if (id.includes("@supabase/supabase-js")) return "supabase";
           if (id.includes("@aws-sdk")) return "aws-sdk";
           if (id.includes("react-router")) return "router";
           if (id.includes("jspdf")) return "pdf"; // jspdf + jspdf-autotable
