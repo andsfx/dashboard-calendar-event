@@ -37,7 +37,6 @@ export default defineConfig({
           // lazy, bukan vendor eager.
           if (id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime")) return "pdf";
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
-          if (id.includes("lucide-react")) return "icons";
           if (id.includes("date-fns")) return "dates";
           if (id.includes("qrcode")) return "qrcode";
           if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
