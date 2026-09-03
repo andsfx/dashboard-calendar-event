@@ -40,6 +40,7 @@ export default defineConfig({
       },
     },
     minify: 'terser',
+    modulePreload: { polyfill: false },
     terserOptions: {
       ecma: 2022,
       compress: { passes: 3, booleans_as_integers: true, pure_getters: true, keep_fargs: false, unsafe: true, unsafe_methods: true, unsafe_comps: true, unsafe_Function: true, unsafe_math: true, unsafe_symbols: true, unsafe_proto: true },
