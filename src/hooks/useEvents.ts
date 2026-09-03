@@ -3,7 +3,7 @@ import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/supabaseApi';
 import { supabase } from '../lib/supabase';
-import { AdminError } from '../lib/schemas';
+import { AdminError } from '../lib/adminError';
 
 function normalizeEvent(ev: EventItem): EventItem {
   const normalized = recalculateStatuses([ev])[0];
