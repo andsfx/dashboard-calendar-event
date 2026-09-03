@@ -42,13 +42,12 @@ export default defineConfig({
           if (id.includes("lucide-react")) return "icons";
           if (id.includes("date-fns")) return "dates";
           if (id.includes("qrcode")) return "qrcode";
-          // Core framework
           if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
           if (id.includes("react")) return "react-core";
           return "vendor";
         },
       },
     },
-    minify: 'esbuild',
+    minify: 'terser',
   },
 });
