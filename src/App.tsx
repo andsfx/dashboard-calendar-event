@@ -41,12 +41,6 @@ const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSur
 function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
 }
-
-/** Full-page redirect ke path statis (bukan SPA nav) — dipakai untuk file di public/. */
-function StaticRedirect({ to }: { to: string }) {
-  useEffect(() => { window.location.replace(to); }, [to]);
-  return null;
-}
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -485,9 +479,6 @@ export default function App() {
 
       {/* PROTOTYPE: throwaway landing variant */}
       <Route path="/prototype-landing-v1" element={<PrototypeLandingMetmalV1 />} />
-
-      {/* Presentation deck — statis di public/project-presentation.html; full load, bukan SPA nav */}
-      <Route path="/presentasi" element={<StaticRedirect to="/project-presentation.html" />} />
 
       {/* Catch-all 404 — cegah blank page untuk URL tak dikenal */}
       <Route path="*" element={
