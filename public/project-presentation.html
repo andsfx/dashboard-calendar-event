@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Calendar Event — Ekosistem Manajemen Event Metropolitan Mall Bekasi</title>
+  <title>Dashboard Calendar Event — Laporan Marcomm · Metropolitan Mall Bekasi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -21,7 +21,7 @@
       --tosca-dark: #00554c;
       --tosca-soft: #dff4f1;
       --pink: #c23268;
-      --amber: #8a6d3b; /* dipakai mx-cell.before */
+      --amber: #8a6d3b;
       --emerald: #047857;
       --display: "Bricolage Grotesque", system-ui, sans-serif;
       --body: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -100,13 +100,7 @@
     .problem-list strong { color: var(--ink); font-weight: 700; }
     .problem-list span { color: var(--muted); }
 
-    /* --- quote --- */
-    .quote-box { background: var(--tosca-dark); color: white; border-radius: 1.4rem; padding: 2rem; box-shadow: var(--shadow); position: relative; overflow: hidden; }
-    .quote-box::after { content: ""; position: absolute; width: 9rem; height: 9rem; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; right: -2rem; bottom: -3rem; }
-    .quote-box p { color: #d3efeb; font-family: var(--display); font-size: clamp(19px, 2.2vw, 34px); line-height: 1.12; max-width: 11em; position: relative; z-index: 1; }
-    .quote-box small { color: #a9e5df; font-size: clamp(10px, .8vw, 12px); letter-spacing: .08em; text-transform: uppercase; font-weight: 800; }
-
-    /* --- pillars (slide 3) --- */
+    /* --- pillars --- */
     .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1.6rem; }
     .pillar { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1.1rem; padding: 1.1rem 1rem; box-shadow: var(--shadow-soft); display: flex; flex-direction: column; gap: .5rem; }
     .pillar .p-num { font-family: var(--display); color: var(--tosca-dark); font-size: clamp(20px, 2vw, 32px); line-height: 1; }
@@ -114,13 +108,15 @@
     .pillar p { margin: 0; font-size: clamp(10px, .88vw, 13.5px); }
     .pillar.hot { background: var(--tosca-soft); border-color: rgba(0,145,142,.25); }
 
-    /* --- module cloud --- */
-    .module-cloud { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.3rem; max-width: 46rem; }
-    .module { border: 1px solid rgba(0,145,142,.23); background: var(--card); color: var(--tosca-dark); border-radius: 999px; padding: .52rem .78rem; font-size: clamp(9.5px, .8vw, 12.5px); font-weight: 700; }
-    .module.live::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: .45rem; background: var(--emerald); vertical-align: 1px; }
-    .module-label { width: 100%; color: var(--muted); font-size: clamp(9px, .75vw, 11px); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin: .2rem 0 0; padding-left: .1rem; }
+    /* --- stats band --- */
+    .stats-band { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.4rem; }
+    .stat { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1.1rem; padding: 1.15rem 1.2rem; box-shadow: var(--shadow-soft); }
+    .stat .num { font-family: var(--display); font-size: clamp(30px, 3.4vw, 56px); line-height: 1; color: var(--tosca-dark); letter-spacing: -.04em; }
+    .stat .lbl { margin-top: .45rem; color: var(--muted); font-size: clamp(10px, .86vw, 13.5px); line-height: 1.4; }
+    .stat.hot { background: var(--tosca-soft); border-color: rgba(0,145,142,.25); }
+    .stat-note { margin-top: .9rem; color: var(--muted); font-size: clamp(9.5px, .8vw, 12.5px); }
 
-    /* --- views showcase (slide 5) --- */
+    /* --- views showcase --- */
     .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1.4rem; }
     .view-card { border: 1px solid var(--line); border-radius: 1rem; background: var(--card); padding: 1rem; display: flex; flex-direction: column; gap: .4rem; }
     .view-card .v-glyph { display: grid; place-items: center; height: 3.1rem; border-radius: .6rem; background: var(--tosca-soft); color: var(--tosca-dark); font-size: clamp(18px, 1.8vw, 30px); font-weight: 900; font-family: var(--display); letter-spacing: -.04em; }
@@ -131,57 +127,38 @@
     .feature-chip strong { display: block; font-size: clamp(11px, .95vw, 14.5px); color: var(--tosca-dark); margin-bottom: .25rem; }
     .feature-chip span { color: var(--muted); font-size: clamp(9.5px, .8vw, 12px); line-height: 1.4; }
 
-    /* --- route table (slide 6) --- */
+    /* --- route table --- */
     .route-table { display: grid; gap: .6rem; margin-top: 1.3rem; }
     .route-row { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: start; background: var(--card); border: 1px solid var(--line-soft); border-radius: .95rem; padding: .8rem 1rem; box-shadow: var(--shadow-soft); }
     .route-path { font-family: var(--mono); font-size: clamp(10.5px, .92vw, 14.5px); color: var(--tosca-dark); font-weight: 700; background: var(--tosca-soft); border-radius: .5rem; padding: .35rem .55rem; align-self: center; }
     .route-row h3 { margin: 0 0 .2rem; font-size: clamp(11.5px, 1vw, 16px); }
-.route-row p { margin: 0; font-size: clamp(9.5px, .85vw, 13px); }
-.shot { margin: 0; border: 1px solid var(--line-soft); border-radius: .65rem; overflow: hidden; box-shadow: var(--shadow-soft); background: var(--card); }
-.shot img { display: block; width: 100%; height: auto; }
-.shot figcaption { padding: .32rem .65rem; font-size: clamp(8.5px, .7vw, 11px); color: var(--muted); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--card); border-top: 1px solid var(--line-soft); }
-.pub-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.3rem; align-items: start; margin-top: 1.3rem; }
-.pub-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
-.tenant-split { display: grid; grid-template-columns: 1fr 1.45fr; gap: 1.3rem; align-items: center; margin-top: 1.2rem; }
-.tenant-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
-[data-od-id="slide-admin"] .pub-split { margin-top: .9rem; }
-[data-od-id="slide-admin"] .feature-strip { margin-top: .45rem; }
-[data-od-id="slide-admin"] .pub-shots .shot img { max-height: 296px; width: 100%; object-fit: cover; object-position: top center; }
+    .route-row p { margin: 0; font-size: clamp(9.5px, .85vw, 13px); }
+    .shot { margin: 0; border: 1px solid var(--line-soft); border-radius: .65rem; overflow: hidden; box-shadow: var(--shadow-soft); background: var(--card); }
+    .shot img { display: block; width: 100%; height: auto; }
+    .shot figcaption { padding: .32rem .65rem; font-size: clamp(8.5px, .7vw, 11px); color: var(--muted); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--card); border-top: 1px solid var(--line-soft); }
+    .pub-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.3rem; align-items: start; margin-top: 1.3rem; }
+    .pub-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+    .tenant-split { display: grid; grid-template-columns: 1fr 1.45fr; gap: 1.3rem; align-items: center; margin-top: 1.2rem; }
+    .tenant-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+    [data-od-id="slide-admin"] .pub-split { margin-top: .9rem; }
+    [data-od-id="slide-admin"] .feature-strip { margin-top: .55rem; }
+    [data-od-id="slide-admin"] .view-card { padding: .78rem; gap: .28rem; }
+    [data-od-id="slide-admin"] .view-card .v-glyph { height: 2.4rem; font-size: clamp(15px, 1.5vw, 24px); }
+    [data-od-id="slide-admin"] .view-card p { display: none; }
+    [data-od-id="slide-admin"] .view-card h3 { margin: 0; }
+    [data-od-id="slide-admin"] .pub-shots .shot img { max-height: 258px; width: 100%; object-fit: cover; object-position: top center; }
+    [data-od-id="slide-admin"] .head-block { margin-bottom: 18px; }
+    .proto-tag { display: inline-block; margin-left: .5rem; padding: .12rem .5rem; border-radius: 99px; background: rgba(194,50,104,.10); border: 1px solid rgba(194,50,104,.28); color: var(--pink); font-size: clamp(8px, .66vw, 10.5px); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; vertical-align: 2px; }
 
-    /* --- flow (slide 8) --- */
+    /* --- flow --- */
     .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 2rem 0 1.1rem; position: relative; }
-    .flow::before { content: ""; position: absolute; left: 8%; right: 8%; top: 1.75rem; height: 1px; background: var(--tosca); opacity: .38; }
     .flow-step { position: relative; text-align: center; padding: 0 .3rem; }
     .flow-step .num { margin: 0 auto .9rem; width: 3.45rem; height: 3.45rem; border: 1px solid var(--tosca); background: var(--paper); border-radius: 50%; display: grid; place-items: center; color: var(--tosca-dark); font-family: var(--display); font-size: 1.45rem; position: relative; }
     .flow-step strong { display: block; font-size: clamp(10.5px, .98vw, 15px); line-height: 1.2; }
     .flow-step .step-path { display: block; margin: .3rem auto 0; font-family: var(--mono); font-size: clamp(8.5px, .72vw, 11px); color: var(--tosca-dark); background: var(--tosca-soft); border-radius: .4rem; padding: .18rem .4rem; width: fit-content; }
     .flow-step span { display: block; margin-top: .4rem; color: var(--muted); font-size: clamp(9px, .74vw, 12px); line-height: 1.3; }
 
-    /* --- tech stack (slide 9) --- */
-    .stack-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 1.1rem; margin-top: 1.4rem; }
-    .stack-col { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1.1rem; padding: 1.1rem 1.2rem; box-shadow: var(--shadow-soft); }
-    .stack-col h3 { font-size: clamp(12px, 1.05vw, 17px); color: var(--tosca-dark); margin-bottom: .8rem; }
-    .stack-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
-    .stack-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-bottom: 1px solid var(--line-soft); padding: .42rem 0; font-size: clamp(10.5px, .92vw, 14px); }
-    .stack-list li:last-child { border-bottom: 0; }
-    .stack-list .t-name { font-weight: 700; color: var(--ink); }
-    .stack-list .t-name small { display: block; font-weight: 400; color: var(--muted); font-size: clamp(9px, .76vw, 11.5px); }
-    .stack-list .t-ver { font-family: var(--mono); font-size: clamp(11px, .9vw, 13.5px); color: var(--tosca-dark); background: var(--tosca-soft); border-radius: .4rem; padding: .15rem .45rem; white-space: nowrap; }
-    .infra-note { display: flex; gap: .6rem; margin-top: .9rem; background: var(--card-warm); border: 1px solid var(--line); border-radius: .85rem; padding: .7rem .9rem; font-size: clamp(9.5px, .82vw, 12.5px); color: var(--muted); align-items: center; }
-    .infra-note strong { color: var(--ink); }
-
-    /* --- code tree (slide 10) --- */
-    .tree-box { background: #10231f; color: #d7efe9; border-radius: 1.1rem; padding: 1.2rem 1.4rem; font-family: var(--mono); font-size: clamp(9.5px, .84vw, 13px); line-height: 1.62; box-shadow: var(--shadow); overflow: hidden; }
-    .tree-box .t-cmt { color: #79b8ac; }
-    .tree-box .t-dir { color: #ffd28a; font-weight: 700; }
-    .tree-box .t-key { color: #8ad8c8; font-weight: 700; }
-    .arch-note { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: 1rem; }
-    .arch-note .feature-chip { background: var(--tosca-soft); border-color: rgba(0,145,142,.25); }
-
-    /* --- QA / security (slide 11) --- */
-    .role-rail { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 1rem 0 1.2rem; }
-    .role-chip { font-family: var(--mono); font-size: clamp(10px, .88vw, 14px); font-weight: 700; color: var(--tosca-dark); background: var(--tosca-soft); border: 1px solid rgba(0,145,142,.3); border-radius: .55rem; padding: .4rem .7rem; }
-    .role-arrow { color: var(--pink); font-weight: 900; font-size: clamp(13px, 1.2vw, 19px); }
+    /* --- QA / security --- */
     .qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; }
     .qa-card { background: var(--card); border: 1px solid var(--line-soft); border-radius: 1rem; padding: 1rem 1.1rem; box-shadow: var(--shadow-soft); }
     .qa-card .card-tag { margin-bottom: .7rem; }
@@ -189,7 +166,7 @@
     .qa-card p b { color: var(--ink); }
     .qa-stat { font-family: var(--display); font-size: clamp(20px, 2.1vw, 34px); color: var(--tosca-dark); line-height: 1; }
 
-    /* --- transformation matrix (slide 12) --- */
+    /* --- transformation matrix --- */
     .matrix { display: grid; gap: .55rem; margin-top: 1.2rem; }
     .mx-head, .mx-row { display: grid; grid-template-columns: 10.5rem 1fr 1fr; gap: .8rem; align-items: stretch; }
     .mx-head { font-size: clamp(9px, .74vw, 11px); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--tosca-dark); padding: 0 .2rem .2rem; }
@@ -202,14 +179,14 @@
     .mx-cell.after::before { content: "✓"; color: var(--emerald); }
     .mx-cell span { display: inline; }
 
-    /* --- roadmap (slide 13) --- */
+    /* --- roadmap --- */
     .road-list { display: grid; gap: .65rem; margin-top: 1.2rem; }
     .road-row { display: grid; grid-template-columns: 2.4rem 15rem 1fr; gap: .9rem; align-items: center; background: var(--card); border: 1px solid var(--line-soft); border-radius: .95rem; padding: .7rem .95rem; box-shadow: var(--shadow-soft); }
     .road-row i { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; background: var(--tosca-soft); color: var(--tosca-dark); border-radius: 50%; font-style: normal; font-weight: 900; font-size: .8rem; }
     .road-row strong { font-size: clamp(11px, .98vw, 15px); }
     .road-row span { color: var(--muted); font-size: clamp(9.5px, .84vw, 13px); line-height: 1.45; }
 
-    /* --- closing (slide 14) --- */
+    /* --- closing --- */
     .cta { align-content: center; justify-content: center; }
     .cta-box { align-self: center; margin-block: auto; background: var(--tosca-dark); color: white; border-radius: 1.6rem; padding: 4% 5%; display: grid; grid-template-columns: 1.35fr .65fr; gap: 5%; align-items: center; box-shadow: var(--shadow); }
     .cta-box h2 { color: white; margin-bottom: .8rem; max-width: 12em; }
@@ -228,8 +205,7 @@
     .dot { width: .5rem; height: .5rem; border: 0; border-radius: 50%; background: #98a2a8; cursor: pointer; padding: 0; }
     .dot.is-active { width: 1.25rem; border-radius: 99px; background: var(--tosca-dark); }
 
-    
-    /* --- head-block + main layout: header locked top, content fills rest --- */
+    /* --- head-block + main layout --- */
     .head-block { margin-bottom: 30px; flex-shrink: 0; }
     .main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
     @media (max-aspect-ratio: 4/3) {
@@ -252,7 +228,7 @@
       .hero-copy, .two-col, .two-col.wide-right, .two-col.wide-left, .cta-box { display: block; }
       .hero-mark { position: relative; right: auto; top: auto; width: 45%; margin: 2rem 0 0 auto; }
       .hero-attribution { position: relative; right: auto; bottom: auto; text-align: left; margin-top: 1.5rem; }
-      .cards, .cards.cols-2, .cards.cols-4, .feature-strip, .view-grid, .pillars, .qa-grid, .arch-note, .stack-grid { grid-template-columns: 1fr; }
+      .cards, .cards.cols-2, .cards.cols-4, .feature-strip, .view-grid, .pillars, .stats-band, .qa-grid { grid-template-columns: 1fr; }
       .flow { gap: .2rem; }
       .flow-step .num { width: 2.3rem; height: 2.3rem; font-size: 1rem; }
       .flow::before { top: 1.15rem; }
@@ -270,308 +246,204 @@
   </style>
 </head>
 <body>
-  <main class="deck" aria-label="Presentasi Dashboard Calendar Event — Metropolitan Mall Bekasi">
+  <main class="deck" aria-label="Laporan Kerja Marcomm — Dashboard Calendar Event, Metropolitan Mall Bekasi">
     <section class="stage" data-od-id="presentation-stage" aria-live="polite">
       <div class="brand" data-od-id="brand-mark"><img src="assets/logo-metmal.svg" alt="Logo Metropolitan Mall Bekasi"><span>Metropolitan Mall Bekasi</span></div>
 
-      <!-- 01 · Judul & Pembuka -->
-      <section class="slide hero is-active" data-slide="01 / 14" data-od-id="slide-cover" aria-roledescription="slide" aria-label="Judul dan pembuka">
-        <p class="kicker">Sistem Operasional Event · Metropolitan Mall Bekasi</p>
+      <!-- 01 · Pembuka -->
+      <section class="slide hero is-active" data-slide="01 / 11" data-od-id="slide-cover" aria-roledescription="slide" aria-label="Judul dan pembuka">
+        <p class="kicker">Laporan Kerja Marcomm · Metropolitan Mall Bekasi</p>
         <h1>Dashboard<br>Calendar <span class="tosca">Event</span></h1>
         <div class="rule"></div>
         <div class="hero-copy">
-          <p class="lead">Ekosistem manajemen event &amp; hub komunitas — menyatukan perencanaan event, publikasi informasi, dan evaluasi tenant dalam satu platform terpadu. Sudah live, bukan konsep.</p>
-          <button class="btn btn-primary" data-go="4">Lihat fiturnya</button>
+          <p class="lead">Saya membangun sistem pengelolaan seluruh event mall — dari pengajuan komunitas, penjadwalan, publikasi, sampai evaluasi. Sudah berjalan penuh di metmalcommunityspace.web.id, dipakai setiap hari oleh tim marcomm.</p>
+          <button class="btn btn-primary" data-go="5">Lihat fiturnya</button>
         </div>
         <div class="hero-mark" aria-hidden="true"><strong>EVENT<br>FLOW</strong><small>METMAL / MARCOMM</small></div>
-        <div class="hero-attribution"><span class="name">Andy Safii</span><span class="role">Marcomm · Inisiator proyek</span></div>
-        <div class="slide-footer"><span>metmalcommunityspace.web.id</span><span class="note">14 slide · v2.1</span></div>
+        <div class="hero-attribution"><span class="name">Andy Safii</span><span class="role">Marcomm · Pembangun sistem</span></div>
+        <div class="slide-footer"><span>metmalcommunityspace.web.id</span><span class="note">11 slide · September 2026</span></div>
       </section>
 
-      <!-- 02 · Latar Belakang & Problem -->
-      <section class="slide" data-slide="02 / 14" data-od-id="slide-problem" aria-roledescription="slide" aria-label="Latar belakang dan permasalahan"><div class="head-block"><p class="kicker">Latar Belakang</p>
-            <h2>Tantangan operasional sehari-hari.</h2>
-            <p class="lead">Operasional event berjalan terpisah-pisah: data tersebar, proses manual, evaluasi tidak terhubung.</p></div>
+      <!-- 02 · Masalah sebelumnya -->
+      <section class="slide" data-slide="02 / 11" data-od-id="slide-problem" aria-roledescription="slide" aria-label="Masalah sebelum sistem dibangun"><div class="head-block"><p class="kicker">Titik Awal</p>
+            <h2>Dulu, pekerjaan event berjalan terpisah-pisah.</h2>
+            <p class="lead">Setiap kegiatan punya caranya sendiri — hasilnya kerja dua kali dan informasi yang hilang di tengah jalan.</p></div>
           <div class="main">
             <div class="two-col wide-right">
               <div></div>
               <ul class="problem-list">
-            <li><b>01</b><span><strong>Fragmentasi data</strong> — jadwal tersebar di berbagai media, risiko miskomunikasi.</span></li>
-            <li><b>02</b><span><strong>Visibility rendah</strong> — distribusi event sulit dipantau; overlap baru ketahuan saat bentrok.</span></li>
-            <li><b>03</b><span><strong>Pengajuan manual</strong> — pendaftaran komunitas &amp; upload proposal belum terpusat.</span></li>
-            <li><b>04</b><span><strong>Evaluasi terfragmentasi</strong> — survey pengunjung dan tenant terpisah, sulit direkap.</span></li>
-            <li><b>05</b><span><strong>Dokumentasi tidak efisien</strong> — surat resmi dan dokumentasi area masih manual.</span></li>
+            <li><b>01</b><span><strong>Jadwal tersebar.</strong> Sebagian di Excel, sebagian di chat — tidak ada yang tahu pasti jadwal terbaru.</span></li>
+            <li><b>02</b><span><strong>Pendaftaran lewat chat.</strong> Komunitas menghubungi admin satu per satu, proposal tersimpan di ponsel masing-masing.</span></li>
+            <li><b>03</b><span><strong>Pengunjung tidak tahu.</strong> Tidak ada satu tempat untuk melihat acara apa yang sedang dan akan berlangsung di mall.</span></li>
+            <li><b>04</b><span><strong>Evaluasi tidak ada.</strong> Setelah event selesai, tidak ada data yang menjawab: apakah event ini menguntungkan gerai?</span></li>
           </ul>
             </div>
           </div>
-          <div class="slide-footer"><span>Satu jadwal event = biaya koordinasi tersembunyi</span></div>
-
+          <div class="slide-footer"><span>Satu jadwal yang tercecer = komunikasi berulang setiap hari</span></div>
       </section>
 
-      <!-- 03 · Solusi: Ekosistem Terpadu -->
-      <section class="slide" data-slide="03 / 14" data-od-id="slide-solution" aria-roledescription="slide" aria-label="Solusi ekosistem terpadu"><div class="head-block"><p class="kicker">Solusi</p>
-        <h2>Satu platform, empat pilar.</h2>
-        <p class="lead">Menghubungkan Admin, Komunitas, dan Tenant dalam satu ekosistem — satu data, banyak pemakai.</p></div>
+      <!-- 03 · Angka pemakaian -->
+      <section class="slide" data-slide="03 / 11" data-od-id="slide-stats" aria-roledescription="slide" aria-label="Angka pemakaian sistem"><div class="head-block"><p class="kicker">Bukti Pemakaian</p>
+        <h2>Sistem ini dipakai sungguhan, setiap hari.</h2>
+        <p class="lead">Angka berikut diambil langsung dari basis data sistem pada hari ini — bisa dicek ulang kapan saja.</p></div>
           <div class="main">
-            <div class="pillars">
-          <article class="pillar"><div class="p-num">1</div><h3>Admin Dashboard</h3><p>Kontrol penuh atas jadwal, draft, dan dokumen resmi — dari satu tempat.</p></article>
-          <article class="pillar hot"><div class="p-num">2</div><h3>Hub Komunitas</h3><p>Gerbang publik: jadwal event, pendaftaran komunitas, dan direktori komunitas.</p></article>
-          <article class="pillar"><div class="p-num">3</div><h3>Tenant Feedback Loop</h3><p>Evaluasi anonim pasca-event; hasil agregat jadi ukuran dampak.</p></article>
-          <article class="pillar"><div class="p-num">4</div><h3>Visual Asset Management</h3><p>Galeri foto area event — visualisasi lokasi sebelum memilih.</p></article>
-        </div>
+            <div class="stats-band">
+              <div class="stat hot"><div class="num">246</div><div class="lbl">event tercatat sejak 2025 — 146 di antaranya tahun ini</div></div>
+              <div class="stat"><div class="num">44</div><div class="lbl">draf pengajuan diproses lewat alur resmi sistem</div></div>
+              <div class="stat"><div class="num">47</div><div class="lbl">foto dokumentasi terarsip dalam 6 album</div></div>
+              <div class="stat"><div class="num">12</div><div class="lbl">pendaftaran komunitas masuk tahun ini — 6 sudah disetujui</div></div>
+            </div>
+            <p class="stat-note">Komunitas paling aktif: Sanggar Tari Srikandi (14 event), Happy Play Kids (11), LDAI (9). Status setiap event — mendatang, berlangsung, selesai — dihitung otomatis dari tanggal, tanpa perlu diperbarui manual.</p>
           </div>
-          <div class="slide-footer"><span>Ekosistem terpadu — bukan tumpukan alat terpisah</span></div>
-
+          <div class="slide-footer"><span>221 event selesai · 24 mendatang · 1 sedang berlangsung saat ini</span></div>
       </section>
 
-      <!-- 04 · Tujuan Utama -->
-      <section class="slide" data-slide="04 / 14" data-od-id="slide-goals" aria-roledescription="slide" aria-label="Tujuan utama project"><div class="head-block"><p class="kicker">Tujuan Proyek</p>
-        <h2>Dari alat penjadwalan menjadi siklus yang utuh.</h2></div>
-          <div class="main">
-            <div class="cards" data-od-id="goals-grid" style="margin-top:1.6rem">
-          <article class="card"><div class="card-tag">Centralization</div><h3>Satu sumber kebenaran</h3><p>Seluruh jadwal event hidup di satu database — tidak ada versi ganda.</p></article>
-          <article class="card warm"><div class="card-tag">Streamlining</div><h3>Alur disederhanakan</h3><p>Pengajuan → Proposal → Draft → Event Resmi. Setiap langkah tercatat.</p></article>
-          <article class="card"><div class="card-tag">Engagement</div><h3>Database komunitas</h3><p>Direktori Komunitas membangun data EO/komunitas yang terukur dan bisa dicari.</p></article>
-          <article class="card warm"><div class="card-tag">Data-Driven</div><h3>Evaluasi berbasis data</h3><p>Survey agregat dipakai untuk menaikkan kualitas event berikutnya.</p></article>
-          <article class="card"><div class="card-tag">Transparansi</div><h3>Status otomatis</h3><p>Status event terupdate real-time dari tanggal — tanpa rekap manual.</p></article>
-          <article class="card warm"><div class="card-tag">Dokumentasi</div><h3>Surat otomatis</h3><p>Surat resmi digenerate sistem, arsip tersimpan — bukan dikerjakan ulang.</p></article>
-        </div>
-          </div>
-          <div class="slide-footer"><span>Terpusat · terukur · transparan — dari pengajuan sampai evaluasi</span></div>
-
-      </section>
-
-      <!-- 05 · Fitur Admin Dashboard -->
-      <section class="slide" data-slide="05 / 14" data-od-id="slide-admin" aria-roledescription="slide" aria-label="Fitur admin dashboard"><div class="head-block"><p class="kicker">Fitur · Admin</p>
-        <h2>Kendali operasional tingkat tinggi.</h2>
-        <p class="lead">Satu set data event, empat tampilan analitis — plus otomatisasi yang menghapus pekerjaan manual.</p></div>
-        <div class="pub-split" style="grid-template-columns:1fr 1.5fr">
-          <div class="view-grid" style="grid-template-columns:repeat(2,1fr);margin-top:0">
-          <article class="view-card"><div class="v-glyph">≡</div><h3>Tabel</h3><p>Manajemen data detail — cari, filter, sort seluruh event.</p></article>
-          <article class="view-card"><div class="v-glyph">▦</div><h3>Kalender</h3><p>Distribusi bulanan — langsung terlihat mana yang padat.</p></article>
-          <article class="view-card"><div class="v-glyph">▤</div><h3>Kanban</h3><p>Pipeline status: Mendatang → Berlangsung → Selesai.</p></article>
-          <article class="view-card"><div class="v-glyph">═</div><h3>Timeline</h3><p>Analisis rentang waktu &amp; triwulan — pola setahun sekilas.</p></article>
-        </div>
-          <div class="pub-shots">
-            <figure class="shot"><img src="assets/deck-b/10-admin-table.png" alt="Tampilan Tabel dashboard admin"><figcaption>Tabel</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/11-admin-calendar.png" alt="Tampilan Kalender dashboard admin"><figcaption>Kalender</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/12-admin-kanban.png" alt="Tampilan Kanban dashboard admin"><figcaption>Kanban</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/13-admin-timeline.png" alt="Tampilan Timeline dashboard admin"><figcaption>Timeline</figcaption></figure>
-          </div>
-        </div>
-        <div class="feature-strip">
-          <div class="feature-chip"><strong>Smart Automation</strong><span>Status event dihitung otomatis dari tanggal &amp; jam sistem.</span></div>
-          <div class="feature-chip"><strong>Organization Linking</strong><span>Event terhubung ke database EO/organisasi terdaftar.</span></div>
-          <div class="feature-chip"><strong>Asset Management</strong><span>CRUD foto area event — terintegrasi landing page.</span></div>
-          <div class="feature-chip"><strong>PDF Generator</strong><span>Surat resmi otomatis via GeneratedLetter (Supabase).</span></div>
-        </div>
-          </div>
-          <div class="slide-footer"><span>Empat tampilan: Tabel · Kalender · Kanban · Timeline</span></div>
-
-      </section>
-
-      <!-- 06 · Community Hub (Publik) -->
-      <section class="slide" data-slide="06 / 14" data-od-id="slide-community" aria-roledescription="slide" aria-label="Community hub publik"><div class="head-block"><p class="kicker">Fitur · Publik</p>
-        <h2>Akses langsung, tanpa antre.</h2>
-        <p class="lead">Halaman publik yang melayani pengunjung, komunitas, dan tenant — tanpa login.</p></div>
+      <!-- 04 · Sisi publik -->
+      <section class="slide" data-slide="04 / 11" data-od-id="slide-public" aria-roledescription="slide" aria-label="Fitur untuk pengunjung dan komunitas"><div class="head-block"><p class="kicker">Fitur · Pengunjung &amp; Komunitas</p>
+        <h2>Satu alamat untuk semua kebutuhan pengunjung.</h2>
+        <p class="lead">Semua halaman ini terbuka tanpa perlu akun — pengunjung cukup membuka situs.</p></div>
           <div class="main">
             <div class="pub-split">
             <div class="route-table" style="margin-top:0">
-          <div class="route-row"><code class="route-path">/events</code><div><h3>Jadwal Publik</h3><p>Jadwal real-time dengan filter kategori — bisa diunduh PDF dalam satu klik.</p></div></div>
-          <div class="route-row"><code class="route-path">/daftar</code><div><h3>Pendaftaran Digital</h3><p>Form pengajuan event komunitas lengkap upload proposal (PDF/Word, maks 20MB).</p></div></div>
-          <div class="route-row"><code class="route-path">/community</code><div><h3>Direktori Komunitas</h3><p>Portofolio publik EO + statistik aktivitas: total acara &amp; acara mendatang.</p></div></div>
-          <div class="route-row"><code class="route-path">/gallery</code><div><h3>Galeri Area</h3><p>Galeri foto area mall dengan lightbox — komunitas bisa pilih lokasi sebelum mendaftar.</p></div></div>
-          <div class="route-row"><code class="route-path">/survey/:id</code><div><h3>Survei Kepuasan</h3><p>Rating pengunjung untuk mall dan EO pasca-event.</p></div></div>
-          <div class="route-row"><code class="route-path">+7 lagi</code><div><h3>Berita, Sponsor, Tenants…</h3><p>News, sponsorship, direktori tenant, galeri album, surat publik.</p></div></div>
+          <div class="route-row"><code class="route-path">/events</code><div><h3>Jadwal acara</h3><p>Seluruh event mall, lengkap dengan filter kategori dan unduhan jadwal dalam format PDF.</p></div></div>
+          <div class="route-row"><code class="route-path">/daftar</code><div><h3>Pendaftaran komunitas</h3><p>Form resmi pengajuan event beserta unggah proposal — tidak lagi lewat chat.</p></div></div>
+          <div class="route-row"><code class="route-path">/community</code><div><h3>Direktori komunitas</h3><p>Portofolio setiap komunitas beserta rekam jejak acaranya di mall.</p></div></div>
+          <div class="route-row"><code class="route-path">/gallery</code><div><h3>Galeri foto</h3><p>Dokumentasi setiap event dan kondisi area — bisa dilihat siapa saja.</p></div></div>
+          <div class="route-row"><code class="route-path">/sponsor</code><div><h3>Info sponsorship</h3><p>Penawaran kerja sama bagi calon sponsor, lengkap dengan formulir kontak.</p></div></div>
         </div>
           <div class="pub-shots">
-            <figure class="shot"><img src="assets/deck-b/02-events-public.png" alt="Halaman publik jadwal event"><figcaption>/events</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/03-daftar.png" alt="Form pendaftaran event komunitas"><figcaption>/daftar</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/04-community.png" alt="Direktori komunitas"><figcaption>/community</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/05-gallery.png" alt="Galeri area mall"><figcaption>/gallery</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/02-events-public.png" alt="Halaman jadwal acara publik"><figcaption>Jadwal acara — /events</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/03-daftar.png" alt="Formulir pendaftaran event komunitas"><figcaption>Pendaftaran — /daftar</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/04-community.png" alt="Direktori komunitas"><figcaption>Direktori komunitas — /community</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/05-gallery.png" alt="Galeri foto"><figcaption>Galeri foto — /gallery</figcaption></figure>
           </div>
         </div>
-          <div class="slide-footer"><span>Semua route publik — tanpa login, tanpa admin perantara</span></div>
-
+          <div class="slide-footer"><span>Semua halaman terbuka untuk umum — tanpa akun, tanpa perantara</span></div>
       </section>
 
-      <!-- 07 · Evaluasi Tenant -->
-      <section class="slide" data-slide="07 / 14" data-od-id="slide-tenant" aria-roledescription="slide" aria-label="Evaluasi tenant"><div class="head-block"><p class="kicker">Fitur · Tenant</p>
-        <h2>Survei anonim tenant.</h2>
-        <p class="lead">Tenant menilai dampak event terhadap gerainya — tanpa login, hasil terkumpul otomatis.</p></div>
+      <!-- 05 · Sisi internal -->
+      <section class="slide" data-slide="05 / 11" data-od-id="slide-admin" aria-roledescription="slide" aria-label="Fitur untuk tim internal"><div class="head-block"><p class="kicker">Fitur · Tim Internal</p>
+        <h2>Seluruh jadwal mall, dalam satu layar.</h2>
+        <p class="lead">Satu data yang sama bisa dilihat dalam empat bentuk — sesuai kebutuhan saat rapat maupun perencanaan.</p></div>
+        <div class="pub-split" style="grid-template-columns:1fr 1.5fr">
+          <div class="view-grid" style="grid-template-columns:repeat(2,1fr);margin-top:0">
+          <article class="view-card"><div class="v-glyph">≡</div><h3>Tabel</h3><p>Daftar lengkap — cari, saring, urutkan.</p></article>
+          <article class="view-card"><div class="v-glyph">▦</div><h3>Kalender</h3><p>Bulan mana yang padat, terlihat sekali lirik.</p></article>
+          <article class="view-card"><div class="v-glyph">▤</div><h3>Papan tahapan</h3><p>Acara berjalan sesuai tahap: mendatang, berlangsung, selesai.</p></article>
+          <article class="view-card"><div class="v-glyph">═</div><h3>Garis waktu</h3><p>Rentang setiap acara dalam setahun — tabrakan jadwal langsung terlihat.</p></article>
+        </div>
+          <div class="pub-shots">
+            <figure class="shot"><img src="assets/deck-b/10-admin-table.png" alt="Tampilan tabel dashboard internal"><figcaption>Tabel</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/11-admin-calendar.png" alt="Tampilan kalender dashboard internal"><figcaption>Kalender</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/12-admin-kanban.png" alt="Tampilan papan tahapan dashboard internal"><figcaption>Papan tahapan</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/13-admin-timeline.png" alt="Tampilan garis waktu dashboard internal"><figcaption>Garis waktu</figcaption></figure>
+          </div>
+        </div>
+        <div class="feature-strip">
+          <div class="feature-chip"><strong>Status otomatis</strong><span>Status acara dihitung dari tanggal — tidak ada yang lupa memperbarui.</span></div>
+          <div class="feature-chip"><strong>Terhubung komunitas</strong><span>Setiap acara tertaut ke komunitas penyelenggara yang terdaftar.</span></div>
+          <div class="feature-chip"><strong>Foto area</strong><span>Kelola foto setiap area event langsung dari dashboard.</span></div>
+          <div class="feature-chip"><strong>Surat otomatis</strong><span>Surat resmi event dibuat sistem dalam sekali klik, tersimpan arsip.</span></div>
+        </div>
+          </div>
+          <div class="slide-footer"><span>Satu data, empat cara melihat — tabel, kalender, papan tahapan, garis waktu</span></div>
+      </section>
+
+      <!-- 06 · Alur kerja -->
+      <section class="slide" data-slide="06 / 11" data-od-id="slide-workflow" aria-roledescription="slide" aria-label="Alur kerja dari pengajuan sampai evaluasi"><div class="head-block"><p class="kicker">Alur Kerja</p>
+        <h2>Dari pengajuan sampai evaluasi, satu jalur.</h2></div>
+          <div class="main">
+            <div class="flow" data-od-id="workflow-flow">
+          <div class="flow-step"><div class="num">01</div><strong>Pengajuan</strong><span class="step-path">/daftar</span><span>Komunitas mendaftar dan mengunggah proposal.</span></div>
+          <div class="flow-step"><div class="num">02</div><strong>Tinjauan</strong><span class="step-path">internal</span><span>Tim meninjau dan menetapkan calon jadwal.</span></div>
+          <div class="flow-step"><div class="num">03</div><strong>Perencanaan</strong><span class="step-path">internal</span><span>Menyusun area, tanggal, dan persetujuan akhir.</span></div>
+          <div class="flow-step"><div class="num">04</div><strong>Pelaksanaan</strong><span class="step-path">/events</span><span>Dipublikasikan — pengunjung bisa melihatnya.</span></div>
+          <div class="flow-step"><div class="num">05</div><strong>Evaluasi</strong><span class="step-path">survei</span><span>Penyewa gerai menilai dampak acara.</span></div>
+        </div>
+        <p class="note">Tahapan berpindah otomatis mengikuti tanggal — mendatang, berlangsung, lalu selesai — tanpa diperbarui manual.</p>
+          </div>
+          <div class="slide-footer"><span>Pengajuan → Tinjauan → Perencanaan → Pelaksanaan → Evaluasi</span></div>
+      </section>
+
+      <!-- 07 · Evaluasi tenant (prototipe) -->
+      <section class="slide" data-slide="07 / 11" data-od-id="slide-tenant" aria-roledescription="slide" aria-label="Evaluasi penyewa gerai, tahap purwarupa"><div class="head-block"><p class="kicker">Sedang Dibangun<span class="proto-tag">Purwarupa</span></p>
+        <h2>Penyewa gerai menilai dampak setiap event.</h2>
+        <p class="lead">Setelah acara selesai, penyewa gerai mengisi survei singkat: apakah kunjungan dan penjualan gerainya naik. Hasilnya terkumpul otomatis — masih tahap purwarupa, belum dibuka untuk produksi.</p></div>
           <div class="main">
             <div class="tenant-split">
             <div class="cards cols-2" style="margin-top:0;grid-template-columns:1fr">
-          <article class="card"><div class="card-tag">Langkah pengisian</div><h3>Tiga langkah, nol akun</h3><p>Buka <code>/tenant-survey</code> → pilih event (Event Picker) → isi form di <code>/tenant-survey/:eventId</code>. Pilih gerai dari daftar MID, isi skala kenaikan traffic &amp; sales, kirim.</p></article>
-          <article class="card warm"><div class="card-tag">Hasil agregat</div><h3>Terbuka &amp; real-time</h3><p><code>/tenant-survey-results</code> — dashboard publik read-only: KPI traffic/sales, filter event, tren per bulan. Admin/TR bisa ekspor PDF.</p></article>
-          <article class="card warm"><div class="card-tag">Anti-spam &amp; duplikat</div><h3>Deteksi duplikat + batas kiriman</h3><p>Deteksi duplikat per device+event, rate limit IP server-side, konfigurasi per-event (buka/tutup form) — default tertutup.</p></article>
-          <article class="card"><div class="card-tag">Manfaat</div><h3>Bahan negosiasi</h3><p>Data dampak event ke traffic/sales gerai — bahan evaluasi &amp; negosiasi sponsorship, tanpa admin jadi perantara.</p></article>
+          <article class="card"><div class="card-tag">Tanpa akun</div><h3>Tiga langkah selesai</h3><p>Penyewa membuka tautan, memilih acara dan gerainya, mengisi skala kenaikan — selesai tanpa perlu login.</p></article>
+          <article class="card warm"><div class="card-tag">Hasil langsung terlihat</div><h3>Rekap otomatis</h3><p>Hasil seluruh gerai terkumpul jadi rekap terbuka: seberapa besar dampak acara terhadap kunjungan dan penjualan.</p></article>
+          <article class="card"><div class="card-tag">Aman dari isi ulang</div><h3>Anti-kirim ganda</h3><p>Setiap perangkat hanya bisa mengirim satu kali per acara, dengan pembatasan laju kirim di sisi server.</p></article>
+          <article class="card warm"><div class="card-tag">Untuk negosiasi</div><h3>Bahan tawar</h3><p>Data dampak acara jadi bahan evaluasi dan negosiasi sponsorship dengan penyewa — tanpa rekap manual.</p></article>
         </div>
           <div class="tenant-shots">
-            <figure class="shot"><img src="assets/deck-b/07-tenant-survey-picker.png" alt="Halaman pemilih event untuk survei tenant"><figcaption>Event Picker — /tenant-survey</figcaption></figure>
-            <figure class="shot"><img src="assets/deck-b/08-tenant-survey-results.png" alt="Dashboard hasil survei tenant"><figcaption>Hasil agregat — /tenant-survey-results</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/07-tenant-survey-picker.png" alt="Halaman pemilih acara untuk survei penyewa gerai"><figcaption>Pemilih acara</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/08-tenant-survey-results.png" alt="Rekap hasil survei penyewa gerai"><figcaption>Rekap hasil</figcaption></figure>
           </div>
         </div>
-          <div class="slide-footer"><span>Feedback loop tenant → data agregat → keputusan event berikutnya</span></div>
-
+          <div class="slide-footer"><span>Rencana: uji coba bersama penyewa gerai sebelum dibuka penuh</span></div>
       </section>
 
-      <!-- 08 · Alur Kerja End-to-End -->
-      <section class="slide" data-slide="08 / 14" data-od-id="slide-workflow" aria-roledescription="slide" aria-label="Alur kerja end-to-end"><div class="head-block"><p class="kicker">Alur Kerja Sistem</p>
-        <h2>Siklus hidup event, ujung ke ujung.</h2></div>
-          <div class="main">
-            <div class="flow" data-od-id="workflow-flow">
-          <div class="flow-step"><div class="num">01</div><strong>Pengajuan</strong><span class="step-path">/daftar</span><span>Komunitas mendaftar &amp; upload proposal.</span></div>
-          <div class="flow-step"><div class="num">02</div><strong>Tinjauan</strong><span class="step-path">dashboard</span><span>Admin meninjau — &ldquo;Buat Draft dari Pendaftaran&rdquo;.</span></div>
-          <div class="flow-step"><div class="num">03</div><strong>Perencanaan</strong><span class="step-path">draft</span><span>Olah draft: area, tanggal, approval.</span></div>
-          <div class="flow-step"><div class="num">04</div><strong>Pelaksanaan</strong><span class="step-path">/events</span><span>Publish jadi Event Resmi — tampil publik.</span></div>
-          <div class="flow-step"><div class="num">05</div><strong>Evaluasi</strong><span class="step-path">survey</span><span>Tenant &amp; pengunjung mengisi — hasil agregat.</span></div>
-        </div>
-        <p class="note">Status berpindah otomatis mengikuti tanggal sistem — Mendatang → Berlangsung → Selesai — tanpa intervensi manual.</p>
-          </div>
-          <div class="slide-footer"><span>Pengajuan → Tinjauan → Perencanaan → Pelaksanaan → Evaluasi</span></div>
-
-      </section>
-
-      <!-- 09 · Tech Stack -->
-      <section class="slide" data-slide="09 / 14" data-od-id="slide-stack" aria-roledescription="slide" aria-label="Tech stack"><div class="head-block"><p class="kicker">Arsitektur Modern</p>
-        <h2>Stack current, bukan legacy.</h2></div>
-          <div class="main">
-            <div class="stack-grid">
-          <div class="stack-col">
-            <h3>Frontend</h3>
-            <ul class="stack-list">
-              <li><span class="t-name">React<small>UI library — concurrent features</small></span><span class="t-ver">19.0.0</span></li>
-              <li><span class="t-name">TypeScript<small>Type safety seluruh kodebase</small></span><span class="t-ver">^5.9.3</span></li>
-              <li><span class="t-name">Tailwind CSS<small>Styling — dark mode penuh</small></span><span class="t-ver">^4.0.0</span></li>
-              <li><span class="t-name">React Router<small>SPA + lazy loading tiap route</small></span><span class="t-ver">^7.14.2</span></li>
-              <li><span class="t-name">Vite<small>Build tool — instant HMR</small></span><span class="t-ver">^6.1.1</span></li>
-              <li><span class="t-name">date-fns<small>Manipulasi tanggal presisi</small></span><span class="t-ver">^4.1.0</span></li>
-            </ul>
-          </div>
-          <div class="stack-col">
-            <h3>Backend &amp; Infra</h3>
-            <ul class="stack-list">
-              <li><span class="t-name">Supabase<small>PostgreSQL · Auth RBAC · Storage</small></span><span class="t-ver">^2.104.1</span></li>
-              <li><span class="t-name">Vercel Serverless<small>12 endpoint di <code>api/*</code></small></span><span class="t-ver">runtime</span></li>
-              <li><span class="t-name">Cloudflare R2<small>Media storage — egress gratis</small></span><span class="t-ver">S3 API</span></li>
-              <li><span class="t-name">zod<small>Validasi schema FE/BE shared</small></span><span class="t-ver">^4.4.3</span></li>
-              <li><span class="t-name">@react-pdf/renderer<small>Generate surat &amp; jadwal</small></span><span class="t-ver">^4.5.1</span></li>
-              <li><span class="t-name">Vercel Analytics<small>Monitoring performa &amp; traffic</small></span><span class="t-ver">^2.0.1</span></li>
-            </ul>
-          </div>
-        </div>
-        <div class="infra-note"><strong>Channel terpisah:</strong><span>Publik → Supabase anon + RLS · Admin → serverless service role. Kunci server tidak pernah menyentuh browser.</span></div>
-          </div>
-          <div class="slide-footer"><span>React 19 · TypeScript · Supabase · Vercel · R2</span></div>
-
-      </section>
-
-      <!-- 10 · Struktur Organisasi Kode -->
-      <section class="slide" data-slide="10 / 14" data-od-id="slide-structure" aria-roledescription="slide" aria-label="Struktur kode"><div class="head-block"><p class="kicker">Arsitektur Frontend</p>
-        <h2>Struktur kode yang terdisiplin.</h2></div>
-          <div class="main">
-            <div class="two-col wide-left" style="align-items:stretch;margin-top:.8rem">
-          <div class="tree-box" role="img" aria-label="Diagram struktur folder src"><pre style="margin:0;font:inherit;font-size:clamp(8.5px,.76vw,11.5px);line-height:1.55">src/
-├── components/
-│   ├── admin/       <span class="t-cmt"># Manajemen pengguna, log aktivitas</span>
-│   ├── community/   <span class="t-cmt"># Hub publik: direktori, registrasi</span>
-│   ├── dashboard/   <span class="t-cmt"># Kalender, Kanban, Timeline</span>
-│   ├── survey/      <span class="t-cmt"># Survey tenant &amp; pengunjung</span>
-│   ├── forms/       <span class="t-cmt"># Form event: basic, multi-day</span>
-│   ├── pdf/         <span class="t-cmt"># Dokumen: jadwal, surat, hasil</span>
-│   └── ui/          <span class="t-cmt"># Shared primitives</span>
-├── hooks/            <span class="t-cmt"># useEvents, useAuth, usePermission</span>
-├── utils/            <span class="t-cmt"># api/, validation, eventUtils</span>
-├── lib/              <span class="t-cmt"># supabase.ts, schemas.ts (zod)</span>
-├── types.ts          <span class="t-cmt"># Domain interfaces</span>
-└── App.tsx           <span class="t-cmt"># Routing v7, lazy loading</span></pre></div>
-          <div>
-            <div class="arch-note" style="margin-top:0">
-              <div class="feature-chip"><strong>No global store</strong><span>Tidak ada context/redux. Data hidup di hooks, dioper via props — modal diorkestrasi terpusat.</span></div>
-              <div class="feature-chip"><strong>Explicit mappers</strong><span>Setiap baca/tulis melewati mapper snake_case ↔ camelCase. PostgREST menolak insert yang tidak terpetakan.</span></div>
-              <div class="feature-chip"><strong>Folder = domain</strong><span>Hierarki folder mengikuti domain bisnis (admin, community, survey) — bukan lapisan teknis.</span></div>
-              <div class="feature-chip"><strong>Enum single source</strong><span>Opsi survey didefinisikan satu kali, dipakai FE + BE + RPC — tidak ada drift label.</span></div>
-            </div>
-          </div>
-        </div>
-          </div>
-          <div class="slide-footer"><span>React 19 + TypeScript strict — organisasi folder mengikuti domain</span></div>
-
-      </section>
-
-      <!-- 11 · QA & Security -->
-      <section class="slide" data-slide="11 / 14" data-od-id="slide-qa" aria-roledescription="slide" aria-label="Quality assurance dan security"><div class="head-block"><p class="kicker">Keamanan &amp; Kualitas</p>
-        <h2>Empat lapis jaminan.</h2></div>
-          <div class="main">
-            <div class="role-rail" aria-label="Hierarki role akses">
-          <span class="role-chip">superadmin</span><span class="role-arrow">→</span>
-          <span class="role-chip">admin</span><span class="role-arrow">→</span>
-          <span class="role-chip">viewer</span><span class="role-arrow">→</span>
-          <span class="role-chip">eo_tenant</span><span class="role-arrow">|</span>
-          <span class="role-chip">tenant_relation</span>
-          <span style="color:var(--muted);font-size:clamp(10px,.85vw,13px)">18 permission granular di <code>usePermission</code></span>
-        </div>
-        <div class="qa-grid">
-          <article class="qa-card"><div class="card-tag">Audit trail</div><p><span class="qa-stat">6</span> jenis aksi tercatat otomatis di Log Aktivitas: Membuat, Mengubah, Menghapus, Login, Logout, Mengundang — lengkap IP, user, dan timestamp.</p></article>
-          <article class="qa-card"><div class="card-tag">Automated testing</div><p><span class="qa-stat">47</span> file test Vitest (status event, permission matrix, validasi form, publish Draft→Event) <b>+ 4</b> E2E Playwright untuk alur tenant survey.</p></article>
-          <article class="qa-card"><div class="card-tag">Validasi di setiap boundary</div><p>Zod schemas memvalidasi payload <b>di klien dan server</b> — schema yang sama, tidak ada celah validasi ganda.</p></article>
-          <article class="qa-card"><div class="card-tag">Status tidak bisa basi</div><p>Status event <b>diderivasi dari tanggal</b> (zona Asia/Jakarta) — tidak ada status salah karena lupa update manual. RLS menjaga channel publik vs admin.</p></article>
-        </div>
-          </div>
-          <div class="slide-footer"><span>RBAC · Audit trail · 47 test file · zod di setiap boundary</span></div>
-
-      </section>
-
-      <!-- 12 · Analisis Dampak -->
-      <section class="slide" data-slide="12 / 14" data-od-id="slide-impact" aria-roledescription="slide" aria-label="Analisis dampak"><div class="head-block"><p class="kicker">Sebelum vs Sesudah</p>
-        <h2>Transformasi operasional.</h2></div>
+      <!-- 08 · Sebelum vs sesudah -->
+      <section class="slide" data-slide="08 / 11" data-od-id="slide-impact" aria-roledescription="slide" aria-label="Perbandingan sebelum dan sesudah"><div class="head-block"><p class="kicker">Sebelum vs Sesudah</p>
+        <h2>Apa yang berubah dari pekerjaan sehari-hari.</h2></div>
           <div class="main">
             <div class="matrix" data-od-id="impact-matrix">
-          <div class="mx-head"><span>Dimensi</span><span>Sebelum — manual/fragmented</span><span>Sesudah — ekosistem terintegrasi</span></div>
-          <div class="mx-row"><div class="mx-dim">Pengajuan Event</div><div class="mx-cell before"><span>Chat/email, proposal file terpisah, tidak terarsip.</span></div><div class="mx-cell after"><span>Form terpusat <code>/daftar</code> + upload proposal, status terlacak.</span></div></div>
-          <div class="mx-row"><div class="mx-dim">Monitoring</div><div class="mx-cell before"><span>Cek manual di Excel/kalender fisik, rawan overlap.</span></div><div class="mx-cell after"><span>Dashboard 4 view real-time — overlap terlihat sebelum terjadi.</span></div></div>
-          <div class="mx-row"><div class="mx-dim">Publikasi</div><div class="mx-cell before"><span>Update manual di banyak kanal, tidak konsisten.</span></div><div class="mx-cell after"><span>Auto-sync ke public page + PDF jadwal siap unduh.</span></div></div>
-          <div class="mx-row"><div class="mx-dim">Evaluasi</div><div class="mx-cell before"><span>Rekap manual, sering terlewat, tanpa agregasi.</span></div><div class="mx-cell after"><span>Survey digital → hasil agregat real-time + tren.</span></div></div>
-          <div class="mx-row"><div class="mx-dim">Visualisasi Area</div><div class="mx-cell before"><span>Foto dikirim via chat satu per satu.</span></div><div class="mx-cell after"><span>Galeri area interaktif dengan lightbox — self-service.</span></div></div>
+          <div class="mx-head"><span>Bagian</span><span>Sebelum — terpisah-pisah</span><span>Sesudah — satu sistem</span></div>
+          <div class="mx-row"><div class="mx-dim">Pengajuan event</div><div class="mx-cell before"><span>Lewat chat, proposal tersimpan di ponsel masing-masing.</span></div><div class="mx-cell after"><span>Formulir resmi dengan unggahan proposal, jejaknya terlacak.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Pemantauan jadwal</div><div class="mx-cell before"><span>Excel dan kalender terpisah, tabrakan baru ketahuan terlambat.</span></div><div class="mx-cell after"><span>Satu dashboard — tabrakan terlihat sebelum terjadi.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Informasi pengunjung</div><div class="mx-cell before"><span>Disebar manual ke banyak kanal, sering tidak seragam.</span></div><div class="mx-cell after"><span>Otomatis tampil di situs publik, jadwal bisa diunduh.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Evaluasi hasil</div><div class="mx-cell before"><span>Tidak ada data — event selesai lalu selesai.</span></div><div class="mx-cell after"><span>Survei penyewa gerai terkumpul otomatis jadi rekap.</span></div></div>
+          <div class="mx-row"><div class="mx-dim">Dokumentasi</div><div class="mx-cell before"><span>Foto berhamburan di chat, sulit dicari kembali.</span></div><div class="mx-cell after"><span>Tersimpan rapi dalam album per event di situs.</span></div></div>
         </div>
           </div>
-          <div class="slide-footer"><span>Lima dimensi berubah fundamental — dari manual ke terintegrasi</span></div>
-
+          <div class="slide-footer"><span>Lima bagian pekerjaan berubah — dari terpisah-pisah menjadi satu sistem</span></div>
       </section>
 
-      <!-- 13 · Roadmap -->
-      <section class="slide" data-slide="13 / 14" data-od-id="slide-roadmap" aria-roledescription="slide" aria-label="Roadmap pengembangan"><div class="head-block"><p class="kicker">Rencana Pengembangan</p>
-        <h2>Lima langkah berikutnya.</h2>
-        <p class="lead">Arah pengembangan mengikuti prioritas operasional — bukan fitur untuk fitur.</p></div>
+      <!-- 09 · Keandalan -->
+      <section class="slide" data-slide="09 / 11" data-od-id="slide-qa" aria-roledescription="slide" aria-label="Keandalan sistem"><div class="head-block"><p class="kicker">Keandalan</p>
+        <h2>Kenapa datanya bisa dipercaya.</h2></div>
+          <div class="main">
+            <div class="qa-grid">
+          <article class="qa-card"><div class="card-tag">Jejak perubahan</div><p><span class="qa-stat">6</span> jenis tindakan tercatat otomatis — siapa membuat, mengubah, menghapus, masuk, keluar — lengkap dengan waktu dan alamat jaringan. Tidak ada perubahan yang lolos tanpa jejak.</p></article>
+          <article class="qa-card"><div class="card-tag">Teruji</div><p><span class="qa-stat">367</span> pemeriksaan otomatis berjalan setiap kali sistem berubah — status event, hak akses, formulir — ditambah 17 skenario uji penggunaan nyata di peramban.</p></article>
+          <article class="qa-card"><div class="card-tag">Hak akses berlapis</div><p>Setiap pengguna hanya melihat bagian yang menjadi wewenangnya — pemimpin, penyunting, pemantau, hingga penyewa gerai. Data sensitif penyewa tidak pernah tampil di halaman publik.</p></article>
+          <article class="qa-card"><div class="card-tag">Status tidak basi</div><p>Status acara selalu dihitung ulang dari tanggal, bukan diketik manual — sehingga tidak pernah ada acara yang sudah selesai tapi masih tertulis berlangsung.</p></article>
+        </div>
+          </div>
+          <div class="slide-footer"><span>Jejak perubahan · 367 pemeriksaan otomatis · hak akses berlapis</span></div>
+      </section>
+
+      <!-- 10 · Rencana lanjutan -->
+      <section class="slide" data-slide="10 / 11" data-od-id="slide-roadmap" aria-roledescription="slide" aria-label="Rencana pengembangan lanjutan"><div class="head-block"><p class="kicker">Rencana Lanjutan</p>
+        <h2>Tiga langkah berikutnya.</h2>
+        <p class="lead">Urutan menurut kebutuhan operasional — yang paling dekat manfaatnya bagi tim dan penyewa gerai.</p></div>
           <div class="main">
             <div class="road-list" data-od-id="roadmap-list">
-          <div class="road-row"><i>01</i><strong>Notifikasi Otomatis</strong><span>Notifikasi WhatsApp API ke komunitas saat proposal disetujui &amp; pengingat event — mengurangi komunikasi manual.</span></div>
-          <div class="road-row"><i>02</i><strong>Analitik Kategori</strong><span>Tren kategori acara yang paling diminati pengunjung — bahan kurasi tahun berikutnya.</span></div>
-          <div class="road-row"><i>03</i><strong>Pemesanan Area</strong><span>Pemesanan area event real-time berbasis slot — kalender ketersediaan + konfirmasi otomatis.</span></div>
-          <div class="road-row"><i>04</i><strong>Portal Tenant</strong><span>Akun tenant: riwayat event yang diikuti &amp; hasil evaluasi mereka — meningkatkan engagement.</span></div>
-          <div class="road-row"><i>05</i><strong>Sync Kalender Eksternal</strong><span>Sinkronisasi 2-way dengan Google Calendar/iCal — jadwal tercermin di kedua sisi.</span></div>
+          <div class="road-row"><i>01</i><strong>Notifikasi WhatsApp</strong><span>Komunitas otomatis menerima kabar saat proposal disetujui dan pengingat menjelang acara — komunikasi manual berkurang.</span></div>
+          <div class="road-row"><i>02</i><strong>Pemesanan area</strong><span>Ketersediaan setiap area terlihat langsung di kalender, pemesanan dan konfirmasi berjalan otomatis.</span></div>
+          <div class="road-row"><i>03</i><strong>Portal penyewa gerai</strong><span>Setiap penyewa bisa masuk melihat riwayat acara yang diikuti dan hasil evaluasinya sendiri.</span></div>
         </div>
           </div>
-          <div class="slide-footer"><span>Notifikasi → Analitik → Pemesanan → Portal → Sync</span></div>
-
+          <div class="slide-footer"><span>Notifikasi → Pemesanan area → Portal penyewa gerai</span></div>
       </section>
 
-      <!-- 14 · Penutup -->
-      <section class="slide cta" data-slide="14 / 14" data-od-id="slide-closing" aria-roledescription="slide" aria-label="Penutup">
+      <!-- 11 · Penutup -->
+      <section class="slide cta" data-slide="11 / 11" data-od-id="slide-closing" aria-roledescription="slide" aria-label="Penutup">
         <div class="cta-box">
           <div>
             <p class="kicker" style="color:#a9e5df">Penutup</p>
-            <h2>Dari alat penjadwalan menjadi ekosistem komprehensif.</h2>
-            <p>Setiap event di Metropolitan Mall Bekasi kini <b style="color:#fff">terencana dengan matang, terpublikasi dengan luas, dan terevaluasi dengan akurat</b> — dari pendaftaran, visualisasi area, hingga evaluasi tenant, dalam satu platform.</p>
+            <h2>Satu sistem, seluruh daur event mall.</h2>
+            <p>Seluruh pekerjaan event — pendaftaran komunitas, penjadwalan, publikasi, dokumentasi, hingga evaluasi — kini berjalan dalam satu sistem yang dipakai setiap hari. Silakan buka dan coba langsung.</p>
           </div>
           <div class="cta-pill">
-            <strong>Live di</strong>
+            <strong>Buka langsung</strong>
             <span>metmalcommunityspace.web.id</span>
           </div>
         </div>
-        <div class="hero-attribution" style="position:relative;right:auto;bottom:auto;text-align:left;margin-top:2rem"><span class="name" style="color:var(--tosca-dark)">Andy Safii</span><span class="role">Marcomm · Inisiator proyek · Metropolitan Mall Bekasi</span></div>
-        <div class="slide-footer"><span>Dashboard Calendar Event v2.0</span></div>
+        <div class="hero-attribution" style="position:relative;right:auto;bottom:auto;text-align:left;margin-top:2rem"><span class="name" style="color:var(--tosca-dark)">Andy Safii</span><span class="role">Marcomm · Metropolitan Mall Bekasi</span></div>
+        <div class="slide-footer"><span>Dashboard Calendar Event</span></div>
       </section>
 
       <nav class="controls" data-od-id="slide-controls" aria-label="Navigasi slide">
@@ -586,44 +458,63 @@
   <script>
     (() => {
       const slides = [...document.querySelectorAll('.slide')];
-      const dots = document.getElementById('dots');
-      const progress = document.getElementById('progress-bar');
-      let current = 0;
-      slides.forEach((slide, index) => {
-        const dot = document.createElement('button');
-        dot.className = 'dot' + (index === 0 ? ' is-active' : '');
-        dot.type = 'button';
-        dot.setAttribute('aria-label', 'Buka slide ' + (index + 1));
-        dot.addEventListener('click', () => show(index));
-        dots.appendChild(dot);
+      const dotsEl = document.getElementById('dots');
+      const prev = document.getElementById('prev');
+      const next = document.getElementById('next');
+      const bar = document.getElementById('progress-bar');
+      let i = 0;
+
+      dotsEl.innerHTML = '';
+      slides.forEach((_, idx) => {
+        const d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'dot';
+        d.setAttribute('aria-label', 'Slide ' + (idx + 1));
+        d.addEventListener('click', () => go(idx));
+        dotsEl.appendChild(d);
       });
-      const dotButtons = [...dots.children];
-      function show(index) {
-        current = (index + slides.length) % slides.length;
-        slides.forEach((slide, i) => {
-          slide.classList.toggle('is-active', i === current);
-          slide.classList.toggle('is-before', i < current);
-          slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
-        });
-        dotButtons.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
-        progress.style.width = ((current + 1) / slides.length * 100) + '%';
+      const dots = [...dotsEl.children];
+
+      function go(n) {
+        if (n < 0 || n >= slides.length) return;
+        slides[i].classList.remove('is-active');
+        slides[i].classList.toggle('is-before', n > i);
+        i = n;
+        slides.forEach((s, idx) => s.classList.toggle('is-before', idx < i));
+        slides[i].classList.add('is-active');
+        dots.forEach((d, idx) => d.classList.toggle('is-active', idx === i));
+        bar.style.width = ((i + 1) / slides.length * 100) + '%';
       }
-      function next() { show(current + 1); }
-      function previous() { show(current - 1); }
-      document.getElementById('next').addEventListener('click', next);
+
+      prev.addEventListener('click', () => go(i - 1));
+      next.addEventListener('click', () => go(i + 1));
       document.getElementById('fullscreen').addEventListener('click', () => {
         if (document.fullscreenElement) document.exitFullscreen();
-        else document.documentElement.requestFullscreen().catch(() => {});
+        else document.documentElement.requestFullscreen();
       });
-      document.getElementById('prev').addEventListener('click', previous);
-      document.querySelectorAll('[data-go]').forEach(button => button.addEventListener('click', () => show(Number(button.dataset.go))));
-      document.addEventListener('keydown', event => {
-        if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); next(); }
-        if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); previous(); }
-        if (event.key === 'Home') { event.preventDefault(); show(0); }
-        if (event.key === 'End') { event.preventDefault(); show(slides.length - 1); }
+
+      document.querySelectorAll('[data-go]').forEach(btn => {
+        btn.addEventListener('click', () => go(parseInt(btn.getAttribute('data-go'), 10) - 1));
       });
-      show(0);
+
+      addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(i + 1); }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(i - 1); }
+        if (e.key === 'Home') go(0);
+        if (e.key === 'End') go(slides.length - 1);
+      });
+
+      let wheelLock = false;
+      addEventListener('wheel', (e) => {
+        if (wheelLock) return;
+        const dir = Math.sign(e.deltaY);
+        if (dir === 0) return;
+        wheelLock = true;
+        setTimeout(() => { wheelLock = false; }, 450);
+        go(i + dir);
+      }, { passive: true });
+
+      go(0);
     })();
   </script>
 </body>
