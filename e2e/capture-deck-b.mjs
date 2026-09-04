@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = path.resolve('assets/deck-b');
+const OUT = path.resolve('public/assets/deck-b');
 const BASE = 'http://localhost:5173';
 const VP = { width: 1600, height: 1000 };
 fs.mkdirSync(OUT, { recursive: true });

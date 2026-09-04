@@ -6,7 +6,7 @@ import { expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = path.resolve('assets/deck-b');
+const OUT = path.resolve('public/assets/deck-b');
 fs.mkdirSync(OUT, { recursive: true });
 const BASE = 'http://localhost:5173';
 const VP = { width: 1600, height: 1000 };

@@ -16,7 +16,7 @@ import { ViewMode } from './types';
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 import PrototypeLandingMetmalV1 from './pages/prototype-landing-metmal-v1';
 
-const PresentationDeck = lazy(() => import('./pages/presentation-deck'));
+
 const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const GraphifyLanding = lazy(() => import('./pages/GraphifyLanding'));
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
@@ -42,11 +42,15 @@ function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
 }
 
+/** Full-page redirect ke path statis (bukan SPA nav) — dipakai untuk file di public/. */
+function StaticRedirect({ to }: { to: string }) {
+  useEffect(() => { window.location.replace(to); }, [to]);
+  return null;
+}
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
-
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     const dark = saved === 'dark';
@@ -240,6 +244,7 @@ export default function App() {
       navigate(getDefaultAppPath(permissions), { replace: true });
     }
   }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions]);
+
 
   // ─── Build sub-props for DashboardPage ───────────────────────
   const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, isLegacy: auth.isLegacy, login: auth.login, legacyLogin: auth.legacyLogin };
@@ -481,12 +486,8 @@ export default function App() {
       {/* PROTOTYPE: throwaway landing variant */}
       <Route path="/prototype-landing-v1" element={<PrototypeLandingMetmalV1 />} />
 
-      {/* Presentation deck */}
-      <Route path="/presentasi" element={
-        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <PresentationDeck />
-        </Suspense>
-      } />
+      {/* Presentation deck — statis di public/project-presentation.html; full load, bukan SPA nav */}
+      <Route path="/presentasi" element={<StaticRedirect to="/project-presentation.html" />} />
 
       {/* Catch-all 404 — cegah blank page untuk URL tak dikenal */}
       <Route path="*" element={
