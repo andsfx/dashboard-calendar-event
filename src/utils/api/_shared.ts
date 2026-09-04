@@ -54,7 +54,14 @@ export async function adminAction<T>(action: string, payload: Record<string, unk
   });
   if (!response.ok) {
     const text = await response.text();
-    throw new SupabaseApiError(`Admin action '${action}' failed: ${text}`);
+    let message: string | null = null;
+    try {
+      const body = JSON.parse(text) as { error?: unknown };
+      if (typeof body.error === 'string' && body.error) message = body.error;
+    } catch {
+      // body bukan JSON (mis. 404 dari proxy/dev server) — pakai fallback status
+    }
+    throw new SupabaseApiError(message ?? `Gagal memuat data admin (HTTP ${response.status})`);
   }
   return response.json() as Promise<T>;
 }

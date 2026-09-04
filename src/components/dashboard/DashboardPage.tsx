@@ -304,6 +304,7 @@ export function DashboardPage({
             activeDrafts={drafts.activeDrafts}
             annualThemes={events.annualThemes}
             communityRegistrations={registrations.communityRegistrations}
+            draftsError={drafts.draftError}
             permissions={permissions}
             isSuperadmin={auth.isSuperadmin}
           />

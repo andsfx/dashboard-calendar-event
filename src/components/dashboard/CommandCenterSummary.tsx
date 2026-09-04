@@ -12,6 +12,7 @@ interface CommandCenterSummaryProps {
   activeDrafts: DraftEventItem[];
   annualThemes: AnnualTheme[];
   communityRegistrations: CommunityRegistration[];
+  draftsError?: string | null;
   permissions: Permissions;
   isSuperadmin?: boolean;
 }
@@ -23,6 +24,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   activeDrafts,
   annualThemes,
   communityRegistrations,
+  draftsError,
   permissions,
   isSuperadmin,
 }: CommandCenterSummaryProps) {
@@ -33,6 +35,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     activeDrafts,
     annualThemes,
     communityRegistrations,
+    draftsError,
     permissions,
     isSuperadmin,
   });

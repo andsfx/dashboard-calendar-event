@@ -68,6 +68,8 @@ interface CommandCenterCardParams {
   activeDrafts: DraftEventItem[];
   annualThemes: AnnualTheme[];
   communityRegistrations: CommunityRegistration[];
+  /** Pesan error saat fetch draft gagal — antrian tidak boleh dianggap kosong */
+  draftsError?: string | null;
   permissions: Permissions;
   isSuperadmin?: boolean;
 }
@@ -170,6 +172,7 @@ export function getCommandCenterCards({
   activeDrafts,
   annualThemes,
   communityRegistrations,
+  draftsError,
   permissions,
   isSuperadmin,
 }: CommandCenterCardParams): CommandCenterCard[] {
@@ -194,8 +197,8 @@ export function getCommandCenterCards({
     ...(permissions.canEditEvents ? [{
       id: 'drafts',
       title: 'Antrian Draft',
-      value: activeDrafts.length,
-      subtitle: activeDrafts.length === 0 ? 'Antrian kosong' : 'Perlu review',
+      value: draftsError ? '—' : activeDrafts.length,
+      subtitle: draftsError ? 'Gagal memuat' : activeDrafts.length === 0 ? 'Antrian kosong' : 'Perlu review',
       icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',
       attention: activeDrafts.length > 0,
