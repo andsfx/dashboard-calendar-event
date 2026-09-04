@@ -36,22 +36,22 @@ test('regenerate deck screenshots', async ({}) => {
   // --- Four view modes ---
   await page.goto('/dashboard/events');
   await page.waitForLoadState('networkidle');
-  await expect(page.getByText('Jadwal Event')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole('heading', { name: 'Jadwal Event' })).toBeVisible({ timeout: 15000 });
 
-  await page.getByRole('tab', { name: 'Tampilan Tabel' }).click();
+  await page.getByRole('tab', { name: 'Tabel' }).click();
   await page.waitForTimeout(400);
   await expect(page.getByRole('tabpanel')).toBeVisible();
   await page.screenshot({ path: `${ASSET_DIR}/16-dashboard-table.png` });
 
-  await page.getByRole('tab', { name: 'Tampilan Kalender' }).click();
+  await page.getByRole('tab', { name: 'Kalender' }).click();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${ASSET_DIR}/17-dashboard-calendar.png` });
 
-  await page.getByRole('tab', { name: 'Tampilan Kanban' }).click();
+  await page.getByRole('tab', { name: 'Kanban' }).click();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${ASSET_DIR}/18-dashboard-kanban.png` });
 
-  await page.getByRole('tab', { name: 'Tampilan Timeline' }).click();
+  await page.getByRole('tab', { name: 'Timeline' }).click();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${ASSET_DIR}/19-dashboard-timeline.png` });
 

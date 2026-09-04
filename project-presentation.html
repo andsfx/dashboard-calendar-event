@@ -136,7 +136,17 @@
     .route-row { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: start; background: var(--card); border: 1px solid var(--line-soft); border-radius: .95rem; padding: .8rem 1rem; box-shadow: var(--shadow-soft); }
     .route-path { font-family: var(--mono); font-size: clamp(10.5px, .92vw, 14.5px); color: var(--tosca-dark); font-weight: 700; background: var(--tosca-soft); border-radius: .5rem; padding: .35rem .55rem; align-self: center; }
     .route-row h3 { margin: 0 0 .2rem; font-size: clamp(11.5px, 1vw, 16px); }
-    .route-row p { margin: 0; font-size: clamp(9.5px, .85vw, 13px); }
+.route-row p { margin: 0; font-size: clamp(9.5px, .85vw, 13px); }
+.shot { margin: 0; border: 1px solid var(--line-soft); border-radius: .65rem; overflow: hidden; box-shadow: var(--shadow-soft); background: var(--card); }
+.shot img { display: block; width: 100%; height: auto; }
+.shot figcaption { padding: .32rem .65rem; font-size: clamp(8.5px, .7vw, 11px); color: var(--muted); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--card); border-top: 1px solid var(--line-soft); }
+.pub-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1.3rem; align-items: start; margin-top: 1.3rem; }
+.pub-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+.tenant-split { display: grid; grid-template-columns: 1fr 1.45fr; gap: 1.3rem; align-items: center; margin-top: 1.2rem; }
+.tenant-shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+[data-od-id="slide-admin"] .pub-split { margin-top: .9rem; }
+[data-od-id="slide-admin"] .feature-strip { margin-top: .45rem; }
+[data-od-id="slide-admin"] .pub-shots .shot img { max-height: 296px; width: 100%; object-fit: cover; object-position: top center; }
 
     /* --- flow (slide 8) --- */
     .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 2rem 0 1.1rem; position: relative; }
@@ -335,12 +345,19 @@
       <section class="slide" data-slide="05 / 14" data-od-id="slide-admin" aria-roledescription="slide" aria-label="Fitur admin dashboard"><div class="head-block"><p class="kicker">Fitur · Admin</p>
         <h2>Kendali operasional tingkat tinggi.</h2>
         <p class="lead">Satu set data event, empat tampilan analitis — plus otomatisasi yang menghapus pekerjaan manual.</p></div>
-          <div class="main">
-            <div class="view-grid">
+        <div class="pub-split" style="grid-template-columns:1fr 1.5fr">
+          <div class="view-grid" style="grid-template-columns:repeat(2,1fr);margin-top:0">
           <article class="view-card"><div class="v-glyph">≡</div><h3>Tabel</h3><p>Manajemen data detail — cari, filter, sort seluruh event.</p></article>
           <article class="view-card"><div class="v-glyph">▦</div><h3>Kalender</h3><p>Distribusi bulanan — langsung terlihat mana yang padat.</p></article>
           <article class="view-card"><div class="v-glyph">▤</div><h3>Kanban</h3><p>Pipeline status: Mendatang → Berlangsung → Selesai.</p></article>
           <article class="view-card"><div class="v-glyph">═</div><h3>Timeline</h3><p>Analisis rentang waktu &amp; triwulan — pola setahun sekilas.</p></article>
+        </div>
+          <div class="pub-shots">
+            <figure class="shot"><img src="assets/deck-b/10-admin-table.png" alt="Tampilan Tabel dashboard admin"><figcaption>Tabel</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/11-admin-calendar.png" alt="Tampilan Kalender dashboard admin"><figcaption>Kalender</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/12-admin-kanban.png" alt="Tampilan Kanban dashboard admin"><figcaption>Kanban</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/13-admin-timeline.png" alt="Tampilan Timeline dashboard admin"><figcaption>Timeline</figcaption></figure>
+          </div>
         </div>
         <div class="feature-strip">
           <div class="feature-chip"><strong>Smart Automation</strong><span>Status event dihitung otomatis dari tanggal &amp; jam sistem.</span></div>
@@ -358,7 +375,8 @@
         <h2>Akses langsung, tanpa antre.</h2>
         <p class="lead">Halaman publik yang melayani pengunjung, komunitas, dan tenant — tanpa login.</p></div>
           <div class="main">
-            <div class="route-table">
+            <div class="pub-split">
+            <div class="route-table" style="margin-top:0">
           <div class="route-row"><code class="route-path">/events</code><div><h3>Jadwal Publik</h3><p>Jadwal real-time dengan filter kategori — bisa diunduh PDF dalam satu klik.</p></div></div>
           <div class="route-row"><code class="route-path">/daftar</code><div><h3>Pendaftaran Digital</h3><p>Form pengajuan event komunitas lengkap upload proposal (PDF/Word, maks 20MB).</p></div></div>
           <div class="route-row"><code class="route-path">/community</code><div><h3>Direktori Komunitas</h3><p>Portofolio publik EO + statistik aktivitas: total acara &amp; acara mendatang.</p></div></div>
@@ -366,7 +384,13 @@
           <div class="route-row"><code class="route-path">/survey/:id</code><div><h3>Survei Kepuasan</h3><p>Rating pengunjung untuk mall dan EO pasca-event.</p></div></div>
           <div class="route-row"><code class="route-path">+7 lagi</code><div><h3>Berita, Sponsor, Tenants…</h3><p>News, sponsorship, direktori tenant, galeri album, surat publik.</p></div></div>
         </div>
+          <div class="pub-shots">
+            <figure class="shot"><img src="assets/deck-b/02-events-public.png" alt="Halaman publik jadwal event"><figcaption>/events</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/03-daftar.png" alt="Form pendaftaran event komunitas"><figcaption>/daftar</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/04-community.png" alt="Direktori komunitas"><figcaption>/community</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/05-gallery.png" alt="Galeri area mall"><figcaption>/gallery</figcaption></figure>
           </div>
+        </div>
           <div class="slide-footer"><span>Semua route publik — tanpa login, tanpa admin perantara</span></div>
 
       </section>
@@ -376,13 +400,18 @@
         <h2>Survei anonim tenant.</h2>
         <p class="lead">Tenant menilai dampak event terhadap gerainya — tanpa login, hasil terkumpul otomatis.</p></div>
           <div class="main">
-            <div class="cards cols-2" style="margin-top:1.4rem">
+            <div class="tenant-split">
+            <div class="cards cols-2" style="margin-top:0;grid-template-columns:1fr">
           <article class="card"><div class="card-tag">Langkah pengisian</div><h3>Tiga langkah, nol akun</h3><p>Buka <code>/tenant-survey</code> → pilih event (Event Picker) → isi form di <code>/tenant-survey/:eventId</code>. Pilih gerai dari daftar MID, isi skala kenaikan traffic &amp; sales, kirim.</p></article>
           <article class="card warm"><div class="card-tag">Hasil agregat</div><h3>Terbuka &amp; real-time</h3><p><code>/tenant-survey-results</code> — dashboard publik read-only: KPI traffic/sales, filter event, tren per bulan. Admin/TR bisa ekspor PDF.</p></article>
           <article class="card warm"><div class="card-tag">Anti-spam &amp; duplikat</div><h3>Deteksi duplikat + batas kiriman</h3><p>Deteksi duplikat per device+event, rate limit IP server-side, konfigurasi per-event (buka/tutup form) — default tertutup.</p></article>
           <article class="card"><div class="card-tag">Manfaat</div><h3>Bahan negosiasi</h3><p>Data dampak event ke traffic/sales gerai — bahan evaluasi &amp; negosiasi sponsorship, tanpa admin jadi perantara.</p></article>
         </div>
+          <div class="tenant-shots">
+            <figure class="shot"><img src="assets/deck-b/07-tenant-survey-picker.png" alt="Halaman pemilih event untuk survei tenant"><figcaption>Event Picker — /tenant-survey</figcaption></figure>
+            <figure class="shot"><img src="assets/deck-b/08-tenant-survey-results.png" alt="Dashboard hasil survei tenant"><figcaption>Hasil agregat — /tenant-survey-results</figcaption></figure>
           </div>
+        </div>
           <div class="slide-footer"><span>Feedback loop tenant → data agregat → keputusan event berikutnya</span></div>
 
       </section>
