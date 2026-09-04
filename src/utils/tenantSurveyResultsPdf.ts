@@ -1,4 +1,6 @@
-import type { TenantSurveyResultsPdfPayload } from '../components/pdf/TenantSurveyResultsDocument';
+// Dynamic import (pengecualian ts-no-dynamic-import): boundary code-splitting
+// sengaja dijaga — engine PDF (jspdf) hanya dimuat saat hasil diekspor.
+import type { TenantSurveyResultsPdfPayload } from '../components/pdf/buildSurveyResultsPdf';
 
 function downloadBlob(blob: Blob, fileName: string): void {
   const url = URL.createObjectURL(blob);
@@ -21,12 +23,9 @@ function safeFileName(raw: string): string {
 export async function downloadTenantSurveyResultsPdf(
   payload: TenantSurveyResultsPdfPayload,
 ): Promise<void> {
-  const [{ pdf }, { TenantSurveyResultsDocument }] = await Promise.all([
-    import('@react-pdf/renderer'),
-    import('../components/pdf/TenantSurveyResultsDocument'),
-  ]);
+  const { buildSurveyResultsPdf } = await import('../components/pdf/buildSurveyResultsPdf');
 
-  const blob = await pdf(<TenantSurveyResultsDocument {...payload} />).toBlob();
+  const blob = buildSurveyResultsPdf(payload).output('blob');
   const suffix =
     payload.filter.eventId === 'all'
       ? 'semua-event'

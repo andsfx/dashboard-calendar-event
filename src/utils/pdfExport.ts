@@ -1,10 +1,10 @@
-import { Document, Page, View, Text, Image, StyleSheet, pdf } from '@react-pdf/renderer';
-import { createElement } from 'react';
+import { jsPDF } from 'jspdf';
 import type { PhotoAlbum, EventPhoto } from '../types';
 
 // ============================================================
 // PDF Export — Landscape A4 grid report for event photo albums
 // Images compressed client-side to keep PDF size small.
+// Engine: jsPDF (pengganti @react-pdf/renderer, bundle lebih kecil).
 // ============================================================
 
 const MONTH_LONG = [
@@ -74,126 +74,22 @@ async function compressInBatches<T>(items: T[], worker: (item: T) => Promise<voi
 }
 
 // ─── Layout config ────────────────────────────────────────
-// A4 landscape inner area ≈ 760×500 pt. Grid: 4 cols × 3 rows = 12 photos/page.
+// A4 landscape ≈ 842×595 pt, padding 24. Grid: 4 cols × 3 rows = 12 photos/page.
 const PHOTOS_PER_PAGE = 12;
 const GRID_COLS = 4;
 const GRID_GAP = 6;
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 24,
-    backgroundColor: '#ffffff',
-    fontFamily: 'Helvetica',
-  },
-  coverPage: {
-    padding: 48,
-    backgroundColor: '#1e1b4b',
-    color: '#ffffff',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  coverTopLabel: {
-    fontSize: 10,
-    letterSpacing: 4,
-    textTransform: 'uppercase',
-    color: '#a5b4fc',
-    fontFamily: 'Helvetica-Bold',
-  },
-  coverTitle: {
-    fontSize: 44,
-    fontFamily: 'Helvetica-Bold',
-    marginTop: 12,
-    color: '#ffffff',
-  },
-  coverSubtitle: {
-    fontSize: 16,
-    marginTop: 8,
-    color: '#cbd5e1',
-  },
-  coverMeta: {
-    flexDirection: 'row',
-    gap: 24,
-    marginTop: 'auto',
-  },
-  coverMetaItem: { flexDirection: 'column' },
-  coverMetaLabel: {
-    fontSize: 9,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    color: '#a5b4fc',
-    marginBottom: 4,
-  },
-  coverMetaValue: {
-    fontSize: 14,
-    fontFamily: 'Helvetica-Bold',
-    color: '#ffffff',
-  },
-  coverFooter: {
-    fontSize: 9,
-    color: '#94a3b8',
-    marginTop: 16,
-  },
-  albumHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1e1b4b',
-    paddingBottom: 6,
-    marginBottom: 10,
-  },
-  albumName: {
-    fontSize: 14,
-    fontFamily: 'Helvetica-Bold',
-    color: '#0f172a',
-  },
-  albumMeta: {
-    fontSize: 9,
-    color: '#475569',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  photoCell: {
-    width: `${100 / GRID_COLS}%`,
-    padding: GRID_GAP / 2,
-  },
-  photoFrame: {
-    width: '100%',
-    aspectRatio: 4 / 3,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 12,
-    left: 24,
-    right: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    fontSize: 8,
-    color: '#94a3b8',
-  },
-  emptyNote: {
-    fontSize: 9,
-    color: '#94a3b8',
-    fontStyle: 'italic',
-  },
-});
+const PAGE_W = 841.89;
+const PAGE_H = 595.28;
+const PAGE_PADDING = 24;
+const CELL_W = (PAGE_W - PAGE_PADDING * 2) / GRID_COLS;
+const CELL_H = CELL_W * (3 / 4); // frame aspect 4:3
 
 interface AlbumWithPhotos {
   album: PhotoAlbum;
   photos: EventPhoto[];
 }
 
-function chunkPhotos(photos: EventPhoto[], size: number): EventPhoto[][] {
+export function chunkPhotos(photos: EventPhoto[], size: number): EventPhoto[][] {
   const chunks: EventPhoto[][] = [];
   for (let i = 0; i < photos.length; i += size) {
     chunks.push(photos.slice(i, i + size));
@@ -201,84 +97,148 @@ function chunkPhotos(photos: EventPhoto[], size: number): EventPhoto[][] {
   return chunks;
 }
 
-function CoverPage({ themeName, dateRange, albumCount }: { themeName?: string; dateRange: { start: string; end: string }; albumCount: number }) {
-  return createElement(Page, { size: 'A4', orientation: 'landscape', style: styles.coverPage },
-    createElement(View, null,
-      createElement(Text, { style: styles.coverTopLabel }, 'METROPOLITAN MALL BEKASI'),
-      createElement(Text, { style: styles.coverTitle }, 'Dokumentasi Event'),
-      themeName
-        ? createElement(Text, { style: styles.coverSubtitle }, `Tema: ${themeName}`)
-        : null,
-    ),
-    createElement(View, { style: styles.coverMeta },
-      createElement(View, { style: styles.coverMetaItem },
-        createElement(Text, { style: styles.coverMetaLabel }, 'PERIODE'),
-        createElement(Text, { style: styles.coverMetaValue },
-          dateRange.start && dateRange.end
-            ? `${formatDateID(dateRange.start)} — ${formatDateID(dateRange.end)}`
-            : 'Semua tanggal',
-        ),
-      ),
-      createElement(View, { style: styles.coverMetaItem },
-        createElement(Text, { style: styles.coverMetaLabel }, 'TOTAL ALBUM'),
-        createElement(Text, { style: styles.coverMetaValue }, `${albumCount} Album`),
-      ),
-    ),
-    createElement(Text, { style: styles.coverFooter }, `Diekspor pada ${formatDateID(new Date().toISOString().slice(0, 10))}`),
-  );
-}
+export function buildAlbumPdf(
+  albumsWithPhotos: AlbumWithPhotos[],
+  themeName: string | undefined,
+  compressedUrls: Map<string, string>,
+): jsPDF {
+  const dateRange = getDateRange(albumsWithPhotos.map(a => a.album));
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'landscape', compress: false });
+  doc.setProperties({
+    title: `Dokumentasi Event${themeName ? ` — ${themeName}` : ''}`,
+    author: 'Metropolitan Mall Bekasi',
+    subject: 'Dokumentasi Event',
+  });
 
-function AlbumPages({ album, photos, compressedUrls }: AlbumWithPhotos & { compressedUrls: Map<string, string> }) {
-  const photoChunks = chunkPhotos(photos, PHOTOS_PER_PAGE);
+  // ── Cover page ────────────────────────────────────────────
+  doc.setFillColor('#1e1b4b');
+  doc.rect(0, 0, PAGE_W, PAGE_H, 'F');
 
-  if (photoChunks.length === 0) {
-    return createElement(Page, { size: 'A4', orientation: 'landscape', style: styles.page },
-      createElement(View, { style: styles.albumHeader },
-        createElement(Text, { style: styles.albumName }, album.name),
-        createElement(Text, { style: styles.albumMeta },
-          [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • '),
-        ),
-      ),
-      createElement(Text, { style: styles.emptyNote }, 'Belum ada foto.'),
-    );
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor('#a5b4fc');
+  doc.text('METROPOLITAN MALL BEKASI', 48, 84, { charSpace: 4 });
+
+  doc.setFontSize(44);
+  doc.setTextColor('#ffffff');
+  doc.text('Dokumentasi Event', 48, 140);
+  if (themeName) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(16);
+    doc.setTextColor('#cbd5e1');
+    doc.text(`Tema: ${themeName}`, 48, 168);
   }
 
-  return photoChunks.map((chunk, chunkIdx) =>
-    createElement(Page, { key: `${album.id}-${chunkIdx}`, size: 'A4', orientation: 'landscape', style: styles.page },
-      chunkIdx === 0
-        ? createElement(View, { style: styles.albumHeader },
-            createElement(Text, { style: styles.albumName }, album.name),
-            createElement(Text, { style: styles.albumMeta },
-              [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • '),
-            ),
-          )
-        : null,
-      createElement(View, { style: styles.grid },
-        ...chunk.map((photo) =>
-          createElement(View, { key: photo.id, style: styles.photoCell },
-            createElement(View, { style: styles.photoFrame },
-              photo.url
-                ? createElement(Image, { src: compressedUrls.get(photo.url) || photo.url, style: styles.photo })
-                : null,
-            ),
-          ),
-        ),
-      ),
-      createElement(View, { style: styles.footer, fixed: true },
-        createElement(Text, null, album.name),
-        createElement(Text, { render: ({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `${pageNumber} / ${totalPages}` }),
-      ),
-    ),
-  );
+  const metaY = PAGE_H - 120;
+  const periode = dateRange.start && dateRange.end
+    ? `${formatDateID(dateRange.start)} — ${formatDateID(dateRange.end)}`
+    : 'Semua tanggal';
+  doc.setFontSize(9);
+  doc.setTextColor('#a5b4fc');
+  doc.text('PERIODE', 48, metaY, { charSpace: 2 });
+  doc.text('TOTAL ALBUM', 48 + 250, metaY, { charSpace: 2 });
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor('#ffffff');
+  doc.text(periode, 48, metaY + 20);
+  doc.text(`${albumsWithPhotos.length} Album`, 48 + 250, metaY + 20);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor('#94a3b8');
+  doc.text(`Diekspor pada ${formatDateID(new Date().toISOString().slice(0, 10))}`, 48, PAGE_H - 60);
+
+  // ── Album pages ───────────────────────────────────────────
+  for (const { album, photos } of albumsWithPhotos) {
+    const chunks = chunkPhotos(photos, PHOTOS_PER_PAGE);
+
+    if (chunks.length === 0) {
+      doc.addPage('a4', 'landscape');
+      doc.setFillColor('#ffffff');
+      doc.rect(0, 0, PAGE_W, PAGE_H, 'F');
+      doc.setDrawColor('#1e1b4b');
+      doc.setLineWidth(1);
+      doc.line(PAGE_PADDING, PAGE_PADDING + 26, PAGE_W - PAGE_PADDING, PAGE_PADDING + 26);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor('#0f172a');
+      doc.text(album.name, PAGE_PADDING, PAGE_PADDING + 16);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor('#475569');
+      const meta = [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • ');
+      doc.text(meta, PAGE_W - PAGE_PADDING, PAGE_PADDING + 16, { align: 'right' });
+      doc.setTextColor('#94a3b8');
+      doc.text('Belum ada foto.', PAGE_PADDING, PAGE_PADDING + 60);
+      continue;
+    }
+
+    chunks.forEach((chunk, chunkIdx) => {
+      doc.addPage('a4', 'landscape');
+      doc.setFillColor('#ffffff');
+      doc.rect(0, 0, PAGE_W, PAGE_H, 'F');
+
+      let gridTop = PAGE_PADDING;
+      if (chunkIdx === 0) {
+        doc.setDrawColor('#1e1b4b');
+        doc.setLineWidth(1);
+        doc.line(PAGE_PADDING, PAGE_PADDING + 26, PAGE_W - PAGE_PADDING, PAGE_PADDING + 26);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor('#0f172a');
+        doc.text(album.name, PAGE_PADDING, PAGE_PADDING + 16);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor('#475569');
+        const meta = [album.eventDate ? formatDateID(album.eventDate) : '', album.lokasi].filter(Boolean).join(' • ');
+        doc.text(meta, PAGE_W - PAGE_PADDING, PAGE_PADDING + 16, { align: 'right' });
+        gridTop = PAGE_PADDING + 40;
+      }
+
+      chunk.forEach((photo, i) => {
+        const col = i % GRID_COLS;
+        const row = Math.floor(i / GRID_COLS);
+        const x = PAGE_PADDING + col * (CELL_W + GRID_GAP);
+        const y = gridTop + row * (CELL_H + GRID_GAP);
+        // frame background
+        doc.setFillColor('#e2e8f0');
+        doc.roundedRect(x, y, CELL_W, CELL_H, 3, 3, 'F');
+        const src = photo.url ? (compressedUrls.get(photo.url) || photo.url) : '';
+        if (src) {
+          try {
+            doc.addImage(src, 'JPEG', x, y, CELL_W, CELL_H);
+          } catch {
+            // dataURL tidak valid — biarkan frame abu-abu
+          }
+        }
+      });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor('#94a3b8');
+      doc.text(album.name, PAGE_PADDING, PAGE_H - 12);
+    });
+  }
+
+  // Footer nomor halaman global (semua halaman kecuali cover)
+  const total = doc.getNumberOfPages();
+  for (let page = 2; page <= total; page++) {
+    doc.setPage(page);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor('#94a3b8');
+    doc.text(`${page} / ${total}`, PAGE_W - PAGE_PADDING, PAGE_H - 12, { align: 'right' });
+  }
+
+  return doc;
 }
 
 export async function generateAlbumPdf(
   albumsWithPhotos: AlbumWithPhotos[],
   themeName?: string,
   onProgress?: (current: number, total: number) => void,
+  compress: (url: string) => Promise<string> = compressImage,
 ): Promise<Blob> {
-  const dateRange = getDateRange(albumsWithPhotos.map(a => a.album));
-
   // Collect all unique photo URLs
   const allUrls = new Set<string>();
   for (const { photos } of albumsWithPhotos) {
@@ -293,20 +253,13 @@ export async function generateAlbumPdf(
   let processed = 0;
 
   await compressInBatches(urlList, async (url) => {
-    const compressed = await compressImage(url);
+    const compressed = await compress(url);
     compressedUrls.set(url, compressed);
     processed++;
     if (onProgress) onProgress(processed, urlList.length);
   });
 
-  const doc = createElement(Document, null,
-    createElement(CoverPage, { themeName, dateRange, albumCount: albumsWithPhotos.length }),
-    ...albumsWithPhotos.map(({ album, photos }) =>
-      createElement(AlbumPages, { key: album.id, album, photos, compressedUrls }),
-    ),
-  );
-
-  return pdf(doc).toBlob();
+  return buildAlbumPdf(albumsWithPhotos, themeName, compressedUrls).output('blob');
 }
 
 export type { AlbumWithPhotos };

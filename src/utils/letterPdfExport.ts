@@ -2,8 +2,8 @@ import type { LetterRequestItem } from '../types';
 
 // ============================================================
 // Letter PDF Generation & Download
-// Dynamic imports keep @react-pdf/renderer out of the initial
-// bundle — only loaded when a PDF is actually requested.
+// Dynamic import (pengecualian ts-no-dynamic-import): boundary code-splitting
+// sengaja dijaga — engine PDF (jspdf ~400 kB) hanya dimuat saat surat dibuat.
 // ============================================================
 
 function letterFileName(letter: LetterRequestItem): string {
@@ -30,13 +30,10 @@ function downloadBlob(blob: Blob, fileName: string): void {
   }, 100);
 }
 
-/** Render the letter to a PDF Blob (renderer loaded lazily). */
+/** Render the letter to a PDF Blob (engine loaded lazily). */
 export async function renderLetterPdfBlob(letter: LetterRequestItem): Promise<Blob> {
-  const [{ pdf }, { LetterDocument }] = await Promise.all([
-    import('@react-pdf/renderer'),
-    import('../components/pdf/LetterDocument'),
-  ]);
-  return pdf(<LetterDocument letter={letter} />).toBlob();
+  const { buildLetterPdf } = await import('../components/pdf/buildLetterPdf');
+  return buildLetterPdf(letter).output('blob');
 }
 
 /** Render the letter to a base64 string (no data: prefix). */
@@ -53,7 +50,7 @@ export async function renderLetterPdfBase64(letter: LetterRequestItem): Promise<
 
 /**
  * Build the letter PDF in the browser and trigger a download.
- * Heavy PDF renderer and helpers are imported dynamically to keep
+ * Heavy PDF engine and helpers are imported dynamically to keep
  * the initial app bundle small.
  */
 export async function downloadLetterPdf(letter: LetterRequestItem): Promise<void> {

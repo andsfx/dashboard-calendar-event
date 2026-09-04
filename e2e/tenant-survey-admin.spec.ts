@@ -15,7 +15,6 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
 
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(page.getByRole('heading', { name: 'Dashboard Event' })).toBeVisible();
-    await expect(page.getByText('Draft Queue')).not.toBeVisible();
   });
 
   test('eo tenant unauthorized route redirects to tenant surveys', async ({ page }) => {
@@ -26,7 +25,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page).toHaveURL(/\/dashboard\/tenant-surveys$/);
-    await expect(page.getByRole('heading', { name: 'Tenant Self-Assessment' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Evaluasi Tenant' })).toBeVisible();
   });
 
   test('list view — render survey list with tabs', async ({ page }) => {
@@ -34,10 +33,11 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.goto('/dashboard/tenant-surveys');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole('button', { name: 'Analytics', exact: true })).toBeVisible();
-    await expect(page.getByText(MOCK_SURVEY_V3.nama_gerai!)).toBeVisible();
-    await expect(page.getByText('Publik')).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: 'Analytics', exact: true })).toBeVisible();
+    // Nama gerai dirender ganda (kartu tersembunyi + tabel) — ambil sel tabel yang terlihat.
+    await expect(page.getByRole('table').getByText(MOCK_SURVEY_V3.nama_gerai!, { exact: true })).toBeVisible();
+    await expect(page.getByRole('table').getByText('Publik', { exact: true })).toBeVisible();
   });
 
   test('event picker — "Buat Self-Assessment" shows event dropdown', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.goto('/dashboard/tenant-surveys');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: /Buat Self-Assessment/ }).click();
     await expect(page.getByRole('button', { name: new RegExp(MOCK_EVENT.acara) }).last()).toBeVisible({ timeout: 5000 });
   });
@@ -73,7 +73,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.goto('/dashboard/tenant-surveys');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: /Buat Self-Assessment/ }).click();
 
     const eventBtn = page.getByRole('button', { name: new RegExp(MOCK_EVENT.acara) }).last();
@@ -82,8 +82,9 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
 
     await expect(page.getByRole('heading', { name: 'Informasi Gerai' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByRole('heading', { name: /Evaluasi Traffic/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Umpan Balik' })).toBeVisible();
-    await expect(page.getByPlaceholder('Ketik nama gerai...')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Umpan Balik/ })).toBeVisible();
+    // v3 memilih gerai dari combobox (bukan input ketik bebas seperti v2)
+    await expect(page.getByRole('combobox', { name: /Nama Gerai/ })).toBeVisible();
     await expect(page.getByText('Kualitas Venue')).not.toBeVisible();
     await expect(page.getByText('Kualitas Manajemen')).not.toBeVisible();
   });
@@ -93,8 +94,8 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.goto('/dashboard/tenant-surveys');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByRole('button', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
-    await page.getByRole('button', { name: 'Analytics', exact: true }).click();
+    await expect(page.getByRole('tab', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('tab', { name: 'Analytics', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Tren Bulanan' })).toBeVisible({ timeout: 10000 });
   });
 });

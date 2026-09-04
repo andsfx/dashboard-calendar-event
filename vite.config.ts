@@ -17,30 +17,35 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      // jsPDF .html()/.svg() tidak dipakai — deps render-DOM (canvg,
+      // dompurify, html2canvas, ~380 kB) di-stub agar keluar dari bundle.
+      "canvg": path.resolve(__dirname, "src/stubs/empty.js"),
+      "dompurify": path.resolve(__dirname, "src/stubs/empty.js"),
+      "html2canvas": path.resolve(__dirname, "src/stubs/empty.js"),
     },
   },
   build: {
+    target: 'es2022',
     rollupOptions: {
       output: {
+        experimentalMinChunkSize: 98304,
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           // More specific matches first
-          if (id.includes("@supabase/supabase-js")) return "supabase";
-          if (id.includes("@aws-sdk")) return "aws-sdk";
-          if (id.includes("react-router")) return "router";
-          if (id.includes("@react-pdf") || id.includes("pdfkit") || id.includes("fontkit") || id.includes("yoga-layout") || id.includes("linebreak") || id.includes("unicode-properties")) return "pdf";
-          if (id.includes("@vercel/analytics") || id.includes("@vercel/speed-insights")) return "vercel";
-          if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
-          if (id.includes("lucide-react")) return "icons";
-          if (id.includes("date-fns")) return "dates";
-          if (id.includes("qrcode")) return "qrcode";
-          // Core framework
-          if (id.includes("react-dom") || id.includes("scheduler/tracing")) return "react-dom";
-          if (id.includes("react")) return "react-core";
+          if (id.includes("jspdf")) return "pdf"; // jspdf + jspdf-autotable
+          // Deps jspdf lainnya (fflate, fast-png, @babel/runtime) — chunk pdf
+          // lazy, bukan vendor eager.
+          if (id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime")) return "pdf";
           return "vendor";
         },
       },
     },
-    minify: 'esbuild',
+    minify: 'terser',
+    modulePreload: { polyfill: false },
+    terserOptions: {
+      ecma: 2022,
+      compress: { pure_new: true, passes: 3, booleans_as_integers: true, pure_getters: true, keep_fargs: false, unsafe: true, unsafe_methods: true, unsafe_comps: true, unsafe_Function: true, unsafe_math: true, unsafe_symbols: true, unsafe_proto: true },
+      format: { comments: false, semicolons: false },
+    },
   },
 });

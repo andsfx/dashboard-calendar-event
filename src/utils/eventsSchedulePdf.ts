@@ -1,6 +1,7 @@
 import type { EventItem } from '../types';
 
-// Dynamic import keeps @react-pdf/renderer out of the /events initial chunk.
+// Dynamic import (pengecualian ts-no-dynamic-import): boundary code-splitting
+// sengaja dijaga agar engine PDF (jspdf ~400 kB) tidak masuk chunk awal /events.
 
 function scheduleFileName(date = new Date()): string {
   const y = date.getFullYear();
@@ -39,14 +40,9 @@ export function filterScheduleEventsForPdf(events: EventItem[]): EventItem[] {
 }
 
 export async function renderEventsSchedulePdfBlob(events: EventItem[]): Promise<Blob> {
-  const [{ pdf }, { EventsScheduleDocument }] = await Promise.all([
-    import('@react-pdf/renderer'),
-    import('../components/pdf/EventsScheduleDocument'),
-  ]);
+  const { buildSchedulePdf } = await import('../components/pdf/buildSchedulePdf');
   const safe = filterScheduleEventsForPdf(events);
-  return pdf(
-    <EventsScheduleDocument events={safe} generatedAt={formatGeneratedAt()} />,
-  ).toBlob();
+  return buildSchedulePdf({ events: safe, generatedAt: formatGeneratedAt() }).output('blob');
 }
 
 export async function downloadEventsSchedulePdf(events: EventItem[]): Promise<void> {

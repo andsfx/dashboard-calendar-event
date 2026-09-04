@@ -17,19 +17,18 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1035.0",
     "@aws-sdk/s3-request-presigner": "^3.1035.0",
-    "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.104.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "clsx": "2.1.1",
     "date-fns": "^4.1.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.471.0",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4",
+    "qr-creator": "^1.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router-dom": "^7.14.2",
-    "tailwind-merge": "3.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -40,7 +39,6 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.0.0",
-    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
@@ -51,6 +49,7 @@
     "playwright": "^1.61.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.0.0",
+    "terser": "^5.51.2",
     "typescript": "^5.9.3",
     "vite": "^6.1.1",
     "vitest": "^4.1.5"

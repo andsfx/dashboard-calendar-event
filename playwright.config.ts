@@ -24,6 +24,9 @@ export default defineConfig({
       ...process.env,
       VITE_SUPABASE_URL: 'https://test-project.supabase.co',
       VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+      // Jangan bawa VITE_DEV_AUTO_LOGIN dari .env.local — e2e harus mengontrol
+      // role sendiri via mockAuth; auto-login Dev Admin menimpa semua mock.
+      VITE_DEV_AUTO_LOGIN: 'false',
     },
   },
 });

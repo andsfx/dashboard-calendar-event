@@ -22,7 +22,7 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Shared UI (RadioGroup, TenantSearchSelect, helpers) | `src/components/survey/TenantSurveyShared.tsx` |
 | Dashboard shell (ops) | `src/components/survey/TenantSurveyPage.tsx` |
 | TR / admin results (read-only) | `src/components/survey/TenantSurveyResultsPage.tsx` |
-| Results aggregate + PDF | `src/utils/tenantSurveyResultsAggregate.ts`, `src/utils/tenantSurveyResultsPdf.tsx`, `src/components/pdf/TenantSurveyResultsDocument.tsx` |
+| Results aggregate + PDF | `src/utils/tenantSurveyResultsAggregate.ts`, `src/utils/tenantSurveyResultsPdf.ts`, `src/components/pdf/buildSurveyResultsPdf.ts` (jsPDF, bukan react-pdf) |
 | Dashboard form (auth) | `src/components/survey/TenantSurveyForm.tsx` |
 | List / analytics / QR | `TenantSurveyList.tsx`, `TenantSurveyAnalytics.tsx`, `TenantSurveyTrendChart.tsx`, `SurveyQRCode.tsx` |
 | Routes | `src/App.tsx` — public `/tenant-survey*`, dash `/dashboard/tenant-surveys`, public results `/tenant-survey-results` |
