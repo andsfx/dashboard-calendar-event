@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
@@ -19,12 +19,12 @@ describe('letter product path has no GAS createLetterRequest', () => {
     expect(src).not.toMatch(/handleSubmitLetter/);
   });
 
-  it('apps-script-admin allowlist is migration-only', () => {
-    const src = readFileSync(resolve(__dirname, '../../../api/apps-script-admin.js'), 'utf8');
-    // Allowlist must not include product letter action
-    expect(src).not.toMatch(/'createLetterRequest'/);
-    expect(src).toMatch(/'bootstrapEventSheet'/);
-    expect(src).toMatch(/'migrateLegacyEvents'/);
-    expect(src).toMatch(/'migrateStableIds'/);
+  it('api/apps-script-admin.js (legacy GAS proxy) removed — migration selesai (H-003)', () => {
+    // Function dihapus: deploy Hobby plan batas 12 function (H-003).
+    // Jalur GAS migration tidak boleh muncul kembali.
+    const entries = readdirSync(resolve(__dirname, '../../../api'));
+    expect(entries).not.toContain('apps-script-admin.js');
+    const barrel = readFileSync(resolve(__dirname, '../supabaseApi.ts'), 'utf8');
+    expect(barrel).not.toMatch(/apps-script|appsScript/);
   });
 });

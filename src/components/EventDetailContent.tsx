@@ -27,6 +27,13 @@ function getEventModelLabel(value: EventItem['eventModel']) {
   return '';
 }
 
+/** Format nominal: "1000000" → "Rp 1.000.000". Sudah berformat ("Rp 5.000.000", teks) dibiarkan apa adanya. */
+function formatNominal(value: string) {
+  const raw = value.trim();
+  if (!/^\d+$/.test(raw)) return raw;
+  return `Rp ${Number(raw).toLocaleString('id-ID')}`;
+}
+
 interface EventDetailContentProps {
   event: EventItem;
   /** Admin mode: tampilkan PIC/phone/model kerja sama (internal). Public page WAJIB false. */
@@ -93,7 +100,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
           <InfoRow
             icon={<Tag className="h-4 w-4 text-blue-500" />}
             label="Nominal Event"
-            value={event.eventNominal}
+            value={formatNominal(event.eventNominal)}
           />
         )}
         {isAdmin && event.eventModelNotes && (
