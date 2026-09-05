@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum, EventArea } from '../types';
 import { filterUpcomingForMonth } from './community/upcomingFilter';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -247,6 +248,27 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityFAQ />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />
         <CommunityNews />
+        {/* Ajukan event — pipeline EO formal (pola Orchard Road / Scentre) */}
+        <section className="px-4 pb-4 sm:px-6">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col items-start justify-between gap-3 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white px-6 py-5 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900">
+              <div>
+                <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">Punya ide event?</h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Ajukan acara komunitas atau bisnismu untuk diselenggarakan di Metmal Bekasi.
+                </p>
+              </div>
+              <Link
+                to="/ajukan-event"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+              >
+                Ajukan Event
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <CommunityRegistrationForm />
         <CommunityContact />
         {isHeaderPinned && (
