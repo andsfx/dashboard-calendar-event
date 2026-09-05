@@ -6,6 +6,17 @@ import { EventFormBasicFields } from '../EventFormBasicFields'
 describe('EventFormBasicFields', () => {
   const mockProps = {
     dateStr: '2024-01-15',
+    dateEnd: undefined,
+    editingId: undefined,
+    areaId: '',
+    areaOptions: [
+      { id: 'era_1', name: 'Atrium Utama' },
+      { id: 'era_2', name: 'Panggung Lt. 3' },
+    ],
+    conflictEvents: [],
+    overrideAck: false,
+    onOverrideAck: vi.fn(),
+    onAreaChange: vi.fn(),
     jam: '10:00',
     acara: 'Test Event',
     lokasi: 'Main Hall',
@@ -55,5 +66,22 @@ describe('EventFormBasicFields', () => {
   it('renders draft mode labels', () => {
     render(<EventFormBasicFields {...mockProps} isDraft={true} />)
     expect(screen.getByText(/Nama Event/)).toBeInTheDocument()
+  })
+
+  it('memilih area memanggil onAreaChange dengan id dan nama', () => {
+    render(<EventFormBasicFields {...mockProps} />)
+    fireEvent.change(screen.getByLabelText(/Area \(opsional\)/), { target: { value: 'era_1' } })
+    expect(mockProps.onAreaChange).toHaveBeenCalledWith('era_1', 'Atrium Utama')
+  })
+
+  it('konflik non-empty merender warning + checkbox override', () => {
+    const propsWithConflict = {
+      ...mockProps,
+      areaId: 'era_1',
+      conflictEvents: [{ id: 'evt_9', acara: 'Bazar Kuliner', dateStr: '2024-01-15', dateEnd: undefined }],
+    }
+    render(<EventFormBasicFields {...propsWithConflict} />)
+    expect(screen.getByRole('alert')).toHaveTextContent(/sudah dipakai 1 event/)
+    expect(screen.getByRole('checkbox')).toBeInTheDocument()
   })
 })

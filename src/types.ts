@@ -43,8 +43,9 @@ export interface EventBase {
   jam: string;
   acara: string;
   lokasi: string;
-  eo: string;
+  areaId?: string | null;
   organizationId?: string;
+  eo: string;
   pic: string;
   phone: string;
   keterangan: string;

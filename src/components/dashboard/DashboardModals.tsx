@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { AdminLoginModal } from '../AdminLoginModal';
-import type { EventItem, DraftEventItem, LetterRequestItem, AnnualTheme, CommunityRegistration, RegistrationStatus } from '../../types';
+import type { EventItem, DraftEventItem, LetterRequestItem, AnnualTheme, CommunityRegistration, RegistrationStatus, EventArea } from '../../types';
 
 const EventCrudModal = lazy(() => import('../EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const DraftCrudModal = lazy(() => import('../DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
@@ -31,6 +31,7 @@ interface DashboardModalsProps {
   onSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
+  eventAreas: EventArea[];
   initialEventData?: Partial<EventItem> | null;
   organizationOptions?: { id: string; name: string }[];
 
@@ -111,6 +112,7 @@ export function DashboardModals({
   onSave,
   editingEvent,
   events,
+  eventAreas,
   initialEventData,
   organizationOptions = [],
   showDraftModal,
@@ -178,6 +180,7 @@ export function DashboardModals({
             onSave={onSave}
             editingEvent={editingEvent}
             events={events}
+            eventAreas={eventAreas}
             initialData={initialEventData}
             organizationOptions={organizationOptions}
           />
@@ -189,6 +192,7 @@ export function DashboardModals({
             onSave={onSaveDraft}
             editingDraft={editingDraft}
             events={events}
+            eventAreas={eventAreas}
             draftEvents={draftEvents}
           />
         )}

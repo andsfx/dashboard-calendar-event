@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Calendar, FileEdit, Save } from 'lucide-react';
-import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
+import { DraftEventItem, DraftProgress, EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency, EventArea } from '../types';
 import { createId, parseDateStrLocal, getDateRange, generateRecurringDates, MONTH_NAMES } from '../utils/eventUtils';
+import { findAreaConflicts } from '../utils/areaConflict';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
@@ -17,6 +18,7 @@ interface Props {
   onSave: (data: Partial<DraftEventItem>) => Promise<boolean>;
   editingDraft: DraftEventItem | null;
   events: EventItem[];
+  eventAreas: EventArea[];
   draftEvents: DraftEventItem[];
 }
 
@@ -74,9 +76,12 @@ const EMPTY: {
   recurrenceEndDate: '',
 };
 
-export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, draftEvents }: Props) {
+export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, eventAreas, draftEvents }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [areaId, setAreaId] = useState('');
+  const [overrideAck, setOverrideAck] = useState(false);
+  const areaOptionsById = new Map(eventAreas.map(a => [a.id, a]));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const suggestionSource = useMemo(
@@ -132,6 +137,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       setForm(EMPTY);
     }
     setErrors({});
+    setAreaId(editingDraft?.areaId || '');
+    setOverrideAck(false);
     setIsSubmitting(false);
   }, [editingDraft, isOpen]);
 
@@ -291,6 +298,10 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       return;
     }
 
+    // Anti double-booking: blok simpan bila ada konflik area dan belum di-override
+    const activeConflicts = findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingDraft?.id, events);
+    if (activeConflicts.length > 0 && !overrideAck) return;
+
     // For recurring drafts, validate that dates would be generated
     if (form.eventType === 'recurring' && form.dateStr && form.recurrenceEndDate) {
       const rule: RecurrenceRule = {
@@ -317,6 +328,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       dateEnd: form.eventType === 'multi_day' ? form.dateEnd : undefined,
       dayTimeSlots: form.eventType === 'multi_day' ? form.dayTimeSlots : undefined,
       eventType: form.eventType,
+      areaId: areaId || null,
       isRecurring: form.eventType === 'recurring',
       ...meta,
       published: editingDraft?.published ?? false,
@@ -349,6 +361,20 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <EventFormBasicFields
             dateStr={form.dateStr}
+            dateEnd={form.isMultiDay ? form.dateEnd : undefined}
+            editingId={editingDraft?.id}
+            areaId={areaId}
+            areaOptions={eventAreas.filter(a => a.isActive)}
+            conflictEvents={findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingDraft?.id, events)}
+            overrideAck={overrideAck}
+            onOverrideAck={setOverrideAck}
+            onAreaChange={(id, areaName) => {
+              setAreaId(id);
+              const prevArea = areaOptionsById.get(areaId);
+              if (areaName && (!form.lokasi.trim() || (prevArea && form.lokasi.trim() === prevArea.name))) {
+                set('lokasi', areaName);
+              }
+            }}
             jam={form.jam}
             acara={form.acara}
             lokasi={form.lokasi}

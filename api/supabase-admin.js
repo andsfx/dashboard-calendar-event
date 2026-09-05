@@ -237,6 +237,7 @@ export default async function handler(req, res) {
             jam: draft.jam,
             acara: draft.acara,
             lokasi: draft.lokasi,
+            area_id: draft.area_id ?? null,
             eo: draft.eo,
             pic: draft.pic,
             phone: draft.phone,

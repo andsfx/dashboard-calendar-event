@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction, ReactNode } from 'react';
 import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, ToastMessage, PhotoAlbum, EventStatus, RegistrationStatus } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, ToastMessage, PhotoAlbum, EventStatus, RegistrationStatus, EventArea } from '../../types';
 import type { SectionNavItem } from '../SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
@@ -156,6 +156,7 @@ export interface DashboardPageSiteSettings {
   instagramPosts: string[];
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
+  eventAreas: EventArea[];
   showInstagramSettings: boolean;  setShowInstagramSettings: (v: boolean) => void;
   showAlbumManager: boolean;       setShowAlbumManager: (v: boolean) => void;
   showNewsManager: boolean;        setShowNewsManager: (v: boolean) => void;
@@ -222,6 +223,7 @@ export function DashboardPage({
       publicSectionItems={publicSectionItems}
       modals={
         <DashboardModals
+          eventAreas={siteSettings.eventAreas}
           showLoginModal={modalState.showLoginModal}
           onCloseLoginModal={() => modalState.setShowLoginModal(false)}
           onEmailLogin={auth.login}

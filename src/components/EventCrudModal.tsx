@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
-import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency } from '../types';
+import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency, EventArea } from '../types';
 import { parseDateStrLocal, getDateRange, createRecurringEvents, getStatus } from '../utils/eventUtils';
+import { findAreaConflicts } from '../utils/areaConflict';
 import { uploadToR2 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
@@ -18,6 +19,7 @@ interface Props {
   onSaveBatch?: (data: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
+  eventAreas: EventArea[];
   initialData?: Partial<EventItem> | null;
   organizationOptions?: { id: string; name: string }[];
 }
@@ -78,6 +80,7 @@ const EMPTY: {
   recurrenceEndDate: string;
   posterUrl: string;
   organizationId: string;
+  areaId: string | null;
 } = {
   dateStr: '',
   dateEnd: '',
@@ -104,15 +107,19 @@ const EMPTY: {
   recurrenceEndDate: '',
   posterUrl: '',
   organizationId: '',
+  areaId: null,
 };
 
-export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, initialData, organizationOptions = [] }: Props) {
+export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEvent, events, eventAreas, initialData, organizationOptions = [] }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [areaId, setAreaId] = useState('');
+  const [overrideAck, setOverrideAck] = useState(false);
   const [posterUploading, setPosterUploading] = useState(false);
   const [posterError, setPosterError] = useState('');
   const posterInputRef = useRef<HTMLInputElement>(null);
+  const areaOptionsById = new Map(eventAreas.map(a => [a.id, a]));
 
   const jamSuggestions = getUniqueSuggestions(events, 'jam');
   const lokasiSuggestions = getUniqueSuggestions(events, 'lokasi');
@@ -144,6 +151,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         jam: editingEvent.jam,
         acara: editingEvent.acara,
         lokasi: editingEvent.lokasi,
+        organizationId: editingEvent.organizationId || '',
+        areaId: editingEvent.areaId || null,
         eo: editingEvent.eo,
         pic: editingEvent.pic || '',
         phone: editingEvent.phone || '',
@@ -161,7 +170,6 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceInterval: 7,
         recurrenceEndDate: '',
         posterUrl: editingEvent.posterUrl || '',
-        organizationId: editingEvent.organizationId || '',
       });
     } else if (initialData) {
       setForm({
@@ -190,11 +198,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         recurrenceEndDate: '',
         posterUrl: initialData.posterUrl || '',
         organizationId: initialData.organizationId || '',
+        areaId: initialData.areaId || null,
       });
     } else {
       setForm(EMPTY);
     }
     setErrors({});
+    setAreaId(editingEvent?.areaId || initialData?.areaId || '');
+    setOverrideAck(false);
     setIsSubmitting(false);
     setPosterError('');
   }, [editingEvent, initialData, isOpen]);
@@ -380,6 +391,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
+    // Anti double-booking: blok simpan bila ada konflik area dan belum di-override
+    const activeConflicts = findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingEvent?.id, events);
+    if (activeConflicts.length > 0 && !overrideAck) return;
+
     const formData = form;
 
     // Handle recurring events
@@ -407,6 +422,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         eventNominal: formData.eventNominal,
         eventModelNotes: formData.eventModelNotes,
         organizationId: formData.organizationId || undefined,
+        areaId: areaId || null,
       };
 
       const recurringEvents = createRecurringEvents(template, formData.dateStr, rule);
@@ -457,6 +473,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       ...normalizedFormData,
       ...meta,
       status: finalStatus,
+      areaId: areaId || null,
     });
     if (!success) setIsSubmitting(false);
   };
@@ -484,6 +501,21 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <EventFormBasicFields
             dateStr={form.dateStr}
+            dateEnd={form.isMultiDay ? form.dateEnd : undefined}
+            editingId={editingEvent?.id}
+            areaId={areaId}
+            areaOptions={eventAreas.filter(a => a.isActive)}
+            conflictEvents={findAreaConflicts(areaId, form.dateStr, form.isMultiDay ? form.dateEnd || undefined : undefined, editingEvent?.id, events)}
+            overrideAck={overrideAck}
+            onOverrideAck={setOverrideAck}
+            onAreaChange={(id, areaName) => {
+              setAreaId(id);
+              // Autofill lokasi bila kosong atau masih menempel nama area sebelumnya
+              const prevArea = areaOptionsById.get(areaId);
+              if (areaName && (!form.lokasi.trim() || (prevArea && form.lokasi.trim() === prevArea.name))) {
+                set('lokasi', areaName);
+              }
+            }}
             jam={form.jam}
             acara={form.acara}
             lokasi={form.lokasi}

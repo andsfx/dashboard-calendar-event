@@ -77,6 +77,7 @@ export interface DbEvent {
   is_multi_day: boolean; day_time_slots: unknown; event_type: string;
   recurrence_group_id: string; is_recurring: boolean; poster_url: string | null;
   organization_id: string | null;
+  area_id: string | null;
 }
 
 export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
@@ -85,7 +86,7 @@ export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
     id: row.id, rowIndex: index,
     tanggal: row.tanggal, dateStr: row.date_str, dateEnd: row.date_end || undefined,
     day: row.day, jam: row.jam || '',
-    acara: row.acara, lokasi: row.lokasi || '', eo: row.eo || '', pic: row.pic || '',
+    acara: row.acara, lokasi: row.lokasi || '', areaId: row.area_id ?? null, eo: row.eo || '', pic: row.pic || '',
     phone: row.phone || '', keterangan: row.keterangan || '', month: row.month,
     status: row.status === 'draft'
       ? 'draft'
@@ -115,6 +116,7 @@ export function eventItemToDbRow(ev: Partial<EventItem>): Record<string, unknown
   if (ev.tanggal !== undefined) row.tanggal = ev.tanggal;
   if (ev.jam !== undefined) row.jam = ev.jam;
   if (ev.acara !== undefined) row.acara = ev.acara;
+  if (ev.areaId !== undefined) row.area_id = ev.areaId || null;
   if (ev.lokasi !== undefined) row.lokasi = ev.lokasi;
   if (ev.eo !== undefined) row.eo = ev.eo;
   if (ev.pic !== undefined) row.pic = ev.pic;
@@ -148,7 +150,7 @@ export interface DbDraft {
   progress: string; published: boolean; published_at: string | null;
   deleted: boolean; deleted_at: string | null;
   is_multi_day: boolean; day_time_slots: unknown; event_type: string;
-  recurrence_group_id: string; is_recurring: boolean;
+  recurrence_group_id: string; is_recurring: boolean; area_id: string | null;
 }
 
 export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem {
@@ -157,7 +159,7 @@ export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem 
     id: row.id, rowIndex: index,
     tanggal: row.tanggal, dateStr: row.date_str, dateEnd: row.date_end || undefined,
     day: row.day, jam: row.jam || '',
-    acara: row.acara, lokasi: row.lokasi || '', eo: row.eo || '', pic: row.pic || '',
+    acara: row.acara, lokasi: row.lokasi || '', areaId: row.area_id ?? null, eo: row.eo || '', pic: row.pic || '',
     phone: row.phone || '', keterangan: row.keterangan || '',
     internalNote: row.internal_note || '', month: row.month,
     category: categories[0] || detectCategory(row.acara),
@@ -187,6 +189,7 @@ export function draftItemToDbRow(draft: Partial<DraftEventItem>): Record<string,
   if (draft.acara !== undefined) row.acara = draft.acara;
   if (draft.lokasi !== undefined) row.lokasi = draft.lokasi;
   if (draft.eo !== undefined) row.eo = draft.eo;
+  if (draft.areaId !== undefined) row.area_id = draft.areaId || null;
   if (draft.pic !== undefined) row.pic = draft.pic;
   if (draft.phone !== undefined) row.phone = draft.phone;
   if (draft.keterangan !== undefined) row.keterangan = draft.keterangan;
