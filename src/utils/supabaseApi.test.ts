@@ -104,24 +104,23 @@ describe('supabaseApi', () => {
   // -------------------------------------------------------
   describe('createDraftEvent (public)', () => {
     const draftData = { acara: 'Pameran Seni', tanggal: '15 Agustus 2025', dateStr: '2025-08-15' };
-    const mockSingle = vi.fn();
-    const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-    const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
+    const mockInsert = vi.fn().mockResolvedValue({ error: null });
 
     beforeEach(() => {
       (supabase.from as any).mockReturnValue({ insert: mockInsert });
     });
 
-    it('inserts draft and returns id', async () => {
-      mockSingle.mockResolvedValue({ data: { id: 'draft-42' }, error: null });
+    it('inserts draft without RETURNING (anon has no SELECT after RLS fix)', async () => {
       const result = await supabaseApi.createDraftEvent(draftData as any, 'public');
       expect(supabase.from).toHaveBeenCalledWith('draft_events');
-      expect(result.id).toBe('draft-42');
       expect(mockInsert.mock.calls[0][0].acara).toBe('Pameran Seni');
+      expect(result.id).toBe('');
+      // Insert tanpa .select() — memastikan rantai RETURNING tidak dipakai lagi
+      expect(mockInsert.mock.calls[0][0]).not.toHaveProperty('id');
     });
 
     it('throws on insert error', async () => {
-      mockSingle.mockResolvedValue({ data: null, error: { message: 'RLS violation' } });
+      mockInsert.mockResolvedValueOnce({ error: { message: 'RLS violation' } });
       await expect(supabaseApi.createDraftEvent(draftData as any, 'public'))
         .rejects.toThrow(/Public draft creation failed: RLS violation/);
     });

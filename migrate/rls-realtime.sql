@@ -11,8 +11,8 @@ CREATE POLICY "Public can read holidays" ON holidays FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Public can insert draft_events" ON draft_events;
 CREATE POLICY "Public can insert draft_events" ON draft_events FOR INSERT WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Public can read draft_events" ON draft_events;
-CREATE POLICY "Public can read draft_events" ON draft_events FOR SELECT USING (true);
+-- Drafts contain PII: readable only by authenticated sessions (service_role bypasses RLS)
+CREATE POLICY "Authenticated can read draft_events" ON draft_events FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- Enable Realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE events;

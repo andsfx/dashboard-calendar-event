@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS events (
   jam TEXT DEFAULT '',
   acara TEXT NOT NULL,
   lokasi TEXT DEFAULT '',
+  area_id TEXT,
   eo TEXT DEFAULT '',
   pic TEXT DEFAULT '',
   phone TEXT DEFAULT '',
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS draft_events (
   jam TEXT DEFAULT '',
   acara TEXT NOT NULL,
   lokasi TEXT DEFAULT '',
+  area_id TEXT,
   eo TEXT DEFAULT '',
   pic TEXT DEFAULT '',
   phone TEXT DEFAULT '',
@@ -144,11 +146,12 @@ CREATE POLICY "Public can read events" ON events FOR SELECT USING (true);
 CREATE POLICY "Public can read annual_themes" ON annual_themes FOR SELECT USING (true);
 CREATE POLICY "Public can read holidays" ON holidays FOR SELECT USING (true);
 
--- Public can insert draft events (for public submission form)
+-- Public can insert draft events (public submission form, no RETURNING — insert only)
 CREATE POLICY "Public can insert draft_events" ON draft_events FOR INSERT WITH CHECK (true);
 
--- Public can read draft events (needed for admin after login - admin uses service_role anyway)
-CREATE POLICY "Public can read draft_events" ON draft_events FOR SELECT USING (true);
+-- Drafts contain PII (pic, phone, internal_note): readable only by authenticated sessions.
+-- Admin channel uses service_role (bypasses RLS); anon clients get zero rows.
+CREATE POLICY "Authenticated can read draft_events" ON draft_events FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- Service role bypasses RLS automatically, so no explicit admin policies needed
 -- All admin mutations go through server-side with service_role key

@@ -10,10 +10,11 @@ export async function createDraftEvent(
   proxyKind: 'admin' | 'public' = 'admin'
 ): Promise<{ row: number; id: string }> {
   if (proxyKind === 'public') {
-    const dbRow = draftItemToDbRow(draftData);
-    const { data, error } = await supabase.from('draft_events').insert(dbRow).select('id').single();
+    // RLS fix (migrate/fix-draft-events-rls.sql): anon tidak punya SELECT di draft_events,
+    // jadi insert publik tidak boleh pakai .select() (RETURNING butuh privilege SELECT).
+    const { error } = await supabase.from('draft_events').insert(draftItemToDbRow(draftData));
     if (error) throw new SupabaseApiError(`Public draft creation failed: ${error.message}`);
-    return { row: 0, id: data?.id || '' };
+    return { row: 0, id: '' };
   }
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createDraft', { data: draftItemToDbRow(draftData) });
   if (!result.success) throw new SupabaseApiError(result.error || 'Create draft failed');
