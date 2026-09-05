@@ -14,16 +14,14 @@ import { useDashboardHandlers } from './hooks/useDashboardHandlers';
 import { ViewMode } from './types';
 
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
-import PrototypeLandingMetmalV1 from './pages/prototype-landing-metmal-v1';
 
-
-const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
-const GraphifyLanding = lazy(() => import('./pages/GraphifyLanding'));
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const EventDetailModal = lazy(() => import('./components/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
 const AdminLoginPage = lazy(() => import('./components/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
+const EventSubmissionPage = lazy(() => import('./components/EventSubmissionPage').then(m => ({ default: m.EventSubmissionPage })));
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
 const EventPublicDetailPage = lazy(() => import('./components/EventPublicDetailPage').then(m => ({ default: m.EventPublicDetailPage })));
 const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
@@ -251,7 +249,7 @@ export default function App() {
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
-  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
+  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
   return (
     <Routes>
       {/* Community Landing Page */}
@@ -279,14 +277,6 @@ export default function App() {
           <ToastContainer toasts={toasts} onRemove={removeToast} />
         </Suspense>
       } />
-
-      {/* Graphify landing clone */}
-      <Route path="/graphify" element={
-        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <GraphifyLanding />
-        </Suspense>
-      } />
-
       {/* Public event schedule landing */}
       <Route path="/events" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
@@ -355,6 +345,12 @@ export default function App() {
       <Route path="/daftar" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <RegistrationPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      {/* Pengajuan event publik — form EO/komunitas masuk antrian draft */}
+      <Route path="/ajukan-event" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <EventSubmissionPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
       <Route path="/community" element={
@@ -484,10 +480,6 @@ export default function App() {
           )}
         </Suspense>
       } />
-
-      {/* PROTOTYPE: throwaway landing variant */}
-      <Route path="/prototype-landing-v1" element={<PrototypeLandingMetmalV1 />} />
-
       {/* Catch-all 404 — cegah blank page untuk URL tak dikenal */}
       <Route path="*" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
