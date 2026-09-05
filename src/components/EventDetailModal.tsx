@@ -1,16 +1,16 @@
 import { lazy, Suspense } from 'react';
-import { X, Clock, MapPin, Calendar, User, Edit2, Trash2, Zap, Tag, CalendarDays, Repeat, ClipboardCheck, QrCode } from 'lucide-react';
+import { X, Edit2, Trash2, Zap, CalendarDays, Repeat, QrCode, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { EventDetailContent } from './EventDetailContent';
 
 const SurveyQRCode = lazy(() => import('./survey/SurveyQRCode'));
 import { EventPhotoGallery } from './EventPhotoGallery';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
-import { CATEGORY_COLORS, isMultiDayEvent, formatDateRange, getMultiDayJamDisplay, getEventDuration, parseDateStrLocal, MONTH_NAMES, isRecurringEvent, getRecurringSeries } from '../utils/eventUtils';
+import { CATEGORY_COLORS, isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { ModalWrapper } from './ModalWrapper';
-
-const DAY_NAMES = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
 interface Props {
   isOpen: boolean;
@@ -23,25 +23,6 @@ interface Props {
   isAdmin?: boolean;
 }
 
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition hover:bg-slate-100 dark:hover:bg-slate-700/60">
-      <div className="mt-0.5 shrink-0 text-slate-400">{icon}</div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
-        <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-white break-words">{value || '–'}</p>
-      </div>
-    </div>
-  );
-}
-
-function getEventModelLabel(value: EventItem['eventModel']) {
-  if (value === 'free') return 'Free';
-  if (value === 'bayar') return 'Bayar';
-  if (value === 'support') return 'Support';
-  return '';
-}
-
 export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, onDelete, onDeleteSeries, isAdmin = false }: Props) {
   if (!event) return null;
 
@@ -50,7 +31,6 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
   const isMultiDay = isMultiDayEvent(event);
   const duration = isMultiDay ? getEventDuration(event.dateStr, event.dateEnd) : 1;
   const isRecurring = isRecurringEvent(event);
-  const seriesEvents = isRecurring && event.recurrenceGroupId ? getRecurringSeries(events, event.recurrenceGroupId) : [];
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
@@ -102,118 +82,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
         {/* Body */}
         <div className="space-y-3 px-4 py-5 sm:px-6">
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <InfoRow
-              icon={<Calendar className="h-4 w-4 text-brand-primary-500" />}
-              label="Tanggal"
-              value={isMultiDay ? formatDateRange(event.dateStr, event.dateEnd) : `${event.day}, ${event.tanggal}`}
-            />
-            <InfoRow
-              icon={<Clock className="h-4 w-4 text-blue-500" />}
-              label="Waktu"
-              value={isMultiDay ? (getMultiDayJamDisplay(event) || '–') : (event.jam || '–')}
-            />
-            <InfoRow
-              icon={<MapPin className="h-4 w-4 text-red-500" />}
-              label="Lokasi"
-              value={event.lokasi || '–'}
-            />
-            <InfoRow
-              icon={<User className="h-4 w-4 text-amber-500" />}
-              label="Event Organizer"
-              value={event.eo || '–'}
-            />
-            {isAdmin && event.pic && (
-              <InfoRow
-                icon={<User className="h-4 w-4 text-cyan-500" />}
-                label="Penanggung Jawab"
-                value={event.pic}
-              />
-            )}
-            {isAdmin && event.phone && (
-              <InfoRow
-                icon={<Tag className="h-4 w-4 text-teal-500" />}
-                label="Nomor Handphone"
-                value={event.phone}
-              />
-            )}
-            {isAdmin && event.eventModel && (
-              <InfoRow
-                icon={<Tag className="h-4 w-4 text-emerald-500" />}
-                label="Model Event"
-                value={getEventModelLabel(event.eventModel)}
-              />
-            )}
-            {isAdmin && event.eventNominal && (
-              <InfoRow
-                icon={<Tag className="h-4 w-4 text-blue-500" />}
-                label="Nominal Event"
-                value={event.eventNominal}
-              />
-            )}
-            {isAdmin && event.eventModelNotes && (
-              <InfoRow
-                icon={<Tag className="h-4 w-4 text-brand-primary-500" />}
-                label="Keterangan Model Event"
-                value={event.eventModelNotes}
-              />
-            )}
-          </div>
-
-          {event.keterangan && (
-            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                <Tag className="h-3 w-3" /> Keterangan
-              </p>
-              <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{event.keterangan}</p>
-            </div>
-          )}
-
-          {/* Series info untuk recurring event */}
-          {isRecurring && seriesEvents.length > 0 && (
-            <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
-              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
-                <Repeat className="h-3 w-3" /> Series Reguler
-              </p>
-              <p className="text-sm text-slate-700 dark:text-slate-200">
-                Bagian dari series reguler ({seriesEvents.length} event total)
-              </p>
-            </div>
-          )}
-
-          {/* Jadwal per Hari untuk rangkaian acara */}
-          {isMultiDay && event.dayTimeSlots && event.dayTimeSlots.length > 0 && (
-            <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
-              <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
-                <CalendarDays className="h-3 w-3" /> Jadwal per Hari
-              </p>
-              <div className="space-y-1.5">
-                {event.dayTimeSlots.map((slot, idx) => {
-                  const date = parseDateStrLocal(slot.date);
-                  const dayName = date ? DAY_NAMES[date.getDay()] : '';
-                  const dayNum = date ? date.getDate() : '';
-                  const monthName = date ? MONTH_NAMES[date.getMonth()] : '';
-                  return (
-                    <div
-                      key={slot.date}
-                      className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm dark:bg-slate-800/60"
-                    >
-                      <span className="font-medium text-slate-700 dark:text-slate-200">
-                        Hari {idx + 1}
-                        <span className="ml-1.5 text-xs font-normal text-slate-400">
-                          {dayName}, {dayNum} {monthName}
-                        </span>
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
-                        <Clock className="h-3 w-3 text-slate-400" />
-                        {slot.jam || '–'}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <EventDetailContent event={event} isAdmin={isAdmin} allEvents={events} />
         </div>
 
         {/* Photo Gallery — always show, upload only for ongoing/past admin */}
@@ -235,7 +104,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                 className="mb-3 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 transition hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
-                  <ClipboardCheck className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" />
+                  <ClipboardCheckIcon />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Isi Survey Kepuasan</p>
@@ -263,7 +132,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             {/* QR Code Tenant Self-Assessment */}
             <details className="group">
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
-                <ClipboardCheck className="h-3.5 w-3.5" />
+                <ClipboardCheckIcon />
                 <span>QR Code Self-Assessment Tenant</span>
                 <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
                 <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
@@ -291,6 +160,14 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           >
             Tutup
           </button>
+          {!isAdmin && (
+            <Link
+              to={`/events/${event.id}`}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 active:scale-95 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Buka halaman event
+            </Link>
+          )}
           {onEdit && (
             <button
               onClick={() => { onClose(); onEdit(event); }}
@@ -318,5 +195,16 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         </div>
       </div>
     </ModalWrapper>
+  );
+}
+
+/** ClipboardCheck icon inline (lazy-adjacent, keeps imports tidy) */
+function ClipboardCheckIcon() {
+  return (
+    <svg className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="m9 14 2 2 4-4" />
+    </svg>
   );
 }

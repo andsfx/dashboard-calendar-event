@@ -30,6 +30,17 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
   return { events, themes, holidays };
 }
 
+/** Public read satu event by id — draft di-exclude (T-003: publik tidak lihat internal). */
+export async function fetchEventById(id: string): Promise<EventItem | null> {
+  const { data, error } = await supabase.from('events')
+    .select('*')
+    .eq('id', id)
+    .neq('status', 'draft')
+    .maybeSingle();
+  if (error) throw new SupabaseApiError(`Fetch event failed: ${error.message}`);
+  return data ? dbEventToEventItem(data as DbEvent, 0) : null;
+}
+
 // ─── Admin writes ────────────────────────────────────────────────
 
 export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex'> | Omit<EventItem, 'id' | 'sheetRow' | 'rowIndex' | 'status'>): Promise<{ row: number; id: string }> {

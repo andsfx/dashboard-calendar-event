@@ -1,5 +1,9 @@
 {
-    "rewrites":  [
+  "rewrites": [
+    {
+      "source": "/events/:id+",
+      "destination": "/api/event-og?id=:id"
+    },
                      {
                          "source":  "/((?!api|_vercel).*)",
                          "destination":  "/index.html"

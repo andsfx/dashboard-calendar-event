@@ -4,6 +4,7 @@
 
 export {
   fetchEvents,
+  fetchEventById,
   createEvent,
   updateEvent,
   deleteEvent,

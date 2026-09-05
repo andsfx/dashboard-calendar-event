@@ -25,6 +25,7 @@ const AdminLoginPage = lazy(() => import('./components/AdminLoginPage').then(m =
 
 const CommunityLandingPage = lazy(() => import('./components/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
 const EventsLandingPage = lazy(() => import('./components/EventsLandingPage').then(m => ({ default: m.EventsLandingPage })));
+const EventPublicDetailPage = lazy(() => import('./components/EventPublicDetailPage').then(m => ({ default: m.EventPublicDetailPage })));
 const GalleryIndexPage = lazy(() => import('./components/GalleryIndexPage').then(m => ({ default: m.GalleryIndexPage })));
 const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then(m => ({ default: m.GalleryAlbumPage })));
 const NewsIndexPage = lazy(() => import('./components/NewsIndexPage').then(m => ({ default: m.NewsIndexPage })));
@@ -305,6 +306,13 @@ export default function App() {
             events={events}
           />
           <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </Suspense>
+      } />
+
+      {/* Public event detail — permalink shareable + OG via api/event-og rewrite */}
+      <Route path="/events/:id" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <EventPublicDetailPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
 
