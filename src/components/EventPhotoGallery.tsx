@@ -144,7 +144,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
             </span>
           )}
         </div>
-        {canUpload && (
+        {!!canUpload && (
           <div className="flex gap-1.5">
             <label className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-primary-600 px-2.5 py-1.5 text-[10px] font-semibold text-white hover:bg-brand-primary-700">
               <Upload className="h-3 w-3" />
@@ -227,7 +227,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
                 onClick={() => setLightboxIdx(idx)}
                 loading="lazy"
               />
-              {canUpload && (
+              {!!canUpload && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
                   className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white opacity-0 transition group-hover:opacity-100"
@@ -241,7 +241,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       )}
 
       {/* Empty state */}
-      {!hasContent && canUpload && (
+      {!hasContent && !!canUpload && (
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-8 transition hover:border-brand-primary-300 dark:border-slate-700 dark:hover:border-brand-primary-600">
           <ImagePlus className="h-8 w-8 text-slate-300 dark:text-slate-600" />
           <p className="text-xs ui-text-muted">Klik untuk upload foto dokumentasi</p>

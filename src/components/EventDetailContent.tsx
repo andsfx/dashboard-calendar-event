@@ -75,35 +75,35 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
           label="Event Organizer"
           value={event.eo || '–'}
         />
-        {isAdmin && event.pic && (
+        {!!isAdmin && event.pic && (
           <InfoRow
             icon={<User className="h-4 w-4 text-cyan-500" />}
             label="Penanggung Jawab"
             value={event.pic}
           />
         )}
-        {isAdmin && event.phone && (
+        {!!isAdmin && event.phone && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-teal-500" />}
             label="Nomor Handphone"
             value={event.phone}
           />
         )}
-        {isAdmin && event.eventModel && (
+        {!!isAdmin && event.eventModel && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-emerald-500" />}
             label="Model Event"
             value={getEventModelLabel(event.eventModel)}
           />
         )}
-        {isAdmin && event.eventNominal && (
+        {!!isAdmin && event.eventNominal && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-blue-500" />}
             label="Nominal Event"
             value={formatNominal(event.eventNominal)}
           />
         )}
-        {isAdmin && event.eventModelNotes && (
+        {!!isAdmin && event.eventModelNotes && (
           <InfoRow
             icon={<Tag className="h-4 w-4 text-brand-primary-500" />}
             label="Keterangan Model Event"

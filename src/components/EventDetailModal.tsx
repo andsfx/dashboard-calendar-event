@@ -57,7 +57,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
             <CategoryBadges categories={event.categories} />
-            {isAdmin && <PriorityBadge priority={event.priority} />}
+            {!!isAdmin && <PriorityBadge priority={event.priority} />}
             {isOngoing && (
               <span aria-label="Event sedang berlangsung" className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
                 <Zap className="h-3 w-3" aria-hidden="true" /> LIVE

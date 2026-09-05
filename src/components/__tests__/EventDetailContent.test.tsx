@@ -83,6 +83,21 @@ describe('EventDetailContent', () => {
     expect(screen.queryByLabelText(/Penanggung Jawab/)).not.toBeInTheDocument();
   });
 
+  it('regression: isAdmin falsy (false ATAU 0 hasil minifier) tidak merender text "0"', () => {
+    // Pola {isAdmin && event.pic && <InfoRow/>} dengan isAdmin=0 (hasil minify false→0)
+    // mengevaluasi 0 && event.pic → 0 → React merender "0" sebagai text node.
+    // Lima gating admin menghasilkan "00000" di production. Guard: tidak boleh
+    // ada text node murni berisi "0" pada kedua bentuk falsy.
+    for (const falsy of [false, 0 as unknown as boolean]) {
+      const { container } = render(<EventDetailContent event={makeEvent()} isAdmin={falsy} />);
+      const zeros = Array.from(container.querySelectorAll('*'))
+        .flatMap(el => Array.from(el.childNodes))
+        .filter(n => n.nodeType === Node.TEXT_NODE && /^0+$/.test(n.textContent || ''));
+      expect(zeros).toEqual([]);
+      expect(container.textContent).not.toMatch(/(^|\s)0(\s|$)/);
+    }
+  });
+
   it('field kosong tidak render InfoRow (nominal kosong → tidak ada elemen Nominal Event)', () => {
     render(<EventDetailContent event={makeEvent({ eventNominal: '', eventModel: '', pic: '', phone: '' })} isAdmin />);
     expect(screen.queryByText('Nominal Event')).not.toBeInTheDocument();
