@@ -5,6 +5,7 @@ import { NewsArticle } from '../types';
 import { fetchNewsArticles } from '../utils/supabaseApi';
 import { thumbUrl } from '../utils/imageOptim';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { usePageMeta } from '../utils/pageMeta';
 
 function formatNewsDate(value?: string): string {
   if (!value) return '';
@@ -17,6 +18,11 @@ interface Props {
 }
 
 export function NewsIndexPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Berita & Pengumuman — Metropolitan Mall Bekasi',
+    description: 'Berita terbaru dan pengumuman resmi dari Metropolitan Mall Bekasi.',
+  });
+
   const navigate = useNavigate();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);

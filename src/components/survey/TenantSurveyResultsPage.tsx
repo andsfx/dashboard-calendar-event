@@ -35,6 +35,7 @@ import {
   fetchPublicTenantRoster,
   type TenantRosterItem,
 } from '../../utils/supabaseApi';
+import { usePageMeta } from '../../utils/pageMeta';
 import {
   FIELD,
   TRAFFIC_COLORS,
@@ -64,6 +65,10 @@ export default function TenantSurveyResultsPage({
   canExport = false,
   publicMode = true,
 }: Props) {
+  usePageMeta({
+    title: 'Hasil Survey Tenant — Metropolitan Mall Bekasi',
+    description: 'Hasil survey traffic dan sales tenant setelah event di Metropolitan Mall Bekasi.',
+  });
   const { surveys, isLoading, error } = useTenantSurveys(undefined, { publicMode });
   const [filter, setFilter] = useState<ResultsFilter>(EMPTY_FILTER);
   const [feedbackQ, setFeedbackQ] = useState('');

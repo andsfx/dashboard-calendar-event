@@ -3,7 +3,7 @@
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
   CalendarDays,
@@ -15,12 +15,14 @@ import {
   Moon,
   Radio,
   SunMedium,
+  X,
   Zap,
 } from 'lucide-react';
-import { EventItem, HolidayItem, PhotoAlbum } from '../types';
+import { eventOverlapsWindow, getTodayIsoLocal, getWeekendWindow } from '../utils/eventDateTime';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
+import { EventItem, HolidayItem, PhotoAlbum } from '../types';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { CategoryBadges } from './CategoryBadges';
 import { CalendarView } from './CalendarView';
@@ -347,6 +349,41 @@ export function EventsLandingPage({
     }
   };
 
+  // ─── Filter URL (?waktu= & ?kategori=) — deep-linkable, riset Skedda/Eventbrite pattern ───
+  const [searchParams, setSearchParams] = useSearchParams();
+  const waktu = searchParams.get('waktu'); // 'hari-ini' | 'akhir-pekan' | null
+  const kategori = searchParams.get('kategori'); // label kategori | null
+
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const ev of events) for (const c of ev.categories || []) set.add(c);
+    return [...set].sort((a, b) => a.localeCompare(b, 'id')).slice(0, 10);
+  }, [events]);
+
+  const filteredEvents = useMemo(() => {
+    const todayIso = getTodayIsoLocal();
+    const weekend = getWeekendWindow();
+    const win = waktu === 'hari-ini'
+      ? { start: todayIso, end: todayIso }
+      : waktu === 'akhir-pekan' ? weekend : null;
+    return events.filter(ev => {
+      if (win && !eventOverlapsWindow(ev.dateStr, ev.dateEnd, win.start, win.end)) return false;
+      if (kategori && !(ev.categories || []).includes(kategori)) return false;
+      return true;
+    }).sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+  }, [events, waktu, kategori]);
+
+  const isFilterActive = Boolean(waktu || kategori);
+
+  const setParam = (key: 'waktu' | 'kategori', value: string | null) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
+
+  const resetFilter = () => setSearchParams(new URLSearchParams(), { replace: true });
+
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
@@ -373,6 +410,9 @@ export function EventsLandingPage({
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Calendar
             </a>
+            <Link to="/ajukan-event" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+              Ajukan Event
+            </Link>
             <Link to="/daftar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Daftar
             </Link>
@@ -506,6 +546,60 @@ export function EventsLandingPage({
           </div>
         </section>
 
+        {/* Filter URL-shareable — preset waktu + kategori (riset Skedda "today/this weekend") */}
+        <section id="filter" aria-label="Filter jadwal event" className="border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
+              {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
+                <button
+                  key={value || 'semua'}
+                  type="button"
+                  onClick={() => setParam('waktu', value || null)}
+                  aria-pressed={(waktu || '') === value}
+                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition ui-focus-ring ${
+                    (waktu || '') === value
+                      ? 'bg-[var(--brand-tosca)] text-white'
+                      : 'border border-black/10 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {categoryOptions.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
+                <button
+                  type="button"
+                  onClick={() => setParam('kategori', null)}
+                  aria-pressed={!kategori}
+                  className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
+                    !kategori
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                      : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  Semua Kategori
+                </button>
+                {categoryOptions.map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setParam('kategori', kategori === cat ? null : cat)}
+                    aria-pressed={kategori === cat}
+                    className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
+                      kategori === cat
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                        : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* Event rail */}
         <section id="featured" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
@@ -515,6 +609,44 @@ export function EventsLandingPage({
                   <div key={i} className="h-36 animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
                 ))}
               </div>
+            ) : isFilterActive ? (
+              <>
+                <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <CommunityEyebrow>Hasil Filter</CommunityEyebrow>
+                    <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                      {filteredEvents.length} acara ditemukan
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={resetFilter}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-4 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 ui-focus-ring"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" /> Reset filter
+                  </button>
+                </div>
+                {filteredEvents.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredEvents.map(ev => (
+                      <EventRailCard key={ev.id} event={ev} onDetail={onDetail} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                      Tidak ada acara yang cocok dengan filter ini.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={resetFilter}
+                      className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                    >
+                      Tampilkan semua event
+                    </button>
+                  </div>
+                )}
+              </>
             ) : railEvents.length > 0 ? (
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
@@ -621,6 +753,9 @@ export function EventsLandingPage({
             <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Calendar
             </a>
+            <Link to="/ajukan-event" className="transition hover:text-white ui-focus-ring rounded-sm">
+              Ajukan Event
+            </Link>
             <Link to="/daftar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Daftar
             </Link>

@@ -25,6 +25,10 @@ export function getTodayIsoLocal(now = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
+function pad(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
 export function parseTimeRange(jam: string): TimeRange | null {
   const normalized = jam.trim().replace(/\./g, ':');
   const match = /^([01]?\d|2[0-3]):([0-5]\d)\s*-\s*([01]?\d|2[0-3]):([0-5]\d)$/.exec(normalized);
@@ -40,4 +44,28 @@ export function parseTimeRange(jam: string): TimeRange | null {
 /** Thin wrapper — canonical logic lives in eventUtils.getStatus (SPEC §3.3). */
 export function getStatus(dateStr: string, jam: string, now = new Date()): EventStatus {
   return getStatusCanonical(dateStr, jam, undefined, undefined, now);
+}
+
+/**
+ * Cek apakah rentang event [dateStr, dateEnd ?? dateStr] overlap window [winStart, winEnd]
+ * (keduanya ISO "YYYY-MM-DD", inklusif). Dipakai filter preset "Hari Ini" / "Akhir Pekan Ini".
+ */
+export function eventOverlapsWindow(
+  dateStr: string,
+  dateEnd: string | undefined,
+  winStartIso: string,
+  winEndIso: string,
+): boolean {
+  const end = dateEnd || dateStr;
+  return dateStr <= winEndIso && end >= winStartIso;
+}
+
+/** Rentang ISO weekend berjalan/mendatang: Sabtu–Minggu (kalau hari ini Sabtu/Minggu, pakai weekend yang sama). */
+export function getWeekendWindow(now = new Date()): { start: string; end: string } {
+  const day = now.getDay(); // 0 = Minggu, 6 = Sabtu
+  const offsetToSaturday = day === 6 ? 0 : day === 0 ? -1 : 6 - day;
+  const saturday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offsetToSaturday);
+  const sunday = new Date(saturday.getFullYear(), saturday.getMonth(), saturday.getDate() + 1);
+  const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return { start: fmt(saturday), end: fmt(sunday) };
 }

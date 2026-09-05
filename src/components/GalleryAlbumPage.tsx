@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/supabaseApi';
 import { GalleryHeader } from './GalleryHeader';
+import { usePageMeta } from '../utils/pageMeta';
 import { PhotoLightbox } from './PhotoLightbox';
 import { gridUrl } from '../utils/imageOptim';
 
@@ -23,6 +24,11 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  usePageMeta({
+    title: album ? `${album.name} — Galeri Metropolitan Mall Bekasi` : 'Galeri Foto — Metropolitan Mall Bekasi',
+    description: album?.description || 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
+  });
 
   useEffect(() => {
     if (!slug) return;

@@ -6,6 +6,7 @@ import { fetchSponsorEventsWithProposals, submitSponsorLead } from '../utils/sup
 import { SupabaseApiError } from '../utils/api/_shared';
 import { validateEmail, validatePhone } from '../utils/validation';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { usePageMeta } from '../utils/pageMeta';
 
 function formatEventDate(value?: string): string {
   if (!value) return '';
@@ -34,6 +35,11 @@ const inputClass =
 const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 
 export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Mitra & Sponsor — Metropolitan Mall Bekasi',
+    description: 'Ajukan proposal event dan jadi mitra sponsor Metropolitan Mall Bekasi.',
+  });
+
   const navigate = useNavigate();
   const [items, setItems] = useState<EventProposalEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);

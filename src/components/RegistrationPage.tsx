@@ -1,6 +1,7 @@
 import { ArrowLeft, Moon, SunMedium } from 'lucide-react';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { RegistrationForm } from './community/CommunityRegistrationForm';
+import { usePageMeta } from '../utils/pageMeta';
 
 const focusRing = 'ui-focus-ring';
 
@@ -15,6 +16,11 @@ interface Props {
  * tanpa logika form baru; URL ini untuk distribusi link langsung (bio IG, WA, QR).
  */
 export function RegistrationPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Daftar Komunitas — Metropolitan Mall Bekasi',
+    description: 'Daftarkan komunitas atau organisasimu untuk berkolaborasi dengan Metropolitan Mall Bekasi.',
+  });
+
   return (
     <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <header className="ui-dashboard-chrome sticky top-0 z-40">

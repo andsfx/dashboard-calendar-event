@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, Check, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
+import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
 import { EventPhotoGallery } from './EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from './EventDetailContent';
 import { CategoryBadges } from './CategoryBadges';
@@ -61,6 +62,16 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
   }, [event, shareUrl]);
 
+  // Tombol kalender hanya untuk event yang belum lewat (tanggal valid diperiksa util).
+  const googleCalendarUrl = useMemo(() => {
+    if (!event || event.status === 'past') return null;
+    return buildGoogleCalendarUrl(event);
+  }, [event]);
+  const icsBlobAvailable = useMemo(() => {
+    if (!event || event.status === 'past') return false;
+    return buildIcsBlob(event) !== null;
+  }, [event]);
+
   const handleCopyLink = async () => {
     if (!shareUrl) return;
     try {
@@ -68,6 +79,20 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch { /* ignore */ }
+  };
+
+  const handleDownloadIcs = () => {
+    if (!event) return;
+    const blob = buildIcsBlob(event);
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = icsFileName(event);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const isMultiDay = event ? isMultiDayEvent(event) : false;
@@ -212,6 +237,27 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 {copied ? <Check className="h-4 w-4 text-emerald-500" aria-hidden="true" /> : <Link2 className="h-4 w-4" aria-hidden="true" />}
                 {copied ? 'Link tersalin' : 'Salin link'}
               </button>
+              {googleCalendarUrl && (
+                <a
+                  href={googleCalendarUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40 ui-focus-ring"
+                >
+                  <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+                  Google Calendar
+                </a>
+              )}
+              {icsBlobAvailable && (
+                <button
+                  type="button"
+                  onClick={handleDownloadIcs}
+                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                >
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                  Unduh .ics
+                </button>
+              )}
             </div>
 
             {/* Survey CTA untuk event past */}

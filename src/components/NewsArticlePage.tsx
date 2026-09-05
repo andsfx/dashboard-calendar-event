@@ -3,7 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Moon, Newspaper, RefreshCw, SunMedium } from 'lucide-react';
 import { NewsArticle } from '../types';
 import { fetchNewsArticleBySlug } from '../utils/supabaseApi';
+import { usePageMeta } from '../utils/pageMeta';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+
 function formatNewsDate(value?: string): string {
   if (!value) return '';
   return new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -20,6 +22,10 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  usePageMeta({
+    title: article ? `${article.title} — Berita Metropolitan Mall Bekasi` : 'Berita & Pengumuman — Metropolitan Mall Bekasi',
+    description: article?.excerpt || 'Berita terbaru dan pengumuman resmi dari Metropolitan Mall Bekasi.',
+  });
 
 
   useEffect(() => {

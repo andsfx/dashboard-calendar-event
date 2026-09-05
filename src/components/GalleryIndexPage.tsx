@@ -7,6 +7,7 @@ import { GalleryHeader } from './GalleryHeader';
 import { ExportPdfModal } from './ExportPdfModal';
 import { thumbUrl } from '../utils/imageOptim';
 
+import { usePageMeta } from '../utils/pageMeta';
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
 function formatThemeDate(dateStr: string): string {
@@ -24,6 +25,11 @@ interface Props {
 }
 
 export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Galeri Foto — Metropolitan Mall Bekasi',
+    description: 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
+  });
+
   const navigate = useNavigate();
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [themes, setThemes] = useState<AnnualTheme[]>([]);

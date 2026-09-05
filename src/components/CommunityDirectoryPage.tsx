@@ -5,6 +5,7 @@ import { fetchPublicCommunityDirectory } from '../utils/supabaseApi';
 import type { CommunityDirectoryOrganization, OrganizationType } from '../types';
 import { ORG_TYPE_LABELS } from './community/organizationTypeLabels';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
   isDark: boolean;
@@ -35,6 +36,11 @@ function initials(name: string): string {
 }
 
 export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Direktori Komunitas — Metropolitan Mall Bekasi',
+    description: 'Direktori komunitas aktif yang bekerja sama dengan Metropolitan Mall Bekasi.',
+  });
+
   const navigate = useNavigate();
   const [organizations, setOrganizations] = useState<CommunityDirectoryOrganization[]>([]);
   const [isLoading, setIsLoading] = useState(true);

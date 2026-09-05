@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Moon, Search, Store, SunMedium } from 'lucide-react'
 import { fetchPublicTenantDirectory } from '../utils/supabaseApi';
 import type { TenantRosterItem } from '../utils/api/surveysApi';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
   isDark: boolean;
@@ -13,6 +14,11 @@ interface Props {
 const ALL_CATEGORIES = 'Semua';
 
 export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
+  usePageMeta({
+    title: 'Direktori Tenant — Metropolitan Mall Bekasi',
+    description: 'Direktori penyewa gerai (tenant) resmi di Metropolitan Mall Bekasi.',
+  });
+
   const navigate = useNavigate();
   const [tenants, setTenants] = useState<TenantRosterItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
