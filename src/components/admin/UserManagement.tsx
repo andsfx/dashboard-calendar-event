@@ -137,15 +137,15 @@ export function UserManagement() {
             </button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input type="email" placeholder="Alamat email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+            <input type="email" aria-label="Alamat email" placeholder="Alamat email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
             {showForm === 'create' && (
-              <input type="password" placeholder="Password (minimal 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
+              <input type="password" aria-label="Password (minimal 6 karakter)" placeholder="Password (minimal 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
             )}
-            <input type="text" placeholder="Nama Tampilan" value={formData.display_name} onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
+            <input type="text" aria-label="Nama tampilan" placeholder="Nama Tampilan" value={formData.display_name} onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
-            <select value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
+            <select aria-label="Peran pengguna" value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white">
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
@@ -153,7 +153,7 @@ export function UserManagement() {
               <option value="tenant_relation">Tenant Relation</option>
             </select>
             {formData.role === 'eo_tenant' && (
-              <input type="text" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={e => setFormData(p => ({ ...p, eo_organization: e.target.value }))}
+              <input type="text" aria-label="Nama organisasi EO" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={e => setFormData(p => ({ ...p, eo_organization: e.target.value }))}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white sm:col-span-2" />
             )}
           </div>

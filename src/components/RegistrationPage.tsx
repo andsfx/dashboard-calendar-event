@@ -23,6 +23,13 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
 
   return (
     <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+      <a
+        href="#konten-utama"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke konten
+      </a>
+
       <header className="ui-dashboard-chrome sticky top-0 z-40">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -47,7 +54,7 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           </div>
         </div>
       </header>
-        <main className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+        <main id="konten-utama" className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
           <div className="pt-10">
             <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftarkan Event Komunitas di Metropolitan Mall Bekasi</h1>
             <p className="mt-3 text-sm leading-7 ui-text-secondary">

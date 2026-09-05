@@ -75,6 +75,13 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   return (
     <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
+      <a
+        href="#konten-utama"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke konten
+      </a>
+
       <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -102,7 +109,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Hero */}
         <div className="mb-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Direktori Tenant</p>

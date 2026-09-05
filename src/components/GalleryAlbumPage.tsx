@@ -73,10 +73,15 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+      <a
+        href="#konten-utama"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke konten
+      </a>
       <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
 
-      {/* ─── Main Content ───────────────────────────────────── */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Back button */}
         <button
           onClick={() => navigate('/gallery')}

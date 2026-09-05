@@ -384,11 +384,10 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   <div className="space-y-3">
                     {/* Event dropdown */}
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Pilih Event</label>
+                      <label htmlFor="album-manager-event" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Pilih Event</label>
                       <select
+                        id="album-manager-event"
                         value={isCustomEvent ? '__custom__' : selectedEventId}
-                        onChange={(e) => handleEventSelect(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       >
                         <option value="">Pilih event yang sudah berlangsung...</option>
                         {(pastEvents || [])
@@ -404,8 +403,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                     {/* Theme dropdown */}
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tema Tahunan</label>
+                      <label htmlFor="album-manager-theme" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tema Tahunan</label>
                       <select
+                        id="album-manager-theme"
                         value={selectedThemeId}
                         onChange={(e) => setSelectedThemeId(e.target.value)}
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
@@ -422,8 +422,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                     {/* Name */}
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event *</label>
+                      <label htmlFor="album-manager-name" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event *</label>
                       <input
+                        id="album-manager-name"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="Nama event"
@@ -431,10 +432,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       />
                     </div>
 
-                    {/* Description */}
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                    {/* Description */}
+                      <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
                       <input
+                        id="album-manager-desc"
                         value={newDesc}
                         onChange={(e) => setNewDesc(e.target.value)}
                         placeholder="Deskripsi event"
@@ -445,8 +447,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     {/* Date + Location row */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal</label>
+                        <label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal</label>
                         <input
+                          id="album-manager-date"
                           type="date"
                           value={newDate}
                           onChange={(e) => {
@@ -457,8 +460,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
+                        <label htmlFor="album-manager-lokasi" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
                         <input
+                          id="album-manager-lokasi"
                           value={newLokasi}
                           onChange={(e) => setNewLokasi(e.target.value)}
                           placeholder="Lokasi event"

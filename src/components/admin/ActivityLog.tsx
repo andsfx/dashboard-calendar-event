@@ -91,7 +91,7 @@ export function ActivityLog() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="h-3.5 w-3.5 text-slate-400" />
-        <select value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }}
+        <select aria-label="Filter aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
           <option value="">Semua Aksi</option>
           <option value="create">Buat</option>
@@ -101,7 +101,7 @@ export function ActivityLog() {
           <option value="logout">Logout</option>
           <option value="invite">Undang</option>
         </select>
-        <select value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }}
+        <select aria-label="Filter tipe resource" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
           <option value="">Semua Tipe</option>
           <option value="event">Event</option>

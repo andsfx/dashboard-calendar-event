@@ -102,6 +102,13 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header — konsisten EventsLandingPage */}
+      <a
+        href="#konten-utama"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke konten
+      </a>
+
       <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
           <Link to="/events" className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring" aria-label="Kembali ke Jadwal Event">
@@ -119,7 +126,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Loading skeleton */}
         {isLoading && (
           <div className="animate-pulse" aria-label="Memuat detail event">

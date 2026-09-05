@@ -127,10 +127,11 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {tab === 'email' && (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
                     Email
                   </label>
                   <input
+                    id="admin-login-email"
                     type="email"
                     value={email}
                     onChange={e => { setEmail(e.target.value); setError(''); }}
@@ -140,13 +141,13 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
                   />
                 </div>
               )}
-
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <label htmlFor="admin-login-pw" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
                   Password{tab === 'legacy' ? ' Admin' : ''}
                 </label>
                 <div className="relative">
                   <input
+                    id="admin-login-pw"
                     type={showPw ? 'text' : 'password'}
                     value={pw}
                     onChange={e => { setPw(e.target.value); setError(''); }}
@@ -161,6 +162,7 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
                   <button
                     type="button"
                     onClick={() => setShowPw(v => !v)}
+                    aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
                     tabIndex={-1}
                   >

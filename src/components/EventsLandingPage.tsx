@@ -22,6 +22,7 @@ import { eventOverlapsWindow, getTodayIsoLocal, getWeekendWindow } from '../util
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
+import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum } from '../types';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { CategoryBadges } from './CategoryBadges';
@@ -306,6 +307,10 @@ export function EventsLandingPage({
   isLoading = false,
   onDetail,
 }: Props) {
+  usePageMeta({
+    title: 'Jadwal Event — Metropolitan Mall Bekasi',
+    description: 'Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.',
+  });
   const ongoing = useMemo(
     () => sortHighlightCandidates(events.filter(e => e.status === 'ongoing')),
     [events],
@@ -443,7 +448,7 @@ export function EventsLandingPage({
             <div className="flex min-w-0 flex-col justify-center">
               <CommunityEyebrow>Metropolitan Mall Bekasi</CommunityEyebrow>
               <h1 className="font-display mt-3 max-w-xl text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-slate-950 dark:text-white">
-                Event Schedule
+                Jadwal Event
               </h1>
               <p className="mt-4 max-w-md text-base leading-8 text-slate-600 dark:text-slate-400">
                 Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.
@@ -651,9 +656,9 @@ export function EventsLandingPage({
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <CommunityEyebrow>More Events</CommunityEyebrow>
+                    <CommunityEyebrow>Event Lainnya</CommunityEyebrow>
                     <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-                      Upcoming & Live
+                      Akan Datang & Berlangsung
                     </h2>
                   </div>
                   <p className="text-sm ui-text-muted">
@@ -697,9 +702,9 @@ export function EventsLandingPage({
         <section id="calendar" className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
-              <CommunityEyebrow>Calendar</CommunityEyebrow>
+              <CommunityEyebrow>Kalender</CommunityEyebrow>
               <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-                Full Schedule
+                Jadwal Lengkap
               </h2>
               <p className="mt-3 text-base leading-8 text-slate-600 dark:text-slate-400">
                 Tampilan bulanan. Klik event untuk melihat detail.
@@ -741,7 +746,7 @@ export function EventsLandingPage({
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-white">Metropolitan Mall Bekasi</p>
-            <p className="mt-0.5 text-xs text-white/50">Event Schedule</p>
+            <p className="mt-0.5 text-xs text-white/50">Jadwal Event</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/60">
             <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">

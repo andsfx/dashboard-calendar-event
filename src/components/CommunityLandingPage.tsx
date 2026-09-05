@@ -16,6 +16,7 @@ import { CommunityUpcomingEvents } from './community/CommunityUpcomingEvents';
 import { CommunityGallery } from './community/CommunityGallery';
 import { CommunityNews } from './community/CommunityNews';
 import { CommunityContact } from './community/CommunityContact';
+import { usePageMeta } from '../utils/pageMeta';
 
 const focusRing = 'ui-focus-ring';
 
@@ -63,6 +64,10 @@ const NAV_ITEMS = [
   { href: '#contact', label: 'Kontak' },
 ] as const;
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
+  usePageMeta({
+    title: 'Komunitas — Metropolitan Mall Bekasi',
+    description: 'Gabung komunitas dan kirim pengajuan event untuk digelar di Metropolitan Mall Bekasi.',
+  });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
