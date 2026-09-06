@@ -111,7 +111,7 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Gagal memuat data</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Terjadi kesalahan saat memuat berita. Periksa koneksi internet Anda.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Terjadi kesalahan saat memuat berita. Periksa koneksi internet Anda.</p>
             <button
               onClick={() => setRetryCount(c => c + 1)}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
@@ -126,10 +126,10 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && articles.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Newspaper className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Newspaper className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Belum ada berita</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Artikel berita akan muncul di sini.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Artikel berita akan muncul di sini.</p>
           </div>
         )}
 
@@ -159,9 +159,9 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
                 <div className="p-4">
                   <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{article.title}</p>
                   {article.excerpt && (
-                    <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2 dark:text-slate-400">{article.excerpt}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2 dark:text-slate-300">{article.excerpt}</p>
                   )}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
                     {article.author && <span>{article.author}</span>}
                     {article.author && (article.publishedAt || article.createdAt) && <span>·</span>}
                     <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
@@ -173,7 +173,7 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
       </footer>
     </div>

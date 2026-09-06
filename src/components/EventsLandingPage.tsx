@@ -450,7 +450,7 @@ export function EventsLandingPage({
               <h1 className="font-display mt-3 max-w-xl text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-slate-950 dark:text-white">
                 Jadwal Event
               </h1>
-              <p className="mt-4 max-w-md text-base leading-8 text-slate-600 dark:text-slate-400">
+              <p className="mt-4 max-w-md text-base leading-8 text-slate-600 dark:text-slate-300">
                 Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.
               </p>
 
@@ -580,7 +580,7 @@ export function EventsLandingPage({
                   className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
                     !kategori
                       ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                      : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
+                      : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
                   }`}
                 >
                   Semua Kategori
@@ -594,7 +594,7 @@ export function EventsLandingPage({
                     className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
                       kategori === cat
                         ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                        : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800'
+                        : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                   >
                     {cat}
@@ -706,7 +706,7 @@ export function EventsLandingPage({
               <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 Jadwal Lengkap
               </h2>
-              <p className="mt-3 text-base leading-8 text-slate-600 dark:text-slate-400">
+              <p className="mt-3 text-base leading-8 text-slate-600 dark:text-slate-300">
                 Tampilan bulanan. Klik event untuk melihat detail.
               </p>
             </div>

@@ -47,7 +47,7 @@ export function CommunityBenefits() {
               <div className="flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Sponsor & Support</p>
                 <h3 className="mt-1.5 text-lg font-bold leading-tight text-slate-950 dark:text-white">Dukungan Sponsorship</h3>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
               </div>
               <Link
                 to="/sponsor"

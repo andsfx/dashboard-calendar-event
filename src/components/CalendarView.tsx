@@ -181,7 +181,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
         {/* Day headers */}
         <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-700">
           {DAY_SHORT.map(d => (
-            <div key={d} className="py-2 text-center text-xs font-semibold text-slate-400 dark:text-slate-500">{d}</div>
+            <div key={d} className="py-2 text-center text-xs font-semibold text-slate-500 dark:text-slate-300">{d}</div>
           ))}
         </div>
 
@@ -279,7 +279,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
               <p className="font-semibold text-slate-800 dark:text-white">
                 <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-brand-primary-500" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 {monthEvents.length} acara dan {monthHolidays.length} hari libur di bulan ini
               </p>
             </div>
@@ -288,7 +288,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">
                       {monthEvents.length} event di bulan ini
                       {monthEvents.length > 0 && (
                         <span>
@@ -357,7 +357,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                       </div>
                                     )}
                                     {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                                    {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-slate-500">{ev.keterangan}</p>}
                                   </div>
                                 </button>
                               );
@@ -417,7 +417,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                       </div>
                                     )}
                                     {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                                    {ev.keterangan && <p className="line-clamp-2 text-slate-400">{ev.keterangan}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-slate-500">{ev.keterangan}</p>}
                                   </div>
                                 </button>
                               );
@@ -428,7 +428,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                     })}
                   </div>
                 ) : (
-                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500">
                     Tidak ada event di bulan ini.
                   </div>
                 )}
@@ -438,7 +438,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
-                    <p className="text-xs text-slate-400">{monthHolidays.length} hari libur di bulan ini</p>
+                    <p className="text-xs text-slate-500">{monthHolidays.length} hari libur di bulan ini</p>
                   </div>
                 </div>
 
@@ -476,7 +476,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                     })}
                   </div>
                 ) : (
-                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500">
                     Tidak ada hari libur di bulan ini.
                   </div>
                 )}
@@ -484,7 +484,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
             </div>
           </div>
         ) : (
-          <div className="ui-empty-panel flex h-full min-h-[260px] flex-col items-center justify-center px-4 text-slate-400 sm:min-h-[300px]">
+          <div className="ui-empty-panel flex h-full min-h-[260px] flex-col items-center justify-center px-4 text-slate-500 sm:min-h-[300px]">
             <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
             <p className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</p>
             <p className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</p>
@@ -520,7 +520,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
             <div>
               <p id="calendar-day-title" className="font-bold text-slate-800 dark:text-white">Agenda {selectedDayTitle}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
+              <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayEvents.length} event pada tanggal ini</p>
             </div>
             <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup">
               <X className="h-4 w-4" aria-hidden="true" />
@@ -531,7 +531,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
             <section className="space-y-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{selectedDayEvents.length} event pada tanggal ini</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayEvents.length} event pada tanggal ini</p>
               </div>
 
               {selectedDayEvents.length > 0 ? (
@@ -654,7 +654,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                   })}
                 </div>
               ) : (
-                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
+                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500">
                   Tidak ada event pada tanggal ini.
                 </div>
               )}
@@ -663,7 +663,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
             <section className="space-y-3 border-t border-slate-100 pt-5 dark:border-slate-700">
               <div>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
-                <p className="text-xs text-slate-400">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
+                <p className="text-xs text-slate-500">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
               </div>
 
               {selectedDayHolidays.length > 0 ? (
@@ -688,7 +688,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                   })}
                 </div>
               ) : (
-                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-400">
+                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500">
                   Tidak ada hari libur pada tanggal ini.
                 </div>
               )}

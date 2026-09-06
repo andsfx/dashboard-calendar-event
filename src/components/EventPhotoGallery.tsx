@@ -194,7 +194,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
                 <span className="truncate">{a.name}</span>
               </button>
             ))}
-            {albums.length === 0 && <p className="text-[10px] text-slate-400">Belum ada album</p>}
+            {albums.length === 0 && <p className="text-[10px] text-slate-500">Belum ada album</p>}
           </div>
         </div>
       )}
@@ -210,7 +210,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{linkedAlbum.name}</p>
-            <p className="text-[10px] text-slate-400">{linkedAlbum.photoCount || 0} foto · Lihat album →</p>
+            <p className="text-[10px] text-slate-500">{linkedAlbum.photoCount || 0} foto · Lihat album →</p>
           </div>
         </a>
       )}
@@ -245,7 +245,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-8 transition hover:border-brand-primary-300 dark:border-slate-700 dark:hover:border-brand-primary-600">
           <ImagePlus className="h-8 w-8 text-slate-300 dark:text-slate-600" />
           <p className="text-xs ui-text-muted">Klik untuk upload foto dokumentasi</p>
-          <p className="text-[10px] text-slate-400">JPG, PNG, WebP · Maks 10 foto</p>
+          <p className="text-[10px] text-slate-500">JPG, PNG, WebP · Maks 10 foto</p>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"

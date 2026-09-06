@@ -83,7 +83,7 @@ export default function TenantSurveyEventPicker() {
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
           {isEmptyList ? 'Survey Belum Tersedia' : 'Gagal Memuat'}
         </h2>
-        <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">{error}</p>
+        <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-300">{error}</p>
         {isEmptyList && (
           <p className="mt-3 max-w-sm text-xs ui-text-muted">
             Hanya event dengan survey aktif yang tampil di sini. Hubungi admin mall jika Anda menerima link/QR tapi event tidak muncul.
@@ -96,7 +96,7 @@ export default function TenantSurveyEventPicker() {
   return (
     <div className="space-y-6">
       {/* Header description */}
-      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
         Pilih event untuk menilai perubahan traffic dan penjualan gerai Anda.
       </p>
 
@@ -108,14 +108,14 @@ export default function TenantSurveyEventPicker() {
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <label htmlFor="tenant-survey-event-search" className="sr-only">Cari event</label>
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
           <input
             id="tenant-survey-event-search"
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Cari nama event, lokasi, atau penyelenggara..."
-            className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-800"
+            className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-800"
           />
         </div>
         <span className="shrink-0 rounded-full bg-brand-primary-100 px-3 py-1.5 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
@@ -163,7 +163,7 @@ export default function TenantSurveyEventPicker() {
             </div>
 
             {/* Arrow */}
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition group-hover:bg-brand-primary-100 group-hover:text-brand-primary-600 dark:bg-slate-700 dark:text-slate-500 dark:group-hover:bg-brand-primary-900/50 dark:group-hover:text-brand-primary-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-brand-primary-100 group-hover:text-brand-primary-600 dark:bg-slate-700 dark:text-slate-300 dark:group-hover:bg-brand-primary-900/50 dark:group-hover:text-brand-primary-400">
               <ChevronRight className="h-4 w-4" />
             </div>
           </button>
@@ -180,8 +180,8 @@ export default function TenantSurveyEventPicker() {
       {/* No results */}
       {!loading && filtered.length === 0 && events.length > 0 && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-600">
-          <Search className="mb-3 h-8 w-8 text-slate-400" />
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <Search className="mb-3 h-8 w-8 text-slate-500" />
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
             Tidak ada event yang cocok dengan "<span className="font-semibold">{query}</span>"
           </p>
           <button

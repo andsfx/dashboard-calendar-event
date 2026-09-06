@@ -14,7 +14,7 @@ interface Props {
 export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgressChange }: Props) {
   if (drafts.length === 0) {
     return (
-      <div className="ui-empty-panel p-8 text-sm text-slate-400">
+      <div className="ui-empty-panel p-8 text-sm text-slate-500">
         Belum ada draft event aktif.
       </div>
     );
@@ -39,11 +39,11 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                 <tr key={draft.id} className="align-top hover:bg-slate-50 dark:hover:bg-slate-700/20">
                   <td className="whitespace-nowrap px-4 py-3">
                     <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{draft.day}</div>
-                    <div className="text-xs text-slate-400">{draft.tanggal}</div>
+                    <div className="text-xs text-slate-500">{draft.tanggal}</div>
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-semibold text-slate-800 dark:text-white">{draft.acara}</p>
-                    {draft.keterangan && <p className="mt-1 line-clamp-2 text-xs text-slate-400">{draft.keterangan}</p>}
+                    {draft.keterangan && <p className="mt-1 line-clamp-2 text-xs text-slate-500">{draft.keterangan}</p>}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.jam || '–'}</td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '–'}</td>

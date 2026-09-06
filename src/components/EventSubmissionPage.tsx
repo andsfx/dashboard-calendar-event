@@ -157,7 +157,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
       <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
           <Link to="/events" className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring" aria-label="Kembali ke Jadwal Event">
-            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Jadwal Event</span>
           </Link>
           <button
@@ -185,7 +185,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 Event <span className="font-semibold">"{submittedName}"</span> sudah masuk antrian review.
               </p>
             )}
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-300">
               Tim Marcomm Metropolitan Mall Bekasi akan meninjau pengajuanmu dan menghubungi PIC melalui nomor HP yang terdaftar untuk langkah berikutnya.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
@@ -212,7 +212,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <h1 className="font-display text-2xl font-bold leading-tight text-slate-900 sm:text-3xl dark:text-white">
                 Ajukan Event di Metmal Bekasi
               </h1>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-300">
                 Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu — tim Marcomm kami akan mereview dan menghubungimu.
               </p>
             </div>
@@ -418,7 +418,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                   </>
                 )}
               </button>
-              <p className="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
+              <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-300">
                 Data PIC dan nomor HP hanya digunakan untuk proses review oleh tim Marcomm.
               </p>
             </form>

@@ -24,7 +24,7 @@ export function CommunitySteps() {
                 {s.num}
               </span>
               <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">{s.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{s.desc}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{s.desc}</p>
             </li>
           ))}
         </ol>

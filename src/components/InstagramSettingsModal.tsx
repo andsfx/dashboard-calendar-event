@@ -183,7 +183,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
             </div>
           ))}
 
-          <p className="text-xs text-slate-400 dark:text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-300">
             Kosongkan field untuk sembunyikan post. URL harus dari instagram.com
           </p>
 

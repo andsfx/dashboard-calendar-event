@@ -222,13 +222,13 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                   className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
                 >
                   <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
-                    <FileText className="m-auto mt-3 h-6 w-6 text-slate-400 dark:text-slate-500" />
+                    <FileText className="m-auto mt-3 h-6 w-6 text-slate-500 dark:text-slate-300" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                       {item.event.acara}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-300">
                       {formatDate(item.event.dateStr)}{item.event.lokasi ? ` · ${item.event.lokasi}` : ''}
                     </p>
                     {item.proposal.fileUrl ? (
@@ -241,7 +241,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                         >
                           <ExternalLink className="h-3 w-3" /> {item.proposal.fileName || 'Lihat proposal'}
                         </a>
-                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-500">·</span>
                         <button
                           type="button"
                           onClick={() => handleDeleteProposal(item)}
@@ -251,7 +251,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                         </button>
                       </div>
                     ) : (
-                      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Belum ada proposal</p>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Belum ada proposal</p>
                     )}
                   </div>
                   <div className="flex-shrink-0">
@@ -297,7 +297,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <Handshake className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada lead</p>
-                  <p className="mt-1 text-xs text-slate-400">Lead muncul saat pengunjung mengirim Minat Support</p>
+                  <p className="mt-1 text-xs text-slate-500">Lead muncul saat pengunjung mengirim Minat Support</p>
                 </div>
               )}
               {leads.map((lead) => (
@@ -315,10 +315,10 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                           {STATUS_LABELS[lead.status]}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-300">
                         {lead.eventAcara || '—'}{lead.eventDate ? ` · ${formatDate(lead.eventDate)}` : ''}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                         PIC: {lead.contactName || '—'}
                         {lead.phone ? ` · WA: ${lead.phone}` : ''}
                         {lead.email ? ` · ${lead.email}` : ''}
@@ -328,7 +328,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                           "{lead.message}"
                         </p>
                       )}
-                      <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+                      <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-300">
                         Diterima {formatLeadDate(lead.createdAt)}
                       </p>
                     </div>

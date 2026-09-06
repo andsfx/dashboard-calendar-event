@@ -44,7 +44,7 @@ export function CategoryChart({ events }: Props) {
       </div>
 
       {events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+        <div className="flex flex-col items-center justify-center py-10 text-slate-500">
           <Inbox className="mb-2 h-8 w-8 opacity-40" />
           <p className="text-xs">Belum ada data</p>
         </div>
@@ -122,7 +122,7 @@ export function CategoryChart({ events }: Props) {
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <span className="text-slate-400">{Math.round((count / total) * 100)}%</span>
+                      <span className="text-slate-500">{Math.round((count / total) * 100)}%</span>
                       <span className="w-4 text-right font-bold text-slate-800 dark:text-white">{count}</span>
                     </div>
                   </div>

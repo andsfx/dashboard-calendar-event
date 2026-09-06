@@ -110,7 +110,7 @@ export function DashboardShell({
             </div>
 
             <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
-              <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-500 dark:text-slate-400 sm:flex-row sm:text-left">
+              <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-500 dark:text-slate-300 sm:flex-row sm:text-left">
                 <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
                   <span className="flex items-center gap-1">

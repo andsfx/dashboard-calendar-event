@@ -8,7 +8,7 @@ interface EventRatingSummaryProps {
 }
 
 const ratingColor = (n: number | null | undefined): string => {
-  if (n == null) return 'text-slate-400';
+  if (n == null) return 'text-slate-500';
   if (n >= 8) return 'text-emerald-500';
   if (n >= 5) return 'text-yellow-500';
   return 'text-red-500';
@@ -62,13 +62,13 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
           <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
             Rating: <span className={ratingColor(mallOverall)}>{mallOverall?.toFixed(1) || '-'}</span>/10
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500">
             ({summary.total_responses} responden)
           </span>
         </div>
         {expanded
-          ? <ChevronUp className="h-4 w-4 text-slate-400" />
-          : <ChevronDown className="h-4 w-4 text-slate-400" />
+          ? <ChevronUp className="h-4 w-4 text-slate-500" />
+          : <ChevronDown className="h-4 w-4 text-slate-500" />
         }
       </button>
 
@@ -100,7 +100,7 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
             </div>
           )}
 
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-500">
             {summary.organizer_responses} penyelenggara · {summary.public_responses} peserta
           </p>
         </div>
@@ -115,7 +115,7 @@ function RatingRow({ label, value }: { label: string; value: number | null | und
   return (
     <div className="space-y-0.5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-slate-600 dark:text-slate-400">{label}</span>
+        <span className="text-[11px] text-slate-600 dark:text-slate-300">{label}</span>
         <span className={`text-[11px] font-semibold ${ratingColor(v)}`}>{v > 0 ? v.toFixed(1) : '-'}</span>
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">

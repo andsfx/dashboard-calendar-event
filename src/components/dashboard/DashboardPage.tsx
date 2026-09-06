@@ -320,7 +320,7 @@ export function DashboardPage({
             <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Jadwal Event</h2>
-                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Kelola semua event dalam berbagai tampilan</p>
+                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Kelola semua event dalam berbagai tampilan</p>
               </div>
               <ViewToggle
                 tabs={availableViewTabs}
@@ -367,7 +367,7 @@ export function DashboardPage({
         <section id="draft-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Antrian Draft</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Kelola draft event sebelum dipublikasikan</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola draft event sebelum dipublikasikan</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-64" />}>
             <AdminDraftSection
@@ -393,7 +393,7 @@ export function DashboardPage({
         <section id="registrations" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Community</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Kelola permintaan pendaftaran dari community</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola permintaan pendaftaran dari community</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-40" />}>
             <CommunityRegistrationSection registrations={registrations.communityRegistrations} isLoading={registrations.isRegLoading} onDetail={handlers.handleRegDetail} />
@@ -406,7 +406,7 @@ export function DashboardPage({
         <section id="themes" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Tema Tahunan</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Kelola tema dan perencanaan tahunan</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola tema dan perencanaan tahunan</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-40" />}>
             <QuarterTimeline themes={events.annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handlers.handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
@@ -442,7 +442,7 @@ export function DashboardPage({
         <section id="calendar" className="space-y-3 scroll-mt-32">
           <div>
             <h2 className="font-display text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Lihat semua event publik dalam tampilan kalender.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Lihat semua event publik dalam tampilan kalender.</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
             <CalendarView events={events.publicEvents} holidays={events.holidays} onDetail={handlers.handleDetailClick} />
@@ -456,7 +456,7 @@ export function DashboardPage({
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Daftar Acara</h2>
-              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">Jelajahi jadwal acara publik</p>
+              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Jelajahi jadwal acara publik</p>
             </div>
             <ViewToggle
               tabs={availableViewTabs}
@@ -500,7 +500,7 @@ export function DashboardPage({
         <section id="category-chart" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Analitik</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Analisis tren dan statistik event</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Analisis tren dan statistik event</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <AnalyticsDashboard events={events.events} />
@@ -513,7 +513,7 @@ export function DashboardPage({
         <section id="survey-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Kelola Survey Kepuasan (pengunjung/organizer) per event</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola Survey Kepuasan (pengunjung/organizer) per event</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <SurveyDashboard events={events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
@@ -526,7 +526,7 @@ export function DashboardPage({
         <section id="tenant-surveys-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Self-assessment tenant/gerai per event (terpisah dari Survey Kepuasan)</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Self-assessment tenant/gerai per event (terpisah dari Survey Kepuasan)</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <TenantSurveyPage events={events.events} isAdmin={permissions.canEditEvents} />
@@ -539,7 +539,7 @@ export function DashboardPage({
         <section id="user-management" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Kelola user dan permission (Superadmin only)</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola user dan permission (Superadmin only)</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <UserManagement />
@@ -552,7 +552,7 @@ export function DashboardPage({
         <section id="activity-log" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Log Aktivitas</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Audit trail dari semua aktivitas sistem</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Audit trail dari semua aktivitas sistem</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <ActivityLog />

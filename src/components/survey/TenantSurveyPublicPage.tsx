@@ -249,7 +249,7 @@ export default function TenantSurveyPublicPage() {
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Event Tidak Ditemukan</h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
             {error || 'Event yang Anda cari tidak tersedia.'}
           </p>
           <button
@@ -273,7 +273,7 @@ export default function TenantSurveyPublicPage() {
             <Shield className="h-8 w-8 text-slate-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Ditutup</h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
             Self-assessment tenant untuk event
             <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
               &quot;{event.acara}&quot;
@@ -303,7 +303,7 @@ export default function TenantSurveyPublicPage() {
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Anda Sudah Mengisi Survey
           </h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
             Anda sudah pernah mengirimkan self-assessment untuk event
             <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
               &quot;{event.acara}&quot;
@@ -326,7 +326,7 @@ export default function TenantSurveyPublicPage() {
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Terima kasih telah mengirimkan self-assessment untuk event
           </p>
           <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
@@ -356,7 +356,7 @@ export default function TenantSurveyPublicPage() {
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
             {submitError}
           </p>
           <div className="mt-6 flex gap-3">
@@ -472,7 +472,7 @@ export default function TenantSurveyPublicPage() {
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
-              <span className="sr-only truncate text-[11px] font-medium text-slate-600 dark:text-slate-400 sm:not-sr-only">{step.label}</span>
+              <span className="sr-only truncate text-[11px] font-medium text-slate-600 dark:text-slate-300 sm:not-sr-only">{step.label}</span>
             </div>
           ))}
         </div>
@@ -509,7 +509,7 @@ export default function TenantSurveyPublicPage() {
           <div className="space-y-4">
             {/* Tenant search + badge */}
             <div>
-              <label htmlFor="tenant-survey-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="tenant-survey-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama Gerai
                 <span className="text-red-500">*</span>
@@ -561,7 +561,7 @@ export default function TenantSurveyPublicPage() {
 
             {/* Lokasi with auto-filled indicator */}
             <div className="relative">
-              <label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <MapPin className="h-3.5 w-3.5" />
                 Lokasi / Zona
                 <span className="text-red-500">*</span>
@@ -583,7 +583,7 @@ export default function TenantSurveyPublicPage() {
                   <option key={z} value={z}>{z}</option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 text-slate-500" />
               {fieldErrorMap.lokasi_zona && (
                 <p id="tenant-survey-lokasi-error" className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
                   <AlertTriangle className="h-3 w-3" />
@@ -616,7 +616,7 @@ export default function TenantSurveyPublicPage() {
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <User className="h-3.5 w-3.5" />
                     Nama PIC
                   </label>
@@ -628,11 +628,11 @@ export default function TenantSurveyPublicPage() {
                     placeholder="Nama penanggung jawab"
                     maxLength={100}
                     autoComplete="name"
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <Phone className="h-3.5 w-3.5" />
                     No. Telepon PIC
                   </label>
@@ -645,7 +645,7 @@ export default function TenantSurveyPublicPage() {
                   placeholder="08xxx"
                   maxLength={20}
                   autoComplete="tel"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
                 />
               </div>
             </div>
@@ -702,9 +702,9 @@ export default function TenantSurveyPublicPage() {
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
             />
-            <p className="mt-1 text-right text-[10px] text-slate-400">
+            <p className="mt-1 text-right text-[10px] text-slate-500">
               {2000 - formData.feedback_teks.length} karakter tersisa
             </p>
           </div>
@@ -736,7 +736,7 @@ export default function TenantSurveyPublicPage() {
               type="button"
               onClick={goBack}
               disabled={formStatus === 'submitting'}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               <ChevronLeft className="h-4 w-4" />
               Batal

@@ -197,7 +197,7 @@ export const AdminSidebar = memo(function AdminSidebar({
             type="button"
             onClick={onToggleDark}
             aria-pressed={isDark}
-            className={`${navItemBase} w-full text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800`}
+            className={`${navItemBase} w-full text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`}
           >
             {isDark ? (
               <>

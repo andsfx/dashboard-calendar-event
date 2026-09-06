@@ -338,7 +338,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
               <button
                 type="button"
                 onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -499,7 +499,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada album</p>
-                  <p className="mt-1 text-xs text-slate-400">Buat album pertama untuk mulai mengelola foto</p>
+                  <p className="mt-1 text-xs text-slate-500">Buat album pertama untuk mulai mengelola foto</p>
                 </div>
               )}
 
@@ -538,7 +538,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">
                           {album.name}
                         </p>
-                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-400">
+                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
                           {album.eventDate && <span>{album.eventDate}</span>}
                           <span>{album.photoCount ?? 0} foto</span>
                         </div>
@@ -548,7 +548,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
-                        className="rounded-lg p-2 text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -633,7 +633,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada foto</p>
-                  <p className="mt-1 text-xs text-slate-400">Upload foto pertama di bawah</p>
+                  <p className="mt-1 text-xs text-slate-500">Upload foto pertama di bawah</p>
                 </div>
               )}
 
@@ -660,11 +660,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <Upload className="h-7 w-7 text-slate-400" />
+                    <Upload className="h-7 w-7 text-slate-500" />
                     <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
                       Drag & drop foto di sini
                     </p>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-slate-500">
                       atau klik untuk pilih · max {MAX_PHOTOS - albumPhotos.length} foto · 10MB/file
                     </p>
                   </div>

@@ -38,7 +38,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
+              className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
               aria-label="Tutup"
             >
               <X className="h-4 w-4" />
@@ -57,7 +57,7 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
               {event.tanggal} · {event.lokasi || 'Tanpa lokasi'}
             </p>
           </div>
-          <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
             <AlertTriangle className="h-3 w-3 shrink-0 text-amber-500" aria-hidden="true" />
             Tindakan ini tidak dapat dibatalkan.
           </p>

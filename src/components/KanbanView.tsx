@@ -94,7 +94,7 @@ function EventCard({
               onClick={() => onDetail(ev)}
               title="Lihat detail"
               aria-label="Lihat detail"
-              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:outline-none"
+              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400 focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:outline-none"
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </button>
@@ -105,7 +105,7 @@ function EventCard({
                   onClick={() => onEdit(ev)}
                   title="Ubah"
                   aria-label="Ubah acara"
-                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
+                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none"
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -115,7 +115,7 @@ function EventCard({
                   onClick={() => onDelete(ev)}
                   title="Hapus"
                   aria-label="Hapus acara"
-                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
                 >
                   <Trash2 className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -142,7 +142,7 @@ function EventCard({
         </div>
 
         {ev.keterangan && (
-          <p className="mt-2 line-clamp-2 text-xs text-slate-400 leading-relaxed">{ev.keterangan}</p>
+          <p className="mt-2 line-clamp-2 text-xs text-slate-500 leading-relaxed">{ev.keterangan}</p>
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 dark:border-slate-700">
@@ -163,7 +163,7 @@ export function KanbanView({ events, isAdmin, showInternalDraftColumn = false, o
   if (events.length === 0) {
     return (
       <div 
-        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-400"
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-500"
         aria-live="polite"
         role="status"
       >
@@ -193,7 +193,7 @@ export function KanbanView({ events, isAdmin, showInternalDraftColumn = false, o
             <div className="flex flex-col gap-2.5">
               {colEvents.length === 0 ? (
                 <div 
-                  className="ui-empty-panel flex flex-col items-center justify-center rounded-xl py-8 text-slate-400"
+                  className="ui-empty-panel flex flex-col items-center justify-center rounded-xl py-8 text-slate-500"
                   aria-live="polite"
                   role="status"
                 >

@@ -259,7 +259,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             <div className="flex flex-col items-start justify-between gap-3 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white px-6 py-5 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900">
               <div>
                 <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">Punya ide event?</h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
                   Ajukan acara komunitas atau bisnismu untuk diselenggarakan di Metmal Bekasi.
                 </p>
               </div>
@@ -296,7 +296,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
             <a href="#register" className="text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
               Daftar event komunitas
             </a>
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
               &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi
             </p>
           </div>

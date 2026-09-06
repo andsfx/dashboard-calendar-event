@@ -202,10 +202,10 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && eventsWithProposals.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Handshake className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Handshake className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Belum ada event dengan proposal sponsor</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Peluang sponsorship akan muncul di sini.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Peluang sponsorship akan muncul di sini.</p>
           </div>
         )}
 
@@ -214,13 +214,13 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {eventsWithProposals.map(({ event, proposal }) => (
               <div key={event.id} className="flex flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-lg dark:bg-slate-800">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-300">
                   <CalendarDays className="h-3.5 w-3.5 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
                   {formatEventDate(event.dateStr)}
                 </div>
                 <h2 className="mt-2 text-lg font-bold leading-snug text-slate-900 dark:text-white">{event.acara}</h2>
                 {event.lokasi && (
-                  <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-300">
                     <MapPin className="h-3 w-3" aria-hidden="true" /> {event.lokasi}
                   </p>
                 )}
@@ -411,7 +411,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
       </footer>
     </div>

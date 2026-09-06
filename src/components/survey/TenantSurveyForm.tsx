@@ -258,7 +258,7 @@ export default function TenantSurveyForm({
         <div className="space-y-4">
           {/* Tenant search */}
           <div>
-            <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+            <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
               <Building2 className="h-3.5 w-3.5" />
               Nama Gerai
               <span className="text-red-500">*</span>
@@ -311,7 +311,7 @@ export default function TenantSurveyForm({
 
           {/* Lokasi / Zona */}
           <div className="relative">
-            <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+            <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
               <MapPin className="h-3.5 w-3.5" />
               Lokasi / Zona
               <span className="text-red-500">*</span>
@@ -333,7 +333,7 @@ export default function TenantSurveyForm({
                 <option key={z} value={z}>{z}</option>
               ))}
             </select>
-            <ChevronLeft className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 rotate-90 text-slate-400" />
+            <ChevronLeft className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 rotate-90 text-slate-500" />
             {fieldLevelErrors.lokasi_zona && (
               <p className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
                 <AlertTriangle className="h-3 w-3" />
@@ -402,7 +402,7 @@ export default function TenantSurveyForm({
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama PIC
               </label>
@@ -415,11 +415,11 @@ export default function TenantSurveyForm({
                 maxLength={100}
                 disabled={disabled}
                 autoComplete="name"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
             <div>
-              <label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <Phone className="h-3.5 w-3.5" />
                 No. Telepon PIC
               </label>
@@ -433,7 +433,7 @@ export default function TenantSurveyForm({
                 maxLength={20}
                 disabled={disabled}
                 autoComplete="tel"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
           </div>
@@ -453,9 +453,9 @@ export default function TenantSurveyForm({
               rows={5}
               maxLength={2000}
               disabled={disabled}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
             />
-            <p className="mt-1 text-right text-[10px] text-slate-400">
+            <p className="mt-1 text-right text-[10px] text-slate-500">
               {2000 - formData.feedback_teks.length} karakter tersisa
             </p>
           </div>
@@ -482,7 +482,7 @@ export default function TenantSurveyForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
         >
           <ChevronLeft className="h-4 w-4" />
           Batal
@@ -528,7 +528,7 @@ export function TenantSurveySuccess({
         <CheckCircle2 className="h-8 w-8 text-emerald-500" />
       </div>
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
         Terima kasih telah mengirimkan self-assessment untuk event
       </p>
       <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
@@ -566,7 +566,7 @@ export function TenantSurveyDuplicate({
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">
         Anda Sudah Mengisi Survey
       </h2>
-      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
         Anda sudah pernah mengirimkan self-assessment untuk event
         <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
           "{eventName}"
@@ -611,7 +611,7 @@ export function TenantSurveyError({
         <AlertTriangle className="h-8 w-8 text-red-500" />
       </div>
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
-      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-400">
+      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
         {message}
       </p>
       <div className="mt-6 flex gap-3">

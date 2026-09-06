@@ -16,7 +16,7 @@ interface TenantSurveyAnalyticsProps {
 }
 
 function ratingColor(n: number | null | undefined): string {
-  if (n == null) return 'text-slate-400 dark:text-slate-500';
+  if (n == null) return 'text-slate-500 dark:text-slate-300';
   if (n >= 4) return 'text-emerald-500';
   if (n >= 3) return 'text-yellow-500';
   return 'text-red-500';
@@ -63,7 +63,7 @@ function EmptyState() {
       <p className="mt-2 text-sm font-medium ui-text-muted">
         Belum ada data analytics
       </p>
-      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
         Analytics akan muncul setelah tenant mengirimkan self-assessment
       </p>
     </div>
@@ -283,7 +283,7 @@ export default function TenantSurveyAnalyticsPanel({
                   ? aggregate.avgRepeat >= 70
                     ? 'text-emerald-500'
                     : 'text-yellow-500'
-                  : 'text-slate-400'
+                  : 'text-slate-500'
               }
             />
           </div>
@@ -453,12 +453,12 @@ function DistCard({
           return (
             <div key={label}>
               <div className="mb-0.5 flex items-center justify-between">
-                <span className="truncate text-[10px] text-slate-600 dark:text-slate-400">
+                <span className="truncate text-[10px] text-slate-600 dark:text-slate-300">
                   {label}
                 </span>
                 <span className="ml-2 shrink-0 text-[10px] font-bold text-slate-700 dark:text-slate-300">
                   {count}{' '}
-                  <span className="font-normal text-slate-400">({pct}%)</span>
+                  <span className="font-normal text-slate-500">({pct}%)</span>
                 </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">

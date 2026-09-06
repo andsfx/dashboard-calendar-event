@@ -123,7 +123,7 @@ export default function TenantSurveyTrendChart({
             {stats.submissionsChange !== 0 && (
               <span>
                 Submisi: {stats.submissionsChange > 0 ? '+' : ''}{stats.submissionsChange}
-                <span className="text-slate-400"> vs bulan lalu</span>
+                <span className="text-slate-500"> vs bulan lalu</span>
               </span>
             )}
           </div>
@@ -172,7 +172,7 @@ export default function TenantSurveyTrendChart({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-400">
+      <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-500">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2.5 w-2.5 rounded-sm bg-blue-400" />
           v2 (Rating)
@@ -212,7 +212,7 @@ function TrendStat({
         </p>
       )}
       {change === 0 && (
-        <p className="text-[10px] text-slate-400">Sama {changeLabel}</p>
+        <p className="text-[10px] text-slate-500">Sama {changeLabel}</p>
       )}
     </div>
   );

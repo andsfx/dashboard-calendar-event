@@ -333,7 +333,7 @@ export default function TenantSurveyResultsPage({
         <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
           Memuat hasil evaluasi tenant…
         </p>
-        <p className="text-xs text-slate-400">Memuat data survey…</p>
+        <p className="text-xs text-slate-500">Memuat data survey…</p>
       </div>
     );
   }
@@ -544,7 +544,7 @@ export default function TenantSurveyResultsPage({
 
         {activeChips.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 border-t border-black/[0.04] px-3 py-2 dark:border-slate-700 sm:px-4 sm:py-2.5">
-            <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
               Aktif
             </span>
             {activeChips.map((c) => (
@@ -630,7 +630,7 @@ export default function TenantSurveyResultsPage({
               className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
                 active
                   ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-200'
               }`}
             >
               <span className="max-w-full truncate text-[11px] font-semibold leading-tight sm:text-xs">
@@ -681,7 +681,7 @@ export default function TenantSurveyResultsPage({
           {filter.eventId === 'all' && (
             <div className="relative min-w-[160px] sm:max-w-[220px] sm:flex-1">
               <Search
-                className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
                 aria-hidden
               />
               <input
@@ -765,14 +765,14 @@ export default function TenantSurveyResultsPage({
                   }`}
                 >
                   {tab === 'pending' ? 'Belum isi' : tab === 'done' ? 'Sudah isi' : 'Semua'}
-                  <span className={`ml-1 tabular-nums ${active ? 'text-white/80' : 'text-slate-400'}`}>
+                  <span className={`ml-1 tabular-nums ${active ? 'text-white/80' : 'text-slate-500'}`}>
                     {count}
                   </span>
                 </button>
               );
             })}
             <div className="relative min-w-[140px] flex-1 sm:max-w-[200px]">
-              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" aria-hidden />
               <input
                 type="search"
                 value={rosterQ}
@@ -806,7 +806,7 @@ export default function TenantSurveyResultsPage({
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                     t.filled
                       ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
-                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300'
                   }`}
                   title={t.filled ? 'Sudah isi' : 'Belum isi'}
                   aria-label={t.filled ? 'Sudah isi' : 'Belum isi'}
@@ -827,7 +827,7 @@ export default function TenantSurveyResultsPage({
                     }}
                   />
                 ) : (
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-400 dark:border-slate-600 dark:bg-slate-800">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-500 dark:border-slate-600 dark:bg-slate-800">
                     {(t.name || '?').charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -861,7 +861,7 @@ export default function TenantSurveyResultsPage({
         agg.total === 0 ? (
           <div className="ui-empty-panel px-6 py-14">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
-              <Inbox className="h-6 w-6 text-slate-400 dark:text-slate-500" aria-hidden />
+              <Inbox className="h-6 w-6 text-slate-500 dark:text-slate-300" aria-hidden />
             </div>
             <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
               Belum ada data sesuai filter
@@ -922,7 +922,7 @@ export default function TenantSurveyResultsPage({
                   <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
                     Top Gerai
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-slate-400">
+                  <p className="mt-0.5 text-[11px] text-slate-500">
                     Diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi
                   </p>
                 </div>
@@ -947,7 +947,7 @@ export default function TenantSurveyResultsPage({
                         <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
                           {g.nama_gerai}
                         </p>
-                        <p className="text-[11px] text-slate-400">{g.count} respons</p>
+                        <p className="text-[11px] text-slate-500">{g.count} respons</p>
                       </div>
                         <div className="shrink-0 text-right text-[11px] ui-text-muted">
                         <p>
@@ -967,7 +967,7 @@ export default function TenantSurveyResultsPage({
                   <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
                     Kategori × Sales
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-slate-400">
+                  <p className="mt-0.5 text-[11px] text-slate-500">
                     Jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya
                   </p>
                 </div>
@@ -997,7 +997,7 @@ export default function TenantSurveyResultsPage({
                           <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">
                             {c.kategori}
                           </td>
-                          <td className="px-2 py-2 text-slate-600 dark:text-slate-400">{c.sales}</td>
+                          <td className="px-2 py-2 text-slate-600 dark:text-slate-300">{c.sales}</td>
                           <td className="px-4 py-2 text-right font-semibold tabular-nums text-slate-800 dark:text-slate-200">
                             {c.count}
                           </td>
@@ -1029,11 +1029,11 @@ export default function TenantSurveyResultsPage({
                     className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
                   >
                     Feedback Gerai
-                    <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
+                    <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-500">
                       ({feedbackFiltered.length})
                     </span>
                   </h3>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     Komentar dari gerai. Perhatikan keluhan atau saran yang sering muncul.
                   </p>
                 </div>
@@ -1043,7 +1043,7 @@ export default function TenantSurveyResultsPage({
                   Cari feedback atau gerai
                 </label>
                 <Search
-                  className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                  className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
                   aria-hidden
                 />
                 <input
@@ -1063,7 +1063,7 @@ export default function TenantSurveyResultsPage({
                     className="mx-auto h-6 w-6 text-slate-300 dark:text-slate-600"
                     aria-hidden
                   />
-                  <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">Tidak ada feedback teks</p>
+                  <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-300">Tidak ada feedback teks</p>
                 </div>
               ) : (
                 <ul className="grid gap-2.5 sm:gap-3">
@@ -1072,14 +1072,14 @@ export default function TenantSurveyResultsPage({
                       key={f.id}
                       className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5 dark:border-slate-700/80 dark:bg-slate-800/40 sm:px-3.5 sm:py-3"
                     >
-                      <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-slate-400 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
+                      <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-slate-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
                         <span className="font-semibold text-brand-primary-700 dark:text-brand-primary-300">
                           {f.gerai}
                         </span>
                         <span className="hidden sm:inline" aria-hidden>
                           ·
                         </span>
-                        <span className="truncate text-slate-400">
+                        <span className="truncate text-slate-500">
                           {eventMap.get(f.event_id) || f.event_id}
                         </span>
                       </div>
@@ -1100,7 +1100,7 @@ export default function TenantSurveyResultsPage({
                 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
               >
                 Detail Respons
-                <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-400">
+                <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-500">
                   ({agg.rows.length})
                 </span>
               </h3>
@@ -1120,21 +1120,21 @@ export default function TenantSurveyResultsPage({
                   </p>
                   <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
                     <div>
-                      <dt className="text-slate-400">Zona</dt>
+                      <dt className="text-slate-500">Zona</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-300">{s.lokasi_zona || '—'}</dd>
                     </div>
                     <div>
-                      <dt className="text-slate-400">Kategori</dt>
+                      <dt className="text-slate-500">Kategori</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-300 [overflow-wrap:anywhere]">
                         {s.kategori || '—'}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-slate-400">Traffic</dt>
+                      <dt className="text-slate-500">Traffic</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_traffic || '—'}</dd>
                     </div>
                     <div>
-                      <dt className="text-slate-400">Sales</dt>
+                      <dt className="text-slate-500">Sales</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_sales || '—'}</dd>
                     </div>
                   </dl>
@@ -1182,19 +1182,19 @@ export default function TenantSurveyResultsPage({
                       <td className="max-w-[140px] truncate px-4 py-2 font-medium text-slate-800 dark:text-slate-100">
                         {s.nama_gerai || s.tenant_name || '—'}
                       </td>
-                      <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">
+                      <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
                         {eventMap.get(s.event_id) || s.event_id}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
                         {s.lokasi_zona || '—'}
                       </td>
-                      <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-400">
+                      <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
                         {s.kategori || '—'}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
                         {s.kenaikan_traffic || '—'}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-400">
+                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
                         {s.kenaikan_sales || '—'}
                       </td>
                       <td className="px-4 py-2">
@@ -1206,7 +1206,7 @@ export default function TenantSurveyResultsPage({
               </table>
             </div>
             {agg.rows.length > 100 && (
-              <p className="border-t border-black/[0.04] px-4 py-2 text-[11px] text-slate-400 dark:border-slate-700">
+              <p className="border-t border-black/[0.04] px-4 py-2 text-[11px] text-slate-500 dark:border-slate-700">
                 Menampilkan 100 dari {agg.rows.length} baris
               </p>
             )}

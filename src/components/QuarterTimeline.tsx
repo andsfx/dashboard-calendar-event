@@ -55,7 +55,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-brand-primary-500" />Tema Tahunan {themeYear}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="shrink-0 self-start text-xs text-slate-400 dark:text-slate-500 sm:self-auto">
+          <span className="shrink-0 self-start text-xs text-slate-500 dark:text-slate-300 sm:self-auto">
             {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
               ? 'Tema aktif'
               : 'Tidak ada tema aktif'}
@@ -81,7 +81,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                   <option key={theme.id} value={theme.id}>{theme.name}</option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             </div>
 
             <div
@@ -183,10 +183,10 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                   </span>
                 )}
                 {!isActive && !isPast && (
-                  <span className="text-[10px] text-slate-400">Mendatang</span>
+                  <span className="text-[10px] text-slate-500">Mendatang</span>
                 )}
                 {isPast && (
-                  <span className="text-[10px] text-slate-400">Selesai</span>
+                  <span className="text-[10px] text-slate-500">Selesai</span>
                 )}
                 <span className="ml-auto text-[10px] font-semibold" style={{ color: theme.color }}>
                   {progress}%

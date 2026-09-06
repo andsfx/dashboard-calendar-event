@@ -63,7 +63,7 @@ export function MultiDayEventFields({
             return (
               <div key={slot.date} className="flex items-end gap-2">
                 <div className="flex-1">
-                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                     Hari {idx + 1}: {dayLabel}
                   </label>
                   <input

@@ -16,7 +16,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
       <h2 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
         Terima Kasih!
       </h2>
-      <p className="mb-1 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mb-1 text-sm text-slate-600 dark:text-slate-300">
         Feedback Anda untuk event
       </p>
       <p className="mb-6 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">

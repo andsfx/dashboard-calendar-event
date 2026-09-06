@@ -103,7 +103,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                 }`}>
                   {opt.label}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-tight text-slate-600 dark:text-slate-400">
+                <p className="mt-0.5 text-[10px] leading-tight text-slate-600 dark:text-slate-300">
                   {opt.description}
                 </p>
               </div>

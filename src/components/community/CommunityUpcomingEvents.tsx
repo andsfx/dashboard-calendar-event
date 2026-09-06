@@ -13,7 +13,7 @@ function EmptyEvents() {
         <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
       </div>
       <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
-      <p className="mt-2 max-w-xs text-sm text-slate-600 dark:text-slate-400">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
+      <p className="mt-2 max-w-xs text-sm text-slate-600 dark:text-slate-300">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
       <a
         href="#contact"
         className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
@@ -240,7 +240,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                     {ev.acara}
                   </h4>
                   {(ev.jam || ev.lokasi) && (
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                       {ev.jam && <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {ev.jam}</span>}
                       {ev.lokasi && <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> <span className="line-clamp-1">{ev.lokasi}</span></span>}
                     </div>

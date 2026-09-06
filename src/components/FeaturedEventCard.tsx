@@ -69,7 +69,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
         <div className="space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-5 h-5 text-amber-500" />
-            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
               Tema Tahunan Aktif
             </h3>
           </div>
@@ -98,7 +98,7 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
                       <span>{formatDateShort(theme.dateStart)} — {formatDateShort(theme.dateEnd)}</span>
                     </div>
                     <div className="mt-3">
-                      <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500 mb-1">
+                      <div className="flex justify-between text-xs text-slate-500 dark:text-slate-300 mb-1">
                         <span>Progress</span>
                         <span className="font-medium">{Math.round(prog)}%</span>
                       </div>
@@ -122,17 +122,17 @@ const FeaturedEventCard = memo(function FeaturedEventCard({ events, annualThemes
         <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-              <Clock className="w-4 h-4 text-slate-400" />
+              <Clock className="w-4 h-4 text-slate-500" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sedang Berlangsung</h3>
+            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Sedang Berlangsung</h3>
           </div>
-          <p className="text-slate-400 dark:text-slate-500 text-sm">Tidak ada acara yang sedang berlangsung saat ini.</p>
+          <p className="text-slate-500 dark:text-slate-300 text-sm">Tidak ada acara yang sedang berlangsung saat ini.</p>
         </div>
       ) : (
         <>
           <div className="flex items-center gap-2 mb-1">
             <Zap className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
               Sedang Berlangsung ({ongoingEvents.length})
             </h3>
           </div>

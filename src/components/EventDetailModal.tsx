@@ -48,7 +48,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-xl p-2 text-slate-400 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-4 rounded-xl p-2 text-slate-500 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
@@ -120,8 +120,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <QrCode className="h-3.5 w-3.5" />
                 <span>QR Code Survey</span>
-                <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-slate-500 group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-slate-500 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
                 <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
@@ -134,8 +134,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <ClipboardCheckIcon />
                 <span>QR Code Self-Assessment Tenant</span>
-                <span className="ml-auto text-[10px] text-slate-400 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-400 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-slate-500 group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-slate-500 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
                 <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>

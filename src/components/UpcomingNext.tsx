@@ -27,7 +27,7 @@ export default function UpcomingNext({ events }: UpcomingNextProps) {
     <div className="animate-fade-in-up" style={{ animationDelay: '280ms' }}>
       <div className="flex items-center gap-2 mb-4">
         <ArrowRight className="w-5 h-5 text-blue-500" />
-        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
           Akan Datang
         </h3>
       </div>

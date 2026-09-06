@@ -170,7 +170,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Tutup modal"
           >
             <X className="h-5 w-5" />

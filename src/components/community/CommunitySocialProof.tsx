@@ -19,7 +19,7 @@ function AnimatedStatBadge({ value, label }: { value: number; label: string }) {
       <span className="text-2xl font-extrabold tabular-nums text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">
         {value > 0 ? formatCount(counted) + '+' : '—'}
       </span>
-      <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-400">{label}</span>
+      <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-300">{label}</span>
     </div>
   );
 }
@@ -28,7 +28,7 @@ function StatBadgeSkeleton({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3">
       <span className="inline-block h-8 w-16 animate-pulse rounded-md bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
-      <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-400">{label}</span>
+      <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-300">{label}</span>
     </div>
   );
 }
@@ -37,7 +37,7 @@ export function CommunitySocialProof({ totalEvents = 0, totalCompleted = 0, tota
   return (
     <RevealSection className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-14 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-7xl text-center">
-        <p className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400">
+        <p className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-300">
           Dipercaya oleh komunitas di Bekasi
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4" aria-live="polite" aria-busy={isLoading}>

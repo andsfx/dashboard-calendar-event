@@ -49,7 +49,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
           <h2 id="command-center-title" className="font-display text-xl font-bold text-slate-900 dark:text-white">
             Pusat Komando
           </h2>
-          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
             {attentionCount > 0
               ? `${attentionCount} modul ditandai butuh tindak lanjut`
               : 'Tidak ada modul yang butuh tindak lanjut'}

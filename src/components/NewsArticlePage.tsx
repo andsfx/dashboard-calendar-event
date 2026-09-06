@@ -99,10 +99,10 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         {!isLoading && (fetchError || !article) && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Newspaper className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Newspaper className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Berita tidak ditemukan.</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Artikel mungkin sudah dihapus atau belum diterbitkan.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Artikel mungkin sudah dihapus atau belum diterbitkan.</p>
             <div className="mt-6 flex items-center gap-3">
               <Link
                 to="/news"
@@ -129,7 +129,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
           <article>
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Berita</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{article.title}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-300">
               {article.author && <span className="font-medium text-slate-700 dark:text-slate-300">{article.author}</span>}
               {article.author && (article.publishedAt || article.createdAt) && <span>·</span>}
               <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
@@ -162,7 +162,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
       </footer>
     </div>

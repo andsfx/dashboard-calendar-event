@@ -64,7 +64,7 @@ export function CommunityNews() {
           <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Kabar terbaru dari Metmal.
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
             Update kegiatan, promo, dan informasi seputar Metropolitan Mall Bekasi
           </p>
         </div>
@@ -95,9 +95,9 @@ export function CommunityNews() {
                   <div className="p-3 sm:p-4">
                     <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{article.title}</p>
                     {article.excerpt && (
-                      <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2 dark:text-slate-400">{article.excerpt}</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-600 line-clamp-2 dark:text-slate-300">{article.excerpt}</p>
                     )}
-                    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
                       <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
                       <span className="font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Baca selengkapnya →</span>
                     </div>
@@ -121,7 +121,7 @@ export function CommunityNews() {
 
         {!isLoading && articles.length === 0 && (
           <div className="mt-10 text-center sm:mt-14">
-            <p className="text-base text-slate-500 dark:text-slate-400">Belum ada berita.</p>
+            <p className="text-base text-slate-500 dark:text-slate-300">Belum ada berita.</p>
           </div>
         )}
       </div>

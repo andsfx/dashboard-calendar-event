@@ -195,13 +195,13 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && organizations.length > 0 && (
           <div className="sticky top-16 z-30 -mx-4 mb-5 bg-[#fbfaf7]/90 px-4 py-2 backdrop-blur dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama komunitas, EO, atau kategori…"
-                className="ui-focus-ring w-full rounded-lg bg-white py-2 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-lg bg-white py-2 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-500 dark:bg-slate-800 dark:text-white"
               />
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-1" role="group" aria-label="Filter kategori">
@@ -220,7 +220,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                     }`}
                   >
                     {cat === ALL_CATEGORIES ? ALL_CATEGORIES : ORG_TYPE_LABELS[cat as OrganizationType] ?? cat}
-                    <span className={`tabular-nums ${activeCategory === cat ? 'text-white/70' : 'text-slate-400'}`}>{count}</span>
+                    <span className={`tabular-nums ${activeCategory === cat ? 'text-white/70' : 'text-slate-500'}`}>{count}</span>
                   </button>
                 );
               })}
@@ -263,7 +263,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                     <div className="min-w-0 flex-1">
                       <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900 dark:text-white">{org.name}</h3>
                       {org.description && (
-                        <p className="mt-0.5 line-clamp-1 text-[11px] text-slate-500 dark:text-slate-400">{org.description}</p>
+                        <p className="mt-0.5 line-clamp-1 text-[11px] text-slate-500 dark:text-slate-300">{org.description}</p>
                       )}
                     </div>
                   </div>

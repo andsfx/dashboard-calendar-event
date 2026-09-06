@@ -151,7 +151,7 @@ export function RecurringEventFields({
                     <span className="text-slate-700 dark:text-slate-200">
                       {dayName}, {d.getDate()} {MONTH_ID[d.getMonth()]} {d.getFullYear()}
                     </span>
-                    <span className="text-slate-400">{jam || '–'}</span>
+                    <span className="text-slate-500">{jam || '–'}</span>
                   </div>
                 );
               })}

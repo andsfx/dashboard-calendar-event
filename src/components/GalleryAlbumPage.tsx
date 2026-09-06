@@ -114,7 +114,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
               Gagal memuat album
             </p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
               Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.
             </p>
             <button
@@ -131,12 +131,12 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
         {notFound && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Camera className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Camera className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
               Album tidak ditemukan
             </p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
               Album yang kamu cari tidak tersedia atau sudah dihapus.
             </p>
             <button
@@ -179,7 +179,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
                 </span>
               </div>
               {album.description && (
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
                   {album.description}
                 </p>
               )}
@@ -189,7 +189,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
             {photos.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <Camera className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-                <p className="mt-3 text-sm text-slate-400 dark:text-slate-500">
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-300">
                   Belum ada foto di album ini.
                 </p>
               </div>

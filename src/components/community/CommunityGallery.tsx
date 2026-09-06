@@ -164,7 +164,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
       <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">@metmalbekasi</p>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">@metmalbekasi</p>
     </a>
   );
 }
@@ -184,7 +184,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
             Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
           </p>
         </div>
@@ -193,7 +193,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
         {albums.length > 0 && (
           <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400">Dokumentasi Event</h3>
+              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300">Dokumentasi Event</h3>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
             </div>
 
@@ -215,7 +215,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                   </div>
                   <div className="p-3 sm:p-4">
                     <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
                       {album.eventDate && <span>{album.eventDate}</span>}
                       {typeof album.photoCount === 'number' && album.photoCount > 0 && (
                         <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
@@ -243,7 +243,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
         {/* ── Instagram ── */}
         <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
           <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-400">Instagram</h3>
+              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300">Instagram</h3>
             <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
           </div>
 

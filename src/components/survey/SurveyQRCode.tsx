@@ -111,7 +111,7 @@ export default function SurveyQRCode({
     return (
       <div className="flex flex-col items-center gap-2">
         <canvas ref={canvasRef} className="rounded-lg" />
-        <p className="text-[10px] text-slate-400">Scan untuk isi survey</p>
+        <p className="text-[10px] text-slate-500">Scan untuk isi survey</p>
       </div>
     );
   }
@@ -140,11 +140,11 @@ export default function SurveyQRCode({
 
         {/* URL + copy */}
         <div className="flex w-full items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-700">
-          <QrCode className="h-4 w-4 shrink-0 text-slate-400" />
+          <QrCode className="h-4 w-4 shrink-0 text-slate-500" />
           <span className="flex-1 truncate text-xs text-slate-600 dark:text-slate-300">{surveyUrl}</span>
           <button
             onClick={handleCopy}
-            className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-600"
+            className="shrink-0 rounded-md p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-600"
             title="Copy link"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}

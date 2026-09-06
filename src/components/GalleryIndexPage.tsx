@@ -160,7 +160,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
               Gagal memuat data
             </p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
               Terjadi kesalahan saat memuat album. Periksa koneksi internet Anda.
             </p>
             <button
@@ -177,12 +177,12 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
         {!isLoading && !fetchError && albums.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Camera className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Camera className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
               Belum ada album foto
             </p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
               Album foto event akan muncul di sini.
             </p>
           </div>
@@ -246,7 +246,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
                         <h3 className="text-sm font-semibold leading-snug text-slate-800 line-clamp-2 dark:text-white sm:text-base">
                           {album.name}
                         </h3>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 dark:text-slate-500">
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-300">
                           {album.eventDate && (
                             <span className="flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />

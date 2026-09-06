@@ -6,7 +6,7 @@ import { formatDraftPublishedAt, getWhatsAppUrl } from '../utils/draftUtils';
 export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
     return (
-      <div className="ui-empty-panel p-6 text-sm text-slate-400">
+      <div className="ui-empty-panel p-6 text-sm text-slate-500">
         Belum ada riwayat draft event.
       </div>
     );
@@ -30,11 +30,11 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                 <tr key={draft.id} className="align-top hover:bg-slate-50 dark:hover:bg-slate-700/20">
                   <td className="whitespace-nowrap px-4 py-3">
                     <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{draft.day}</div>
-                    <div className="text-xs text-slate-400">{draft.tanggal}</div>
+                    <div className="text-xs text-slate-500">{draft.tanggal}</div>
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-semibold text-slate-800 dark:text-white">{draft.acara}</p>
-                    <p className="mt-1 text-xs text-slate-400">{draft.lokasi}</p>
+                    <p className="mt-1 text-xs text-slate-500">{draft.lokasi}</p>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '–'}</td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.pic}</td>
@@ -63,7 +63,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       ) : (
-                        <span className="text-xs text-slate-400">Tidak ada nomor</span>
+                        <span className="text-xs text-slate-500">Tidak ada nomor</span>
                       )}
                       {!draft.published && (draft.deleted || draft.progress === 'cancel') && (
                         <button

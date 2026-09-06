@@ -156,7 +156,7 @@ export function AuditResumeDashboard() {
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white font-display tracking-tight">Resume Temuan</h1>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-slate-400 max-w-prose">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-slate-300 max-w-prose">
               Progress debt — R1–R4+R6+R7 on <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">main</code>. R4 = <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">DashboardShell</code> + <code className="font-mono text-xs bg-neutral-100 px-1 py-0.5 rounded text-neutral-600">useDashboardHandlers</code>. R5 ops <strong>deferred</strong> — rotate/RLS/cache parked.
             </p>
             <p className="mt-1 text-[10px] font-mono text-neutral-400 tracking-[0.02em]">
@@ -184,7 +184,7 @@ export function AuditResumeDashboard() {
                 <ShieldAlert className={ICON} strokeWidth={sw} aria-hidden />
                 {callout.title}
               </h4>
-              <p className="text-xs text-neutral-600 dark:text-slate-400 leading-relaxed max-w-prose">{callout.body}</p>
+              <p className="text-xs text-neutral-600 dark:text-slate-300 leading-relaxed max-w-prose">{callout.body}</p>
             </div>
           </div>
         ))}
@@ -198,7 +198,7 @@ export function AuditResumeDashboard() {
               className={`text-[11px] px-4 py-1.5 rounded-full border font-medium transition duration-200 ease-[var(--ease-out-expo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary-500 focus-visible:ring-offset-2 active:scale-[0.97] ${
                 filter === f
                   ? 'bg-brand-primary-50 text-brand-primary-700 border-brand-primary-400 font-semibold shadow-[inset_0_0_0_1px_rgba(0,145,142,0.25)]'
-                  : 'bg-neutral-100 text-neutral-500 border-[var(--border-subtle)] hover:border-brand-primary-200 hover:text-brand-primary-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-600 dark:hover:bg-slate-700'
+                  : 'bg-neutral-100 text-neutral-500 border-[var(--border-subtle)] hover:border-brand-primary-200 hover:text-brand-primary-600 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-700'
               }`}
               aria-pressed={filter === f}
             >

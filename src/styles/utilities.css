@@ -1,11 +1,12 @@
 .ui-focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
-  --tw-ring-color: var(--brand-tosca-soft);
+  /* brand-tosca #00918e — kontras 3.86:1 vs putih (tosca-soft hanya 2.88:1, gagal non-teks 3:1) */
+  --tw-ring-color: var(--brand-tosca);
 }
 
 .ui-focus-ring-panel {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
-  --tw-ring-color: var(--brand-tosca-soft);
+  --tw-ring-color: var(--brand-tosca);
 }
 
 /* Product/admin surfaces: warm Metmal card, compact density (not campaign scale) */

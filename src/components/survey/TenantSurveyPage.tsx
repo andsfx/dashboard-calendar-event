@@ -343,7 +343,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
               activeTab === 'list'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
-                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
+                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'
             }`}
           >
               <List className="h-4 w-4" />
@@ -357,7 +357,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
               activeTab === 'analytics'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
-                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700'
+                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'
             }`}
           >
             <BarChart3 className="h-4 w-4" />
@@ -384,7 +384,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         {activeTab === 'analytics' && (
           <div className="space-y-3">
             <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">
-              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              <Calendar className="h-3.5 w-3.5 text-slate-500" />
               <span className="text-xs font-medium ui-text-muted">Event</span>
               <select
                 value={analyticsEventFilter}
@@ -453,7 +453,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
               <p className="mt-0.5 text-xs ui-text-muted">
                 {selectedEvent.tanggal} &bull; {selectedEvent.lokasi}
               </p>
-              <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-400">
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
                 Status: <span className="font-semibold text-slate-600 dark:text-slate-300">{editingSurvey.status}</span>
               </p>
             </div>
@@ -571,7 +571,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                 rows={3}
                 maxLength={2000}
                 placeholder="Opsional — ringkas temuan admin…"
-                className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
+                className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
               />
               <div className="mt-2 flex flex-wrap gap-2">
                 <button
@@ -599,37 +599,37 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           {isV3Survey(editingSurvey) ? (
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-7">
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <Store className="mb-1 h-4 w-4 text-slate-400" />
+                <Store className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Gerai</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.nama_gerai || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <MapPin className="mb-1 h-4 w-4 text-slate-400" />
+                <MapPin className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Lokasi</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.lokasi_zona || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <Tag className="mb-1 h-4 w-4 text-slate-400" />
+                <Tag className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Kategori</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kategori || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <TrendingUp className="mb-1 h-4 w-4 text-slate-400" />
+                <TrendingUp className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Traffic</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_traffic || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <DollarSign className="mb-1 h-4 w-4 text-slate-400" />
+                <DollarSign className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Sales</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.kenaikan_sales || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <User className="mb-1 h-4 w-4 text-slate-400" />
+                <User className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_name || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-xl border border-black/[0.04] px-3 py-3 dark:border-slate-700">
-                <Phone className="mb-1 h-4 w-4 text-slate-400" />
+                <Phone className="mb-1 h-4 w-4 text-slate-500" />
                 <span className="text-xs ui-text-muted">Telepon PIC</span>
                 <span className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300">{editingSurvey.pic_phone || '-'}</span>
               </div>
@@ -883,7 +883,7 @@ function TenantSurveyEventRow({
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{event.acara}</p>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-500">
             {event.status === 'ongoing' ? 'Berlangsung' : 'Selesai'}
             {isActive ? ' · Survey aktif' : ' · Survey mati'}
           </p>
@@ -1015,32 +1015,32 @@ function TenantSurveyManagementSection({
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
             Kelola Self-Assessment per Event
           </h3>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-500">
             {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR, export
           </p>
         </div>
         {open
-          ? <ChevronUp className="h-4 w-4 shrink-0 text-slate-400" />
-          : <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />}
+          ? <ChevronUp className="h-4 w-4 shrink-0 text-slate-500" />
+          : <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />}
       </button>
 
       {open && (
         <>
           <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-700">
-            <p className="mb-2 text-[10px] text-slate-400">
+            <p className="mb-2 text-[10px] text-slate-500">
               Cari event, aktifkan toggle, copy link/QR. Default nonaktif — nyalakan dulu agar form public buka.
             </p>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari event (contoh: Bekasi Criterium)..."
-                className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
+                className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
               />
             </div>
-            <p className="mt-1.5 text-[10px] text-slate-400">
+            <p className="mt-1.5 text-[10px] text-slate-500">
               {filtered.length} dari {surveyableEvents.length} event
             </p>
           </div>

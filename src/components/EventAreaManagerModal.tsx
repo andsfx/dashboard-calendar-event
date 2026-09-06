@@ -340,7 +340,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
               <button
                 type="button"
                 onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -425,7 +425,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <MapPin className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada area</p>
-                  <p className="mt-1 text-xs text-slate-400">Tambah area pertama untuk mulai mengelola foto</p>
+                  <p className="mt-1 text-xs text-slate-500">Tambah area pertama untuk mulai mengelola foto</p>
                 </div>
               )}
 
@@ -467,7 +467,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-400">
+                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
                           <span>{area.photoCount ?? 0} foto</span>
                           {editing?.id === area.id && <span>• sedang diubah</span>}
                         </div>
@@ -480,7 +480,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                           onClick={() => handleMoveArea(area, -1)}
                           disabled={idx === 0}
                           title="Naik"
-                          className="rounded p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
                           <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
                         </button>
@@ -489,7 +489,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                           onClick={() => handleMoveArea(area, 1)}
                           disabled={idx === areas.length - 1}
                           title="Turun"
-                          className="rounded p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
                           <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
                         </button>
@@ -500,7 +500,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                         type="button"
                         onClick={() => handleToggleActive(area)}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
-                        className="rounded-lg p-2 text-slate-400 opacity-0 transition hover:bg-amber-50 hover:text-amber-500 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-amber-50 hover:text-amber-500 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                       </button>
@@ -509,7 +509,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                       <button
                         type="button"
                         onClick={() => startEdit(area)}
-                        className="rounded-lg p-2 text-slate-400 opacity-0 transition hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
@@ -518,7 +518,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteArea(area); }}
-                        className="rounded-lg p-2 text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -598,7 +598,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                               <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
                                 {photo.caption}
                               </p>
-                              <p className="text-[10px] text-slate-400">
+                              <p className="text-[10px] text-slate-500">
                                 Posisi {idx + 1} dari {areaPhotos.length}
                               </p>
                             </div>
@@ -608,7 +608,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                                 onClick={() => handleMovePhoto(photo, -1)}
                                 disabled={idx === 0}
                                 title="Naik"
-                                className="rounded p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
                                 <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
                               </button>
@@ -617,7 +617,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                                 onClick={() => handleMovePhoto(photo, 1)}
                                 disabled={idx === areaPhotos.length - 1}
                                 title="Turun"
-                                className="rounded p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
                                 <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
                               </button>
@@ -634,7 +634,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <Camera className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada foto</p>
-                  <p className="mt-1 text-xs text-slate-400">Upload foto pertama di bawah</p>
+                  <p className="mt-1 text-xs text-slate-500">Upload foto pertama di bawah</p>
                 </div>
               )}
 
@@ -658,11 +658,11 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                         : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <Upload className="h-7 w-7 text-slate-400" />
+                    <Upload className="h-7 w-7 text-slate-500" />
                     <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
                       Drag & drop foto di sini
                     </p>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-slate-500">
                       atau klik untuk pilih · max {MAX_PHOTOS - areaPhotos.length} foto · 10MB/file
                     </p>
                   </div>

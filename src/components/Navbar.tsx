@@ -86,7 +86,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, 
               <button
                 onClick={onLoginClick}
                 title="Masuk sebagai admin"
-                className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 hover:text-brand-primary-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-brand-primary-700 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400 sm:px-3 ${focusRing}`}
+                className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 hover:text-brand-primary-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-brand-primary-700 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400 sm:px-3 ${focusRing}`}
               >
                 <Shield className="h-3.5 w-3.5" />
                 <span className="hidden md:inline">Admin</span>

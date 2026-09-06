@@ -67,7 +67,7 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           </div>
         </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
       </footer>
     </div>

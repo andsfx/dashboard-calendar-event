@@ -398,12 +398,12 @@ export function RegistrationForm() {
                   <div className="flex min-w-0 items-center gap-2">
                     <FileText className="h-4 w-4 shrink-0 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
                     <span className="truncate text-sm text-slate-800 dark:text-white">{proposalFile.name}</span>
-                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{(proposalFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-300">{(proposalFile.size / (1024 * 1024)).toFixed(1)} MB</span>
                   </div>
                   <button
                     type="button"
                     onClick={removeProposalFile}
-                    className="shrink-0 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+                    className="shrink-0 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-white"
                     aria-label="Hapus file"
                   >
                     <X className="h-4 w-4" />
@@ -419,7 +419,7 @@ export function RegistrationForm() {
                   Pilih file
                 </button>
               )}
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF atau Word (doc/docx), maksimal 20MB</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">PDF atau Word (doc/docx), maksimal 20MB</p>
             </div>
           </div>
         </div>
@@ -428,7 +428,7 @@ export function RegistrationForm() {
       {error && <p className="mt-4 text-sm text-rose-600 dark:text-rose-400" role="alert">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-400">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
+        <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-300">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
         <button
           type="submit"
           disabled={submitting}
@@ -453,7 +453,7 @@ export function CommunityRegistrationForm() {
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
             Isi form di bawah buat daftarin komunitas kamu. Tim kami bakal review dan hubungi kamu secepatnya.
           </p>
-          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
             Mau bertanya dulu?{' '}
             <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Chat via WhatsApp

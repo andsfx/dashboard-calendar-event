@@ -13,7 +13,7 @@ export function InfoRow({ icon, label, value }: { icon: ReactNode; label: string
     <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 transition hover:bg-slate-100 dark:bg-slate-700/40 dark:hover:bg-slate-700/60">
       <div className="mt-0.5 shrink-0">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium leading-snug text-slate-800 dark:text-slate-100">{value}</p>
       </div>
     </div>
@@ -114,7 +114,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
 
       {event.keterangan && (
         <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             <Tag className="h-3 w-3" /> Keterangan
           </p>
           <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{event.keterangan}</p>
@@ -152,12 +152,12 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
                 >
                   <span className="font-medium text-slate-700 dark:text-slate-200">
                     Hari {idx + 1}
-                    <span className="ml-1.5 text-xs font-normal text-slate-400">
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">
                       {dayName}, {dayNum} {monthName}
                     </span>
                   </span>
                   <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
-                    <Clock className="h-3 w-3 text-slate-400" />
+                    <Clock className="h-3 w-3 text-slate-500" />
                     {slot.jam || '–'}
                   </span>
                 </div>

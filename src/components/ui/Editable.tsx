@@ -54,7 +54,7 @@ export function EditableText({
   const baseClasses = 'transition-colors duration-200';
   const displayClasses = `${baseClasses} ${
     disabled 
-      ? 'text-slate-500 dark:text-slate-400 cursor-not-allowed' 
+      ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
       : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50'
   }`;
   const editClasses = `${baseClasses} w-full border-b border-slate-300 bg-transparent py-0.5 outline-none focus:border-blue-500 dark:border-slate-600 dark:focus:border-blue-400`;
@@ -86,7 +86,7 @@ export function EditableText({
       ) : (
         <span className={displayClasses}>
           {value || (
-            <span className="text-slate-400 dark:text-slate-500 italic">
+            <span className="text-slate-500 dark:text-slate-300 italic">
               {placeholder}
             </span>
           )}
@@ -160,7 +160,7 @@ export function EditableArea({
   const baseClasses = 'transition-colors duration-200 leading-relaxed';
   const displayClasses = `${baseClasses} ${
     disabled 
-      ? 'text-slate-500 dark:text-slate-400 cursor-not-allowed' 
+      ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
       : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50 p-1 -m-1 rounded'
   }`;
   const editClasses = `${baseClasses} w-full resize-none border border-slate-300 bg-transparent p-2 outline-none focus:border-blue-500 dark:border-slate-600 dark:focus:border-blue-400 min-h-[60px]`;
@@ -198,7 +198,7 @@ export function EditableArea({
               </p>
             ))
           ) : (
-            <span className="text-slate-400 dark:text-slate-500 italic">
+            <span className="text-slate-500 dark:text-slate-300 italic">
               {placeholder}
             </span>
           )}

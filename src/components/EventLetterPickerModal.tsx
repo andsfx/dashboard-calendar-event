@@ -48,7 +48,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
 
         <div className="space-y-3 px-4 py-4 sm:px-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
@@ -59,7 +59,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
 
           <div className="max-h-[60vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700">
             {filteredEvents.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-slate-400">
+              <div className="px-4 py-8 text-center text-sm text-slate-500">
                 Tidak ada event yang cocok untuk dipilih.
               </div>
             ) : (

@@ -80,7 +80,7 @@ export function DistBars({
             {title}
           </h3>
           {hint ? (
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-400 dark:text-slate-500">{hint}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-slate-500 dark:text-slate-300">{hint}</p>
           ) : null}
         </div>
       </div>
@@ -97,7 +97,7 @@ export function DistBars({
                 <span className="truncate text-slate-600 dark:text-slate-300">{label}</span>
                 <span className="shrink-0 tabular-nums ui-text-muted">
                   <span className="font-semibold text-slate-700 dark:text-slate-200">{n}</span>
-                  <span className="text-slate-400"> · {pct}%</span>
+                  <span className="text-slate-500"> · {pct}%</span>
                 </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
@@ -166,7 +166,7 @@ export function KpiCard({
             {value}
           </p>
           {helper ? (
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-400 dark:text-slate-500">{helper}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-slate-500 dark:text-slate-300">{helper}</p>
           ) : null}
         </div>
       </div>
@@ -303,7 +303,7 @@ export function ResultsReadingGuide() {
                   </span>
                   {s.t}
                 </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+                <p className="mt-0.5 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
                   {s.d}
                 </p>
               </li>
@@ -316,7 +316,7 @@ export function ResultsReadingGuide() {
                 <CircleHelp className="h-3 w-3 shrink-0" aria-hidden />
                 Keterangan angka ringkasan
               </p>
-              <ul className="mt-1 space-y-1 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+              <ul className="mt-1 space-y-1 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
                 <li>
                   <strong className="font-semibold text-slate-700 dark:text-slate-300">
                     Total submisi
@@ -352,7 +352,7 @@ export function ResultsReadingGuide() {
                 <BarChart3 className="h-3 w-3 shrink-0" aria-hidden />
                 Catatan untuk analisis
               </p>
-              <ul className="mt-1 list-disc space-y-1 pl-3.5 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
+              <ul className="mt-1 list-disc space-y-1 pl-3.5 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
                 <li>
                   Jika pengunjung meningkat tetapi omzet tidak, periksa kategori atau zona yang lemah.
                 </li>
@@ -484,7 +484,7 @@ export function EventFilterSearch({
           )}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-slate-500 transition ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
@@ -497,7 +497,7 @@ export function EventFilterSearch({
           <div className="shrink-0 border-b border-slate-100 p-2 dark:border-slate-700">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
                 aria-hidden
               />
               <input
@@ -510,7 +510,7 @@ export function EventFilterSearch({
                 aria-label="Cari event"
               />
             </div>
-            <p className="mt-1.5 px-0.5 text-[10px] text-slate-400">
+            <p className="mt-1.5 px-0.5 text-[10px] text-slate-500">
               {filtered.length} event · terbaru dulu
             </p>
           </div>
@@ -527,7 +527,7 @@ export function EventFilterSearch({
               }`}
             >
               Semua event
-              <span className="ml-auto text-[10px] font-normal text-slate-400">{options.length}</span>
+              <span className="ml-auto text-[10px] font-normal text-slate-500">{options.length}</span>
             </button>
             {filtered.length === 0 ? (
               <p className="px-3 py-6 text-center text-[11px] ui-text-muted">
@@ -557,7 +557,7 @@ export function EventFilterSearch({
                     >
                       {o.label}
                     </span>
-                    <span className="mt-0.5 block text-[10px] text-slate-400">
+                    <span className="mt-0.5 block text-[10px] text-slate-500">
                       {o.dateStr || '—'}
                       {o.status === 'ongoing'
                         ? ' · berlangsung'

@@ -133,13 +133,13 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && tenants.length > 0 && (
           <div className="mb-6 flex flex-col gap-3">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden />
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama tenant, kategori, atau lantai…"
-                className="ui-focus-ring w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
               />
             </div>
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter kategori">
@@ -191,7 +191,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && tenants.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Store className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Store className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Belum ada data tenant.</p>
           </div>
@@ -201,7 +201,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && tenants.length > 0 && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Search className="h-7 w-7 text-slate-400 dark:text-slate-500" />
+              <Search className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Tidak ada tenant cocok.</p>
           </div>
@@ -233,7 +233,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
                     </span>
                   )}
                   {(t.floor || t.lot) && (
-                    <p className="mt-2 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                    <p className="mt-2 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                       <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       <span className="truncate">{[t.floor, t.lot].filter(Boolean).join(' · ')}</span>
                     </p>
@@ -245,7 +245,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
       </footer>
     </div>

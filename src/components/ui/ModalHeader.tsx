@@ -52,7 +52,7 @@ export function ModalHeader({
             {title}
           </p>
           {subtitle != null && subtitle !== '' && (
-            <p className="truncate text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
+            <p className="truncate text-xs text-slate-500 dark:text-slate-300">{subtitle}</p>
           )}
         </div>
       </div>
@@ -62,7 +62,7 @@ export function ModalHeader({
           onClick={onClose}
           disabled={closeDisabled}
           aria-label={closeAriaLabel}
-          className="shrink-0 rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
+          className="shrink-0 rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
         >
           <X className="h-4 w-4" />
         </button>

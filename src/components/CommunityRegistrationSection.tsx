@@ -121,7 +121,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
         {/* Org type filter (only show if multiple types exist) */}
         {orgTypesInData.length > 1 && (
           <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-slate-400" />
+            <Filter className="h-3.5 w-3.5 text-slate-500" />
             <button
               onClick={() => setOrgTypeFilter('all')}
               className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
@@ -162,7 +162,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       ) : filtered.length === 0 ? (
         <div className="ui-dashboard-surface flex flex-col items-center justify-center gap-3 py-16">
           <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="text-sm text-slate-400 dark:text-slate-500">Belum ada pendaftaran</p>
+          <p className="text-sm text-slate-500 dark:text-slate-300">Belum ada pendaftaran</p>
         </div>
       ) : (
         <>
@@ -202,12 +202,12 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Nama</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tipe</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">PIC</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Telepon</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tanggal</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Nama</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Tipe</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">PIC</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Telepon</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Status</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Tanggal</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -229,7 +229,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     <td className="px-4 py-3"><StatusBadgeReg status={reg.status} /></td>
                     <td className="px-4 py-3 ui-text-muted">{formatDate(reg.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <Eye className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                      <Eye className="h-4 w-4 text-slate-500 dark:text-slate-300" />
                     </td>
                   </tr>
                 ))}

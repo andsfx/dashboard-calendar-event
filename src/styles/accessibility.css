@@ -1,5 +1,6 @@
 /*
  * Accessibility Utilities - WCAG AA compliance helpers
+ * (di-import dari src/index.css setelah utilities.css)
  */
 
 /* Visually hidden but accessible to screen readers */
@@ -15,7 +16,7 @@
   border: 0;
 }
 
-/* Skip link for keyboard users */
+/* Skip link for keyboard users (pola utility sr-only juga dipakai di komponen) */
 .skip-link {
   position: absolute;
   top: -40px;
@@ -33,28 +34,16 @@
   top: 0;
 }
 
-/* Focus visible improvements */
+/* Focus visible: ring keyboard global (kontras 3.86:1 vs putih, 4.29:1 vs slate-900) */
 *:focus-visible {
   outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }
 
-/* Remove default outline, use :focus-visible */
-*:focus {
+/* Hilangkan outline default HANYA bila :focus-visible berlaku (mouse click) */
+*:focus:not(:focus-visible) {
   outline: none;
-}
-
-/* Reduce motion preference */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
 
 /* High contrast mode support */
@@ -62,37 +51,15 @@
   .border {
     border-color: CanvasText;
   }
-  
+
   button,
   [role="button"] {
     border: 1px solid CanvasText;
   }
 }
 
-/* Screen reader only utility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
 /* Touch target sizing - min 44x44px */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
-}
-
-/* Focus ring offset for dark backgrounds */
-.focus-ring-dark {
-  --focus-ring-offset: var(--color-neutral-900);
-}
-
-.focus-ring-light {
-  --focus-ring-offset: white;
 }

@@ -101,7 +101,7 @@ function CustomDropdown({
         aria-activedescendant={open && value ? `opt-${cleanLabel}-${value}` : undefined}
       >
         <span className="truncate text-left">{selected?.label ?? label}</span>
-        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-500 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (

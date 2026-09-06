@@ -61,9 +61,9 @@ const TYPE_SPECIFIC_LABELS: Record<string, string> = {
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition hover:bg-slate-100 dark:hover:bg-slate-700/60">
-      <div className="mt-0.5 shrink-0 text-slate-400">{icon}</div>
+      <div className="mt-0.5 shrink-0 text-slate-500">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
         <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-white break-words">{value || '–'}</p>
       </div>
     </div>
@@ -148,7 +148,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         <div className="relative shrink-0 border-b border-slate-100 bg-brand-primary-50 px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-brand-primary-950/30">
           <button
             onClick={onClose}
-            className="absolute right-4 top-3 rounded-xl p-2 text-slate-400 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-3 rounded-xl p-2 text-slate-500 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
@@ -162,7 +162,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <h2 id="reg-detail-title" className="font-bold text-slate-800 dark:text-white">
                 Detail Pendaftaran
               </h2>
-              <p className="truncate text-xs text-slate-500 dark:text-slate-400">{registration.organizationName || registration.communityName}</p>
+              <p className="truncate text-xs text-slate-500 dark:text-slate-300">{registration.organizationName || registration.communityName}</p>
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           </div>
           {registration.proposalFileUrl && (
             <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 <FileText className="h-3 w-3" /> Lampiran Proposal
               </p>
               <a
@@ -205,7 +205,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           {/* Type-Specific Data */}
           {registration.typeSpecificData && Object.keys(registration.typeSpecificData).length > 0 && (
             <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 <FileText className="h-3 w-3" /> Detail {ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType]}
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -214,7 +214,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                   const label = TYPE_SPECIFIC_LABELS[key] || key;
                   return (
                     <div key={key} className="rounded-lg bg-white p-2.5 dark:bg-slate-800">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
                       <p className="mt-0.5 text-sm font-medium text-slate-700 dark:text-slate-200">{String(value)}</p>
                     </div>
                   );
@@ -226,7 +226,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           {/* Deskripsi */}
           {registration.description && (
             <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 <FileText className="h-3 w-3" /> Deskripsi
               </p>
               <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{registration.description}</p>
@@ -235,7 +235,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Current Status */}
           <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Status Saat Ini
             </p>
             <StatusBadge status={registration.status} />
@@ -243,7 +243,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Admin Notes */}
           <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <label className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <label className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               <FileText className="h-3 w-3" /> Catatan Admin
             </label>
             <textarea
@@ -257,7 +257,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* WhatsApp Template */}
           <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               <MessageCircle className="h-3 w-3" /> Template WhatsApp
             </p>
 

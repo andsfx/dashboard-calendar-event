@@ -112,7 +112,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
       <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
           <Link to="/events" className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring" aria-label="Kembali ke Jadwal Event">
-            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Jadwal Event</span>
           </Link>
           <button
@@ -150,7 +150,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" aria-hidden="true" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Gagal memuat event</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.</p>
             <button
               onClick={() => setRetryCount(c => c + 1)}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700 ui-focus-ring"
@@ -165,10 +165,10 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && !event && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <CalendarDays className="h-7 w-7 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+              <CalendarDays className="h-7 w-7 text-slate-500 dark:text-slate-300" aria-hidden="true" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Event tidak ditemukan</p>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">Event yang kamu cari tidak tersedia atau sudah dihapus.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Event yang kamu cari tidak tersedia atau sudah dihapus.</p>
             <Link
               to="/events"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700 ui-focus-ring"
@@ -213,7 +213,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 {event.acara}
               </h1>
               {event.lokasi && (
-                <p className="relative mt-2 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+                <p className="relative mt-2 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-300">
                   <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
                   {event.lokasi}
                 </p>

@@ -374,9 +374,9 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
                   <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Evaluasi Tenant</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Evaluasi Tenant</span>
                 </div>
-                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/')} className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-400 dark:hover:text-brand-primary-400">
+                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/')} className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-300 dark:hover:text-brand-primary-400">
                   <ArrowLeft className="h-4 w-4" />Kembali
                 </button>
               </div>
@@ -387,7 +387,7 @@ export default function App() {
                 </div>
                 <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
               </div>
-              <p className="mt-6 text-center text-[11px] text-slate-400 dark:text-slate-500">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
+              <p className="mt-6 text-center text-[11px] text-slate-500 dark:text-slate-300">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
             </div>
           </div>
         </Suspense>

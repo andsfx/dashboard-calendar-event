@@ -25,7 +25,7 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
     <div className="animate-fade-in-up" style={{ animationDelay: '250ms' }}>
       <div className="flex items-center gap-2 mb-4">
         <CalendarDays className="w-5 h-5 text-brand-primary-500" />
-        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
           Tema Tahunan 2026
         </h3>
       </div>
@@ -63,16 +63,16 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                       status === 'active'
                         ? 'text-slate-800 dark:text-white'
                         : status === 'past'
-                        ? 'text-slate-400 dark:text-slate-600'
+                        ? 'text-slate-500 dark:text-slate-300'
                         : 'text-slate-600 dark:text-slate-300'
                     }`}>
                       {theme.name}
                     </p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-300">
                       {formatDateShort(theme.dateStart)}
                     </p>
                     <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 mx-auto rotate-90" />
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-300">
                       {formatDateShort(theme.dateEnd)}
                     </p>
                     {status === 'active' && (
@@ -116,11 +116,11 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                 )}
               </div>
               <p className={`text-sm font-bold ${
-                status === 'past' ? 'text-slate-400' : 'text-slate-800 dark:text-white'
+                status === 'past' ? 'text-slate-500' : 'text-slate-800 dark:text-white'
               }`}>
                 {theme.name}
               </p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
                 {formatDateShort(theme.dateStart)} — {formatDateShort(theme.dateEnd)}
               </p>
             </div>

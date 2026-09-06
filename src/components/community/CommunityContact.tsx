@@ -56,7 +56,7 @@ export function CommunityContact() {
                 </div>
                 <div className="min-w-0 text-left">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">{c.title}</h3>
-                  <p className="mt-0.5 truncate text-sm text-slate-600 dark:text-slate-400">{c.detail}</p>
+                  <p className="mt-0.5 truncate text-sm text-slate-600 dark:text-slate-300">{c.detail}</p>
                 </div>
               </a>
             );

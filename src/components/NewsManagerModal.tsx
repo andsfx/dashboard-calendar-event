@@ -194,7 +194,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
               <button
                 type="button"
                 onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -234,7 +234,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
                   <Newspaper className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
                   <p className="text-sm font-medium ui-text-muted">Belum ada artikel</p>
-                  <p className="mt-1 text-xs text-slate-400">Buat artikel pertama untuk mulai mengelola berita</p>
+                  <p className="mt-1 text-xs text-slate-500">Buat artikel pertama untuk mulai mengelola berita</p>
                 </div>
               )}
 
@@ -267,12 +267,12 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                         <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">
                           {article.title}
                         </p>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                           <span
                             className={
                               article.status === 'published'
                                 ? 'rounded-full bg-[var(--brand-tosca-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-tosca-dark)] dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
-                                : 'rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                                : 'rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-300'
                             }
                           >
                             {article.status === 'published' ? 'Terbit' : 'Draft'}
@@ -286,7 +286,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                         <button
                           type="button"
                           onClick={() => startEdit(article)}
-                          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700 dark:hover:text-brand-primary-400"
+                          className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700 dark:hover:text-brand-primary-400"
                           aria-label={`Edit ${article.title}`}
                         >
                           <Pencil className="h-4 w-4" />
@@ -296,7 +296,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                           onClick={() => handleTogglePublish(article)}
                           className={
                             article.status === 'published'
-                              ? 'rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                              ? 'rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
                               : 'rounded-lg bg-brand-primary-600 px-2 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700'
                           }
                         >
@@ -305,7 +305,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                         <button
                           type="button"
                           onClick={() => handleDelete(article)}
-                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                          className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                           aria-label={`Hapus ${article.title}`}
                         >
                           <Trash2 className="h-4 w-4" />

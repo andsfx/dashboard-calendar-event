@@ -127,7 +127,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-1">{ev.tanggal}</span>
-                  {ev.jam && <span className="text-slate-400">- {ev.jam}</span>}
+                  {ev.jam && <span className="text-slate-500">- {ev.jam}</span>}
                 </div>
                 {ev.lokasi && (
                   <div className="flex items-center gap-1.5">
@@ -139,7 +139,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
               </div>
 
               {showKeterangan(ev) && (
-                <p className="mt-3 line-clamp-2 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-2">{ev.keterangan}</p>
+                <p className="mt-3 line-clamp-2 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700 pt-2">{ev.keterangan}</p>
               )}
             </div>
           );

@@ -27,7 +27,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-slate-900 dark:text-white">Analitik Lanjutan</h2>
-        <p className="text-xs text-slate-600 dark:text-slate-400">Insight mendalam tentang event & venue</p>
+        <p className="text-xs text-slate-600 dark:text-slate-300">Insight mendalam tentang event & venue</p>
       </div>
 
       {/* 1. Tren Event per Bulan */}
@@ -81,7 +81,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
           {analytics.topCategories.slice(0, 6).map(({ name, count, pct }) => (
             <div key={name} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="truncate text-[11px] text-slate-600 dark:text-slate-400">{name}</span>
+                <span className="truncate text-[11px] text-slate-600 dark:text-slate-300">{name}</span>
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{count}</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
@@ -90,7 +90,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
                   style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || '#00918e' }}
                 />
               </div>
-              <p className="text-[10px] text-slate-400">{pct.toFixed(0)}%</p>
+              <p className="text-[10px] text-slate-500">{pct.toFixed(0)}%</p>
             </div>
           ))}
         </div>
@@ -109,7 +109,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
                 {model}
               </div>
               <p className="text-lg font-bold text-slate-900 dark:text-white">{count}</p>
-              <p className="text-[10px] text-slate-400">{pct.toFixed(0)}% dari total</p>
+              <p className="text-[10px] text-slate-500">{pct.toFixed(0)}% dari total</p>
             </div>
           ))}
         </div>
@@ -124,7 +124,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
         <div className="space-y-2">
           {analytics.topLocations.slice(0, 8).map(({ name, count, pct }) => (
             <div key={name} className="flex items-center gap-3">
-              <span className="w-28 truncate text-[11px] text-slate-600 dark:text-slate-400">{name}</span>
+              <span className="w-28 truncate text-[11px] text-slate-600 dark:text-slate-300">{name}</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                 <div className="h-full rounded-full bg-red-400 transition-all duration-700" style={{ width: `${pct}%` }} />
               </div>
@@ -152,7 +152,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
             </div>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-slate-400">
+        <p className="mt-2 text-[10px] text-slate-500">
           Jam tersibuk: <span className="font-semibold">{analytics.peakHour}:00</span> ({analytics.peakHourCount} event)
         </p>
       </div>
@@ -188,7 +188,7 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
                 title={`${cur} event`}
               />
             </div>
-            <span className="text-[9px] text-slate-400">{m}</span>
+            <span className="text-[9px] text-slate-500">{m}</span>
           </div>
         );
       })}
@@ -209,7 +209,7 @@ function CompareCard({ label, current, previous }: { label: string; current: num
       <p className="text-[10px] ui-text-muted">{label}</p>
       <p className="text-lg font-bold text-slate-900 dark:text-white">{current}</p>
       {previous > 0 && (
-        <div className={`flex items-center gap-0.5 text-[10px] font-medium ${isUp ? 'text-emerald-600' : isDown ? 'text-red-600' : 'text-slate-400'}`}>
+        <div className={`flex items-center gap-0.5 text-[10px] font-medium ${isUp ? 'text-emerald-600' : isDown ? 'text-red-600' : 'text-slate-500'}`}>
           {isUp ? <ArrowUpRight className="h-3 w-3" /> : isDown ? <ArrowDownRight className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
           {Math.abs(diff).toFixed(0)}% vs tahun lalu
         </div>

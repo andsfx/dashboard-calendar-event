@@ -217,7 +217,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               Editor Surat Konfirmasi Event
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               {event ? `Event: ${event.acara}` : draftEvent ? `Draft: ${draftEvent.acara}` : 'Surat Baru'}
             </p>
           </div>
@@ -280,12 +280,12 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                       <div className="flex">
                         <span className="w-16 text-slate-500">Nomor</span>
                         <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-400">—</span>}</span>
+                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-500">—</span>}</span>
                       </div>
                       <div className="flex">
                         <span className="w-16 text-slate-500">Tanggal</span>
                         <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-400">—</span>}</span>
+                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-500">—</span>}</span>
                       </div>
                       <div className="flex">
                         <span className="w-16 text-slate-500">Perihal</span>
@@ -297,7 +297,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     {/* Kepada */}
                     <div className="text-[11px] mb-5">
                       <p className="font-semibold">Kepada Yth.</p>
-                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-400">—</span>}</p>
+                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-500">—</span>}</p>
                       {letter.penanggungJawab && <p className="text-slate-600">u.p. {letter.penanggungJawab}</p>}
                       {letter.alamatEO && <p className="text-slate-600">{letter.alamatEO}</p>}
                       {letter.nomorTelepon && <p className="text-slate-600">Telp. {letter.nomorTelepon}</p>}
@@ -344,7 +344,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                         <p className="text-[9px] text-slate-500 mt-1">Marketing Manager</p>
                         <div className="h-14" />
                         <div className="border-t border-slate-800 pt-1">
-                          <p className="text-[11px] font-bold">{letter.penanggungJawab || <span className="italic text-slate-400">________________</span>}</p>
+                          <p className="text-[11px] font-bold">{letter.penanggungJawab || <span className="italic text-slate-500">________________</span>}</p>
                           <p className="text-[9px] text-slate-500">Metropolitan Mall Bekasi</p>
                         </div>
                       </div>

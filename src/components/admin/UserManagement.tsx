@@ -110,7 +110,7 @@ export function UserManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400">{users.length} user terdaftar</p>
+          <p className="text-xs text-slate-600 dark:text-slate-300">{users.length} user terdaftar</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-primary-700">
@@ -132,7 +132,7 @@ export function UserManagement() {
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               {showForm === 'invite' ? 'Undang User Baru' : 'Buat User Manual'}
             </h3>
-            <button onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }} className="text-slate-400 hover:text-slate-600">
+            <button onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }} className="text-slate-500 hover:text-slate-600">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -189,7 +189,7 @@ export function UserManagement() {
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500">
                     {u.email}
                     {u.eo_organization && ` · ${u.eo_organization}`}
                     {u.last_login_at && ` · Login: ${new Date(u.last_login_at).toLocaleDateString('id-ID')}`}
@@ -207,7 +207,7 @@ export function UserManagement() {
                     </button>
                     <button
                       onClick={() => handleDelete(u.id)}
-                      className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+                      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
                       title="Nonaktifkan user"
                     >
                       <Trash2 className="h-4 w-4" />

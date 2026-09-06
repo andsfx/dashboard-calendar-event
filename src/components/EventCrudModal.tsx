@@ -539,7 +539,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
                   form.eventType === opt.value
                     ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}>
                   <input
                     type="radio"
@@ -665,7 +665,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 type="button"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-500 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
               >
                 {posterUploading ? (
                   <>

@@ -309,9 +309,9 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
 
   const renderReviewItem = (label: string, value: string) => (
     <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-3 dark:border-slate-700 dark:bg-slate-800">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
       <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-white">
-        {value.trim() || <span className="font-medium text-slate-400">Belum diisi</span>}
+        {value.trim() || <span className="font-medium text-slate-500">Belum diisi</span>}
       </p>
     </div>
   );
@@ -351,7 +351,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             {renderInput('tanggalSurat', 'Tanggal Surat', undefined, 'date')}
             <div>
               {renderInput('nomorSurat', 'Nomor Surat', '090/MMB/MKT.MC/II/2026')}
-              <p className="mt-1 text-xs text-slate-400">Format contoh: 090/MMB/MKT.MC/II/2026</p>
+              <p className="mt-1 text-xs text-slate-500">Format contoh: 090/MMB/MKT.MC/II/2026</p>
             </div>
           </div>
         </section>
@@ -403,7 +403,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
             {renderInput('hariTanggalLoading', 'Hari/Tanggal Bongkar Muat', undefined, 'date')}
             <div>
               {renderInput('waktuLoading', 'Waktu Bongkar Muat', '06.00 - 20.00')}
-              <p className="mt-1 text-xs text-slate-400">Contoh: 06.00 - 20.00</p>
+              <p className="mt-1 text-xs text-slate-500">Contoh: 06.00 - 20.00</p>
             </div>
           </div>
         </section>

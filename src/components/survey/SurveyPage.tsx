@@ -319,7 +319,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, mall: e.target.value }))}
               maxLength={1000}
               rows={2}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
             />
           </section>
 
@@ -354,7 +354,7 @@ export default function SurveyPage() {
                 onChange={(e) => setComments(prev => ({ ...prev, eo: e.target.value }))}
                 maxLength={1000}
                 rows={2}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
               />
             </section>
           )}
@@ -362,7 +362,7 @@ export default function SurveyPage() {
           {/* General comment */}
           <section className="space-y-2">
             <label className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              Komentar Umum <span className="font-normal text-slate-400">(opsional)</span>
+              Komentar Umum <span className="font-normal text-slate-500">(opsional)</span>
             </label>
             <textarea
               placeholder="Saran, kritik, atau masukan lainnya..."
@@ -370,7 +370,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
               maxLength={1000}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
             />
           </section>
 
@@ -378,7 +378,7 @@ export default function SurveyPage() {
           <section className="space-y-3">
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                Data Diri <span className="font-normal text-slate-400">(opsional)</span>
+                Data Diri <span className="font-normal text-slate-500">(opsional)</span>
               </h3>
               <p className="text-xs ui-text-muted">
                 Tidak wajib diisi. Data hanya digunakan untuk keperluan internal.
@@ -458,7 +458,7 @@ className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ui-text-
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi
       </footer>
     </div>
@@ -495,14 +495,14 @@ function InputField({ icon, placeholder, value, onChange, type = 'text', maxLeng
 }) {
   return (
     <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{icon}</span>
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">{icon}</span>
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={maxLength}
-        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
       />
     </div>
   );

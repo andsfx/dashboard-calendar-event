@@ -161,8 +161,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
           <p className="mt-3 text-sm font-medium ui-text-muted">
             Belum ada response survey
           </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Survey akan muncul setelah event selesai dan responden mengisi feedback.
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
           </p>
         </div>
         {/* Still show event management even with no responses */}
@@ -189,7 +188,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
         </div>
         <button
           onClick={fetchStats}
-          className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
           title="Refresh"
         >
           <RefreshCw className="h-4 w-4" />
@@ -262,7 +261,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Response Terbaru</h3>
             {/* Date filter */}
             <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              <Calendar className="h-3.5 w-3.5 text-slate-500" />
               <input
                 type="date"
                 value={dateFrom}
@@ -270,7 +269,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
                 className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
                 placeholder="Dari"
               />
-              <span className="text-[10px] text-slate-400">—</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-300">—</span>
               <input
                 type="date"
                 value={dateTo}
@@ -287,7 +286,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
           </div>
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {filteredRecent.length === 0 && (
-              <p className="px-4 py-3 text-xs text-slate-400">Tidak ada response dalam rentang tanggal ini</p>
+              <p className="px-4 py-3 text-xs text-slate-500 dark:text-slate-300">Tidak ada response dalam rentang tanggal ini</p>
             )}
             {filteredRecent.map((r) => {
               const mallAvg = ((r.mall_cleanliness + r.mall_staff_service + r.mall_coordination + r.mall_security) / 4);
@@ -306,13 +305,13 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{eventName}</p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300">
                         {r.respondent_name || 'Anonim'} · {r.survey_type === 'organizer' ? 'Penyelenggara' : 'Peserta'} · {new Date(r.created_at).toLocaleDateString('id-ID')}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      {hasComments && <MessageSquare className="h-3 w-3 text-slate-400" />}
-                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
+                      {hasComments && <MessageSquare className="h-3 w-3 text-slate-500" />}
+                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />}
                     </div>
                   </button>
                   {/* Expanded detail */}
@@ -337,24 +336,24 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
                       {hasComments && (
                         <div className="mt-3 space-y-1.5">
                           {r.mall_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
                               <span className="font-semibold">Mall:</span> {r.mall_comment}
                             </p>
                           )}
                           {r.eo_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
                               <span className="font-semibold">EO:</span> {r.eo_comment}
                             </p>
                           )}
                           {r.general_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
                               <span className="font-semibold">Umum:</span> {r.general_comment}
                             </p>
                           )}
                         </div>
                       )}
                       {r.respondent_email && (
-                        <p className="mt-2 text-[10px] text-slate-400">Email: {r.respondent_email}</p>
+                        <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-300">Email: {r.respondent_email}</p>
                       )}
                     </div>
                   )}
@@ -399,7 +398,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
     <div className="ui-dashboard-surface">
       <div className="border-b border-black/[0.04] px-4 py-3 dark:border-slate-700">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Survey per Event</h3>
-        <p className="text-[10px] text-slate-400">Copy link, aktifkan/nonaktifkan, atau export data</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-300">Copy link, aktifkan/nonaktifkan, atau export data</p>
       </div>
       <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
         {pastEvents.map((ev) => {
@@ -478,7 +477,7 @@ function RatingBar({ label, value, highlight }: { label: string; value: number; 
   return (
     <div className={`space-y-1 ${highlight ? 'rounded-lg bg-brand-primary-50 p-2 dark:bg-brand-primary-900/20' : ''}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-[11px] ${highlight ? 'font-semibold text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-600 dark:text-slate-400'}`}>{label}</span>
+        <span className={`text-[11px] ${highlight ? 'font-semibold text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-600 dark:text-slate-300'}`}>{label}</span>
         <span className={`text-xs font-bold ${value >= 8 ? 'text-emerald-600' : value >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{value.toFixed(1)}</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">

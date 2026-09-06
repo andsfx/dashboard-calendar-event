@@ -73,7 +73,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
           <h2 className="font-display mt-2 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             Area di Metropolitan Mall Bekasi
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
             Masih bingung milih spot buat acaramu? Lihat area lebih detail.
           </p>
         </div>
@@ -139,7 +139,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
           <div className="mt-10 flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 py-14 text-center dark:border-slate-700">
             <MapPin className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" aria-hidden="true" />
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Belum ada foto area</p>
-            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Foto area akan tampil di sini saat admin menambahkannya.</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Foto area akan tampil di sini saat admin menambahkannya.</p>
           </div>
         )}
 

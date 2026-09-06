@@ -22,7 +22,7 @@ export function DashboardHeader({
         <h1 className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
           {isAdmin ? 'Dashboard Event' : 'Jadwal Event'}
         </h1>
-        <p className="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-300">
           {isAdmin
             ? stats
               ? `${stats.total} acara dalam pipeline · ${stats.ongoing} sedang berlangsung`
