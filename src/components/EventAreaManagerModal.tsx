@@ -390,21 +390,23 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                     {editing ? 'Ubah Area' : 'Area Baru'}
                   </p>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
+                    <label htmlFor="area-name" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
                     <input
+                      id="area-name"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
-                      placeholder="cth: Panggung Lt. 3, Atrium 2, Foodventure Lt. 2"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      placeholder="Atrium, Main Lobby, dsb."
+                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                    <label htmlFor="area-desc" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
                     <input
+                      id="area-desc"
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
                       placeholder="Deskripsi singkat area (opsional)"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -697,9 +699,9 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setUploadFiles(prev => prev.filter((_, i) => i !== idx)); }}
-                              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
+                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </div>
@@ -737,16 +739,18 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                 <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
                   <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Ubah Area</p>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
+                    <label htmlFor="area-name-edit" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
                     <input
+                      id="area-name-edit"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                    <label htmlFor="area-desc-edit" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
                     <input
+                      id="area-desc-edit"
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"

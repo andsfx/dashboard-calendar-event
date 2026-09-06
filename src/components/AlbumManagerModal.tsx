@@ -703,9 +703,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
-                              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
+                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </div>

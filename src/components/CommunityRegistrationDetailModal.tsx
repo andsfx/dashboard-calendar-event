@@ -243,10 +243,11 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Admin Notes */}
           <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <label className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <label htmlFor="reg-admin-note" className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               <FileText className="h-3 w-3" /> Catatan Admin
             </label>
             <textarea
+              id="reg-admin-note"
               value={adminNote}
               onChange={e => setAdminNote(e.target.value)}
               rows={3}

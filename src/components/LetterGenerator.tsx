@@ -362,10 +362,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-surat" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Tanggal Surat *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-tanggal-surat" 
                         value={letter.tanggalSurat}
                         onChange={(value: string) => setLetter({ ...letter, tanggalSurat: value })}
                         placeholder="YYYY-MM-DD"
@@ -374,10 +374,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nomor-surat" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Nomor Surat *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-nomor-surat" 
                         value={letter.nomorSurat}
                         onChange={(value: string) => setLetter({ ...letter, nomorSurat: value })}
                         placeholder="Nomor surat resmi"
@@ -395,10 +395,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nama-eo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Nama EO *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-nama-eo" 
                         value={letter.namaEO}
                         onChange={(value: string) => setLetter({ ...letter, namaEO: value })}
                         placeholder="Nama Event Organizer"
@@ -407,10 +407,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-penanggung-jawab" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Penanggung Jawab *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-penanggung-jawab" 
                         value={letter.penanggungJawab}
                         onChange={(value: string) => setLetter({ ...letter, penanggungJawab: value })}
                         placeholder="Nama PIC/Contact Person"
@@ -420,10 +420,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label htmlFor="letter-alamat-eo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Alamat EO *
                     </label>
-                      <EditableArea
+                      <EditableAreaid="letter-alamat-eo" 
                         value={letter.alamatEO}
                         onChange={(value: string) => setLetter({ ...letter, alamatEO: value })}
                         placeholder="Alamat lengkap Event Organizer"
@@ -434,10 +434,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nama-event" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Nama Event *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-nama-event" 
                         value={letter.namaEvent}
                         onChange={(value: string) => setLetter({ ...letter, namaEvent: value })}
                         placeholder="Nama acara/event"
@@ -446,10 +446,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-lokasi" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Lokasi *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-lokasi" 
                         value={letter.lokasi}
                         onChange={(value: string) => setLetter({ ...letter, lokasi: value })}
                         placeholder="Lokasi pelaksanaan event"
@@ -460,10 +460,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-pelaksanaan" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Hari/Tanggal Pelaksanaan *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-tanggal-pelaksanaan" 
                         value={letter.hariTanggalPelaksanaan}
                         onChange={(value: string) => setLetter({ ...letter, hariTanggalPelaksanaan: value })}
                         placeholder="Contoh: Sabtu, 15 Juni 2025"
@@ -472,10 +472,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-waktu-pelaksanaan" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Waktu Pelaksanaan
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-waktu-pelaksanaan" 
                         value={letter.waktuPelaksanaan}
                         onChange={(value: string) => setLetter({ ...letter, waktuPelaksanaan: value })}
                         placeholder="Contoh: 10:00 - 18:00"
@@ -485,10 +485,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label htmlFor="letter-nomor-telepon" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Nomor Telepon
                     </label>
-                    <EditableText
+                    <EditableTextid="letter-nomor-telepon" 
                       value={letter.nomorTelepon}
                         onChange={(value: string) => setLetter({ ...letter, nomorTelepon: value })}
                       placeholder="Nomor kontak EO"
@@ -505,10 +505,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-bongkar" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Hari/Tanggal Bongkar Muat *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-tanggal-bongkar" 
                         value={letter.hariTanggalLoading}
                         onChange={(value: string) => setLetter({ ...letter, hariTanggalLoading: value })}
                         placeholder="Contoh: Jumat, 14 Juni 2025"
@@ -517,10 +517,10 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-waktu-bongkar" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Waktu Bongkar Muat *
                       </label>
-                      <EditableText
+                      <EditableTextid="letter-waktu-bongkar" 
                         value={letter.waktuLoading}
                         onChange={(value: string) => setLetter({ ...letter, waktuLoading: value })}
                         placeholder="Contoh: 08:00 - 10:00"

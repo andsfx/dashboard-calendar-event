@@ -8,6 +8,7 @@ interface EditableTextProps {
   className?: string;
   style?: CSSProperties;
   ariaLabel?: string;
+  id?: string;
   disabled?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function EditableText({
   className = '',
   style,
   ariaLabel,
+  id,
   disabled = false,
 }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -69,6 +71,7 @@ export function EditableText({
       {isEditing ? (
         <input
           ref={inputRef}
+          id={id}
           type="text"
           value={value}
           onChange={handleChange}
@@ -104,6 +107,7 @@ interface EditableAreaProps {
   className?: string;
   style?: CSSProperties;
   ariaLabel?: string;
+  id?: string;
   disabled?: boolean;
   rows?: number;
 }
@@ -120,6 +124,7 @@ export function EditableArea({
   className = '',
   style,
   ariaLabel,
+  id,
   disabled = false,
   rows = 3,
 }: EditableAreaProps) {
@@ -175,6 +180,7 @@ export function EditableArea({
       {isEditing ? (
         <textarea
           ref={textareaRef}
+          id={id}
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}

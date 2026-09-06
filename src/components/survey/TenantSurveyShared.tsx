@@ -261,7 +261,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
             aria-label="Hapus"
           >
             <X className="h-3.5 w-3.5" />

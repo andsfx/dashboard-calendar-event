@@ -233,9 +233,9 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
               {!!canUpload && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
-                  className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white opacity-0 transition group-hover:opacity-100"
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 md:right-1.5 md:top-1.5"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>

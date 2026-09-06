@@ -76,8 +76,9 @@ export function RecurringEventFields({
       {/* Day of month for monthly */}
       {recurrenceFrequency === 'monthly' && (
         <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
+          <label htmlFor="recurrence-day-of-month" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap tanggal</label>
           <input
+            id="recurrence-day-of-month"
             type="number"
             min={1}
             max={31}
@@ -91,8 +92,9 @@ export function RecurringEventFields({
       {/* Interval for custom */}
       {recurrenceFrequency === 'custom' && (
         <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
+          <label htmlFor="recurrence-interval" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Setiap berapa hari?</label>
           <input
+            id="recurrence-interval"
             type="number"
             min={1}
             value={recurrenceInterval}

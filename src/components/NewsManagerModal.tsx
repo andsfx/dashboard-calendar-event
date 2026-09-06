@@ -328,18 +328,19 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
           {view === 'edit' && !isLoading && (
             <div className="space-y-3">
               <div>
-                <label className={labelClass}>Judul *</label>
+                <label htmlFor="news-title" className={labelClass}>Judul *</label>
                 <input
+                  id="news-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Judul artikel"
                   className={inputClass}
                 />
               </div>
-
               <div>
-                <label className={labelClass}>Ringkasan</label>
+                <label htmlFor="news-excerpt" className={labelClass}>Ringkasan</label>
                 <textarea
+                  id="news-excerpt"
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   placeholder="Ringkasan singkat artikel (opsional)"
@@ -347,10 +348,10 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                   className={inputClass}
                 />
               </div>
-
               <div>
-                <label className={labelClass}>Isi Artikel</label>
+                <label htmlFor="news-content" className={labelClass}>Isi Artikel</label>
                 <textarea
+                  id="news-content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Tulis isi artikel di sini..."
@@ -360,8 +361,9 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
               </div>
 
               <div>
-                <label className={labelClass}>Penulis</label>
+                <label htmlFor="news-author" className={labelClass}>Penulis</label>
                 <input
+                  id="news-author"
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
                   placeholder="Marcomm Metropolitan Mall Bekasi"

@@ -403,7 +403,7 @@ export function RegistrationForm() {
                   <button
                     type="button"
                     onClick={removeProposalFile}
-                    className="shrink-0 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-white"
+                    className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-white"
                     aria-label="Hapus file"
                   >
                     <X className="h-4 w-4" />

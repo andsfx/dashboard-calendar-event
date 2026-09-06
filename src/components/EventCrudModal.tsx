@@ -618,8 +618,9 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Keterangan */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
+            <label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
             <textarea
+              id="event-keterangan"
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
               rows={2}

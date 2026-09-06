@@ -361,10 +361,11 @@ export default function SurveyPage() {
 
           {/* General comment */}
           <section className="space-y-2">
-            <label className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <label htmlFor="survey-general-comment" className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               Komentar Umum <span className="font-normal text-slate-500">(opsional)</span>
             </label>
             <textarea
+              id="survey-general-comment"
               placeholder="Saran, kritik, atau masukan lainnya..."
               value={comments.general}
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
