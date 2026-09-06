@@ -1,6 +1,5 @@
 /* Font loaded via <link> in index.html for non-blocking render */
-/* Report coverage HTML memuat kelas lama — jangan discan Tailwind (kelas mati di bundle) */
-@source not "../coverage";
+
 @import "tailwindcss";
 @import "./styles/theme.css";
 @import "./styles/tokens.css";
@@ -11,3 +10,14 @@
 @import "./styles/motion.css";
 @import "./styles/accessibility.css";
 @variant dark (&:where(.dark, .dark *));
+/* Report coverage HTML memuat kelas lama — jangan discan Tailwind (kelas mati di bundle) */
+@source not "../coverage";
+/* Doc audit memuat nama kelas lama dalam teks — idem */
+@source not "../docs";
+/* Artefak agent/audit tertrack memuat nama kelas dalam teks — idem */
+@source not "../.omo";
+@source not "../.sisyphus";
+@source not "../.scratch";
+@source not "../.vercel";
+/* Prototype sandbox improve/ — bukan app produksi */
+@source not "../improve";

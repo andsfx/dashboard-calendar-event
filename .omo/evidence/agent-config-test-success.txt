@@ -1,1 +1,0 @@
-Agent configuration test successful - all agents now using enowxai-standard/claude-sonnet-4.5
