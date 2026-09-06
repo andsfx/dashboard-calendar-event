@@ -4,6 +4,7 @@ import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
+import { useConfirmDialog } from './ConfirmDialog';
 import { adminThumbUrl } from '../utils/imageOptim';
 
 interface Props {
@@ -41,6 +42,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   const [error, setError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
 
   // Load albums when modal opens
   const loadAlbums = useCallback(async () => {
@@ -145,7 +147,12 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   };
 
   const handleDeleteAlbum = async (album: PhotoAlbum) => {
-    if (!confirm(`Hapus album "${album.name}"? Semua foto di dalamnya juga akan dihapus.`)) return;
+    const ok = await confirm({
+      title: 'Hapus album?',
+      message: 'Semua foto di dalamnya juga akan dihapus.',
+      subject: album.name,
+    });
+    if (!ok) return;
     setIsLoading(true);
     setError('');
     try {
@@ -307,7 +314,8 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
   };
 
   const handleDeletePhoto = async (id: string, url: string) => {
-    if (!confirm('Hapus foto ini?')) return;
+    const ok = await confirm({ title: 'Hapus foto ini?', message: 'Foto akan dihapus permanen dari album.' });
+    if (!ok) return;
     setError('');
     try {
       await deleteAlbumPhoto(id, url);
@@ -749,6 +757,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
           </button>
         </div>
       </div>
+      {confirmDialogEl}
     </ModalWrapper>
   );
 }

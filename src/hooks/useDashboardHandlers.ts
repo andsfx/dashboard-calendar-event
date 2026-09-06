@@ -7,6 +7,8 @@ import { useLetterHandlers } from './useLetterHandlers';
 import { useRegistrationHandlers, type RegistrationHandlersResult } from './useRegistrationHandlers';
 import { useSiteSettingsHandlers, type SiteSettingsHandlersResult } from './useSiteSettingsHandlers';
 
+import { useConfirmDialog, type ConfirmOptions } from '../components/ConfirmDialog';
+
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 
 export type DashboardHandlersDeps = {
@@ -30,6 +32,7 @@ export type DashboardHandlersDeps = {
   restoreDraft: (id: string) => Promise<boolean>;
   canViewRegistrations: boolean;
   dashboardPath: string;
+  confirm: (options: ConfirmOptions) => Promise<boolean>;
   draftError: string | null;
 };
 
@@ -42,6 +45,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     refreshEvents,
     draftEvents, addDraft, updateDraft, deleteDraft,
     publishDraft, restoreDraft,
+    confirm,
     canViewRegistrations, dashboardPath, draftError,
   } = deps;
 
@@ -58,11 +62,13 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     addDraft, updateDraft, deleteDraft,
     publishDraft, restoreDraft,
     refreshEvents,
+    confirm,
   });
 
   const theme: ThemeHandlersResult = useThemeHandlers({
     showToast,
     addTheme, updateTheme, deleteTheme,
+    confirm,
   });
 
   const letter = useLetterHandlers();

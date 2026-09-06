@@ -11,6 +11,7 @@ import {
 } from '../utils/supabaseApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
+import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   isOpen: boolean;
@@ -41,8 +42,8 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [uploadingEventId, setUploadingEventId] = useState<string | null>(null);
-
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -90,9 +91,13 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
       if (fileInputRefs.current[eventId]) fileInputRefs.current[eventId]!.value = '';
     }
   };
-
   const handleDeleteProposal = async (item: EventProposalEvent) => {
-    if (!confirm(`Hapus proposal untuk event "${item.event.acara}"?`)) return;
+    const ok = await confirm({
+      title: 'Hapus proposal?',
+      message: 'File proposal untuk event ini akan dihapus.',
+      subject: item.event.acara,
+    });
+    if (!ok) return;
     setIsLoading(true);
     setError('');
     setSuccess('');
@@ -120,7 +125,12 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
   };
 
   const handleDeleteLead = async (lead: SponsorLead) => {
-    if (!confirm(`Hapus lead dari "${lead.companyName}"?`)) return;
+    const ok = await confirm({
+      title: 'Hapus lead sponsor?',
+      message: 'Data lead ini akan dihapus permanen.',
+      subject: lead.companyName,
+    });
+    if (!ok) return;
     setIsLoading(true);
     setError('');
     setSuccess('');
@@ -357,6 +367,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
           )}
         </div>
       </div>
+      {confirmDialogEl}
     </ModalWrapper>
   );
 }

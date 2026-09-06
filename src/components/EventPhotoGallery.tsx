@@ -9,6 +9,7 @@ import {
   fetchAlbums,
 } from '../utils/supabaseApi';
 import type { PhotoAlbum } from '../types';
+import { useConfirmDialog } from './ConfirmDialog';
 
 interface EventPhoto {
   id: string;
@@ -27,6 +28,7 @@ interface EventPhotoGalleryProps {
 
 export function EventPhotoGallery({ eventId, eventName, canUpload = false }: EventPhotoGalleryProps) {
   const [photos, setPhotos] = useState<EventPhoto[]>([]);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
   const [linkedAlbum, setLinkedAlbum] = useState<PhotoAlbum | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -90,7 +92,8 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
   }, [eventId, fetchPhotos]);
 
   const handleDelete = useCallback(async (photoId: string) => {
-    if (!confirm('Hapus foto ini?')) return;
+    const ok = await confirm({ title: 'Hapus foto ini?', message: 'Foto akan dihapus permanen dari galeri event.' });
+    if (!ok) return;
     const photo = photos.find((p) => p.id === photoId);
     try {
       await deleteEventPhoto(photoId, photo?.url || '');
@@ -98,7 +101,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
     } catch (err) {
       console.error('[EventPhotoGallery] delete failed:', err);
     }
-  }, [photos, fetchPhotos]);
+  }, [confirm, photos, fetchPhotos]);
 
   const handleLinkAlbum = useCallback(async (albumId: string) => {
     try {
@@ -267,6 +270,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
           onNext={() => setLightboxIdx(i => i !== null && i < photos.length - 1 ? i + 1 : i)}
         />
       )}
+      {confirmDialogEl}
     </div>
   );
 }

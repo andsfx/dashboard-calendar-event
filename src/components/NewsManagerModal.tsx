@@ -5,6 +5,7 @@ import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsA
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
+import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   isOpen: boolean;
@@ -32,8 +33,8 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
   const [content, setContent] = useState('');
   const [author, setAuthor] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
 
   const loadArticles = useCallback(async () => {
     setIsLoading(true);
@@ -153,7 +154,12 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
   };
 
   const handleDelete = async (article: NewsArticle) => {
-    if (!confirm(`Hapus artikel "${article.title}"?`)) return;
+    const ok = await confirm({
+      title: 'Hapus artikel?',
+      message: 'Artikel akan dihapus permanen beserta cover image.',
+      subject: article.title,
+    });
+    if (!ok) return;
     setIsLoading(true);
     setError('');
     try {
@@ -410,13 +416,14 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                   className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                 >
                   <Save className="h-3.5 w-3.5" />
-                  {editing ? 'Simpan Perubahan' : 'Simpan Artikel'}
+                  Simpan Artikel
                 </button>
               </div>
             </div>
           )}
         </div>
       </div>
+      {confirmDialogEl}
     </ModalWrapper>
   );
 }

@@ -29,6 +29,7 @@ import {
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
+import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   isOpen: boolean;
@@ -57,8 +58,8 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
 
   const loadAreas = useCallback(async () => {
     setIsLoading(true);
@@ -136,7 +137,12 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
   };
 
   const handleDeleteArea = async (area: EventArea) => {
-    if (!confirm(`Hapus area "${area.name}"? Semua foto di dalamnya juga akan dihapus.`)) return;
+    const ok = await confirm({
+      title: 'Hapus area?',
+      message: 'Semua foto di dalamnya juga akan dihapus.',
+      subject: area.name,
+    });
+    if (!ok) return;
     setIsLoading(true);
     setError('');
     try {
@@ -232,7 +238,8 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
   };
 
   const handleDeletePhoto = async (photo: AreaPhoto) => {
-    if (!confirm('Hapus foto ini?')) return;
+    const ok = await confirm({ title: 'Hapus foto ini?', message: 'Foto akan dihapus permanen dari area.' });
+    if (!ok) return;
     setError('');
     try {
       await deleteAreaPhoto(photo.id, photo.url);
@@ -780,6 +787,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
           </button>
         </div>
       </div>
+      {confirmDialogEl}
     </ModalWrapper>
   );
 }

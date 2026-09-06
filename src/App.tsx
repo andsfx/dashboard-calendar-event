@@ -11,8 +11,8 @@ import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
 import { useDashboardHandlers } from './hooks/useDashboardHandlers';
+import { useConfirmDialog } from './components/ConfirmDialog';
 import { ViewMode } from './types';
-
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
@@ -56,6 +56,8 @@ export default function App() {
   const isAdmin = permissions.canViewDashboard;
   const canSeeInternalSchedule = permissions.canEditEvents;
   const { toasts, showToast, removeToast } = useToast();
+  // Dialog konfirmasi promise-based — pengganti window.confirm() di seluruh dashboard
+  const confirmDialog = useConfirmDialog();
   const {
     events, filteredEvents,
     searchQuery, setSearchQuery,
@@ -178,6 +180,7 @@ export default function App() {
     restoreDraft,
     canViewRegistrations: permissions.canViewRegistrations,
     dashboardPath,
+    confirm: confirmDialog.confirm,
     draftError,
   });
 
@@ -449,7 +452,7 @@ export default function App() {
       {/* Dashboard routes */}
       <Route path="/dashboard/*" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={isAdmin} />}>
-          {isAdmin ? (
+          {isAdmin ? (<>
             <DashboardPage
               isAdmin={isAdmin}
               isLoading={isLoading}
@@ -472,7 +475,8 @@ export default function App() {
               registrations={dpRegistrations}
               siteSettings={dpSiteSettings}
             />
-          ) : (
+            {confirmDialog.dialog}
+          </>) : (
             <AdminLoginPage
               onEmailLogin={auth.login}
               onLegacyLogin={auth.legacyLogin}

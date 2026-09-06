@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { AnnualTheme, ToastMessage } from '../types';
+import type { ConfirmOptions } from '../components/ConfirmDialog';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 
@@ -8,6 +9,7 @@ export type ThemeHandlersDeps = {
   addTheme: (theme: AnnualTheme) => Promise<boolean>;
   updateTheme: (theme: AnnualTheme) => Promise<boolean>;
   deleteTheme: (id: string) => Promise<boolean>;
+  confirm: (options: ConfirmOptions) => Promise<boolean>;
 };
 
 export interface ThemeHandlersResult {
@@ -22,7 +24,7 @@ export interface ThemeHandlersResult {
 }
 
 export function useThemeHandlers(deps: ThemeHandlersDeps): ThemeHandlersResult {
-  const { showToast, addTheme, updateTheme, deleteTheme } = deps;
+  const { showToast, addTheme, updateTheme, deleteTheme, confirm } = deps;
 
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [editingTheme, setEditingTheme] = useState<AnnualTheme | null>(null);
@@ -51,11 +53,16 @@ export function useThemeHandlers(deps: ThemeHandlersDeps): ThemeHandlersResult {
 
   const handleDeleteTheme = useCallback(async (theme: AnnualTheme) => {
     if (!theme.id) return;
-    if (!window.confirm(`Hapus tema tahunan "${theme.name}"?`)) return;
+    const ok = await confirm({
+      title: 'Hapus tema tahunan?',
+      message: 'Tema akan dihapus dari daftar.',
+      subject: theme.name,
+    });
+    if (!ok) return;
     const success = await deleteTheme(theme.id);
     if (success) showToast('success', 'Tema dihapus', `"${theme.name}" telah dihapus.`);
     else showToast('error', 'Gagal menghapus tema', 'Tema tahunan belum berhasil dihapus.');
-  }, [deleteTheme, showToast]);
+  }, [confirm, deleteTheme, showToast]);
 
   return {
     showThemeModal, setShowThemeModal,

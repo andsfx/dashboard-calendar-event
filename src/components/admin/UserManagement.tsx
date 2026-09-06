@@ -4,6 +4,7 @@ import {
   ToggleLeft, ToggleRight, Pencil, Trash2, Mail, Check, X,
   Crown, BarChart3,
 } from 'lucide-react';
+import { useConfirmDialog } from '../ConfirmDialog';
 
 interface UserRecord {
   id: string;
@@ -28,6 +29,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
 export function UserManagement() {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState<'invite' | 'create' | null>(null);
   const [formData, setFormData] = useState({ email: '', password: '', role: 'viewer', display_name: '', eo_organization: '' });
@@ -56,16 +58,20 @@ export function UserManagement() {
     });
     if ((await res.json()).success) fetchUsers();
   }, [fetchUsers]);
-
   const handleDelete = useCallback(async (userId: string) => {
-    if (!confirm('Nonaktifkan user ini?')) return;
+    const ok = await confirm({
+      title: 'Nonaktifkan user ini?',
+      message: 'User tidak akan bisa login sampai diaktifkan kembali.',
+      confirmLabel: 'Nonaktifkan',
+    });
+    if (!ok) return;
     const res = await fetch('/api/auth?action=delete-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
       body: JSON.stringify({ user_id: userId }),
     });
     if ((await res.json()).success) fetchUsers();
-  }, [fetchUsers]);
+  }, [confirm, fetchUsers]);
 
   const handleSubmitForm = useCallback(async () => {
     setFormLoading(true);
@@ -219,6 +225,7 @@ export function UserManagement() {
           })}
         </div>
       </div>
+      {confirmDialogEl}
     </div>
   );
 }
