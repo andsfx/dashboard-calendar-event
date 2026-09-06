@@ -413,7 +413,7 @@ export function EventsLandingPage({
               Highlights
             </a>
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Calendar
+              Kalender
             </a>
             <Link to="/ajukan-event" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Ajukan Event
@@ -516,7 +516,7 @@ export function EventsLandingPage({
                   href="#calendar"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
-                  Calendar
+                  Kalender
                 </a>
                 <Link
                   to="/daftar"
@@ -676,7 +676,7 @@ export function EventsLandingPage({
                       href="#calendar"
                       className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] transition hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                     >
-                      +{railOverflow} event lain di calendar
+                      +{railOverflow} event lain di kalender
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </div>
@@ -685,13 +685,13 @@ export function EventsLandingPage({
             ) : !highlight ? null : (
               <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Lihat calendar untuk jadwal lengkap.
+                  Lihat kalender untuk jadwal lengkap.
                 </p>
                 <a
                   href="#calendar"
                   className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
-                  View Calendar <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  Lihat Kalender <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             )}
@@ -756,7 +756,7 @@ export function EventsLandingPage({
               Gallery
             </Link>
             <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Calendar
+              Kalender
             </a>
             <Link to="/ajukan-event" className="transition hover:text-white ui-focus-ring rounded-sm">
               Ajukan Event

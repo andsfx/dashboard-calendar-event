@@ -433,7 +433,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     </div>
 
                     <div>
-                    {/* Description */}
+                      {/* Description */}
                       <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
                       <input
                         id="album-manager-desc"

@@ -141,6 +141,12 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
 
   return (
     <div className="community-landing min-h-screen bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
+      <a
+        href="#register"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke form pendaftaran
+      </a>
       <header className={`transition-colors duration-200 ${headerClassName}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20">
@@ -236,12 +242,6 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           )}
         </div>
       </header>
-      <a
-        href="#register"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-      >
-        Langsung ke form pendaftaran
-      </a>
       <main className="pb-20 sm:pb-0">
         <CommunityHero heroImageUrl={heroImageUrl} stats={stats} isLoading={isLoading} />
         <CommunitySocialProof totalEvents={stats?.total} totalCompleted={stats?.completed} totalOrganizers={stats?.organizers} isLoading={isLoading} />
