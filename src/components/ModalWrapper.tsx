@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+// Stack modul-level modals yang terbuka — Escape/Tab hanya ditangani modal
+// teratas, sehingga dialog konfirmasi bersarang (mis. ConfirmDialog di dalam
+// AlbumManagerModal) tidak menutup modal parent saat Escape ditekan.
+let openModalStack: symbol[] = [];
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -23,6 +27,8 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
   const triggerRef = useRef<HTMLElement | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  // Identitas instance untuk stack modal teratas
+  const instanceId = useRef<symbol>(Symbol('modal'));
 
   // Handle open/close with exit animation
   useEffect(() => {
@@ -69,25 +75,29 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     });
   }, [shouldRender]);
 
-  // Escape key handler
+  // Scroll lock + pendaftaran stack modal teratas
+  useEffect(() => {
+    if (shouldRender) {
+      document.body.style.overflow = 'hidden';
+      openModalStack.push(instanceId.current);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      openModalStack = openModalStack.filter(id => id !== instanceId.current);
+    };
+  }, [shouldRender]);
+
+  // Escape key handler — hanya modal teratas yang menutup
   useEffect(() => {
     if (!shouldRender || isClosing) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
+      if (e.key !== 'Escape') return;
+      if (openModalStack[openModalStack.length - 1] !== instanceId.current) return;
+      handleClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [shouldRender, isClosing, handleClose]);
-
-  // Scroll lock
-  useEffect(() => {
-    if (shouldRender) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [shouldRender]);
 
   // Focus trap: cycle Tab/Shift+Tab within modal
   useEffect(() => {
@@ -106,6 +116,9 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
+      // Nested modal terbuka (mis. ConfirmDialog) → biarkan trap-nya yang handle
+      if (openModalStack[openModalStack.length - 1] !== instanceId.current) return;
+
 
       // Re-query focusable elements on every Tab press to handle dynamic content (e.g., upload buttons added after modal opens)
       const focusableElements = Array.from(panel.querySelectorAll<HTMLElement>(focusableSelector));
