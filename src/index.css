@@ -1,4 +1,6 @@
 /* Font loaded via <link> in index.html for non-blocking render */
+/* Report coverage HTML memuat kelas lama — jangan discan Tailwind (kelas mati di bundle) */
+@source not "../coverage";
 @import "tailwindcss";
 @import "./styles/theme.css";
 @import "./styles/tokens.css";

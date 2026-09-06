@@ -41,3 +41,4 @@ DESIGN_AUDIT_REPORT.md
 graphify-out/
 .scratch/
 .tmp/
+coverage/
