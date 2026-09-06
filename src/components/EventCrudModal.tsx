@@ -448,13 +448,16 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     }
 
     // Handle single and multi_day events (existing behavior)
+    // dateEnd/dayTimeSlots dikirim eksplisit (''/[]) saat non-multi-day
+    // agar mapper menulis NULL/empty ke DB — undefined akan di-skip mapper
+    // dan nilai lama bertahan (bug: rangkaian tidak bisa diubah ke biasa).
     const normalizedFormData = {
       ...formData,
       categories: formData.categories,
       category: formData.categories[0] || 'Umum',
       isMultiDay: formData.isMultiDay,
-      dateEnd: formData.isMultiDay ? formData.dateEnd : undefined,
-      dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : undefined,
+      dateEnd: formData.isMultiDay ? formData.dateEnd : '',
+      dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : [],
     };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
     // Canonical derive (SPEC §3.3); preserve legacy internal draft flag if editing one

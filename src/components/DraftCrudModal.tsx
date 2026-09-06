@@ -325,8 +325,10 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
       ...form,
       category: form.categories[0] || 'Umum',
       isMultiDay: form.eventType === 'multi_day',
-      dateEnd: form.eventType === 'multi_day' ? form.dateEnd : undefined,
-      dayTimeSlots: form.eventType === 'multi_day' ? form.dayTimeSlots : undefined,
+      // eksplisit ''/[] saat non-multi-day — undefined di-skip mapper draftItemToDbRow
+      // sehingga date_end/day_time_slots lama bertahan di DB (bug serupa event)
+      dateEnd: form.eventType === 'multi_day' ? form.dateEnd : '',
+      dayTimeSlots: form.eventType === 'multi_day' ? form.dayTimeSlots : [],
       eventType: form.eventType,
       areaId: areaId || null,
       isRecurring: form.eventType === 'recurring',
