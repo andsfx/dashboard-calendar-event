@@ -451,7 +451,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
     // Handle single and multi_day events (existing behavior)
     // dateEnd/dayTimeSlots dikirim eksplisit (''/[]) saat non-multi-day
-    // agar mapper menulis NULL/empty ke DB — undefined akan di-skip mapper
+    // agar mapper menulis NULL/empty ke DB — undefined di-skip mapper
+    // dan nilai lama bertahan (bug: rangkaian tidak bisa diubah ke biasa).
     // Keanggotaan series reguler (is_recurring/recurrence_group_id) tidak pernah
     // diubah secara diam-diam oleh edit biasa: pertahankan nilai event asli
     // (idempotent). Detach hanya terjadi bila user mencentang "Lepas dari
@@ -587,9 +588,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               <div className="flex items-center gap-2 text-xs text-brand-primary-700 dark:text-brand-primary-300">
                 <Repeat className="h-3.5 w-3.5 shrink-0" />
                 <span>
-                  Acara ini bagian dari series reguler
-                  {editingEvent.recurrenceGroupId ? ` (grup ${editingEvent.recurrenceGroupId.slice(0, 8)})` : ''}.
-                  Edit biasa tidak mengubah keanggotaan series.
+                  Acara ini bagian dari series reguler. Edit biasa tidak
+                  mengubah keanggotaan series.
                 </span>
               </div>
               <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
