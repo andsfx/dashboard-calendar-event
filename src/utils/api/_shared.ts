@@ -103,6 +103,7 @@ export function dbEventToEventItem(row: DbEvent, index: number): EventItem {
     dayTimeSlots: Array.isArray(row.day_time_slots) ? row.day_time_slots as EventItem['dayTimeSlots'] : undefined,
     eventType: (row.event_type as EventItem['eventType']) || 'single',
     recurrenceGroupId: row.recurrence_group_id || '',
+    isRecurring: row.is_recurring || false,
     posterUrl: row.poster_url || '',
     organizationId: row.organization_id || '',
   };

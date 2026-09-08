@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, Calendar, Image, Trash2, Upload } from 'lucide-react';
+import { Save, Calendar, Image, Trash2, Upload, Repeat } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency, EventArea } from '../types';
 import { parseDateStrLocal, getDateRange, createRecurringEvents, getStatus } from '../utils/eventUtils';
 import { findAreaConflicts } from '../utils/areaConflict';
@@ -116,6 +116,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [areaId, setAreaId] = useState('');
   const [overrideAck, setOverrideAck] = useState(false);
+  const [detachSeries, setDetachSeries] = useState(false);
   const [posterUploading, setPosterUploading] = useState(false);
   const [posterError, setPosterError] = useState('');
   const posterInputRef = useRef<HTMLInputElement>(null);
@@ -203,9 +204,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     } else {
       setForm(EMPTY);
     }
-    setErrors({});
     setAreaId(editingEvent?.areaId || initialData?.areaId || '');
     setOverrideAck(false);
+    setDetachSeries(false);
+    setErrors({});
     setIsSubmitting(false);
     setPosterError('');
   }, [editingEvent, initialData, isOpen]);
@@ -450,9 +452,22 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     // Handle single and multi_day events (existing behavior)
     // dateEnd/dayTimeSlots dikirim eksplisit (''/[]) saat non-multi-day
     // agar mapper menulis NULL/empty ke DB — undefined akan di-skip mapper
-    // dan nilai lama bertahan (bug: rangkaian tidak bisa diubah ke biasa).
+    // Keanggotaan series reguler (is_recurring/recurrence_group_id) tidak pernah
+    // diubah secara diam-diam oleh edit biasa: pertahankan nilai event asli
+    // (idempotent). Detach hanya terjadi bila user mencentang "Lepas dari
+    // series" ATAU mengubah tipe ke rangkaian acara (multi-day dan recurring
+    // mutually exclusive) — kirim eksplisit false/'' agar mapper menulis NULL
+    // ke DB, undefined akan di-skip dan nilai lama bertahan.
+    const detach = detachSeries || formData.eventType === 'multi_day';
+    const seriesMembership = editingEvent?.isRecurring
+      ? {
+          isRecurring: !detach,
+          recurrenceGroupId: detach ? '' : editingEvent.recurrenceGroupId || '',
+        }
+      : {};
     const normalizedFormData = {
       ...formData,
+      ...seriesMembership,
       categories: formData.categories,
       category: formData.categories[0] || 'Umum',
       isMultiDay: formData.isMultiDay,
@@ -535,14 +550,16 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
             <div className="flex flex-wrap gap-2">
               {([
-                { value: 'single', label: 'Acara biasa' },
-                { value: 'multi_day', label: 'Rangkaian acara' },
-                { value: 'recurring', label: 'Event reguler' },
+                { value: 'single', label: 'Acara biasa', disabled: false },
+                { value: 'multi_day', label: 'Rangkaian acara', disabled: false },
+                { value: 'recurring', label: 'Event reguler', disabled: isEdit },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                  form.eventType === opt.value
-                    ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                <label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                  opt.disabled
+                    ? 'cursor-not-allowed border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500'
+                    : `cursor-pointer ${form.eventType === opt.value
+                      ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'}`
                 }`}>
                   <input
                     type="radio"
@@ -550,13 +567,42 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     value={opt.value}
                     checked={form.eventType === opt.value}
                     onChange={() => set('eventType', opt.value)}
+                    disabled={opt.disabled}
                     className="sr-only"
                   />
                   {opt.label}
                 </label>
               ))}
             </div>
+            {isEdit && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Event reguler hanya bisa dibuat saat menambah acara baru; untuk mengubah seluruh series, hapus series lalu buat ulang.
+              </p>
+            )}
           </div>
+
+          {/* Banner series reguler — info keanggotaan + opsi detach eksplisit */}
+          {editingEvent?.isRecurring && (
+            <div className="flex flex-col gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-800 dark:bg-brand-primary-900/20">
+              <div className="flex items-center gap-2 text-xs text-brand-primary-700 dark:text-brand-primary-300">
+                <Repeat className="h-3.5 w-3.5 shrink-0" />
+                <span>
+                  Acara ini bagian dari series reguler
+                  {editingEvent.recurrenceGroupId ? ` (grup ${editingEvent.recurrenceGroupId.slice(0, 8)})` : ''}.
+                  Edit biasa tidak mengubah keanggotaan series.
+                </span>
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={detachSeries}
+                  onChange={e => setDetachSeries(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-brand-primary-600 focus:ring-brand-primary-500 dark:border-slate-600 dark:bg-slate-800"
+                />
+                Lepas dari series saat disimpan (badge &quot;Reguler&quot; hilang dari acara ini)
+              </label>
+            </div>
+          )}
 
           {/* Multi-day fields */}
           {form.eventType === 'multi_day' && (
