@@ -24,6 +24,11 @@ export function getTodayIsoLocal(now = new Date()): string {
   const d = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+/** ISO besok (lokal, bukan UTC) — untuk preset filter "Besok" di /events. */
+export function getTomorrowIsoLocal(now = new Date()): string {
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+}
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -68,4 +73,14 @@ export function getWeekendWindow(now = new Date()): { start: string; end: string
   const sunday = new Date(saturday.getFullYear(), saturday.getMonth(), saturday.getDate() + 1);
   const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   return { start: fmt(saturday), end: fmt(sunday) };
+}
+/**
+ * Label relatif hari untuk card event (pattern Eventbrite "Tomorrow"):
+ * 'Hari ini' / 'Besok' bila dateStr cocok dengan hari ini/besok, selain itu null
+ * (tanggal absolut tetap ditampilkan).
+ */
+export function relativeDayLabel(dateStr: string, now = new Date()): string | null {
+  if (dateStr === getTodayIsoLocal(now)) return 'Hari ini';
+  if (dateStr === getTomorrowIsoLocal(now)) return 'Besok';
+  return null;
 }

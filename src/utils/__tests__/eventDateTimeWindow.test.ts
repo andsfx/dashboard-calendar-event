@@ -1,11 +1,11 @@
 /**
- * Tes filter window — preset "Hari Ini" / "Akhir Pekan Ini" di /events:
+ * Tes filter window + label relatif — preset "Hari Ini" / "Besok" / "Akhir Pekan Ini" di /events:
  * - eventOverlapsWindow: rentang event overlap window (multi-day, single-day, null end).
  * - getWeekendWindow: Sabtu–Minggu; jika hari ini sudah weekend, pakai yang berjalan.
+ * - getTomorrowIsoLocal / relativeDayLabel: ISO lokal besok; label 'Hari ini' / 'Besok' / null.
  */
 import { describe, it, expect } from 'vitest';
-import { eventOverlapsWindow, getWeekendWindow } from '../eventDateTime';
-
+import { eventOverlapsWindow, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../eventDateTime';
 describe('eventOverlapsWindow', () => {
   it('event satu hari di dalam window → true', () => {
     expect(eventOverlapsWindow('2026-09-05', undefined, '2026-09-05', '2026-09-05')).toBe(true);
@@ -46,5 +46,37 @@ describe('getWeekendWindow', () => {
     const win = getWeekendWindow(new Date(2026, 8, 6));
     expect(win.start).toBe('2026-09-05');
     expect(win.end).toBe('2026-09-06');
+  });
+});
+
+describe('getTomorrowIsoLocal', () => {
+  it('Rabu 2026-09-02 → besok Kamis 2026-09-03', () => {
+    expect(getTomorrowIsoLocal(new Date(2026, 8, 2))).toBe('2026-09-03');
+  });
+
+  it('ganti bulan: 30 Sep → 1 Okt', () => {
+    expect(getTomorrowIsoLocal(new Date(2026, 8, 30))).toBe('2026-10-01');
+  });
+
+  it('ganti tahun: 31 Des → 1 Jan tahun berikut', () => {
+    expect(getTomorrowIsoLocal(new Date(2026, 11, 31))).toBe('2027-01-01');
+  });
+});
+
+describe('relativeDayLabel', () => {
+  it('event hari ini → "Hari ini"', () => {
+    expect(relativeDayLabel('2026-09-02', new Date(2026, 8, 2))).toBe('Hari ini');
+  });
+
+  it('event besok → "Besok"', () => {
+    expect(relativeDayLabel('2026-09-03', new Date(2026, 8, 2))).toBe('Besok');
+  });
+
+  it('event lusa → null (tanggal absolut dipakai)', () => {
+    expect(relativeDayLabel('2026-09-04', new Date(2026, 8, 2))).toBeNull();
+  });
+
+  it('event kemarin (tapi status upcoming) → null', () => {
+    expect(relativeDayLabel('2026-09-01', new Date(2026, 8, 2))).toBeNull();
   });
 });

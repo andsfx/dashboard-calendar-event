@@ -18,7 +18,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { eventOverlapsWindow, getTodayIsoLocal, getWeekendWindow } from '../utils/eventDateTime';
+import { eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
@@ -240,6 +240,7 @@ function EventRailCard({
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
   const color = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
   const isLive = event.status === 'ongoing';
+  const relLabel = event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
 
   return (
     <button
@@ -260,7 +261,8 @@ function EventRailCard({
           ) : (
             <>
               <Clock3 className="h-3 w-3" aria-hidden="true" />
-              {event.tanggal}
+              {relLabel ?? event.tanggal}
+              {relLabel && event.tanggal && <span className="sr-only">{event.tanggal}</span>}
             </>
           )}
         </span>
@@ -356,7 +358,7 @@ export function EventsLandingPage({
 
   // ─── Filter URL (?waktu= & ?kategori=) — deep-linkable, riset Skedda/Eventbrite pattern ───
   const [searchParams, setSearchParams] = useSearchParams();
-  const waktu = searchParams.get('waktu'); // 'hari-ini' | 'akhir-pekan' | null
+  const waktu = searchParams.get('waktu'); // 'hari-ini' | 'besok' | 'akhir-pekan' | null
   const kategori = searchParams.get('kategori'); // label kategori | null
 
   const categoryOptions = useMemo(() => {
@@ -370,7 +372,9 @@ export function EventsLandingPage({
     const weekend = getWeekendWindow();
     const win = waktu === 'hari-ini'
       ? { start: todayIso, end: todayIso }
-      : waktu === 'akhir-pekan' ? weekend : null;
+      : waktu === 'besok'
+        ? { start: getTomorrowIsoLocal(), end: getTomorrowIsoLocal() }
+        : waktu === 'akhir-pekan' ? weekend : null;
     return events.filter(ev => {
       if (win && !eventOverlapsWindow(ev.dateStr, ev.dateEnd, win.start, win.end)) return false;
       if (kategori && !(ev.categories || []).includes(kategori)) return false;
@@ -555,7 +559,7 @@ export function EventsLandingPage({
         <section id="filter" aria-label="Filter jadwal event" className="border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
-              {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
+              {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
                 <button
                   key={value || 'semua'}
                   type="button"
