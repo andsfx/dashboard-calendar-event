@@ -29,7 +29,6 @@ export {
 
 export {
   fetchEventPhotos,
-  uploadEventPhoto,
   deleteEventPhoto,
   createEventPhotoRecord,
   linkAlbumToEvent,

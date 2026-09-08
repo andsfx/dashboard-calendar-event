@@ -1,6 +1,6 @@
-import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction, slugify } from './_shared';
 import { deleteFromR2 } from './albumsApi';
+import { apiGet, ApiError } from '../../lib/rest';
 import type { NewsArticle } from '../../types';
 
 // ─── News / Blog ─────────────────────────────────────────────────
@@ -16,28 +16,22 @@ function mapRow(row: Record<string, unknown>): NewsArticle {
   };
 }
 
-/** Public list — published articles only, newest first (max 50). */
+/** Public list — published articles only, newest first (server urut published_at DESC). */
 export async function fetchNewsArticles(): Promise<NewsArticle[]> {
-  const { data, error } = await supabase
-    .from('news_articles')
-    .select('*')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
-    .limit(50);
-  if (error) throw new SupabaseApiError(`Fetch news failed: ${error.message}`);
-  return (data || []).map(row => mapRow(row as Record<string, unknown>));
+  const rows = await apiGet<Record<string, unknown>[]>('/news');
+  return (rows || []).map(row => mapRow(row));
 }
 
 /** Public single article by slug (published only). Null when not found/error. */
 export async function fetchNewsArticleBySlug(slug: string): Promise<NewsArticle | null> {
-  const { data, error } = await supabase
-    .from('news_articles')
-    .select('*')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .single();
-  if (error || !data) return null;
-  return mapRow(data as Record<string, unknown>);
+  try {
+    const row = await apiGet<Record<string, unknown>>(`/news/${encodeURIComponent(slug)}`);
+    return mapRow(row);
+  } catch (err) {
+    // Server 404 saat artikel bukan published/tidak ada (mirror .single(): null).
+    if (err instanceof ApiError && err.code === '404') return null;
+    throw err;
+  }
 }
 
 /** Admin list — all statuses via service-role proxy. */

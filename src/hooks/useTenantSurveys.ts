@@ -22,16 +22,15 @@ import {
   fetchPublicTenantSurveyResults,
   fetchPublicTenantSurveyMonthlyTrend,
 } from '../utils/supabaseApi';
-import { supabase } from '../lib/supabase';
 
 /**
  * useTenantSurveys — manages tenant (EO) self-assessment surveys.
  *
- * Provides CRUD, submit, review, analytics, and realtime sync.
+ * Provides CRUD, submit, review, analytics, and polling sync.
  * Follows the same pattern as useEvents for consistency.
  *
  * @param eventId optional event filter
- * @param opts.publicMode use rate-limited public results API (no login, no realtime)
+ * @param opts.publicMode use rate-limited public results API (no login, no polling list)
  */
 export function useTenantSurveys(
   eventId?: string,
@@ -67,20 +66,15 @@ export function useTenantSurveys(
     refreshSurveys();
   }, [refreshSurveys]);
 
-  // ─── Realtime subscription (auth only) ─────────────────────────
+  // ─── Polling 60s (auth only; publicMode skip list poll) ────────
   useEffect(() => {
     if (publicMode) return;
-    const channel = supabase
-      .channel('tenant-surveys-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tenant_event_surveys' },
-        () => { refreshSurveys(); },
-      )
-      .subscribe();
+    const intervalId = setInterval(() => {
+      refreshSurveys();
+    }, 60_000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
   }, [refreshSurveys, publicMode]);
 
@@ -137,7 +131,7 @@ export function useTenantSurveys(
 
 /**
  * useTenantSurveyAnalytics — fetches aggregated tenant survey analytics
- * with realtime auto-refresh on data changes.
+ * with polling auto-refresh on data changes.
  */
 export function useTenantSurveyAnalytics(eventId?: string | null) {
   const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
@@ -164,18 +158,14 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
     refreshAnalytics();
   }, [refreshAnalytics]);
 
+  // Opsi B: polling 60s — ganti channel Supabase Realtime (analytics selalu poll).
   useEffect(() => {
-    const channel = supabase
-      .channel('tenant-survey-analytics-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tenant_event_surveys' },
-        () => { refreshAnalytics(); },
-      )
-      .subscribe();
+    const intervalId = setInterval(() => {
+      refreshAnalytics();
+    }, 60_000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
   }, [refreshAnalytics]);
 

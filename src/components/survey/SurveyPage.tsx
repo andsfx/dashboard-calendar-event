@@ -6,7 +6,7 @@ import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   User, Mail, Phone, Briefcase, Send, ArrowLeft,
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { apiGet } from '../../lib/rest';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateEmail } from '../../utils/validation';
 import type { SurveyType } from '../../types';
@@ -79,15 +79,11 @@ export default function SurveyPage() {
     let cancelled = false;
     (async () => {
       try {
-        // Fetch event
-        const { data: ev, error: evErr } = await supabase
-          .from('events')
-          .select('id, acara, tanggal, lokasi, eo, status')
-          .eq('id', eventId)
-          .single();
+        // Fetch event — REST publik (Opsi B), envelope {success,data} → apiGet unwrap.
+        const ev = await apiGet<EventInfo | null>(`/events/${encodeURIComponent(eventId)}`);
 
         if (cancelled) return;
-        if (evErr || !ev) { setError('Event tidak ditemukan'); setLoading(false); return; }
+        if (!ev) { setError('Event tidak ditemukan'); setLoading(false); return; }
         setEvent(ev);
 
         // Check fingerprint

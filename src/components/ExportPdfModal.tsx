@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Download, Loader2, X, FileText, CalendarDays, Palette, ArrowLeft, Eye } from 'lucide-react';
 import type { AnnualTheme, EventPhoto, PhotoAlbum } from '../types';
-import { supabase } from '../lib/supabase';
+import { apiGet } from '../lib/rest';
 import { generateAlbumPdf, type AlbumWithPhotos } from '../utils/pdfExport';
 import { ModalWrapper } from './ModalWrapper';
 
@@ -21,6 +21,19 @@ interface DbPhotoRow {
   event_date: string | null;
   sort_order: number | null;
   album_id: string | null;
+}
+
+interface DbAlbumRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  event_date: string;
+  cover_photo_url: string;
+  sort_order: number;
+  event_id: string;
+  lokasi: string;
+  theme_id: string;
 }
 
 function dbPhotoToEventPhoto(row: DbPhotoRow): EventPhoto {
@@ -106,17 +119,13 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
     try {
       const albumIds = filteredAlbums.map(album => album.id);
-      const { data, error } = await supabase
-        .from('event_photos')
-        .select('*')
-        .in('album_id', albumIds)
-        .order('sort_order', { ascending: true });
-
-      if (error) throw new Error(error.message);
-
-      const photos = ((data || []) as DbPhotoRow[]).map(dbPhotoToEventPhoto);
+      // GET /albums publik — filter album_id client-side (Opsi B).
+      const { photos } = await apiGet<{ albums: DbAlbumRow[]; photos: DbPhotoRow[] }>('/albums');
+      const albumPhotos = photos
+        .filter(p => p.album_id && albumIds.includes(p.album_id))
+        .map(dbPhotoToEventPhoto);
       const photosByAlbum = new Map<string, EventPhoto[]>();
-      for (const photo of photos) {
+      for (const photo of albumPhotos) {
         if (!photo.albumId) continue;
         const existing = photosByAlbum.get(photo.albumId) || [];
         existing.push(photo);

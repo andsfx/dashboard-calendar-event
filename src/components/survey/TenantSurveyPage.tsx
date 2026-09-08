@@ -10,7 +10,7 @@ import {
   useTenantSurveyAnalytics,
   useTenantSurveyDuplicate,
 } from '../../hooks/useTenantSurveys';
-import { supabase } from '../../lib/supabase';
+import { apiGet } from '../../lib/rest';
 import { isV3Survey } from '../../utils/surveyUtils';
 import TenantSurveyForm, {
   TenantSurveySuccess,
@@ -99,9 +99,13 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   // ─── Fetch current user ───────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getUser().then(({ data }) => {
-      if (!cancelled) setCurrentUserId(data.user?.id ?? null);
-    });
+    apiGet<{ success: boolean; user: { id: string } | null }>('/auth/me')
+      .then((data) => {
+        if (!cancelled) setCurrentUserId(data.user?.id ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setCurrentUserId(null);
+      });
     return () => { cancelled = true; };
   }, []);
 

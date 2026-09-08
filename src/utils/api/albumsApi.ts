@@ -1,31 +1,34 @@
-import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction, slugify } from './_shared';
+import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import type { AreaPhoto, EventArea, EventPhoto, PhotoAlbum } from '../../types';
+
+// Row mentah snake_case dari backend REST (server whitelist kolom, BUKAN mapping —
+// pemilik snake→camel tetap mapper client di file ini / _shared.ts).
+interface DbAlbumRow {
+  id: string; name: string; slug: string; description: string; event_date: string;
+  cover_photo_url: string; sort_order: number;
+  event_id: string; lokasi: string; theme_id: string;
+}
+interface DbEventPhotoRow {
+  id: string; url: string; caption: string; event_date: string; sort_order: number;
+  album_id: string; event_id: string;
+}
+interface DbAreaPhotoRow {
+  id: string; area_id: string; url: string; caption: string; sort_order: number;
+}
+interface DbAlbumsResponse { albums: DbAlbumRow[]; photos: DbEventPhotoRow[]; }
+interface DbAlbumDetailResponse { album: DbAlbumRow; photos: DbEventPhotoRow[]; }
+interface DbAreasResponse { areas: DbEventAreaRow[]; photos: DbAreaPhotoRow[]; }
 
 // ─── Event Photos ───────────────────────────────────────────────
 
 export async function fetchEventPhotos(): Promise<EventPhoto[]> {
-  const { data, error } = await supabase.from('event_photos').select('*').order('sort_order', { ascending: true });
-  if (error) throw new SupabaseApiError(`Fetch event photos failed: ${error.message}`);
-  return (data || []).map(row => ({
-    id: row.id, url: row.url, caption: row.caption,
-    eventDate: row.event_date || '', sortOrder: row.sort_order || 0,
+  const { photos } = await apiGet<DbAlbumsResponse>('/albums');
+  // Semua foto (tanpa relasi album) — urut sort_order (urutan server).
+  return (photos || []).map(p => ({
+    id: p.id, url: p.url, caption: p.caption || '', eventDate: p.event_date || '',
+    sortOrder: p.sort_order || 0, albumId: p.album_id || '',
   }));
-}
-
-export async function uploadEventPhoto(file: File, caption: string, eventDate: string): Promise<EventPhoto> {
-  const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `photo_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
-  const { error: uploadError } = await supabase.storage
-    .from('event-photos').upload(fileName, file, { contentType: file.type, upsert: false });
-  if (uploadError) throw new SupabaseApiError(`Upload failed: ${uploadError.message}`);
-  const { data: urlData } = supabase.storage.from('event-photos').getPublicUrl(fileName);
-  const url = urlData.publicUrl;
-  const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
-    'createEventPhoto', { data: { url, caption, event_date: eventDate } }
-  );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
-  return { id: result.id || '', url, caption, eventDate, sortOrder: result.sortOrder || 0 };
 }
 
 export async function deleteEventPhoto(id: string, url: string): Promise<void> {
@@ -56,11 +59,12 @@ export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrde
 // ─── Photo Albums ────────────────────────────────────────────────
 
 export async function fetchAlbums(): Promise<PhotoAlbum[]> {
-  const { data: albums, error } = await supabase.from('photo_albums').select('*').order('created_at', { ascending: false }).limit(100);
-  if (error) throw new SupabaseApiError(`Fetch albums failed: ${error.message}`);
-  const { data: photos } = await supabase.from('event_photos').select('album_id');
+  const { albums, photos } = await apiGet<DbAlbumsResponse>('/albums');
+  // Hitung jumlah foto per album dari payload /albums (album_id blank → luar album).
   const countMap: Record<string, number> = {};
-  for (const p of (photos || [])) { if (p.album_id) countMap[p.album_id] = (countMap[p.album_id] || 0) + 1; }
+  for (const p of (photos || [])) {
+    if (p.album_id) countMap[p.album_id] = (countMap[p.album_id] || 0) + 1;
+  }
   return (albums || []).map(row => ({
     id: row.id, name: row.name, slug: row.slug, description: row.description || '',
     eventDate: row.event_date || '', coverPhotoUrl: row.cover_photo_url || '',
@@ -70,21 +74,25 @@ export async function fetchAlbums(): Promise<PhotoAlbum[]> {
 }
 
 export async function fetchAlbumBySlug(slug: string): Promise<{ album: PhotoAlbum; photos: EventPhoto[] } | null> {
-  const { data: album, error } = await supabase.from('photo_albums').select('*').eq('slug', slug).single();
-  if (error || !album) return null;
-  const { data: photos } = await supabase.from('event_photos').select('*').eq('album_id', album.id).order('sort_order', { ascending: true });
-  return {
-    album: {
-      id: album.id, name: album.name, slug: album.slug, description: album.description || '',
-      eventDate: album.event_date || '', coverPhotoUrl: album.cover_photo_url || '',
-      sortOrder: album.sort_order || 0, photoCount: (photos || []).length,
-      eventId: album.event_id || '', lokasi: album.lokasi || '', themeId: album.theme_id || '',
-    },
-    photos: (photos || []).map(p => ({
-      id: p.id, url: p.url, caption: p.caption || '', eventDate: p.event_date || '',
-      sortOrder: p.sort_order || 0, albumId: p.album_id || '',
-    })),
-  };
+  try {
+    const { album, photos } = await apiGet<DbAlbumDetailResponse>(`/albums/${encodeURIComponent(slug)}`);
+    return {
+      album: {
+        id: album.id, name: album.name, slug: album.slug, description: album.description || '',
+        eventDate: album.event_date || '', coverPhotoUrl: album.cover_photo_url || '',
+        sortOrder: album.sort_order || 0, photoCount: (photos || []).length,
+        eventId: album.event_id || '', lokasi: album.lokasi || '', themeId: album.theme_id || '',
+      },
+      photos: (photos || []).map(p => ({
+        id: p.id, url: p.url, caption: p.caption || '', eventDate: p.event_date || '',
+        sortOrder: p.sort_order || 0, albumId: p.album_id || '',
+      })),
+    };
+  } catch (err) {
+    // Server 404 saat album tak ada (mirror .single(): null).
+    if (err instanceof ApiError && err.code === '404') return null;
+    throw err;
+  }
 }
 
 export async function createAlbum(name: string, description: string, eventDate: string, eventId?: string, lokasi?: string, themeId?: string): Promise<PhotoAlbum> {
@@ -111,12 +119,16 @@ export async function setAlbumCover(albumId: string, coverPhotoUrl: string): Pro
 // ─── R2 Storage ─────────────────────────────────────────────────
 
 export async function uploadToR2(file: File, folder = 'gallery/'): Promise<string> {
-  const presignRes = await fetch('/api/r2-upload', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-    body: JSON.stringify({ folder, originalName: file.name, contentType: file.type }),
-  });
-  const presignResult = await presignRes.json();
+  // POST /api/v1/r2/presign — auth via cookie sb-access-token (apiPost kirim credentials).
+  let presignResult: { success: boolean; error?: string; uploadUrl?: string; publicUrl?: string };
+  try {
+    presignResult = await apiPost('/r2/presign', { folder, originalName: file.name, contentType: file.type });
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message ?? 'R2 presign failed');
+    throw err;
+  }
   if (!presignResult.success) throw new SupabaseApiError(presignResult.error || 'R2 presign failed');
+  if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new SupabaseApiError('R2 presign failed');
   const uploadRes = await fetch(presignResult.uploadUrl, {
     method: 'PUT', headers: { 'Content-Type': file.type }, body: file,
   });
@@ -128,13 +140,17 @@ export async function deleteFromR2(url: string): Promise<void> {
   const publicUrlBase = (import.meta.env.VITE_R2_PUBLIC_URL || '').replace(/\/$/, '');
   let fileName = url;
   if (publicUrlBase && url.startsWith(publicUrlBase)) fileName = url.slice(publicUrlBase.length + 1);
-  const res = await fetch('/api/r2-delete', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-    body: JSON.stringify({ fileName }),
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new SupabaseApiError(body.error || `R2 delete failed (${res.status})`);
+  // POST /api/v1/r2/delete — auth via cookie sb-access-token (apiPost kirim credentials).
+  try {
+    const result = await apiPost<{ success: boolean; error?: string }>('/r2/delete', { fileName });
+    if (!result.success) {
+      throw new SupabaseApiError(result.error || 'R2 delete failed');
+    }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw new SupabaseApiError(err.message ?? `R2 delete failed (HTTP ${err.code})`);
+    }
+    throw err;
   }
 }
 
@@ -166,12 +182,8 @@ interface DbEventAreaRow {
 }
 
 export async function fetchEventAreas(): Promise<EventArea[]> {
-  const { data: areas, error } = await supabase
-    .from('event_areas')
-    .select('*')
-    .order('sort_order', { ascending: true });
-  if (error) throw new SupabaseApiError(`Fetch event areas failed: ${error.message}`);
-  const { data: photos } = await supabase.from('area_photos').select('area_id');
+  const { areas, photos } = await apiGet<DbAreasResponse>('/areas');
+  // Server sudah filter is_active = true; hitung foto per area dari payload.
   const countMap = new Map<string, number>();
   for (const p of photos || []) {
     if (p.area_id) countMap.set(p.area_id, (countMap.get(p.area_id) || 0) + 1);
@@ -194,15 +206,12 @@ export function dbEventAreaToEventArea(row: DbEventAreaRow, photoCount = 0): Eve
 
 /** Foto milik satu area, urut sort_order (DB → app mapper). */
 export async function fetchAreaPhotos(areaId: string): Promise<AreaPhoto[]> {
-  const { data, error } = await supabase
-    .from('area_photos')
-    .select('*')
-    .eq('area_id', areaId)
-    .order('sort_order', { ascending: true });
-  if (error) throw new SupabaseApiError(`Fetch area photos failed: ${error.message}`);
-  return (data || []).map(p => ({
-    id: p.id, url: p.url, caption: p.caption || '', areaId: p.area_id, sortOrder: p.sort_order || 0,
-  }));
+  const { photos } = await apiGet<DbAreasResponse>('/areas');
+  return (photos || [])
+    .filter(p => p.area_id === areaId)
+    .map(p => ({
+      id: p.id, url: p.url, caption: p.caption || '', areaId: p.area_id, sortOrder: p.sort_order || 0,
+    }));
 }
 
 export async function createEventArea(name: string, description: string, coverPhotoUrl?: string): Promise<EventArea> {

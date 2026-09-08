@@ -1,6 +1,6 @@
-import { supabase } from '../../lib/supabase';
 import { SupabaseApiError, adminAction } from './_shared';
 import { uploadToR2 } from './albumsApi';
+import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import type { SponsorLead, SponsorLeadInput, SponsorLeadStatus, EventProposalEvent } from '../../types';
 import { getTodayIsoLocal } from '../eventDateTime';
 
@@ -33,14 +33,12 @@ function mapProposalEvent(row: Record<string, unknown>): EventProposalEvent {
 }
 
 function mapLead(row: Record<string, unknown>): SponsorLead {
-  const event = (row.events && typeof row.events === 'object' && !Array.isArray(row.events))
-    ? (row.events as Record<string, unknown>)
-    : null;
+  // server: sl.*, e.acara, e.date_str (flat)
   return {
     id: String(row.id),
     eventId: String(row.event_id),
-    eventAcara: event ? String(event.acara || '') : undefined,
-    eventDate: event ? String(event.date_str || '') : undefined,
+    eventAcara: row.acara ? String(row.acara) : undefined,
+    eventDate: row.date_str ? String(row.date_str) : undefined,
     companyName: String(row.company_name || ''),
     contactName: String(row.contact_name || ''),
     phone: String(row.phone || ''),
@@ -55,45 +53,35 @@ function mapLead(row: Record<string, unknown>): SponsorLead {
   };
 }
 
-/** Public submit — minat support via proxy service-role (validasi zod + rate limit server-side). */
+/** Public submit — minat support via REST VPS (validasi zod + rate limit server-side). */
 export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
-  const response = await fetch('/api/sponsor-lead', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({
+  try {
+    const result = await apiPost<{ success: boolean; error?: string }>('/sponsor-leads', {
       eventId: data.eventId,
       companyName: data.companyName,
       contactName: data.contactName,
       phone: data.phone,
       email: data.email,
       message: data.message,
-    }),
-  });
-  if (!response.ok) {
-    // 400 validasi / 429 rate limit / 500 — tampilkan pesan dari server
-    let message = 'Submit sponsor lead failed';
-    try {
-      const body = (await response.json()) as { error?: unknown };
-      if (body?.error) message = String(body.error);
-    } catch {
-      // non-JSON body — pakai pesan fallback
-    }
-    throw new SupabaseApiError(message);
+    });
+    if (!result.success) throw new SupabaseApiError(result.error || 'Submit sponsor lead failed');
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Submit sponsor lead failed');
+    throw err;
   }
 }
 
-/** Upcoming (masa depan) events with embedded proposals (anon RLS). Date guard keeps stale-status rows out; landing filters `proposal.fileUrl`; admin uses all rows. */
+/** Upcoming (masa depan) events with embedded proposals (REST publik).
+ *  Server filter date_str >= CURRENT_DATE (UTC) — client tetap guard ulang
+ *  dengan getTodayIsoLocal() (Asia/Jakarta) supaya event lampau tak bocor
+ *  ke landing sponsor. */
 export async function fetchSponsorEventsWithProposals(): Promise<EventProposalEvent[]> {
-  const { data, error } = await supabase
-    .from('events')
-    .select('id, date_str, acara, lokasi, jam, eo, event_proposals(id, file_url, file_name, mime_type)')
-    .eq('status', 'upcoming')
-    .gte('date_str', getTodayIsoLocal())
-    .order('date_str', { ascending: true })
-    .limit(100);
-  if (error) throw new SupabaseApiError(`Fetch sponsor events failed: ${error.message}`);
-  return (data || []).map(row => mapProposalEvent(row as Record<string, unknown>));
+  const data = await apiGet<unknown>('/sponsor/events');
+  const rows = Array.isArray(data) ? data : [];
+  const today = getTodayIsoLocal();
+  return rows
+    .filter(row => String((row as Record<string, unknown>).date_str || '') >= today)
+    .map(row => mapProposalEvent(row as Record<string, unknown>));
 }
 
 /** Admin list — all leads with event info via service-role proxy. */

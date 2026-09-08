@@ -1,8 +1,7 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
 import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/supabaseApi';
-import { supabase } from '../lib/supabase';
 import { AdminError } from '../lib/adminError';
 
 function normalizeEvent(ev: EventItem): EventItem {
@@ -49,30 +48,25 @@ export function useEvents(options?: { realtime?: boolean }) {
     refreshEvents();
   }, [refreshEvents]);
 
-  // Supabase Realtime: debounced refresh (coalesce burst of changes)
-  // ponytail: full re-fetch, not row-level patch. Upgrade to incremental
-  // when payload.new is reliably shaped + zod-parsed.
+  // Opsi B: polling debounced — ganti channel Supabase Realtime.
+  // Polling 30s memanggil scheduleRefresh yang sama (debounce 400ms
+  // mengkoaleskan burst perubahan, full re-fetch alih-alih row-level patch).
   useEffect(() => {
     if (!realtimeEnabled) return;
-    let timer: ReturnType<typeof setTimeout> | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const scheduleRefresh = () => {
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
-        timer = null;
+        timer = undefined;
         refreshEvents();
       }, 400);
     };
 
-    const channel = supabase
-      .channel('events-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, scheduleRefresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'annual_themes' }, scheduleRefresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, scheduleRefresh)
-      .subscribe();
+    const intervalId = setInterval(scheduleRefresh, 30_000);
 
     return () => {
-      if (timer) clearTimeout(timer);
-      supabase.removeChannel(channel);
+      clearTimeout(timer);
+      clearInterval(intervalId);
     };
   }, [refreshEvents, realtimeEnabled]);
 

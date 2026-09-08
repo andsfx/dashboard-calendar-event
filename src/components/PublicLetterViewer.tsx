@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, AlertCircle, FileText } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { GeneratedLetter } from '../types';
 import { downloadLetterPdf } from '../utils/letterPdfExport';
 
@@ -25,34 +24,14 @@ export function PublicLetterViewer() {
     }
 
     const fetchLetter = async () => {
-      try {
-        const { data, error: fetchError } = await supabase
-          .from('generated_letters')
-          .select('*')
-          .eq('id', id)
-          .eq('status', 'active')
-          .single();
-
-        if (fetchError) throw new Error(fetchError.message);
-        if (!data) throw new Error('Surat tidak ditemukan atau telah dihapus');
-
-        setLetter({
-          id: data.id,
-          eventId: data.event_id || undefined,
-          draftEventId: data.draft_event_id || undefined,
-          letterData: data.letter_data,
-          pdfUrl: data.pdf_url || undefined,
-          pdfBase64: data.pdf_base64 || undefined,
-          createdAt: data.created_at,
-          createdBy: data.created_by || undefined,
-          status: data.status,
-        });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Gagal memuat surat';
-        setError(message);
-      } finally {
-        setIsLoading(false);
-      }
+      // Opsi B: backend REST belum punya endpoint baca surat publik
+      // (GET /api/v1/letters/:id TODO). Sampai ada, surat tidak dimuat —
+      // render fallback error, TANPA akses supabase langsung.
+      // TODO: ganti dengan apiGet(`/letters/${encodeURIComponent(id)}`)
+      // saat endpoint tersedia di server/src/routes/public.js.
+      setLetter(null);
+      setError('Surat tidak dapat dimuat saat ini.');
+      setIsLoading(false);
     };
 
     fetchLetter();

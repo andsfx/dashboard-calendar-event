@@ -1,24 +1,39 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, afterEach } from 'vitest';
 import { dbEventAreaToEventArea, fetchEventAreas, updateAreaPhotoOrder } from '../api/albumsApi';
-import { supabase } from '../../lib/supabase';
 
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
+/**
+ * Mock global fetch routing per REST URL (VITE_API_URL kosong di test →
+ * base '/api/v1'). Envelope: { success, data?, error? }.
+ */
+interface RouteSpec { status?: number; body: unknown; }
 
-function chainableFrom(data: any, error: any = null) {
-  const order = vi.fn().mockResolvedValue({ data, error });
-  const select = vi.fn().mockReturnValue({ order });
-  return { select };
+function mockFetchRoutes(routes: Record<string, RouteSpec>) {
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : String(input);
+    const route = routes[url];
+    if (!route) {
+      return {
+        ok: false,
+        status: 404,
+        json: async () => ({ success: false, error: `No mock for ${url}` }),
+        text: async () => `No mock for ${url}`,
+      };
+    }
+    const status = route.status ?? 200;
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      json: async () => route.body,
+      text: async () => JSON.stringify(route.body),
+    };
+  }));
 }
 
-describe('Foto Area Event — albumsApi', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
+describe('Foto Area Event — albumsApi', () => {
   // -------------------------------------------------------
   // dbEventAreaToEventArea — snake_case → camelCase boundary
   // -------------------------------------------------------
@@ -61,72 +76,72 @@ describe('Foto Area Event — albumsApi', () => {
   });
 
   // -------------------------------------------------------
-  // fetchEventAreas — reads event_areas + counts area_photos
+  // fetchEventAreas — GET /areas (server filter is_active) + hitung foto client
   // -------------------------------------------------------
   describe('fetchEventAreas', () => {
     it('maps rows and counts photos per area', async () => {
-      const areasData = [
-        { id: 'era_1', name: 'A', description: '', cover_photo_url: '', sort_order: 0, is_active: true },
-        { id: 'era_2', name: 'B', description: '', cover_photo_url: '', sort_order: 1, is_active: true },
-      ];
-      const photosData = [
-        { area_id: 'era_1' },
-        { area_id: 'era_1' },
-        { area_id: 'era_2' },
-      ];
-      (supabase.from as any)
-        .mockReturnValueOnce(chainableFrom(areasData))
-        .mockReturnValueOnce({ select: vi.fn().mockResolvedValue({ data: photosData, error: null }) });
+      mockFetchRoutes({
+        '/api/v1/areas': {
+          body: {
+            success: true,
+            data: {
+              areas: [
+                { id: 'era_1', name: 'A', description: '', cover_photo_url: '', sort_order: 0, is_active: true },
+                { id: 'era_2', name: 'B', description: '', cover_photo_url: '', sort_order: 1, is_active: true },
+              ],
+              photos: [
+                { id: 'aph_1', area_id: 'era_1', url: '', caption: '', sort_order: 0 },
+                { id: 'aph_2', area_id: 'era_1', url: '', caption: '', sort_order: 1 },
+                { id: 'aph_3', area_id: 'era_2', url: '', caption: '', sort_order: 0 },
+              ],
+            },
+          },
+        },
+      });
 
       const areas = await fetchEventAreas();
 
-      expect(supabase.from).toHaveBeenNthCalledWith(1, 'event_areas');
-      expect(supabase.from).toHaveBeenNthCalledWith(2, 'area_photos');
       expect(areas).toHaveLength(2);
       expect(areas[0]?.photoCount).toBe(2);
       expect(areas[1]?.photoCount).toBe(1);
     });
 
     it('handles empty tables', async () => {
-      (supabase.from as any)
-        .mockReturnValueOnce(chainableFrom([]))
-        .mockReturnValueOnce(chainableFrom([]));
+      mockFetchRoutes({
+        '/api/v1/areas': { body: { success: true, data: { areas: [], photos: [] } } },
+      });
       expect(await fetchEventAreas()).toEqual([]);
     });
 
-    it('throws on query error', async () => {
-      (supabase.from as any)
-        .mockReturnValueOnce(chainableFrom(null, { message: 'RLS' }))
-        .mockReturnValueOnce(chainableFrom([]));
-      await expect(fetchEventAreas()).rejects.toThrow(/Fetch event areas failed: RLS/);
+    it('throws on server error', async () => {
+      mockFetchRoutes({
+        '/api/v1/areas': { status: 503, body: { success: false, error: 'Database tidak tersedia' } },
+      });
+      await expect(fetchEventAreas()).rejects.toThrow(/Database tidak tersedia/);
     });
   });
 
   // -------------------------------------------------------
-  // updateAreaPhotoOrder — reorder via adminAction
+  // updateAreaPhotoOrder — reorder via adminAction (POST /admin/:action)
   // -------------------------------------------------------
   describe('updateAreaPhotoOrder', () => {
     it('posts ordered photos and resolves', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ success: true }),
-      });
-      vi.stubGlobal('fetch', mockFetch);
+      mockFetchRoutes({ '/api/v1/admin/updateAreaPhotoOrder': { body: { success: true } } });
 
       await updateAreaPhotoOrder([
         { id: 'aph_2', sortOrder: 0 },
         { id: 'aph_1', sortOrder: 1 },
       ]);
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-      const [, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(fetch).toHaveBeenCalledTimes(1);
+      const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('/api/v1/admin/updateAreaPhotoOrder');
       const body = JSON.parse(String(init.body));
       expect(body.action).toBe('updateAreaPhotoOrder');
       expect(body.data).toEqual([
         { id: 'aph_2', sortOrder: 0 },
         { id: 'aph_1', sortOrder: 1 },
       ]);
-      vi.unstubAllGlobals();
     });
   });
 });

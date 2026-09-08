@@ -1,4 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+/**
+ * Supabase client — DILEPAS (Opsi B).
+ *
+ * Frontend kini memakai `src/lib/rest.ts` (fetch REST ke backend VPS).
+ * File ini sengaja dipertahankan sebagai shim tipis agar impor lama:
+ *
+ * 1. Gagal EKSPLISIT saat runtime (bukan diam / undefined) kalau ada call-site
+ *    supabase-js yang belum dimigrasi — daftarnya di src/lib/REST-MIGRATION.md.
+ * 2. `ConfigError` tetap diekspor agar modul yang mengimpornya tidak pecah saat
+ *    import-time (kegagalan eksplisit yang sama, bukan ReferenceError misterius).
+ */
 
 export class ConfigError extends Error {
   constructor(message: string) {
@@ -7,46 +17,22 @@ export class ConfigError extends Error {
   }
 }
 
-// Vite-only env prefix (NEXT_PUBLIC_ removed — this is a Vite app, not Next.js).
-const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '') as string;
-const SUPABASE_ANON_KEY = (
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  ''
-) as string;
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new ConfigError(
-    'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY) must be set. Check .env.',
+function notMigrated(): never {
+  throw new Error(
+    'supabase-js dilepas (Opsi B) — pakai src/lib/rest.ts (apiGet/apiPost). ' +
+      'Lihat src/lib/REST-MIGRATION.md untuk sisa call-site.',
   );
 }
 
 /**
- * Public Supabase client (anon key).
- * Used for:
- * - Read operations (events, themes, holidays)
- * - Public draft submission
- * - Realtime subscriptions
+ * Shim pemicu error. Semua permukaan supabase-js yang dulu dipakai
+ * (from / rpc / auth / storage / channel) memanggil notMigrated().
  */
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-    flowType: 'pkce',
-    storage: {
-      getItem: (key) => {
-        if (typeof window === 'undefined') return null;
-        return window.localStorage.getItem(key);
-      },
-      setItem: (key, value) => {
-        if (typeof window === 'undefined') return;
-        window.localStorage.setItem(key, value);
-      },
-      removeItem: (key) => {
-        if (typeof window === 'undefined') return;
-        window.localStorage.removeItem(key);
-      },
-    },
-  },
-});
+export const supabase = {
+  from: notMigrated,
+  rpc: notMigrated,
+  auth: { getUser: notMigrated, getSession: notMigrated },
+  storage: { from: notMigrated },
+  channel: notMigrated,
+  removeChannel: notMigrated,
+};

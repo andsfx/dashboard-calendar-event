@@ -8,7 +8,6 @@ import {
   publishDraftEvent as apiPublishDraft,
   restoreDraftEvent as apiRestoreDraft,
 } from '../utils/supabaseApi';
-import { supabase } from '../lib/supabase';
 import { canPublishDraft, sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
 export function useDraftEvents(enabled = false) {
@@ -44,18 +43,16 @@ export function useDraftEvents(enabled = false) {
     refreshDrafts();
   }, [enabled, refreshDrafts]);
 
-  // Supabase Realtime: auto-refresh on draft changes
+  // Opsi B: polling 60s — ganti channel Supabase Realtime.
+  // Auto-refresh on draft changes via interval (enabled hanya saat mount).
   useEffect(() => {
     if (!enabled) return;
-    const channel = supabase
-      .channel('drafts-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'draft_events' }, () => {
-        refreshDrafts();
-      })
-      .subscribe();
+    const intervalId = setInterval(() => {
+      refreshDrafts();
+    }, 60_000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
   }, [enabled, refreshDrafts]);
 

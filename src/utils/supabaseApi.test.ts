@@ -1,26 +1,41 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import * as supabaseApi from './supabaseApi';
-import { supabase } from '../lib/supabase';
 
-vi.mock('../lib/supabase', () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
+/**
+ * Mock global fetch dengan routing per URL REST (VITE_API_URL kosong di test →
+ * base '/api/v1'). Envelope mengikuti kontrak REST: { success, data?, error? }.
+ */
+interface RouteSpec { status?: number; body: unknown; }
 
-function chainableFrom(data: any, error: any = null) {
-  const order = vi.fn().mockResolvedValue({ data, error });
-  const select = vi.fn().mockReturnValue({ order });
-  return { select };
+function mockFetchRoutes(routes: Record<string, RouteSpec>) {
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : String(input);
+    const route = routes[url];
+    if (!route) {
+      return {
+        ok: false,
+        status: 404,
+        json: async () => ({ success: false, error: `No mock for ${url}` }),
+        text: async () => `No mock for ${url}`,
+      };
+    }
+    const status = route.status ?? 200;
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      json: async () => route.body,
+      text: async () => JSON.stringify(route.body),
+    };
+  }));
 }
 
-describe('supabaseApi', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
+describe('supabaseApi', () => {
   // -------------------------------------------------------
-  // fetchEvents — reads 3 tables, detectCategory fallback
+  // fetchEvents — GET /events + /themes + /holidays, detectCategory fallback
   // -------------------------------------------------------
   describe('fetchEvents', () => {
     function makeEvent(overrides: Record<string, any> = {}) {
@@ -39,28 +54,34 @@ describe('supabaseApi', () => {
       };
     }
 
-    it('fetches 3 tables and maps events', async () => {
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'events') return chainableFrom([makeEvent()]);
-        return chainableFrom([]);
+    it('fetches 3 endpoints and maps events', async () => {
+      mockFetchRoutes({
+        '/api/v1/events': { body: { success: true, data: [makeEvent()] } },
+        '/api/v1/themes': { body: { success: true, data: [] } },
+        '/api/v1/holidays': { body: { success: true, data: [] } },
       });
       const result = await supabaseApi.fetchEvents();
-      expect(supabase.from).toHaveBeenCalledWith('events');
-      expect(supabase.from).toHaveBeenCalledWith('annual_themes');
-      expect(supabase.from).toHaveBeenCalledWith('holidays');
+      const fetches = vi.mocked(fetch).mock.calls.map((c) => String(c[0]));
+      expect(fetches).toEqual(expect.arrayContaining(['/api/v1/events', '/api/v1/themes', '/api/v1/holidays']));
       expect(result.events).toHaveLength(1);
       expect(result.events[0].category).toBe('Bazaar');
     });
 
-    it('throws when events query errors', async () => {
-      (supabase.from as any).mockImplementation((table: string) =>
-        table === 'events' ? chainableFrom(null, { message: 'DB down' }) : chainableFrom([])
-      );
-      await expect(supabaseApi.fetchEvents()).rejects.toThrow(/Fetch events failed: DB down/);
+    it('throws when events endpoint errors', async () => {
+      mockFetchRoutes({
+        '/api/v1/events': { status: 500, body: { success: false, error: 'DB down' } },
+        '/api/v1/themes': { body: { success: true, data: [] } },
+        '/api/v1/holidays': { body: { success: true, data: [] } },
+      });
+      await expect(supabaseApi.fetchEvents()).rejects.toThrow(/DB down/);
     });
 
     it('handles empty results', async () => {
-      (supabase.from as any).mockReturnValue(chainableFrom([]));
+      mockFetchRoutes({
+        '/api/v1/events': { body: { success: true, data: [] } },
+        '/api/v1/themes': { body: { success: true, data: [] } },
+        '/api/v1/holidays': { body: { success: true, data: [] } },
+      });
       const result = await supabaseApi.fetchEvents();
       expect(result.events).toEqual([]);
       expect(result.themes).toEqual([]);
@@ -73,9 +94,11 @@ describe('supabaseApi', () => {
         makeEvent({ id: 'e2', acara: 'Jualan Pulsa', categories: ['Bazaar'] }),
         makeEvent({ id: 'e3', acara: 'Fun Run 5K', categories: null }),
       ];
-      (supabase.from as any).mockImplementation((table: string) =>
-        table === 'events' ? chainableFrom(events) : chainableFrom([])
-      );
+      mockFetchRoutes({
+        '/api/v1/events': { body: { success: true, data: events } },
+        '/api/v1/themes': { body: { success: true, data: [] } },
+        '/api/v1/holidays': { body: { success: true, data: [] } },
+      });
       const result = await supabaseApi.fetchEvents();
       expect(result.events[0].category).toBe('Workshop');
       expect(result.events[1].category).toBe('Bazaar');
@@ -83,13 +106,12 @@ describe('supabaseApi', () => {
     });
 
     it('maps themes and holidays', async () => {
-      const themes = [{ id: 't1', name: 'Ramadhan', date_start: '2025-03-01', date_end: '2025-03-31', color: '#00ff00', sheetRow: 0 }];
-      const holidays = [{ id: 'h1', date_str: '2025-08-17', name: 'Merdeka' }];
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'events') return chainableFrom([makeEvent()]);
-        if (table === 'annual_themes') return chainableFrom(themes);
-        if (table === 'holidays') return chainableFrom(holidays);
-        return chainableFrom([]);
+      const themes = [{ id: 't1', name: 'Ramadhan', date_start: '2025-03-01', date_end: '2025-03-31', color: '#00ff00' }];
+      const holidays = [{ id: 'h1', tanggal: '', date_str: '2025-08-17', day: '', month: '', name: 'Merdeka', type: 'libur_nasional', description: '' }];
+      mockFetchRoutes({
+        '/api/v1/events': { body: { success: true, data: [makeEvent()] } },
+        '/api/v1/themes': { body: { success: true, data: themes } },
+        '/api/v1/holidays': { body: { success: true, data: holidays } },
       });
       const result = await supabaseApi.fetchEvents();
       expect(result.themes).toHaveLength(1);
@@ -100,77 +122,60 @@ describe('supabaseApi', () => {
   });
 
   // -------------------------------------------------------
-  // createDraftEvent — public submission via supabase.insert
+  // createDraftEvent — public submission via POST /drafts (tanpa RETURNING)
   // -------------------------------------------------------
   describe('createDraftEvent (public)', () => {
     const draftData = { acara: 'Pameran Seni', tanggal: '15 Agustus 2025', dateStr: '2025-08-15' };
-    const mockInsert = vi.fn().mockResolvedValue({ error: null });
 
-    beforeEach(() => {
-      (supabase.from as any).mockReturnValue({ insert: mockInsert });
-    });
-
-    it('inserts draft without RETURNING (anon has no SELECT after RLS fix)', async () => {
+    it('posts draft row without id and returns empty id', async () => {
+      mockFetchRoutes({ '/api/v1/drafts': { body: { success: true } } });
       const result = await supabaseApi.createDraftEvent(draftData as any, 'public');
-      expect(supabase.from).toHaveBeenCalledWith('draft_events');
-      expect(mockInsert.mock.calls[0][0].acara).toBe('Pameran Seni');
       expect(result.id).toBe('');
-      // Insert tanpa .select() — memastikan rantai RETURNING tidak dipakai lagi
-      expect(mockInsert.mock.calls[0][0]).not.toHaveProperty('id');
+      const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('/api/v1/drafts');
+      const sent = JSON.parse(String(init.body));
+      expect(sent.data.acara).toBe('Pameran Seni');
+      // Insert publik tanpa RETURNING — row id tidak dikirim
+      expect(sent.data).not.toHaveProperty('id');
     });
 
-    it('throws on insert error', async () => {
-      mockInsert.mockResolvedValueOnce({ error: { message: 'RLS violation' } });
+    it('throws SupabaseApiError on server error', async () => {
+      mockFetchRoutes({ '/api/v1/drafts': { status: 400, body: { success: false, error: 'Nama acara wajib diisi' } } });
       await expect(supabaseApi.createDraftEvent(draftData as any, 'public'))
-        .rejects.toThrow(/Public draft creation failed: RLS violation/);
+        .rejects.toThrow(/Nama acara wajib diisi/);
     });
   });
 
   // -------------------------------------------------------
-  // fetchSiteSettings — simple supabase read
+  // fetchSiteSettings — GET /settings/:key
   // -------------------------------------------------------
   describe('fetchSiteSettings', () => {
-    const mockSingle = vi.fn();
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle });
-    const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
-
-    beforeEach(() => {
-      (supabase.from as any).mockReturnValue({ select: mockSelect });
-    });
-
     it('returns value when key exists', async () => {
-      mockSingle.mockResolvedValue({ data: { value: { theme: 'dark' } }, error: null });
+      mockFetchRoutes({ '/api/v1/settings/app_config': { body: { success: true, data: { theme: 'dark' } } } });
       expect(await supabaseApi.fetchSiteSettings('app_config')).toEqual({ theme: 'dark' });
     });
 
     it('returns null when key not found', async () => {
-      mockSingle.mockResolvedValue({ data: null, error: null });
+      mockFetchRoutes({ '/api/v1/settings/nope': { status: 404, body: { success: false, error: 'Setting tidak ditemukan' } } });
       expect(await supabaseApi.fetchSiteSettings('nope')).toBeNull();
     });
 
     it('returns null on query error (catch-all)', async () => {
-      mockSingle.mockResolvedValue({ data: null, error: { message: 'timeout' } });
+      mockFetchRoutes({ '/api/v1/settings/x': { status: 500, body: { success: false, error: 'timeout' } } });
       expect(await supabaseApi.fetchSiteSettings('x')).toBeNull();
     });
   });
 
   // -------------------------------------------------------
-  // deleteDraftEvent — uses adminAction (fetch mock)
+  // deleteDraftEvent — uses adminAction (POST /admin/:action)
   // -------------------------------------------------------
   describe('deleteDraftEvent', () => {
     it('resolves when admin returns success', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ success: true }),
-      });
-      vi.stubGlobal('fetch', mockFetch);
-
+      mockFetchRoutes({ '/api/v1/admin/deleteDraft': { body: { success: true } } });
       await expect(supabaseApi.deleteDraftEvent('draft-1')).resolves.toBeUndefined();
-      expect(mockFetch).toHaveBeenCalledWith('/api/supabase-admin', expect.objectContaining({
-        body: expect.stringContaining('"action":"deleteDraft"'),
-      }));
-
-      vi.stubGlobal('fetch', undefined);
+      const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('/api/v1/admin/deleteDraft');
+      expect(String(init.body)).toContain('"action":"deleteDraft"');
     });
   });
 });

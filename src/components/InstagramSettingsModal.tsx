@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, Save, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { uploadToR2 } from '../utils/api/albumsApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 
@@ -45,14 +45,11 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
     setHeroUploading(true);
     setError('');
     try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const fileName = `hero_${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from('event-photos').upload(fileName, file, { contentType: file.type, upsert: false });
-      if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage.from('event-photos').getPublicUrl(fileName);
-      setHeroUrl(urlData.publicUrl);
-    } catch (err: any) {
-      setError(`Upload gagal: ${err.message || 'Kesalahan tidak dikenal'}`);
+      // Hero IG → R2 prefix site/ (via presign VPS, bukan Supabase Storage).
+      const url = await uploadToR2(file, 'site/');
+      setHeroUrl(url);
+    } catch (err: unknown) {
+      setError(`Upload gagal: ${err instanceof Error ? err.message : 'Kesalahan tidak dikenal'}`);
     } finally {
       setHeroUploading(false);
     }

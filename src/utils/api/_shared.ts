@@ -1,8 +1,11 @@
 import type { EventItem, DraftEventItem } from '../../types';
 import { getStatus } from '../eventUtils';
+import { apiPost, ApiError } from '../../lib/rest';
 
-
-export const ADMIN_PROXY_URL = '/api/supabase-admin';
+/** Base admin endpoint REST (VPS). Tiap aksi: POST {base}/admin/{action}. */
+export const ADMIN_PROXY_URL =
+  ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') +
+  '/api/v1/admin';
 
 export class SupabaseApiError extends Error {
   constructor(message: string) {
@@ -46,24 +49,21 @@ export function normalizeCategories(value?: string[] | string | null, fallbackCa
 }
 
 export async function adminAction<T>(action: string, payload: Record<string, unknown>): Promise<T> {
-  const response = await fetch(ADMIN_PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ action, ...payload }),
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    let message: string | null = null;
-    try {
-      const body = JSON.parse(text) as { error?: unknown };
-      if (typeof body.error === 'string' && body.error) message = body.error;
-    } catch {
-      // body bukan JSON (mis. 404 dari proxy/dev server) — pakai fallback status
+  try {
+    // POST /admin/{action} — body mempertahankan bentuk legacy { action, ...payload }
+    // agar server-side zod (api/_lib/schemas.js ACTION_SCHEMAS) tetap cocok.
+    // apiPost mengirim credentials + Authorization Bearer sb-access-token, dan
+    // mengembalikan body JSON flat (adminAction lama juga flat: { success, ... }).
+    return await apiPost<T>(`/admin/${encodeURIComponent(action)}`, { action, ...payload }, {
+      // Paritas pesan dengan adminAction lama (lihat adminAction.test.ts).
+      errorMessageFallback: (status) => `Gagal memuat data admin (HTTP ${status})`,
+    });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw new SupabaseApiError(err.message ?? `Gagal memuat data admin (HTTP ${err.code})`);
     }
-    throw new SupabaseApiError(message ?? `Gagal memuat data admin (HTTP ${response.status})`);
+    throw err;
   }
-  return response.json() as Promise<T>;
 }
 
 // ─── DB row → App type mappers ───────────────────────────────────

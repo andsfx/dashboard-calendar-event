@@ -1,16 +1,30 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AuthUser, AuthState, LoginResult } from '../types/auth';
+import { apiGet, apiPost } from '../lib/rest';
 
 /**
- * useAuth — manages authentication state with dual auth support
- * (Supabase Auth email+password + legacy password-only).
- * 
- * On mount, checks existing session via GET /api/auth-me.
- * Provides login, legacyLogin, and logout functions.
+ * useAuth — manages authentication state (Opsi B: REST + cookie HttpOnly).
+ *
+ * On mount, checks existing session via GET /auth/me (through rest.ts,
+ * credentials: 'include', cookie sb-access-token HttpOnly).
+ * Provides login, legacyLogin (tidak didukung lagi), and logout.
  */
 
 // ─── Dev mode auto-login bypass ────────────────────────────────
 const DEV_AUTO_LOGIN = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTO_LOGIN === 'true';
+
+interface AuthMeResponse {
+  success: boolean;
+  user: AuthUser | null;
+  legacy?: boolean;
+}
+
+interface AuthLoginResponse {
+  success: boolean;
+  user?: AuthUser | null;
+  error?: string;
+  legacy?: boolean;
+}
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -36,21 +50,7 @@ export function useAuth() {
 
     async function checkSession() {
       try {
-        const res = await fetch('/api/auth?action=me', {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (!res.ok) {
-          if (!cancelled) {
-            setUser(null);
-            setIsLegacy(false);
-          }
-          return;
-        }
-
-        const data = await res.json();
-
+        const data = await apiGet<AuthMeResponse>('/auth/me');
         if (cancelled) return;
 
         if (data.user) {
@@ -85,7 +85,7 @@ export function useAuth() {
     };
   }, []);
 
-  // ─── Login with email + password (Supabase Auth) ────────────────
+  // ─── Login with email + password ────────────────────────────────
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     if (DEV_AUTO_LOGIN) {
       const devUser: AuthUser = {
@@ -100,56 +100,27 @@ export function useAuth() {
     }
 
     try {
-      const res = await fetch('/api/auth?action=login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await apiPost<AuthLoginResponse>('/auth/login', { email, password });
 
-      const data = await res.json();
-
-      if (res.ok && data.success && data.user) {
+      if (data.success && data.user) {
         setUser(data.user);
         setIsLegacy(false);
         return { ok: true };
       }
 
       return { ok: false, error: data.error || 'Login gagal' };
-    } catch {
-      return { ok: false, error: 'Tidak dapat terhubung ke server' };
+    } catch (err) {
+      // ApiError membawa pesan server (mis. "Email atau password salah")
+      // atau fallback koneksi.
+      return { ok: false, error: err instanceof Error ? err.message : 'Tidak dapat terhubung ke server' };
     }
   }, []);
 
   // ─── Legacy login with password only ────────────────────────────
-  const legacyLogin = useCallback(async (password: string): Promise<LoginResult> => {
-    try {
-      const res = await fetch('/api/admin-login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      // Handle non-JSON responses
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        return { ok: false, error: 'Server mengembalikan respons tidak valid' };
-      }
-
-      if (res.ok && data.success) {
-        setUser(null);
-        setIsLegacy(true);
-        return { ok: true };
-      }
-
-      return { ok: false, error: data.error || 'Password salah' };
-    } catch {
-      return { ok: false, error: 'Tidak dapat terhubung ke server' };
-    }
+  const legacyLogin = useCallback(async (_password: string): Promise<LoginResult> => {
+    // Opsi B: alur legacy (password-only) tidak didukung lagi —
+    // arahkan pemakaian ke login email+password biasa.
+    return { ok: false, error: 'Login lama tidak didukung. Gunakan email dan password.' };
   }, []);
 
   // ─── Logout ─────────────────────────────────────────────────────
@@ -168,21 +139,10 @@ export function useAuth() {
     }
 
     try {
-      // Use new auth-logout (clears both Supabase + legacy cookies)
-      await fetch('/api/auth?action=logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      // POST /auth/logout — server membersihkan cookie sb-access-token.
+      await apiPost('/auth/logout');
     } catch {
-      // Also try legacy logout as fallback
-      try {
-        await fetch('/api/admin-logout', {
-          method: 'POST',
-          credentials: 'include',
-        });
-      } catch {
-        // ignore
-      }
+      // ignore — state di-reset apa adanya.
     } finally {
       setUser(null);
       setIsLegacy(false);

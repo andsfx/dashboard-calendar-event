@@ -1,5 +1,6 @@
-import { supabase } from '../../lib/supabase';
+import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import { SupabaseApiError, adminAction } from './_shared';
+import { uploadToR2 } from './albumsApi';
 import type {
   CommunityRegistration, TenantEventSurvey, TenantSurveyFormData,
   LetterRequestItem, GeneratedLetter,
@@ -11,20 +12,34 @@ import type {
 // ─── Community Registrations ────────────────────────────────────
 
 export async function fetchCommunityRegistrations(): Promise<CommunityRegistration[]> {
-  const result = await adminAction<{ success: boolean; error?: string; data?: any[] }>('readRegistrations', {});
+  const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('readRegistrations', {});
   if (!result.success) throw new SupabaseApiError(result.error || 'Fetch registrations failed');
-  return (result.data || []).map(row => ({
-    id: row.id, communityName: row.community_name || '', communityType: row.community_type || '',
-    pic: row.pic || '', phone: row.phone || '', email: row.email || '', instagram: row.instagram || '',
-    description: row.description || '', preferredDate: row.preferred_date || '',
-    status: row.status || 'pending', adminNote: row.admin_note || '', createdAt: row.created_at || '',
-    organizationType: mapOrganizationType(row.organization_type) as CommunityRegistration['organizationType'],
-    organizationName: row.organization_name || row.community_name || '',
-    typeSpecificData: row.type_specific_data || {},
-    proposalFileUrl: row.proposal_file_url || '',
-    proposalFileName: row.proposal_file_name || '',
-    proposalFileSize: typeof row.proposal_file_size === 'number' ? row.proposal_file_size : 0,
-  }));
+  return (result.data || []).map(row => {
+    const r = row as Record<string, unknown>;
+    const typeSpecific = (typeof r.type_specific_data === 'object' && r.type_specific_data !== null)
+      ? r.type_specific_data as Record<string, string | number>
+      : {};
+    return {
+      id: String(r.id || ''),
+      communityName: String(r.community_name || ''),
+      communityType: String(r.community_type || ''),
+      pic: String(r.pic || ''),
+      phone: String(r.phone || ''),
+      email: String(r.email || ''),
+      instagram: String(r.instagram || ''),
+      description: String(r.description || ''),
+      preferredDate: String(r.preferred_date || ''),
+      status: String(r.status || 'pending') as CommunityRegistration['status'],
+      adminNote: String(r.admin_note || ''),
+      createdAt: String(r.created_at || ''),
+      organizationType: mapOrganizationType(typeof r.organization_type === 'string' ? r.organization_type : undefined) as CommunityRegistration['organizationType'],
+      organizationName: String(r.organization_name || r.community_name || ''),
+      typeSpecificData: typeSpecific,
+      proposalFileUrl: String(r.proposal_file_url || ''),
+      proposalFileName: String(r.proposal_file_name || ''),
+      proposalFileSize: typeof r.proposal_file_size === 'number' ? r.proposal_file_size : 0,
+    };
+  });
 }
 
 export interface RegistrationProposalUpload {
@@ -35,22 +50,17 @@ export interface RegistrationProposalUpload {
 
 /**
  * Presign + PUT a registration proposal / company profile straight to R2.
- * Only metadata passes through the serverless function.
+ * Only metadata passes through the backend REST.
+ *
+ * TODO (backend): route presign publik untuk registrasi (legacy
+ * mode='presign-registration-file' di api/community-registration.js) BELUM ada
+ * di extra.js. /r2/presign VPS saat ini staff-only — form publik tanpa sesi
+ * akan gagal 401 sampai route publik tersedia. Upload via uploadToR2 (REST)
+ * supaya kontraknya sama saat route publik dibuka.
  */
 export async function uploadRegistrationAttachment(file: File): Promise<RegistrationProposalUpload> {
-  const presignRes = await fetch('/api/community-registration', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode: 'presign-registration-file', fileName: file.name, contentType: file.type, fileSize: file.size }),
-  });
-  const presignResult = await presignRes.json().catch(() => ({}));
-  if (!presignRes.ok || !presignResult.success) {
-    throw new SupabaseApiError(presignResult.error || 'Gagal menyiapkan unggahan file.');
-  }
-  const putRes = await fetch(presignResult.uploadUrl, {
-    method: 'PUT', headers: { 'Content-Type': file.type }, body: file,
-  });
-  if (!putRes.ok) throw new SupabaseApiError(`Gagal mengunggah file (${putRes.status}).`);
-  return { fileUrl: presignResult.publicUrl, fileName: presignResult.fileName, fileSize: file.size };
+  const fileUrl = await uploadToR2(file, 'registrations/');
+  return { fileUrl, fileName: file.name, fileSize: file.size };
 }
 
 export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
@@ -76,9 +86,8 @@ export async function submitCommunityRegistration(data: {
   typeSpecificData?: Record<string, string | number>;
   proposalFileUrl?: string; proposalFileName?: string; proposalFileSize?: number;
 }): Promise<{ id: string }> {
-  const response = await fetch('/api/community-registration', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  try {
+    const result = await apiPost<{ success: boolean; error?: string; id?: string }>('/registrations', {
       organization_type: mapOrganizationType(data.organizationType),
       organization_name: data.organizationName || data.communityName,
       pic: data.pic, phone: data.phone, email: data.email || '',
@@ -89,20 +98,19 @@ export async function submitCommunityRegistration(data: {
       proposal_file_url: data.proposalFileUrl || '',
       proposal_file_name: data.proposalFileName || '',
       proposal_file_size: data.proposalFileSize || 0,
-    }),
-  });
-  if (!response.ok) {
-    let errorMsg = 'Registration failed';
-    try { const errBody = await response.json(); errorMsg = errBody.error || errorMsg; }
-    catch { errorMsg = `Server error (${response.status})`; }
-    throw new SupabaseApiError(errorMsg);
+    });
+    if (!result.success) throw new SupabaseApiError(result.error || 'Registration failed');
+    return { id: result.id || '' };
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Registration failed');
+    throw err;
   }
-  const result = await response.json();
-  if (!result.success) throw new SupabaseApiError(result.error || 'Registration failed');
-  return { id: result.id || '' };
 }
 
 // ─── Generated Letters ──────────────────────────────────────────
+// REST: adminAction 'listLetters' | 'createLetter' | 'updateLetter' | 'deleteLetter'
+// (di server: admin.js switch + ACTION_SCHEMAS). Mapper dbGeneratedLetterToGeneratedLetter
+// tetap dipakai.
 
 interface DbGeneratedLetter {
   id: string; event_id?: string; draft_event_id?: string; letter_data: LetterRequestItem;
@@ -119,46 +127,49 @@ function dbGeneratedLetterToGeneratedLetter(row: DbGeneratedLetter): GeneratedLe
 }
 
 export async function fetchGeneratedLetters(eventId?: string, draftEventId?: string): Promise<GeneratedLetter[]> {
-  let query = supabase.from('generated_letters').select('*').eq('status', 'active').order('created_at', { ascending: false });
-  if (eventId) query = query.eq('event_id', eventId);
-  if (draftEventId) query = query.eq('draft_event_id', draftEventId);
-  const { data, error } = await query;
-  if (error) throw new SupabaseApiError(error.message);
-  return (data || []).map(dbGeneratedLetterToGeneratedLetter);
+  try {
+    const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>(
+      'listLetters',
+      { eventId, draftEventId },
+    );
+    if (!result.success) return [];
+    return (result.data || []).map(row => dbGeneratedLetterToGeneratedLetter(row as DbGeneratedLetter));
+  } catch {
+    // degradasi: kosong (route mungkin belum tersedia)
+    return [];
+  }
 }
 
 export async function createGeneratedLetter(params: {
   eventId?: string; draftEventId?: string; letterData: LetterRequestItem;
   pdfBase64?: string; pdfUrl?: string; createdBy?: string;
 }): Promise<GeneratedLetter> {
-  const { data, error } = await supabase.from('generated_letters').insert({
-    event_id: params.eventId || null, draft_event_id: params.draftEventId || null,
-    letter_data: params.letterData, pdf_base64: params.pdfBase64 || null,
-    pdf_url: params.pdfUrl || null, created_by: params.createdBy || null, status: 'active',
-  }).select().single();
-  if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('Data surat tidak tersedia setelah disimpan');
-  return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
+  const result = await adminAction<{ success: boolean; error?: string; data?: unknown }>('createLetter', {
+    eventId: params.eventId,
+    draftEventId: params.draftEventId,
+    letterData: params.letterData,
+    pdfBase64: params.pdfBase64,
+    pdfUrl: params.pdfUrl,
+    createdBy: params.createdBy,
+  });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal membuat surat');
+  if (!result.data) throw new SupabaseApiError('Data surat tidak tersedia setelah disimpan');
+  return dbGeneratedLetterToGeneratedLetter(result.data as DbGeneratedLetter);
 }
 
 export async function updateGeneratedLetter(
-  id: string, updates: Partial<Pick<GeneratedLetter, 'letterData' | 'pdfUrl' | 'pdfBase64' | 'status'>>
+  id: string,
+  updates: Partial<Pick<GeneratedLetter, 'letterData' | 'pdfUrl' | 'pdfBase64' | 'status'>>,
 ): Promise<GeneratedLetter> {
-  const dbUpdates: Record<string, unknown> = {};
-  if (updates.letterData !== undefined) dbUpdates.letter_data = updates.letterData;
-  if (updates.pdfUrl !== undefined) dbUpdates.pdf_url = updates.pdfUrl;
-  if (updates.pdfBase64 !== undefined) dbUpdates.pdf_base64 = updates.pdfBase64;
-  if (updates.status !== undefined) dbUpdates.status = updates.status;
-  const { data, error } = await supabase.from('generated_letters')
-    .update(dbUpdates).eq('id', id).select().single();
-  if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('Data surat tidak tersedia setelah diperbarui');
-  return dbGeneratedLetterToGeneratedLetter(data as DbGeneratedLetter);
+  const result = await adminAction<{ success: boolean; error?: string; data?: unknown }>('updateLetter', { id, updates });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal memperbarui surat');
+  if (!result.data) throw new SupabaseApiError('Data surat tidak tersedia setelah diperbarui');
+  return dbGeneratedLetterToGeneratedLetter(result.data as DbGeneratedLetter);
 }
 
 export async function deleteGeneratedLetter(id: string): Promise<void> {
-  const { error } = await supabase.from('generated_letters').update({ status: 'deleted' }).eq('id', id);
-  if (error) throw new SupabaseApiError(error.message);
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteLetter', { id });
+  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menghapus surat');
 }
 
 // ─── Tenant Surveys ─────────────────────────────────────────────
@@ -221,60 +232,67 @@ function tenantSurveyFormToDbRow(data: TenantSurveyFormData, userId?: string): R
 }
 
 export async function fetchTenantSurveys(eventId?: string): Promise<TenantEventSurvey[]> {
-  try {
-    const params = new URLSearchParams({ action: 'list' });
-    if (eventId) params.set('event_id', eventId);
-    const res = await fetch(`/api/tenant-survey?${params}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data)) {
-        return json.data.map((row: DbTenantSurvey) => dbTenantSurveyToTenantSurvey(row));
-      }
-    }
-  } catch { /* fall through */ }
-  let query = supabase.from('tenant_event_surveys').select('*').order('created_at', { ascending: false });
-  if (eventId) query = query.eq('event_id', eventId);
-  const { data, error } = await query;
-  if (error) throw new SupabaseApiError(error.message);
-  return (data || []).map((row) => dbTenantSurveyToTenantSurvey(row as DbTenantSurvey));
+  const params = new URLSearchParams();
+  if (eventId) params.set('event_id', eventId);
+  const qs = params.toString();
+  const data = await apiGet<unknown>(`/tenant/list${qs ? `?${qs}` : ''}`);
+  if (!Array.isArray(data)) return [];
+  return data.map(row => dbTenantSurveyToTenantSurvey(row as DbTenantSurvey));
 }
 
 export async function fetchPublicTenantSurveyResults(eventId?: string): Promise<TenantEventSurvey[]> {
-  const params = new URLSearchParams({ mode: 'public', action: 'results-list' });
+  const params = new URLSearchParams();
   if (eventId) params.set('event_id', eventId);
-  const res = await fetch(`/api/tenant-survey?${params}`);
-  if (res.status === 429) throw new SupabaseApiError('Terlalu banyak permintaan. Coba lagi sebentar.');
-  if (!res.ok) throw new SupabaseApiError('Gagal memuat hasil survey');
-  const json = await res.json();
-  if (!json.success || !Array.isArray(json.data)) throw new SupabaseApiError(json.error || 'Gagal memuat hasil survey');
-  return json.data.map((row: DbTenantSurvey) => dbTenantSurveyToTenantSurvey(row));
+  const qs = params.toString();
+  const data = await apiGet<unknown>(`/tenant/results-list${qs ? `?${qs}` : ''}`);
+  if (!Array.isArray(data)) return [];
+  return data.map(row => dbTenantSurveyToTenantSurvey(row as DbTenantSurvey));
 }
 
 export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
-  const { data, error } = await supabase.from('tenant_event_surveys').select('*').eq('id', id).single();
-  if (error) throw new SupabaseApiError(error.message);
-  if (!data) throw new SupabaseApiError('Survey tidak ditemukan');
-  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+  try {
+    const data = await apiGet<unknown>(`/tenant/get?id=${encodeURIComponent(id)}`);
+    if (!data) throw new SupabaseApiError('Survey tidak ditemukan');
+    return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Survey tidak ditemukan');
+    throw err;
+  }
 }
 
 export async function checkTenantSurveyDuplicate(eventId: string, tenantUserId: string): Promise<{ alreadySubmitted: boolean; existingSurveyId?: string }> {
-  const { data, error } = await supabase.from('tenant_event_surveys')
-    .select('id').eq('event_id', eventId).eq('tenant_user_id', tenantUserId)
-    .eq('status', 'submitted').maybeSingle();
-  if (error) throw new SupabaseApiError(error.message);
-  return { alreadySubmitted: !!data, existingSurveyId: data?.id };
+  // /tenant/list tidak punya filter tenant_user_id — filter client dari row
+  // mentah (mirror maybeSingle legacy: id survey submitted milik user).
+  const data = await apiGet<unknown>(`/tenant/list?event_id=${encodeURIComponent(eventId)}`);
+  const rows = Array.isArray(data) ? data as DbTenantSurvey[] : [];
+  const hit = rows.find(r => r.tenant_user_id === tenantUserId && r.status === 'submitted');
+  return { alreadySubmitted: !!hit, existingSurveyId: hit?.id };
 }
 
 export async function createTenantSurvey(formData: TenantSurveyFormData): Promise<TenantEventSurvey> {
-  const { data: { user } } = await supabase.auth.getUser();
-  const row = tenantSurveyFormToDbRow(formData, user?.id);
-  const { data, error } = await supabase.from('tenant_event_surveys').insert(row).select().single();
-  if (error) {
-    if (error.code === '23505') throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
-    throw new SupabaseApiError(error.message);
+  // User id dari /auth/me (cookie) — server /tenant/create menetapkan
+  // tenant_user_id dari sesi auth; mapper tetap pemilik snake→camel.
+  let userId: string | undefined;
+  try {
+    const me = await apiGet<{ success: boolean; user: { id: string } | null }>('/auth/me');
+    userId = me?.user?.id ?? undefined;
+  } catch {
+    // Sesi tak terbaca (mis. JWT belum dikonfigurasi) — biarkan null; server
+    // tetap menetapkan tenant_user_id dari auth cookie.
   }
-  if (!data) throw new SupabaseApiError('Data survey tidak tersedia setelah disimpan');
-  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+  const row = tenantSurveyFormToDbRow(formData, userId);
+  try {
+    const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/create', row);
+    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal membuat survey');
+    if (!result.data) throw new SupabaseApiError('Data survey tidak tersedia setelah disimpan');
+    return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.code === '409') throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
+      throw new SupabaseApiError(err.message || 'Gagal membuat survey');
+    }
+    throw err;
+  }
 }
 
 export async function updateTenantSurvey(id: string, updates: Partial<TenantSurveyFormData> & { status?: TenantEventSurvey['status'] }): Promise<TenantEventSurvey> {
@@ -288,41 +306,44 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
     }
   }
   if (updates.status !== undefined) { dbUpdates.status = updates.status; if (updates.status === 'submitted') dbUpdates.submitted_at = new Date().toISOString(); }
-  const { data, error } = await supabase.from('tenant_event_surveys').update(dbUpdates).eq('id', id).select().single();
-  if (error) { if (error.code === '23505') throw new SupabaseApiError('Survey sudah pernah dikirim untuk event ini.'); throw new SupabaseApiError(error.message); }
-  if (!data) throw new SupabaseApiError('Data survey tidak tersedia setelah diperbarui');
-  return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
+  try {
+    const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/update', { id, ...dbUpdates });
+    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal memperbarui survey');
+    if (!result.data) throw new SupabaseApiError('Data survey tidak tersedia setelah diperbarui');
+    return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      // 23505 (unique event+user) — server kirim 409 dengan pesan ramah.
+      if (err.code === '409') throw new SupabaseApiError('Survey sudah pernah dikirim untuk event ini.');
+      throw new SupabaseApiError(err.message || 'Gagal memperbarui survey');
+    }
+    throw err;
+  }
 }
 
 export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey> {
   return updateTenantSurvey(id, { status: 'submitted' });
 }
 
-async function getTenantSurveyAccessToken(): Promise<string> {
-  try { const { data } = await supabase.auth.getSession(); if (data.session?.access_token) return data.session.access_token; } catch {}
-  try { const keys = Object.keys(localStorage); const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token')); if (sbKey) { const raw = JSON.parse(localStorage.getItem(sbKey) || '{}') as { access_token?: string }; return raw.access_token || ''; } } catch {}
-  return '';
-}
-
 export async function reviewTenantSurvey(id: string, reviewNotes = ''): Promise<TenantEventSurvey> {
-  const token = await getTenantSurveyAccessToken();
-  const res = await fetch('/api/tenant-survey?action=review', {
-    method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify({ id, review_notes: reviewNotes }),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || !json.success) throw new SupabaseApiError(json.error || 'Gagal me-review survey');
-  return dbTenantSurveyToTenantSurvey(json.data as DbTenantSurvey);
+  try {
+    const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/review', { id, review_notes: reviewNotes });
+    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal me-review survey');
+    return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal me-review survey');
+    throw err;
+  }
 }
 
 export async function deleteTenantSurvey(id: string): Promise<void> {
-  const token = await getTenantSurveyAccessToken();
-  const res = await fetch('/api/tenant-survey?action=delete', {
-    method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify({ id }),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || !json.success) throw new SupabaseApiError(json.error || 'Gagal menghapus survey');
+  try {
+    const result = await apiPost<{ success: boolean; error?: string }>('/tenant/delete', { id });
+    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menghapus survey');
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal menghapus survey');
+    throw err;
+  }
 }
 
 // ─── Tenant Survey Analytics ─────────────────────────────────────
@@ -339,16 +360,12 @@ export function fetchTenantSurveyAnalytics(opts?: AnalyticsFetchOptions): Promis
 }
 
 async function fetchTenantSurveyAnalyticsImpl(opts?: AnalyticsFetchOptions): Promise<unknown[]> {
-  const params = new URLSearchParams({ action: 'analytics' });
+  const params = new URLSearchParams();
   if (opts?.group) params.set('group', opts.group);
   if (opts?.eventId) params.set('event_id', opts.eventId);
-  try {
-    const res = await fetch(`/api/tenant-survey?${params}`);
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.data)) return json.data; }
-  } catch {}
-  const { data, error } = await supabase.rpc('get_tenant_survey_analytics');
-  if (error) throw new SupabaseApiError(error.message);
-  return (data || []) as unknown[];
+  const qs = params.toString();
+  const data = await apiGet<unknown>(`/tenant/analytics${qs ? `?${qs}` : ''}`);
+  return Array.isArray(data) ? data : [];
 }
 
 export function fetchTenantSurveyEventAnalytics(eventId?: string): Promise<TenantSurveyEventAnalytics[]> {
@@ -360,25 +377,21 @@ export function fetchTenantSurveyMonthlyTrend(eventId?: string): Promise<TenantS
 }
 
 export async function fetchPublicTenantSurveyMonthlyTrend(eventId?: string): Promise<TenantSurveyMonthlyTrend[]> {
-  const params = new URLSearchParams({ mode: 'public', action: 'results-analytics', group: 'month' });
+  const params = new URLSearchParams({ group: 'month' });
   if (eventId) params.set('event_id', eventId);
-  const res = await fetch(`/api/tenant-survey?${params}`);
-  if (res.status === 429) throw new SupabaseApiError('Terlalu banyak permintaan. Coba lagi sebentar.');
-  if (!res.ok) throw new SupabaseApiError('Gagal memuat trend bulanan');
-  const json = await res.json();
-  if (!json.success || !Array.isArray(json.data)) return [];
-  return json.data as TenantSurveyMonthlyTrend[];
+  try {
+    const data = await apiGet<unknown>(`/tenant/results-analytics?${params.toString()}`);
+    return Array.isArray(data) ? data as TenantSurveyMonthlyTrend[] : [];
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal memuat trend bulanan');
+    throw err;
+  }
 }
 
 export async function fetchTenantSurveyEventSummary(eventId: string): Promise<TenantSurveyEventSummary | null> {
-  try {
-    const res = await fetch(`/api/tenant-survey?action=summary&event_id=${encodeURIComponent(eventId)}`);
-    if (res.ok) { const json = await res.json(); if (json.success && json.data) return json.data as TenantSurveyEventSummary; }
-  } catch {}
-  const { data, error } = await supabase.rpc('get_tenant_survey_event_summary', { p_event_id: eventId });
-  if (error) throw new SupabaseApiError(error.message);
-  if (!data || (data as TenantSurveyEventSummary).tenant_survey_status === 'none') return null;
-  return data as TenantSurveyEventSummary;
+  const data = await apiGet<Record<string, unknown>>(`/tenant/summary?event_id=${encodeURIComponent(eventId)}`);
+  if (!data || data.tenant_survey_status === 'none') return null;
+  return data as unknown as TenantSurveyEventSummary;
 }
 
 // ─── Public Tenant Survey ────────────────────────────────────────
@@ -389,24 +402,25 @@ export interface PublicTenantSurveyEventInfo {
 
 export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<PublicTenantSurveyEventInfo | null> {
   try {
-    const res = await fetch(`/api/tenant-survey?mode=public&action=event-info&event_id=${encodeURIComponent(eventId)}`);
-    if (res.ok) { const json = await res.json(); if (json.success && json.event) return { ...json.event, is_active: json.is_active === true }; }
-    if (res.status === 404) return null;
-  } catch {}
-  const { data, error } = await supabase.from('events').select('id, acara, tanggal, lokasi, eo, status').eq('id', eventId).single();
-  if (error || !data) return null;
-  return { ...(data as PublicTenantSurveyEventInfo), is_active: false };
+    const data = await apiGet<PublicTenantSurveyEventInfo & { is_active?: boolean }>(`/tenant/event-info?event_id=${encodeURIComponent(eventId)}`);
+    return data || null;
+  } catch (err) {
+    // 404 event tak ada / error lain — null (mirror fallback legacy).
+    if (err instanceof ApiError) return null;
+    throw err;
+  }
 }
 
 export async function fetchPublicTenantSurveyEvents(): Promise<PublicTenantSurveyEventInfo[]> {
-  try {
-    const res = await fetch('/api/tenant-survey?mode=public&action=events');
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.events)) return json.events; }
-  } catch {}
-  const { data, error } = await supabase.from('events').select('id, acara, tanggal, lokasi, eo, status')
-    .in('status', ['past', 'ongoing']).order('tanggal', { ascending: false }).limit(200);
-  if (error || !data) return [];
-  return data as PublicTenantSurveyEventInfo[];
+  const data = await apiGet<unknown>('/tenant/events');
+  // /tenant/events mengembalikan array; saat tanpa config aktif data = { events: [] }.
+  let rows: unknown = data;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const rec = data as { events?: unknown };
+    rows = Array.isArray(rec.events) ? rec.events : [];
+  }
+  if (!Array.isArray(rows)) return [];
+  return rows as PublicTenantSurveyEventInfo[];
 }
 
 export interface TenantDropdownOption {
@@ -417,58 +431,67 @@ export interface TenantDropdownOption {
 export async function fetchTenantDetail(id: string): Promise<{ id: string; name: string; pic: string; picTelp: string } | null> {
   const tid = (id || '').trim(); if (!tid) return null;
   try {
-    const res = await fetch(`/api/tenant-survey?mode=public&action=tenant-detail&id=${encodeURIComponent(tid)}`);
-    if (res.ok) { const json = await res.json(); if (json.success && json.tenant) return json.tenant; }
-  } catch {}
-  return null;
+    const data = await apiGet<{ id: string; name: string; pic: string; picTelp: string }>(`/tenant/tenant-detail?id=${encodeURIComponent(tid)}`);
+    return data || null;
+  } catch (err) {
+    if (err instanceof ApiError) return null;
+    throw err;
+  }
 }
 
 export async function fetchActiveTenants(query?: string): Promise<TenantDropdownOption[]> {
   const q = (query || '').trim(); if (q.length < 2) return [];
   try {
-    const res = await fetch(`/api/tenant-survey?mode=public&action=tenants&q=${encodeURIComponent(q)}`);
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.tenants)) return json.tenants; }
-  } catch {}
-  return [];
+    const data = await apiGet<unknown>(`/tenant/tenants?q=${encodeURIComponent(q)}`);
+    return Array.isArray(data) ? data as TenantDropdownOption[] : [];
+  } catch (err) {
+    if (err instanceof ApiError) return [];
+    throw err;
+  }
 }
 
 export interface TenantRosterItem { id: string; name: string; floor: string; lot: string; category: string; logo: string; }
 
 export async function fetchTenantRoster(): Promise<TenantRosterItem[]> {
   try {
-    const res = await fetch('/api/tenant-survey?action=tenant-roster', { credentials: 'include' });
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.tenants)) return json.tenants as TenantRosterItem[]; }
-  } catch {}
-  return [];
+    const data = await apiGet<unknown>('/tenant/roster');
+    return Array.isArray(data) ? data as TenantRosterItem[] : [];
+  } catch (err) {
+    if (err instanceof ApiError) return [];
+    throw err;
+  }
 }
 
 export async function fetchPublicTenantRoster(): Promise<TenantRosterItem[]> {
   try {
-    const res = await fetch('/api/tenant-survey?mode=public&action=results-roster');
-    if (res.status === 429) return [];
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.tenants)) return json.tenants as TenantRosterItem[]; }
-  } catch {}
-  return [];
+    const data = await apiGet<unknown>('/tenant/results-roster');
+    return Array.isArray(data) ? data as TenantRosterItem[] : [];
+  } catch (err) {
+    // 429 rate limit / error → [] (degradasi UI, mirror legacy).
+    if (err instanceof ApiError) return [];
+    throw err;
+  }
 }
 
 /** Direktori tenant publik — MID proxy, tanpa PIC/telp. 429/error → [] (degradasi UI). */
 export async function fetchPublicTenantDirectory(): Promise<TenantRosterItem[]> {
   try {
-    const res = await fetch('/api/tenant-survey?mode=public&action=directory');
-    if (res.status === 429) return [];
-    if (res.ok) { const json = await res.json(); if (json.success && Array.isArray(json.tenants)) return json.tenants as TenantRosterItem[]; }
-  } catch {}
-  return [];
+    const data = await apiGet<unknown>('/tenant/directory');
+    return Array.isArray(data) ? data as TenantRosterItem[] : [];
+  } catch (err) {
+    if (err instanceof ApiError) return [];
+    throw err;
+  }
 }
 
 export async function checkPublicTenantSurveyDuplicate(eventId: string, deviceFingerprint: string): Promise<boolean> {
   try {
-    const res = await fetch(`/api/tenant-survey?mode=public&action=check&event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`);
-    if (res.ok) { const json = await res.json(); return !!json.submitted; }
-  } catch {}
-  const { data, error } = await supabase.rpc('check_tenant_survey_submitted_public', { p_event_id: eventId, p_device_fingerprint: deviceFingerprint });
-  if (error) return false;
-  return !!data;
+    const data = await apiGet<{ submitted?: boolean }>(`/tenant/check?event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`);
+    return data?.submitted === true;
+  } catch (err) {
+    if (err instanceof ApiError) return false;
+    throw err;
+  }
 }
 
 export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData, 'tenant_user_id'> {
@@ -482,27 +505,27 @@ export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData,
 }
 
 export async function submitPublicTenantSurvey(data: PublicTenantSurveySubmission): Promise<{ id: string; created_at: string }> {
-  const res = await fetch('/api/tenant-survey?mode=public&action=submit', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
-  });
-  if (!res.ok) {
-    let errMsg = 'Gagal mengirim survey';
-    try { const errBody = await res.json(); if (errBody.already_submitted) throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.'); errMsg = errBody.errors?.join(', ') || errBody.error || errMsg; }
-    catch (e) { if (e instanceof SupabaseApiError) throw e; errMsg = `Server error (${res.status})`; }
-    throw new SupabaseApiError(errMsg);
+  try {
+    const result = await apiPost<{ success: boolean; error?: string; id?: string; created_at?: string }>('/tenant/submit', data);
+    if (!result.success) {
+      // 409 duplikat → server kirim error "Anda sudah pernah mengirimkan survey..."
+      throw new SupabaseApiError(result.error || 'Gagal mengirim survey');
+    }
+    return { id: result.id || '', created_at: result.created_at || '' };
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal mengirim survey');
+    throw err;
   }
-  const json = await res.json();
-  if (!json.success) { if (json.already_submitted) throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini dari perangkat ini.'); throw new SupabaseApiError(json.error || 'Gagal mengirim survey'); }
-  return { id: json.id, created_at: json.created_at };
 }
 
 export async function fetchPublicCommunityDirectory(): Promise<{
   organizations: CommunityDirectoryOrganization[];
   categories: OrganizationType[];
 }> {
-  const res = await fetch('/api/community-registration', { method: 'GET' });
-  if (!res.ok) throw new SupabaseApiError(`Gagal memuat direktori organisasi (${res.status})`);
-  const json = await res.json();
-  if (!json.success) throw new SupabaseApiError(json.error || 'Gagal memuat direktori organisasi');
-  return { organizations: json.organizations || [], categories: json.categories || [] };
+  try {
+    return await apiGet<{ organizations: CommunityDirectoryOrganization[]; categories: OrganizationType[] }>('/directory');
+  } catch (err) {
+    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal memuat direktori organisasi');
+    throw err;
+  }
 }

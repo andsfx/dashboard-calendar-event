@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Camera, Upload, Trash2, Loader2, X, ImagePlus, Link2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { apiGet } from '../lib/rest';
 import {
   uploadToR2,
   createEventPhotoRecord,
@@ -20,6 +20,31 @@ interface EventPhoto {
   created_at: string;
 }
 
+// Row mentah snake_case dari /albums (GET publik {success,data:{albums,photos}}).
+interface DbAlbumRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  event_date: string;
+  cover_photo_url: string;
+  sort_order: number;
+  event_id: string;
+  lokasi: string;
+  theme_id: string;
+}
+
+interface DbPhotoRow {
+  id: string;
+  url: string;
+  caption: string;
+  event_date: string;
+  sort_order: number;
+  album_id: string | null;
+  event_id: string;
+  created_at: string;
+}
+
 interface EventPhotoGalleryProps {
   eventId: string;
   eventName: string;
@@ -36,16 +61,25 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
 
-  // Reads stay on anon client (SELECT only — RLS must allow public read)
+  // Reads stay public REST (GET /albums — RLS must allow public read)
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
     try {
-      const [photosRes, albumRes] = await Promise.all([
-        supabase.from('event_photos').select('*').eq('event_id', eventId).order('sort_order'),
-        supabase.from('photo_albums').select('*').eq('event_id', eventId).limit(1).single(),
-      ]);
-      setPhotos(photosRes.data || []);
-      const row = albumRes.data;
+      const { albums, photos } = await apiGet<{ albums: DbAlbumRow[]; photos: DbPhotoRow[] }>('/albums');
+      // Filter eventId client-side (backend /albums kirim semua album + foto).
+      const eventPhotos = (photos || [])
+        .filter(p => p.event_id === eventId)
+        .map(p => ({
+          id: p.id,
+          url: p.url,
+          caption: p.caption || '',
+          event_id: p.event_id,
+          sort_order: p.sort_order || 0,
+          created_at: p.created_at || '',
+        }));
+      setPhotos(eventPhotos);
+      const albumRows = (albums || []).filter(a => a.event_id === eventId);
+      const row = albumRows.length > 0 ? albumRows[0] : undefined;
       setLinkedAlbum(
         row
           ? {

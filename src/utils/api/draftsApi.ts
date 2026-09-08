@@ -1,8 +1,8 @@
-import { supabase } from '../../lib/supabase';
 import {
   SupabaseApiError, adminAction,
   draftItemToDbRow,
 } from './_shared';
+import { apiPost, ApiError } from '../../lib/rest';
 import type { DraftEventItem } from '../../types';
 
 export async function createDraftEvent(
@@ -10,10 +10,17 @@ export async function createDraftEvent(
   proxyKind: 'admin' | 'public' = 'admin'
 ): Promise<{ row: number; id: string }> {
   if (proxyKind === 'public') {
-    // RLS fix (migrate/fix-draft-events-rls.sql): anon tidak punya SELECT di draft_events,
-    // jadi insert publik tidak boleh pakai .select() (RETURNING butuh privilege SELECT).
-    const { error } = await supabase.from('draft_events').insert(draftItemToDbRow(draftData));
-    if (error) throw new SupabaseApiError(`Public draft creation failed: ${error.message}`);
+    // POST /drafts publik — insert tanpa RETURNING (mirror alur RLS
+    // anon insert-only legacy; publik tidak butuh id). Data dikirim via
+    // adminAction-style { data } agar server zod menerima.
+    try {
+      await apiPost<{ success: boolean; error?: string }>('/drafts', { data: draftItemToDbRow(draftData) });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        throw new SupabaseApiError(err.message ?? 'Public draft creation failed');
+      }
+      throw err;
+    }
     return { row: 0, id: '' };
   }
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createDraft', { data: draftItemToDbRow(draftData) });

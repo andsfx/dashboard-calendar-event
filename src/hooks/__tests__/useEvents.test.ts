@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
 import { fetchEvents, createEvent } from '../../utils/supabaseApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
-import { supabase } from '../../lib/supabase';
 import { EventItem } from '../../types';
 
 // Mock the dependencies
@@ -17,16 +16,6 @@ vi.mock('../../utils/supabaseApi', () => ({
   deleteAnnualTheme: vi.fn(),
   batchCreateEvents: vi.fn(),
   deleteRecurringSeries: vi.fn(),
-}));
-
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    channel: vi.fn().mockReturnValue({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn().mockReturnThis(),
-    }),
-    removeChannel: vi.fn(),
-  },
 }));
 
 vi.mock('../../utils/eventUtils', () => ({
@@ -174,18 +163,37 @@ describe('useEvents', () => {
     expect(result.current.stats.total).toBe(0);
   });
 
-  it('should subscribe to realtime by default', async () => {
-    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: [], themes: [], holidays: [] });
-    const { result } = renderHook(() => useEvents());
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(supabase.channel).toHaveBeenCalledWith('events-realtime');
-    expect(supabase.removeChannel).not.toHaveBeenCalled();
+  it('should poll every 30s when realtime enabled (Opsi B)', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.mocked(fetchEvents).mockResolvedValue({ events: [], themes: [], holidays: [] });
+      const { result } = renderHook(() => useEvents());
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(result.current.isLoading).toBe(false);
+      expect(fetchEvents).toHaveBeenCalledTimes(1);
+
+      await act(async () => { await vi.advanceTimersByTimeAsync(30_000); });
+      // 400ms debounce → poll memicu fetch kedua.
+      await act(async () => { await vi.advanceTimersByTimeAsync(400); });
+      expect(fetchEvents).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
-  it('should skip realtime subscription when realtime: false', async () => {
-    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: [], themes: [], holidays: [] });
-    const { result } = renderHook(() => useEvents({ realtime: false }));
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(supabase.channel).not.toHaveBeenCalled();
+  it('should not poll when realtime: false', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.mocked(fetchEvents).mockResolvedValue({ events: [], themes: [], holidays: [] });
+      const { result } = renderHook(() => useEvents({ realtime: false }));
+      await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+      expect(result.current.isLoading).toBe(false);
+      expect(fetchEvents).toHaveBeenCalledTimes(1);
+
+      await act(async () => { await vi.advanceTimersByTimeAsync(30_000); });
+      expect(fetchEvents).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
