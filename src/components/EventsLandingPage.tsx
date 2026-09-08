@@ -242,7 +242,7 @@ function EventRailCard({
   const color = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
   const isLive = event.status === 'ongoing';
   const relLabel = event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
-  const cdLabel = event.status === 'upcoming' ? countdownLabel(event.dateStr, event.jam) : null;
+  const cdLabel = event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
 
   return (
     <button
