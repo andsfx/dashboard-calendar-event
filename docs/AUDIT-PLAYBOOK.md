@@ -2,7 +2,7 @@
 
 Panduan step-by-step untuk audit atau menganalisis **dashboard-calendar-event** (`schedule-event-v2`).
 
-**Stack:** React 19 + TypeScript + Vite + Tailwind v4 + Supabase + R2 + Apps Script + Vercel  
+**Stack:** React 19 + TypeScript + Vite + Tailwind v4 + Express/Postgres VPS + Cloudflare R2 + Apps Script-lama  
 **Default bahasa laporan:** Indonesia (untuk Andy)
 
 ---
@@ -19,7 +19,7 @@ Panduan step-by-step untuk audit atau menganalisis **dashboard-calendar-event** 
 | Security (secrets, auth, RLS) | **Sebagian** | graph locasi; cek manual + grep |
 | UI/UX / a11y / visual | **Tidak** | pakai skill + Playwright |
 | Performance runtime | **Tidak** | build, Lighthouse, profiling |
-| Data integrity / migrasi DB | **Tidak** | `supabase/`, SQL, seed |
+| Data integrity / migrasi DB | **Tidak** | `server/schema.sql`, `scripts/migrate` |
 | Business rules domain | **Sebagian** | graph + baca rules.md |
 
 **Status graph di repo ini (cek ulang saat audit):**
@@ -100,7 +100,7 @@ graphify update .
 graphify query "How does authentication work?"
 graphify query "Where is tenant survey submitted and stored?"
 graphify query "What connects community registration to admin?"
-graphify path "App" "supabase"
+graphify path "App" "server"
 graphify explain "Event"
 ```
 
@@ -132,11 +132,11 @@ graphify explain "Event"
 
 1. Preflight (§3)
 2. Baca God Nodes + top communities di `GRAPH_REPORT.md`
-3. List folder top-level: `src/`, `api/`, `supabase/`, `e2e/`, `docs/`
+3. List folder top-level: `src/`, `server/`, `deploy/`, `scripts/migrate`, `e2e/`, `docs/`
 4. Tulis 1 halaman:
    - Entry: `src/main.tsx` → `src/App.tsx`
    - Domain utama (events, survey, community, admin, letter)
-   - Backend: `api/*` + Supabase
+   - Backend: `server/*` Express+pg
 5. Selesai. Tidak perlu deep query kecuali ada hub bingung.
 
 ### Mode B — Architecture
@@ -188,7 +188,7 @@ Grep bantu (pola, sesuaikan):
 
 ```powershell
 # Jangan print nilai secret; hanya lokasi pemakaian nama env
-rg -n "SERVICE_ROLE|ADMIN_PASSWORD|R2_|APPS_SCRIPT|SUPABASE" --glob "!node_modules" --glob "!.env*"
+rg -n "SERVICE_ROLE|JWT_SECRET|DATABASE_URL|R2_|SUPABASE" --glob "!node_modules" --glob "!.env*"
 ```
 
 Output: temuan severity `critical|high|medium|low` + path + fix.
@@ -307,7 +307,7 @@ Urutan hemat:
 | Community | community components + `api/community-registration.js` | landing + form |
 | Auth admin | `api/auth.js`, `api/admin-login.js`, `api/admin-logout.js` | server-side |
 | Storage | `api/r2-upload.js`, `api/r2-delete.js` | secrets server |
-| Supabase admin | `api/supabase-admin.js` | service role risk |
+| Backend admin | `server/src/routes/admin.js` + `lib/schemas.js` | role risk |
 | Prototype | `improve/` | terpisah; `improve/AGENTS.md` |
 | Draft UI | `drafts/` | bukan production default |
 

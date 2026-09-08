@@ -11,12 +11,12 @@
 
 Requires `APPS_SCRIPT_URL` + `ADMIN_API_TOKEN` and admin/superadmin auth.
 
-## Not allowed (use Supabase)
+## Not allowed (use REST backend (VPS))
 
 | Concern | Path |
 |---------|------|
-| Event / Draft / publish | `/api/supabase-admin` |
-| Surat produk | `GeneratedLetter` via `LetterGenerator` + `createGeneratedLetter` |
+| Event / Draft / publish | `/api/v1/admin` |
+| Surat produk | `GeneratedLetter` via `LetterGenerator` + `adminAction('createLetter')` |
 | Letter request / AutoCrat | **Removed** — do not re-add `createLetterRequest` |
 
 ## Eventual removal

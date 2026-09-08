@@ -9,7 +9,7 @@ Complements [SPEC.md](SPEC.md) (domain product). This file = tree, tooling, left
 
 1. Working tree production-relevant files only; agent/tool noise ignored.
 2. `improve/` = sandbox, never auth/API source of truth.
-3. Letter product = Supabase `GeneratedLetter` only; no runtime Apps Script letter.
+3. Letter product = tabel `GeneratedLetter` di VPS DB; kill path GAS.
 4. Event `status` column stays as derived cache (ADR 002); no DB drop in this phase.
 
 ## 2. Non-goals
@@ -84,22 +84,22 @@ Already ignored (keep): `graphify-out/`, `.opencode/`, `.sisyphus/`, `.omo/`, et
 | Path | Current | Target |
 |------|---------|--------|
 | `createLetterRequest` → apps-script | Live legacy | **Removed or fail-closed** |
-| `GeneratedLetter` Supabase | Exists | **Only product path** |
-| Event/Draft publish | supabase-admin | Unchanged |
+| `GeneratedLetter` (tabel VPS DB) | Exists | **Only product path** |
+| Event/Draft publish | `adminAction` via `/api/v1/admin` | Unchanged |
 | apps-script migration/bootstrap | Optional ops | Allowed until separate deprecate ticket |
 
 ### Rules
 
 1. UI letter generator must not call `createLetterRequest` for product flow.
 2. If function remains temporarily: throw / 410 with message legacy disabled.
-3. No dual-write GAS + Supabase letter.
+3. No dual-write GAS + letter produk (admin REST).
 4. Env `APPS_SCRIPT_URL` not required for letter product after cutover.
 
 ### Acceptance
 
 - [ ] Grep client: no production call to `createLetterRequest` (or only dead code + test asserting disabled)
-- [ ] Create/list letter uses Supabase `GeneratedLetter` APIs
-- [ ] Publish Draft still only supabase-admin
+- [ ] Create/list letter lewat admin REST (`adminAction('listLetters'|'createLetter')`)
+- [ ] Publish Draft tetap satu jalur admin REST (`/api/v1/admin`)
 - [ ] Unit or smoke: letter create does not hit `/api/apps-script-admin`
 
 ---

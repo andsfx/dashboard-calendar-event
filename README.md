@@ -30,7 +30,8 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - **Tailwind CSS v4** - Styling
 - **Lucide React** - Icons
 - **date-fns** - Date manipulation
-- **Supabase** - Backend (database, auth, storage)
+- **Express + pg + Postgres 16** - Backend REST di VPS (Opsi B; legacy Supabase phase out — lihat ADR 005)
+- **Cloudflare R2** - Media (foto/proposal)
 - **React Router v7** - Routing
 - **@vercel/analytics** - Analytics
 
@@ -58,10 +59,10 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - **Superadmin** — user management, activity log
 
 ### Admin Mode
-- Login email + password (Supabase Auth)
+- Login email + password (backend VPS, bcrypt + JWT cookie)
 - **Event** (jadwal resmi) + **Draft** (antrian pra-jadwal) — dua entitas; publish Draft → spawn Event
 - Status Event dihitung dari tanggal (bukan workflow manual)
-- Surat: generator PDF → **GeneratedLetter** (Supabase); bukan Google Apps Script
+- Surat: generator PDF → **GeneratedLetter** (Postgres VPS via REST); bukan Google Apps Script
 - Pendaftaran komunitas: approve **tidak** auto-buat Draft (CTA manual “Buat Draft dari pendaftaran”)
 - **Foto Area Event** — CRUD area & foto (cover, urutan, aktif/nonaktif); yang aktif tampil di landing
 - Event bisa dikaitkan ke **organisasi terdaftar** (dropdown pencarian EO; nama organisasi terisi otomatis)
@@ -109,22 +110,25 @@ Unit (vitest) men-cover domain guards: status derive, publish Draft, permission 
 Env var **client** (Vite, prefix `VITE_`) — buat file `.env` di root:
 
 ```env
-VITE_SUPABASE_URL=YOUR_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+# Base API backend. Lokal: biarkan kosong bila SPA dan backend satu host.
+# Produksi (SPA di Vercel → api domain lain):
+VITE_API_URL=https://metmal.andotherstori.my.id
 VITE_R2_PUBLIC_URL=YOUR_R2_PUBLIC_URL
 # Opsional — auto-login saat dev:
 # VITE_DEV_AUTO_LOGIN=true
 ```
 
-Env var **server-only** (secret, set di Vercel / `.env.supabase`, jangan commit):
+Env var **server-only** (secret, di `deploy/vps/.env` di host VPS, jangan commit — template: `deploy/vps/.env.example`):
 
 ```env
-SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL  POSTGRES_PASSWORD  JWT_SECRET
+COOKIE_DOMAIN COOKIE_SAMESITE  CORS_ORIGIN
 R2_ACCOUNT_ID   R2_ACCESS_KEY_ID   R2_SECRET_ACCESS_KEY
 R2_BUCKET_NAME  R2_PUBLIC_URL
-ADMIN_PASSWORD  ADMIN_SESSION_TOKEN  ALLOW_LEGACY_ADMIN
-APPS_SCRIPT_URL ADMIN_API_TOKEN      APIFY_API_TOKEN  MID_API_KEY
+MID_API_KEY
 ```
+
+Stack produksi — SPA deploy ke Vercel (project `metmal-community-hub`); backend: lihat `deploy/vps/README-DEPLOY.md` (docker compose postgres+api+nginx, backup cron, reset password admin).
 
 ## Struktur Folder
 

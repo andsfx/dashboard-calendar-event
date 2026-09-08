@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-Letter Generator adalah fitur WYSIWYG untuk membuat surat konfirmasi event secara otomatis dengan template PDF profesional. Terintegrasi dengan Supabase untuk penyimpanan dan sharing.
+Letter Generator adalah fitur WYSIWYG untuk membuat surat konfirmasi event secara otomatis dengan template PDF profesional. Terintegrasi dengan Postgres VPS via admin REST untuk penyimpanan dan sharing.
 
 ## 🚀 Fitur Utama
 
@@ -19,7 +19,7 @@ Letter Generator adalah fitur WYSIWYG untuk membuat surat konfirmasi event secar
 - Download langsung ke device
 
 ### 3. **Database Storage**
-- Simpan surat di Supabase
+- Simpan surat via admin REST (`/api/v1/admin` listLetters/createLetter/dst.)
 - Track history surat yang dibuat
 - Link to event/draft event
 
@@ -66,7 +66,7 @@ Letter Generator adalah fitur WYSIWYG untuk membuat surat konfirmasi event secar
 #### Mengedit Surat yang Sudah Ada
 
 ```typescript
-// Dari Supabase API
+// Dari API layer (REST barrel)
 import { fetchGeneratedLetters } from './utils/supabaseApi';
 
 const letters = await fetchGeneratedLetters();
@@ -115,7 +115,7 @@ src/
 │       └── Editable.tsx             # Editable components
 ├── utils/
 │   ├── letterPdfExport.tsx          # PDF generation utilities
-│   └── supabaseApi.ts               # CRUD operations
+│   └── supabaseApi.ts               # CRUD via adminAction (listLetters/createLetter/dst.)
 └── App.tsx                          # Integration & routing
 
 migrate/
@@ -190,15 +190,15 @@ interface LetterRequestItem {
 - [ ] Validasi field wajib bekerja
 - [ ] Tombol "Pratinjau" membuka PDF di tab baru
 - [ ] Tombol "Unduh PDF" download file PDF
-- [ ] Tombol "Simpan" save ke Supabase
+- [ ] Tombol "Simpan" save via admin REST
 - [ ] Tombol "Bagikan" copy link ke clipboard
 
 ### Backend Testing
 
-- [ ] Tabel `generated_letters` sudah ada di Supabase
-- [ ] CRUD operations berfungsi (create, read, update, delete)
+- [ ] Tabel `generated_letters` sudah ada di Postgres VPS (`server/schema.sql`)
+- [ ] CRUD via adminAction berfungsi (listLetters/createLetter/updateLetter/deleteLetter)
 - [ ] PDF base64 tersimpan di database
-- [ ] RLS policies aktif
+- [ ] `requireRole` admin di server
 
 ### Public Viewer Testing
 
@@ -244,7 +244,6 @@ npx tsc --noEmit
 
 ## 🔒 Security
 
-- **RLS Policies**: Hanya authenticated users yang bisa create/update
 - **Public Access**: Viewer page read-only untuk semua orang
 - **Data Validation**: Semua field divalidasi sebelum save
 - **XSS Protection**: React auto-escape semua input

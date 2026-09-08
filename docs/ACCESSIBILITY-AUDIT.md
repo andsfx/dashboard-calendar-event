@@ -59,7 +59,7 @@ Audit penuh UI/UX `/dashboard/*` (chrome, sidebar, modals, forms, views, layer t
 
 ## Keterbatasan verifikasi
 
-- Smoke berjalan pada **dev login-shell** (`VITE_DEV_AUTO_LOGIN` → superadmin dev) + data publik Supabase anon (read-only). Endpoint `/api/*` tidak tersedia lokal (vite.config tanpa proxy) → state mutasi admin nyata tidak dievaluasi.
+- Smoke berjalan pada **dev login-shell** (`VITE_DEV_AUTO_LOGIN` → superadmin dev) + data publik via REST publik/js (read-only). Endpoint `/api/*` tidak tersedia lokal (vite.config tanpa proxy) → state mutasi admin nyata tidak dievaluasi.
 - axe-core 4.10.2 via CDN di Chromium headless; rule-run exact untuk pelaporan (bukan full-tag run — menghindari double-count).
 
 ## Verifikasi

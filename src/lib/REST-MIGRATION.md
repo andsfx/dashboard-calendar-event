@@ -1,5 +1,7 @@
 # REST Migration — sisa call-site supabase-js
 
+**Status: MIGRASI SELESAI (2026-09-08, ADR 005).** Semua call-site surveysApi/sponsorshipApi/letters sudah REST. Shim `src/lib/supabase.ts` sengaja dipertahankan sebagai penanda runtime untuk modul pihak-ke-3/lupa-migrasi; dihapus pada cleanup besar berikutnya.
+
 File kerja sementara (bukan dokumentasi permanen). Dipakai selama Opsi B:
 lepas Supabase total, pindah semua akses data ke `src/lib/rest.ts`
 (fetch REST ke `VITE_API_URL/api/v1`) dan backend VPS.

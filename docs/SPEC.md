@@ -253,7 +253,7 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 
 ### 7.1 Auth
 
-- Login: email + password (Supabase Auth). Legacy password: off by default; bila on, treat sebagai admin setara legacy flag.
+- Login: email + password (backend VPS bcrypt+JWT). Legacy password: off by default; bila on, treat sebagai admin setara legacy flag.
 - Session: loading state tidak flash surface terlarang.
 
 ### 7.2 Route / surface (logical)
@@ -355,3 +355,4 @@ Board: [docs/tickets/README.md](tickets/README.md)
 - [ADR 002 Event status from dates](adr/002-event-status-from-dates.md)
 - [ADR 003 Registration not auto-Draft](adr/003-registration-not-auto-draft.md)
 - [ADR 004 Letter Supabase; kill GAS letter](adr/004-letter-supabase-kill-gas.md)
+- [ADR 005 VPS Postgres platform; lepas Supabase](adr/005-vps-postgres-lepas-supabase.md)
