@@ -1,0 +1,6 @@
+# Hasil dump prod berisi PII (draft_events.pic/phone, community_registrations.phone/email,
+# tenant_event_surveys, users) — JANGAN commit. Dihasilkan ulang via:
+#   node scripts/migrate/dump-prod.mjs --run
+seed/
+photo-url-map.json
+seed-manifest.json
