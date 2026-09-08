@@ -84,3 +84,30 @@ export function relativeDayLabel(dateStr: string, now = new Date()): string | nu
   if (dateStr === getTomorrowIsoLocal(now)) return 'Besok';
   return null;
 }
+
+/**
+ * Hitung mundur ke awal event (pattern Eventbrite urgency):
+ * "H-x" bila mulai >24 jam lagi, "x jam lagi" di hari-H sebelum mulai,
+ * null bila sudah mulai/lewat atau tanggal invalid.
+ * Dipakai sebagai chip urgency di EventRailCard + EventPublicDetailPage.
+ */
+export function countdownLabel(dateStr: string, jam: string, now = new Date()): string | null {
+  const start = parseIsoDateLocal(dateStr);
+  if (!start) return null;
+  const range = parseTimeRange(jam);
+  if (!range) {
+    // Jam tak-terparse: hitung selisih hari kalender saja (hindari "x jam lagi" palsu).
+    const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const days = Math.round((start.getTime() - todayMid) / 86_400_000);
+    return days >= 1 ? `H-${days}` : null;
+  }
+  const target = new Date(
+    start.getFullYear(), start.getMonth(), start.getDate(),
+    range.startHour, range.startMin,
+  );
+  const diffMs = target.getTime() - now.getTime();
+  if (diffMs <= 0) return null;
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours < 24) return `${Math.max(1, hours)} jam lagi`;
+  return `H-${Math.floor(diffMs / 86_400_000)}`;
+}

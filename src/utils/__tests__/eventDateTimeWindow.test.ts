@@ -5,7 +5,7 @@
  * - getTomorrowIsoLocal / relativeDayLabel: ISO lokal besok; label 'Hari ini' / 'Besok' / null.
  */
 import { describe, it, expect } from 'vitest';
-import { eventOverlapsWindow, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../eventDateTime';
+import { countdownLabel, eventOverlapsWindow, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../eventDateTime';
 describe('eventOverlapsWindow', () => {
   it('event satu hari di dalam window → true', () => {
     expect(eventOverlapsWindow('2026-09-05', undefined, '2026-09-05', '2026-09-05')).toBe(true);
@@ -78,5 +78,35 @@ describe('relativeDayLabel', () => {
 
   it('event kemarin (tapi status upcoming) → null', () => {
     expect(relativeDayLabel('2026-09-01', new Date(2026, 8, 2))).toBeNull();
+  });
+});
+
+describe('countdownLabel', () => {
+  it('5 hari lagi (jam terparse) → "H-5"', () => {
+    expect(countdownLabel('2026-09-07', '10:00 - 12:00', new Date(2026, 8, 2, 9, 0))).toBe('H-5');
+  });
+
+  it('hari-H 3 jam sebelum mulai → "3 jam lagi"', () => {
+    expect(countdownLabel('2026-09-02', '12:00 - 14:00', new Date(2026, 8, 2, 9, 0))).toBe('3 jam lagi');
+  });
+
+  it('sudah mulai → null', () => {
+    expect(countdownLabel('2026-09-02', '08:00 - 10:00', new Date(2026, 8, 2, 9, 0))).toBeNull();
+  });
+
+  it('event kemarin → null', () => {
+    expect(countdownLabel('2026-09-01', '10:00 - 12:00', new Date(2026, 8, 2, 9, 0))).toBeNull();
+  });
+
+  it('jam tak-terparse, 5 hari lagi → "H-5" (fallback kalender, bukan jam palsu)', () => {
+    expect(countdownLabel('2026-09-07', 'Pagi hari', new Date(2026, 8, 2, 9, 0))).toBe('H-5');
+  });
+
+  it('jam kosong hari ini → null (bukan "H-0")', () => {
+    expect(countdownLabel('2026-09-02', '', new Date(2026, 8, 2, 9, 0))).toBeNull();
+  });
+
+  it('tanggal invalid → null', () => {
+    expect(countdownLabel('bukan-tanggal', '10:00 - 12:00', new Date(2026, 8, 2, 9, 0))).toBeNull();
   });
 });

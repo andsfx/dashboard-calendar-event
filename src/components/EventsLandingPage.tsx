@@ -15,10 +15,11 @@ import {
   Moon,
   Radio,
   SunMedium,
+  Timer,
   X,
   Zap,
 } from 'lucide-react';
-import { eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
+import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
@@ -241,6 +242,7 @@ function EventRailCard({
   const color = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
   const isLive = event.status === 'ongoing';
   const relLabel = event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
+  const cdLabel = event.status === 'upcoming' ? countdownLabel(event.dateStr, event.jam) : null;
 
   return (
     <button
@@ -266,6 +268,12 @@ function EventRailCard({
             </>
           )}
         </span>
+        {cdLabel && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+            <Timer className="h-3 w-3" aria-hidden="true" />
+            {cdLabel}
+          </span>
+        )}
         <ArrowRight
           className="h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-slate-600 motion-reduce:transform-none dark:text-slate-600 dark:group-hover:text-slate-300"
           aria-hidden="true"
