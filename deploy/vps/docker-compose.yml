@@ -67,6 +67,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:?isi JWT_SECRET di .env}
       # Opsional — hanya jika cookie lintas-subdomain (mis. api.domain.com):
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      # Opsional — 'none' utk frontend cross-site (SPA Vercel → api domain lain).
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
       # Opsional — daftar origin (koma) bila bukan "*" (default server).
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       # Presign media — R2 Cloudflare, bukan storage VPS.

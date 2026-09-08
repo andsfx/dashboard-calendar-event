@@ -36,14 +36,18 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-/** Cookie flags: HttpOnly selalu; Secure kecuali COOKIE_SECURE=false di non-prod. */
+/** Cookie flags: HttpOnly selalu; Secure kecuali COOKIE_SECURE=false di non-prod.
+ *  SameSite: 'lax' default (SPA sama origin). 'none' Wajib utk frontend cross-site
+ *  (mis. Vercel → api domain lain) — hanya valid bersama Secure. */
 function cookieBase() {
   const isSecure = process.env.COOKIE_SECURE === undefined
     ? process.env.NODE_ENV === 'production'
     : process.env.COOKIE_SECURE === 'true';
+  const sameSite = String(process.env.COOKIE_SAMESITE || 'lax').toLowerCase();
+  const valid = ['lax', 'strict', 'none'];
   return {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: valid.includes(sameSite) ? sameSite : 'lax',
     secure: isSecure,
     domain: process.env.COOKIE_DOMAIN ? process.env.COOKIE_DOMAIN.replace(/^\./, '') : undefined,
   };
