@@ -16,7 +16,6 @@ export interface DashboardShellProps {
   onLogout: () => void;
   user?: AuthUser | null;
   isSuperadmin?: boolean;
-  isLegacy?: boolean;
   permissions: Permissions;
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
@@ -42,7 +41,6 @@ export function DashboardShell({
   onLogout,
   user,
   isSuperadmin,
-  isLegacy,
   permissions,
   onOpenInstagramSettings,
   onOpenAlbumManager,
@@ -75,7 +73,6 @@ export function DashboardShell({
           onLogout={onLogout}
           user={user}
           isSuperadmin={isSuperadmin}
-          isLegacy={isLegacy}
           permissions={permissions}
           onOpenInstagramSettings={onOpenInstagramSettings}
           onOpenAlbumManager={onOpenAlbumManager}
@@ -92,7 +89,6 @@ export function DashboardShell({
           onToggleDark={onToggleDark}
           isAdmin={isAdmin}
           isSuperadmin={isSuperadmin}
-          isLegacy={isLegacy}
           user={user}
           onLoginClick={onLoginClick}
           onLogout={onLogout}

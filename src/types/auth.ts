@@ -8,18 +8,16 @@ export interface AuthUser {
 }
 
 export interface AuthState {
-  /** Current authenticated user (null if not logged in or legacy auth) */
+  /** Current authenticated user (null if not logged in) */
   user: AuthUser | null;
   /** True during initial session check on page load */
   isLoading: boolean;
-  /** True if user is authenticated (either Supabase Auth or legacy) */
+  /** True if user is authenticated */
   isAuthenticated: boolean;
   /** True if user has admin or superadmin role */
   isAdmin: boolean;
   /** True if user has superadmin role */
   isSuperadmin: boolean;
-  /** True if using old password-based auth (no user object) */
-  isLegacy: boolean;
 }
 
 export interface LoginResult {

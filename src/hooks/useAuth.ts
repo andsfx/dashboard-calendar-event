@@ -7,7 +7,8 @@ import { apiGet, apiPost } from '../lib/rest';
  *
  * On mount, checks existing session via GET /auth/me (through rest.ts,
  * credentials: 'include', cookie sb-access-token HttpOnly).
- * Provides login, legacyLogin (tidak didukung lagi), and logout.
+ * Provides login (email+password) and logout. Login legacy password-only
+ * sudah dihapus total saat migrasi Opsi B.
  */
 
 // ─── Dev mode auto-login bypass ────────────────────────────────
@@ -16,20 +17,17 @@ const DEV_AUTO_LOGIN = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTO_LOGI
 interface AuthMeResponse {
   success: boolean;
   user: AuthUser | null;
-  legacy?: boolean;
 }
 
 interface AuthLoginResponse {
   success: boolean;
   user?: AuthUser | null;
   error?: string;
-  legacy?: boolean;
 }
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLegacy, setIsLegacy] = useState(false);
 
   // ─── Session check on mount ─────────────────────────────────────
   useEffect(() => {
@@ -41,7 +39,6 @@ export function useAuth() {
         role: 'superadmin',
       };
       setUser(devUser);
-      setIsLegacy(false);
       setIsLoading(false);
       return;
     }
@@ -53,23 +50,11 @@ export function useAuth() {
         const data = await apiGet<AuthMeResponse>('/auth/me');
         if (cancelled) return;
 
-        if (data.user) {
-          // Supabase Auth session
-          setUser(data.user);
-          setIsLegacy(false);
-        } else if (data.legacy) {
-          // Legacy cookie session
-          setUser(null);
-          setIsLegacy(true);
-        } else {
-          // Not authenticated
-          setUser(null);
-          setIsLegacy(false);
-        }
+        // REST /auth/me: user aktif atau null (tanpa session legacy).
+        setUser(data.user || null);
       } catch {
         if (!cancelled) {
           setUser(null);
-          setIsLegacy(false);
         }
       } finally {
         if (!cancelled) {
@@ -95,7 +80,6 @@ export function useAuth() {
         role: 'superadmin',
       };
       setUser(devUser);
-      setIsLegacy(false);
       return { ok: true };
     }
 
@@ -104,7 +88,6 @@ export function useAuth() {
 
       if (data.success && data.user) {
         setUser(data.user);
-        setIsLegacy(false);
         return { ok: true };
       }
 
@@ -114,13 +97,6 @@ export function useAuth() {
       // atau fallback koneksi.
       return { ok: false, error: err instanceof Error ? err.message : 'Tidak dapat terhubung ke server' };
     }
-  }, []);
-
-  // ─── Legacy login with password only ────────────────────────────
-  const legacyLogin = useCallback(async (_password: string): Promise<LoginResult> => {
-    // Opsi B: alur legacy (password-only) tidak didukung lagi —
-    // arahkan pemakaian ke login email+password biasa.
-    return { ok: false, error: 'Login lama tidak didukung. Gunakan email dan password.' };
   }, []);
 
   // ─── Logout ─────────────────────────────────────────────────────
@@ -134,7 +110,6 @@ export function useAuth() {
         role: 'superadmin',
       };
       setUser(devUser);
-      setIsLegacy(false);
       return;
     }
 
@@ -145,7 +120,6 @@ export function useAuth() {
       // ignore — state di-reset apa adanya.
     } finally {
       setUser(null);
-      setIsLegacy(false);
     }
   }, []);
 
@@ -153,16 +127,14 @@ export function useAuth() {
   const state: AuthState = useMemo(() => ({
     user,
     isLoading,
-    isAuthenticated: !!user || isLegacy,
-    isAdmin: isLegacy || user?.role === 'admin' || user?.role === 'superadmin',
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin' || user?.role === 'superadmin',
     isSuperadmin: user?.role === 'superadmin',
-    isLegacy,
-  }), [user, isLoading, isLegacy]);
+  }), [user, isLoading]);
 
   return {
     ...state,
     login,
-    legacyLogin,
     logout,
   };
 }

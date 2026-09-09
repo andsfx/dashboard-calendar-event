@@ -8,14 +8,13 @@ interface Props {
   onToggleDark: () => void;
   isAdmin: boolean;
   isSuperadmin?: boolean;
-  isLegacy?: boolean;
   user?: AuthUser | null;
   onLoginClick: () => void;
   onLogout: () => void;
   ongoingCount?: number;
 }
 
-function RoleBadge({ user, isLegacy, isSuperadmin }: { user?: AuthUser | null; isLegacy?: boolean; isSuperadmin?: boolean }) {
+function RoleBadge({ user, isSuperadmin }: { user?: AuthUser | null; isSuperadmin?: boolean }) {
   if (isSuperadmin && user) {
     return (
       <span className="hidden items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 dark:border-red-800/50 dark:bg-red-900/30 dark:text-red-300 sm:flex">
@@ -34,18 +33,10 @@ function RoleBadge({ user, isLegacy, isSuperadmin }: { user?: AuthUser | null; i
     );
   }
 
-  if (isLegacy) {
-    return (
-      <span className="hidden items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-300 sm:flex">
-        <Shield className="h-3 w-3" /> Admin
-      </span>
-    );
-  }
-
   return null;
 }
 
-export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, isLegacy, user, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
+export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, user, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
   return (
     <nav className="ui-dashboard-chrome sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:px-4">

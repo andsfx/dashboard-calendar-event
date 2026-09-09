@@ -22,7 +22,6 @@ interface DashboardModalsProps {
   showLoginModal: boolean;
   onCloseLoginModal: () => void;
   onEmailLogin: (email: string, password: string) => Promise<LoginResult>;
-  onLegacyLogin: (password: string) => Promise<LoginResult>;
 
   // CRUD modal
   showCrudModal: boolean;
@@ -106,7 +105,6 @@ export function DashboardModals({
   showLoginModal,
   onCloseLoginModal,
   onEmailLogin,
-  onLegacyLogin,
   showCrudModal,
   onCloseCrudModal,
   onSave,
@@ -170,7 +168,6 @@ export function DashboardModals({
         isOpen={showLoginModal}
         onClose={onCloseLoginModal}
         onEmailLogin={onEmailLogin}
-        onLegacyLogin={onLegacyLogin}
       />
       <Suspense fallback={null}>
         {showCrudModal && (

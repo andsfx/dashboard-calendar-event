@@ -52,7 +52,7 @@ export default function App() {
   });
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
-  const permissions = usePermission(auth.user, auth.isLegacy);
+  const permissions = usePermission(auth.user);
   const isAdmin = permissions.canViewDashboard;
   const canSeeInternalSchedule = permissions.canEditEvents;
   const { toasts, showToast, removeToast } = useToast();
@@ -243,7 +243,7 @@ export default function App() {
 
 
   // ─── Build sub-props for DashboardPage ───────────────────────
-  const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, isLegacy: auth.isLegacy, login: auth.login, legacyLogin: auth.legacyLogin };
+  const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, login: auth.login };
   const dpEvents: DashboardPageEvents = { events, publicEvents, visibleEvents, visibleStats, ongoingEvents, upcomingEvents, holidays, annualThemes, error };
   const dpDrafts: DashboardPageDrafts = { activeDrafts, draftHistory, draftEvents, isDraftLoading, draftError };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
@@ -420,9 +420,9 @@ export default function App() {
                   <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Tenant Relation</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  {(auth.isAuthenticated || auth.isLegacy) && (
+                  {auth.isAuthenticated && (
                     <>
-                      {(auth.user?.display_name || auth.isLegacy) && (
+                      {auth.user?.display_name && (
                         <div className="hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 dark:border-slate-600 dark:bg-slate-800/70 sm:flex">
                           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary-100 text-[10px] font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">{(auth.user?.display_name || 'A').charAt(0).toUpperCase()}</span>
                           <span className="max-w-[120px] truncate text-[11px] font-semibold text-slate-700 dark:text-slate-200">{auth.user?.display_name || 'Admin'}</span>
@@ -479,7 +479,6 @@ export default function App() {
           </>) : (
             <AdminLoginPage
               onEmailLogin={auth.login}
-              onLegacyLogin={auth.legacyLogin}
             />
           )}
         </Suspense>

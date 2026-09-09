@@ -9,23 +9,16 @@ function user(role: AuthUser['role']): AuthUser {
 
 describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
   it('unauthenticated: no dashboard', () => {
-    const { result } = renderHook(() => usePermission(null, false));
+    const { result } = renderHook(() => usePermission(null));
     expect(result.current.canViewDashboard).toBe(false);
     expect(result.current.canEditEvents).toBe(false);
     expect(result.current.canManageUsers).toBe(false);
     expect(result.current.role).toBe('');
   });
 
-  it('legacy auth treats as admin', () => {
-    const { result } = renderHook(() => usePermission(null, true));
-    expect(result.current.canViewDashboard).toBe(true);
-    expect(result.current.canEditEvents).toBe(true);
-    expect(result.current.canManageUsers).toBe(false);
-    expect(result.current.role).toBe('admin');
-  });
 
   it('superadmin: full + manage users', () => {
-    const { result } = renderHook(() => usePermission(user('superadmin'), false));
+    const { result } = renderHook(() => usePermission(user('superadmin')));
     expect(result.current.canViewDashboard).toBe(true);
     expect(result.current.canEditEvents).toBe(true);
     expect(result.current.canDeleteEvents).toBe(true);
@@ -45,7 +38,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
   });
 
   it('admin: ops full, no user management', () => {
-    const { result } = renderHook(() => usePermission(user('admin'), false));
+    const { result } = renderHook(() => usePermission(user('admin')));
     expect(result.current.canEditEvents).toBe(true);
     expect(result.current.canManageUsers).toBe(false);
     expect(result.current.canViewActivityLog).toBe(true);
@@ -54,7 +47,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
   });
 
   it('viewer: read-only dashboard', () => {
-    const { result } = renderHook(() => usePermission(user('viewer'), false));
+    const { result } = renderHook(() => usePermission(user('viewer')));
     expect(result.current.canViewDashboard).toBe(true);
     expect(result.current.canEditEvents).toBe(false);
     expect(result.current.canDeleteEvents).toBe(false);
@@ -68,7 +61,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
   });
 
   it('eo_tenant: limited + tenant surveys', () => {
-    const { result } = renderHook(() => usePermission(user('eo_tenant'), false));
+    const { result } = renderHook(() => usePermission(user('eo_tenant')));
     expect(result.current.canViewDashboard).toBe(true);
     expect(result.current.canEditEvents).toBe(false);
     expect(result.current.isEoTenant).toBe(true);
@@ -79,7 +72,7 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
   });
 
   it('tenant_relation: results only', () => {
-    const { result } = renderHook(() => usePermission(user('tenant_relation'), false));
+    const { result } = renderHook(() => usePermission(user('tenant_relation')));
     expect(result.current.canViewDashboard).toBe(true);
     expect(result.current.canEditEvents).toBe(false);
     expect(result.current.isTenantRelation).toBe(true);

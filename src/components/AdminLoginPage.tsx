@@ -1,18 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Lock, Eye, EyeOff, Mail, KeyRound, ArrowLeft } from 'lucide-react';
+import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import type { LoginResult } from '../types/auth';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 
-type LoginTab = 'email' | 'legacy';
-
 interface Props {
   onEmailLogin: (email: string, password: string) => Promise<LoginResult>;
-  onLegacyLogin: (password: string) => Promise<LoginResult>;
 }
 
-export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
-  const [tab, setTab] = useState<LoginTab>('email');
+export function AdminLoginPage({ onEmailLogin }: Props) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -20,20 +16,13 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
   const [shake, setShake] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setError('');
-    setPw('');
-  }, [tab]);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const result = tab === 'email'
-        ? await onEmailLogin(email, pw)
-        : await onLegacyLogin(pw);
+      const result = await onEmailLogin(email, pw);
 
       if (!result.ok) {
         setError(result.error || 'Login gagal. Coba lagi.');
@@ -49,28 +38,28 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
     }
   };
 
-  const canSubmit = tab === 'email'
-    ? email.trim() && pw.trim() && !loading
-    : pw.trim() && !loading;
+  const canSubmit = email.trim() && pw.trim() && !loading;
 
   return (
     <div className="ui-dashboard-page flex min-h-screen flex-col bg-[var(--brand-card)] dark:bg-slate-950">
       {/* Top bar */}
       <header className="ui-dashboard-chrome border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">
-              Dashboard Admin
-            </span>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
+            <div className="hidden sm:block">
+              <p className="text-xs font-semibold text-slate-900 dark:text-white">Event Ops Dashboard</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-300">Metropolitan Mall Bekasi</p>
+            </div>
           </div>
-          <a
-            href="/events"
-            className="ui-focus-ring inline-flex shrink-0 items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-300 dark:hover:text-brand-primary-400"
+          <button
+            type="button"
+            onClick={() => history.back()}
+            className="ui-focus-ring flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-[var(--brand-card)] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
           >
-            <ArrowLeft className="h-4 w-4" /> Jadwal Publik
-          </a>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Kembali
+          </button>
         </div>
       </header>
 
@@ -94,56 +83,26 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
             </div>
           </div>
 
-          {/* Tab switcher */}
-          <div className="flex border-b border-slate-200 dark:border-slate-700">
-            <button
-              type="button"
-              onClick={() => setTab('email')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
-                tab === 'email'
-                  ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
-                  : 'text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-              }`}
-            >
-              <Mail className="h-3.5 w-3.5" />
-              Login Email
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('legacy')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
-                tab === 'legacy'
-                  ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
-                  : 'text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-              }`}
-            >
-              <KeyRound className="h-3.5 w-3.5" />
-              Password
-            </button>
-          </div>
-
           {/* Body */}
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {tab === 'email' && (
-                <div>
-                  <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Email
-                  </label>
-                  <input
-                    id="admin-login-email"
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); setError(''); }}
-                    placeholder="admin@example.com"
-                    autoFocus
-                    className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
-                  />
-                </div>
-              )}
+              <div>
+                <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  Email
+                </label>
+                <input
+                  id="admin-login-email"
+                  type="email"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); setError(''); }}
+                  placeholder="admin@example.com"
+                  autoFocus
+                  className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
+                />
+              </div>
               <div>
                 <label htmlFor="admin-login-pw" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Password{tab === 'legacy' ? ' Admin' : ''}
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -151,8 +110,7 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
                     type={showPw ? 'text' : 'password'}
                     value={pw}
                     onChange={e => { setPw(e.target.value); setError(''); }}
-                    placeholder={tab === 'email' ? 'Masukkan password…' : 'Masukkan password admin…'}
-                    autoFocus={tab === 'legacy'}
+                    placeholder="Masukkan password…"
                     className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
                       error
                         ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900/30'
@@ -193,12 +151,6 @@ export function AdminLoginPage({ onEmailLogin, onLegacyLogin }: Props) {
                   'Masuk sebagai Admin'
                 )}
               </button>
-
-              {tab === 'legacy' && (
-                <p className="text-center text-[10px] text-slate-500 dark:text-slate-300">
-                  Login password akan dihapus. Gunakan Login Email.
-                </p>
-              )}
             </form>
           </div>
         </div>

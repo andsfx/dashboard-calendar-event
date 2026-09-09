@@ -1,19 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Lock, X, Eye, EyeOff, Mail, KeyRound } from 'lucide-react';
+import { Lock, X, Eye, EyeOff } from 'lucide-react';
 import { ModalWrapper } from './ModalWrapper';
 import type { LoginResult } from '../types/auth';
-
-type LoginTab = 'email' | 'legacy';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onEmailLogin: (email: string, password: string) => Promise<LoginResult>;
-  onLegacyLogin: (password: string) => Promise<LoginResult>;
 }
 
-export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }: Props) {
-  const [tab, setTab] = useState<LoginTab>('email');
+export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -28,15 +24,8 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
       setPw('');
       setError('');
       setShowPw(false);
-      setLoading(false);
     }
   }, [isOpen]);
-
-  // Clear error on tab switch
-  useEffect(() => {
-    setError('');
-    setPw('');
-  }, [tab]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,13 +33,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
     setError('');
 
     try {
-      let result: LoginResult;
-
-      if (tab === 'email') {
-        result = await onEmailLogin(email, pw);
-      } else {
-        result = await onLegacyLogin(pw);
-      }
+      const result = await onEmailLogin(email, pw);
 
       if (result.ok) {
         setPw('');
@@ -71,9 +54,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
     }
   };
 
-  const canSubmit = tab === 'email'
-    ? email.trim() && pw.trim() && !loading
-    : pw.trim() && !loading;
+  const canSubmit = email.trim() && pw.trim() && !loading;
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="admin-login-title">
@@ -100,59 +81,27 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
           </div>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex border-b border-slate-200 dark:border-slate-700">
-          <button
-            type="button"
-            onClick={() => setTab('email')}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
-              tab === 'email'
-                ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
-                : 'text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-            }`}
-          >
-            <Mail className="h-3.5 w-3.5" />
-            Login Email
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('legacy')}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition ${
-              tab === 'legacy'
-                ? 'border-b-2 border-brand-primary-500 text-brand-primary-600 dark:text-brand-primary-400'
-                : 'text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-            }`}
-          >
-            <KeyRound className="h-3.5 w-3.5" />
-            Password
-          </button>
-        </div>
-
         {/* Body */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email field (only for email tab) */}
-            {tab === 'email' && (
-              <div>
-                <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Email
-                </label>
-                <input
-                  id="admin-login-email"
-                  type="email"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); setError(''); }}
-                  placeholder="admin@example.com"
-                  autoFocus
-                  className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
-                />
-              </div>
-            )}
+            <div>
+              <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                Email
+              </label>
+              <input
+                id="admin-login-email"
+                type="email"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setError(''); }}
+                placeholder="admin@example.com"
+                autoFocus
+                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
+              />
+            </div>
 
-            {/* Password field */}
             <div>
               <label htmlFor="admin-login-password" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Password{tab === 'legacy' ? ' Admin' : ''}
+                Password
               </label>
               <div className="relative">
                 <input
@@ -160,8 +109,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                   type={showPw ? 'text' : 'password'}
                   value={pw}
                   onChange={e => { setPw(e.target.value); setError(''); }}
-                  placeholder={tab === 'email' ? 'Masukkan password…' : 'Masukkan password admin…'}
-                  autoFocus={tab === 'legacy'}
+                  placeholder="Masukkan password…"
                   aria-invalid={!!error || undefined}
                   aria-describedby={error ? 'admin-login-error' : undefined}
                   className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
@@ -203,13 +151,6 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin, onLegacyLogin }
                 'Masuk sebagai Admin'
               )}
             </button>
-
-            {/* Legacy tab hint */}
-            {tab === 'legacy' && (
-              <p className="text-center text-[10px] text-slate-500 dark:text-slate-300">
-                Login password akan dihapus. Gunakan Login Email.
-              </p>
-            )}
           </form>
         </div>
       </div>

@@ -21,7 +21,6 @@ interface AdminSidebarProps {
   onLogout: () => void;
   user?: AuthUser | null;
   isSuperadmin?: boolean;
-  isLegacy?: boolean;
   permissions: Permissions;
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
@@ -40,7 +39,6 @@ export const AdminSidebar = memo(function AdminSidebar({
   onLogout,
   user,
   isSuperadmin,
-  isLegacy,
   permissions,
   onOpenInstagramSettings,
   onOpenAlbumManager,
@@ -223,7 +221,7 @@ export const AdminSidebar = memo(function AdminSidebar({
                 {user?.display_name || 'Admin'}
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-300">
-                {isSuperadmin ? 'Superadmin' : isLegacy ? 'Admin (legacy)' : 'Administrator'}
+                {isSuperadmin ? 'Superadmin' : 'Administrator'}
               </p>
             </div>
           </div>

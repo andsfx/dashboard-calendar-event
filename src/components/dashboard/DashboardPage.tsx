@@ -48,9 +48,7 @@ function SectionFallback({ height = 'h-32' }: { height?: string }) {
 export interface DashboardPageAuth {
   user: AuthUser | null;
   isSuperadmin: boolean;
-  isLegacy: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
-  legacyLogin: (password: string) => Promise<LoginResult>;
 }
 
 export interface DashboardPageEvents {
@@ -209,7 +207,6 @@ export function DashboardPage({
       onLogout={handlers.handleLogout}
       user={auth.user}
       isSuperadmin={auth.isSuperadmin}
-      isLegacy={auth.isLegacy}
       permissions={permissions}
       onOpenInstagramSettings={() => siteSettings.setShowInstagramSettings(true)}
       onOpenAlbumManager={() => siteSettings.setShowAlbumManager(true)}
@@ -227,11 +224,10 @@ export function DashboardPage({
           showLoginModal={modalState.showLoginModal}
           onCloseLoginModal={() => modalState.setShowLoginModal(false)}
           onEmailLogin={auth.login}
-          onLegacyLogin={auth.legacyLogin}
           showCrudModal={modalState.showCrudModal}
           onCloseCrudModal={() => { modalState.setShowCrudModal(false); modalData.setEditingEvent(null); modalData.setInitialEventData(null); }}
-          onSave={handlers.handleSave}
           onSaveBatch={handlers.handleSaveBatch}
+          onSave={handlers.handleSave}
           editingEvent={modalData.editingEvent}
           events={events.events}
           organizationOptions={organizationOptions}

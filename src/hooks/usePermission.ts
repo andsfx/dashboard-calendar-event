@@ -46,9 +46,9 @@ export interface Permissions {
  * Role hierarchy:
  *   superadmin > admin > viewer > eo_tenant | tenant_relation
  */
-export function usePermission(user: AuthUser | null, isLegacy: boolean): Permissions {
+export function usePermission(user: AuthUser | null): Permissions {
   return useMemo(() => {
-    const role = user?.role || (isLegacy ? 'admin' : '');
+    const role = user?.role || '';
 
     // Not authenticated
     if (!role) {
@@ -101,5 +101,5 @@ export function usePermission(user: AuthUser | null, isLegacy: boolean): Permiss
       isTenantRelation,
       role,
     };
-  }, [user, isLegacy]);
+  }, [user]);
 }
