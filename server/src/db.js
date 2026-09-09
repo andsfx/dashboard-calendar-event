@@ -12,6 +12,12 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
+// Kolom DATE (OID 1082) dikirim sebagai string 'YYYY-MM-DD' — kontrak yang
+// dan JSON.stringify menghasilkan '2026-05-03T00:00:00.000Z' (UTC midnight),
+// membingkalkan FE yang membandingkan string ISO lokal (t.dateEnd, h.dateStr,
+// day_time_slots.date). TIMESTAMP (1114) dibiarkan default.
+pg.types.setTypeParser(1082, (val) => val);
+
 const DATABASE_URL = process.env.DATABASE_URL || '';
 const POOL_MAX = Number(process.env.DB_POOL_MAX || 10);
 

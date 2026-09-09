@@ -524,7 +524,10 @@ router.get('/sponsor/events', async (req, res) => {
 const VALID_ROLES = ['admin', 'viewer', 'eo_tenant', 'tenant_relation'];
 const ALL_VALID_ROLES = ['superadmin', ...VALID_ROLES];
 
-router.use('/users', requireRole(['superadmin']));
+// Guard exact-path (bukan prefix '/users' — path-to-regexp segment match
+// TIDAK mencakup '/users-invite' dsb. tanpa audit; lihat temuan audit
+// 2026-09-09: endpoint users-* sempat bisa diakses anonim).
+router.use(['/users', '/users-invite', '/users-create', '/users-update', '/users-delete'], requireRole(['superadmin']));
 
 // ─── GET /users ────────────────────────────────────────────────────
 router.get('/users', async (req, res, next) => {

@@ -788,39 +788,10 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   }
 });
 
-// ─── POST /submit — submit draft milik sendiri ─────────────────────
-router.post('/submit', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, res, next) => {
-  const body = req.body || {};
-  const id = sanitize(body.id || '', 100);
-  if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
-
-  const { role, user } = req.auth;
-  try {
-    const { rows } = await db.query(
-      'SELECT id, tenant_user_id, status FROM tenant_event_surveys WHERE id = $1 LIMIT 1',
-      [id],
-    );
-    const existing = rows[0] || null;
-    if (!existing) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
-
-    const isStaff = STAFF_ROLES.includes(role);
-    if (!isStaff && existing.tenant_user_id !== user.id) {
-      return res.status(403).json({ success: false, error: 'Tidak berhak melakukan aksi ini.' });
-    }
-
-    const { rows: updated } = await db.query(
-      `UPDATE tenant_event_surveys SET status = 'submitted', submitted_at = $1 WHERE id = $2 RETURNING *`,
-      [new Date().toISOString(), id],
-    );
-    if (updated[0]) logActivity(user, 'submit_tenant_survey', 'tenant_survey', id, null, req);
-    return res.json({ success: true, data: updated[0] || null });
-  } catch (err) {
-    if (String(err?.code) === '23505') {
-      return res.status(409).json({ success: false, error: 'Anda sudah pernah mengirimkan survey untuk event ini.' });
-    }
-    return next(err);
-  }
-});
+// ─── POST /submit (auth, submit draft milik sendiri) — DIHAPUS ──────
+// Dead code: route POST /submit public (line 327) match lebih dulu di
+// Express; FE submit draft via /tenant/update (updateTenantSurvey) —
+// duplikat ini tak terjangkau. Dihapus saat audit 2026-09-09.
 
 // ─── POST /review — staff ──────────────────────────────────────────
 router.post('/review', requireRole(STAFF_ROLES), async (req, res, next) => {
