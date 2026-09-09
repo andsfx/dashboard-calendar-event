@@ -5,6 +5,7 @@ import {
   Crown, BarChart3,
 } from 'lucide-react';
 import { useConfirmDialog } from '../ConfirmDialog';
+import { apiGet, apiPost } from '../../lib/rest';
 
 interface UserRecord {
   id: string;
@@ -36,27 +37,25 @@ export function UserManagement() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
-
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth?action=users', { headers: { 'Authorization': `Bearer ${getToken()}` } });
-      const json = await res.json();
-      if (json.success) setUsers(json.users);
-      else setError(json.error || 'Gagal memuat data');
-    } catch { setError('Gagal terhubung ke server'); }
-    finally { setLoading(false); }
+      // GET /api/v1/users → { success, data: { users } } (superadmin).
+      const data = await apiGet<{ users: UserRecord[] }>('/users');
+      setUsers(data.users);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat data');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
-
   const handleToggleActive = useCallback(async (userId: string, currentActive: boolean) => {
-    const res = await fetch('/api/auth?action=update-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-      body: JSON.stringify({ user_id: userId, is_active: !currentActive }),
+    const result = await apiPost<{ success: boolean; error?: string }>('/users-update', {
+      user_id: userId,
+      is_active: !currentActive,
     });
-    if ((await res.json()).success) fetchUsers();
+    if (result.success) fetchUsers();
   }, [fetchUsers]);
   const handleDelete = useCallback(async (userId: string) => {
     const ok = await confirm({
@@ -65,20 +64,19 @@ export function UserManagement() {
       confirmLabel: 'Nonaktifkan',
     });
     if (!ok) return;
-    const res = await fetch('/api/auth?action=delete-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-      body: JSON.stringify({ user_id: userId }),
+    const result = await apiPost<{ success: boolean; error?: string }>('/users-delete', {
+      user_id: userId,
     });
-    if ((await res.json()).success) fetchUsers();
+    if (result.success) fetchUsers();
   }, [confirm, fetchUsers]);
+
 
   const handleSubmitForm = useCallback(async () => {
     setFormLoading(true);
     setFormError('');
     setFormSuccess('');
 
-    const action = showForm === 'invite' ? 'invite' : 'create-user';
+    const path = showForm === 'invite' ? '/users-invite' : '/users-create';
     const body: Record<string, string> = {
       email: formData.email,
       role: formData.role,
@@ -88,12 +86,7 @@ export function UserManagement() {
     if (showForm === 'create') body.password = formData.password;
 
     try {
-      const res = await fetch(`/api/auth?action=${action}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-        body: JSON.stringify(body),
-      });
-      const json = await res.json();
+      const json = await apiPost<{ success: boolean; error?: string }>(path, body);
       if (json.success) {
         setFormSuccess(showForm === 'invite' ? 'Undangan terkirim!' : 'User berhasil dibuat!');
         setFormData({ email: '', password: '', role: 'viewer', display_name: '', eo_organization: '' });
@@ -102,8 +95,11 @@ export function UserManagement() {
       } else {
         setFormError(json.error || 'Gagal');
       }
-    } catch { setFormError('Gagal terhubung ke server'); }
-    finally { setFormLoading(false); }
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Gagal terhubung ke server');
+    } finally {
+      setFormLoading(false);
+    }
   }, [showForm, formData, fetchUsers]);
 
   if (loading) {
@@ -230,11 +226,3 @@ export function UserManagement() {
   );
 }
 
-function getToken(): string {
-  try {
-    const keys = Object.keys(localStorage);
-    const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-    if (sbKey) { return JSON.parse(localStorage.getItem(sbKey) || '{}').access_token || ''; }
-  } catch {}
-  return '';
-}

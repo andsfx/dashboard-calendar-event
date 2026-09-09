@@ -724,10 +724,7 @@ router.get('/activity-log', requireRole(STAFF_ROLES), async (req, res, next) => 
 
     return res.json({
       success: true,
-      data: rows,
-      total: countRows[0]?.total || 0,
-      page,
-      limit,
+      data: { logs: rows, total: countRows[0]?.total || 0, page, limit },
     });
   } catch (err) {
     return next(err);

@@ -19,7 +19,7 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole } from '../auth.js';
+import { requireRole, logActivity } from '../auth.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 
 const router = Router();
@@ -299,6 +299,35 @@ router.get('/config', requireRole(['superadmin', 'admin']), async (req, res, nex
         deactivated_at: null,
       },
     });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// ─── POST /config-set — staff: aktif/nonaktif survey per event ──────
+// (FE SurveyDashboard toggle; mirror tenant.js /config-set pattern).
+router.post('/config-set', requireRole(['superadmin', 'admin']), async (req, res, next) => {
+  const body = req.body || {};
+  const eventId = String(body.event_id || '').trim();
+  if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+
+  const now = new Date().toISOString();
+  const isActive = !!body.is_active;
+
+  try {
+    const { rows } = await db.query(
+      `INSERT INTO survey_config (event_id, is_active, activated_at, deactivated_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (event_id) DO UPDATE SET
+         is_active = EXCLUDED.is_active,
+         activated_at = EXCLUDED.activated_at,
+         deactivated_at = EXCLUDED.deactivated_at,
+         updated_at = EXCLUDED.updated_at
+       RETURNING *`,
+      [eventId, isActive, isActive ? now : null, !isActive ? now : null, now],
+    );
+    logActivity(req.auth.user, 'set_survey_config', 'survey_config', eventId, { is_active: isActive }, req);
+    return res.json({ success: true, data: rows[0] || null });
   } catch (err) {
     return next(err);
   }

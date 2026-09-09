@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, ChevronDown, ChevronUp } from 'lucide-react';
 import type { SurveySummary } from '../../types';
+import { apiGet } from '../../lib/rest';
 
 interface EventRatingSummaryProps {
   eventId: string;
@@ -23,10 +24,10 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`/api/survey?action=summary&event_id=${encodeURIComponent(eventId)}`);
-        const json = await res.json();
-        if (!cancelled && json.success && json.summary?.total_responses > 0) {
-          setSummary(json.summary);
+        // GET /api/v1/survey/summary?event_id= — data langsung (apiGet unwrap).
+        const data = await apiGet<SurveySummary>(`/survey/summary?event_id=${encodeURIComponent(eventId)}`);
+        if (!cancelled && data && data.total_responses > 0) {
+          setSummary(data);
         }
       } catch { /* ignore */ }
       finally { if (!cancelled) setLoading(false); }

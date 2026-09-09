@@ -5,6 +5,10 @@ import {
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
   MessageSquare, Calendar,
 } from 'lucide-react';
+import { apiGet, apiPost } from '../../lib/rest';
+
+// Base REST untuk download blob CSV (fetch native — apiGet meng-unwrap JSON).
+const API_V1 = ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') + '/api/v1';
 
 interface SurveyStats {
   total_responses: number;
@@ -68,14 +72,11 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/survey?action=stats', {
-        headers: { 'Authorization': `Bearer ${getAccessToken()}` },
-      });
-      const json = await res.json();
-      if (json.success) setStats(json.stats);
-      else setError(json.error || 'Gagal memuat data');
-    } catch {
-      setError('Gagal terhubung ke server');
+      // GET /api/v1/survey/stats → data: { total_responses, mall_avg, eo_avg, ... }
+      const data = await apiGet<SurveyStats>('/survey/stats');
+      setStats(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat data');
     } finally {
       setLoading(false);
     }
@@ -85,8 +86,9 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
   const handleExport = useCallback(async (eventId: string) => {
     try {
-      const res = await fetch(`/api/survey?action=export&event_id=${encodeURIComponent(eventId)}`, {
-        headers: { 'Authorization': `Bearer ${getAccessToken()}` },
+      // GET /api/v1/survey/export?event_id= — CSV blob (cookie auth).
+      const res = await fetch(`${API_V1}/survey/export?event_id=${encodeURIComponent(eventId)}`, {
+        credentials: 'include',
       });
       if (!res.ok) return;
       const blob = await res.blob();
@@ -111,15 +113,11 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
     try {
-      const res = await fetch('/api/survey?action=config-set', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAccessToken()}`,
-        },
-        body: JSON.stringify({ event_id: eventId, is_active: !currentActive }),
+      // POST /api/v1/survey/config-set — upsert survey_config per event.
+      const json = await apiPost<{ success: boolean }>('/survey/config-set', {
+        event_id: eventId,
+        is_active: !currentActive,
       });
-      const json = await res.json();
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
       }
@@ -497,14 +495,4 @@ function MiniRating({ label, value }: { label: string; value: number | null }) {
   );
 }
 
-function getAccessToken(): string {
-  try {
-    const keys = Object.keys(localStorage);
-    const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-    if (sbKey) {
-      const data = JSON.parse(localStorage.getItem(sbKey) || '{}');
-      return data.access_token || '';
-    }
-  } catch { /* ignore */ }
-  return '';
-}
+

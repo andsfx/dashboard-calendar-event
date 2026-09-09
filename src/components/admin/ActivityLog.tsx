@@ -3,6 +3,7 @@ import {
   Activity, Loader2, Calendar, Filter, User,
   Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings,
 } from 'lucide-react';
+import { apiGet } from '../../lib/rest';
 
 interface LogEntry {
   id: number;
@@ -57,18 +58,15 @@ export function ActivityLog() {
   const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ action: 'activity-log', page: String(page), limit: String(limit) });
+      // GET /api/v1/activity-log → data: { logs, total, page, limit } (staff).
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (filterAction) params.set('action_type', filterAction);
       if (filterResource) params.set('resource_type', filterResource);
       if (dateFrom) params.set('from', dateFrom + 'T00:00:00Z');
       if (dateTo) params.set('to', dateTo + 'T23:59:59Z');
-
-      const res = await fetch(`/api/auth?${params}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
-      const json = await res.json();
-      if (json.success) {
-        setLogs(json.data);
-        setTotal(json.total);
-      }
+      const data = await apiGet<{ logs: LogEntry[]; total: number }>(`/activity-log?${params}`);
+      setLogs(data.logs);
+      setTotal(data.total);
     } catch { /* ignore */ }
     finally { setLoading(false); }
   }, [page, filterAction, filterResource, dateFrom, dateTo]);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, Save, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { uploadToR2 } from '../utils/api/albumsApi';
+import { apiPost } from '../lib/rest';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 
@@ -195,15 +196,12 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
               setIsSyncing(true);
               setSyncResult('');
               try {
-                const res = await fetch('/api/instagram-sync', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  credentials: 'include',
-                  body: JSON.stringify({ urls: validUrls }),
+                // POST /api/v1/instagram-sync → { success, data: { synced } } (staff).
+                const data = await apiPost<{ success: boolean; error?: string; data?: { synced: number } }>('/instagram-sync', {
+                  urls: validUrls,
                 });
-                const data = await res.json();
                 if (data.success) {
-                  setSyncResult(`Berhasil sync ${data.synced} post! Image di-cache ke CDN.`);
+                  setSyncResult(`Berhasil sync ${data.data?.synced ?? validUrls.length} post! Image di-cache ke CDN.`);
                 } else {
                   setSyncResult(`Gagal: ${data.error}`);
                 }

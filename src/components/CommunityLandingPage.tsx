@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiGet } from '../lib/rest';
 import { EventItem, PhotoAlbum, EventArea } from '../types';
 import { filterUpcomingForMonth } from './community/upcomingFilter';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -81,10 +82,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   };
 
   useEffect(() => {
-    fetch('/api/instagram-sync')
-      .then(r => r.json())
+    // GET /api/v1/instagram → data: { posts } (cache publik site_settings).
+    apiGet<{ posts: CachedInstagramPost[] }>('/instagram')
       .then(data => {
-        if (data.success && Array.isArray(data.posts) && data.posts.length > 0) {
+        if (Array.isArray(data?.posts) && data.posts.length > 0) {
           setCachedIgPosts(data.posts);
         }
       })
