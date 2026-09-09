@@ -52,7 +52,7 @@ There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification 
 - **Mutations are optimistic**: update local state → call API → rollback + surface error on failure; hooks return `boolean` success. Errors: `SupabaseApiError` (API layer), `AdminError` with kinds (`lib/schemas.ts`), Postgres 23505 → friendly Indonesian message; toasts via `useToast`.
 - **Validation**: zod at every boundary (`ACTION_SCHEMAS` server, payload schemas client); FE form validators in `src/utils/validation.ts` return `{valid, errors}`. Prefer zod over `as` casts.
 - **Backend**: Express `router.method((req,res)=>...)` di `server/src/routes/`, respons `{success, error?, data?}`, rate-limit `enforceRateLimit` + `clientIp` bersama (`server/src/lib/rateLimit.js`; baca `X-Real-IP` hasil `real_ip` nginx — XFF mentah diabaikan), admin pakai `requireRole` + zod `validateAction`; CORS whitelist `CORS_ORIGIN` (origin jahat → 403).
-- **Tests colocated** in `__tests__/` beside source; tanpa mock supabase-js lagi — semua mock **fetch route** ke `REST` (pola di `src/utils/supabaseApi.test.ts`, `src/utils/__tests__/eventAreasApi.test.ts`) dengan `vi.hoisted` state + raw `mockReq`/`mockRes` (no supertest).
+- **Tests colocated** in `__tests__/` beside source; semua mock **fetch route** ke `REST` (pola di `src/utils/domainApi.test.ts`, `src/utils/__tests__/eventAreasApi.test.ts`) dengan `vi.hoisted` state + raw `mockReq`/`mockRes` (no supertest).
 - Markers: `// ─── Section ───` banners; `// ponytail: <note>` = deliberate cross-cutting design decision (don't "fix" without reading it).
 
 ## Important Files

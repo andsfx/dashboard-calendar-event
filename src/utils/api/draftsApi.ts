@@ -1,5 +1,5 @@
 import {
-  SupabaseApiError, adminAction,
+  adminAction,
   draftItemToDbRow,
 } from './_shared';
 import { apiPost, ApiError } from '../../lib/rest';
@@ -17,34 +17,34 @@ export async function createDraftEvent(
       await apiPost<{ success: boolean; error?: string }>('/drafts', { data: draftItemToDbRow(draftData) });
     } catch (err) {
       if (err instanceof ApiError) {
-        throw new SupabaseApiError(err.message ?? 'Public draft creation failed');
+        throw new ApiError(err.message ?? 'Public draft creation failed');
       }
       throw err;
     }
     return { row: 0, id: '' };
   }
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createDraft', { data: draftItemToDbRow(draftData) });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Create draft failed');
   return { row: 0, id: result.id || '' };
 }
 
 export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { id: string }): Promise<void> {
   const { id, ...rest } = draftData;
   const result = await adminAction<{ success: boolean; error?: string }>('updateDraft', { id, data: draftItemToDbRow(rest) });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Update draft failed');
 }
 
 export async function deleteDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteDraft', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete draft failed');
 }
 
 export async function publishDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('publishDraft', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menerbitkan draft');
+  if (!result.success) throw new ApiError(result.error || 'Gagal menerbitkan draft');
 }
 
 export async function restoreDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('restoreDraft', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Restore draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Restore draft failed');
 }

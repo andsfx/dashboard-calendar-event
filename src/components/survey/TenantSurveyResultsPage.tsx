@@ -34,7 +34,7 @@ import { downloadTenantSurveyResultsPdf } from '../../utils/tenantSurveyResultsP
 import {
   fetchPublicTenantRoster,
   type TenantRosterItem,
-} from '../../utils/supabaseApi';
+} from '../../utils/domainApi';
 import { usePageMeta } from '../../utils/pageMeta';
 import {
   FIELD,

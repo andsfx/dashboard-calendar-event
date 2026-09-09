@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ToastMessage, PhotoAlbum, EventArea } from '../types';
-import { fetchSiteSettings, updateSiteSettings, fetchAlbums, fetchEventAreas } from '../utils/supabaseApi';
+import { fetchSiteSettings, updateSiteSettings, fetchAlbums, fetchEventAreas } from '../utils/domainApi';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 

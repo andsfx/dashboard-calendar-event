@@ -1,4 +1,4 @@
-import { SupabaseApiError, adminAction } from './_shared';
+import { adminAction } from './_shared';
 import { uploadToR2 } from './albumsApi';
 import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import type { SponsorLead, SponsorLeadInput, SponsorLeadStatus, EventProposalEvent } from '../../types';
@@ -64,9 +64,9 @@ export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
       email: data.email,
       message: data.message,
     });
-    if (!result.success) throw new SupabaseApiError(result.error || 'Submit sponsor lead failed');
+    if (!result.success) throw new ApiError(result.error || 'Submit sponsor lead failed');
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Submit sponsor lead failed');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Submit sponsor lead failed');
     throw err;
   }
 }
@@ -87,7 +87,7 @@ export async function fetchSponsorEventsWithProposals(): Promise<EventProposalEv
 /** Admin list — all leads with event info via service-role proxy. */
 export async function fetchAllSponsorLeads(): Promise<SponsorLead[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('listSponsorLeads', {});
-  if (!result.success) throw new SupabaseApiError(result.error || 'Fetch sponsor leads failed');
+  if (!result.success) throw new ApiError(result.error || 'Fetch sponsor leads failed');
   return (result.data || []).map(row => mapLead(row as Record<string, unknown>));
 }
 
@@ -95,12 +95,12 @@ export async function updateSponsorLeadStatus(id: string, status: SponsorLeadSta
   const result = await adminAction<{ success: boolean; error?: string }>(
     'updateSponsorLeadStatus', { id, status, internalNotes }
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update sponsor lead failed');
+  if (!result.success) throw new ApiError(result.error || 'Update sponsor lead failed');
 }
 
 export async function deleteSponsorLead(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteSponsorLead', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete sponsor lead failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete sponsor lead failed');
 }
 
 /** Admin — upload a proposal file for an event (upsert 1-to-1). */
@@ -109,12 +109,12 @@ export async function setEventProposal(eventId: string, file: File): Promise<voi
   const result = await adminAction<{ success: boolean; error?: string }>(
     'setEventProposal', { eventId, fileUrl: url, fileName: file.name, mimeType: file.type }
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Set event proposal failed');
+  if (!result.success) throw new ApiError(result.error || 'Set event proposal failed');
 }
 
 export async function deleteEventProposal(eventId: string): Promise<void> {
   // m-2 (audit): hapus file R2 ditangani server (deleteEventProposal di supabase-admin.js:
   // hapus R2 dulu dengan kepastian, baru row DB) — client tidak memanggil deleteFromR2 lagi.
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEventProposal', { eventId });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete event proposal failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete event proposal failed');
 }

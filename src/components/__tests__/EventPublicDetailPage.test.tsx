@@ -15,10 +15,10 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EventPublicDetailPage } from '../EventPublicDetailPage';
 import type { EventItem } from '../../types';
 
-// (Mock lib/supabase dihapus 2026-09-09: shim legacy, komponen via fetchEventById REST.)
+// (Mock shim legacy dihapus 2026-09-09; komponen via fetchEventById REST.)
 
 const fetchEventByIdMock = vi.hoisted(() => vi.fn());
-vi.mock('../../utils/supabaseApi', () => ({
+vi.mock('../../utils/domainApi', () => ({
   fetchEventById: fetchEventByIdMock,
 }));
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, CalendarDays, Moon, Search, Sparkles, SunMedium } from 'lucide-react';
-import { fetchPublicCommunityDirectory } from '../utils/supabaseApi';
+import { fetchPublicCommunityDirectory } from '../utils/domainApi';
 import type { CommunityDirectoryOrganization, OrganizationType } from '../types';
 import { ORG_TYPE_LABELS } from './community/organizationTypeLabels';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';

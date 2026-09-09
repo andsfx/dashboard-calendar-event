@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import * as supabaseApi from './supabaseApi';
+import * as domainApi from './domainApi';
 
 /**
  * Mock global fetch dengan routing per URL REST (VITE_API_URL kosong di test →
@@ -33,7 +33,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('supabaseApi', () => {
+describe('domainApi', () => {
   // -------------------------------------------------------
   // fetchEvents — GET /events + /themes + /holidays, detectCategory fallback
   // -------------------------------------------------------
@@ -60,7 +60,7 @@ describe('supabaseApi', () => {
         '/api/v1/themes': { body: { success: true, data: [] } },
         '/api/v1/holidays': { body: { success: true, data: [] } },
       });
-      const result = await supabaseApi.fetchEvents();
+      const result = await domainApi.fetchEvents();
       const fetches = vi.mocked(fetch).mock.calls.map((c) => String(c[0]));
       expect(fetches).toEqual(expect.arrayContaining(['/api/v1/events', '/api/v1/themes', '/api/v1/holidays']));
       expect(result.events).toHaveLength(1);
@@ -73,7 +73,7 @@ describe('supabaseApi', () => {
         '/api/v1/themes': { body: { success: true, data: [] } },
         '/api/v1/holidays': { body: { success: true, data: [] } },
       });
-      await expect(supabaseApi.fetchEvents()).rejects.toThrow(/DB down/);
+      await expect(domainApi.fetchEvents()).rejects.toThrow(/DB down/);
     });
 
     it('handles empty results', async () => {
@@ -82,7 +82,7 @@ describe('supabaseApi', () => {
         '/api/v1/themes': { body: { success: true, data: [] } },
         '/api/v1/holidays': { body: { success: true, data: [] } },
       });
-      const result = await supabaseApi.fetchEvents();
+      const result = await domainApi.fetchEvents();
       expect(result.events).toEqual([]);
       expect(result.themes).toEqual([]);
       expect(result.holidays).toEqual([]);
@@ -99,7 +99,7 @@ describe('supabaseApi', () => {
         '/api/v1/themes': { body: { success: true, data: [] } },
         '/api/v1/holidays': { body: { success: true, data: [] } },
       });
-      const result = await supabaseApi.fetchEvents();
+      const result = await domainApi.fetchEvents();
       expect(result.events[0].category).toBe('Workshop');
       expect(result.events[1].category).toBe('Bazaar');
       expect(result.events[2].category).toBe('Olahraga');
@@ -113,7 +113,7 @@ describe('supabaseApi', () => {
         '/api/v1/themes': { body: { success: true, data: themes } },
         '/api/v1/holidays': { body: { success: true, data: holidays } },
       });
-      const result = await supabaseApi.fetchEvents();
+      const result = await domainApi.fetchEvents();
       expect(result.themes).toHaveLength(1);
       expect(result.themes[0].name).toBe('Ramadhan');
       expect(result.holidays).toHaveLength(1);
@@ -129,7 +129,7 @@ describe('supabaseApi', () => {
 
     it('posts draft row without id and returns empty id', async () => {
       mockFetchRoutes({ '/api/v1/drafts': { body: { success: true } } });
-      const result = await supabaseApi.createDraftEvent(draftData as any, 'public');
+      const result = await domainApi.createDraftEvent(draftData as any, 'public');
       expect(result.id).toBe('');
       const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
       expect(url).toBe('/api/v1/drafts');
@@ -139,9 +139,9 @@ describe('supabaseApi', () => {
       expect(sent.data).not.toHaveProperty('id');
     });
 
-    it('throws SupabaseApiError on server error', async () => {
+    it('throws ApiError on server error', async () => {
       mockFetchRoutes({ '/api/v1/drafts': { status: 400, body: { success: false, error: 'Nama acara wajib diisi' } } });
-      await expect(supabaseApi.createDraftEvent(draftData as any, 'public'))
+      await expect(domainApi.createDraftEvent(draftData as any, 'public'))
         .rejects.toThrow(/Nama acara wajib diisi/);
     });
   });
@@ -152,17 +152,17 @@ describe('supabaseApi', () => {
   describe('fetchSiteSettings', () => {
     it('returns value when key exists', async () => {
       mockFetchRoutes({ '/api/v1/settings/app_config': { body: { success: true, data: { theme: 'dark' } } } });
-      expect(await supabaseApi.fetchSiteSettings('app_config')).toEqual({ theme: 'dark' });
+      expect(await domainApi.fetchSiteSettings('app_config')).toEqual({ theme: 'dark' });
     });
 
     it('returns null when key not found', async () => {
       mockFetchRoutes({ '/api/v1/settings/nope': { status: 404, body: { success: false, error: 'Setting tidak ditemukan' } } });
-      expect(await supabaseApi.fetchSiteSettings('nope')).toBeNull();
+      expect(await domainApi.fetchSiteSettings('nope')).toBeNull();
     });
 
     it('returns null on query error (catch-all)', async () => {
       mockFetchRoutes({ '/api/v1/settings/x': { status: 500, body: { success: false, error: 'timeout' } } });
-      expect(await supabaseApi.fetchSiteSettings('x')).toBeNull();
+      expect(await domainApi.fetchSiteSettings('x')).toBeNull();
     });
   });
 
@@ -172,7 +172,7 @@ describe('supabaseApi', () => {
   describe('deleteDraftEvent', () => {
     it('resolves when admin returns success', async () => {
       mockFetchRoutes({ '/api/v1/admin/deleteDraft': { body: { success: true } } });
-      await expect(supabaseApi.deleteDraftEvent('draft-1')).resolves.toBeUndefined();
+      await expect(domainApi.deleteDraftEvent('draft-1')).resolves.toBeUndefined();
       const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
       expect(url).toBe('/api/v1/admin/deleteDraft');
       expect(String(init.body)).toContain('"action":"deleteDraft"');

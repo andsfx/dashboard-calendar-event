@@ -6,7 +6,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, CalendarPlus, CheckCircle2, Moon, SunMedium } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createDraftEvent } from '../utils/supabaseApi';
+import { createDraftEvent } from '../utils/domainApi';
 import { validatePhone } from '../utils/validation';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';

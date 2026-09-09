@@ -1,9 +1,8 @@
 /**
  * Routes admin — POST /api/v1/admin/:action
  *
- * Mirror api/supabase-admin.js: body { action, ...payload } dipertahankan
- * bentuk legacy agar cocok dengan ACTION_SCHEMAS zod server (PORT
- * api/_lib/schemas.js). Validasi per action, role guard staff
+ * Kontrak: body { action, ...payload } divalidasi ACTION_SCHEMAS zod server
+ * (server/src/lib/schemas.js). Validasi per action, role guard staff
  * (superadmin/admin), respons FLAT { success, error?, data?/id?/results? }
  * — persis yang dibaca adminAction() frontend (src/utils/api/_shared.ts).
  *

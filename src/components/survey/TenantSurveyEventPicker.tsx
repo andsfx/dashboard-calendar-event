@@ -4,7 +4,7 @@ import {
   AlertTriangle, Calendar, MapPin, Search,
   Building2, ChevronRight,
 } from 'lucide-react';
-import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from '../../utils/supabaseApi';
+import { fetchPublicTenantSurveyEvents, type PublicTenantSurveyEventInfo } from '../../utils/domainApi';
 
 function formatDate(d: string) {
   try {

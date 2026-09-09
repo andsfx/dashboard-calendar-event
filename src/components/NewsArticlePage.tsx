@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Moon, Newspaper, RefreshCw, SunMedium } from 'lucide-react';
 import { NewsArticle } from '../types';
-import { fetchNewsArticleBySlug } from '../utils/supabaseApi';
+import { fetchNewsArticleBySlug } from '../utils/domainApi';
 import { usePageMeta } from '../utils/pageMeta';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 

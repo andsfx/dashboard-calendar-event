@@ -6,7 +6,7 @@ import {
   fetchActiveTenants,
   fetchTenantDetail,
   type TenantDropdownOption,
-} from '../../utils/supabaseApi';
+} from '../../utils/domainApi';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
 
 // ─── Helpers ──────────────────────────────────────────────────────

@@ -25,7 +25,7 @@ import {
   updateAreaPhotoOrder,
   updateEventArea,
   uploadAreaPhoto,
-} from '../utils/supabaseApi';
+} from '../utils/domainApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';

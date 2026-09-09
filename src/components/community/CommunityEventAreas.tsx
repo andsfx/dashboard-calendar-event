@@ -5,7 +5,7 @@ import type { AreaPhoto, EventArea } from '../../types';
 import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 import { PhotoLightbox } from '../PhotoLightbox';
 import { thumbUrl } from '../../utils/imageOptim';
-import { fetchAreaPhotos } from '../../utils/supabaseApi';
+import { fetchAreaPhotos } from '../../utils/domainApi';
 
 interface Props {
   areas: EventArea[];

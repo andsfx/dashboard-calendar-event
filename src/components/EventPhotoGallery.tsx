@@ -7,7 +7,7 @@ import {
   deleteEventPhoto,
   linkAlbumToEvent,
   fetchAlbums,
-} from '../utils/supabaseApi';
+} from '../utils/domainApi';
 import type { PhotoAlbum } from '../types';
 import { useConfirmDialog } from './ConfirmDialog';
 

@@ -1,6 +1,6 @@
 // Standalone Playwright script — regenerate deck screenshots for AND-15.
-// Uses REAL Supabase read-only data (anon key from .env.local) for events,
-// mocks auth + admin proxy (readRegistrations -> empty) so no error toast.
+// Uses REAL VPS REST read-only data (VITE_API_URL) for events,
+// mocks auth + admin REST (readRegistrations -> empty) so no error toast.
 // Run: node e2e/deck-screenshots.mjs  (dev server must be running on :5173)
 import { chromium } from 'playwright';
 import fs from 'node:fs';
@@ -18,23 +18,19 @@ const page = await browser.newPage({ viewport: VIEWPORT });
 const failed = [];
 page.on('pageerror', (err) => failed.push(`pageerror: ${err.message}`));
 
-// --- Mock auth: /api/auth?action=me -> superadmin (dashboard access) ---
-await page.route('**/api/auth*', async (route) => {
-  const url = new URL(route.request().url());
-  if (url.searchParams.get('action') === 'me') {
-    return route.fulfill({
-      json: {
-        success: true,
-        user: { id: 'screenshot-superadmin', email: 'superadmin@metmal.test', display_name: 'Admin Metmal', role: 'superadmin' },
-        legacy: false,
-      },
-    });
-  }
-  return route.fulfill({ json: { success: true } });
+// --- Mock auth: /api/v1/auth/me -> superadmin (dashboard access) ---
+await page.route('**/api/v1/auth/me', async (route) => {
+  return route.fulfill({
+    json: {
+      success: true,
+      user: { id: 'screenshot-superadmin', email: 'superadmin@metmal.test', display_name: 'Admin Metmal', role: 'superadmin' },
+      legacy: false,
+    },
+  });
 });
 
-// --- Mock admin proxy: readRegistrations -> empty (no error toast, honest empty state) ---
-await page.route('**/api/supabase-admin', async (route) => {
+// --- Mock admin REST: POST /api/v1/admin/readRegistrations -> empty ---
+await page.route('**/api/v1/admin/readRegistrations', async (route) => {
   const body = route.request().postDataJSON?.() ?? null;
   const action = body?.action ?? '';
   if (action === 'readRegistrations') {

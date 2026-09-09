@@ -5,7 +5,7 @@ import { LetterRequestItem, GeneratedLetter, EventItem, DraftEventItem } from '.
 import { ModalWrapper } from './ModalWrapper';
 import { EditableText, EditableArea } from './ui/Editable';
 import { downloadLetterPdf, openLetterPdfPreview, renderLetterPdfBase64 } from '../utils/letterPdfExport';
-import { fetchGeneratedLetters, createGeneratedLetter, updateGeneratedLetter } from '../utils/supabaseApi';
+import { fetchGeneratedLetters, createGeneratedLetter, updateGeneratedLetter } from '../utils/domainApi';
 import { useToast } from '../hooks/useToast';
 
 interface Props {

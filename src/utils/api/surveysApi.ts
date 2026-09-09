@@ -1,5 +1,5 @@
 import { apiGet, apiPost, ApiError } from '../../lib/rest';
-import { SupabaseApiError, adminAction } from './_shared';
+import { adminAction } from './_shared';
 import { uploadToR2 } from './albumsApi';
 import type {
   CommunityRegistration, TenantEventSurvey, TenantSurveyFormData,
@@ -13,7 +13,7 @@ import type {
 
 export async function fetchCommunityRegistrations(): Promise<CommunityRegistration[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('readRegistrations', {});
-  if (!result.success) throw new SupabaseApiError(result.error || 'Fetch registrations failed');
+  if (!result.success) throw new ApiError(result.error || 'Fetch registrations failed');
   return (result.data || []).map(row => {
     const r = row as Record<string, unknown>;
     const typeSpecific = (typeof r.type_specific_data === 'object' && r.type_specific_data !== null)
@@ -65,7 +65,7 @@ export async function uploadRegistrationAttachment(file: File): Promise<Registra
 
 export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateRegistrationStatus', { id, status, adminNote });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update registration failed');
+  if (!result.success) throw new ApiError(result.error || 'Update registration failed');
 }
 
 function mapOrganizationType(frontendType?: string): string {
@@ -99,10 +99,10 @@ export async function submitCommunityRegistration(data: {
       proposal_file_name: data.proposalFileName || '',
       proposal_file_size: data.proposalFileSize || 0,
     });
-    if (!result.success) throw new SupabaseApiError(result.error || 'Registration failed');
+    if (!result.success) throw new ApiError(result.error || 'Registration failed');
     return { id: result.id || '' };
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Registration failed');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Registration failed');
     throw err;
   }
 }
@@ -152,8 +152,8 @@ export async function createGeneratedLetter(params: {
     pdfUrl: params.pdfUrl,
     createdBy: params.createdBy,
   });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal membuat surat');
-  if (!result.data) throw new SupabaseApiError('Data surat tidak tersedia setelah disimpan');
+  if (!result.success) throw new ApiError(result.error || 'Gagal membuat surat');
+  if (!result.data) throw new ApiError('Data surat tidak tersedia setelah disimpan');
   return dbGeneratedLetterToGeneratedLetter(result.data as DbGeneratedLetter);
 }
 
@@ -162,14 +162,14 @@ export async function updateGeneratedLetter(
   updates: Partial<Pick<GeneratedLetter, 'letterData' | 'pdfUrl' | 'pdfBase64' | 'status'>>,
 ): Promise<GeneratedLetter> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown }>('updateLetter', { id, updates });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal memperbarui surat');
-  if (!result.data) throw new SupabaseApiError('Data surat tidak tersedia setelah diperbarui');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui surat');
+  if (!result.data) throw new ApiError('Data surat tidak tersedia setelah diperbarui');
   return dbGeneratedLetterToGeneratedLetter(result.data as DbGeneratedLetter);
 }
 
 export async function deleteGeneratedLetter(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteLetter', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menghapus surat');
+  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus surat');
 }
 
 // ─── Tenant Surveys ─────────────────────────────────────────────
@@ -252,10 +252,10 @@ export async function fetchPublicTenantSurveyResults(eventId?: string): Promise<
 export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurvey> {
   try {
     const data = await apiGet<unknown>(`/tenant/get?id=${encodeURIComponent(id)}`);
-    if (!data) throw new SupabaseApiError('Survey tidak ditemukan');
+    if (!data) throw new ApiError('Survey tidak ditemukan');
     return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Survey tidak ditemukan');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Survey tidak ditemukan');
     throw err;
   }
 }
@@ -283,13 +283,13 @@ export async function createTenantSurvey(formData: TenantSurveyFormData): Promis
   const row = tenantSurveyFormToDbRow(formData, userId);
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/create', row);
-    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal membuat survey');
-    if (!result.data) throw new SupabaseApiError('Data survey tidak tersedia setelah disimpan');
+    if (!result.success) throw new ApiError(result.error || 'Gagal membuat survey');
+    if (!result.data) throw new ApiError('Data survey tidak tersedia setelah disimpan');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
     if (err instanceof ApiError) {
-      if (err.code === '409') throw new SupabaseApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
-      throw new SupabaseApiError(err.message || 'Gagal membuat survey');
+      if (err.code === '409') throw new ApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
+      throw new ApiError(err.message || 'Gagal membuat survey');
     }
     throw err;
   }
@@ -308,14 +308,14 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
   if (updates.status !== undefined) { dbUpdates.status = updates.status; if (updates.status === 'submitted') dbUpdates.submitted_at = new Date().toISOString(); }
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/update', { id, ...dbUpdates });
-    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal memperbarui survey');
-    if (!result.data) throw new SupabaseApiError('Data survey tidak tersedia setelah diperbarui');
+    if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui survey');
+    if (!result.data) throw new ApiError('Data survey tidak tersedia setelah diperbarui');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
     if (err instanceof ApiError) {
       // 23505 (unique event+user) — server kirim 409 dengan pesan ramah.
-      if (err.code === '409') throw new SupabaseApiError('Survey sudah pernah dikirim untuk event ini.');
-      throw new SupabaseApiError(err.message || 'Gagal memperbarui survey');
+      if (err.code === '409') throw new ApiError('Survey sudah pernah dikirim untuk event ini.');
+      throw new ApiError(err.message || 'Gagal memperbarui survey');
     }
     throw err;
   }
@@ -328,10 +328,10 @@ export async function submitTenantSurvey(id: string): Promise<TenantEventSurvey>
 export async function reviewTenantSurvey(id: string, reviewNotes = ''): Promise<TenantEventSurvey> {
   try {
     const result = await apiPost<{ success: boolean; error?: string; data?: unknown }>('/tenant/review', { id, review_notes: reviewNotes });
-    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal me-review survey');
+    if (!result.success) throw new ApiError(result.error || 'Gagal me-review survey');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal me-review survey');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal me-review survey');
     throw err;
   }
 }
@@ -339,9 +339,9 @@ export async function reviewTenantSurvey(id: string, reviewNotes = ''): Promise<
 export async function deleteTenantSurvey(id: string): Promise<void> {
   try {
     const result = await apiPost<{ success: boolean; error?: string }>('/tenant/delete', { id });
-    if (!result.success) throw new SupabaseApiError(result.error || 'Gagal menghapus survey');
+    if (!result.success) throw new ApiError(result.error || 'Gagal menghapus survey');
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal menghapus survey');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal menghapus survey');
     throw err;
   }
 }
@@ -383,7 +383,7 @@ export async function fetchPublicTenantSurveyMonthlyTrend(eventId?: string): Pro
     const data = await apiGet<unknown>(`/tenant/results-analytics?${params.toString()}`);
     return Array.isArray(data) ? data as TenantSurveyMonthlyTrend[] : [];
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal memuat trend bulanan');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal memuat trend bulanan');
     throw err;
   }
 }
@@ -509,11 +509,11 @@ export async function submitPublicTenantSurvey(data: PublicTenantSurveySubmissio
     const result = await apiPost<{ success: boolean; error?: string; id?: string; created_at?: string }>('/tenant/submit', data);
     if (!result.success) {
       // 409 duplikat → server kirim error "Anda sudah pernah mengirimkan survey..."
-      throw new SupabaseApiError(result.error || 'Gagal mengirim survey');
+      throw new ApiError(result.error || 'Gagal mengirim survey');
     }
     return { id: result.id || '', created_at: result.created_at || '' };
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal mengirim survey');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mengirim survey');
     throw err;
   }
 }
@@ -525,7 +525,7 @@ export async function fetchPublicCommunityDirectory(): Promise<{
   try {
     return await apiGet<{ organizations: CommunityDirectoryOrganization[]; categories: OrganizationType[] }>('/directory');
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message || 'Gagal memuat direktori organisasi');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal memuat direktori organisasi');
     throw err;
   }
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import { PhotoAlbum, EventPhoto } from '../types';
-import { fetchAlbumBySlug } from '../utils/supabaseApi';
+import { fetchAlbumBySlug } from '../utils/domainApi';
 import { GalleryHeader } from './GalleryHeader';
 import { usePageMeta } from '../utils/pageMeta';
 import { PhotoLightbox } from './PhotoLightbox';

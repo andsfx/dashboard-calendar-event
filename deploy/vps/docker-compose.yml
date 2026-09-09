@@ -103,8 +103,10 @@ services:
     depends_on:
       - api
     ports:
-      - "80:80"
-      - "443:443"
+      # Live (2026-09-09): host Caddy memegang 80/443 + TLS; nginx hanya di
+      # 127.0.0.1:8080. JANGAN kembalikan ke "80:80"/"443:443" tanpa
+      # memindahkan TLS dari Caddy (konflik bind + sertifikat ganda).
+      - "127.0.0.1:8080:80"
     volumes:
       # Konfigurasi: static SPA + proxy /api/v1 → api:3001 + OG /events/:id.
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro

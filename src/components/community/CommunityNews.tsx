@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NewsArticle } from '../../types';
-import { fetchNewsArticles } from '../../utils/supabaseApi';
+import { fetchNewsArticles } from '../../utils/domainApi';
 import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 

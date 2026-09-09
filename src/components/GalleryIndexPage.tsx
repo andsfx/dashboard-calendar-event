@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lucide-react';
 import { PhotoAlbum, AnnualTheme } from '../types';
-import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/supabaseApi';
+import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/domainApi';
 import { GalleryHeader } from './GalleryHeader';
 import { ExportPdfModal } from './ExportPdfModal';
 import { thumbUrl } from '../utils/imageOptim';

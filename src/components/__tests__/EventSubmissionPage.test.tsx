@@ -11,9 +11,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { EventSubmissionPage } from '../EventSubmissionPage';
-import { createDraftEvent } from '../../utils/supabaseApi';
+import { createDraftEvent } from '../../utils/domainApi';
 
-vi.mock('../../utils/supabaseApi', () => ({
+vi.mock('../../utils/domainApi', () => ({
   createDraftEvent: vi.fn(),
 }));
 

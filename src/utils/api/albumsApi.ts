@@ -1,4 +1,4 @@
-import { SupabaseApiError, adminAction, slugify } from './_shared';
+import { adminAction, slugify } from './_shared';
 import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import type { AreaPhoto, EventArea, EventPhoto, PhotoAlbum } from '../../types';
 
@@ -33,7 +33,7 @@ export async function fetchEventPhotos(): Promise<EventPhoto[]> {
 
 export async function deleteEventPhoto(id: string, url: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEventPhoto', { id, url });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete photo failed');
 }
 
 export async function createEventPhotoRecord(data: {
@@ -42,18 +42,18 @@ export async function createEventPhotoRecord(data: {
   const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
     'createEventPhoto', { data }
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
+  if (!result.success) throw new ApiError(result.error || 'Create photo record failed');
   return { id: result.id || '', sortOrder: result.sortOrder || 0 };
 }
 
 export async function linkAlbumToEvent(albumId: string, eventId: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('linkAlbumToEvent', { id: albumId, eventId });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Link album failed');
+  if (!result.success) throw new ApiError(result.error || 'Link album failed');
 }
 
 export async function updateEventPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateEventPhotoOrder', { data: photos });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update photo order failed');
+  if (!result.success) throw new ApiError(result.error || 'Update photo order failed');
 }
 
 // ─── Photo Albums ────────────────────────────────────────────────
@@ -102,18 +102,18 @@ export async function createAlbum(name: string, description: string, eventDate: 
   if (lokasi) data.lokasi = lokasi;
   if (themeId) data.theme_id = themeId;
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createAlbum', { data });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create album failed');
+  if (!result.success) throw new ApiError(result.error || 'Create album failed');
   return { id: result.id || '', name, slug: slg, description, eventDate, coverPhotoUrl: '', sortOrder: 0, photoCount: 0, eventId, lokasi, themeId };
 }
 
 export async function deleteAlbum(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbum', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete album failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete album failed');
 }
 
 export async function setAlbumCover(albumId: string, coverPhotoUrl: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('setAlbumCover', { id: albumId, coverPhotoUrl });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Set cover failed');
+  if (!result.success) throw new ApiError(result.error || 'Set cover failed');
 }
 
 // ─── R2 Storage ─────────────────────────────────────────────────
@@ -124,15 +124,15 @@ export async function uploadToR2(file: File, folder = 'gallery/'): Promise<strin
   try {
     presignResult = await apiPost('/r2/presign', { folder, originalName: file.name, contentType: file.type });
   } catch (err) {
-    if (err instanceof ApiError) throw new SupabaseApiError(err.message ?? 'R2 presign failed');
+    if (err instanceof ApiError) throw new ApiError(err.message ?? 'R2 presign failed');
     throw err;
   }
-  if (!presignResult.success) throw new SupabaseApiError(presignResult.error || 'R2 presign failed');
-  if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new SupabaseApiError('R2 presign failed');
+  if (!presignResult.success) throw new ApiError(presignResult.error || 'R2 presign failed');
+  if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new ApiError('R2 presign failed');
   const uploadRes = await fetch(presignResult.uploadUrl, {
     method: 'PUT', headers: { 'Content-Type': file.type }, body: file,
   });
-  if (!uploadRes.ok) throw new SupabaseApiError(`R2 upload failed: ${uploadRes.status}`);
+  if (!uploadRes.ok) throw new ApiError(`R2 upload failed: ${uploadRes.status}`);
   return presignResult.publicUrl;
 }
 
@@ -144,11 +144,11 @@ export async function deleteFromR2(url: string): Promise<void> {
   try {
     const result = await apiPost<{ success: boolean; error?: string }>('/r2/delete', { fileName });
     if (!result.success) {
-      throw new SupabaseApiError(result.error || 'R2 delete failed');
+      throw new ApiError(result.error || 'R2 delete failed');
     }
   } catch (err) {
     if (err instanceof ApiError) {
-      throw new SupabaseApiError(err.message ?? `R2 delete failed (HTTP ${err.code})`);
+      throw new ApiError(err.message ?? `R2 delete failed (HTTP ${err.code})`);
     }
     throw err;
   }
@@ -160,14 +160,14 @@ export async function uploadAlbumPhoto(albumId: string, file: File, caption?: st
   const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
     'createAlbumPhoto', { data: { url, caption: finalCaption, album_id: albumId } }
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create photo record failed');
+  if (!result.success) throw new ApiError(result.error || 'Create photo record failed');
   return { id: result.id || '', url, caption: finalCaption, eventDate: '', sortOrder: result.sortOrder || 0, albumId };
 }
 
 export async function deleteAlbumPhoto(id: string, url: string): Promise<void> {
   await deleteFromR2(url);
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbumPhoto', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete photo failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete photo failed');
 }
 
 // ─── Foto Area Event ──────────────────────────────────────────────
@@ -219,7 +219,7 @@ export async function createEventArea(name: string, description: string, coverPh
     'createEventArea',
     { data: { name, description, cover_photo_url: coverPhotoUrl || '', sort_order: 0, is_active: true } },
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create event area failed');
+  if (!result.success) throw new ApiError(result.error || 'Create event area failed');
   return {
     id: result.id || '', name, description, coverPhotoUrl: coverPhotoUrl || '',
     sortOrder: 0, isActive: true, photoCount: 0,
@@ -234,12 +234,12 @@ export async function updateEventArea(id: string, data: Partial<EventArea>): Pro
   if (data.sortOrder !== undefined) row.sort_order = data.sortOrder;
   if (data.isActive !== undefined) row.is_active = data.isActive;
   const result = await adminAction<{ success: boolean; error?: string }>('updateEventArea', { id, data: row });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update event area failed');
+  if (!result.success) throw new ApiError(result.error || 'Update event area failed');
 }
 
 export async function deleteEventArea(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEventArea', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete event area failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete event area failed');
 }
 
 /** Upload + buat record foto area (cover & galeri). Folder R2 'areas/'. */
@@ -249,17 +249,17 @@ export async function uploadAreaPhoto(areaId: string, file: File, caption?: stri
   const result = await adminAction<{ success: boolean; error?: string; id?: string; sortOrder?: number }>(
     'createAreaPhoto', { data: { url, caption: finalCaption, area_id: areaId } },
   );
-  if (!result.success) throw new SupabaseApiError(result.error || 'Create area photo failed');
+  if (!result.success) throw new ApiError(result.error || 'Create area photo failed');
   return { id: result.id || '', url, caption: finalCaption, areaId, sortOrder: result.sortOrder || 0 };
 }
 
 export async function deleteAreaPhoto(id: string, url: string): Promise<void> {
   await deleteFromR2(url);
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAreaPhoto', { id });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Delete area photo failed');
+  if (!result.success) throw new ApiError(result.error || 'Delete area photo failed');
 }
 
 export async function updateAreaPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateAreaPhotoOrder', { data: photos });
-  if (!result.success) throw new SupabaseApiError(result.error || 'Update area photo order failed');
+  if (!result.success) throw new ApiError(result.error || 'Update area photo order failed');
 }

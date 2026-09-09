@@ -30,7 +30,7 @@ Evaluasi (03–06 Sep 2026): pindah total Supabase Auth/RLS/realtime/storage = r
 
 - Endpoint prefix *Vercel-serverless → VPS REST*: `/api/supabase-admin` → **`/api/v1/admin/{action}`**; `/api/auth` → **`/api/v1/auth/*`**; `/api/tenant-survey` → **`/api/v1/tenant/*`**; dll. — client fetch berubah satu titik `(VITE_API_URL + '/api/v1')`.
 - Akun admin: username tetap, password di-reset (hash Supabase tidak ter-migrasi). 4 user berfungsi login.
-- Delete `api/*.js`, dep `@supabase/supabase-js`, dan shim `src/lib/supabase.ts` = cleanup tambahan (belum karena audit trigger).
+- Delete `api/*.js`, dep `@supabase/supabase-js`, dan shim `src/lib/supabase.ts` = SELESAI 2026-09-09 (commit `a60dd8d`): 8853 baris dihapus, `package.json` clean, barrel rename → `src/utils/domainApi.ts`, `SupabaseApiError` → `ApiError`.
 - Cost terprediksi: VPS ~Rp 60–150rb/bln fixed vs quota-overrun risk variable.
 - Rollback nyata: cara termudah = un-pause Supabase (data lama beku di titik migrasi — baru berubah setelah cutover berarti harus di-port balik manual).
 - Supabase project = **paused**, bukan deleted (jendela stabil ~1 minggu dulu).

@@ -10,7 +10,7 @@ import {
   checkPublicTenantSurveyDuplicate,
   submitPublicTenantSurvey,
   type TenantDropdownOption,
-} from '../../utils/supabaseApi';
+} from '../../utils/domainApi';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateTenantSurvey } from '../../utils/validation';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';

@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { CheckCircle2, Send, ArrowLeft, Paperclip, FileText, X } from 'lucide-react';
-import { submitCommunityRegistration, uploadRegistrationAttachment, type RegistrationProposalUpload } from '../../utils/supabaseApi';
+import { submitCommunityRegistration, uploadRegistrationAttachment, type RegistrationProposalUpload } from '../../utils/domainApi';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields } from './TypeSpecificFields';

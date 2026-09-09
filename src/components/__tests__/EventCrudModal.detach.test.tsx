@@ -17,7 +17,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { EventCrudModal } from '../EventCrudModal';
 import type { EventItem } from '../../types';
 
-vi.mock('../../utils/supabaseApi', () => ({ uploadToR2: vi.fn() }));
+vi.mock('../../utils/domainApi', () => ({ uploadToR2: vi.fn() }));
 
 function makeSeriesEvent(partial: Partial<EventItem> = {}): EventItem {
   return {

@@ -21,7 +21,7 @@ import {
   checkTenantSurveyDuplicate,
   fetchPublicTenantSurveyResults,
   fetchPublicTenantSurveyMonthlyTrend,
-} from '../utils/supabaseApi';
+} from '../utils/domainApi';
 
 /**
  * useTenantSurveys — manages tenant (EO) self-assessment surveys.

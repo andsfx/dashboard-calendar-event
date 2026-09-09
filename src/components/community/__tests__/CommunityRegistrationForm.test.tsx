@@ -2,9 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommunityRegistrationForm } from '../CommunityRegistrationForm'
-import * as supabaseApi from '../../../utils/supabaseApi'
+import * as domainApi from '../../../utils/domainApi'
 
-vi.mock('../../../utils/supabaseApi', () => ({
+vi.mock('../../../utils/domainApi', () => ({
   submitCommunityRegistration: vi.fn(),
   uploadRegistrationAttachment: vi.fn(),
 }))
@@ -35,7 +35,7 @@ describe('CommunityRegistrationForm', () => {
   })
 
   it('submits form successfully', async () => {
-    vi.mocked(supabaseApi.submitCommunityRegistration).mockResolvedValue({ id: '1' })
+    vi.mocked(domainApi.submitCommunityRegistration).mockResolvedValue({ id: '1' })
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 
@@ -53,7 +53,7 @@ describe('CommunityRegistrationForm', () => {
   })
 
   it('shows error on submission failure', async () => {
-    vi.mocked(supabaseApi.submitCommunityRegistration).mockRejectedValue(new Error('Network error'))
+    vi.mocked(domainApi.submitCommunityRegistration).mockRejectedValue(new Error('Network error'))
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 

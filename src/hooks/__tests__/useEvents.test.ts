@@ -1,12 +1,12 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
-import { fetchEvents, createEvent } from '../../utils/supabaseApi';
+import { fetchEvents, createEvent } from '../../utils/domainApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
 import { EventItem } from '../../types';
 
 // Mock the dependencies
-vi.mock('../../utils/supabaseApi', () => ({
+vi.mock('../../utils/domainApi', () => ({
   fetchEvents: vi.fn(),
   createEvent: vi.fn(),
   updateEvent: vi.fn(),

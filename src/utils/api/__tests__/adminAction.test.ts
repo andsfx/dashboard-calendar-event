@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { adminAction, SupabaseApiError } from '../_shared';
+import { adminAction, ApiError } from '../_shared';
 
 function mockFetchResponse(status: number, body: string) {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
@@ -25,7 +25,7 @@ describe('adminAction error handling', () => {
       caught = err;
     }
 
-    expect(caught).toBeInstanceOf(SupabaseApiError);
+    expect(caught).toBeInstanceOf(ApiError);
     expect((caught as Error).message).toBe('Draft sudah diterbitkan');
   });
 
@@ -39,7 +39,7 @@ describe('adminAction error handling', () => {
       caught = err;
     }
 
-    expect(caught).toBeInstanceOf(SupabaseApiError);
+    expect(caught).toBeInstanceOf(ApiError);
     expect((caught as Error).message).toBe('Gagal memuat data admin (HTTP 404)');
   });
 

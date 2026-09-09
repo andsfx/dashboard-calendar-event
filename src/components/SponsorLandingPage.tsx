@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CalendarDays, CheckCircle2, FileText, Handshake, MapPin, Moon, RefreshCw, SunMedium } from 'lucide-react';
 import type { EventProposalEvent } from '../types';
-import { fetchSponsorEventsWithProposals, submitSponsorLead } from '../utils/supabaseApi';
-import { SupabaseApiError } from '../utils/api/_shared';
+import { fetchSponsorEventsWithProposals, submitSponsorLead } from '../utils/domainApi';
+import { ApiError } from '../lib/rest';
 import { validateEmail, validatePhone } from '../utils/validation';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { usePageMeta } from '../utils/pageMeta';
@@ -114,7 +114,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
       setSubmitted(true);
     } catch (err) {
       // 400 validasi / 429 rate limit / 500 — tampilkan pesan dari server
-      setSubmitError(err instanceof SupabaseApiError ? err.message : 'Gagal mengirim minat support. Coba lagi nanti.');
+      setSubmitError(err instanceof ApiError ? err.message : 'Gagal mengirim minat support. Coba lagi nanti.');
     } finally {
       setSubmitting(false);
     }

@@ -1,14 +1,14 @@
 /**
- * REST client — pengganti supabase-js di frontend.
+ * REST client — akses data frontend ke backend VPS Express/Postgres.
  *
- * Opsi B: Supabase dilepas total, backend Express/Postgres di VPS. Media TETAP
- * di R2 Cloudflare; lewat sini hanya data JSON (presign pindah ke backend VPS).
+ * Opsi B: Supabase dilepas total. Media TETAP di R2 Cloudflare; lewat sini
+ * hanya data JSON (presign pindah ke backend VPS).
  *
  * - Base: `VITE_API_URL` + `/api/v1`
- * - Envelope respons tetap seperti api/*.js lama: `{ success, error?, data? }`
- * - Auth: cookie `sb-access-token` (HttpOnly di server; helper ini membacanya
- *   saat non-HttpOnly, mis. dev). Fetch selalu `credentials: 'include'` agar
- *   cookie ikut terkirim cross-origin ke host VITE_API_URL.
+ * - Envelope respons: `{ success, error?, data? }`
+ * - Auth: cookie `sb-access-token` (HttpOnly di produksi; helper getAccessToken
+ *   membacanya saat non-HttpOnly, mis. dev). Fetch selalu `credentials: 'include'`
+ *   agar cookie ikut terkirim cross-origin ke host VITE_API_URL.
  */
 
 const ACCESS_TOKEN_COOKIE = 'sb-access-token';
@@ -21,7 +21,7 @@ export function apiUrl(path: string): string {
   return `${API_V1_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-/** Error terstruktur dari REST — pengganti SupabaseApiError (message + code opsional). */
+/** Error terstruktur dari REST (message + code + flag aplikasi opsional). */
 export class ApiError extends Error {
   /** HTTP status, atau kode error aplikasi bila server mengirimnya. */
   readonly code?: string;

@@ -3,7 +3,7 @@ import { parseDateStrLocal } from './eventUtils';
 
 /**
  * Client/API publish gate (T-002 / ADR 001).
- * Must match api/supabase-admin.js `publishDraft` guards.
+ * Must match server/src/routes/admin.js `publishDraft` guards.
  */
 export function canPublishDraft(
   draft: Pick<DraftEventItem, 'progress' | 'published' | 'deleted'>,

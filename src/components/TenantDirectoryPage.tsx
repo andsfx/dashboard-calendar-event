@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Moon, Search, Store, SunMedium } from 'lucide-react';
-import { fetchPublicTenantDirectory } from '../utils/supabaseApi';
+import { fetchPublicTenantDirectory } from '../utils/domainApi';
 import type { TenantRosterItem } from '../utils/api/surveysApi';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { usePageMeta } from '../utils/pageMeta';

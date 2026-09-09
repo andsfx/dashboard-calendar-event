@@ -7,7 +7,7 @@ import { EventDetailContent, getEventAccentColor } from './EventDetailContent';
 import { CategoryBadges } from './CategoryBadges';
 import { StatusBadge } from './StatusBadge';
 import type { EventItem } from '../types';
-import { fetchEventById } from '../utils/supabaseApi';
+import { fetchEventById } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 

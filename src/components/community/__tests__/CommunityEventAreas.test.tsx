@@ -3,9 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { CommunityEventAreas } from '../CommunityEventAreas';
 import type { AreaPhoto, EventArea } from '../../../types';
-import { fetchAreaPhotos } from '../../../utils/supabaseApi';
+import { fetchAreaPhotos } from '../../../utils/domainApi';
 
-vi.mock('../../../utils/supabaseApi', async (orig) => ({
+vi.mock('../../../utils/domainApi', async (orig) => ({
   ...(await orig()),
   fetchAreaPhotos: vi.fn(),
 }));

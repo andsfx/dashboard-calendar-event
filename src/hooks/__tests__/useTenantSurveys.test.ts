@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-// (Mock lib/supabase dihapus 2026-09-09: shim legacy, hook via supabaseApi REST.)
+// Hook via domainApi REST (barrel rename 2026-09-09: supabaseApi → domainApi).
 
-// Mock supabaseApi
-vi.mock('../../utils/supabaseApi', () => ({
+// Mock domainApi
+vi.mock('../../utils/domainApi', () => ({
   fetchTenantSurveys: vi.fn(),
   fetchTenantSurveyById: vi.fn(),
   createTenantSurvey: vi.fn(),
@@ -26,7 +26,7 @@ import {
   deleteTenantSurvey,
   fetchTenantSurveyAnalytics,
   checkTenantSurveyDuplicate,
-} from '../../utils/supabaseApi';
+} from '../../utils/domainApi';
 
 const mockSurvey = {
   id: 'survey-1',

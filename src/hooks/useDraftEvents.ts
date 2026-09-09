@@ -7,7 +7,7 @@ import {
   deleteDraftEvent as apiDeleteDraft,
   publishDraftEvent as apiPublishDraft,
   restoreDraftEvent as apiRestoreDraft,
-} from '../utils/supabaseApi';
+} from '../utils/domainApi';
 import { canPublishDraft, sortDraftActive, sortDraftHistory } from '../utils/draftUtils';
 
 export function useDraftEvents(enabled = false) {

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { CommunityRegistration, RegistrationStatus, DraftEventItem, ToastMessage } from '../types';
-import { fetchCommunityRegistrations, updateRegistrationStatus } from '../utils/supabaseApi';
+import { fetchCommunityRegistrations, updateRegistrationStatus } from '../utils/domainApi';
 import { parseDateStrLocal, MONTH_NAMES } from '../utils/eventUtils';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;

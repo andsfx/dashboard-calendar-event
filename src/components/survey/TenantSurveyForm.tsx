@@ -14,7 +14,7 @@ import {
   apiCategoryToKategori,
   TRAFFIC_LABELS,
 } from './TenantSurveyShared';
-import type { TenantDropdownOption } from '../../utils/supabaseApi';
+import type { TenantDropdownOption } from '../../utils/domainApi';
 
 // ─── Main Form Component ─────────────────────────────────────────
 

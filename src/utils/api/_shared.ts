@@ -7,12 +7,7 @@ export const ADMIN_PROXY_URL =
   ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') +
   '/api/v1/admin';
 
-export class SupabaseApiError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'SupabaseApiError';
-  }
-}
+export { ApiError } from '../../lib/rest';
 
 export function detectCategory(acara: string): string {
   const name = acara.toLowerCase();
@@ -50,17 +45,18 @@ export function normalizeCategories(value?: string[] | string | null, fallbackCa
 
 export async function adminAction<T>(action: string, payload: Record<string, unknown>): Promise<T> {
   try {
-    // POST /admin/{action} — body mempertahankan bentuk legacy { action, ...payload }
-    // agar server-side zod (api/_lib/schemas.js ACTION_SCHEMAS) tetap cocok.
-    // apiPost mengirim credentials + Authorization Bearer sb-access-token, dan
-    // mengembalikan body JSON flat (adminAction lama juga flat: { success, ... }).
+    // POST /admin/{action} — body mempertahankan bentuk { action, ...payload }
+    // agar server-side zod (server/src/lib/schemas.js ACTION_SCHEMAS) tetap cocok.
+    // apiPost mengirim credentials: include + Authorization Bearer bila cookie
+    // sb-access-token terbaca JS (produksi HttpOnly → cookie saja), dan
+    // mengembalikan body JSON flat ({ success, ... }).
     return await apiPost<T>(`/admin/${encodeURIComponent(action)}`, { action, ...payload }, {
       // Paritas pesan dengan adminAction lama (lihat adminAction.test.ts).
       errorMessageFallback: (status) => `Gagal memuat data admin (HTTP ${status})`,
     });
   } catch (err) {
     if (err instanceof ApiError) {
-      throw new SupabaseApiError(err.message ?? `Gagal memuat data admin (HTTP ${err.code})`);
+      throw new ApiError(err.message ?? `Gagal memuat data admin (HTTP ${err.code})`);
     }
     throw err;
   }

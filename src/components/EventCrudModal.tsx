@@ -3,7 +3,7 @@ import { Save, Calendar, Image, Trash2, Upload, Repeat } from 'lucide-react';
 import { EventItem, EventModel, DayTimeSlot, EventType, RecurrenceRule, RecurrenceFrequency, EventArea } from '../types';
 import { parseDateStrLocal, getDateRange, createRecurringEvents, getStatus } from '../utils/eventUtils';
 import { findAreaConflicts } from '../utils/areaConflict';
-import { uploadToR2 } from '../utils/supabaseApi';
+import { uploadToR2 } from '../utils/domainApi';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 import { EventFormBasicFields } from './forms/EventFormBasicFields';
