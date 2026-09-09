@@ -120,24 +120,12 @@ function validateOptionalText(value, maxLen, label) {
 }
 
 // ─── POST /registrations — publik ──────────────────────────────────
-function setRegistrationCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
+// CORS ditangani middleware cors() global (whitelist CORS_ORIGIN +
+// credentials) — JANGAN set ACAO '*' manual: fetch SPA memakai
+// credentials:'include', dan ACAO '*' + Allow-Credentials ditolak browser.
 
-// Preflight lintas-domain (form publik di luar origin aplikasi).
-router.options('/registrations', (req, res) => {
-  setRegistrationCors(res);
-  return res.status(204).end();
-});
+router.post('/registrations', async (req, res) => {
 
-router.post('/registrations', (req, res, next) => {
-  // CORS: form publik diakses lintas-domain → izinkan semua origin.
-  setRegistrationCors(res);
-  next();
-}, async (req, res) => {
-  if (req.method === 'OPTIONS') return res.status(200).end();
 
   // 10 submit / 15 mnt per IP.
   if (!enforceRateLimit(req, res, 'community-registration', 10, 15 * 60 * 1000)) return;
@@ -449,24 +437,11 @@ const sponsorLeadSchema = z.object({
     .optional(),
 });
 
-function setSponsorLeadCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
+// CORS sponsor-leads ditangani cors() global (whitelist + credentials) —
+// ACAO '*' manual + credentials:'include' ditolak browser (bug fix sama
+// dengan /registrations di atas).
 
-// Preflight lintas-domain.
-router.options('/sponsor-leads', (req, res) => {
-  setSponsorLeadCors(res);
-  return res.status(204).end();
-});
-
-router.post('/sponsor-leads', (req, res, next) => {
-  // CORS * (form publik lintas-domain — pola community-registration).
-  setSponsorLeadCors(res);
-  next();
-}, async (req, res) => {
-  if (req.method === 'OPTIONS') return res.status(200).end();
+router.post('/sponsor-leads', async (req, res) => {
   // 10 submit / 15 mnt per IP.
   if (!enforceRateLimit(req, res, 'sponsor-lead', 10, 15 * 60 * 1000)) return;
 
