@@ -210,6 +210,26 @@ router.post('/drafts', async (req, res, next) => {
   }
 });
 
+// ─── GET /letters/:id ─────────────────────────────────────────────
+// Baca surat ter-generate (publik — link dibagikan EO via /letter/:id).
+// Kolom terbatas (tanpa PII pembuat); status deleted/archived → 404.
+router.get('/letters/:id', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'lettersPublic', 30, 60_000)) return;
+  try {
+    const { rows } = await db.query(
+      `SELECT id, event_id, draft_event_id, letter_data, pdf_url, pdf_base64, created_at, status
+       FROM generated_letters WHERE id = $1 AND status = 'active' LIMIT 1`,
+      [req.params.id],
+    );
+    if (!rows[0]) {
+      return res.status(404).json({ success: false, error: 'Surat tidak ditemukan' });
+    }
+    res.json({ success: true, data: rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── GET /settings/:key ──────────────────────────────────────────
 router.get('/settings/:key', async (req, res, next) => {
   try {

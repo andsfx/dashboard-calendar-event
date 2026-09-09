@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, AlertCircle, FileText } from 'lucide-react';
-import { GeneratedLetter } from '../types';
+import { GeneratedLetter, LetterRequestItem } from '../types';
+import { apiGet } from '../lib/rest';
 import { downloadLetterPdf } from '../utils/letterPdfExport';
 
 /**
@@ -24,14 +25,26 @@ export function PublicLetterViewer() {
     }
 
     const fetchLetter = async () => {
-      // Opsi B: backend REST belum punya endpoint baca surat publik
-      // (GET /api/v1/letters/:id TODO). Sampai ada, surat tidak dimuat —
-      // render fallback error, TANPA akses supabase langsung.
-      // TODO: ganti dengan apiGet(`/letters/${encodeURIComponent(id)}`)
-      // saat endpoint tersedia di server/src/routes/public.js.
-      setLetter(null);
-      setError('Surat tidak dapat dimuat saat ini.');
-      setIsLoading(false);
+      try {
+        // GET /api/v1/letters/:id — publik, status='active' saja (server 404 lainnya).
+        const data = await apiGet<Record<string, unknown>>(`/letters/${encodeURIComponent(id)}`);
+        setLetter({
+          id: String(data.id ?? ''),
+          eventId: (data.event_id as string) || undefined,
+          draftEventId: (data.draft_event_id as string) || undefined,
+          letterData: data.letter_data as LetterRequestItem,
+          pdfUrl: (data.pdf_url as string) || undefined,
+          pdfBase64: (data.pdf_base64 as string) || undefined,
+          createdAt: String(data.created_at ?? new Date().toISOString()),
+          status: ((data.status as GeneratedLetter['status']) || 'active'),
+        });
+      } catch {
+        // 404 atau gagal jaringan — pesan sama, jangan bocorkan alasannya.
+        setLetter(null);
+        setError('Surat yang Anda cari tidak tersedia.');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchLetter();
