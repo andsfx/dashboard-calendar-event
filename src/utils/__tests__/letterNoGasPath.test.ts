@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
@@ -19,11 +19,10 @@ describe('letter product path has no GAS createLetterRequest', () => {
     expect(src).not.toMatch(/handleSubmitLetter/);
   });
 
-  it('api/apps-script-admin.js (legacy GAS proxy) removed — migration selesai (H-003)', () => {
-    // Function dihapus: deploy Hobby plan batas 12 function (H-003).
+  it('folder api/ legacy (GAS proxy dkk) dihapus total — tidak boleh muncul kembali', () => {
+    // Cleanup 2026-09-09: seluruh api/*.js legacy dihapus (Opsi B).
     // Jalur GAS migration tidak boleh muncul kembali.
-    const entries = readdirSync(resolve(__dirname, '../../../api'));
-    expect(entries).not.toContain('apps-script-admin.js');
+    expect(existsSync(resolve(__dirname, '../../../api'))).toBe(false);
     const barrel = readFileSync(resolve(__dirname, '../supabaseApi.ts'), 'utf8');
     expect(barrel).not.toMatch(/apps-script|appsScript/);
   });

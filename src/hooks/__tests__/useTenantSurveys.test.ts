@@ -1,21 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-// Mock supabase client
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: vi.fn(),
-    rpc: vi.fn(),
-    channel: vi.fn(() => ({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn().mockReturnThis(),
-    })),
-    removeChannel: vi.fn(),
-    auth: {
-      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'user-1' } } })),
-    },
-  },
-}));
+// (Mock lib/supabase dihapus 2026-09-09: shim legacy, hook via supabaseApi REST.)
 
 // Mock supabaseApi
 vi.mock('../../utils/supabaseApi', () => ({

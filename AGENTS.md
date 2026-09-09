@@ -23,11 +23,10 @@ Routing (`src/App.tsx`): react-router-dom v7, every route `lazy()` with named-ex
 
 - `src/components/` — most components **flat** (59 files, incl. several "pages"); feature folders: `dashboard/`, `community/`, `survey/`, `admin/`, `forms/`, `pdf/`, `ui/` (shared primitives, `index.ts` barrel)
 - `src/utils/api/` — domain API modules (`eventsApi`, `draftsApi`, `surveysApi`, `newsApi`, `albumsApi`, `sponsorshipApi`) + `_shared.ts` (ADMIN_PROXY_URL, mappers, `SupabaseApiError`); re-exported through `src/utils/supabaseApi.ts` barrel
-- `src/hooks/` — data + UI hooks; `src/lib/` — `rest.ts` (apiGet/apiPost + ApiError), `supabase.ts` shim (throws penanda call-site belum-migrasi — lihat `REST-MIGRATION.md`), `schemas.ts` zod; `src/styles/` — Tailwind v4 `@theme` tokens; `src/constants/survey-options.ts` — survey enum source of truth
+- `src/hooks/` — data + UI hooks; `src/lib/` — `rest.ts` (apiGet/apiPost/apiUrl + ApiError), `schemas.ts` zod; `src/styles/` — Tailwind v4 `@theme` tokens; `src/constants/survey-options.ts` — survey enum source of truth
 - `server/` — Express backend REST production (ESM, Node 20): `src/index.js`, `src/db.js` (pg Pool), `src/auth.js` (JWT jose + bcrypt js + cookie), `src/r2.js` (presign S3 R2 + allowlist, magic-byte check), `src/routes/` (`public.js`, `auth.js`, `admin.js` — aksi CRUD + `lib/schemas.js` ACTION_SCHEMAS, `survey.js`, `tenant.js` — anon + role matrix, `extra.js` — community reg + sponsor + users + instagram + event-og) · `schema.sql` (DDL satu file) · `scripts/create-admin.mjs` (seed/reset bcrypt user)
 - `deploy/vps/` — stack produksi: `docker-compose.yml` (postgres 16-alpine + api node20 + nginx 1.27-alpine; nginx bind `127.0.0.1:8080` di VPS ini karena host Caddy memegang 80/443), `nginx.conf` (static SPA + proxy /api/v1 + rewrite OG `/events/:id` → `/api/v1/event-og?id=$1`), `backup.sh` (pg_dump harian rotasi 14 ke `/opt/metmal/backups`, cron 03:00 di host), `README-DEPLOY.md`
 - `scripts/migrate/` — skrip migrasi satu kali Opsi B: `dump-prod.mjs` (20 tabel → `seed/*.json`, gitignored), `photos-to-r2.mjs` (legacy storage → R2 + `photo-url-map.json`), `seed-vps.mjs` (FK-safe, idempotent `ON CONFLICT DO NOTHING`; `seed/` di-gitignore)
-- `api/` + `migrate/` + `supabase/` — **bekas stack Supabase, LEGACY/MATI** (belum dihapus untuk audit; jangan tambah kode baru di sini)
 - `e2e/` — Playwright specs + `helpers.ts`; `docs/` — `SPEC.md`, `docs/adr/` (termasuk `005-vps-postgres-lepas-supabase.md`), `docs/agents/`, `docs/tickets/`
 - `improve/` — **separate prototype sandbox** with its own `AGENTS.md`. No production import from `improve/`; never commit its noise.
 
@@ -52,7 +51,7 @@ There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification 
 - **UI copy and error messages in Indonesian** ("Gagal memuat…", "Terlalu banyak permintaan"); filter sentinel `'Semua'`.
 - **Mutations are optimistic**: update local state → call API → rollback + surface error on failure; hooks return `boolean` success. Errors: `SupabaseApiError` (API layer), `AdminError` with kinds (`lib/schemas.ts`), Postgres 23505 → friendly Indonesian message; toasts via `useToast`.
 - **Validation**: zod at every boundary (`ACTION_SCHEMAS` server, payload schemas client); FE form validators in `src/utils/validation.ts` return `{valid, errors}`. Prefer zod over `as` casts.
-- **Serverless endpoints (legacy `api/`)** dulu `async function handler(req, res)`. **Backend baru**: Express `router.method((req,res)=>...)` di `server/src/routes/`, respons `{success, error?, data?}`, rate-limit `enforceRateLimit` (`server/src/lib/rateLimit.js`), admin pakai `requireRole` + zod `validateAction`; CORS reflect-origin (sudah whitelist `CORS_ORIGIN` di produksi).
+- **Backend**: Express `router.method((req,res)=>...)` di `server/src/routes/`, respons `{success, error?, data?}`, rate-limit `enforceRateLimit` + `clientIp` bersama (`server/src/lib/rateLimit.js`; baca `X-Real-IP` hasil `real_ip` nginx — XFF mentah diabaikan), admin pakai `requireRole` + zod `validateAction`; CORS whitelist `CORS_ORIGIN` (origin jahat → 403).
 - **Tests colocated** in `__tests__/` beside source; tanpa mock supabase-js lagi — semua mock **fetch route** ke `REST` (pola di `src/utils/supabaseApi.test.ts`, `src/utils/__tests__/eventAreasApi.test.ts`) dengan `vi.hoisted` state + raw `mockReq`/`mockRes` (no supertest).
 - Markers: `// ─── Section ───` banners; `// ponytail: <note>` = deliberate cross-cutting design decision (don't "fix" without reading it).
 
@@ -65,9 +64,9 @@ Env vars — client: `VITE_API_URL` (**required di produksi**, tidak dipakai lok
 **Operasional VPS (host `vm-2-245-ubuntu` Tailscale, IP publik `43.134.72.148`, repo `/opt/metmal`)**:
 - Update stack: edit repo lokal → `scp` file → `docker compose -f /opt/metmal/deploy/vps/docker-compose.yml up -d --force-recreate <service>`.
 - Backup DB: `deploy/vps/backup.sh` (cron host 03:00 → `/opt/metmal/backups`, rotasi 14 file, `gunzip -t` validasi). Restore: `gunzip -c <file> | docker compose exec -T postgres psql -U metmal -d metmal`.
-- Reset password user (bcrypt): `docker compose exec api node server/scripts/create-admin.mjs <email> '<password>' '<Nama>' --reset`.
+- Reset password user (bcrypt, via env — JANGAN via argv): `ADMIN_PASSWORD='...' docker compose exec -e ADMIN_PASSWORD api node server/scripts/create-admin.mjs <email> "" --reset`.
 - Migrasi data satu kali (sudah selesai 2026-09-08; 811 baris): `scripts/migrate/dump-prod.mjs` → `photos-to-r2.mjs --apply` → `seed-vps.mjs --apply` (ulang-apply aman, idempotent).
-- Migrasi SQL baru: DDL ditulis di `server/schema.sql` (lalu `docker compose exec -T postgres psql -U metmal -d metmal -f -`); `migrate/` + `supabase/` + `node migrate/run-schema.mjs` = jalur legacy Supabase, **jangan dipakai**.
+- Migrasi SQL baru: DDL ditulis di `server/schema.sql` (lalu `docker compose exec -T postgres psql -U metmal -d metmal -f -`).
 
 ## Runtime/Tooling Preferences
 

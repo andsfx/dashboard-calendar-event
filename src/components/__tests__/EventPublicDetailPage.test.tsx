@@ -15,15 +15,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EventPublicDetailPage } from '../EventPublicDetailPage';
 import type { EventItem } from '../../types';
 
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: () => ({
-      select: () => ({
-        eq: () => ({ limit: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }),
-      }),
-    }),
-  },
-}));
+// (Mock lib/supabase dihapus 2026-09-09: shim legacy, komponen via fetchEventById REST.)
 
 const fetchEventByIdMock = vi.hoisted(() => vi.fn());
 vi.mock('../../utils/supabaseApi', () => ({
