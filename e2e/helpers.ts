@@ -157,293 +157,214 @@ export async function setupSurveyApiMocks(
     submitError?: string;
   } = {},
 ) {
-  await page.route('**/api/tenant-survey**', async (route: Route) => {
-    const url = new URL(route.request().url());
-    const mode = url.searchParams.get('mode') || 'auth';
-    const action = url.searchParams.get('action') || '';
-    const method = route.request().method();
+  // Route REST baru (server/src/routes/tenant.js) — dipetakan per path,
+  // bukan lagi mode/action query string. Envelope: { success, data }.
+  const json = (route: Route, body: Record<string, unknown>, status = 200) =>
+    route.fulfill(status === 200 ? { json: body } : { status, json: body });
 
-    // ─── Public endpoints ──────────────────────────────────────
-    if (mode === 'public') {
-      switch (action) {
-        case 'events':
-          return route.fulfill({ json: { success: true, events: MOCK_EVENTS } });
+  // ─── Public GET ─────────────────────────────────────────────
+  await page.route('**/api/v1/tenant/events', (route) =>
+    json(route, { success: true, data: MOCK_EVENTS }));
 
-        case 'event-info':
-          return route.fulfill({
-            json: { success: true, event: MOCK_EVENT, is_active: true },
-          });
+  await page.route('**/api/v1/tenant/event-info*', (route) =>
+    json(route, { success: true, data: { ...MOCK_EVENT, is_active: true } }));
 
-        case 'results-list':
-          return route.fulfill({ json: { success: true, data: [MOCK_SURVEY_V3] } });
+  await page.route('**/api/v1/tenant/results-list*', (route) =>
+    json(route, { success: true, data: [MOCK_SURVEY_V3] }));
 
-        case 'results-analytics': {
-          const group = url.searchParams.get('group') || '';
-          const data = group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS;
-          return route.fulfill({ json: { success: true, data } });
-        }
-
-        case 'results-roster':
-          return route.fulfill({
-            json: {
-              success: true,
-              total: MOCK_TENANTS.length,
-              tenants: MOCK_TENANTS.map((t) => ({
-                id: t.id,
-                name: t.name,
-                floor: t.floor,
-                lot: t.lot,
-                category: t.category,
-                logo: t.logo || '',
-              })),
-            },
-          });
-
-        case 'tenants': {
-          const q = (url.searchParams.get('q') || '').trim().toLowerCase();
-          if (q.length < 2) {
-            return route.fulfill({
-              status: 400,
-              json: { success: false, error: 'Query pencarian minimal 2 karakter', tenants: [] },
-            });
-          }
-          const filtered = MOCK_TENANTS.filter(t => t.name.toLowerCase().includes(q));
-          return route.fulfill({ json: { success: true, tenants: filtered } });
-        }
-
-        case 'tenant-detail': {
-          const id = url.searchParams.get('id') || '';
-          const t = MOCK_TENANTS.find(x => x.id === id);
-          if (!t) {
-            return route.fulfill({ status: 404, json: { success: false, error: 'Tenant tidak ditemukan' } });
-          }
-          // Only PIC fields returned (mirrors secure backend: no mass PII dump)
-          return route.fulfill({
-            json: { success: true, tenant: { id: t.id, name: t.name, pic: t.pic, picTelp: t.picTelp } },
-          });
-        }
-
-        case 'check':
-          return route.fulfill({
-            json: { success: true, submitted: opts.alreadySubmitted ?? false },
-          });
-
-        case 'submit':
-          if (opts.submitError) {
-            return route.fulfill({
-              status: 400,
-              json: { success: false, error: opts.submitError },
-            });
-          }
-          if (opts.alreadySubmitted) {
-            return route.fulfill({
-              status: 409,
-              json: {
-                success: false,
-                error: 'Anda sudah pernah mengirimkan survey untuk event ini.',
-                already_submitted: true,
-              },
-            });
-          }
-          return route.fulfill({
-            status: 201,
-            json: {
-              success: true,
-              id: 'srv_new_001',
-              created_at: new Date().toISOString(),
-            },
-          });
-
-        default:
-          return route.fulfill({ status: 400, json: { success: false, error: 'Unknown action' } });
-      }
-    }
-
-    // ─── Authenticated endpoints ───────────────────────────────
-    switch (action) {
-      case 'list':
-        return route.fulfill({ json: { success: true, data: [MOCK_SURVEY_V3] } });
-
-      case 'tenant-roster':
-        return route.fulfill({
-          json: {
-            success: true,
-            total: MOCK_TENANTS.length,
-            tenants: MOCK_TENANTS.map((t) => ({
-              id: t.id,
-              name: t.name,
-              floor: t.floor,
-              lot: t.lot,
-              category: t.category,
-              logo: t.logo || '',
-            })),
-          },
-        });
-
-      case 'analytics': {
-        const group = url.searchParams.get('group') || '';
-        const data = group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS;
-        return route.fulfill({ json: { success: true, data } });
-      }
-
-      case 'summary':
-        return route.fulfill({
-          json: {
-            success: true,
-            data: {
-              event_id: 'evt_test123',
-              tenant_name: 'Kopi Metmal',
-              tenant_organization: '',
-              tenant_survey_status: 'submitted',
-              venue_rating: null,
-              management_rating: null,
-              event_organization_rating: null,
-              booth_facility_rating: null,
-              overall_rating: null,
-              feedback_comment: '',
-              improvement_suggestion: '',
-              tenant_survey_created_at: '2026-07-16T09:30:00Z',
-              total_visitor_responses: 5,
-              visitor_mall_overall: 4,
-              visitor_eo_overall: 4,
-            },
-          },
-        });
-
-      case 'config-get':
-        return route.fulfill({
-          json: {
-            success: true,
-            config: { event_id: url.searchParams.get('event_id') || 'evt_test123', is_active: true },
-          },
-        });
-
-      default:
-        return route.fulfill({ status: 400, json: { success: false, error: 'Unknown action' } });
-    }
+  await page.route('**/api/v1/tenant/results-analytics*', (route) => {
+    const group = new URL(route.request().url()).searchParams.get('group') || '';
+    return json(route, { success: true, data: group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS });
   });
+
+  await page.route('**/api/v1/tenant/results-roster', (route) =>
+    json(route, {
+      success: true,
+      data: MOCK_TENANTS.map((t) => ({
+        id: t.id, name: t.name, floor: t.floor, lot: t.lot, category: t.category, logo: t.logo || '',
+      })),
+    }));
+
+  await page.route('**/api/v1/tenant/tenants*', (route) => {
+    const q = (new URL(route.request().url()).searchParams.get('q') || '').trim().toLowerCase();
+    if (q.length < 2) {
+      return json(route, { success: false, error: 'Query pencarian minimal 2 karakter' }, 400);
+    }
+    return json(route, { success: true, data: MOCK_TENANTS.filter((t) => t.name.toLowerCase().includes(q)) });
+  });
+
+  await page.route('**/api/v1/tenant/tenant-detail*', (route) => {
+    const id = new URL(route.request().url()).searchParams.get('id') || '';
+    const t = MOCK_TENANTS.find((x) => x.id === id);
+    if (!t) return json(route, { success: false, error: 'Tenant tidak ditemukan' }, 404);
+    // Hanya field PIC (mirror backend secure — tanpa mass PII dump)
+    return json(route, { success: true, data: { id: t.id, name: t.name, pic: t.pic, picTelp: t.picTelp } });
+  });
+
+  await page.route('**/api/v1/tenant/check*', (route) =>
+    json(route, { success: true, data: { submitted: opts.alreadySubmitted ?? false } }));
+
+  // ─── Public POST submit ────────────────────────────────────
+  await page.route('**/api/v1/tenant/submit', (route) => {
+    if (route.request().method() !== 'POST') return route.continue();
+    if (opts.submitError) return json(route, { success: false, error: opts.submitError }, 400);
+    if (opts.alreadySubmitted) {
+      return json(route, {
+        success: false,
+        error: 'Anda sudah pernah mengirimkan survey untuk event ini.',
+      }, 409);
+    }
+    return json(route, {
+      success: true,
+      id: 'srv_new_001',
+      created_at: new Date().toISOString(),
+    }, 201);
+  });
+
+  // ─── Authenticated ──────────────────────────────────────────
+  await page.route('**/api/v1/tenant/list*', (route) =>
+    json(route, { success: true, data: [MOCK_SURVEY_V3] }));
+
+  await page.route('**/api/v1/tenant/roster', (route) =>
+    json(route, {
+      success: true,
+      data: MOCK_TENANTS.map((t) => ({
+        id: t.id, name: t.name, floor: t.floor, lot: t.lot, category: t.category, logo: t.logo || '',
+      })),
+    }));
+
+  await page.route('**/api/v1/tenant/analytics*', (route) => {
+    const group = new URL(route.request().url()).searchParams.get('group') || '';
+    return json(route, { success: true, data: group === 'month' ? MOCK_MONTHLY_TREND : MOCK_ANALYTICS });
+  });
+
+  await page.route('**/api/v1/tenant/summary*', (route) =>
+    json(route, {
+      success: true,
+      data: {
+        event_id: 'evt_test123',
+        tenant_name: 'Kopi Metmal',
+        tenant_organization: '',
+        tenant_survey_status: 'submitted',
+        venue_rating: null,
+        management_rating: null,
+        event_organization_rating: null,
+        booth_facility_rating: null,
+        overall_rating: null,
+        feedback_comment: '',
+        improvement_suggestion: '',
+        tenant_survey_created_at: '2026-07-16T09:30:00Z',
+        total_visitor_responses: 5,
+        visitor_mall_overall: 4,
+        visitor_eo_overall: 4,
+      },
+    }));
+
+  await page.route('**/api/v1/tenant/config-get*', (route) =>
+    json(route, {
+      success: true,
+      data: {
+        event_id: new URL(route.request().url()).searchParams.get('event_id') || 'evt_test123',
+        is_active: true,
+      },
+    }));
 }
 
-// ─── Auth Mock ───────────────────────────────────────────────────
+// ─── Auth Mock (REST /api/v1 — Opsi B, ADR 005) ────────────────────
 
 /**
- * Inject a fake Supabase auth session into localStorage so the app
- * thinks the user is logged in as admin.
- * 
- * IMPORTANT: Must match the projectRef in SUPABASE_URL env var.
- * We use 'test-project' as the projectRef, so the key becomes 'sb-test-project-auth-token'.
+ * Mock auth via route intercept: GET /api/v1/auth/me → user (cookie JWT model).
+ * SPA memanggil apiGet('/auth/me') = VITE_API_URL + '/api/v1/auth/me';
+ * di e2e VITE_API_URL kosong → relatif origin lokal, cukup intercept '/api/v1/**'.
  */
 export async function mockAuth(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
-  const fakeSession = {
-    access_token: 'fake-access-token',
-    refresh_token: 'fake-refresh-token',
-    token_type: 'bearer',
-    expires_in: 3600,
-    expires_at: Math.floor(Date.now() / 1000) + 3600,
-    user: {
-      id: `user_${role}_001`,
-      aud: 'authenticated',
-      role: 'authenticated',
-      email: `${role}@metmal.test`,
-      app_metadata: { role },
-      user_metadata: {},
-      created_at: '2026-01-01T00:00:00Z',
-    },
+  const user = {
+    id: `user_${role}_001`,
+    email: `${role}@metmal.test`,
+    display_name: role,
+    role,
+    is_active: true,
   };
 
-  await page.addInitScript((session) => {
-    for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
-        localStorage.removeItem(key);
-      }
-    }
-    localStorage.setItem('sb-test-project-auth-token', JSON.stringify(session));
-  }, fakeSession);
+  await page.route('**/api/v1/auth/me', async (route) => {
+    await route.fulfill({ json: { success: true, user } });
+  });
+  // Login + logout (bila dijalankan flow-nya)
+  await page.route('**/api/v1/auth/login', async (route) => {
+    await route.fulfill({ json: { success: true, user } });
+  });
+  await page.route('**/api/v1/auth/logout', async (route) => {
+    await route.fulfill({ json: { success: true } });
+  });
 }
 
 export async function mockAdminAuth(page: Page) {
   await mockAuth(page, 'superadmin');
 }
 
+/**
+ * Mock dasar backend REST untuk dashboard tests.
+ * Envelope: { success, data }. Router per path persis server/src/routes/*.
+ */
 export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
-  const user = {
-    id: `user_${role}_001`,
-    email: `${role}@metmal.test`,
-    display_name: role,
-    role,
-    aud: 'authenticated',
-    app_metadata: { role },
-    user_metadata: {},
-    created_at: '2026-01-01T00:00:00Z',
-  };
+  await mockAuth(page, role);
 
-  await page.route(/.*api\/auth.*action=me.*/, async (route) => {
-    await route.fulfill({ json: { success: true, user, legacy: false } });
-  });
-
-  await page.route('**/api/auth', async (route) => {
-    await route.fulfill({ json: { user } });
-  });
-
-  await page.route('**/auth/v1/**', async (route) => {
-    await route.fulfill({ json: user });
-  });
-
-  // Events (for dashboard — must match DbEvent shape)
-  await page.route('**/rest/v1/events*', async (route) => {
+  // Events (public + admin — DbEvent shape, tanpa PII utk public)
+  await page.route('**/api/v1/events*', async (route) => {
     await route.fulfill({
-      json: [
-        {
-          id: 'evt_test123',
-          date_str: '2026-07-15',
-          date_end: null,
-          day: 'Selasa',
-          tanggal: '15 Jul 2026',
-          jam: '10:00 - 22:00',
-          acara: 'Pameran Otomotif Bekasi 2026',
-          lokasi: 'Atrium Utama',
-          eo: 'PT Otomotif Indonesia',
-          pic: 'Andi',
-          phone: '081234567890',
-          keterangan: '',
-          month: 'Juli',
-          status: 'past',
-          category: 'Exhibition',
-          categories: ['Exhibition'],
-          priority: 'medium',
-          event_model: '',
-          event_nominal: '',
-          event_model_notes: '',
-          source_draft_id: '',
-          is_multi_day: false,
-          day_time_slots: null,
-          event_type: 'single',
-          recurrence_group_id: '',
-          is_recurring: false,
-          poster_url: null,
-        },
-      ],
+      json: {
+        success: true,
+        data: [
+          {
+            id: 'evt_test123',
+            date_str: '2026-07-15',
+            date_end: null,
+            day: 'Selasa',
+            tanggal: '15 Jul 2026',
+            jam: '10:00 - 22:00',
+            acara: 'Pameran Otomotif Bekasi 2026',
+            lokasi: 'Atrium Utama',
+            eo: 'PT Otomotif Indonesia',
+            pic: 'Andi',
+            phone: '081234567890',
+            keterangan: '',
+            month: 'Juli',
+            status: 'past',
+            category: 'Exhibition',
+            categories: ['Exhibition'],
+            priority: 'medium',
+            event_model: '',
+            event_nominal: '',
+            event_model_notes: '',
+            source_draft_id: '',
+            is_multi_day: false,
+            day_time_slots: null,
+            event_type: 'single',
+            recurrence_group_id: '',
+            is_recurring: false,
+            poster_url: null,
+          },
+        ],
+      },
     });
   });
 
-  // Tenant event surveys (for duplicate check — return empty = no duplicate)
-  await page.route('**/rest/v1/tenant_event_surveys*', async (route) => {
-    await route.fulfill({ json: [] });
+  // Tenant surveys (duplicate check → kosong)
+  await page.route('**/api/v1/tenant/list*', async (route) => {
+    await route.fulfill({ json: { success: true, data: [] } });
   });
 
-  // Site settings, event photos (dashboard widgets)
-  await page.route('**/rest/v1/site_settings*', async (route) => {
-    await route.fulfill({ json: [] });
-  });
-
-  await page.route('**/rest/v1/event_photos*', async (route) => {
-    await route.fulfill({ json: [] });
-  });
-
-  // Other Supabase tables (empty)
-  for (const table of ['annual_themes', 'holidays', 'gallery_albums', 'draft_events', 'community_registrations', 'letter_requests', 'photo_albums']) {
-    await page.route(`**/rest/v1/${table}*`, async (route) => {
-      await route.fulfill({ json: [] });
+  // Settings, themes, holidays, albums, areas — envelope data
+  for (const [path, data] of [
+    ['**/api/v1/settings/*', null],
+    ['**/api/v1/themes', []],
+    ['**/api/v1/holidays', []],
+    ['**/api/v1/albums*', { albums: [], photos: [] }],
+    ['**/api/v1/areas', { areas: [], photos: [] }],
+    ['**/api/v1/draft_events*', []],
+  ] as const) {
+    await page.route(path, async (route) => {
+      await route.fulfill({ json: { success: true, data } });
     });
   }
 }

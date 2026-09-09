@@ -9,9 +9,9 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 - Dashboard `/dashboard/tenant-surveys` = admin/EO manage list, analytics, config, QR — **bukan** jalur utama pengisian tenant.
 - Standalone `/tenant-survey-results` = **public** read-only analisa (filter, KPI, checklist, bagikan form + QR). **Tanpa** form/CRUD/config toggle admin, **tanpa** PIC, **tanpa** login. Legacy `/dashboard/tenant-survey-results` redirect ke sini.
 - Share form: link `/tenant-survey/:eventId` + QR (`SurveyQRCode`, `basePath="/tenant-survey"`) — tampil **nama event** (`acara`).
-- Public data via `mode=public&action=results-*` (rate-limited, PII stripped). PDF export only if logged-in admin/TR.
+- Public data via `GET /api/v1/tenant/results-*` (rate-limited, PII stripped). PDF export only if logged-in admin/TR.
 - Role `tenant_relation`: default home results page; write actions still 403 on auth API.
-- Jangan campur dengan **visitor survey** (`SurveyPage`, `api/survey.js`, `migrate/survey-schema.sql`).
+- Jangan campur dengan **visitor survey** (`SurveyPage`, backend `server/src/routes/survey.js`, legacy `migrate/survey-schema.sql`).
 
 ## Canonical paths
 
@@ -30,13 +30,15 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Options (enum source of truth FE) | `src/constants/survey-options.ts` |
 | FE validate | `src/utils/validation.ts` → `validateTenantSurvey` |
 | Fingerprint public | `src/utils/fingerprint.ts` |
-| API client | `src/utils/supabaseApi.ts` (tenant survey block) |
+| API client | `src/utils/supabaseApi.ts` (tenant survey block; barrel legacy-name, isi REST) |
 | Hooks | `src/hooks/useTenantSurveys.ts` |
 | Types | `src/types.ts` (`TenantSurvey*`, `TenantEventSurvey`, …), `src/types/auth.ts` (`tenant_relation`) |
-| Backend | `api/tenant-survey.js` |
-| Auth helper | `api/_lib/auth.js` |
-| DB | `migrate/tenant-event-surveys*.sql`, `tenant-survey-config.sql`, `pic-fields.sql`, `tenant-relation-role.sql` |
+| Backend | `server/src/routes/tenant.js` (legacy `api/tenant-survey.js` = MATI) |
+| Auth helper | `server/src/auth.js` (`authenticate`, `requireRole`) |
+| DB | `server/schema.sql` (DDL satu file; legacy `migrate/*.sql` = MATI) |
 | Tests | `src/utils/__tests__/tenantSurvey*.test.ts`, `e2e/tenant-survey-*.spec.ts` |
+
+**ADR 005**: backend = Express/Postgres VPS (`server/`); SPA fetch `VITE_API_URL/api/v1/...` via `src/lib/rest.ts`. Endpoint survey lama `mode=public&action=X` → kini route REST eksplisit di `server/src/routes/tenant.js`: `GET /tenant/events|event-info|check|tenants|tenant-detail|results-list|results-analytics|results-roster`, `POST /tenant/submit` (public, rate-limit + fingerprint), `POST /tenant/create|update|review|delete` (auth) + `GET /tenant/list|get|analytics|summary` (auth, PII ok).
 
 ## Schema v3 (current form fields)
 
@@ -55,31 +57,24 @@ Opsional:
 - `pic_name` (max 100), `pic_phone` (max 20)
 - `tenant_id` (dari pilih tenant MID; boleh kosong jika free-text nama)
 
-Legacy v2 (DB/types masih ada, **jangan** minta lagi di form baru):
-
-- `venue_rating`, `management_rating`, `event_organization_rating`, `booth_facility_rating`
-- `feedback_comment`, `improvement_suggestion`, `tenant_organization`, `business_category` stubs
-
-Display legacy: pakai `isV3Survey` (`src/utils/surveyUtils.ts`). Jangan hapus kolom DB v2 tanpa migrasi data.
-
 ## Public flow (no login)
 
 ```
 /tenant-survey
   → TenantSurveyEventPicker
-  → GET /api/tenant-survey?mode=public&action=events
+  → GET /api/v1/tenant/events
 
 /tenant-survey/:eventId
   → TenantSurveyPublicPage
   → event-info + check(fingerprint) + tenants(search)
-  → validateTenantSurvey → POST mode=public&action=submit
+  → validateTenantSurvey → POST /tenant/submit
   → status: idle | submitting | success | error | duplicate
 ```
 
 Aturan public:
 
 1. **Jangan require login / JWT** di public actions.
-2. Dup = `device_fingerprint` + event (RPC/unique index). Soft anti-spam saja — clear storage/incognito bisa resubmit; harden via rate limit IP, **bukan** login.
+2. Dup = `device_fingerprint` + event (unique index di `server/schema.sql`; legacy RPC). Soft anti-spam saja — clear storage/incognito bisa resubmit; harden via rate limit IP, **bukan** login.
 3. Submit selalu `status=submitted` (tidak ada draft public).
 4. `tenant_user_id` public = `null`.
 5. Sebelum buka/submit: event harus exist; hormati `tenant_survey_config.is_active` (**default off** jika row config tidak ada).
@@ -103,16 +98,15 @@ Aturan public:
 - Nav: “Tenant Self-Assessment” → `/dashboard/tenant-surveys`.
 - CRUD draft/submit/list/analytics/config/export untuk admin/EO.
 - Public link/QR: `/tenant-survey/:eventId`.
-- Saat ubah auth path:
-  - `requireAuth` return `{ user, role, legacy }` — **bukan** `auth.userId`. Pakai `auth.user?.id`.
-  - Role app termasuk `eo_tenant`; default `requireAuth` admin-only. Expand role per action, jangan paksa EO lewat client-only write.
-  - Prefer **satu write path** lewat `/api/tenant-survey` + Bearer. Hindari dual-write (API + direct Supabase insert/update) kecuali RLS sudah ketat dan disengaja.
+- Saat ubah auth path — backend `server/src/auth.js`:
+  - `authenticate` → `req.auth = { user }`; guard `requireRole([...])` per route. Akses user id: `req.auth.user.id`.
+  - Role app termasuk `eo_tenant`; matriks role ada di `server/src/routes/tenant.js`. Expand role per action, jangan paksa EO lewat client-only write.
+  - **Satu write path** = REST `/api/v1/tenant/*` (cookie JWT). Tidak ada lagi direct Supabase insert/update dari FE — dual-write tidak mungkin (supabase-js dilepas).
 
 ## Validation parity
 
 - Enum source of truth: `src/constants/survey-options.ts` (`SURVEY_OPTIONS`).
-- API import path harus resolve di runtime Node/Vercel (saat ini `api/tenant-survey.js` import `../src/constants/survey-options.js` — file disk `.ts`; jangan pecah deploy).
-- FE `validateTenantSurvey` + BE `validatePublicSubmission` / `validateSurveyBody` harus cek field **v3 yang sama**.
+- FE `validateTenantSurvey` + BE validasi di `server/src/routes/tenant.js` (`validatePublicSubmission`/`validateSurveyBody` port) harus cek field **v3 yang sama**. Enum parity FE↔BE dijaga manual (constant shared via `src/constants/` yang di-import server? — tidak; server punya salinan literal di `server/src/routes/tenant.js`) — update keduanya saat ubah enum.
 - Limit teks: `feedback_teks` 2000, `pic_name` 100, `pic_phone` 20, `nama_gerai` 100.
 - Draft (dashboard only): required field boleh longgar; submit/public ketat.
 
@@ -133,11 +127,11 @@ Aturan public:
 
 ## Security (non-negotiable)
 
-- Jangan expose: Supabase service role, R2 keys, admin password/token, Apps Script token, `MID_API_KEY`.
-- Public = service-role di server only; client anon tidak boleh service key.
+- Jangan expose: `JWT_SECRET`, `DATABASE_URL`, R2 keys, `MID_API_KEY` (semuanya server-only di `deploy/vps/.env`).
+- Secret hanya di server; client tidak punya kredential apapun (SPA anonim publik + cookie HttpOnly).
 - Status machine (dashboard): `draft → submitted → reviewed`. Jangan biarkan reverse bebas (reviewed → submitted) tanpa superadmin.
-- RLS `tenant_survey_config`: write bukan untuk any authenticated; config-set admin-only di API.
-- RPC SECURITY DEFINER: REVOKE dari PUBLIC/anon bila tidak perlu; jangan IDOR lewat `p_user_id`.
+- `tenant_survey_config` write: route config-set di `server/src/routes/tenant.js` admin-only (`requireRole`), bukan any-authenticated.
+- (Legacy RLS/RPC SECURITY DEFINER tidak berlaku lagi — Postgres VPS tanpa RLS; guard = filter SQL + requireRole server.)
 - Export CSV: escape formula injection (`= + - @`); PIC di CSV sensitif.
 - Fingerprint client-controlled — bukan auth.
 
@@ -155,14 +149,12 @@ Aturan public:
 - Paksa login di public form.
 - Campur visitor survey dengan tenant survey.
 - Tambah dependency baru untuk validasi enum sederhana.
-- Ubah label enum v3 tanpa migrate data + update RPC filter string.
-- Commit secrets / credential remote URL.
 - “Perbaiki” dengan dual path baru (API + client) tanpa alasan.
 
 ## Known debt (jangan ulangi / perbaiki saat sentuh area)
 
-1. ~~`auth.userId` typo di `api/tenant-survey.js` (harusnya `auth.user?.id`)~~ — fixed: pakai `auth.user?.id`.
-2. Dual-write auth: FE create/update/submit lewat Supabase client, API create/update jarang dipakai.
+1. ~~`auth.userId` typo~~ — fixed era Vercel; port VPS pakai `req.auth.user.id`.
+2. ~~Dual-write auth (FE Supabase client)~~ — resolved ADR 005: supabase-js dilepas; satu write path REST.
 3. ~~Public gate event/config `is_active`~~ — fixed: gate submit/event-info/events + FE closed state + hydrate config.
   4. ~~Public tenants PII dump~~ — fixed: strip PIC/telp di list (min q=2, limit 50);
      PIC auto-fill aman lewat `action=tenant-detail?id=` (satu tenant, bukan mass dump).
@@ -170,7 +162,7 @@ Aturan public:
 6. ~~Shared components diduplikasi di public page~~ — fixed: public import Shared.
 7. Types form masih bawa stub v2 + cast `as never`.
   8. ~~Shared RadioGroup accent violet~~ — prefer brand-primary; residual only if shared component still uses default.
-9. Rate limit public IP belum ada.
+9. ~~Rate limit public IP belum ada~~ — fixed di VPS: submit 15/15mnt, results-list/analytics 40/mnt, results-roster/directory 12/mnt (`server/src/routes/tenant.js`).
 
 ## Change checklist
 

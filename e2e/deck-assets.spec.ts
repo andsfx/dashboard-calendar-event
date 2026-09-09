@@ -4,25 +4,23 @@ import { mockAuth } from './helpers';
 const ASSET_DIR = './presentasi/assets';
 const VIEWPORT = { width: 1440, height: 900 };
 
-test('regenerate deck screenshots', async ({}) => {
+// Opsi B (ADR 005): data produksi = REST VPS. Jalankan dengan env:
+//   VITE_API_URL=https://metmal.andotherstori.my.id npx playwright test deck-assets
+// (utilitas regenerasi screenshot, bukan CI gate — tetap manual-run.)
+const API_BASE = process.env.VITE_API_URL || 'https://metmal.andotherstori.my.id';
+
+// Skip bila dijalankan tanpa VITE_API_URL (default suite run) — utilitas ini
+// butuh data produksi REST VPS; tanpa env, fetch localhost gagal CORS/route.
+const maybe = process.env.VITE_API_URL ? test : test.skip;
+
+maybe('regenerate deck screenshots', async ({}) => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: VIEWPORT });
 
-  // Use production read-only Supabase data. Mock auth only; no event rows invented.
+  // Data produksi read-only dari REST VPS (API_BASE). Mock auth only; no event rows invented.
   await mockAuth(page, 'superadmin');
-  await page.route(/.*api\/auth.*action=me.*/, async route => {
-    await route.fulfill({ json: {
-      success: true,
-      user: { id: 'screenshot-superadmin', email: 'superadmin@metmal.test', display_name: 'Admin Metal', role: 'superadmin' },
-      legacy: false,
-    } });
-  });
-  await page.route('**/api/supabase-admin', async route => {
-    const body = route.request().postDataJSON() as { action?: string } | null;
-    if (body?.action === 'readRegistrations') {
-      return route.fulfill({ json: { success: true, data: [] } });
-    }
-    return route.fulfill({ json: { success: true, data: [] } });
+  await page.route('**/api/v1/admin/readRegistrations', async route => {
+    await route.fulfill({ json: { success: true, data: [] } });
   });
 
   // --- Registration (empty state, no error toast) ---
@@ -40,9 +38,8 @@ test('regenerate deck screenshots', async ({}) => {
 
   await page.getByRole('tab', { name: 'Tabel' }).click();
   await page.waitForTimeout(400);
-  await expect(page.getByRole('tabpanel')).toBeVisible();
+  await expect(page.getByRole('tabpanel')).toBeVisible({ timeout: 15000 });
   await page.screenshot({ path: `${ASSET_DIR}/16-dashboard-table.png` });
-
   await page.getByRole('tab', { name: 'Kalender' }).click();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${ASSET_DIR}/17-dashboard-calendar.png` });
