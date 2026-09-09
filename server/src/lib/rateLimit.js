@@ -10,8 +10,15 @@
 const buckets = new Map();
 
 export function clientIp(req) {
-  const xf = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  return xf || String(req.headers['x-real-ip'] || '').trim() || req.socket?.remoteAddress || 'unknown';
+  // Anti-spoof (audit 2026-09-09): nginx teruskan $remote_addr yang SUDAH
+  // dimurnikan real_ip via X-Real-IP. XFF mentah diabaikan — kiriman klien
+  // bisa berisi "1.2.3.4" palsu di indeks 0. Fallback req.ip (trust proxy
+  // hop tepercaya) lalu socket. Satu helper untuk rate-limit + kolom IP.
+  const real = String(req.headers['x-real-ip'] || '').trim();
+  if (real) return real;
+  const fwd = String(req.ip || '').trim();
+  if (fwd && fwd !== 'unknown') return fwd;
+  return req.socket?.remoteAddress || 'unknown';
 }
 
 /**

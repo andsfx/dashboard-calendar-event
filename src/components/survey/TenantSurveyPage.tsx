@@ -10,7 +10,7 @@ import {
   useTenantSurveyAnalytics,
   useTenantSurveyDuplicate,
 } from '../../hooks/useTenantSurveys';
-import { apiGet } from '../../lib/rest';
+import { apiGet, apiPost, apiUrl } from '../../lib/rest';
 import { isV3Survey } from '../../utils/surveyUtils';
 import TenantSurveyForm, {
   TenantSurveySuccess,
@@ -83,19 +83,6 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     currentUserId,
   );
 
-  // ─── Auth token helper (used by config + export) ───────────────
-  const getAccessToken = useCallback(() => {
-    try {
-      const keys = Object.keys(localStorage);
-      const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-      if (sbKey) {
-        const data = JSON.parse(localStorage.getItem(sbKey) || '{}');
-        return data.access_token || '';
-      }
-    } catch { /* ignore */ }
-    return '';
-  }, []);
-
   // ─── Fetch current user ───────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
@@ -119,18 +106,14 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
     let cancelled = false;
     (async () => {
-      const token = getAccessToken();
+      // GET /api/v1/tenant/config — cookie auth via apiGet (credentials include).
       const entries = await Promise.all(
         surveyableIds.map(async (id) => {
           try {
-            const res = await fetch(
-              `/api/tenant-survey?action=config-get&event_id=${encodeURIComponent(id)}`,
-              { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+            const cfg = await apiGet<{ is_active?: boolean }>(
+              `/tenant/config?event_id=${encodeURIComponent(id)}`,
             );
-            if (!res.ok) return [id, false] as const;
-            const json = await res.json();
-            const active = json.config?.is_active === true || json.data?.is_active === true;
-            return [id, active] as const;
+            return [id, cfg?.is_active === true] as const;
           } catch {
             return [id, false] as const;
           }
@@ -141,7 +124,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     })();
 
     return () => { cancelled = true; };
-  }, [events, getAccessToken]);
+  }, [events]);
 
   // ─── Handlers ──────────────────────────────────────────────────
   const handleNewSurvey = useCallback((eventId: string) => {
@@ -283,21 +266,17 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
     try {
-      const res = await fetch('/api/tenant-survey?action=config-set', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAccessToken()}`,
-        },
-        body: JSON.stringify({ event_id: eventId, is_active: !currentActive }),
+      // POST /api/v1/tenant/config-set — cookie auth via apiPost.
+      const json = await apiPost<{ success: boolean }>('/tenant/config-set', {
+        event_id: eventId,
+        is_active: !currentActive,
       });
-      const json = await res.json();
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
       }
     } catch { /* ignore */ }
     finally { setConfigLoading(null); }
-  }, [getAccessToken]);
+  }, []);
 
   const handleCopyLink = useCallback(async (eventId: string) => {
     const url = `${window.location.origin}/tenant-survey/${eventId}`;
@@ -310,8 +289,9 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
   const handleExport = useCallback(async (eventId: string) => {
     try {
-      const res = await fetch(`/api/tenant-survey?action=export&event_id=${encodeURIComponent(eventId)}`, {
-        headers: { 'Authorization': `Bearer ${getAccessToken()}` },
+      // GET /api/v1/tenant/export — CSV blob; cookie via credentials include.
+      const res = await fetch(apiUrl(`/tenant/export?event_id=${encodeURIComponent(eventId)}`), {
+        credentials: 'include',
       });
       if (!res.ok) return;
       const blob = await res.blob();
@@ -322,7 +302,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
       a.click();
       URL.revokeObjectURL(url);
     } catch { /* ignore */ }
-  }, [getAccessToken]);
+  }, []);
 
   // ─── Derived ───────────────────────────────────────────────────
   const selectedEvent = events.find(e => e.id === selectedEventId) ?? null;

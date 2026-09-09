@@ -185,12 +185,3 @@ export function ActivityLog() {
     </div>
   );
 }
-
-function getToken(): string {
-  try {
-    const keys = Object.keys(localStorage);
-    const sbKey = keys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-    if (sbKey) { return JSON.parse(localStorage.getItem(sbKey) || '{}').access_token || ''; }
-  } catch {}
-  return '';
-}

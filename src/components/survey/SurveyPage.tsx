@@ -6,7 +6,7 @@ import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   User, Mail, Phone, Briefcase, Send, ArrowLeft,
 } from 'lucide-react';
-import { apiGet } from '../../lib/rest';
+import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import { getDeviceFingerprint } from '../../utils/fingerprint';
 import { validateEmail } from '../../utils/validation';
 import type { SurveyType } from '../../types';
@@ -86,11 +86,12 @@ export default function SurveyPage() {
         if (!ev) { setError('Event tidak ditemukan'); setLoading(false); return; }
         setEvent(ev);
 
-        // Check fingerprint
+        // Check fingerprint — GET /api/v1/survey/check (apiGet unwrap → data.submitted).
         const fp = getDeviceFingerprint();
-        const res = await fetch(`/api/survey?action=check&event_id=${eventId}&fingerprint=${encodeURIComponent(fp)}`);
-        const json = await res.json();
-        if (!cancelled && json.submitted) setAlreadySubmitted(true);
+        const checked = await apiGet<{ submitted?: boolean }>(
+          `/survey/check?event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(fp)}`,
+        );
+        if (!cancelled && checked?.submitted) setAlreadySubmitted(true);
       } catch {
         if (!cancelled) setError('Gagal memuat data event');
       } finally {
@@ -131,38 +132,33 @@ export default function SurveyPage() {
     if (!isValid() || !eventId) return;
     setSubmitting(true);
     setSubmitError('');
-
     try {
-      const res = await fetch('/api/survey?action=submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_id: eventId,
-          survey_type: surveyType,
-          ...ratings,
-          mall_comment: comments.mall,
-          eo_comment: comments.eo,
-          general_comment: comments.general,
-          respondent_name: identity.name,
-          respondent_email: identity.email,
-          respondent_phone: identity.phone,
-          respondent_organization: identity.organization,
-          device_fingerprint: getDeviceFingerprint(),
-        }),
+      // POST /api/v1/survey/submit — 201 {success,id}; 409 {already_submitted}
+      // diteruskan via ApiError.payload; 400 {errors[]} via payload.
+      await apiPost<{ success: boolean; id?: string }>('/survey/submit', {
+        event_id: eventId,
+        survey_type: surveyType,
+        ...ratings,
+        mall_comment: comments.mall,
+        eo_comment: comments.eo,
+        general_comment: comments.general,
+        respondent_name: identity.name,
+        respondent_email: identity.email,
+        respondent_phone: identity.phone,
+        respondent_organization: identity.organization,
+        device_fingerprint: getDeviceFingerprint(),
       });
-
-      const json = await res.json();
-      if (!res.ok) {
-        if (json.already_submitted) {
-          setAlreadySubmitted(true);
-        } else {
-          setSubmitError(json.errors?.join(', ') || json.error || 'Gagal mengirim survey');
-        }
+      setSubmitted(true);
+    } catch (err) {
+      if (err instanceof ApiError && err.payload?.already_submitted === true) {
+        setAlreadySubmitted(true);
         return;
       }
-      setSubmitted(true);
-    } catch {
-      setSubmitError('Terjadi kesalahan jaringan');
+      const errs = err instanceof ApiError ? (err.payload?.errors as string[] | undefined) : undefined;
+      setSubmitError(
+        (Array.isArray(errs) ? errs.join(', ') : undefined)
+        || (err instanceof Error ? err.message : 'Gagal mengirim survey'),
+      );
     } finally {
       setSubmitting(false);
     }

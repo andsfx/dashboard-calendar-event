@@ -33,7 +33,7 @@ import {
   ANALYTICS_READ_ROLES,
   LIST_READ_ROLES,
 } from '../auth.js';
-import { enforceRateLimit } from '../lib/rateLimit.js';
+import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
 
 const router = Router();
 
@@ -404,7 +404,7 @@ router.post('/submit', async (req, res, next) => {
         sanitize(body.pic_name || '', 100),
         sanitize(body.pic_phone || '', 20),
         fingerprint,
-        String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || '',
+        clientIp(req),
         sanitize(req.headers['user-agent'] || '', 500),
         'submitted',
         new Date().toISOString(),

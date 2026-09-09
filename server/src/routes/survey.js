@@ -20,7 +20,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { requireRole, logActivity } from '../auth.js';
-import { enforceRateLimit } from '../lib/rateLimit.js';
+import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
 
 const router = Router();
 
@@ -144,7 +144,7 @@ router.post('/submit', async (req, res, next) => {
         sanitize(body.eo_comment || '', 1000),
         sanitize(body.general_comment || '', 1000),
         fingerprint,
-        String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || '',
+        clientIp(req),
         sanitize(req.headers['user-agent'] || '', 500),
       ],
     );

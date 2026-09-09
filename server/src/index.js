@@ -47,8 +47,10 @@ import extraRouter from './routes/extra.js';
 const app = express();
 app.disable('x-powered-by');
 
-// Trust proxy wajib supaya req.ip / x-forwarded-for benar di belakang nginx.
-app.set('trust proxy', true);
+// Trust proxy SEMPIT: hanya 1 hop tepercaya (nginx container, 172.19.0.0/16)
+// + loopback. 'true' (percaya semua) membuat req.ip = XFF[0] palsu kiriman
+// klien — sumber spoof rate-limit (audit 2026-09-09).
+app.set('trust proxy', ['loopback', '172.19.0.0/16']);
 
 app.use(cors({
   origin(origin, cb) {
@@ -60,7 +62,9 @@ app.use(cors({
       .map((s) => s.trim())
       .filter(Boolean);
     if (!origin || allowed.includes(origin)) return cb(null, true);
-    return cb(new Error('Origin tidak diizinkan'));
+    const err = new Error('Origin tidak diizinkan');
+    err.status = 403;
+    return cb(err);
   },
   credentials: true,
 }));

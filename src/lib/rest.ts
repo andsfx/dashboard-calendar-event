@@ -16,15 +16,23 @@ const ACCESS_TOKEN_COOKIE = 'sb-access-token';
 const API_V1_BASE = ((import.meta.env.VITE_API_URL as string | undefined) || '')
   .replace(/\/+$/, '') + '/api/v1';
 
+/** URL absolut ke REST — untuk kebutuhan non-JSON (download blob/CSV). */
+export function apiUrl(path: string): string {
+  return `${API_V1_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 /** Error terstruktur dari REST — pengganti SupabaseApiError (message + code opsional). */
 export class ApiError extends Error {
   /** HTTP status, atau kode error aplikasi bila server mengirimnya. */
   readonly code?: string;
+  /** Flag aplikasi dari body error (mis. already_submitted saat 409). */
+  readonly payload?: Record<string, unknown>;
 
-  constructor(message: string, code?: string) {
+  constructor(message: string, code?: string, payload?: Record<string, unknown>) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
+    this.payload = payload;
   }
 }
 
@@ -70,22 +78,29 @@ async function request<T>(
   if (!response.ok) {
     let message: string | null = null;
     let code: string | undefined;
+    let payload: Record<string, unknown> | undefined;
     try {
       const parsed = (await response.json()) as {
         error?: unknown;
         message?: unknown;
         code?: unknown;
-      };
+        already_submitted?: unknown;
+        errors?: unknown;
+      } & Record<string, unknown>;
       if (typeof parsed.error === 'string' && parsed.error) message = parsed.error;
       else if (typeof parsed.message === 'string' && parsed.message) message = parsed.message;
       if (typeof parsed.code === 'string') code = parsed.code;
       else if (typeof parsed.code === 'number') code = String(parsed.code);
+      // Flag aplikasi (already_submitted, errors) diteruskan agar pemanggil
+      // bisa bedakan 409-duplikat vs 400-validasi tanpa baca body manual.
+      const { error: _e, message: _m, code: _c, success: _s, ...rest } = parsed;
+      if (Object.keys(rest).length > 0) payload = rest;
     } catch {
       // body bukan JSON — pakai fallback
     }
     const fallback =
       options.errorMessageFallback?.(response.status) ?? `Permintaan gagal (HTTP ${response.status})`;
-    throw new ApiError(message ?? fallback, code ?? String(response.status));
+    throw new ApiError(message ?? fallback, code ?? String(response.status), payload);
   }
 
   return (await response.json()) as T;

@@ -20,6 +20,7 @@
  */
 import { SignJWT, jwtVerify } from 'jose';
 import { db } from './db.js';
+import { clientIp } from './lib/rateLimit.js';
 
 export const ACCESS_TOKEN_TTL = 60 * 60;          // 1 jam
 const REFRESH_TOKEN_TTL = 60 * 60 * 24 * 30;      // 30 hari
@@ -221,10 +222,8 @@ export function stripPii(row, fields = ['pic', 'phone', 'pic_name', 'pic_phone',
  */
 export async function logActivity(user, action, resourceType, resourceId, details, req) {
   try {
-    const ip = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim()
-      || req?.headers?.['x-real-ip']
-      || req?.socket?.remoteAddress
-      || '';
+    // IP via clientIp bersama (X-Real-IP hasil real_ip nginx; XFF mentah diabaikan).
+    const ip = clientIp(req || {});
     await db.query(
       `INSERT INTO activity_logs (user_id, user_email, action, resource_type, resource_id, details, ip_address)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,

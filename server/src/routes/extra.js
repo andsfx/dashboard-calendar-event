@@ -271,10 +271,9 @@ function directoryInstagram(raw) {
 }
 
 router.get('/directory', async (req, res) => {
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  // CORS via middleware cors() global — JANGAN set ACAO manual di sini.
   res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=240');
   if (!enforceRateLimit(req, res, 'community-directory', 60, 60_000)) return;
-
   try {
     const [orgsRes, eventsRes] = await Promise.all([
       db.query(
@@ -487,35 +486,8 @@ router.post('/sponsor-leads', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// SPONSOR EVENTS (GET /sponsor/events — publik, tanpa PII)
-// ═══════════════════════════════════════════════════════════════════
-
-// Shape baris: nested `event_proposals` (null bila tak ada) — mirror embedded
-// select legacy supabase; dipetakan mapProposalEvent di sponsorshipApi.ts.
-// Frontend tetap guard tanggal (Asia/Jakarta) — server pakai UTC CURRENT_DATE.
-router.get('/sponsor/events', async (req, res) => {
-  if (!enforceRateLimit(req, res, 'sponsor-events', 60, 60_000)) return;
-  try {
-    const { rows } = await db.query(
-      `SELECT e.id, e.date_str, e.acara, e.lokasi, e.jam, e.eo,
-              CASE WHEN ep.id IS NULL THEN NULL
-                   ELSE json_build_object(
-                     'id', ep.id, 'file_url', ep.file_url,
-                     'file_name', ep.file_name, 'mime_type', ep.mime_type)
-              END AS event_proposals
-       FROM events e
-       LEFT JOIN event_proposals ep ON ep.event_id = e.id
-       WHERE e.status = 'upcoming' AND e.date_str >= TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD')
-       ORDER BY e.date_str ASC
-       LIMIT 100`,
-    );
-    return res.json({ success: true, data: rows });
-  } catch (err) {
-    console.error('[sponsor/events] Database error:', err);
-    return res.status(500).json({ success: false, error: 'Gagal memuat event sponsor' });
-  }
-});
+// (Dihapus 2026-09-09: definisi duplikat GET /sponsor/events — Express hanya
+// memakai definisi pertama (:371). Satu sumber kebenaran di atas.)
 
 // ═══════════════════════════════════════════════════════════════════
 // USERS (superadmin-only)
@@ -524,13 +496,14 @@ router.get('/sponsor/events', async (req, res) => {
 const VALID_ROLES = ['admin', 'viewer', 'eo_tenant', 'tenant_relation'];
 const ALL_VALID_ROLES = ['superadmin', ...VALID_ROLES];
 
-// Guard exact-path (bukan prefix '/users' — path-to-regexp segment match
-// TIDAK mencakup '/users-invite' dsb. tanpa audit; lihat temuan audit
-// 2026-09-09: endpoint users-* sempat bisa diakses anonim).
+// Guard per-route eksplisit (audit 2026-09-09): router.use array rentan
+// order-dependent — route staff baru di atas baris ini lolos tanpa auth.
+// Tiap endpoint users-* membawa requireRole sendiri (defense-in-depth;
+// router.use di bawah dipertahankan sebagai jaring kedua).
 router.use(['/users', '/users-invite', '/users-create', '/users-update', '/users-delete'], requireRole(['superadmin']));
 
 // ─── GET /users ────────────────────────────────────────────────────
-router.get('/users', async (req, res, next) => {
+router.get('/users', requireRole(['superadmin']), async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `SELECT id, email, display_name, role, is_active, eo_organization, assigned_events,
@@ -544,7 +517,7 @@ router.get('/users', async (req, res, next) => {
 });
 
 // ─── POST /users-invite — undang (tanpa email infra: buat user pending) ──
-router.post('/users-invite', async (req, res, next) => {
+router.post('/users-invite', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const email = String(body.email || '').trim().toLowerCase();
   const role = String(body.role || '').trim();
@@ -579,7 +552,7 @@ router.post('/users-invite', async (req, res, next) => {
 });
 
 // ─── POST /users-create — buat manual (bcrypt) ─────────────────────
-router.post('/users-create', async (req, res, next) => {
+router.post('/users-create', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const email = String(body.email || '').trim().toLowerCase();
   const password = String(body.password || '');
@@ -615,7 +588,7 @@ router.post('/users-create', async (req, res, next) => {
 });
 
 // ─── POST /users-update ────────────────────────────────────────────
-router.post('/users-update', async (req, res, next) => {
+router.post('/users-update', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const userId = String(body.user_id || '').trim();
   if (!userId) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
@@ -660,7 +633,7 @@ router.post('/users-update', async (req, res, next) => {
 });
 
 // ─── POST /users-delete — nonaktifkan (soft delete) ────────────────
-router.post('/users-delete', async (req, res, next) => {
+router.post('/users-delete', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const userId = String(body.user_id || '').trim();
   if (!userId) return res.status(400).json({ success: false, error: 'ID pengguna wajib diisi.' });
@@ -955,7 +928,8 @@ router.get('/event-og', async (req, res) => {
   let fetchFailed = false;
   try {
     const { rows } = await db.query(
-      `SELECT * FROM events WHERE id = $1 AND status <> 'draft' LIMIT 1`,
+      `SELECT id, acara, date_str, date_end, jam, lokasi, eo, poster_url
+         FROM events WHERE id = $1 AND status <> 'draft' LIMIT 1`,
       [id],
     );
     event = rows[0] || null;
