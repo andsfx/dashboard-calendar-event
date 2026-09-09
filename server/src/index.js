@@ -52,12 +52,14 @@ app.set('trust proxy', true);
 
 app.use(cors({
   origin(origin, cb) {
+    // Whitelist strict (CORS_ORIGIN, exact-match). Tanpa konfigurasi →
+    // default-deny untuk request lintas origin ber-browser; same-origin
+    // (dev server proxy / VPS nginx) tidak lewat CORS dan tak terdampak.
     const allowed = String(process.env.CORS_ORIGIN || '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
-    // Tanpa konfigurasi → izinkan semua (dev); dengan konfigurasi → whitelist.
-    if (allowed.length === 0 || !origin || allowed.includes(origin)) return cb(null, true);
+    if (!origin || allowed.includes(origin)) return cb(null, true);
     return cb(new Error('Origin tidak diizinkan'));
   },
   credentials: true,
