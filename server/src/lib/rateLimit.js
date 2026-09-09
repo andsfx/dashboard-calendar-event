@@ -14,11 +14,12 @@ export function clientIp(req) {
   // dimurnikan real_ip via X-Real-IP. XFF mentah diabaikan — kiriman klien
   // bisa berisi "1.2.3.4" palsu di indeks 0. Fallback req.ip (trust proxy
   // hop tepercaya) lalu socket. Satu helper untuk rate-limit + kolom IP.
-  const real = String(req.headers['x-real-ip'] || '').trim();
+  // Null-safe: logActivity memanggil dengan req opsional (req || {}).
+  const real = String(req?.headers?.['x-real-ip'] || '').trim();
   if (real) return real;
-  const fwd = String(req.ip || '').trim();
+  const fwd = String(req?.ip || '').trim();
   if (fwd && fwd !== 'unknown') return fwd;
-  return req.socket?.remoteAddress || 'unknown';
+  return req?.socket?.remoteAddress || 'unknown';
 }
 
 /**
