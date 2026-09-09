@@ -44,22 +44,17 @@ export function normalizeCategories(value?: string[] | string | null, fallbackCa
 }
 
 export async function adminAction<T>(action: string, payload: Record<string, unknown>): Promise<T> {
-  try {
-    // POST /admin/{action} — body mempertahankan bentuk { action, ...payload }
-    // agar server-side zod (server/src/lib/schemas.js ACTION_SCHEMAS) tetap cocok.
-    // apiPost mengirim credentials: include + Authorization Bearer bila cookie
-    // sb-access-token terbaca JS (produksi HttpOnly → cookie saja), dan
-    // mengembalikan body JSON flat ({ success, ... }).
-    return await apiPost<T>(`/admin/${encodeURIComponent(action)}`, { action, ...payload }, {
-      // Paritas pesan dengan adminAction lama (lihat adminAction.test.ts).
-      errorMessageFallback: (status) => `Gagal memuat data admin (HTTP ${status})`,
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
-      throw new ApiError(err.message ?? `Gagal memuat data admin (HTTP ${err.code})`);
-    }
-    throw err;
-  }
+  // POST /admin/{action} — body mempertahankan bentuk { action, ...payload }
+  // agar server-side zod (server/src/lib/schemas.js ACTION_SCHEMAS) tetap cocok.
+  // apiPost mengirim credentials: include + Authorization Bearer bila cookie
+  // sb-access-token terbaca JS (produksi HttpOnly → cookie saja), dan
+  // mengembalikan body JSON flat ({ success, ... }).
+  // ApiError dilempar apa adanya (code/payload utuh; fallback pesan via
+  // errorMessageFallback di bawah) — JANGAN bungkus ulang (mengupas code).
+  return await apiPost<T>(`/admin/${encodeURIComponent(action)}`, { action, ...payload }, {
+    // Paritas pesan dengan adminAction lama (lihat adminAction.test.ts).
+    errorMessageFallback: (status) => `Gagal memuat data admin (HTTP ${status})`,
+  });
 }
 
 // ─── DB row → App type mappers ───────────────────────────────────

@@ -67,7 +67,7 @@ Letter Generator adalah fitur WYSIWYG untuk membuat surat konfirmasi event secar
 
 ```typescript
 // Dari API layer (REST barrel)
-import { fetchGeneratedLetters } from './utils/supabaseApi';
+import { fetchGeneratedLetters } from './utils/domainApi';
 
 const letters = await fetchGeneratedLetters();
 // letters berisi array dari GeneratedLetter
@@ -115,7 +115,7 @@ src/
 │       └── Editable.tsx             # Editable components
 ├── utils/
 │   ├── letterPdfExport.tsx          # PDF generation utilities
-│   └── supabaseApi.ts               # CRUD via adminAction (listLetters/createLetter/dst.)
+│   └── domainApi.ts                 # CRUD via adminAction (listLetters/createLetter/dst.)
 └── App.tsx                          # Integration & routing
 
 migrate/
