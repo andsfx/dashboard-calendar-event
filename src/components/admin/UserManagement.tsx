@@ -50,13 +50,25 @@ export function UserManagement() {
     }
   }, []);
 
+  // Ambil daftar user saat mount (dulu absen — spinner berputar selamanya).
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
   const handleToggleActive = useCallback(async (userId: string, currentActive: boolean) => {
+    const target = users.find(u => u.id === userId);
+    const ok = await confirm({
+      title: currentActive ? 'Nonaktifkan user ini?' : 'Aktifkan user ini?',
+      message: currentActive ? 'User tidak akan bisa login sampai diaktifkan kembali.' : 'User akan bisa login kembali.',
+      subject: target?.display_name || target?.email,
+      confirmLabel: currentActive ? 'Nonaktifkan' : 'Aktifkan',
+    });
+    if (!ok) return;
     const result = await apiPost<{ success: boolean; error?: string }>('/users-update', {
       user_id: userId,
       is_active: !currentActive,
     });
     if (result.success) fetchUsers();
-  }, [fetchUsers]);
+    else setError(result.error || 'Gagal memperbarui status user');
+  }, [confirm, fetchUsers, users]);
   const handleDelete = useCallback(async (userId: string) => {
     const ok = await confirm({
       title: 'Nonaktifkan user ini?',
@@ -191,19 +203,15 @@ export function UserManagement() {
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    {u.email}
-                    {u.eo_organization && ` · ${u.eo_organization}`}
-                    {u.last_login_at && ` · Login: ${new Date(u.last_login_at).toLocaleDateString('id-ID')}`}
-                  </p>
                 </div>
-                {/* Actions */}
                 {u.role !== 'superadmin' && (
                   <div className="flex shrink-0 items-center gap-1">
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}
                       className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                      aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${u.display_name || u.email}`}
+                      aria-pressed={u.is_active}
                     >
                       {u.is_active ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
                     </button>
