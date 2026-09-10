@@ -43,12 +43,13 @@ export function useEvents(options?: { realtime?: boolean }) {
     }
   }, []);
 
-  // Load from Supabase
+  // Load from REST API (VPS)
   useEffect(() => {
     refreshEvents();
   }, [refreshEvents]);
 
-  // Opsi B: polling debounced — ganti channel Supabase Realtime.
+  // Opsi B: polling debounced — pengganti channel Realtime (realtime dihapus
+  // bersama supabase-js).
   // Polling 30s memanggil scheduleRefresh yang sama (debounce 400ms
   // mengkoaleskan burst perubahan, full re-fetch alih-alih row-level patch).
   // silent: true agar skeleton tidak berkedip + scroll/filter tidak reset;

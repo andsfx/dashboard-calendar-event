@@ -1,6 +1,10 @@
 /**
  * photos-to-r2.mjs — Pindahkan media legacy dari Supabase Storage ke R2 Cloudflare.
  *
+ * ⚠️  SEKALI-PAKAI — SUDAH DIJALANKAN (2026-09-08; 4 URL legacy ter-rewrite via
+ *     seed/photo-url-map.json). Jangan jalankan lagi kecuali ada media baru yang
+ *     masih menunjuk *.supabase.co.
+ *
  * Alur (WAJIB dump-prod dulu):
  *   1. Baca seed/*.json (hasil dump-prod --run).
  *   2. Kumpulkan URL media lama per kolom (MEDIA_COLUMNS di _shared.mjs):

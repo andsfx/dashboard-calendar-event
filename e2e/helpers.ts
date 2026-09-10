@@ -306,7 +306,7 @@ export async function mockAdminAuth(page: Page) {
  * Mock dasar backend REST untuk dashboard tests.
  * Envelope: { success, data }. Router per path persis server/src/routes/*.
  */
-export async function setupSupabaseMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
+export async function setupApiMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
   await mockAuth(page, role);
 
   // Events (public + admin — DbEvent shape, tanpa PII utk public)

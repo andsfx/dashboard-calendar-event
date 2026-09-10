@@ -30,7 +30,7 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Options (enum source of truth FE) | `src/constants/survey-options.ts` |
 | FE validate | `src/utils/validation.ts` → `validateTenantSurvey` |
 | Fingerprint public | `src/utils/fingerprint.ts` |
-| API client | `src/utils/supabaseApi.ts` (tenant survey block; barrel legacy-name, isi REST) |
+| API client | `src/utils/api/surveysApi.ts` (tenant survey block) + `src/utils/domainApi.ts` barrel — REST `/api/v1` |
 | Hooks | `src/hooks/useTenantSurveys.ts` |
 | Types | `src/types.ts` (`TenantSurvey*`, `TenantEventSurvey`, …), `src/types/auth.ts` (`tenant_relation`) |
 | Backend | `server/src/routes/tenant.js` (legacy `api/tenant-survey.js` = MATI) |

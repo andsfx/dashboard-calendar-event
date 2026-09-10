@@ -361,7 +361,7 @@ export interface TenantSurveyRatings {
   overall_rating?: number | null;
 }
 
-/** Full survey record as stored in Supabase */
+/** Full survey record as stored in VPS Postgres (tabel tenant_event_surveys) */
 export interface TenantEventSurvey extends TenantSurveyRatings {
   id: string;
   event_id: string;

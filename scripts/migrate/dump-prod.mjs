@@ -1,6 +1,12 @@
 /**
  * dump-prod.mjs — Dump 20 tabel inti dari Supabase prod ke scripts/migrate/seed/*.json.
  *
+ * ⚠️  SEKALI-PAKAI — SUDAH DIJALANKAN (2026-09-08, 811 baris ter-seed ke VPS).
+ *     Migrasi selesai + audit parity 20/20 (2026-09-10). Jangan jalankan lagi.
+ *     Prasyaratnya (`SUPABASE_ACCESS_TOKEN` PAT di `.env.supabase`) sudah DIHAPUS
+ *     dari repo lokal sebagai bagian dari penutupan Supabase; skrip akan gagal
+ *     preflight bila dijalankan tanpa mengisi ulang token itu.
+ *
  * Sumber: Management API  POST https://api.supabase.com/v1/projects/<ref>/database/query
  * (butuh SUPABASE_ACCESS_TOKEN PAT `sbp_...` di .env.supabase — gitignored).
  * SELECT * read-only terhadap PROD. TIDAK ada --run → DRY-RUN (hanya validasi env,

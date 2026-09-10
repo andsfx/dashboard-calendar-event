@@ -159,7 +159,7 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
     refreshAnalytics();
   }, [refreshAnalytics]);
 
-  // Opsi B: polling 60s — ganti channel Supabase Realtime (analytics selalu poll).
+  // Opsi B: polling 60s — pengganti channel Realtime (analytics selalu poll).
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (document.visibilityState === 'hidden') return;

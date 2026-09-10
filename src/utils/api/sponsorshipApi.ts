@@ -113,8 +113,9 @@ export async function setEventProposal(eventId: string, file: File): Promise<voi
 }
 
 export async function deleteEventProposal(eventId: string): Promise<void> {
-  // m-2 (audit): hapus file R2 ditangani server (deleteEventProposal di supabase-admin.js:
-  // hapus R2 dulu dengan kepastian, baru row DB) — client tidak memanggil deleteFromR2 lagi.
+  // m-2 (audit): hapus file R2 ditangani server (`server/src/routes/admin.js`
+  // case deleteEventProposal — hapus R2 dulu dengan kepastian, baru row DB);
+  // client tidak memanggil deleteFromR2 lagi.
   const result = await adminAction<{ success: boolean; error?: string }>('deleteEventProposal', { eventId });
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus proposal event');
 }

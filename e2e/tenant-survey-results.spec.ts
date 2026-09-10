@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupSurveyApiMocks, setupSupabaseMocks, mockAuth, MOCK_SURVEY_V3 } from './helpers';
+import { setupSurveyApiMocks, setupApiMocks, mockAuth, MOCK_SURVEY_V3 } from './helpers';
 
 test.describe('Tenant Survey Results — public + TR', () => {
   test('public guest can open results without login', async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe('Tenant Survey Results — public + TR', () => {
 
   test('tenant_relation still lands on results when opening dashboard', async ({ page }) => {
     await mockAuth(page, 'tenant_relation');
-    await setupSupabaseMocks(page, 'tenant_relation');
+    await setupApiMocks(page, 'tenant_relation');
     await setupSurveyApiMocks(page);
 
     await page.goto('/dashboard/users');
@@ -76,7 +76,7 @@ test.describe('Tenant Survey Results — public + TR', () => {
 
   test('admin can export PDF on public page', async ({ page }) => {
     await mockAuth(page, 'admin');
-    await setupSupabaseMocks(page, 'admin');
+    await setupApiMocks(page, 'admin');
     await setupSurveyApiMocks(page);
 
     await page.goto('/tenant-survey-results');

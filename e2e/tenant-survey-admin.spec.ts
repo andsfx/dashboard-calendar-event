@@ -1,15 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { setupSurveyApiMocks, setupSupabaseMocks, mockAdminAuth, mockAuth, MOCK_EVENT, MOCK_SURVEY_V3 } from './helpers';
+import { setupSurveyApiMocks, setupApiMocks, mockAdminAuth, mockAuth, MOCK_EVENT, MOCK_SURVEY_V3 } from './helpers';
 
 test.describe('Tenant Survey — Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await mockAdminAuth(page);
-    await setupSupabaseMocks(page);
+    await setupApiMocks(page);
   });
 
   test('viewer unauthorized route redirects to allowed dashboard page', async ({ page }) => {
     await mockAuth(page, 'viewer');
-    await setupSupabaseMocks(page, 'viewer');
+    await setupApiMocks(page, 'viewer');
     await page.goto('/dashboard/drafts');
     await page.waitForLoadState('networkidle');
 
@@ -19,7 +19,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
 
   test('eo tenant unauthorized route redirects to tenant surveys', async ({ page }) => {
     await mockAuth(page, 'eo_tenant');
-    await setupSupabaseMocks(page, 'eo_tenant');
+    await setupApiMocks(page, 'eo_tenant');
     await setupSurveyApiMocks(page);
     await page.goto('/dashboard/users');
     await page.waitForLoadState('networkidle');

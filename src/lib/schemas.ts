@@ -12,7 +12,7 @@ const dayTimeSlotSchema = z.object({
   jam: z.string(),
 });
 
-// ponytail: DB row schema — only fields we actually read from Supabase.
+// ponytail: DB row schema — only fields we actually read from Postgres (VPS).
 // Add fields here when new DB columns are introduced.
 export const dbEventSchema = z.object({
   id: z.string(),
@@ -75,7 +75,7 @@ export const createEventSchema = z.object({
     recurrence_group_id: z.string().optional(),
     is_recurring: z.boolean().optional(),
     poster_url: z.string().nullable().optional(),
-  }).passthrough(), // allow extra fields Supabase might add
+  }).passthrough(), // allow extra fields Postgres might add
 });
 
 export const updateEventSchema = z.object({

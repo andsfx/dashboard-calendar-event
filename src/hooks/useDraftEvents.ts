@@ -43,7 +43,8 @@ export function useDraftEvents(enabled = false) {
     refreshDrafts();
   }, [enabled, refreshDrafts]);
 
-  // Opsi B: polling 60s — ganti channel Supabase Realtime.
+  // Opsi B: polling 60s — pengganti channel Realtime (realtime dihapus
+  // bersama supabase-js).
   // Auto-refresh on draft changes via interval (enabled hanya saat mount).
   useEffect(() => {
     if (!enabled) return;

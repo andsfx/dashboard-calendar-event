@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Event-ops dashboard + public marketing site for **Metropolitan Mall Bekasi** (single mall, Indonesian UI copy). Remote: `github.com/andsfx/dashboard-calendar-event`. React 19 + TypeScript + Vite + Tailwind v4 SPA. **Opsi B (ADR 005, sejak 2026-09-08): Supabase ditinggalkan total** — SPA di Vercel (`www.metmalcommunityspace.web.id`) memanggil REST API Express/Postgres di VPS Tailscale/Caddy `metmal.andotherstori.my.id` (stack `server/` + `deploy/vps/`); media tetap Cloudflare R2. Supabase project = paused. `api/*.js` Vercel lama = legacy mati (belum dihapus). Respond to Andy in Indonesian by default; terse status updates with exact paths, commands, errors.
+Event-ops dashboard + public marketing site for **Metropolitan Mall Bekasi** (single mall, Indonesian UI copy). Remote: `github.com/andsfx/dashboard-calendar-event`. React 19 + TypeScript + Vite + Tailwind v4 SPA. **Opsi B (ADR 005, sejak 2026-09-08): Supabase ditinggalkan total** — SPA di Vercel (`www.metmalcommunityspace.web.id`) memanggil REST API Express/Postgres di VPS Tailscale/Caddy `metmal.andotherstori.my.id` (stack `server/` + `deploy/vps/`); media tetap Cloudflare R2. Supabase project = paused; `api/*.js` Vercel lama sudah dihapus tuntas (commit `a60dd8d`). Respond to Andy in Indonesian by default; terse status updates with exact paths, commands, errors.
 
 ## Architecture & Data Flow
 
@@ -76,6 +76,6 @@ Env vars — client: `VITE_API_URL` (**required di produksi**, tidak dipakai lok
 
 ## Testing & QA
 
-- **Unit (vitest)**: jsdom + globals, setup `src/test/setup.ts` (mocks `matchMedia`, `IntersectionObserver`); 63 file / 446 test hijau setelah migrasi (fetch-REST mocks; `api/__tests__/` legacy supabase tidak masuk suite utama tapi vitest-runnable). Mock REST di global fetch per-URL, jangan spin server sungguhan.
-- **E2E (Playwright)**: `testDir e2e/`, chromium, `baseURL http://localhost:5173`, webServer auto-starts Vite. `helpers.ts` era-Supabase (inject localStorage auth token + Mock Supabase REST) **belum di-update ke model cookie/REST Opsi B** — specs `tenant-survey-*`/`replay` mungkin pecah; e2e tetap utility dok, bukan CI gate. `deck-assets` (regenerate screenshot ke `presentasi/assets/`) juga di-freeze binding ke Supabase-URL-tidak-ada — sedang di-freeze.
+- **Unit (vitest)**: jsdom + globals, setup `src/test/setup.ts` (mocks `matchMedia`, `IntersectionObserver`); 61 file / 420 test hijau (verifikasi audit 2026-09-10; fetch-REST mocks — `api/__tests__/` legacy ikut terhapus saat `api/` dihilangkan). Mock REST di global fetch per-URL, jangan spin server sungguhan.
+- **E2E (Playwright)**: `testDir e2e/`, chromium, `baseURL http://localhost:5173`, webServer auto-starts Vite. `helpers.ts` sudah Opsi B (mock cookie JWT + REST `/api/v1`, one-handler dispatch — jangan regresi ke Supabase-era localStorage injection); e2e tetap utility dok, bukan CI gate. `deck-assets` (regenerate screenshot ke `presentasi/assets/`) juga di-freeze binding ke Supabase-URL-tidak-ada — sedang di-freeze.
 - Known quirks: Windows flaky vitest exit codes are environmental, not regressions; e2e last run green pramigration (`test-results/.last-run.json` dari lama). Coverage configured, ungated.
