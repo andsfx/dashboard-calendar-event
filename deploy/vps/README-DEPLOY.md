@@ -1,15 +1,22 @@
-# Schedule Event V2 — Deploy VPS (Opsi B: Supabase → Postgres mandiri)
+# Schedule Event V2 — Deploy VPS (Opsi B: lepas Supabase → Postgres mandiri)
 
 Dokumen operasional singkat. Prasyarat: repo ini di VPS (Linux, Docker Engine +
 Compose plugin), domain sudah menunjuk ke IP VPS.
 
-## Arsitektur
+**Status 2026-09-10:** live di `metmal.andotherstori.my.id` (SPA di Vercel
+`www.metmalcommunityspace.web.id`). Supabase project INACTIVE, dibiarkan
+auto-delete; VPS = source of truth.
+
+## Arsitektur (aktual)
 
 ```
-Internet ──> nginx (80/443, static SPA dist/ + proxy) ──> api (node:20-alpine,
-             server/src/index.js, :3001) ──> postgres:16 (volume pgdata)
+Cloudflare ──> Caddy host (:80/:443, ACME HTTP-01) ──> nginx container
+              (bind 127.0.0.1:8080) ──> api (node:20-alpine, :3001) ──> postgres:16
 ```
 
+- **TLS + ingress dipegang Caddy di host**, bukan nginx container. nginx HANYA
+  bind `127.0.0.1:8080` (lihat komentar di `docker-compose.yml`) — jangan
+  kembalikan ke `80:80`/`443:443` tanpa memindahkan TLS (konflik bind).
 - Media **tetap di Cloudflare R2** — backend hanya membuat URL presign (S3 SDK),
   tidak ada volume media di VPS.
 - `api` = bind-mount repo (read-only) + `node_modules` volume; `npm ci
@@ -23,9 +30,10 @@ Internet ──> nginx (80/443, static SPA dist/ + proxy) ──> api (node:20-a
 `vm-2-245-ubuntu` (100.69.24.32) via Tailscale, SSH root OK. Ubuntu 24.04,
 Docker 29 + Compose v2, Node 22, nginx 1.24. **Shared box**: venue-prod-app:3000,
 caddy, 4x cloudflared, hindsight-api:8888 sudah jalan; RAM available ~1.0Gi,
-disk 20G free; port 80/443 bebas. Postgres NATIVE sudah LISTEN 127.0.0.1:5432
-(jangan bentrok — compose TIDAK map port host). VPS kedua `tencent-sg-kw2d`
-(100.93.220.0) tidak terjangkau SSH — abaikan.
+disk 20G free. **Port 80/443 DIPEGANG Caddy host** (ACME + ingress) → compose
+nginx HANYA bind `127.0.0.1:8080`; blok Caddy di host mem-proxy ke situ. Postgres
+NATIVE sudah LISTEN 127.0.0.1:5432 (jangan bentrok — compose TIDAK map port host).
+VPS kedua `tencent-sg-kw2d` (100.93.220.0) tidak terjangkau SSH — abaikan.
 
 ### 2. Docker (sudah ada — lewati bila versi cocok)
 Docker 29 + Compose v2.38 sudah terpasang di target. Bila VPS lain:
@@ -42,14 +50,24 @@ cp .env.example .env
 nano .env        # isi DATABASE_URL, JWT_SECRET, R2_* (lihat komentar di file)
 ```
 
+> **Produksi wajib** (SPA Vercel cross-site → API domain lain):
+> `COOKIE_SAMESITE=none` (cookie harus dikirim lintas situs; tanpa ini login
+> gagal senyap), `CORS_ORIGIN=https://www.metmalcommunityspace.web.id`
+> (whitelist origin; origin lain → 403), dan `COOKIE_DOMAIN` hanya bila cookie
+> perlu lintas-subdomain. `JWT_SECRET` + `POSTGRES_PASSWORD` dari
+> `openssl rand -hex 32`.
+
 ### 4. Build frontend (dist/)
 ```bash
 cd ../..
 npm ci
 npm run build   # menghasilkan dist/ yang di-mount nginx
 ```
-> `VITE_API_URL` dibaca saat build; KOSONGKAN untuk satu origin (nginx mem-proxy
-> `/api/v1` ke backend; rest.ts menambahkan suffix sendiri, jangan isi `/api/v1`).
+> `VITE_API_URL` di-inline Vite saat build. **Produksi:** SPA dibangun di Vercel
+> dengan `VITE_API_URL=https://metmal.andotherstori.my.id` (set di env Vercel).
+> **Satu origin** (SPA + API di host yang sama, mis. stack ini tanpa Vercel)
+> atau lokal: biarkan KOSONG — reverse proxy sudah meneruskan `/api/v1`.
+> Jangan sertakan suffix `/api/v1`; `rest.ts` menambahkannya sendiri.
 
 ### 5. Jalankan stack
 ```bash
@@ -58,67 +76,70 @@ docker compose up -d          # pertama kali: postgres → api (npm ci) → ngin
 docker compose ps             # semua healthy/running
 ```
 
-### 6. Seed database
-Muat data prod (seed/*.json) ke Postgres container via script seed (idempoten, FK-safe).
-Jalankan dengan `docker compose exec` — TIDAK ada mapping port host (Postgres
-native VPS sudah LISTEN di 127.0.0.1:5432, konflik bila dipetakan):
+### 6. Seed database — ✅ SUDAH DIJALANKAN (2026-09-08, 811 baris; parity 20/20 terverifikasi 2026-09-10)
+Langkah ini **hanya riwayat** — jangan dijalankan lagi kecuali membangun VPS baru
+dari nol. Skripnya idempoten (`ON CONFLICT DO NOTHING`), jadi aman diulang bila
+memang perlu, tapi `scripts/migrate/dump-prod.mjs` butuh PAT Supabase yang sudah
+dihapus (lihat banner di file itu).
+
 ```bash
-# Salin script + seed ke container sekali (atau bind-mount bila sudah diatur):
 docker compose exec -T postgres psql -U metmal -d metmal -c "select 1"  # cek hidup
-# Cara A — seed dari host via socket exec (DATABASE_URL menunjuk service internal):
 docker compose exec -e DATABASE_URL="postgres://metmal:PASSWORD@postgres:5432/metmal" \
   api node scripts/migrate/seed-vps.mjs --apply
-# Cara B — psql langsung dari container postgres (file dump tersedia di sana):
-# docker compose exec postgres psql -U metmal -d metmal -f /docker-entrypoint-initdb.d/dump.sql
 ```
 Verifikasi cepat: `curl -s localhost/api/v1/events | head`.
 
-### 6b. Akun admin (wajib — seed tidak membawa password)
-`users` prod tidak punya `password_hash`, jadi pasca-seed TIDAK ADA yang bisa
-login (401). Buat superadmin baru, lalu reset password 4 akun legacy:
+### 6b. Akun admin — ✅ SUDAH DIJALANKAN (2026-09-08: 4 akun berfungsi login)
+Riwayat langkah (ulangi hanya untuk akun baru / reset password). **Password
+selalu lewat env, JANGAN argv** — argv bocor ke shell history + `ps`:
 ```bash
-# Superadmin baru (atau gunakan email sendiri):
-docker compose exec api node server/scripts/create-admin.mjs admin@domain.com 'Ganti-Password-Kuat-Min-8' 'Admin Utama'
-# Reset password akun legacy (role tetap: superadmin/admin):
-docker compose exec api node server/scripts/create-admin.mjs andotherstori@gmail.com 'Password-Baru-Kuat' --reset
-docker compose exec api node server/scripts/create-admin.mjs sindisari435@gmail.com 'Password-Baru-Kuat' --reset
-# Uji login pertama (harus 200 + cookie sb-access-token):
-curl -s -X POST localhost/api/v1/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"admin@domain.com","password":"Ganti-Password-Kuat-Min-8"}' | head -c 300
+# Superadmin baru (arg ke-2 = password lama, kosongkan; password dari env):
+ADMIN_PASSWORD='Ganti-Password-Kuat-Min-8' docker compose exec -e ADMIN_PASSWORD \
+  api node server/scripts/create-admin.mjs admin@domain.com '' 'Admin Utama'
+# Reset password akun legacy (role tetap; password lama diganti):
+ADMIN_PASSWORD='Password-Baru-Kuat' docker compose exec -e ADMIN_PASSWORD \
+  api node server/scripts/create-admin.mjs andotherstori@gmail.com '' --reset
 ```
+Uji login (harus 200 + cookie `sb-access-token`):
 ```bash
-curl -I http://<IP_VPS>/                      # 200 index.html, header cache
-curl -s http://<IP_VPS>/api/v1/events | head  # JSON {success,data}
-curl -s http://<IP_VPS>/events/<id> | head    # meta og:title event (OG inject)
+curl -s -X POST https://metmal.andotherstori.my.id/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@domain.com","password":"Ganti-Password-Kuat-Min-8"}' | head -c 200
 ```
+Cek cepat publik/OG:
+```bash
+curl -I https://metmal.andotherstori.my.id/                      # 200 index.html
+curl -s https://metmal.andotherstori.my.id/api/v1/events | head -c 200  # JSON {success,data}
+curl -s https://metmal.andotherstori.my.id/events/<id> | grep -o 'og:title[^>]*'
+```
+(nginx container hanya bind `127.0.0.1:8080` — dari host pakai
+`curl -I http://127.0.0.1:8080/`, dari luar lewat Caddy/domain.)
 
-### 8. TLS dengan certbot
-```bash
-cd deploy/vps
-mkdir -p certbot/conf certbot/www
-# Certbot dijalankan via image terpisah (bukan service compose):
-docker run --rm -v "$PWD/certbot/conf:/etc/letsencrypt" \
-  -v "$PWD/certbot/www:/var/www/certbot" \
-  certbot/certbot certonly --webroot -w /var/www/certbot \
-  -d DOMAIN --email admin@DOMAIN --agree-tos --no-eff-email
-```
-Lalu ikuti instruksi di bagian komentar bawah `nginx.conf` (aktifkan bind-mount
-`certbot/`, blok `listen 443 ssl`, redirect 80 → 443) dan
-`docker compose restart nginx`.
+### 8. TLS — sudah ditangani Caddy host (bukan certbot)
+Caddy di host memegang :80/:443 dengan **ACME HTTP-01** (tls-alpn-01 gagal di
+belakang Cloudflare → error 525, karena itu HTTP-01). Sertifikat dipegang Caddy;
+tidak ada certbot, tidak ada blok `listen 443 ssl` di `nginx.conf`.
 
-### 9. Perpanjang sertifikat otomatis
-Cron harian di host (bukan di container):
+Kalau perlu mengubah domain/upstream, edit Caddyfile host lalu:
 ```bash
-docker run --rm -v "$PWD/certbot/conf:/etc/letsencrypt" \
-  -v "$PWD/certbot/www:/var/www/certbot" certbot/certbot renew
+sudo systemctl reload caddy
 ```
+Blok `location` certbot di `nginx.conf` sudah tidak dipakai (dipertahankan hanya
+untuk referensi historis).
+
+### 9. Perpanjangan sertifikat
+Otomatis oleh Caddy (renewal ACME bawaan) — tidak ada cron certbot.
 
 ### 10. Verifikasi final
 ```bash
-curl -I https://DOMAIN/                        # 200, HSTS + cache header
-curl -s  https://DOMAIN/api/v1/events | head   # data via TLS
-docker compose ps                              # postgres healthy, api healthy
+curl -I https://metmal.andotherstori.my.id/          # 200, HSTS + cache header
+curl -s https://metmal.andotherstori.my.id/api/v1/events | head -c 200   # {success,data}
+curl -s https://metmal.andotherstori.my.id/events/<id> | grep -o 'og:title[^>]*'
+docker compose ps                                    # postgres + api healthy
 ```
+Catatan: `/healthz` TIDAK diproxy nginx (jatuh ke SPA fallback → HTML 200).
+Healthcheck nyata: healthcheck container (`/api/v1/events`) atau
+`docker inspect --format '{{.State.Health.Status}}' metmal-api`.
 
 ## Estimasi RAM (target: shared box ~1.0Gi available)
 
@@ -150,7 +171,7 @@ docker compose down -v              # ⚠️ HAPUS volume pgdata — data hilang
 | api crash saat boot | `docker compose logs api` — `DATABASE_URL`/`JWT_SECRET` wajib terisi |
 | 503 dari api | postgres belum healthy; seed belum jalan; `docker compose ps` |
 | 404 semua route SPA | `dist/` belum di-build (langkah 4) atau mount `../../dist` salah |
-| 429 login padahal wajar | limit nginx 10r/m per IP; naikkan `rate` di `nginx.conf` bila perlu |
+| 429 login padahal wajar | limit **backend** `enforceRateLimit` — 20 percobaan/15 mnt per IP (`server/src/routes/auth.js`); nginx sengaja TIDAK rate-limit agar 429 JSON Indonesia tetap konsisten |
 | Media rusak/404 | cek `R2_*` di `.env` + status bucket `metmal-gallery` (Cloudflare) |
 
 ## Keamanan singkat
@@ -160,4 +181,7 @@ docker compose down -v              # ⚠️ HAPUS volume pgdata — data hilang
   `docker compose exec` saja (Postgres native host di 127.0.0.1:5432 milik box,
   tidak tersentuh).
 - Update image rutin: `docker compose pull && docker compose up -d`.
-- Backup `pgdata` (mis. `pg_dump` terjadwal) — volume di VPS bukan replikasi.
+- Backup DB: `deploy/vps/backup.sh` (pg_dump gzip, rotasi 14, `gunzip -t` validasi)
+  lewat cron host 03:00 → `/opt/metmal/backups`. Restore:
+  `gunzip -c <file> | docker compose exec -T postgres psql -U metmal -d metmal`.
+  Volume `pgdata` bukan replikasi — backup tetap wajib.

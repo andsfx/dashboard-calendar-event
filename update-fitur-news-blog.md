@@ -1,7 +1,7 @@
 # Update Fitur: News / Blog (Berita) — Rencana Implementasi
 
-Status: RENCANA (belum dieksekusi) · Repo: schedule-event-v2 · 2026-08-26
-
+Status: **SELESAI** (live: `NewsIndexPage`/`NewsArticlePage` + `/news`, `/news/:slug`; write via `adminAction` di `server/src/routes/admin.js`, bukan `api/supabase-admin.js`) · Repo: schedule-event-v2 · 2026-08-26
+Catatan stack: rencana era-Supabase (RLS, `api/supabase-admin.js`). Final: tabel `news_articles` di `server/schema.sql`; write via `adminAction` di `server/src/routes/admin.js`; publik baca via `/api/v1/news*` (server-side filter `published`, bukan RLS).
 ## 1. Ringkasan
 
 Tambah fitur Berita (artikel) untuk Metropolitan Mall Bekasi:
@@ -230,7 +230,7 @@ function formatNewsDate(value?: string): string {
 
 ## 10. Catatan implementasi
 
-- `supabase_admin.js` handler sudah auth-gate `['superadmin', 'admin']` (L33) — tidak perlu ubah.
+- Handler admin sudah auth-gate `['superadmin', 'admin']` (`server/src/routes/admin.js` + `server/src/auth.js`) — tidak perlu ubah.
 - `deleteR2File` sudah ada (L17-29) — pakai ulang, tidak duplikat.
 - `thumbUrl` (src/utils/imageOptim.ts) untuk cover di kartu publik — pakai ulang.
-- Perintah: `npx supabase` tidak dipakai; migrasi dijalankan manual via Supabase SQL editor / psql sesuai pola repo (`migrate/`).
+- Migrasi DDL ditulis di `server/schema.sql` (pola repo; legacy `migrate/*.sql` sudah dihapus).

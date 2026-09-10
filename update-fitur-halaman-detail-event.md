@@ -1,6 +1,7 @@
 # Update Fitur: Halaman Detail Event Publik + OG Meta — Rencana Implementasi
 
-Status: RENCANA (dieksekusi bersamaan) · Repo: schedule-event-v2 · 2026-09-04
+Status: **SELESAI** (live: `EventPublicDetailPage` + route `/events/:id` + OG via VPS) · Repo: schedule-event-v2 · 2026-09-04
+Catatan: path `api/event-og.js` di dokumen ini = era Vercel; kini `/api/v1/event-og` di `server/src/routes/extra.js` + rewrite `vercel.json`.
 Sumber domain: `docs/SPEC.md` §3.6, §7.2 · Menindaklanjuti: diskusi fitur #1 (gap terbesar audit fitur)
 
 ## 1. Ringkasan

@@ -1,10 +1,15 @@
 /**
  * Buat / reset akun admin di VPS — jalankan manual via
- *   node server/scripts/create-admin.mjs <email> <password> [display_name] [--reset]
+ *   node server/scripts/create-admin.mjs <email> [password] [display_name] [--reset]
  *
- * Prod users TIDAK punya password_hash (auth via Supabase Auth). Di VPS,
- * login memakai bcrypt compare users.password_hash. Script ini:
- *   1. baca env (DATABASE_URL wajib; .env / .env.supabase / deploy/vps/.env)
+ * Password boleh lewat argv (arg ke-2) ATAU env `ADMIN_PASSWORD` — **produksi
+ * pakai env** (argv bocor ke shell history + `ps`):
+ *   ADMIN_PASSWORD='...' docker compose exec -e ADMIN_PASSWORD api \
+ *     node server/scripts/create-admin.mjs <email> '' --reset
+ *
+ * Prod users TIDAK punya password_hash (auth lama via Supabase Auth, sekarang
+ * bcrypt di VPS). Script ini:
+ *   1. baca env (DATABASE_URL wajib; .env / .env.local / deploy/vps/.env)
  *   2. bcrypt hash password (min 8 karakter)
  *   3. INSERT users (role superadmin, is_active true) — atau, dengan --reset,
  *      UPDATE password_hash user lama (mis. 4 akun legacy pasca-seed yang
@@ -31,7 +36,6 @@ function loadEnvIfMissing(path) {
     }
   } catch { /* tidak ada file — acuh */ }
 }
-loadEnvIfMissing(resolve(process.cwd(), '.env.supabase'));
 loadEnvIfMissing(resolve(process.cwd(), 'deploy/vps/.env'));
 
 const DATABASE_URL = process.env.DATABASE_URL;

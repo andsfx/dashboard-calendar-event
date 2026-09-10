@@ -110,16 +110,15 @@ src/
 │   ├── PublicLetterViewer.tsx       # Viewer page publik
 │   ├── EventLetterPickerModal.tsx   # Modal pilih event
 │   ├── pdf/
-│   │   └── LetterDocument.tsx       # PDF template
+│   │   └── buildLetterPdf.ts        # PDF builder (jsPDF, bukan @react-pdf)
 │   └── ui/
 │       └── Editable.tsx             # Editable components
 ├── utils/
-│   ├── letterPdfExport.tsx          # PDF generation utilities
-│   └── domainApi.ts                 # CRUD via adminAction (listLetters/createLetter/dst.)
+│   └── domainApi.ts                 # Barrel CRUD via adminAction (listLetters/createLetter/dst.)
 └── App.tsx                          # Integration & routing
 
-migrate/
-└── generated-letters.sql            # Database migration
+server/
+└── schema.sql                       # DDL tunggal — tabel generated_letters (legacy migrate/*.sql = MATI)
 ```
 
 ### API Functions
@@ -211,21 +210,16 @@ interface LetterRequestItem {
 
 ### PDF tidak muncul di preview
 ```bash
-# Pastikan @react-pdf/renderer terinstall
-npm list @react-pdf/renderer
-
-# Jika belum ada
-npm install @react-pdf/renderer
+# PDF dibangun dengan jsPDF + jspdf-autotable (src/components/pdf/buildLetterPdf.ts)
+npm list jspdf jspdf-autotable
 ```
 
 ### Database error saat save
 ```sql
 -- Cek apakah tabel ada
 SELECT * FROM generated_letters LIMIT 1;
-
--- Jika tidak ada, jalankan migration
--- Lihat file: migrate/generated-letters.sql
 ```
+DDL ada di `server/schema.sql` (tabel `generated_letters`); tidak ada `migrate/` lagi.
 
 ### TypeScript error
 ```bash

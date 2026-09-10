@@ -296,7 +296,7 @@ Exact path = implementasi; spek jaga **siapa** dan **apa**.
 
 - Soft-delete Draft: tidak muncul antrian aktif; tidak hapus Event yang sudah di-publish.
 - Hapus Event: tidak wajib hapus Draft arsip; putus atau biarkan `sourceDraftId` dangling = ticket detail (prefer keep Draft arsip).
-- Tidak expose service role, R2 keys, admin password di client.
+- Tidak expose `JWT_SECRET`, R2 keys, admin password di client.
 
 ### 8.3 Observability
 

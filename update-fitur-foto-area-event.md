@@ -1,6 +1,7 @@
 # Update Fitur: Foto Area Event di Landing Page — Rencana Implementasi
 
-Status: RENCANA (belum dieksekusi) · Repo: schedule-event-v2 · 2026-08-30
+Status: **SELESAI** (live: `EventAreaManagerModal` + `eventAreas` di landing; tabel `event_areas`/`area_photos` di `server/schema.sql`) · Repo: schedule-event-v2 · 2026-08-30
+Catatan stack: dokumen ini rencana era-Supabase (RLS, `supabase_realtime`, `api/*`). Implementasi final pakai Opsi B: DDL di `server/schema.sql`, action `createEventArea`/`updateEventArea`/`deleteEventArea`/`createAreaPhoto`/`deleteAreaPhoto`/`updateAreaPhotoOrder` di `server/src/routes/admin.js` + `server/src/lib/schemas.js` (zod), presign R2 server-side (`server/src/r2.js`), polling bukan realtime (ADR 005).
 Sumber domain: `photo_albums.lokasi` + `events.lokasi` (data produksi) · Terkait: `src/components/AlbumManagerModal.tsx` (pola CRUD + upload R2), `src/components/community/CommunityGallery.tsx` (pola grid galeri landing)
 
 ## 1. Ringkasan

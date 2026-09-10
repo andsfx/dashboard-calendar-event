@@ -1,3 +1,5 @@
+> **ARSIP (historis) — 2026-09-10.** Audit 2026-08-26 ini menilai stack **era Supabase/Vercel-serverless**. Path yang disebut (`api/supabase-admin.js`, `api/_lib/auth.js`, `api/r2-*.js`) **sudah dihapus** (commit `a60dd8d`); padanan aktifnya ada di `server/src/routes/*` + `server/src/r2.js` (Opsi B, ADR 005). Temuan/mitigasi di bawah tetap berguna sebagai jejak, tapi file:line tidak lagi valid.
+
 # Audit Keamanan & UX — Fitur Sponsorship
 
 - **Tanggal:** 2026-08-26

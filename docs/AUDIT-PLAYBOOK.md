@@ -121,7 +121,7 @@ graphify explain "Event"
 | Tenant survey | `tenant survey form submit analytics` (baca `src/components/survey/rules.md` dulu) |
 | Community | `community registration landing gallery instagram` |
 | Storage | `R2 upload delete image photo` |
-| API | `api/auth api/survey api/community-registration` |
+| API | `api v1 routes admin auth survey tenant public` |
 | Dashboard shell | `App shell sidebar dashboard layout` |
 
 ---
@@ -145,7 +145,7 @@ graphify explain "Event"
 2. God nodes → kandidat "too central"
 3. Per community besar: `graphify query` "what belongs in X community"
 4. Cek boundary:
-   - UI (`src/components`) vs hooks vs `src/lib` vs `api/`
+   - UI (`src/components`) vs hooks vs `src/lib` vs `server/src/routes`
    - Jangan campur secret client/server
 5. Catat:
    - Coupling tinggi (banyak edge ke 1 node)
@@ -176,9 +176,8 @@ graphify path "<UI entry>" "<API or store>"
 Checklist:
 
 - [ ] Tidak ada service role / R2 secret di client bundle
-- [ ] Admin password/token hanya server (`api/`, env server)
-- [ ] Apps Script token tidak di frontend
-- [ ] Auth routes: `api/auth.js`, `api/admin-login.js`, `api/admin-logout.js`
+- [ ] Admin password/token hanya server (`server/`, env server)
+- [ ] Auth routes: `server/src/routes/auth.js` (`/api/v1/auth/*`)
 - [ ] Public endpoints sadar abuse (survey, community registration)
 - [ ] `.env*` tidak di-commit; bandingkan key names dengan `.env.example`
 - [ ] Remote git URL: jangan copy credential ke docs/output
@@ -188,7 +187,7 @@ Grep bantu (pola, sesuaikan):
 
 ```powershell
 # Jangan print nilai secret; hanya lokasi pemakaian nama env
-rg -n "SERVICE_ROLE|JWT_SECRET|DATABASE_URL|R2_|SUPABASE" --glob "!node_modules" --glob "!.env*"
+rg -n "JWT_SECRET|DATABASE_URL|POSTGRES_PASSWORD|R2_|MID_API_KEY|COOKIE_SAMESITE" --glob "!node_modules" --glob "!.env*"
 ```
 
 Output: temuan severity `critical|high|medium|low` + path + fix.
@@ -303,10 +302,10 @@ Urutan hemat:
 |---|---|---|
 | App shell | `src/App.tsx`, `src/main.tsx` | entry |
 | Events / calendar | `src/components`, `src/hooks`, `src/utils` | core product |
-| Tenant survey | `src/components/survey/`, `api/tenant-survey.js`, `api/survey.js` | **public, no login** — baca `rules.md` |
-| Community | community components + `api/community-registration.js` | landing + form |
-| Auth admin | `api/auth.js`, `api/admin-login.js`, `api/admin-logout.js` | server-side |
-| Storage | `api/r2-upload.js`, `api/r2-delete.js` | secrets server |
+| Tenant survey | `src/components/survey/`, `server/src/routes/tenant.js`, `server/src/routes/survey.js` (`/api/v1/tenant/*`) | **public, no login** — baca `rules.md` |
+| Community | community components + `server/src/routes/extra.js` (`/api/v1/registrations`) | landing + form |
+| Auth admin | `server/src/routes/auth.js` + `server/src/auth.js` (`/api/v1/auth/*`) | server-side |
+| Storage | `server/src/r2.js` + `server/src/routes/extra.js` (`/api/v1/r2/*`) | secrets server |
 | Backend admin | `server/src/routes/admin.js` + `lib/schemas.js` | role risk |
 | Prototype | `improve/` | terpisah; `improve/AGENTS.md` |
 | Draft UI | `drafts/` | bukan production default |

@@ -1,7 +1,7 @@
 # Update Fitur: Halaman Publik Pendaftaran Organisasi (/daftar)
 
-Status: EKSEKUSI · Repo: schedule-event-v2 · 2026-08-28
-
+Status: **SELESAI** (live: `RegistrationPage` + route `/daftar`; submit `POST /api/v1/registrations`) · Repo: schedule-event-v2 · 2026-08-28
+Catatan stack: rencana era-Supabase (RLS public-INSERT di `migrate/community-registrations.sql`). Final: tabel `community_registrations` di `server/schema.sql`; submit POST `/api/v1/registrations` di `server/src/routes/public.js` (validasi + rate-limit, tanpa RLS).
 ## 1. Ringkasan
 
 Form pendaftaran organisasi (EO, sekolah, komunitas, kampus, perusahaan, instansi, NGO) saat ini hanya bisa diakses menembus landing `/community` (section `#register`, embed panjang) atau `/events` (embed di bawah halaman event). Marcomm butuh satu URL khusus yang bisa dibagikan langsung (bio Instagram, WA blast, QR di mall) untuk mengumpulkan database organisasi.

@@ -1,6 +1,7 @@
 # Update Fitur: Sponsorship / Akuisisi Sponsor — Rencana Implementasi
 
-Status: RENCANA (belum dieksekusi) · Repo: schedule-event-v2 · 2026-08-26
+Status: **SELESAI** (live: `SponsorLandingPage` + `/sponsor`, `SponsorManagerModal`; server di `server/src/routes/extra.js`/`admin.js`, bukan `api/supabase-admin.js`) · Repo: schedule-event-v2 · 2026-08-26
+Catatan stack: rencana era-Supabase (RLS, `api/supabase-admin.js`, PAT). Final: tabel `sponsor_leads`/`event_proposals` di `server/schema.sql`; form publik POST `/api/v1/sponsor-leads`, admin via `adminAction` di `server/src/routes/admin.js` + `extra.js` — tanpa RLS/PAT.
 Sumber domain: `CONTEXT.md` (Akuisisi Sponsor) · Menindaklanjuti: `draft-voucher-tenant.md` (program voucher tenant, terpisah)
 
 ## 1. Ringkasan

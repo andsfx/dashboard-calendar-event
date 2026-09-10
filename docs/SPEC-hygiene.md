@@ -15,7 +15,7 @@ Complements [SPEC.md](SPEC.md) (domain product). This file = tree, tooling, left
 ## 2. Non-goals
 
 - Full monorepo / pnpm workspace adoption
-- Deleting entire `google-apps-script.js` history
+- ~~Deleting entire `google-apps-script.js` history~~ → **selesai 2026-09-09** (commit `a60dd8d`; file GAS + `api/` seluruhnya dihapus)
 - Mass DB migration of historical `status` values
 - Shipping untracked `eventsSchedulePdf*` inside hygiene commit (own feature PR)
 
@@ -66,7 +66,7 @@ Already ignored (keep): `graphify-out/`, `.opencode/`, `.sisyphus/`, `.omo/`, et
 | Rule | |
 |------|--|
 | Role | Prototype / UI lab only |
-| Production | Root `src/` + `api/` only |
+| Production | Root `src/` + `server/` only |
 | Auth | No hardcoded passwords; no dual login with production |
 | Merge | Explicit PR + architecture check against root |
 
@@ -81,12 +81,14 @@ Already ignored (keep): `graphify-out/`, `.opencode/`, `.sisyphus/`, `.omo/`, et
 
 ### Current → target
 
-| Path | Current | Target |
+Status per 2026-09-10: **selesai** (ADR 004 + ADR 005). Kolom "Current" kini = kondisi final.
+
+| Path | Current (final) | Target |
 |------|---------|--------|
-| `createLetterRequest` → apps-script | Live legacy | **Removed or fail-closed** |
-| `GeneratedLetter` (tabel VPS DB) | Exists | **Only product path** |
+| `createLetterRequest` → apps-script | **Dihapus** bersama `api/` (commit `a60dd8d`) | **Removed or fail-closed** |
+| `GeneratedLetter` (tabel VPS DB) | **Only product path** | **Only product path** |
 | Event/Draft publish | `adminAction` via `/api/v1/admin` | Unchanged |
-| apps-script migration/bootstrap | Optional ops | Allowed until separate deprecate ticket |
+| apps-script migration/bootstrap | **Dihapus** (`api/apps-script-admin.js` + `google-apps-script.js` tidak ada lagi) | ~~Allowed until separate deprecate ticket~~ |
 
 ### Rules
 
@@ -97,10 +99,10 @@ Already ignored (keep): `graphify-out/`, `.opencode/`, `.sisyphus/`, `.omo/`, et
 
 ### Acceptance
 
-- [ ] Grep client: no production call to `createLetterRequest` (or only dead code + test asserting disabled)
-- [ ] Create/list letter lewat admin REST (`adminAction('listLetters'|'createLetter')`)
-- [ ] Publish Draft tetap satu jalur admin REST (`/api/v1/admin`)
-- [ ] Unit or smoke: letter create does not hit `/api/apps-script-admin`
+- [x] Grep client: no production call to `createLetterRequest` (or only dead code + test asserting disabled)
+- [x] Create/list letter lewat admin REST (`adminAction('listLetters'|'createLetter')`)
+- [x] Publish Draft tetap satu jalur admin REST (`/api/v1/admin`)
+- [x] Unit or smoke: letter create does not hit `/api/apps-script-admin`
 
 ---
 

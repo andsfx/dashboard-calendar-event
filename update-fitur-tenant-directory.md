@@ -1,7 +1,8 @@
 # Update Fitur: Direktori Tenant Publik — Rencana Implementasi
 
-Status: RENCANA (belum dieksekusi) · Repo: schedule-event-v2 · 2026-08-26
-Sumber domain: `CONTEXT.md` (Fitur Sistem — Publik; Evaluasi Tenant) · Basis data: MID loyalty API (eksternal) · Terkait: `api/tenant-survey.js` (proxy MID), `src/components/survey/TenantSurveyResultsPage.tsx` (roster publik)
+Status: **SELESAI** (live: `TenantDirectoryPage` + route `/tenants`; data via `/api/v1/directory`, bukan `api/tenant-survey.js`) · Repo: schedule-event-v2 · 2026-08-26
+Catatan stack: rencana era-Supabase/Vercel (`api/tenant-survey.js`). Final: endpoint `GET /api/v1/directory` di `server/src/routes/tenant.js` (proxy MID + rate-limit), publik polling tanpa realtime.
+Sumber domain: `CONTEXT.md` (Fitur Sistem — Publik; Evaluasi Tenant) · Basis data: MID loyalty API (eksternal) · Terkait: `server/src/routes/tenant.js` (proxy MID), `src/components/survey/TenantSurveyResultsPage.tsx` (roster publik)
 
 ## 1. Ringkasan
 

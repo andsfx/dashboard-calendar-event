@@ -32,8 +32,8 @@ Evaluasi (03–06 Sep 2026): pindah total Supabase Auth/RLS/realtime/storage = r
 - Akun admin: username tetap, password di-reset (hash Supabase tidak ter-migrasi). 4 user berfungsi login.
 - Delete `api/*.js`, dep `@supabase/supabase-js`, dan shim `src/lib/supabase.ts` = SELESAI 2026-09-09 (commit `a60dd8d`): 8853 baris dihapus, `package.json` clean, barrel rename → `src/utils/domainApi.ts`, `SupabaseApiError` → `ApiError`.
 - Cost terprediksi: VPS ~Rp 60–150rb/bln fixed vs quota-overrun risk variable.
-- Rollback nyata: cara termudah = un-pause Supabase (data lama beku di titik migrasi — baru berubah setelah cutover berarti harus di-port balik manual).
-- Supabase project = **paused**, bukan deleted (jendela stabil ~1 minggu dulu).
+- Rollback nyata: ~~cara termudah = un-pause Supabase~~ → **jendela rollback RESMI DITUTUP 2026-09-10**. Parity data VPS vs `seed/*.json` diverifikasi 20/20 (audit read-only: semua tabel identik; `activity_logs` +15 = log operasional pasca-dump), bundle SPA produksi 0 referensi supabase, env lokal dibersihkan (PAT + kunci Supabase dihapus). Un-pause masih mungkin selama project ada, tapi VPS = source of truth.
+- Supabase project = **INACTIVE (paused)** dan **dibiarkan auto-delete** (~90 hari) — keputusan Andy 2026-09-10; bukan jendela stabilitas, melainkan pembuangan terjadwal.
 
 ## Alternatives
 
