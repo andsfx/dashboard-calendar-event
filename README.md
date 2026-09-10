@@ -30,7 +30,7 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 - **Tailwind CSS v4** - Styling
 - **Lucide React** - Icons
 - **date-fns** - Date manipulation
-- **Express + pg + Postgres 16** - Backend REST di VPS (Opsi B; legacy Supabase phase out — lihat ADR 005)
+- **Express + pg + Postgres 16** - Backend REST di VPS (Opsi B; Supabase sudah dilepas total — lihat ADR 005)
 - **Cloudflare R2** - Media (foto/proposal)
 - **React Router v7** - Routing
 - **@vercel/analytics** - Analytics

@@ -88,16 +88,17 @@ const letters = await fetchGeneratedLetters();
 ### Database Schema
 
 ```sql
-CREATE TABLE generated_letters (
-  id UUID PRIMARY KEY,
+-- server/schema.sql (Postgres VPS) — bukan skema Supabase lama
+CREATE TABLE IF NOT EXISTS generated_letters (
+  id TEXT PRIMARY KEY DEFAULT ('ltr_' || replace(gen_random_uuid()::text, '-', '')),
+  event_id TEXT REFERENCES events(id) ON DELETE SET NULL,
+  draft_event_id TEXT REFERENCES draft_events(id) ON DELETE SET NULL,
   letter_data JSONB NOT NULL,
-  pdf_base64 TEXT,
   pdf_url TEXT,
-  event_id UUID REFERENCES events(id),
-  draft_event_id UUID REFERENCES draft_events(id),
-  created_by UUID REFERENCES auth.users(id),
+  pdf_base64 TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  created_by TEXT,
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'archived', 'deleted'))
 );
 ```
 
@@ -124,11 +125,10 @@ server/
 ### API Functions
 
 ```typescript
-// Fetch all generated letters
-fetchGeneratedLetters(): Promise<GeneratedLetter[]>
+// src/utils/api/surveysApi.ts (via domainApi.ts barrel)
+fetchGeneratedLetters(eventId?: string, draftEventId?: string): Promise<GeneratedLetter[]>
 
-// Create new letter
-createGeneratedLetter(data: {
+createGeneratedLetter(params: {
   letterData: LetterRequestItem;
   pdfBase64?: string;
   pdfUrl?: string;
@@ -137,30 +137,27 @@ createGeneratedLetter(data: {
   createdBy?: string;
 }): Promise<GeneratedLetter>
 
-// Update existing letter
-updateGeneratedLetter(id: string, data: Partial<GeneratedLetter>): Promise<GeneratedLetter>
+updateGeneratedLetter(
+  id: string,
+  updates: Partial<Pick<GeneratedLetter, 'letterData' | 'pdfUrl' | 'pdfBase64' | 'status'>>,
+): Promise<GeneratedLetter>
 
-// Soft delete letter
 deleteGeneratedLetter(id: string): Promise<void>
 ```
 
 ### PDF Export Functions
 
 ```typescript
-// Download PDF to device
-downloadLetterPdf(letter: LetterRequestItem): Promise<void>
-
-// Open PDF in new tab
-openLetterPdfPreview(letter: LetterRequestItem): Promise<void>
-
-// Render PDF to base64 string
+// src/utils/letterPdfExport.ts
+renderLetterPdfBlob(letter: LetterRequestItem): Promise<Blob>
 renderLetterPdfBase64(letter: LetterRequestItem): Promise<string>
+downloadLetterPdf(letter: LetterRequestItem): Promise<void>
+openLetterPdfPreview(letter: LetterRequestItem): Promise<string>  // mengembalikan blob URL
 ```
 
 ## 🎨 Template Fields
 
-LetterDocument menggunakan field berikut:
-
+`buildLetterPdf` (`src/components/pdf/buildLetterPdf.ts`) menggunakan field berikut:
 ```typescript
 interface LetterRequestItem {
   tanggalSurat: string;           // Format: YYYY-MM-DD
@@ -260,5 +257,5 @@ Untuk pertanyaan atau issue terkait Letter Generator:
 
 ---
 
-**Last Updated**: 2025-06-20
-**Version**: 1.0.0
+**Last Updated**: 2026-09-10
+**Version**: 1.1.0
