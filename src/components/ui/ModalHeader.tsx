@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 export interface ModalChromeHeaderProps {
   title: React.ReactNode;
@@ -32,10 +33,10 @@ export function ModalHeader({
 }: ModalChromeHeaderProps) {
   return (
     <div
-      className={[
+      className={cn(
         'flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-6 dark:border-slate-700',
         className,
-      ].filter(Boolean).join(' ')}
+      )}
     >
       <div className="flex min-w-0 items-center gap-3">
         {leading}
@@ -45,12 +46,12 @@ export function ModalHeader({
           </div>
         )}
         <div className="min-w-0">
-          <p
+          <h2
             id={titleId}
-            className="truncate font-bold text-slate-800 dark:text-white"
+            className="truncate text-base font-bold text-slate-800 dark:text-white"
           >
             {title}
-          </p>
+          </h2>
           {subtitle != null && subtitle !== '' && (
             <p className="truncate text-xs text-slate-500 dark:text-slate-300">{subtitle}</p>
           )}

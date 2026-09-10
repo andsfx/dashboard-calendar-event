@@ -19,9 +19,9 @@ Sistem desain komprehensif untuk aplikasi **Metropolitan Mall Bekasi Event Dashb
 - **Framework**: React 19 + TypeScript
 - **Styling**: Tailwind CSS v4 + Custom Design Tokens
 - **Build**: Vite 6
-- **Typography**: Plus Jakarta Sans
+- **Typography**: Bricolage (display) + Geist (body) — lihat `src/styles/theme.css`
 - **Icons**: Lucide React
-
+- **Class helper**: `cn()` di `src/utils/cn.ts`
 ---
 
 ## 📐 Design Principles
@@ -209,93 +209,9 @@ Semua animasi respect `prefers-reduced-motion: reduce`.
 
 ### Core UI Components
 
-#### Button
-```tsx
-import { Button } from './components/ui';
-
-<Button variant="primary" size="md">Click me</Button>
-<Button variant="secondary" size="lg">Submit</Button>
-<Button variant="ghost" size="sm">Cancel</Button>
-<Button variant="outline">Outline</Button>
-<Button isLoading>Loading</Button>
-```
-
-**Props:**
-- `variant`: 'primary' | 'secondary' | 'ghost' | 'outline'
-- `size`: 'sm' | 'md' | 'lg'
-- `isLoading`: boolean
-- All standard button HTML attributes
-
-#### Card
-```tsx
-import { Card, CardHeader, CardContent, CardFooter } from './components/ui';
-
-<Card variant="elevated">
-  <CardHeader>
-    <h3>Card Title</h3>
-  </CardHeader>
-  <CardContent>
-    <p>Card content</p>
-  </CardContent>
-  <CardFooter>
-    <Button>Action</Button>
-  </CardFooter>
-</Card>
-```
-
-**Variants:**
-- `default` - Standard card dengan subtle shadow
-- `elevated` - Card dengan medium shadow
-- `glass` - Glass morphism effect
-- `campaign` - Special campaign card
-
-#### Badge & StatusDot
-```tsx
-import { Badge, StatusDot } from './components/ui';
-
-<Badge variant="primary">Featured</Badge>
-<Badge variant="success" size="sm">
-  <StatusDot status="live" />
-  Live Now
-</Badge>
-```
-
-**Variants:**
-- `default`, `primary`, `secondary`, `success`, `warning`, `danger`, `info`
-
-**StatusDot statuses:**
-- `live` - Pulsing green dot
-- `upcoming` - Blue dot
-- `completed` - Gray dot
-- `cancelled` - Red dot
-
-#### Input & Textarea
-```tsx
-import { Input, Textarea } from './components/ui';
-
-<Input 
-  label="Email" 
-  type="email" 
-  error={errors.email}
-  helperText="We'll never share your email"
-/>
-
-<Textarea 
-  label="Description"
-  rows={4}
-  placeholder="Tell us about your event..."
-/>
-```
-
-#### Select
-```tsx
-import { Select } from './components/ui';
-
-<Select label="Category">
-  <option value="music">Music</option>
-  <option value="food">Food</option>
-</Select>
-```
+> Primitif nyata saat ini: `EditableText`/`EditableArea` + `ModalHeader`
+> (`src/components/ui/index.ts`). Contoh di bawah adalah aspirasi —
+> JANGAN impor `Button`/`Card`/`Badge`/`Input`/`Select` dari barrel karena belum ada.
 
 #### Checkbox & Radio
 ```tsx

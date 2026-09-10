@@ -49,7 +49,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
   }, [slug, retryCount]);
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
       <a
         href="#konten-utama"
@@ -70,7 +70,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
               type="button"
               onClick={onToggleDark}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label="Toggle dark mode"
+              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -127,7 +127,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         {/* Article */}
         {!isLoading && article && (
           <article>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Berita</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Berita</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{article.title}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-300">
               {article.author && <span className="font-medium text-slate-700 dark:text-slate-300">{article.author}</span>}

@@ -72,7 +72,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const notFound = !isLoading && !album && !fetchError;
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
@@ -88,7 +88,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
 className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali ke Gallery
+          Kembali ke Galeri
         </button>
 
         {/* Loading skeleton */}
@@ -144,7 +144,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <ArrowLeft className="h-4 w-4" />
-              Kembali ke Gallery
+              Kembali ke Galeri
             </button>
           </div>
         )}
@@ -154,7 +154,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
           <>
             {/* Album header */}
             <div className="mb-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">
                 Album
               </p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -225,7 +225,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-<footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
+<footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
         </div>

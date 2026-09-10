@@ -42,7 +42,7 @@ export function EventFormModelFields({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="event-nominal" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-              Nominal <span className="text-red-500">*</span>
+              Nominal <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <input
               id="event-nominal"
@@ -57,11 +57,11 @@ export function EventFormModelFields({
                   : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
               }`}
             />
-            {errors.eventNominal && <p id="event-nominal-error" className="mt-1 text-xs text-red-500" role="alert">{errors.eventNominal}</p>}
+            {errors.eventNominal && <p id="event-nominal-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.eventNominal}</p>}
           </div>
           <div>
             <label htmlFor="event-model-notes" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-              Keterangan Model Event <span className="text-red-500">*</span>
+              Keterangan Model Event <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <input
               id="event-model-notes"
@@ -76,7 +76,7 @@ export function EventFormModelFields({
                   : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
               }`}
             />
-            {errors.eventModelNotes && <p id="event-model-notes-error" className="mt-1 text-xs text-red-500" role="alert">{errors.eventModelNotes}</p>}
+            {errors.eventModelNotes && <p id="event-model-notes-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.eventModelNotes}</p>}
           </div>
         </div>
       )}

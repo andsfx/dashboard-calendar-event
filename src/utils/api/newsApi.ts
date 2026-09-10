@@ -37,7 +37,7 @@ export async function fetchNewsArticleBySlug(slug: string): Promise<NewsArticle 
 /** Admin list — all statuses via service-role proxy. */
 export async function fetchAllNewsArticles(): Promise<NewsArticle[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('listNewsArticles', {});
-  if (!result.success) throw new ApiError(result.error || 'Fetch news failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat berita');
   return (result.data || []).map(row => mapRow(row as Record<string, unknown>));
 }
 
@@ -63,7 +63,7 @@ export async function createNewsArticle(input: {
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>(
     'createNewsArticle', { data: { ...newsArticleToDbRow(input), slug: slg } }
   );
-  if (!result.success) throw new ApiError(result.error || 'Create news failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal membuat berita');
   return {
     id: result.id || '', title: input.title, slug: slg, excerpt: input.excerpt,
     content: input.content, coverImageUrl: input.coverImageUrl, author: input.author,
@@ -75,11 +75,11 @@ export async function updateNewsArticle(id: string, data: Partial<NewsArticle>):
   const result = await adminAction<{ success: boolean; error?: string }>(
     'updateNewsArticle', { id, data: newsArticleToDbRow(data) }
   );
-  if (!result.success) throw new ApiError(result.error || 'Update news failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui berita');
 }
 
 export async function deleteNewsArticle(id: string, coverImageUrl?: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteNewsArticle', { id });
-  if (!result.success) throw new ApiError(result.error || 'Delete news failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus berita');
   if (coverImageUrl) await deleteFromR2(coverImageUrl);
 }

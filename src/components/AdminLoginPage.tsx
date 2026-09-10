@@ -128,7 +128,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                   </button>
                 </div>
                 {error && (
-                  <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                     <span>⚠</span> {error}
                   </p>
                 )}

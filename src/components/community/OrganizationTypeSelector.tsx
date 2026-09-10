@@ -60,7 +60,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
   return (
     <div className="space-y-3">
       <p id="organization-type-label" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-        Tipe Organisasi <span className="text-rose-600">*</span>
+        Tipe Organisasi <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
       </p>
       <div
         className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"

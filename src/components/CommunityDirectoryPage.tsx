@@ -112,7 +112,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
   const hasActiveFilter = query.trim().length > 0 || activeCategory !== ALL_CATEGORIES;
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
       <a
         href="#konten-utama"
@@ -151,7 +151,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         {/* Hero */}
         <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Komunitas</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Komunitas</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Komunitas Metropolitan Mall Bekasi</h1>
           <p className="mt-1 max-w-2xl text-sm ui-text-muted">EO, sekolah, dan komunitas yang pernah menggelar acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
@@ -193,7 +193,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
 
         {/* Sticky toolbar: search + category pills */}
         {!isLoading && !fetchError && organizations.length > 0 && (
-          <div className="sticky top-16 z-30 -mx-4 mb-5 bg-[#fbfaf7]/90 px-4 py-2 backdrop-blur dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
+          <div className="sticky top-16 z-30 -mx-4 mb-5 bg-[color-mix(in_srgb,var(--brand-paper)_90%,transparent)] px-4 py-2 backdrop-blur dark:bg-slate-950/90 sm:-mx-6 sm:px-6">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden />
               <input

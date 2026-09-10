@@ -424,7 +424,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         ))}
                       </select>
                       {selectedThemeId && !isCustomEvent && (
-                        <p className="mt-1 text-xs text-brand-primary-500">Auto-matched berdasarkan tanggal event</p>
+                        <p className="mt-1 text-xs text-brand-primary-700 dark:text-brand-primary-300">Auto-matched berdasarkan tanggal event</p>
                       )}
                     </div>
 

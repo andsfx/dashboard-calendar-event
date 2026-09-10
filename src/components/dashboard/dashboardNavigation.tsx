@@ -50,6 +50,16 @@ interface DashboardNavCallbacks {
   onOpenEventAreaManager: () => void;
 }
 
+/** Modal konten → query param agar refresh/deep-link/back bisa membuka. */
+export const CONTENT_MODAL_ROUTES: Record<string, string> = {
+  'landing-page': '/dashboard/content?panel=landing-page',
+  'album-gallery': '/dashboard/content?panel=album-gallery',
+  'event-areas': '/dashboard/content?panel=event-areas',
+  letter: '/dashboard/content?panel=letter',
+  news: '/dashboard/content?panel=news',
+  sponsorship: '/dashboard/content?panel=sponsorship',
+};
+
 interface CommandCenterCard {
   id: string;
   title: string;
@@ -102,7 +112,6 @@ export function getDashboardNavGroups(
       label: 'Interaksi',
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
-        ...(permissions.canManageSponsorship ? [{ id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenSponsorManager }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
         ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
@@ -118,11 +127,14 @@ export function getDashboardNavGroups(
       label: 'Konten',
       items: [
         ...(permissions.canManageSettings ? [
-          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenInstagramSettings },
-          { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenAlbumManager },
-          { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenEventAreaManager },
-          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenLetterPicker },
-          { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'callback' as const, callback: callbacks.onOpenNewsManager },
+          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['landing-page'] },
+          { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['album-gallery'] },
+          { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['event-areas'] },
+          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['letter'] },
+          { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['news'] },
+        ] : []),
+        ...(permissions.canManageSponsorship ? [
+          { id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['sponsorship'] },
         ] : []),
       ],
     },
@@ -142,7 +154,7 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
     .filter(item => item.action === 'route' && item.route)
     // Standalone routes (not under /dashboard/*) are not dashboard-path keys
     .filter(item => item.route === '/dashboard' || item.route?.startsWith('/dashboard/'))
-    .map(item => item.route === '/dashboard' ? '/' : item.route?.replace('/dashboard', '') || '/');
+    .map(item => item.route === '/dashboard' ? '/' : (item.route?.replace('/dashboard', '') || '/').split('?')[0] || '/');
 
   return Array.from(new Set(routeItems));
 }

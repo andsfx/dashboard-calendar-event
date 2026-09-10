@@ -281,7 +281,7 @@ export function RegistrationForm() {
             {/* Organization Name */}
             <div className="sm:col-span-2">
               <label htmlFor="reg-org-name" className={labelClass}>
-                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-600">*</span>
+                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               </label>
               <input
                 id="reg-org-name"
@@ -311,7 +311,7 @@ export function RegistrationForm() {
 
             {/* Common Fields */}
             <div>
-              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-600">*</span></label>
+              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
               <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
               {fieldErrors.pic && (
                 <p id="pic-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
@@ -320,7 +320,7 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600">*</span></label>
+              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
               <input 
                 id="reg-phone" 
                 value={form.phone} 

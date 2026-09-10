@@ -738,7 +738,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               className="hidden"
               onChange={handlePosterChange}
             />
-            {posterError && <p className="mt-1 text-xs text-red-500">{posterError}</p>}
+            {posterError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{posterError}</p>}
           </div>
 
           {/* Actions */}

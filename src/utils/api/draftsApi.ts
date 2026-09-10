@@ -17,26 +17,26 @@ export async function createDraftEvent(
       await apiPost<{ success: boolean; error?: string }>('/drafts', { data: draftItemToDbRow(draftData) });
     } catch (err) {
       if (err instanceof ApiError) {
-        throw new ApiError(err.message ?? 'Public draft creation failed');
+        throw new ApiError(err.message ?? 'Gagal membuat draft');
       }
       throw err;
     }
     return { row: 0, id: '' };
   }
   const result = await adminAction<{ success: boolean; error?: string; id?: string }>('createDraft', { data: draftItemToDbRow(draftData) });
-  if (!result.success) throw new ApiError(result.error || 'Create draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal membuat draft');
   return { row: 0, id: result.id || '' };
 }
 
 export async function updateDraftEvent(draftData: Partial<DraftEventItem> & { id: string }): Promise<void> {
   const { id, ...rest } = draftData;
   const result = await adminAction<{ success: boolean; error?: string }>('updateDraft', { id, data: draftItemToDbRow(rest) });
-  if (!result.success) throw new ApiError(result.error || 'Update draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui draft');
 }
 
 export async function deleteDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteDraft', { id });
-  if (!result.success) throw new ApiError(result.error || 'Delete draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus draft');
 }
 
 export async function publishDraftEvent(id: string): Promise<void> {
@@ -46,5 +46,5 @@ export async function publishDraftEvent(id: string): Promise<void> {
 
 export async function restoreDraftEvent(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('restoreDraft', { id });
-  if (!result.success) throw new ApiError(result.error || 'Restore draft failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memulihkan draft');
 }

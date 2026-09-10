@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import type { ConfirmOptions } from '../components/ConfirmDialog';
 import { EventItem, ToastMessage } from '../types';
 import { createId } from '../utils/eventUtils';
 
@@ -12,6 +13,7 @@ export type EventHandlersDeps = {
   deleteEvent: (id: string) => Promise<boolean>;
   addRecurringEvents: (events: EventItem[]) => Promise<boolean>;
   deleteRecurringSeries: (groupId: string) => Promise<boolean>;
+  confirm: (options: ConfirmOptions) => Promise<boolean>;
 };
 
 export interface EventHandlersResult {
@@ -40,7 +42,7 @@ export interface EventHandlersResult {
 }
 
 export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
-  const { showToast, eventsLength, addEvent, updateEvent, deleteEvent, addRecurringEvents, deleteRecurringSeries } = deps;
+  const { showToast, eventsLength, addEvent, updateEvent, deleteEvent, addRecurringEvents, deleteRecurringSeries, confirm } = deps;
 
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -105,13 +107,19 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
   }, [deletingEvent, deleteEvent, showToast]);
 
   const handleDeleteSeries = useCallback(async (groupId: string) => {
+    const ok = await confirm({
+      title: 'Hapus seluruh rangkaian?',
+      message: 'Seluruh event dalam rangkaian ini akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.',
+      confirmLabel: 'Hapus semua',
+    });
+    if (!ok) return false;
     const success = await deleteRecurringSeries(groupId);
     if (success) showToast('success', 'Rangkaian dihapus!', 'Seluruh event dalam rangkaian telah dihapus.');
     else showToast('error', 'Gagal menghapus', 'Rangkaian belum berhasil dihapus.');
     setShowDetailModal(false);
     setDetailEvent(null);
     return success;
-  }, [deleteRecurringSeries, showToast]);
+  }, [confirm, deleteRecurringSeries, showToast]);
 
   const handleDetailClick = useCallback((ev: EventItem) => {
     setDetailEvent(ev);

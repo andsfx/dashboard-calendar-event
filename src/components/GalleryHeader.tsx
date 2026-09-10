@@ -11,7 +11,7 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/6 bg-[#fbfaf7]/96 backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800">
+    <header className="sticky top-0 z-50 border-b border-black/6 bg-[color-mix(in_srgb,var(--brand-paper)_96%,transparent)] backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3">
         <button
           onClick={() => navigate('/')}

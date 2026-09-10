@@ -54,6 +54,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     eventsLength: events.length,
     addEvent, updateEvent, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
+    confirm,
   });
 
   const draft: DraftHandlersResult = useDraftHandlers({

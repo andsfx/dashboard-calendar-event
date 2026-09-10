@@ -121,7 +121,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
   };
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
       <a
         href="#konten-utama"
@@ -142,7 +142,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
               type="button"
               onClick={onToggleDark}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label="Toggle dark mode"
+              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -160,7 +160,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Hero */}
         <div className="mb-10 max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Sponsorship</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Sponsorship</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
             Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.
@@ -205,7 +205,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
               <Handshake className="h-7 w-7 text-slate-500 dark:text-slate-300" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Belum ada event dengan proposal sponsor</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Peluang sponsorship akan muncul di sini.</p>
+            <p className="mt-1 max-w-md text-sm text-slate-500 dark:text-slate-300">Peluang sponsorship akan muncul di sini. Sementara itu, hubungi tim Marcomm Metropolitan Mall Bekasi untuk penawaran kerja sama.</p>
           </div>
         )}
 
@@ -252,7 +252,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
           <div id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
             <div className="mb-6 text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Minat Support</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Minat Support</p>
               <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Tertarik Support Event?</h2>
               <p className="mt-2 text-sm leading-6 ui-text-muted">
                 Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi Anda dalam 5 hari kerja.
@@ -286,7 +286,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
 
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="sp-event" className={labelClass}>Pilih Event <span className="text-rose-600">*</span></label>
+                    <label htmlFor="sp-event" className={labelClass}>Pilih Event <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
                     <select
                       id="sp-event"
                       value={form.eventId}
@@ -308,7 +308,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                   </div>
 
                   <div>
-                    <label htmlFor="sp-company" className={labelClass}>Nama Brand / Perusahaan <span className="text-rose-600">*</span></label>
+                    <label htmlFor="sp-company" className={labelClass}>Nama Brand / Perusahaan <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
                     <input
                       id="sp-company"
                       value={form.companyName}
@@ -325,7 +325,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="sp-pic" className={labelClass}>Nama PIC <span className="text-rose-600">*</span></label>
+                      <label htmlFor="sp-pic" className={labelClass}>Nama PIC <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
                       <input
                         id="sp-pic"
                         value={form.contactName}
@@ -340,7 +340,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                       )}
                     </div>
                     <div>
-                      <label htmlFor="sp-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600">*</span></label>
+                      <label htmlFor="sp-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
                       <input
                         id="sp-phone"
                         value={form.phone}

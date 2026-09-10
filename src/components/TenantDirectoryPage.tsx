@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Moon, Search, Store, SunMedium } from 'lucide-react';
+import { ArrowLeft, MapPin, Moon, RefreshCw, Search, Store, SunMedium } from 'lucide-react';
 import { fetchPublicTenantDirectory } from '../utils/domainApi';
 import type { TenantRosterItem } from '../utils/api/surveysApi';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -23,6 +23,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   const [tenants, setTenants] = useState<TenantRosterItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES);
   const [brokenLogos, setBrokenLogos] = useState<Set<string>>(() => new Set());
@@ -40,7 +41,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         if (!cancelled) setIsLoading(false);
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [retryCount]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -73,7 +74,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   };
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       {/* Header */}
       <a
         href="#konten-utama"
@@ -94,7 +95,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
               type="button"
               onClick={onToggleDark}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label="Toggle dark mode"
+              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -112,7 +113,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Hero */}
         <div className="mb-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">Direktori Tenant</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Direktori Tenant</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
           <p className="mt-2 text-base ui-text-muted">Jelajahi gerai yang tersedia di Metropolitan Mall Bekasi</p>
           {!isLoading && !fetchError && (
@@ -184,6 +185,13 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
               <Store className="h-7 w-7 text-red-500 dark:text-red-400" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Direktori tenant sedang tidak tersedia. Coba lagi nanti.</p>
+            <button
+              onClick={() => setRetryCount(c => c + 1)}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Coba lagi
+            </button>
           </div>
         )}
 

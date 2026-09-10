@@ -164,7 +164,7 @@ function HighlightEventCard({
               )}
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }} />
             </span>
-            {isLive ? 'Live Now' : 'Coming Soon'}
+            {isLive ? 'Sedang Berlangsung' : 'Segera Hadir'}
           </span>
           <CategoryBadges categories={event.categories} maxVisible={2} />
         </div>
@@ -223,7 +223,7 @@ function HighlightEventCard({
           onClick={() => onDetail(event)}
           className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
         >
-          Detail Event
+          Lihat Detail Event
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
         </button>
       </div>
@@ -415,14 +415,14 @@ export function EventsLandingPage({
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring"
-            aria-label="Kembali ke Community"
+            aria-label="Kembali ke Komunitas"
           >
             <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
           </Link>
 
           <nav className="hidden items-center gap-6 text-[13px] font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Navigasi jadwal">
             <a href="#featured" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Highlights
+              Sorotan
             </a>
             <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Kalender
@@ -447,13 +447,13 @@ export function EventsLandingPage({
               to="/"
               className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3.5 py-2.5 text-[13px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 ui-focus-ring"
             >
-              Community
+              Komunitas
             </Link>
           </div>
         </div>
       </header>
 
-      <main>
+      <main id="konten-utama">
         {/* Split Studio hero */}
         <section className="border-b border-black/5 dark:border-slate-800">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-24">
@@ -478,8 +478,8 @@ export function EventsLandingPage({
                   </div>
                   <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-2.5 py-3 sm:px-3 dark:border-amber-800/50 dark:bg-amber-950/30">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-400">
-                      <span className="sm:hidden">Soon</span>
-                      <span className="hidden sm:inline">Coming Soon</span>
+                      <span className="sm:hidden">Segera</span>
+                      <span className="hidden sm:inline">Segera Hadir</span>
                     </dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-amber-700 dark:text-amber-300 sm:text-2xl">{upcoming.length}</dd>
                   </div>
@@ -491,7 +491,7 @@ export function EventsLandingPage({
                   href="#featured"
                   className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
                 >
-                  Highlights
+                  Sorotan
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
                 </a>
                 <Link
@@ -522,7 +522,7 @@ export function EventsLandingPage({
                   href="#featured"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
-                  Highlights
+                  Sorotan
                 </a>
                 <a
                   href="#calendar"
@@ -762,10 +762,10 @@ export function EventsLandingPage({
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/60">
             <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Community
+              Komunitas
             </Link>
             <Link to="/gallery" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Gallery
+              Galeri
             </Link>
             <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Kalender

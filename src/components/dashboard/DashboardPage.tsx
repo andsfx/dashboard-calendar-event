@@ -3,14 +3,13 @@ import type { Dispatch, SetStateAction, ReactNode } from 'react';
 import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, ToastMessage, PhotoAlbum, EventStatus, RegistrationStatus, EventArea } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea } from '../../types';
 import type { SectionNavItem } from '../SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardStats } from './DashboardStats';
 import { CommandCenterSummary } from './CommandCenterSummary';
 import { DashboardModals } from './DashboardModals';
-import { ToastContainer } from '../ToastContainer';
 import { ViewToggle } from './ViewToggle';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: ReactNode }> = [
@@ -171,8 +170,7 @@ export interface DashboardPageProps {
   onToggleDark: () => void;
   dashboardPath: string;
   publicSectionItems: SectionNavItem[];
-  toasts: ToastMessage[];
-  removeToast: (id: string) => void;
+  onCloseContentPanel?: () => void;
   auth: DashboardPageAuth;
   events: DashboardPageEvents;
   drafts: DashboardPageDrafts;
@@ -190,7 +188,7 @@ export interface DashboardPageProps {
 export function DashboardPage({
   isAdmin, isLoading, permissions, canSeeInternalSchedule,
   isDark, onToggleDark, dashboardPath, publicSectionItems,
-  toasts, removeToast,
+  onCloseContentPanel,
   auth, events, drafts, filters, view,
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
@@ -237,7 +235,7 @@ export function DashboardPage({
           editingDraft={modalData.editingDraft}
           draftEvents={drafts.draftEvents}
           showLetterPickerModal={modalState.showLetterPickerModal}
-          onCloseLetterPickerModal={() => modalState.setShowLetterPickerModal(false)}
+          onCloseLetterPickerModal={() => { modalState.setShowLetterPickerModal(false); onCloseContentPanel?.(); }}
           publicEvents={events.publicEvents}
           onSelectLetterEvent={handlers.handleSelectLetterEvent}
           showLetterModal={modalState.showLetterModal}
@@ -259,19 +257,19 @@ export function DashboardPage({
           onDeleteSeries={permissions.canDeleteEvents ? handlers.handleDeleteSeries : undefined}
           isAdmin={isAdmin}
           showInstagramSettings={siteSettings.showInstagramSettings}
-          onCloseInstagramSettings={() => siteSettings.setShowInstagramSettings(false)}
+          onCloseInstagramSettings={() => { siteSettings.setShowInstagramSettings(false); onCloseContentPanel?.(); }}
           instagramPosts={siteSettings.instagramPosts}
           onSaveInstagramPosts={handlers.handleSaveInstagramPosts}
           heroImageUrl={siteSettings.heroImageUrl}
           onSaveHeroImage={handlers.handleSaveHeroImage}
-          onCloseAlbumManager={() => siteSettings.setShowAlbumManager(false)}
+          onCloseAlbumManager={() => { siteSettings.setShowAlbumManager(false); onCloseContentPanel?.(); }}
           showAlbumManager={siteSettings.showAlbumManager}
           showNewsManager={siteSettings.showNewsManager}
-          onCloseNewsManager={() => siteSettings.setShowNewsManager(false)}
+          onCloseNewsManager={() => { siteSettings.setShowNewsManager(false); onCloseContentPanel?.(); }}
           showSponsorManager={siteSettings.showSponsorManager}
-          onCloseSponsorManager={() => siteSettings.setShowSponsorManager(false)}
+          onCloseSponsorManager={() => { siteSettings.setShowSponsorManager(false); onCloseContentPanel?.(); }}
           showEventAreaManager={siteSettings.showEventAreaManager}
-          onCloseEventAreaManager={() => siteSettings.setShowEventAreaManager(false)}
+          onCloseEventAreaManager={() => { siteSettings.setShowEventAreaManager(false); onCloseContentPanel?.(); }}
           pastEvents={events.events.filter(e => e.status === 'past')}
           annualThemes={events.annualThemes}
           showRegDetail={registrations.showRegDetail}
@@ -281,7 +279,6 @@ export function DashboardPage({
           initialEventData={modalData.initialEventData}
         />
       }
-      toasts={<ToastContainer toasts={toasts} onRemove={removeToast} />}
     >
       <DashboardHeader
         isAdmin={isAdmin}

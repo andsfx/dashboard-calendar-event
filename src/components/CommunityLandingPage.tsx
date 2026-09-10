@@ -141,7 +141,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     : 'mt-3 rounded-[1.6rem] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
-    <div className="community-landing min-h-screen bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
+    <div className="community-landing min-h-screen overflow-x-clip bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
       <a
         href="#register"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
@@ -166,7 +166,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               ))}
             </nav>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label="Toggle dark mode">
+              <button type="button" onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
                 {isDark ? <SunMedium className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
               </button>
               <button
@@ -178,7 +178,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                     : 'border-white/30 bg-white/10 text-white hover:bg-white/15'
                 }`}
               >
-                <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Schedule
+                <CalendarDays className="h-4 w-4" aria-hidden="true" /> Jadwal Event
               </button>
               <a
                 href="#register"
@@ -236,14 +236,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                       : 'border-white/30 text-white hover:bg-white/10'
                   }`}
                 >
-                  <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event Schedule
+                  <CalendarDays className="h-4 w-4" aria-hidden="true" /> Jadwal Event
                 </button>
               </nav>
             </div>
           )}
         </div>
       </header>
-      <main className="pb-20 sm:pb-0">
+      <main id="konten-utama" className="pb-20 sm:pb-0">
         <CommunityHero heroImageUrl={heroImageUrl} stats={stats} isLoading={isLoading} />
         <CommunitySocialProof totalEvents={stats?.total} totalCompleted={stats?.completed} totalOrganizers={stats?.organizers} isLoading={isLoading} />
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} isLoading={isLoading} />

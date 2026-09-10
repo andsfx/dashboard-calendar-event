@@ -27,8 +27,8 @@ export function useEvents(options?: { realtime?: boolean }) {
   const [lastError, setLastError] = useState<AdminError | null>(null);
   const clearLastError = useCallback(() => setLastError(null), []);
 
-  const refreshEvents = useCallback(async () => {
-    setIsLoading(true);
+  const refreshEvents = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const { events: fetchedEvents, themes: fetchedThemes, holidays: fetchedHolidays } = await fetchEvents();
@@ -39,7 +39,7 @@ export function useEvents(options?: { realtime?: boolean }) {
       console.error('Fetch error:', err);
       setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
     } finally {
-      setIsLoading(false);
+      if (!opts?.silent) setIsLoading(false);
     }
   }, []);
 
@@ -51,14 +51,17 @@ export function useEvents(options?: { realtime?: boolean }) {
   // Opsi B: polling debounced — ganti channel Supabase Realtime.
   // Polling 30s memanggil scheduleRefresh yang sama (debounce 400ms
   // mengkoaleskan burst perubahan, full re-fetch alih-alih row-level patch).
+  // silent: true agar skeleton tidak berkedip + scroll/filter tidak reset;
+  // jeda saat tab tersembunyi (visibilitychange) agar tidak buang kuota.
   useEffect(() => {
     if (!realtimeEnabled) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let timer: number | undefined;
     const scheduleRefresh = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
+      if (document.visibilityState === 'hidden') return;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
         timer = undefined;
-        refreshEvents();
+        refreshEvents({ silent: true });
       }, 400);
     };
 
@@ -125,6 +128,8 @@ export function useEvents(options?: { realtime?: boolean }) {
     } catch (err) {
       const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
       setLastError(ae);
+      if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
+      else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
       console.error('Error adding event:', err);
       setEvents(prev => prev.filter(e => e.id !== tempId));
       return false;
@@ -168,6 +173,8 @@ export function useEvents(options?: { realtime?: boolean }) {
       } catch (err) {
         const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
         setLastError(ae);
+        if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
+        else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
         console.error('Error updating event:', err);
         if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
         return false;
@@ -187,8 +194,10 @@ export function useEvents(options?: { realtime?: boolean }) {
       } catch (err) {
         const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
         setLastError(ae);
+        if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
+        else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
         console.error('Error deleting event:', err);
-        if (target) setEvents(prev => [...prev, target]);
+        if (target) setEvents(prev => sortEvents([...prev, target]));
         return false;
       }
     }
@@ -205,7 +214,7 @@ export function useEvents(options?: { realtime?: boolean }) {
       return true;
     } catch (err) {
       console.error('Error deleting recurring series:', err);
-      setEvents(prev => [...prev, ...targets]);
+      setEvents(prev => sortEvents([...prev, ...targets]));
       return false;
     }
   }, [events, refreshEvents]);

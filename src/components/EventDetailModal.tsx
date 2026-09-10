@@ -108,7 +108,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Isi Survey Kepuasan</p>
-                  <p className="text-[11px] text-brand-primary-500 dark:text-brand-primary-400">Bantu kami meningkatkan kualitas layanan</p>
+                  <p className="text-[11px] text-brand-primary-700 dark:text-brand-primary-400">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
                 <span className="shrink-0 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white">
                   Isi Survey

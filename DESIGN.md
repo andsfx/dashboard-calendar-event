@@ -44,18 +44,18 @@ Use tosca for structure, focus, links, selected states, primary CTAs, and brand 
 
 Cap: at most **one** pink signal per viewport region. If tosca already carries the action, skip pink.
 
-### Brand primary scale (`theme.css`)
+### Brand primary scale (`theme.css` — angka di bawah = nilai kode, jangan ubah sepihak)
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `brand-primary-50` | `#eefafa` | Soft wash / selected row |
-| `brand-primary-100` | `#d5f3f2` | Chip bg light |
-| `brand-primary-200` | `#aae6e4` | Soft border accent |
-| `brand-primary-300` | `#66d1ce` | Hover wash |
-| `brand-primary-400` | `#33a8a5` | Soft tosca / dark-mode text |
-| `brand-primary-500` | `#00918e` | **Primary CTA / links** |
-| `brand-primary-600` | `#007a78` | Hover primary |
-| `brand-primary-700` | `#00554c` | Pressed / dark tosca |
+| `brand-primary-50` | `#e6f7f6` | Soft wash / selected row |
+| `brand-primary-100` | `#ccefef` | Chip bg light |
+| `brand-primary-200` | `#99dfde` | Soft border accent |
+| `brand-primary-300` | `#66cfcd` | Hover wash |
+| `brand-primary-400` | `#33bfbc` | Soft tosca / dark-mode text |
+| `brand-primary-500` | `#00918e` | Dekoratif saja (3.86:1 — JANGAN teks kecil di terang) |
+| `brand-primary-600` | `#007a78` | **CTA surface (AA 5.18:1)** — semua teks/button di terang pakai ini |
+| `brand-primary-700` | `#006260` | Teks kecil terang / pressed |
 | `brand-primary-800`–`950` | deeper | Rare; dense dark UI only |
 
 Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500).
@@ -104,9 +104,9 @@ Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounde
 
 | Token | Value | Use |
 |-------|-------|-----|
-| `--shadow-card-soft` | `0 12px 28px rgba(15, 23, 42, 0.04)` | Default card rest |
-| `--shadow-card-raised` | `0 18px 45px rgba(15, 23, 42, 0.08)` | Hover / elevated interactive |
-| `--border-subtle` | `rgba(15, 23, 42, 0.06)` | Default card/panel border |
+| `--shadow-card-soft` | `0 1px 3px rgba(22, 33, 27, 0.06)` (`tokens.css`) | Default card rest |
+| `--shadow-card-raised` | `0 18px 45px rgba(22, 33, 27, 0.08)` (`tokens.css`) | Hover / elevated interactive |
+| `--border-subtle` | `rgba(22, 33, 27, 0.06)` (`tokens.css`) | Default card/panel border |
 | `--ease-out-expo` | `cubic-bezier(0.22, 1, 0.36, 1)` | Reveals, modal panel, toast |
 
 ### Focus
@@ -172,7 +172,7 @@ Shared section eyebrow for community landing surfaces:
 Primary landing CTA:
 
 - rounded full
-- solid tosca (`var(--brand-tosca)` / `bg-brand-primary-500`)
+- solid tosca 600 (`var(--brand-tosca-600)` / `bg-brand-primary-600`, AA 5.18:1)
 - white text
 - no orange→violet gradient
 - clear verb: `Daftar Sekarang`, `Daftar Kolaborasi`, or `Hubungi Kami`

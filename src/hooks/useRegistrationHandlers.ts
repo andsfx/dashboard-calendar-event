@@ -63,7 +63,8 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
     try {
       await updateRegistrationStatus(id, status, adminNote);
       await refreshRegistrations();
-      showToast('success', 'Status diperbarui', `Pendaftaran berhasil diubah ke ${status}.`);
+      const statusLabel: Record<RegistrationStatus, string> = { pending: 'Menunggu', reviewed: 'Ditinjau', approved: 'Disetujui', rejected: 'Ditolak' };
+      showToast('success', 'Status diperbarui', `Pendaftaran berhasil diubah ke ${statusLabel[status]}.`);
       return true;
     } catch {
       showToast('error', 'Gagal memperbarui', 'Status pendaftaran belum berubah.');

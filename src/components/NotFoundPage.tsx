@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export function NotFoundPage() {
   const navigate = useNavigate();
   return (
-    <div className="ui-dashboard-page flex min-h-screen items-center justify-center bg-[#fbfaf7] px-4 dark:bg-slate-950">
+    <div className="ui-dashboard-page flex min-h-screen items-center justify-center bg-[var(--brand-paper)] px-4 dark:bg-slate-950">
       <div className="max-w-md text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary-50 dark:bg-brand-primary-950/30">
           <SearchX className="h-7 w-7 text-brand-primary-500" />

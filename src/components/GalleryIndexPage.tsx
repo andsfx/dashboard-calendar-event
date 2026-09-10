@@ -92,7 +92,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   }, [albums, themes]);
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
@@ -108,14 +108,14 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
 className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali ke Community
+          Kembali ke Komunitas
         </button>
 
         {/* Page title */}
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-500">
-              Gallery
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">
+              Galeri
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
               Galeri Event
@@ -277,7 +277,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-<footer className="border-t border-slate-200 bg-[#fbfaf7] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
+<footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
         </div>

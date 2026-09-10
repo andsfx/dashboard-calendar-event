@@ -42,8 +42,8 @@ export function useTenantSurveys(
   const [error, setError] = useState<string | null>(null);
 
   // ─── Fetch surveys ─────────────────────────────────────────────
-  const refreshSurveys = useCallback(async () => {
-    setIsLoading(true);
+  const refreshSurveys = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const data = publicMode
@@ -58,7 +58,7 @@ export function useTenantSurveys(
           : 'Gagal memuat survey tenant.',
       );
     } finally {
-      setIsLoading(false);
+      if (!opts?.silent) setIsLoading(false);
     }
   }, [eventId, publicMode]);
 
@@ -70,7 +70,8 @@ export function useTenantSurveys(
   useEffect(() => {
     if (publicMode) return;
     const intervalId = setInterval(() => {
-      refreshSurveys();
+      if (document.visibilityState === 'hidden') return;
+      refreshSurveys({ silent: true });
     }, 60_000);
 
     return () => {
@@ -138,8 +139,8 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshAnalytics = useCallback(async () => {
-    setIsLoading(true);
+  const refreshAnalytics = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const data = await fetchTenantSurveyAnalytics(
@@ -150,7 +151,7 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
       console.error('Fetch tenant analytics error:', err);
       setError('Gagal memuat analytics tenant.');
     } finally {
-      setIsLoading(false);
+      if (!opts?.silent) setIsLoading(false);
     }
   }, [eventId]);
 
@@ -161,7 +162,8 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
   // Opsi B: polling 60s — ganti channel Supabase Realtime (analytics selalu poll).
   useEffect(() => {
     const intervalId = setInterval(() => {
-      refreshAnalytics();
+      if (document.visibilityState === 'hidden') return;
+      refreshAnalytics({ silent: true });
     }, 60_000);
 
     return () => {

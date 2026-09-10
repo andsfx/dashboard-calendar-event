@@ -13,7 +13,7 @@ import type {
 
 export async function fetchCommunityRegistrations(): Promise<CommunityRegistration[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('readRegistrations', {});
-  if (!result.success) throw new ApiError(result.error || 'Fetch registrations failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat pendaftaran');
   return (result.data || []).map(row => {
     const r = row as Record<string, unknown>;
     const typeSpecific = (typeof r.type_specific_data === 'object' && r.type_specific_data !== null)
@@ -65,7 +65,7 @@ export async function uploadRegistrationAttachment(file: File): Promise<Registra
 
 export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('updateRegistrationStatus', { id, status, adminNote });
-  if (!result.success) throw new ApiError(result.error || 'Update registration failed');
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui pendaftaran');
 }
 
 function mapOrganizationType(frontendType?: string): string {
@@ -99,10 +99,10 @@ export async function submitCommunityRegistration(data: {
       proposal_file_name: data.proposalFileName || '',
       proposal_file_size: data.proposalFileSize || 0,
     });
-    if (!result.success) throw new ApiError(result.error || 'Registration failed');
+    if (!result.success) throw new ApiError(result.error || 'Gagal mendaftar');
     return { id: result.id || '' };
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Registration failed');
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mendaftar');
     throw err;
   }
 }
@@ -467,19 +467,26 @@ export async function fetchPublicTenantRoster(): Promise<TenantRosterItem[]> {
     const data = await apiGet<unknown>('/tenant/results-roster');
     return Array.isArray(data) ? data as TenantRosterItem[] : [];
   } catch (err) {
-    // 429 rate limit / error → [] (degradasi UI, mirror legacy).
+    // Semua ApiError → [] (degradasi): konsumen TenantSurveyResultsPage menampilkan
+    // pesan rosterError untuk list kosong — tidak menyesatkan seperti direktori.
     if (err instanceof ApiError) return [];
     throw err;
   }
 }
 
-/** Direktori tenant publik — MID proxy, tanpa PIC/telp. 429/error → [] (degradasi UI). */
+/** Direktori tenant publik — MID proxy, tanpa PIC/telp. Error 429/limit atau 5xx tetap []
+ *  (degradasi), 4xx lain diteruskan agar UI bisa menampilkan tombol Coba lagi. */
 export async function fetchPublicTenantDirectory(): Promise<TenantRosterItem[]> {
   try {
     const data = await apiGet<unknown>('/tenant/directory');
     return Array.isArray(data) ? data as TenantRosterItem[] : [];
   } catch (err) {
-    if (err instanceof ApiError) return [];
+    // 429/5xx → degradasi (tampilkan kosong); 4xx lain → rethrow agar UI
+    // menampilkan error state + tombol Coba lagi (ApiError.code = HTTP status).
+    if (err instanceof ApiError) {
+      const status = Number(err.code);
+      if (status === 429 || status >= 500) return [];
+    }
     throw err;
   }
 }

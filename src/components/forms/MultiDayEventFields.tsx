@@ -34,7 +34,7 @@ export function MultiDayEventFields({
     <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
       <div>
         <label htmlFor={`${datalistId}-date-end`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-          Tanggal Selesai <span className="text-red-500">*</span>
+          Tanggal Selesai <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </label>
         <input
           id={`${datalistId}-date-end`}
@@ -49,7 +49,7 @@ export function MultiDayEventFields({
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.dateEnd && <p id={`${datalistId}-date-end-error`} className="mt-1 text-xs text-red-500" role="alert">{errors.dateEnd}</p>}
+        {errors.dateEnd && <p id={`${datalistId}-date-end-error`} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.dateEnd}</p>}
       </div>
 
       {dayTimeSlots.length > 0 && (
@@ -82,6 +82,7 @@ export function MultiDayEventFields({
                     onClick={() => onCopyFromPreviousDay(idx)}
                     className="rounded-lg border border-slate-300 bg-white p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-500 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500"
                     title="Salin dari hari sebelumnya"
+                    aria-label="Salin jam dari hari sebelumnya"
                   >
                     <Copy className="h-4 w-4" />
                   </button>

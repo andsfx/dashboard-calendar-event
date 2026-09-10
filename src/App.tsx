@@ -44,6 +44,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
+  const contentPanel = new URLSearchParams(location.search).get('panel');
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     const dark = saved === 'dark';
@@ -241,6 +242,19 @@ export default function App() {
     }
   }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions]);
 
+  // Konten via ?panel= — refresh/deep-link/back membuka modal yg sama.
+  useEffect(() => {
+    if (!location.pathname.startsWith('/dashboard')) return;
+    switch (contentPanel) {
+      case 'landing-page': setShowInstagramSettings(true); break;
+      case 'album-gallery': setShowAlbumManager(true); break;
+      case 'event-areas': setShowEventAreaManager(true); break;
+      case 'letter': setShowLetterPickerModal(true); break;
+      case 'news': setShowNewsManager(true); break;
+      case 'sponsorship': setShowSponsorManager(true); break;
+    }
+  }, [contentPanel, location.pathname]);
+
 
   // ─── Build sub-props for DashboardPage ───────────────────────
   const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, login: auth.login };
@@ -254,6 +268,7 @@ export default function App() {
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
   const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
   return (
+    <>
     <Routes>
       {/* Community Landing Page */}
       <Route path="/" element={
@@ -277,7 +292,6 @@ export default function App() {
             onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
             events={events}
           />
-          <ToastContainer toasts={toasts} onRemove={removeToast} />
         </Suspense>
       } />
       {/* Public event schedule landing */}
@@ -298,7 +312,6 @@ export default function App() {
             onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
             events={events}
           />
-          <ToastContainer toasts={toasts} onRemove={removeToast} />
         </Suspense>
       } />
 
@@ -437,7 +450,6 @@ export default function App() {
             <div className="mx-auto max-w-7xl px-3 py-3 pb-16 sm:px-4 sm:py-6 sm:pb-12">
               <TenantSurveyResultsPage events={events} canExport={permissions.canExportTenantSurveyAnalytics} publicMode />
             </div>
-            <ToastContainer toasts={toasts} onRemove={removeToast} />
           </div>
         </Suspense>
       } />
@@ -462,8 +474,9 @@ export default function App() {
               onToggleDark={toggleDark}
               dashboardPath={dashboardPath}
               publicSectionItems={publicSectionItems}
-              toasts={toasts}
-              removeToast={removeToast}
+              onCloseContentPanel={() => {
+                if (new URLSearchParams(location.search).get('panel')) navigate('/dashboard', { replace: true });
+              }}
               auth={dpAuth}
               events={dpEvents}
               drafts={dpDrafts}
@@ -490,5 +503,7 @@ export default function App() {
         </Suspense>
       } />
     </Routes>
+    <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </>
   );
 }

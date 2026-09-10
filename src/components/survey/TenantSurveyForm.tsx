@@ -261,7 +261,7 @@ export default function TenantSurveyForm({
             <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
               <Building2 className="h-3.5 w-3.5" />
               Nama Gerai
-              <span className="text-red-500">*</span>
+              <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <TenantSearchSelect
               id="ts-form-gerai"
@@ -314,7 +314,7 @@ export default function TenantSurveyForm({
             <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
               <MapPin className="h-3.5 w-3.5" />
               Lokasi / Zona
-              <span className="text-red-500">*</span>
+              <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               {autoFilled.lokasi_zona && (
                 <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto</span>
               )}

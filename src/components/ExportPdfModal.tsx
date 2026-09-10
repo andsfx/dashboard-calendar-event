@@ -173,7 +173,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       <div className="max-h-[90vh] overflow-y-auto rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-500">Laporan PDF</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
             <h2 className="mt-1 text-2xl font-bold tracking-tight">{previewUrl ? 'Preview PDF' : 'Export Album Foto'}</h2>
             <p className="mt-1 text-sm ui-text-muted">{previewUrl ? 'Cek dulu hasilnya sebelum download.' : 'Generate report landscape berdasarkan tanggal atau tema event.'}</p>
           </div>
@@ -264,7 +264,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                 <div className="text-sm ui-text-muted">Format: Laporan PDF landscape A4.</div>
               </div>
             </div>
-            {errorMessage ? <p className="mt-3 text-sm text-red-500">{errorMessage}</p> : null}
+            {errorMessage ? <p className="mt-3 text-sm text-red-600 dark:text-red-400">{errorMessage}</p> : null}
           </div>
         </div>
         )}

@@ -15,12 +15,12 @@ export function useDraftEvents(enabled = false) {
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshDrafts = useCallback(async () => {
+  const refreshDrafts = useCallback(async (opts?: { silent?: boolean }) => {
     if (!enabled) {
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+    if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const drafts = await fetchDraftEvents();
@@ -29,7 +29,7 @@ export function useDraftEvents(enabled = false) {
       console.error('Draft fetch error:', err);
       setError('Gagal memuat draft event.');
     } finally {
-      setIsLoading(false);
+      if (!opts?.silent) setIsLoading(false);
     }
   }, [enabled]);
 
@@ -48,7 +48,8 @@ export function useDraftEvents(enabled = false) {
   useEffect(() => {
     if (!enabled) return;
     const intervalId = setInterval(() => {
-      refreshDrafts();
+      if (document.visibilityState === 'hidden') return;
+      refreshDrafts({ silent: true });
     }, 60_000);
 
     return () => {

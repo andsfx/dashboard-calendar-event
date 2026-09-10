@@ -56,7 +56,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor={`${datalistId}-date`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-            Tanggal <span className="text-red-500">*</span>
+            Tanggal <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
           </label>
           <input
             id={`${datalistId}-date`}
@@ -71,7 +71,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
                 : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
             }`}
           />
-          {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.dateStr}</p>}
+          {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.dateStr}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-time`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Jam</label>
@@ -92,7 +92,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
       {/* Event Name */}
       <div>
         <label htmlFor={`${datalistId}-name`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-          {isDraft ? 'Nama Event' : 'Nama Acara'} <span className="text-red-500">*</span>
+          {isDraft ? 'Nama Event' : 'Nama Acara'} <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </label>
         <input
           id={`${datalistId}-name`}
@@ -107,7 +107,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.acara && <p id={nameErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.acara}</p>}
+        {errors.acara && <p id={nameErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.acara}</p>}
       </div>
 
       {/* Area (opsional) — FK ke event_areas untuk deteksi double-booking */}
@@ -158,7 +158,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
       {/* Location */}
       <div>
         <label htmlFor={`${datalistId}-location`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-          Lokasi <span className="text-red-500">*</span>
+          Lokasi <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </label>
         <input
           id={`${datalistId}-location`}
@@ -177,7 +177,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
         <datalist id={`${datalistId}-lokasi-suggestions`}>
           {lokasiSuggestions.map(item => <option key={item} value={item} />)}
         </datalist>
-        {errors.lokasi && <p id={locationErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.lokasi}</p>}
+        {errors.lokasi && <p id={locationErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.lokasi}</p>}
       </div>
     </>
   );

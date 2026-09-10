@@ -93,7 +93,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor={`${datalistId}-pic`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-            Penanggung Jawab {isDraft && <span className="text-red-500">*</span>}
+            Penanggung Jawab {isDraft && <><span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></>}
           </label>
           <input
             id={`${datalistId}-pic`}
@@ -114,11 +114,11 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {picSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.pic && <p id={picErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.pic}</p>}
+          {errors.pic && <p id={picErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.pic}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-phone`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-            Nomor {isDraft ? 'Telepon' : 'Handphone'} {isDraft && <span className="text-red-500">*</span>}
+            Nomor {isDraft ? 'Telepon' : 'Handphone'} {isDraft && <><span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></>}
           </label>
           <input
             id={`${datalistId}-phone`}
@@ -139,7 +139,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               {phoneSuggestions.map(item => <option key={item} value={item} />)}
             </datalist>
           )}
-          {errors.phone && <p id={phoneErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.phone}</p>}
+          {errors.phone && <p id={phoneErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.phone}</p>}
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
               </span>
             ))}
           </div>
-          {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-500" role="alert">{errors.categories}</p>}
+          {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.categories}</p>}
         </div>
         <div>
           <label htmlFor={`${datalistId}-priority`} className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Prioritas</label>

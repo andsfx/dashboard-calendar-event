@@ -59,7 +59,7 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
     <fieldset className="space-y-2" disabled={disabled} aria-required={required || undefined} aria-invalid={!!error || undefined} aria-describedby={errorId}>
       <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <><span className="ml-1 text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></>}
       </legend>
       <div className="space-y-2" role="radiogroup" aria-label={label}>
         {options.map((opt) => {

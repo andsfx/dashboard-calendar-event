@@ -77,6 +77,24 @@
   background: var(--brand-tosca-dark);
 }
 
+.ui-btn-primary:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.ui-btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.dark .ui-btn-primary {
+  background: var(--brand-tosca-dark);
+}
+
+.dark .ui-btn-primary:hover {
+  background: var(--brand-tosca-600);
+}
+
 .ui-dashboard-card-padded {
   border-radius: var(--radius-card-lg);
   border: 1px solid var(--border-subtle);

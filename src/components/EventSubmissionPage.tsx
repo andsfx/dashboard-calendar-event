@@ -238,7 +238,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <label htmlFor="sub-acara" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Nama Acara <span className="text-red-500">*</span>
+                    Nama Acara <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </label>
                   <input
                     id="sub-acara"
@@ -250,12 +250,12 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     className={`${inputClass} ${errors.acara ? errInput : okInput}`}
                     placeholder="Contoh: Workshop Batik Modern"
                   />
-                  {errors.acara && <p className="mt-1 text-xs text-red-500" role="alert">{errors.acara}</p>}
+                  {errors.acara && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.acara}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="sub-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Tanggal Mulai <span className="text-red-500">*</span>
+                    Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </label>
                   <input
                     id="sub-date"
@@ -265,7 +265,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     aria-invalid={!!errors.dateStr}
                     className={`${inputClass} ${errors.dateStr ? errInput : okInput}`}
                   />
-                  {errors.dateStr && <p className="mt-1 text-xs text-red-500" role="alert">{errors.dateStr}</p>}
+                  {errors.dateStr && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.dateStr}</p>}
                 </div>
 
                 <div>
@@ -281,7 +281,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     aria-invalid={!!errors.dateEnd}
                     className={`${inputClass} ${errors.dateEnd ? errInput : okInput}`}
                   />
-                  {errors.dateEnd && <p className="mt-1 text-xs text-red-500" role="alert">{errors.dateEnd}</p>}
+                  {errors.dateEnd && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.dateEnd}</p>}
                 </div>
 
                 <div>
@@ -314,7 +314,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
 
                 <div>
                   <label htmlFor="sub-eo" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Nama Organisasi / EO <span className="text-red-500">*</span>
+                    Nama Organisasi / EO <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </label>
                   <input
                     id="sub-eo"
@@ -325,12 +325,12 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     aria-invalid={!!errors.eo}
                     className={`${inputClass} ${errors.eo ? errInput : okInput}`}
                   />
-                  {errors.eo && <p className="mt-1 text-xs text-red-500" role="alert">{errors.eo}</p>}
+                  {errors.eo && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.eo}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="sub-pic" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Nama PIC <span className="text-red-500">*</span>
+                    Nama PIC <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </label>
                   <input
                     id="sub-pic"
@@ -341,12 +341,12 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     aria-invalid={!!errors.pic}
                     className={`${inputClass} ${errors.pic ? errInput : okInput}`}
                   />
-                  {errors.pic && <p className="mt-1 text-xs text-red-500" role="alert">{errors.pic}</p>}
+                  {errors.pic && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.pic}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="sub-phone" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    No. HP (WhatsApp) <span className="text-red-500">*</span>
+                    No. HP (WhatsApp) <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
                   </label>
                   <input
                     id="sub-phone"
@@ -357,7 +357,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     className={`${inputClass} ${errors.phone ? errInput : okInput}`}
                     placeholder="Contoh: 0812xxxxxxx"
                   />
-                  {errors.phone && <p className="mt-1 text-xs text-red-500" role="alert">{errors.phone}</p>}
+                  {errors.phone && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.phone}</p>}
                 </div>
 
                 <div>
@@ -391,7 +391,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     className={`${inputClass} ${errors.keterangan ? errInput : okInput}`}
                     placeholder="Ceritakan singkat tentang acara, target pengunjung, dan kebutuhan area."
                   />
-                  {errors.keterangan && <p className="mt-1 text-xs text-red-500" role="alert">{errors.keterangan}</p>}
+                  {errors.keterangan && <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.keterangan}</p>}
                 </div>
               </div>
 

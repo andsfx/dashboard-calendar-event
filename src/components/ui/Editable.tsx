@@ -44,6 +44,13 @@ export function EditableText({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+      e.preventDefault();
+      setIsEditing(true);
+    }
+  };
+
   const handleBlur = () => {
     setIsEditing(false);
     onCommit?.(value);
@@ -59,13 +66,16 @@ export function EditableText({
       ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
       : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50'
   }`;
-  const editClasses = `${baseClasses} w-full border-b border-slate-300 bg-transparent py-0.5 outline-none focus:border-blue-500 dark:border-slate-600 dark:focus:border-blue-400`;
+  const editClasses = `${baseClasses} w-full border-b border-slate-300 bg-transparent py-0.5 outline-none focus:border-brand-primary-500 dark:border-slate-600 dark:focus:border-brand-primary-400`;
 
   return (
     <span
       className={className}
       style={style}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role={disabled ? undefined : 'button'}
+      tabIndex={disabled ? undefined : 0}
       aria-label={ariaLabel || placeholder}
     >
       {isEditing ? (
@@ -146,6 +156,12 @@ export function EditableArea({
       setIsEditing(true);
     }
   };
+  const handleKeyDownArea = (e: React.KeyboardEvent) => {
+    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+      e.preventDefault();
+      setIsEditing(true);
+    }
+  };
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -168,13 +184,16 @@ export function EditableArea({
       ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
       : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50 p-1 -m-1 rounded'
   }`;
-  const editClasses = `${baseClasses} w-full resize-none border border-slate-300 bg-transparent p-2 outline-none focus:border-blue-500 dark:border-slate-600 dark:focus:border-blue-400 min-h-[60px]`;
+  const editClasses = `${baseClasses} w-full resize-none border border-slate-300 bg-transparent p-2 outline-none focus:border-brand-primary-500 dark:border-slate-600 dark:focus:border-brand-primary-400 min-h-[60px]`;
 
   return (
     <div
       className={className}
       style={style}
       onClick={handleClick}
+      onKeyDown={handleKeyDownArea}
+      role={disabled ? undefined : 'button'}
+      tabIndex={disabled ? undefined : 0}
       aria-label={ariaLabel || placeholder}
     >
       {isEditing ? (

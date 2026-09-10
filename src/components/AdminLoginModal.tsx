@@ -128,7 +128,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
                 </button>
               </div>
               {error && (
-                <p id="admin-login-error" role="alert" className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
+                <p id="admin-login-error" role="alert" className="mt-1.5 flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                   <span aria-hidden="true">⚠</span> {error}
                 </p>
               )}

@@ -29,7 +29,6 @@ export interface DashboardShellProps {
   publicSectionItems: SectionNavItem[];
   children: ReactNode;
   modals: ReactNode;
-  toasts: ReactNode;
 }
 
 /** Chrome for /dashboard/* — sidebar, navbar, skip-link, main frame. Sections stay in App. */
@@ -54,7 +53,6 @@ export function DashboardShell({
   publicSectionItems,
   children,
   modals,
-  toasts,
 }: DashboardShellProps) {
   const { pathname } = useLocation();
   return (
@@ -123,7 +121,6 @@ export function DashboardShell({
       </div>
 
       {modals}
-      {toasts}
     </div>
   );
 }

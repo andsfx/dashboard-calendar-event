@@ -232,10 +232,10 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Gagal menyimpan survey';
 
-      // Detect duplicate via Supabase unique-constraint error message
+      // Duplikat (unique constraint) → pesan Indonesia baku, bukan mentah server.
       if (/sudah pernah|already|duplicate|23505/i.test(msg)) {
         setFormStatus('duplicate');
-        setDuplicateError(msg);
+        setDuplicateError('Anda sudah pernah mengirimkan survey untuk event ini.');
         recheckDuplicate();
       } else {
         setFormStatus('error');

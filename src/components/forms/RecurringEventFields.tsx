@@ -59,6 +59,7 @@ export function RecurringEventFields({
                 key={idx}
                 type="button"
                 onClick={() => onToggleDayOfWeek(idx)}
+                aria-pressed={recurrenceDaysOfWeek.includes(idx)}
                 className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
                   recurrenceDaysOfWeek.includes(idx)
                     ? 'bg-brand-primary-600 text-white'
@@ -69,7 +70,7 @@ export function RecurringEventFields({
               </button>
             ))}
           </div>
-          {errors.recurrenceDaysOfWeek && <p id="recurrence-days-error" className="mt-1 text-xs text-red-500" role="alert">{errors.recurrenceDaysOfWeek}</p>}
+          {errors.recurrenceDaysOfWeek && <p id="recurrence-days-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.recurrenceDaysOfWeek}</p>}
         </div>
       )}
 
@@ -107,7 +108,7 @@ export function RecurringEventFields({
       {/* End date */}
       <div>
         <label htmlFor="recurrence-end-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
-          Sampai tanggal <span className="text-red-500">*</span>
+          Sampai tanggal <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
         </label>
         <input
           id="recurrence-end-date"
@@ -122,7 +123,7 @@ export function RecurringEventFields({
               : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'
           }`}
         />
-        {errors.recurrenceEndDate && <p id="recurrence-end-error" className="mt-1 text-xs text-red-500" role="alert">{errors.recurrenceEndDate}</p>}
+        {errors.recurrenceEndDate && <p id="recurrence-end-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors.recurrenceEndDate}</p>}
       </div>
 
       {/* Preview */}

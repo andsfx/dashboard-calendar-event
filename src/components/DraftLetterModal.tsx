@@ -229,12 +229,12 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
 
   const renderLabel = (label: string, field: keyof LetterRequestItem) => (
     <label className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300" htmlFor={String(field)}>
-      {label}{REQUIRED_FIELDS.has(field) && <span className="text-red-500"> *</span>}
+      {label}{REQUIRED_FIELDS.has(field) && <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>}
     </label>
   );
 
   const renderError = (field: keyof LetterRequestItem) => errors[field] && (
-    <p id={`${String(field)}-error`} className="mt-1 text-xs text-red-500" role="alert">{errors[field]}</p>
+    <p id={`${String(field)}-error`} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors[field]}</p>
   );
 
   const renderInput = (field: keyof LetterRequestItem, label: string, placeholder?: string, type = 'text') => (
