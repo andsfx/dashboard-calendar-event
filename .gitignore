@@ -25,6 +25,7 @@ pnpm-workspace.yaml
 # Playwright E2E
 test-results/
 playwright-report/
+e2e/__smoke*
 
 # Generated reports
 reports/
