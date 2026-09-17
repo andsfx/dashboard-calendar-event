@@ -18,6 +18,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { stripPii } from '../auth.js';
+import { toTextArray } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 
 const router = Router();
@@ -179,9 +180,11 @@ router.post('/drafts', async (req, res, next) => {
   const row = {};
   for (const key of DRAFT_PUBLIC_COLUMNS) {
     if (data[key] !== undefined && data[key] !== null) {
-      row[key] = (key === 'categories' || key === 'day_time_slots')
-        ? (typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]))
-        : data[key];
+      row[key] = (key === 'categories')
+        ? toTextArray(data[key])
+        : key === 'day_time_slots'
+          ? (typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]))
+          : data[key];
     }
   }
   if (!row.tanggal) row.tanggal = '';
@@ -200,7 +203,7 @@ router.post('/drafts', async (req, res, next) => {
         row.date_str, row.date_end ?? null, row.day ?? '', row.tanggal, row.jam ?? '',
         row.lokasi ?? '', row.area_id ?? null, acara, row.eo ?? '', row.pic ?? '',
         row.phone ?? '', row.keterangan ?? '', row.month, row.category ?? 'Umum',
-        JSON.stringify(row.categories ?? []), row.priority ?? 'medium',
+        toTextArray(row.categories ?? []), row.priority ?? 'medium',
         row.event_model ?? '', row.event_nominal ?? '', row.event_model_notes ?? '', 'draft',
       ],
     );

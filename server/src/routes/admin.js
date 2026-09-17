@@ -20,6 +20,7 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { requireRole, logActivity } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
+import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 import {
   deleteR2File,
@@ -74,36 +75,6 @@ const AREA_COLUMNS = new Set(['name', 'description', 'cover_photo_url', 'sort_or
 
 const NEWS_COLUMNS = new Set(['title', 'slug', 'excerpt', 'content', 'cover_image_url', 'author', 'status']);
 
-/** JSONB value: stringify object/array; string yang sudah JSON dipakai apa adanya. */
-function toJsonb(value) {
-  if (value === null || value === undefined) return null;
-  if (typeof value === 'string') {
-    try {
-      JSON.parse(value);
-      return value;
-    } catch {
-      return JSON.stringify(value);
-    }
-  }
-  return JSON.stringify(value);
-}
-
-/** text[] value: array → literal array (pg serialize); string → coba parse JSON / bungkus 1 elemen. */
-function toTextArray(value) {
-  if (value === null || value === undefined) return null;
-  if (Array.isArray(value)) return value;
-  const raw = String(value).trim();
-  if (raw.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [raw];
-    } catch {
-      return [raw];
-    }
-  }
-  return [raw];
-}
-
 async function switchAction(action, req) {
   const { body } = req;
   const auth = req.auth;
@@ -123,7 +94,7 @@ async function switchAction(action, req) {
           data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
           data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
           data.phone ?? '', data.keterangan ?? '', data.month ?? '', data.status ?? 'upcoming',
-          data.category ?? 'Umum', JSON.stringify(data.categories ?? []), data.priority ?? 'medium',
+          data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
           data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
           data.source_draft_id ?? '', data.is_multi_day ?? false,
           data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
@@ -154,10 +125,11 @@ async function switchAction(action, req) {
       const values = [];
       for (const key of keys) {
         if (!ALLOWED.has(key)) continue;
-        // JSONB/array kolom → serialize
-        const value = (key === 'categories' || key === 'day_time_slots')
-          ? JSON.stringify(data[key] ?? null)
-          : (data[key] ?? null);
+        const value = (key === 'categories')
+          ? toTextArray(data[key])
+          : key === 'day_time_slots'
+            ? (data[key] === null || data[key] === undefined ? null : JSON.stringify(data[key]))
+            : (data[key] ?? null);
         values.push(value);
         sets.push(`${key} = $${values.length}`);
       }
@@ -192,7 +164,7 @@ async function switchAction(action, req) {
             data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
             data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
             data.phone ?? '', data.keterangan ?? '', data.month ?? '', data.status ?? 'upcoming',
-            data.category ?? 'Umum', JSON.stringify(data.categories ?? []), data.priority ?? 'medium',
+            data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
             data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
             data.source_draft_id ?? '', data.is_multi_day ?? false,
             data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
@@ -283,7 +255,7 @@ async function switchAction(action, req) {
           [
             draft.date_str, draft.date_end, draft.day, draft.tanggal, draft.jam, draft.lokasi,
             draft.area_id, draft.acara, draft.eo, draft.pic, draft.phone, draft.keterangan,
-            draft.month, draft.category, JSON.stringify(draft.categories || []), draft.priority,
+            draft.month, draft.category, toTextArray(draft.categories || []), draft.priority,
             draft.event_model, draft.event_nominal, draft.event_model_notes, draftId,
             draft.is_multi_day, draft.day_time_slots ? JSON.stringify(draft.day_time_slots) : null,
             draft.event_type, draft.recurrence_group_id, draft.is_recurring,
