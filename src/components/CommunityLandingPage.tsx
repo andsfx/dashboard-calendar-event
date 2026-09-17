@@ -61,6 +61,7 @@ const NAV_ITEMS = [
   { href: '#gallery', label: 'Galeri' },
   { href: '#news', label: 'Berita' },
   { href: '/tenants', label: 'Tenant' },
+  { href: '/pameran', label: 'Pameran' },
   { href: '#register', label: 'Daftar' },
   { href: '#contact', label: 'Kontak' },
 ] as const;

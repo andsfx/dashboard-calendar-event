@@ -3,13 +3,14 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
-import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
+import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
+import { useExhibitions } from './hooks/useExhibitions';
 import { useDashboardHandlers } from './hooks/useDashboardHandlers';
 import { useConfirmDialog } from './components/ConfirmDialog';
 import { ViewMode } from './types';
@@ -31,6 +32,7 @@ const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m
 const SponsorLandingPage = lazy(() => import('./components/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
 const TenantDirectoryPage = lazy(() => import('./components/TenantDirectoryPage').then(m => ({ default: m.TenantDirectoryPage })));
 const CommunityDirectoryPage = lazy(() => import('./components/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
+const ExhibitionsLandingPage = lazy(() => import('./components/ExhibitionsLandingPage').then(m => ({ default: m.ExhibitionsLandingPage })));
 const RegistrationPage = lazy(() => import('./components/RegistrationPage').then(m => ({ default: m.RegistrationPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./components/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
@@ -54,6 +56,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
   const permissions = usePermission(auth.user);
+  const exhibitions = useExhibitions(permissions.canEditEvents);
   const isAdmin = permissions.canViewDashboard;
   const canSeeInternalSchedule = permissions.canEditEvents;
   const { toasts, showToast, removeToast } = useToast();
@@ -260,10 +263,22 @@ export default function App() {
   const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, login: auth.login };
   const dpEvents: DashboardPageEvents = { events, publicEvents, visibleEvents, visibleStats, ongoingEvents, upcomingEvents, holidays, annualThemes, error };
   const dpDrafts: DashboardPageDrafts = { activeDrafts, draftHistory, draftEvents, isDraftLoading, draftError };
+  const dpExhibitions: DashboardPageExhibitions = {
+    exhibitions: exhibitions.exhibitions,
+    leads: exhibitions.leads,
+    activations: exhibitions.activations,
+    isLoading: exhibitions.isLoading,
+    error: exhibitions.error,
+    onSave: exhibitions.saveExhibition,
+    onDelete: exhibitions.removeExhibition,
+    onReviewLead: exhibitions.reviewLead,
+    onLinkActivation: exhibitions.linkActivation,
+    onUnlinkActivation: exhibitions.unlinkActivation,
+  };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
   const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleOpenLetterPicker, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
-  const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal };
+  const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
   const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
@@ -350,6 +365,17 @@ export default function App() {
       <Route path="/sponsor" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <SponsorLandingPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      {/* Pameran & kolaborasi — publik */}
+      <Route path="/pameran" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <ExhibitionsLandingPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      <Route path="/pameran/:id" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <ExhibitionsLandingPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
       {/* Tenant directory — publik */}
@@ -481,6 +507,7 @@ export default function App() {
               auth={dpAuth}
               events={dpEvents}
               drafts={dpDrafts}
+              exhibitions={dpExhibitions}
               filters={dpFilters}
               view={dpView}
               handlers={dpHandlers}

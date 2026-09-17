@@ -248,6 +248,66 @@ export interface SponsorLeadInput {
   message?: string;
 }
 
+// ─── Pameran & kolaborasi Casual Leasing ───────────────────────────
+export type ExhibitionPublication = 'draft' | 'published' | 'archived';
+export type ExhibitionLeadStatus = 'pending' | 'contacted' | 'approved' | 'rejected';
+export type ExhibitionParticipation = 'booth' | 'activation' | 'both';
+
+export interface ExhibitionInput {
+  title: string;
+  theme: string;
+  description: string;
+  location: string;
+  dateStart: string;
+  dateEnd: string;
+  collaborationBrief: string;
+  leasingPic: string;
+  marcommPic: string;
+  publication: ExhibitionPublication;
+  acceptingApplications: boolean;
+}
+
+export interface Exhibition extends ExhibitionInput {
+  id: string;
+  createdAt: string;
+}
+
+export interface ExhibitionLeadInput {
+  exhibitionId: string;
+  organizationName: string;
+  organizationType: 'brand' | 'eo';
+  participation: ExhibitionParticipation;
+  contactName: string;
+  phone: string;
+  email: string;
+  proposal: string;
+}
+
+export interface ExhibitionLead extends ExhibitionLeadInput {
+  id: string;
+  status: ExhibitionLeadStatus;
+  internalNotes: string;
+  createdAt: string;
+}
+
+/** Jadwal resmi yang ditautkan ke pameran; bukan salinan event. */
+export interface ExhibitionActivation {
+  eventId: string;
+  exhibitionId: string;
+  title: string;
+  dateStart: string;
+  dateEnd: string;
+  time: string;
+  location: string;
+  organizer: string;
+}
+
+export interface ExhibitionDetail {
+  exhibition: Exhibition;
+  activations: ExhibitionActivation[];
+  leads: ExhibitionLead[];
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

@@ -113,6 +113,22 @@ export {
   deleteEventProposal,
 } from './api/sponsorshipApi';
 
+export {
+  fetchPublicExhibitions,
+  fetchPublicExhibition,
+  submitExhibitionLead,
+  fetchExhibitions,
+  fetchExhibitionActivations,
+  createExhibition,
+  updateExhibition,
+  deleteExhibition,
+  fetchExhibitionLeads,
+  updateExhibitionLead,
+  linkExhibitionActivation,
+  unlinkExhibitionActivation,
+  type AdminExhibition,
+} from './api/exhibitionsApi';
+
 export type {
   PublicTenantSurveyEventInfo,
   TenantDropdownOption,

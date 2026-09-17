@@ -641,6 +641,137 @@ CREATE INDEX IF NOT EXISTS idx_generated_letters_draft_event_id ON generated_let
 CREATE INDEX IF NOT EXISTS idx_generated_letters_created_at ON generated_letters (created_at DESC);
 
 -- ============================================================================
+-- 21. PAMERAN (Casual Leasing) + LEAD KOLABORASI + AKTIVASI
+-- ----------------------------------------------------------------------------
+-- Pameran = program induk (mis. Beauty Fair). Aktivasi = event resmi yang
+-- ditautkan ke pameran (bukan salinan jadwal). Lead = minat brand/EO.
+-- Approve lead TIDAK membuat event (sejalan ADR 003).
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS exhibitions (
+  id TEXT PRIMARY KEY DEFAULT ('exh_' || replace(gen_random_uuid()::text, '-', '')),
+  title TEXT NOT NULL,
+  theme TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  date_start DATE NOT NULL,
+  date_end DATE NOT NULL,
+  collaboration_brief TEXT NOT NULL DEFAULT '',
+  leasing_pic TEXT NOT NULL DEFAULT '',
+  marcomm_pic TEXT NOT NULL DEFAULT '',
+  publication TEXT NOT NULL DEFAULT 'draft' CHECK (publication IN ('draft', 'published', 'archived')),
+  accepting_applications BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT chk_exhibitions_period CHECK (date_end >= date_start),
+  CONSTRAINT chk_exhibitions_title CHECK (length(trim(title)) BETWEEN 3 AND 200)
+);
+
+CREATE INDEX IF NOT EXISTS idx_exhibitions_publication ON exhibitions (publication);
+CREATE INDEX IF NOT EXISTS idx_exhibitions_period ON exhibitions (date_start, date_end);
+
+CREATE TABLE IF NOT EXISTS exhibition_leads (
+  id TEXT PRIMARY KEY DEFAULT ('exl_' || replace(gen_random_uuid()::text, '-', '')),
+  exhibition_id TEXT NOT NULL REFERENCES exhibitions(id) ON DELETE CASCADE,
+  organization_name TEXT NOT NULL,
+  organization_type TEXT NOT NULL CHECK (organization_type IN ('brand', 'eo')),
+  participation TEXT NOT NULL CHECK (participation IN ('booth', 'activation', 'both')),
+  contact_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL DEFAULT '',
+  proposal TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'approved', 'rejected')),
+  internal_notes TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT chk_exhibition_leads_org CHECK (length(trim(organization_name)) BETWEEN 3 AND 200),
+  CONSTRAINT chk_exhibition_leads_contact CHECK (length(trim(contact_name)) BETWEEN 3 AND 100),
+  CONSTRAINT chk_exhibition_leads_phone CHECK (length(phone) BETWEEN 10 AND 15)
+);
+
+CREATE INDEX IF NOT EXISTS idx_exhibition_leads_exhibition ON exhibition_leads (exhibition_id);
+CREATE INDEX IF NOT EXISTS idx_exhibition_leads_status ON exhibition_leads (status);
+
+-- Satu event hanya boleh jadi aktivasi satu pameran (PK event_id).
+CREATE TABLE IF NOT EXISTS exhibition_activations (
+  event_id TEXT PRIMARY KEY REFERENCES events(id) ON DELETE CASCADE,
+  exhibition_id TEXT NOT NULL REFERENCES exhibitions(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_exhibition_activations_exhibition ON exhibition_activations (exhibition_id);
+
+-- Invarian periode aktivasi (defense in depth, melengkapi cek API):
+-- event yang tertaut TIDAK boleh keluar periode pameran lewat jalur apapun
+-- (link langsung, edit tanggal legacy updateEvent, maupun penyusutan periode
+-- exhibitions). Trigger memakai ERRCODE 23514 agar admin.js memetakan jadi 409
+-- ramah pengguna. DELETE event sengaja TIDAK diblokir — FK ON DELETE CASCADE
+-- menghapus tautan aktivasi bersama eventnya.
+CREATE OR REPLACE FUNCTION enforce_exhibition_activation_period()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_exhibition_id TEXT;
+  v_ex_start DATE;
+  v_ex_end DATE;
+  v_ev_start DATE;
+  v_ev_end DATE;
+BEGIN
+  IF TG_TABLE_NAME = 'exhibitions' THEN
+    IF EXISTS (
+      SELECT 1
+      FROM exhibition_activations ea
+      JOIN events e ON e.id = ea.event_id
+      WHERE ea.exhibition_id = NEW.id
+        AND (e.date_str::date < NEW.date_start
+          OR COALESCE(e.date_end, e.date_str::date) > NEW.date_end)
+    ) THEN
+      RAISE EXCEPTION 'Periode baru membuat event aktivasi berada di luar pameran. Lepas atau ubah jadwal aktivasi terlebih dahulu.' USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF TG_TABLE_NAME = 'exhibition_activations' THEN
+    v_exhibition_id := NEW.exhibition_id;
+    SELECT date_start, date_end INTO v_ex_start, v_ex_end FROM exhibitions WHERE id = NEW.exhibition_id;
+    SELECT date_str::date, COALESCE(date_end, date_str::date) INTO v_ev_start, v_ev_end FROM events WHERE id = NEW.event_id;
+  ELSIF TG_TABLE_NAME = 'events' THEN
+    SELECT exhibition_id INTO v_exhibition_id FROM exhibition_activations WHERE event_id = NEW.id;
+    IF NOT FOUND THEN
+      RETURN NEW;
+    END IF;
+    SELECT date_start, date_end INTO v_ex_start, v_ex_end FROM exhibitions WHERE id = v_exhibition_id;
+    v_ev_start := NEW.date_str::date;
+    v_ev_end := COALESCE(NEW.date_end, NEW.date_str::date);
+  ELSE
+    RETURN NEW;
+  END IF;
+
+  IF v_ex_start IS NULL OR v_ev_start IS NULL THEN
+    RETURN NEW;
+  END IF;
+  IF v_ev_start < v_ex_start OR v_ev_end > v_ex_end THEN
+    RAISE EXCEPTION 'Tanggal event berada di luar periode pameran' USING ERRCODE = '23514';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_exhibition_activations_period ON exhibition_activations;
+CREATE TRIGGER trg_exhibition_activations_period
+  BEFORE INSERT OR UPDATE ON exhibition_activations
+  FOR EACH ROW EXECUTE FUNCTION enforce_exhibition_activation_period();
+
+DROP TRIGGER IF EXISTS trg_events_activation_period ON events;
+CREATE TRIGGER trg_events_activation_period
+  BEFORE UPDATE ON events
+  FOR EACH ROW EXECUTE FUNCTION enforce_exhibition_activation_period();
+
+DROP TRIGGER IF EXISTS trg_exhibitions_period_guard ON exhibitions;
+CREATE TRIGGER trg_exhibitions_period_guard
+  BEFORE UPDATE ON exhibitions
+  FOR EACH ROW EXECUTE FUNCTION enforce_exhibition_activation_period();
+
+-- ============================================================================
 -- AUTO-UPDATE updated_at TRIGGER
 -- ============================================================================
 
@@ -669,6 +800,12 @@ CREATE TRIGGER tenant_survey_config_updated_at BEFORE UPDATE ON tenant_survey_co
 
 DROP TRIGGER IF EXISTS trg_tenant_survey_updated_at ON tenant_event_surveys;
 CREATE TRIGGER trg_tenant_survey_updated_at BEFORE UPDATE ON tenant_event_surveys FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS exhibitions_updated_at ON exhibitions;
+CREATE TRIGGER exhibitions_updated_at BEFORE UPDATE ON exhibitions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS exhibition_leads_updated_at ON exhibition_leads;
+CREATE TRIGGER exhibition_leads_updated_at BEFORE UPDATE ON exhibition_leads FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS event_areas_updated_at ON event_areas;
 CREATE TRIGGER event_areas_updated_at BEFORE UPDATE ON event_areas FOR EACH ROW EXECUTE FUNCTION update_updated_at();

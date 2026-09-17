@@ -3,7 +3,8 @@ import type { Dispatch, SetStateAction, ReactNode } from 'react';
 import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../../types';
+import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
 import type { SectionNavItem } from '../SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
@@ -37,6 +38,7 @@ const SurveyDashboard = lazy(() => import('../survey/SurveyDashboard').then(m =>
 const TenantSurveyPage = lazy(() => import('../survey/TenantSurveyPage'));
 const UserManagement = lazy(() => import('../admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
+const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
@@ -68,6 +70,18 @@ export interface DashboardPageDrafts {
   draftEvents: DraftEventItem[];
   isDraftLoading: boolean;
   draftError: string | null;
+}
+export interface DashboardPageExhibitions {
+  exhibitions: AdminExhibition[];
+  leads: ExhibitionLead[];
+  activations: ExhibitionActivation[];
+  isLoading: boolean;
+  error: string;
+  onSave: (input: ExhibitionInput, id?: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
+  onReviewLead: (id: string, status: ExhibitionLead['status']) => Promise<boolean>;
+  onLinkActivation: (exhibitionId: string, eventId: string) => Promise<boolean>;
+  onUnlinkActivation: (eventId: string) => Promise<boolean>;
 }
 
 export interface DashboardPageFilters {
@@ -130,6 +144,7 @@ export interface DashboardPageModalState {
   showDetailModal: boolean;          setShowDetailModal: (v: boolean) => void;
   showDraftHistory: boolean;         setShowDraftHistory: React.Dispatch<React.SetStateAction<boolean>>;
   showThemeModal: boolean;           setShowThemeModal: (v: boolean) => void;
+  openConfirm: (options: import('../ConfirmDialog').ConfirmOptions) => Promise<boolean>;
 }
 
 export interface DashboardPageModalData {
@@ -174,6 +189,7 @@ export interface DashboardPageProps {
   auth: DashboardPageAuth;
   events: DashboardPageEvents;
   drafts: DashboardPageDrafts;
+  exhibitions: DashboardPageExhibitions;
   filters: DashboardPageFilters;
   view: DashboardPageView;
   handlers: DashboardPageHandlers;
@@ -189,7 +205,7 @@ export function DashboardPage({
   isAdmin, isLoading, permissions, canSeeInternalSchedule,
   isDark, onToggleDark, dashboardPath, publicSectionItems,
   onCloseContentPanel,
-  auth, events, drafts, filters, view,
+  auth, events, drafts, exhibitions, filters, view,
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
   const availableViewTabs = getAvailableViewTabs(permissions.canEditEvents);
@@ -377,6 +393,33 @@ export function DashboardPage({
               onPublishDraft={handlers.handlePublishDraft}
               onDraftProgressChange={handlers.handleDraftProgressChange}
               onRestoreDraft={handlers.handleRestoreDraft}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {/* Exhibitions — pameran & aktivasi */}
+      {permissions.canEditEvents && dashboardPath === '/exhibitions' && (
+        <section id="exhibitions-section" className="scroll-mt-20">
+          <div className="mb-6">
+            <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Pameran &amp; Aktivasi</h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola pameran Casual Leasing, tautan event aktivasi, dan pengajuan brand/EO</p>
+          </div>
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <ExhibitionManager
+              exhibitions={exhibitions.exhibitions}
+              leads={exhibitions.leads}
+              activations={exhibitions.activations}
+              events={events.events}
+              isLoading={exhibitions.isLoading}
+              error={exhibitions.error}
+              canDelete={permissions.canDeleteEvents}
+              onSave={exhibitions.onSave}
+              onDelete={exhibitions.onDelete}
+              onReviewLead={exhibitions.onReviewLead}
+              onLinkActivation={exhibitions.onLinkActivation}
+              onUnlinkActivation={exhibitions.onUnlinkActivation}
+              onConfirm={modalState.openConfirm}
             />
           </Suspense>
         </section>

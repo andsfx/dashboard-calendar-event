@@ -56,6 +56,11 @@ router.post('/:action', requireRole(['superadmin', 'admin']), async (req, res, n
     if (String(err?.code) === '23505') {
       return res.status(409).json({ success: false, error: 'Data sudah ada (duplikat). Periksa kembali.' });
     }
+    // 23514 = check violation — termasuk trigger periode aktivasi pameran
+    // (pesan trigger sudah Indonesia dan aman ditampilkan).
+    if (String(err?.code) === '23514') {
+      return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak: melanggar periode pameran.' });
+    }
     console.error(`[admin/${action}]`, err);
     res.status(500).json({ success: false, error: err?.message || 'Terjadi kesalahan server' });
   }
@@ -925,6 +930,156 @@ async function switchAction(action, req) {
       );
       if (!rowCount) return { success: false, error: 'Surat tidak ditemukan' };
       logActivity(auth.user, 'delete_letter', 'generated_letter', body.id, null, req);
+      return { success: true };
+    }
+
+    // ══════════ PAMERAN (Casual Leasing) ══════════
+    case 'listExhibitions': {
+      const { rows } = await db.query(
+        `SELECT e.*, COALESCE(a.total, 0)::int AS activation_count
+         FROM exhibitions e
+         LEFT JOIN (
+           SELECT exhibition_id, COUNT(*) AS total
+           FROM exhibition_activations GROUP BY exhibition_id
+         ) a ON a.exhibition_id = e.id
+         ORDER BY e.date_start DESC`,
+      );
+      return { success: true, data: rows };
+    }
+
+    case 'listExhibitionActivations': {
+      const { rows } = await db.query(
+        `SELECT ea.event_id, ea.exhibition_id, e.acara, e.date_str, e.date_end, e.jam, e.lokasi, e.eo
+         FROM exhibition_activations ea
+         JOIN events e ON e.id = ea.event_id
+         ORDER BY e.date_str ASC`,
+      );
+      return { success: true, data: rows };
+    }
+
+    case 'createExhibition': {
+      const d = body.data;
+      const { rows } = await db.query(
+        `INSERT INTO exhibitions (title, theme, description, location, date_start, date_end,
+                                  collaboration_brief, leasing_pic, marcomm_pic, publication,
+                                  accepting_applications)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
+        [
+          d.title, d.theme, d.description, d.location, d.dateStart, d.dateEnd,
+          d.collaborationBrief, d.leasingPic, d.marcommPic, d.publication, d.acceptingApplications,
+        ],
+      );
+      const id = rows[0]?.id || '';
+      logActivity(auth.user, 'create_exhibition', 'exhibition', id, { title: d.title }, req);
+      return { success: true, id };
+    }
+
+    case 'updateExhibition': {
+      const d = body.data;
+      // Cek cepat API (pesan ramah) — trigger trg_exhibitions_period_guard
+      // tetap jadi penjamin bila balapan dengan update tanggal event.
+      const { rows: outside } = await db.query(
+        `SELECT COUNT(*)::int AS total
+         FROM exhibition_activations ea
+         JOIN events e ON e.id = ea.event_id
+         WHERE ea.exhibition_id = $1
+           AND (e.date_str::date < $2::date OR COALESCE(e.date_end, e.date_str::date) > $3::date)`,
+        [body.id, d.dateStart, d.dateEnd],
+      );
+      if ((outside[0]?.total || 0) > 0) {
+        return { success: false, error: 'Periode baru membuat event aktivasi berada di luar pameran. Lepas atau ubah jadwal aktivasi terlebih dahulu.' };
+      }
+      const { rowCount } = await db.query(
+        `UPDATE exhibitions SET title = $1, theme = $2, description = $3, location = $4,
+                                date_start = $5, date_end = $6, collaboration_brief = $7,
+                                leasing_pic = $8, marcomm_pic = $9, publication = $10,
+                                accepting_applications = $11
+         WHERE id = $12`,
+        [
+          d.title, d.theme, d.description, d.location, d.dateStart, d.dateEnd,
+          d.collaborationBrief, d.leasingPic, d.marcommPic, d.publication,
+          d.acceptingApplications, body.id,
+        ],
+      );
+      if (!rowCount) return { success: false, error: 'Pameran tidak ditemukan' };
+      logActivity(auth.user, 'update_exhibition', 'exhibition', body.id, { title: d.title }, req);
+      return { success: true };
+    }
+
+    case 'deleteExhibition': {
+      const { rows: linked } = await db.query(
+        `SELECT COUNT(*)::int AS total FROM exhibition_activations WHERE exhibition_id = $1`,
+        [body.id],
+      );
+      if ((linked[0]?.total || 0) > 0) {
+        return { success: false, error: 'Pameran masih punya event aktivasi. Lepas tautan aktivasi terlebih dahulu.' };
+      }
+      const { rowCount } = await db.query('DELETE FROM exhibitions WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Pameran tidak ditemukan' };
+      logActivity(auth.user, 'delete_exhibition', 'exhibition', body.id, null, req);
+      return { success: true };
+    }
+
+    case 'listExhibitionLeads': {
+      const params = [];
+      let where = '';
+      if (body.exhibitionId) { params.push(body.exhibitionId); where = `WHERE exhibition_id = $1`; }
+      const { rows } = await db.query(
+        `SELECT * FROM exhibition_leads ${where} ORDER BY created_at DESC`,
+        params,
+      );
+      return { success: true, data: rows };
+    }
+
+    case 'updateExhibitionLead': {
+      const { rowCount } = await db.query(
+        `UPDATE exhibition_leads SET status = $1, internal_notes = COALESCE($2, internal_notes)
+         WHERE id = $3`,
+        [body.status, body.internalNotes ?? null, body.id],
+      );
+      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      // Catatan: approve TIDAK membuat event (ADR 003) — penjadwalan tetap eksplisit.
+      logActivity(auth.user, 'update_exhibition_lead', 'exhibition_lead', body.id, { status: body.status }, req);
+      return { success: true };
+    }
+
+    case 'linkExhibitionActivation': {
+      const { rows } = await db.query(
+        `SELECT x.date_start, x.date_end, e.id AS event_id, e.acara,
+                e.date_str::date AS event_start,
+                COALESCE(e.date_end, e.date_str::date) AS event_end
+         FROM exhibitions x, events e
+         WHERE x.id = $1 AND e.id = $2`,
+        [body.exhibitionId, body.eventId],
+      );
+      const pair = rows[0];
+      if (!pair) return { success: false, error: 'Pameran atau event tidak ditemukan' };
+      if (String(pair.event_start) < String(pair.date_start) || String(pair.event_end) > String(pair.date_end)) {
+        return { success: false, error: 'Tanggal event berada di luar periode pameran' };
+      }
+      const { rows: existing } = await db.query(
+        'SELECT exhibition_id FROM exhibition_activations WHERE event_id = $1 LIMIT 1',
+        [body.eventId],
+      );
+      if (existing[0] && existing[0].exhibition_id !== body.exhibitionId) {
+        return { success: false, error: 'Event ini sudah menjadi aktivasi pameran lain' };
+      }
+      await db.query(
+        `INSERT INTO exhibition_activations (event_id, exhibition_id) VALUES ($1, $2)
+         ON CONFLICT (event_id) DO NOTHING`,
+        [body.eventId, body.exhibitionId],
+      );
+      logActivity(auth.user, 'link_exhibition_activation', 'exhibition', body.exhibitionId, { eventId: body.eventId }, req);
+      return { success: true };
+    }
+
+    case 'unlinkExhibitionActivation': {
+      const { rowCount } = await db.query(
+        'DELETE FROM exhibition_activations WHERE event_id = $1',
+        [body.eventId],
+      );
+      if (!rowCount) return { success: false, error: 'Aktivasi tidak ditemukan' };
+      logActivity(auth.user, 'unlink_exhibition_activation', 'event', body.eventId, null, req);
       return { success: true };
     }
 

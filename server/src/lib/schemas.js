@@ -4,6 +4,7 @@
  * menambah aksi admin baru.
  */
 import { z } from 'zod';
+import { EXHIBITION_ACTION_SCHEMAS } from './exhibitionSchemas.js';
 
 const prioritySchema = z.enum(['high', 'medium', 'low']);
 const eventModelSchema = z.enum(['', 'free', 'bayar', 'support']);
@@ -158,6 +159,7 @@ const ACTION_SCHEMAS = {
       .refine((u) => Object.keys(u).length > 0, { message: 'updates kosong' }),
   }),
   deleteLetter: z.object({ action: z.literal('deleteLetter'), id: z.string().min(1) }),
+  ...EXHIBITION_ACTION_SCHEMAS,
 };
 
 /**

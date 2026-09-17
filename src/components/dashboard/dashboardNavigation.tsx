@@ -106,6 +106,7 @@ export function getDashboardNavGroups(
         ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/events' }] : []),
         ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
         ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
+        ...(permissions.canEditEvents ? [{ id: 'exhibitions', label: 'Pameran & Aktivasi', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/exhibitions' }] : []),
       ],
     },
     {
