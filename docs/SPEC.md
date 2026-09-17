@@ -63,6 +63,7 @@ Glossary terms in **bold** match `CONTEXT.md`. Code identifiers in `backticks`.
 | Evaluasi Tenant submit/own | ✓ | ✓ | — | ✓ | — |
 | Evaluasi Tenant results/export | ✓ | ✓ | — | — | ✓ |
 | Manage settings (landing/album) | ✓ | ✓ | — | — | — |
+| Manage Area & Pemetaan Lokasi | ✓ | ✓ | — | — | — |
 | Manage users | ✓ | — | — | — | — |
 | Activity log | ✓ | ✓ | — | — | — |
 
@@ -111,6 +112,19 @@ Antrian pra-jadwal. Bukan Event.
 | internalNote | | hanya internal antrian |
 | deleted / deletedAt | | soft-delete antrian |
 
+#### Area
+
+Master **Lokasi** kanonis (tabel `event_areas`). Bukan Event, bukan Draft — dipakai bersama.
+
+| Field domain | Wajib | Catatan |
+|--------------|:-----:|---------|
+| id | ✓ | `era_*`; stabil — rename nama **tidak** mengubah id (FK aman) |
+| name | ✓ | unik case-insensitive (`lower(trim(name))`); nama tampilan kanonis |
+| description | | konteks lokasi |
+| coverPhotoUrl, photos | | galeri area (batas jumlah di ticket) |
+| sortOrder | | urutan section/rail |
+| isActive | ✓ | nonaktif = tidak ditawarkan sebagai pilihan baru |
+
 ### 3.2 Rules — Draft vs Event ([ADR 001](adr/001-draft-event-dual-entity.md))
 
 1. Draft dan Event **dua entitas**. Tidak promote “satu baris jadi Event”.
@@ -147,7 +161,19 @@ Antrian pra-jadwal. Bukan Event.
 - **Libur:** `libur_nasional` | `cuti_bersama`; tampil di kalender; bukan Event dibatalkan.
 - Hanya **admin** / **superadmin** yang manage Tema (viewer baca bila surface expose).
 
-### 3.6 Views (operasional)
+### 3.6 Rules — Area & Lokasi
+
+1. **Area = master lokasi kanonis.** Satu lokasi fisik = satu baris `event_areas`; ejaan berbeda tidak boleh jadi baris kedua (`UNIQUE (lower(trim(name)))`).
+2. **Event → Area lewat `areaId`** (FK opsional, `ON DELETE SET NULL`). Tanpa `areaId`, Event tetap valid dan tampil di bucket "Lokasi Lainnya".
+3. **`lokasi` (teks) tetap ada** sebagai teks tampilan warisan + dipakai ekspor/meta/OG. Bila `areaId` ada, **nama Area menang saat tampil**.
+4. **Pemetaan (`lokasi` → Area) adalah keputusan admin**, bukan tebak otomatis: saran normalisasi hanya untuk varian beririsan token; varian ambigu (mis. `Lantai 3` tanpa kata "Panggung") menunggu keputusan manusia.
+5. **Backfill hanya mengisi `areaId` yang masih kosong** — pemetaan manual tidak ditimpa.
+6. **Penyeragaman teks `lokasi` bersifat lintas baris**: satu teks sumber di-rename berlaku ke **semua** Event/Draft berteks sama, termasuk yang sudah punya `areaId` — agar tampilan konsisten.
+7. **Area berbeda tidak boleh dilebur**: `Musholla Lt. 3`, `Panggung Lt. Dasar`, dan `Panggung Funworld Lt. 3` adalah tiga Area berbeda meski sama-sama menyebut lantai.
+8. **Operasional Area** (nama, deskripsi, urutan, aktif/nonaktif, foto) = **admin/superadmin**; publik hanya membaca.
+9. Area nonaktif tidak menghapus riwayat: Event lama tetap merujuk `areaId`-nya.
+
+### 3.7 Views (operasional)
 
 | View | Siapa | Isi |
 |------|-------|-----|
@@ -158,7 +184,7 @@ Antrian pra-jadwal. Bukan Event.
 
 Filter **draft** (antrian) hanya di surface Antrian Draft, bukan kanban Event publik.
 
-### 3.7 Acceptance — Jadwal Event
+### 3.8 Acceptance — Jadwal Event
 
 - [ ] Admin buat Draft tanpa membuat Event.
 - [ ] Admin set progress Draft ke confirm/cancel tanpa mengubah kalender Event.
@@ -168,6 +194,10 @@ Filter **draft** (antrian) hanya di surface Antrian Draft, bukan kanban Event pu
 - [ ] Publik tidak lihat Draft dan tidak lihat Event status internal draft.
 - [ ] Multi-day tampil sebagai rentang, bukan N event lepas tanpa `dateEnd`.
 - [ ] Recurring: hapus satu occurrence ≠ hapus seluruh series (aksi series eksplisit).
+- [ ] Admin CRUD Area (buat/edit/hapus, urutan, aktif/nonaktif, foto) dari satu surface Konten; publik read-only.
+- [ ] Rename Area mengubah nama tampilan Event terkait **tanpa** mengubah `areaId`/FK.
+- [ ] Event tanpa `areaId` tetap tampil (bucket "Lokasi Lainnya"), tidak hilang.
+- [ ] `lokasi` dan `areaId` tidak pernah menunjuk lokasi fisik berbeda (aturan 3.6 #7).
 
 ---
 
@@ -267,6 +297,7 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 | `/tenant-survey` (+ event) Evaluasi Tenant form | Publik / eo_tenant policy |
 | `/letter/:id` | link surat |
 | `/dashboard/*` | login roles per capability |
+| `/dashboard/content` (+ panel Area & Lokasi / Pemetaan) | admin + superadmin |
 | `/tenant-survey-results` | admin + tenant_relation |
 
 Exact path = implementasi; spek jaga **siapa** dan **apa**.
@@ -290,7 +321,10 @@ Exact path = implementasi; spek jaga **siapa** dan **apa**.
 | Publish Draft | “promote”, “convert row” |
 | Survey Kepuasan / Evaluasi Tenant | “survey” generik di spek fitur |
 | EO (organisasi) vs eo_tenant (role) | samakan tanpa kualifikasi |
-| admin / viewer / … | “Staff Mall” |
+| **Area** (master lokasi kanonis) | tabel `locations` kedua, “Lokasi” sebagai entitas terpisah |
+| **Lokasi (teks)** | menyebut teks `lokasi` sebagai master; teks itu warisan |
+| **Pemetaan Lokasi** | “auto-mapping”, “pindah lokasi” (itu edit Event) |
+| admin / viewer / ... | “Staff Mall” |
 
 ### 8.2 Data integrity
 

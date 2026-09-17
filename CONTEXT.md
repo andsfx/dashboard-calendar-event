@@ -1,3 +1,13 @@
+### Lokasi Event (Area Kanonis)
+
+| Istilah | Arti kanonik | Bukan |
+|---------|--------------|--------|
+| **Area** | Master lokasi kanonis di tabel `event_areas` (id `era_*`, `name` unik case-insensitive). Dirujuk `events.area_id` / `draft_events.area_id` (`ON DELETE SET NULL`). | Teks bebas `lokasi`; kategori event; tenant |
+| **Lokasi (teks)** | Kolom `lokasi` pada Event/Draft — teks tampilan warisan (250 event lama). Bila event punya `area_id`, yang ditampilkan adalah **nama Area**, bukan teks ini. | Master lokasi; sumber kebenaran pemisahan |
+| **Pemetaan Lokasi** | Panel admin (`EventAreaManagerModal` view `mapping`) untuk memetakan teks `lokasi` lama ke Area kanonis. Dua aksi independen: (1) isi `area_id` — **hanya bila masih kosong**, pemetaan manual tidak ditimpa; (2) **Seragamkan teks** (`targetLokasi`) — menulis ulang `lokasi` ke **semua** Event/Draft berteks sama, termasuk yang sudah punya `area_id`. | Migrasi otomatis; seed area |
+| **Section per Lokasi** | Bentuk pemisahan event per Area di `/events` (blok ber-judul area + nav chip) dan di tabel Jadwal Event dashboard (grouping area → bulan). Aktif hanya bila ada Area terpetakan. | Filter lokasi; halaman per area |
+| **Lokasi Lainnya / Tanpa lokasi** | Bucket event yang belum punya `area_id`, selalu di akhir urutan. Tidak ada event yang hilang dari daftar. | Area kanonis; error state |
+
 ### Akuisisi Sponsor (BARU — konteks terikat Event)
 
 | Istilah | Arti kanonik | Bukan |

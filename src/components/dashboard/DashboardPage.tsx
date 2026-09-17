@@ -346,6 +346,7 @@ export function DashboardPage({
               setActiveMonth={filters.setActiveMonth}
               visibleCategories={filters.visibleCategories}
               visibleMonths={filters.visibleMonths}
+              areas={siteSettings.eventAreas}
               onEdit={permissions.canEditEvents ? handlers.handleEdit : undefined}
               onDelete={permissions.canDeleteEvents ? handlers.handleDeleteClick : undefined}
               onDetail={handlers.handleDetailClick}
@@ -481,6 +482,7 @@ export function DashboardPage({
               setActiveMonth={filters.setActiveMonth}
               visibleCategories={filters.visibleCategories}
               visibleMonths={filters.visibleMonths}
+              areas={siteSettings.eventAreas}
               onEdit={permissions.canEditEvents ? handlers.handleEdit : undefined}
               onDelete={permissions.canDeleteEvents ? handlers.handleDeleteClick : undefined}
               onDetail={handlers.handleDetailClick}

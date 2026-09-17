@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Download, Loader2, RefreshCw, SearchX } from 'lucide-react';
-import { EventItem, ViewMode, EventStatus, HolidayItem } from '../types';
+import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../types';
 import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
 import { EventTable } from './EventTable';
@@ -34,6 +34,8 @@ interface Props {
   setActiveMonth: (value: string) => void;
   visibleCategories: string[];
   visibleMonths: string[];
+  /** Master area — aktifkan section per lokasi di tabel. */
+  areas?: EventArea[];
   onEdit?: (event: EventItem) => void;
   onDelete?: (event: EventItem) => void;
   onDetail: (event: EventItem) => void;
@@ -62,6 +64,7 @@ export function DashboardViewsSection(props: Props) {
     setActiveMonth,
     visibleCategories,
     visibleMonths,
+    areas,
     onEdit,
     onDelete,
     onDetail,
@@ -188,6 +191,7 @@ export function DashboardViewsSection(props: Props) {
                 <EventTable
                   events={visibleEvents}
                   isAdmin={isAdmin}
+                  areas={areas}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onDetail={onDetail}

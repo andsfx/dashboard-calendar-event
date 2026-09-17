@@ -49,6 +49,35 @@ CREATE TABLE IF NOT EXISTS event_areas (
 
 CREATE INDEX IF NOT EXISTS idx_event_areas_sort ON event_areas (sort_order);
 
+-- Canonical master lokasi — unique name (case-insensitive)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_event_areas_name ON event_areas (lower(trim(name)));
+
+-- Normalize existing area record (canonical name per user decision)
+UPDATE event_areas SET name = 'Panggung Funworld Lt. 3' WHERE lower(trim(name)) = 'panggung lt. 3';
+
+-- Seed canonical area (idempotent — skip bila nama sudah ada)
+DO $$
+DECLARE
+  rec RECORD;
+BEGIN
+  FOR rec IN
+    SELECT * FROM (VALUES
+      ('Panggung Funworld Lt. 3', 0),
+      ('Panggung Lt. Dasar', 1),
+      ('Musholla Lt. 3', 2),
+      ('Atrium 2 Lt. Dasar', 3),
+      ('Foodventure Lt. 2', 4),
+      ('Parkir Timur', 5),
+      ('Gedung Parkir Mobil P7', 6),
+      ('Keliling Mall', 7)
+    ) AS t(name, sort_order)
+  LOOP
+    IF NOT EXISTS (SELECT 1 FROM event_areas WHERE lower(trim(name)) = lower(trim(rec.name))) THEN
+      INSERT INTO event_areas (name, sort_order, is_active) VALUES (rec.name, rec.sort_order, true);
+    END IF;
+  END LOOP;
+END $$;
+
 -- ============================================================================
 -- 2. COMMUNITY REGISTRATIONS (target FK events.organization_id)
 -- ============================================================================
@@ -640,6 +669,9 @@ CREATE TRIGGER tenant_survey_config_updated_at BEFORE UPDATE ON tenant_survey_co
 
 DROP TRIGGER IF EXISTS trg_tenant_survey_updated_at ON tenant_event_surveys;
 CREATE TRIGGER trg_tenant_survey_updated_at BEFORE UPDATE ON tenant_event_surveys FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS event_areas_updated_at ON event_areas;
+CREATE TRIGGER event_areas_updated_at BEFORE UPDATE ON event_areas FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================================================
 -- TABEL DEFERRED (ada di prod, TIDAK direferensi kode — tidak dimigrasi)

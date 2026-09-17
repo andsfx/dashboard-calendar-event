@@ -93,6 +93,18 @@ const ACTION_SCHEMAS = {
     action: z.literal('updateAreaPhotoOrder'),
     data: z.array(z.object({ id: z.string(), sortOrder: z.number() })),
   }),
+  getLocationMapping: z.object({ action: z.literal('getLocationMapping') }),
+  applyLocationMapping: z.object({
+    action: z.literal('applyLocationMapping'),
+    mappings: z.array(z.object({
+      lokasi: z.string().min(1),
+      areaId: z.string().min(1).optional(),
+      /** Teks lokasi pengganti (opsional) — menyeragamkan ejaan. */
+      targetLokasi: z.string().min(1).optional(),
+    }).refine(m => Boolean(m.areaId) || Boolean(m.targetLokasi), {
+      message: 'Setiap pemetaan butuh areaId atau targetLokasi',
+    })).min(1),
+  }),
   updateRegistrationStatus: z.object({
     action: z.literal('updateRegistrationStatus'),
     id: z.string().min(1),

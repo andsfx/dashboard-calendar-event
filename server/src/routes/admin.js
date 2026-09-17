@@ -594,6 +594,76 @@ async function switchAction(action, req) {
       return { success: true };
     }
 
+    // ══════════ PEMETAAN LOKASI ══════════
+    case 'getLocationMapping': {
+      // Daftar distinct lokasi event yang belum dipetakan + yang sudah
+      const { rows: eventRows } = await db.query(
+        `SELECT lokasi, COUNT(*)::int AS event_count,
+                COUNT(area_id)::int AS mapped_count,
+                MIN(area_id) AS area_id
+         FROM events WHERE trim(lokasi) <> '' GROUP BY lokasi
+         ORDER BY COUNT(*) DESC`,
+      );
+      const { rows: draftRows } = await db.query(
+        `SELECT lokasi, COUNT(*)::int AS draft_count,
+                COUNT(area_id)::int AS mapped_count,
+                MIN(area_id) AS area_id
+         FROM draft_events WHERE trim(lokasi) <> '' GROUP BY lokasi
+         ORDER BY COUNT(*) DESC`,
+      );
+      const draftMap = new Map(draftRows.map(r => [r.lokasi, { draftCount: r.draft_count, areaId: r.area_id || null }]));
+      const list = eventRows.map(r => ({
+        lokasi: r.lokasi,
+        eventCount: r.event_count,
+        draftCount: draftMap.get(r.lokasi)?.draftCount ?? 0,
+        currentAreaId: r.area_id || draftMap.get(r.lokasi)?.areaId || null,
+      }));
+      // also include draft-only lokasi values
+      for (const d of draftRows) {
+        if (list.some(r => r.lokasi === d.lokasi)) continue;
+        list.push({ lokasi: d.lokasi, eventCount: 0, draftCount: d.draft_count, currentAreaId: d.area_id || null });
+      }
+      return { success: true, data: list };
+    }
+
+    case 'applyLocationMapping': {
+      const mappings = body.mappings;
+      if (!Array.isArray(mappings) || mappings.length === 0) return { success: false, error: 'Data pemetaan tidak valid' };
+      let updated = 0;
+      let renamed = 0;
+      for (const m of mappings) {
+        if (!m.lokasi) continue;
+        // 1) Isi area_id (hanya yang belum punya — pemetaan manual tidak ditimpa)
+        if (m.areaId) {
+          const { rowCount: eCount } = await db.query(
+            'UPDATE events SET area_id = $1, updated_at = NOW() WHERE trim(lokasi) = $2 AND area_id IS NULL',
+            [m.areaId, m.lokasi],
+          );
+          const { rowCount: dCount } = await db.query(
+            'UPDATE draft_events SET area_id = $1 WHERE trim(lokasi) = $2 AND area_id IS NULL',
+            [m.areaId, m.lokasi],
+          );
+          updated += (eCount || 0) + (dCount || 0);
+        }
+        // 2) Seragamkan teks lokasi (opsional). Menerapkan ke SEMUA baris dengan teks itu,
+        //    termasuk yang sudah punya area_id — tujuannya memang menyeragamkan tampilan.
+        const target = typeof m.targetLokasi === 'string' ? m.targetLokasi.trim() : '';
+        if (target && target !== m.lokasi.trim()) {
+          const { rowCount: eRename } = await db.query(
+            'UPDATE events SET lokasi = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
+            [target, m.lokasi],
+          );
+          const { rowCount: dRename } = await db.query(
+            'UPDATE draft_events SET lokasi = $1 WHERE trim(lokasi) = $2',
+            [target, m.lokasi],
+          );
+          renamed += (eRename || 0) + (dRename || 0);
+        }
+      }
+      logActivity(auth.user, 'apply_location_mapping', 'event', null, { updated, renamed, mappings: mappings.map(m => ({ l: m.lokasi, a: m.areaId, t: m.targetLokasi })) }, req);
+      return { success: true, updated, renamed };
+    }
+
     // ══════════ COMMUNITY REGISTRATIONS ══════════
     case 'updateRegistrationStatus': {
       if (!body.id) return { success: false, error: 'ID registrasi wajib diisi' };

@@ -242,6 +242,49 @@ export async function deleteEventArea(id: string): Promise<void> {
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus area event');
 }
 
+// ─── Location mapping (backfill lokasi → area) ───
+
+/** Baris mentah dari server — distinct lokasi + hitungan event yang belum dipetakan. */
+export interface LocationMappingRow {
+  lokasi: string;
+  eventCount: number;
+  draftCount: number;
+  /** area_id yang sudah terisi (null = belum dipetakan) */
+  currentAreaId: string | null;
+}
+
+export async function fetchLocationMapping(): Promise<LocationMappingRow[]> {
+  const result = await adminAction<{ success: boolean; error?: string; data?: LocationMappingRow[] }>(
+    'getLocationMapping',
+    {},
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat data pemetaan lokasi');
+  return (result.data || []).map(r => ({
+    lokasi: String(r.lokasi),
+    eventCount: Number(r.eventCount) || 0,
+    draftCount: Number(r.draftCount) || 0,
+    currentAreaId: r.currentAreaId || null,
+  }));
+}
+
+export interface LocationMappingResult {
+  /** Jumlah baris yang area_id-nya baru diisi. */
+  updated: number;
+  /** Jumlah baris yang teks lokasinya diseragamkan. */
+  renamed: number;
+}
+
+export async function applyLocationMapping(
+  mappings: Array<{ lokasi: string; areaId?: string; targetLokasi?: string }>,
+): Promise<LocationMappingResult> {
+  const result = await adminAction<{ success: boolean; error?: string; updated?: number; renamed?: number }>(
+    'applyLocationMapping',
+    { mappings },
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal menerapkan pemetaan lokasi');
+  return { updated: result.updated ?? 0, renamed: result.renamed ?? 0 };
+}
+
 /** Upload + buat record foto area (cover & galeri). Folder R2 'areas/'. */
 export async function uploadAreaPhoto(areaId: string, file: File, caption?: string): Promise<AreaPhoto> {
   const finalCaption = caption?.trim() || file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');

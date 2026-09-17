@@ -1,17 +1,28 @@
 import { Fragment, useMemo } from 'react';
-import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays } from 'lucide-react';
-import { EventItem } from '../types';
+import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays, Layers } from 'lucide-react';
+import { EventItem, EventArea } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { CategoryBadges } from './CategoryBadges';
 import { PriorityBadge } from './PriorityBadge';
 import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../utils/eventUtils';
+import { resolveAreaDisplay } from '../utils/areaGrouping';
 
 interface Props {
   events: EventItem[];
   isAdmin: boolean;
+  areas?: EventArea[];
   onEdit?: (ev: EventItem) => void;
   onDelete?: (ev: EventItem) => void;
   onDetail: (ev: EventItem) => void;
+}
+
+/** Internal table group — month within optional area section */
+interface TableGroup {
+  monthKey: string;
+  monthLabel: string;
+  events: EventItem[];
+  areaKey?: string;
+  areaName?: string;
 }
 
 const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -51,32 +62,78 @@ function exportCSV(events: EventItem[]) {
   URL.revokeObjectURL(url);
 }
 
-export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
-  const groupedEvents = useMemo(() => {
+export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail }: Props) {
+  const groupedEvents: TableGroup[] = useMemo(() => {
     const sortedEvents = sortTableEvents(events);
-    const groups: Array<{ monthKey: string; monthLabel: string; events: EventItem[] }> = [];
 
+    // ── Area→month grouping (active when areas & >1 area bucket) ──
+    if (areas && areas.length > 0) {
+      const areaMap = new Map(areas.map(a => [a.id, a]));
+      const areaBuckets = new Map<string, EventItem[]>();
+
+      for (const ev of sortedEvents) {
+        const key = ev.areaId || '__unmapped__';
+        const bucket = areaBuckets.get(key) ?? [];
+        bucket.push(ev);
+        if (!areaBuckets.has(key)) areaBuckets.set(key, bucket);
+      }
+
+      // Only area-group if >1 distinct bucket (avoid noise on single-bucket or all-unmapped)
+      if (areaBuckets.size > 1) {
+        // Sort area keys: active areas by sortOrder→name, then unmapped last
+        const orderedKeys = [...areaBuckets.keys()].sort((a, b) => {
+          if (a === '__unmapped__') return 1;
+          if (b === '__unmapped__') return -1;
+          const aa = areaMap.get(a);
+          const ab = areaMap.get(b);
+          const so = (aa?.sortOrder ?? 999) - (ab?.sortOrder ?? 999);
+          if (so !== 0) return so;
+          return (aa?.name ?? a).localeCompare(ab?.name ?? b, 'id');
+        });
+
+        const tableGroups: TableGroup[] = [];
+        for (const areaKey of orderedKeys) {
+          const areaEvts = areaBuckets.get(areaKey)!;
+          const areaName = areaKey === '__unmapped__' ? 'Tanpa lokasi' : (areaMap.get(areaKey)!.name);
+
+          // Sub-group area events by month
+          const monthBuckets: { monthKey: string; events: EventItem[] }[] = [];
+          for (const ev of areaEvts) {
+            const mk = ev.dateStr.slice(0, 7);
+            const last = monthBuckets[monthBuckets.length - 1];
+            if (!last || last.monthKey !== mk) {
+              monthBuckets.push({ monthKey: mk, events: [ev] });
+            } else {
+              last.events.push(ev);
+            }
+          }
+          for (const mb of monthBuckets) {
+            tableGroups.push({
+              areaKey,
+              areaName,
+              monthKey: mb.monthKey,
+              monthLabel: getMonthLabel(`${mb.monthKey}-01`, mb.events.length),
+              events: mb.events,
+            });
+          }
+        }
+        return tableGroups;
+      }
+    }
+
+    // ── Fallback: month-only ──
+    const groups: TableGroup[] = [];
     for (const event of sortedEvents) {
       const monthKey = event.dateStr.slice(0, 7);
       const lastGroup = groups[groups.length - 1];
-
       if (!lastGroup || lastGroup.monthKey !== monthKey) {
-        groups.push({
-          monthKey,
-          monthLabel: getMonthLabel(event.dateStr, 0),
-          events: [event],
-        });
-        continue;
+        groups.push({ monthKey, monthLabel: getMonthLabel(event.dateStr, 0), events: [event] });
+      } else {
+        lastGroup.events.push(event);
       }
-
-      lastGroup.events.push(event);
     }
-
-    return groups.map(group => ({
-      ...group,
-      monthLabel: getMonthLabel(`${group.monthKey}-01`, group.events.length),
-    }));
-  }, [events]);
+    return groups.map(g => ({ ...g, monthLabel: getMonthLabel(`${g.monthKey}-01`, g.events.length) }));
+  }, [events, areas]);
 
   if (events.length === 0) {
     return (
@@ -95,8 +152,18 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
   return (
     <div className="ui-dashboard-surface overflow-hidden">
       <div className="divide-y divide-slate-100 dark:divide-slate-700/50 md:hidden">
-        {groupedEvents.map(group => (
-          <div key={group.monthKey}>
+        {groupedEvents.map((group, i) => {
+          const prevGrp: TableGroup | null = i > 0 ? (groupedEvents[i - 1] as TableGroup | undefined) ?? null : null;
+          const showAreaHeader = group.areaKey && group.areaKey !== prevGrp?.areaKey;
+          return (
+          <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
+            {showAreaHeader && (
+              <div className="ui-btn-primary px-4 py-2 text-[12px] font-bold text-white">
+                <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
+                {group.areaName}
+              </div>
+            )}
+          <div>
 <div className="ui-dashboard-muted border-y border-black/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
               {group.monthLabel}
             </div>
@@ -181,7 +248,9 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
               </div>
             ))}
           </div>
-        ))}
+          </Fragment>
+          );
+        })}
       </div>
 
       <div className="hidden overflow-x-auto md:block">
@@ -205,8 +274,19 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-            {groupedEvents.map(group => (
-              <Fragment key={group.monthKey}>
+            {groupedEvents.map((group, i) => {
+              const prevGrp: TableGroup | null = i > 0 ? (groupedEvents[i - 1] as TableGroup | undefined) ?? null : null;
+              const showAreaHeader = group.areaKey && group.areaKey !== prevGrp?.areaKey;
+              return (
+              <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
+                {showAreaHeader && (
+                  <tr className="ui-btn-primary">
+                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-white">
+                      <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
+                      {group.areaName}
+                    </td>
+                  </tr>
+                )}
                 <tr key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-black/[0.04] dark:border-slate-700">
                   <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide ui-text-muted">
                     {group.monthLabel}
@@ -256,7 +336,7 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                         <MapPin className="h-3 w-3 flex-shrink-0 text-slate-500" />
-                        <span className="line-clamp-2">{ev.lokasi || '–'}</span>
+                        <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '–'}</span>
                       </span>
                     </td>
                     {/* Status */}
@@ -328,7 +408,8 @@ export function EventTable({ events, isAdmin, onEdit, onDelete, onDetail }: Prop
                   </tr>
                 ))}
               </Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

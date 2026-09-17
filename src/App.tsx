@@ -303,6 +303,7 @@ export default function App() {
             events={publicEvents}
             holidays={holidays}
             albums={landingAlbums}
+            areas={eventAreas}
             isLoading={isLoading}
             onDetail={handleDetailClick}
           />

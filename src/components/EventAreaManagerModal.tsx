@@ -5,6 +5,7 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  Layers,
   Loader2,
   MapPin,
   Pencil,
@@ -22,10 +23,14 @@ import {
   deleteAreaPhoto,
   fetchEventAreas,
   fetchAreaPhotos,
+  fetchLocationMapping,
+  applyLocationMapping,
   updateAreaPhotoOrder,
   updateEventArea,
   uploadAreaPhoto,
+  type LocationMappingRow,
 } from '../utils/domainApi';
+import { suggestAreaId } from '../utils/areaGrouping';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
@@ -40,7 +45,7 @@ const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export function EventAreaManagerModal({ isOpen, onClose }: Props) {
-  const [view, setView] = useState<'list' | 'detail'>('list');
+  const [view, setView] = useState<'list' | 'detail' | 'mapping'>('list');
   const [areas, setAreas] = useState<EventArea[]>([]);
   const [selectedArea, setSelectedArea] = useState<EventArea | null>(null);
   const [areaPhotos, setAreaPhotos] = useState<AreaPhoto[]>([]);
@@ -60,6 +65,70 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
+
+  // ─── Location mapping (backfill) ───
+  const [mappingRows, setMappingRows] = useState<LocationMappingRow[]>([]);
+  const [mappingChoice, setMappingChoice] = useState<Record<string, string>>({});
+  /** Centang = seragamkan teks `lokasi` ke `mappingTarget`. */
+  const [mappingRename, setMappingRename] = useState<Record<string, boolean>>({});
+  const [mappingTarget, setMappingTarget] = useState<Record<string, string>>({});
+  const [isMappingLoading, setIsMappingLoading] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
+  const [mappingResult, setMappingResult] = useState<string>('');
+
+  const loadMapping = useCallback(async () => {
+    setIsMappingLoading(true);
+    setError('');
+    setMappingResult('');
+    try {
+      const rows = await fetchLocationMapping();
+      setMappingRows(rows);
+      // Prefill: current mapping bila ada, else saran dari normalisasi nama
+      const choices: Record<string, string> = {};
+      const targets: Record<string, string> = {};
+      for (const r of rows) {
+        const chosen = r.currentAreaId || suggestAreaId(r.lokasi, areas) || '';
+        choices[r.lokasi] = chosen;
+        // Target teks default = nama area terpilih (kalau ada)
+        targets[r.lokasi] = areas.find(a => a.id === chosen)?.name ?? '';
+      }
+      setMappingChoice(choices);
+      setMappingTarget(targets);
+      setMappingRename({});
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat pemetaan lokasi');
+    } finally {
+      setIsMappingLoading(false);
+    }
+  }, [areas]);
+
+  const handleApplyMapping = async () => {
+    const mappings = Object.entries(mappingChoice)
+      .filter(([, areaId]) => Boolean(areaId))
+      .map(([lokasi, areaId]) => {
+        const target = (mappingTarget[lokasi] || '').trim();
+        const doRename = mappingRename[lokasi] && target.length > 0 && target !== lokasi.trim();
+        return { lokasi, areaId, ...(doRename ? { targetLokasi: target } : {}) };
+      });
+    if (mappings.length === 0) {
+      setMappingResult('Belum ada lokasi yang dipilih.');
+      return;
+    }
+    setIsApplying(true);
+    setError('');
+    setMappingResult('');
+    try {
+      const { updated, renamed } = await applyLocationMapping(mappings);
+      const parts = [`${updated} event dipetakan ke area`];
+      if (renamed > 0) parts.push(`${renamed} teks lokasi diseragamkan`);
+      setMappingResult(`${parts.join(' · ')}.`);
+      await loadMapping();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menerapkan pemetaan');
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   const loadAreas = useCallback(async () => {
     setIsLoading(true);
@@ -333,17 +402,19 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
       <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
         <ModalHeader
           titleId="event-area-manager-title"
-          title={view === 'list' ? 'Foto Area Event' : selectedArea?.name || 'Detail Area'}
+          title={view === 'list' ? 'Area & Lokasi Event' : view === 'mapping' ? 'Pemetaan Lokasi' : selectedArea?.name || 'Detail Area'}
           subtitle={
             view === 'list'
               ? 'Kelola area event di Metropolitan Mall Bekasi'
-              : `${areaPhotos.length} / ${MAX_PHOTOS} foto`
+              : view === 'mapping'
+                ? 'Petakan teks lokasi lama ke area kanonis'
+                : `${areaPhotos.length} / ${MAX_PHOTOS} foto`
           }
           icon={<MapPin />}
           onClose={onClose}
           closeAriaLabel="Tutup"
           leading={
-            view === 'detail' ? (
+            view !== 'list' ? (
               <button
                 type="button"
                 onClick={goBackToList}
@@ -380,6 +451,17 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                 >
                   <Plus className="h-4 w-4" />
                   Tambah Area Baru
+                </button>
+              )}
+
+              {!editing && areas.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => { setView('mapping'); loadMapping(); }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] py-3 text-sm font-semibold text-slate-600 transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-brand-primary-400"
+                >
+                  <Layers className="h-4 w-4" />
+                  Pemetaan Lokasi
                 </button>
               )}
 
@@ -534,6 +616,122 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                     </div>
                   ))}
                 </div>
+              )}
+            </>
+          )}
+
+          {/* ===== VIEW 3: Location Mapping (backfill) ===== */}
+          {view === 'mapping' && !isLoading && (
+            <>
+              <p className="rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] px-4 py-3 text-xs leading-6 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                Teks lokasi lama dipetakan ke area kanonis. Hanya event yang <strong>belum</strong> punya area
+                yang akan diisi — pemetaan manual sebelumnya tidak ditimpa. Centang
+                <strong> Seragamkan teks lokasi</strong> bila ejaan lama juga ingin diganti (berlaku untuk semua
+                event dengan teks itu, termasuk yang sudah punya area).
+              </p>
+
+              {mappingResult && (
+                <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-400">
+                  {mappingResult}
+                </p>
+              )}
+
+              {isMappingLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500 motion-reduce:animate-none" />
+                  <span className="ml-3 text-sm ui-text-muted">Memuat lokasi…</span>
+                </div>
+              ) : mappingRows.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm ui-text-muted dark:border-slate-600">
+                  Tidak ada teks lokasi yang perlu dipetakan.
+                </div>
+              ) : (
+                <>
+                  <div className="max-h-[50vh] space-y-2 overflow-y-auto pr-1">
+                    {mappingRows.map(row => {
+                      const chosen = mappingChoice[row.lokasi] || '';
+                      const suggested = suggestAreaId(row.lokasi, areas);
+                      return (
+                        <div
+                          key={row.lokasi}
+                          className="flex flex-col gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] p-3 dark:border-slate-600 dark:bg-slate-800 sm:flex-row sm:items-center"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                              {row.lokasi}
+                            </p>
+                            <p className="mt-0.5 text-[11px] ui-text-muted">
+                              {row.eventCount} event{row.draftCount > 0 ? ` · ${row.draftCount} draft` : ''}
+                              {row.currentAreaId ? ' · sudah dipetakan' : ''}
+                            </p>
+                          </div>
+                          <select
+                            value={chosen}
+                            onChange={e => {
+                              const next = e.target.value;
+                              setMappingChoice(prev => ({ ...prev, [row.lokasi]: next }));
+                              // Ikutkan target teks ke nama area baru (bila belum diubah manual)
+                              const areaName = areas.find(a => a.id === next)?.name ?? '';
+                              setMappingTarget(prev => ({ ...prev, [row.lokasi]: areaName }));
+                            }}
+                            aria-label={`Area untuk ${row.lokasi}`}
+                            className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white sm:w-52 ${
+                              chosen ? 'border-brand-primary-400 dark:border-brand-primary-600' : 'border-slate-200 dark:border-slate-600'
+                            }`}
+                          >
+                            <option value="">— Abaikan —</option>
+                            {areas.map(a => (
+                              <option key={a.id} value={a.id}>
+                                {a.name}{a.id === suggested ? ' (saran)' : ''}
+                              </option>
+                            ))}
+                          </select>
+
+                          {chosen && (
+                            <label className="flex w-full cursor-pointer flex-col gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-slate-50/60 px-3 py-2 dark:border-slate-600 dark:bg-slate-700/40 sm:w-64">
+                              <span className="flex items-center gap-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(mappingRename[row.lokasi])}
+                                  onChange={e =>
+                                    setMappingRename(prev => ({ ...prev, [row.lokasi]: e.target.checked }))
+                                  }
+                                  className="h-3.5 w-3.5 accent-[var(--brand-tosca-600)]"
+                                />
+                                Seragamkan teks lokasi
+                              </span>
+                              <input
+                                type="text"
+                                value={mappingTarget[row.lokasi] || ''}
+                                onChange={e =>
+                                  setMappingTarget(prev => ({ ...prev, [row.lokasi]: e.target.value }))
+                                }
+                                disabled={!mappingRename[row.lokasi]}
+                                placeholder="Nama lokasi baru"
+                                aria-label={`Teks lokasi baru untuk ${row.lokasi}`}
+                                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                              />
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleApplyMapping}
+                    disabled={isApplying}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
+                  >
+                    {isApplying ? (
+                      <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    {isApplying ? 'Menerapkan…' : 'Terapkan Pemetaan'}
+                  </button>
+                </>
               )}
             </>
           )}

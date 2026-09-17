@@ -23,8 +23,9 @@ import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLo
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
+import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
-import { EventItem, HolidayItem, PhotoAlbum } from '../types';
+import { EventItem, HolidayItem, PhotoAlbum, EventArea } from '../types';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { CategoryBadges } from './CategoryBadges';
 import { CalendarView } from './CalendarView';
@@ -36,6 +37,7 @@ interface Props {
   events: EventItem[];
   holidays: HolidayItem[];
   albums?: PhotoAlbum[];
+  areas?: EventArea[];
   isLoading?: boolean;
   onDetail: (ev: EventItem) => void;
 }
@@ -233,9 +235,11 @@ function HighlightEventCard({
 
 function EventRailCard({
   event,
+  areas,
   onDetail,
 }: {
   event: EventItem;
+  areas: EventArea[];
   onDetail: (ev: EventItem) => void;
 }) {
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
@@ -299,7 +303,7 @@ function EventRailCard({
           {event.lokasi && (
             <span className="inline-flex min-w-0 items-center gap-1.5">
               <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-              <span className="line-clamp-1">{event.lokasi}</span>
+              <span className="line-clamp-1">{resolveAreaDisplay(event.areaId, event.lokasi, areas)}</span>
             </span>
           )}
         </div>
@@ -314,6 +318,7 @@ export function EventsLandingPage({
   events,
   holidays,
   albums = [],
+  areas = [],
   isLoading = false,
   onDetail,
 }: Props) {
@@ -350,6 +355,15 @@ export function EventsLandingPage({
   }, [ongoing, upcoming, highlight]);
   const railEvents = railRest.slice(0, 6);
   const railOverflow = Math.max(0, railRest.length - 6);
+
+  /** Per-area grouping of ongoing+upcoming events (excl. highlight). */
+  const areaGroups = useMemo(
+    () => (areas.length > 0 ? groupEventsByArea(railRest, areas) : []),
+    [railRest, areas],
+  );
+  /** Section per lokasi hanya bila ada area yang benar-benar terpetakan. */
+  const hasMappedAreas = useMemo(() => areaGroups.some(g => g.area !== null), [areaGroups]);
+
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   const handleDownloadSchedulePdf = async () => {
@@ -646,7 +660,7 @@ export function EventsLandingPage({
                 {filteredEvents.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredEvents.map(ev => (
-                      <EventRailCard key={ev.id} event={ev} onDetail={onDetail} />
+                      <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
                     ))}
                   </div>
                 ) : (
@@ -664,6 +678,45 @@ export function EventsLandingPage({
                   </div>
                 )}
               </>
+            ) : hasMappedAreas ? (
+              <>
+                {/* Location nav chips — skip to section */}
+                <div className="mb-8 flex flex-wrap items-center gap-2" role="group" aria-label="Pilih lokasi">
+                  {areaGroups.map(g => (
+                    <a
+                      key={g.key}
+                      href={`#lokasi-${g.key}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 ui-focus-ring"
+                    >
+                      <MapPin className="h-3 w-3 text-[var(--brand-tosca)]" aria-hidden="true" />
+                      {g.name}
+                      <span className="ml-0.5 rounded-full bg-slate-100 px-1.5 py-px text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                        {g.events.length}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+
+                {areaGroups.map(g => (
+                  <div key={g.key} id={`lokasi-${g.key}`} className="mb-12 scroll-mt-28">
+                    <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+                      <div>
+                        <CommunityEyebrow>
+                          {g.area ? g.name : 'Lokasi Lainnya'}
+                        </CommunityEyebrow>
+                        <p className="mt-1 text-xl font-bold tracking-tight text-slate-950 dark:text-white">
+                          {g.events.length} acara
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {g.events.map(ev => (
+                        <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
             ) : railEvents.length > 0 ? (
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
@@ -679,7 +732,7 @@ export function EventsLandingPage({
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {railEvents.map(ev => (
-                    <EventRailCard key={ev.id} event={ev} onDetail={onDetail} />
+                    <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
                   ))}
                 </div>
                 {railOverflow > 0 && (

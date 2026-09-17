@@ -53,6 +53,9 @@ export {
   uploadAreaPhoto,
   deleteAreaPhoto,
   updateAreaPhotoOrder,
+  fetchLocationMapping,
+  applyLocationMapping,
+  type LocationMappingRow,
 } from './api/albumsApi';
 
 export {
