@@ -111,7 +111,51 @@ Hasil tahap 1: `200 {"success":true,"updated":162,"renamed":164}`; lanjutan `are
 
 **Keputusan Andy (2026-09-17)**: `Lantai 3` (2 event EO "LT PRO" makeup class) **ikut diseragamkan** ke `Panggung Funworld Lt. 3` setelah dikonfirmasi. Hasil: `{"updated":2,"renamed":2}` → total kanonis **142 event, semuanya ber-`area_id`**, sisa `Lantai 3` = 0.
 
-Verifikasi tampilan: `https://www.metmalcommunityspace.web.id/events` → 5 section (Panggung Funworld Lt. 3, Panggung Lt. Dasar, Musholla Lt. 3, Foodventure Lt. 2, Parkir Timur); teks `Panggung Lt. 3` lama tidak ada lagi.
+Verifikasi tampilan: `https://www.metmalcommunityspace.web.id/events` → section per lokasi (lihat §7.2 untuk kondisi akhir); teks `Panggung Lt. 3` lama tidak ada lagi.
+
+### 7.2 Standardisasi lanjutan — seluruh varian (2026-09-17)
+
+Setelah `Panggung Lt. 3` selesai, dilanjutkan menyapu **semua** nilai `lokasi` tersisa (backup: `metmal_20260917_151658.sql.gz`).
+
+**Batch A — teks sudah kanonis, hanya isi `area_id`** (`updated:85`):
+
+| Lokasi | Area |
+|---|---|
+| `Panggung Lt. Dasar` (50) | Panggung Lt. Dasar |
+| `Musholla Lt. 3` (15) | Musholla Lt. 3 |
+| `Keliling Mall` (9) | Keliling Mall |
+| `Parkir Timur` (3) | Parkir Timur |
+| `Gedung Parkir Mobil P7` (1) | Gedung Parkir Mobil P7 |
+| `Atrium 2 Lt. Dasar` (2) | Atrium 2 Lt. Dasar |
+
+**Batch B — varian ejaan, `areaId` + `targetLokasi`** (`renamed:6`):
+
+| Varian | → Kanonis |
+|---|---|
+| `Area Parkir Timur` | `Parkir Timur` |
+| `Parkir P7` | `Gedung Parkir Mobil P7` |
+| `Gedung Parkir Mobil P7 & P8` | `Gedung Parkir Mobil P7` |
+| `Lt. 2` | `Lorong Bekasi Lt. 2` |
+
+**Batch C — keputusan Andy** (`updated:13, renamed:13`):
+
+| Varian | → Kanonis | Area |
+|---|---|---|
+| `Foodventure Lt. 2` (4) | `Lorong Bekasi Lt. 2` | Lorong Bekasi Lt. 2 |
+| `Metropolitan Mall Bekasi` (4) | `Keliling Mall` | Keliling Mall |
+| `Area Metropolitan Mall Bekasi` (2) | `Keliling Mall` | Keliling Mall |
+| `Lantai Dasar Metropolitan Mall Bekasi` (2) | `Panggung Lt. Dasar` | Panggung Lt. Dasar |
+| `Stage Atrium 1 Lantai Dasar` (1) | `Panggung Lt. Dasar` | Panggung Lt. Dasar |
+
+> Catatan: area urutan 4 yang semula di-seed `Foodventure Lt. 2` sudah diganti admin menjadi **`Lorong Bekasi Lt. 2`** (17 Sep 08:02). Karena itu 4 event `Foodventure Lt. 2` dilebur ke sana, bukan ke area baru.
+
+**Hasil akhir**: **241/250 event** terpetakan (dari 1 sebelum pekerjaan ini); draft 30/45 (sisanya data uji `cancel`).
+
+**Sengaja dibiarkan** (keputusan Andy — bukan area event mall):
+- `Metland` (1), `XXI METMALL BEKASI` (1), `Diubud Coffee` (1) — lokasi non-area.
+- `lokasi` kosong (6 event `past`) — tidak ditebak; diisi manual lewat form edit.
+
+Distribusi akhir per area: Panggung Funworld Lt. 3 (142), Panggung Lt. Dasar (53), Musholla Lt. 3 (15), Keliling Mall (15), Parkir Timur (6), Lorong Bekasi Lt. 2 (5), Gedung Parkir Mobil P7 (3), Atrium 2 Lt. Dasar (2).
 
 ## 8. Perbaikan bug terkait: `malformed array literal` pada simpan event
 
