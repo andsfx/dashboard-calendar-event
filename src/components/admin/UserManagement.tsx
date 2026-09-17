@@ -208,7 +208,7 @@ export function UserManagement() {
                   <div className="flex shrink-0 items-center gap-1">
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}
-                      className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                      className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                       aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${u.display_name || u.email}`}
                       aria-pressed={u.is_active}

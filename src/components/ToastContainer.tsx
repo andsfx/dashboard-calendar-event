@@ -3,10 +3,12 @@ import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { ToastMessage } from '../types';
 
 const CONFIG = {
-  success: { icon: <CheckCircle className="h-4 w-4" />, bar: 'bg-emerald-500', border: 'border-l-emerald-500', iconColor: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-  error:   { icon: <AlertCircle  className="h-4 w-4" />, bar: 'bg-red-500',     border: 'border-l-red-500',     iconColor: 'text-red-500',     bg: 'bg-red-50 dark:bg-red-900/20' },
-  info:    { icon: <Info         className="h-4 w-4" />, bar: 'bg-blue-500',    border: 'border-l-blue-500',    iconColor: 'text-blue-500',    bg: 'bg-blue-50 dark:bg-blue-900/20' },
-  warning: { icon: <AlertTriangle className="h-4 w-4" />, bar: 'bg-amber-500', border: 'border-l-amber-500',   iconColor: 'text-amber-500',   bg: 'bg-amber-50 dark:bg-amber-900/20' },
+  // Ikon pakai shade 700: tint `bg-*-50` dirender `opacity-40` di atas kartu putih,
+  // sehingga 500 hanya mencapai 2.1–3.6:1 (gagal 3:1 untuk grafis, WCAG 1.4.11).
+  success: { icon: <CheckCircle className="h-4 w-4" />, bar: 'bg-emerald-500', border: 'border-l-emerald-500', iconColor: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+  error:   { icon: <AlertCircle  className="h-4 w-4" />, bar: 'bg-red-500',     border: 'border-l-red-500',     iconColor: 'text-red-700 dark:text-red-400',         bg: 'bg-red-50 dark:bg-red-900/20' },
+  info:    { icon: <Info         className="h-4 w-4" />, bar: 'bg-blue-500',    border: 'border-l-blue-500',    iconColor: 'text-blue-700 dark:text-blue-400',       bg: 'bg-blue-50 dark:bg-blue-900/20' },
+  warning: { icon: <AlertTriangle className="h-4 w-4" />, bar: 'bg-amber-500', border: 'border-l-amber-500',   iconColor: 'text-amber-700 dark:text-amber-400',     bg: 'bg-amber-50 dark:bg-amber-900/20' },
 };
 
 const DURATION = 4000;

@@ -83,15 +83,6 @@
 .community-hero-in-d3 { animation-delay: 140ms; }
 .community-hero-in-d4 { animation-delay: 180ms; }
 
-.landing-grid {
-  /* Metmal brand grid — tosca / soft pink (was legacy violet + orange) */
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--brand-tosca) 10%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--brand-pink) 8%, transparent) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent);
-}
-
 @keyframes modal-backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }

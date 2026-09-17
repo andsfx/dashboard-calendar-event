@@ -591,7 +591,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                         type="button"
                         onClick={() => handleToggleActive(area)}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-amber-50 hover:text-amber-500 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                       </button>
