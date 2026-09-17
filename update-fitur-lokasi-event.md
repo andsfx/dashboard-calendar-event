@@ -103,10 +103,13 @@ Dijalankan lewat HTTP nyata ke `POST /api/v1/admin/applyLocationMapping` (token 
 | `Lt. 3 Fun World, Metropolitan Mall Bekasi` | 1 | ″ |
 | `Lt 3 Metropolitan Mall Bekasi` | 1 | ″ |
 | `Panggung Funworld Lt. 3` (sudah kanonis) | 2 | `areaId` saja |
+| `Lantai 3` (ambigu — dikonfirmasi Andy) | 2 | `areaId` + `targetLokasi` |
 
-Hasil: `200 {"success":true,"updated":162,"renamed":164}`; lanjutan `areaId`-only untuk 2 event teks kanonis → `updated:2`. **Akhir**: 140 event + 26 draft berteks kanonis, **semuanya** ber-`area_id = era_4ffa61e005344431a86dd1aeb544180f`. Sisa varian lama: 0.
+Hasil tahap 1: `200 {"success":true,"updated":162,"renamed":164}`; lanjutan `areaId`-only untuk 2 event berteks kanonis → `updated:2`. Tahap 2 (lihat keputusan di bawah): `updated:2, renamed:2`. **Akhir**: **142 event + 26 draft** berteks kanonis, **semuanya** ber-`area_id = era_4ffa61e005344431a86dd1aeb544180f`. Sisa varian lama: 0.
 
-**Sengaja tidak disentuh**: `Musholla Lt. 3` (15 — Area berbeda), `Panggung Lt. Dasar` (50 — Area berbeda), `Lantai 3` (2 — ambigu, EO "LT PRO" makeup class; tanpa kata "Panggung", menunggu keputusan Andy).
+**Sengaja tidak disentuh**: `Musholla Lt. 3` (15 — Area berbeda), `Panggung Lt. Dasar` (50 — Area berbeda).
+
+**Keputusan Andy (2026-09-17)**: `Lantai 3` (2 event EO "LT PRO" makeup class) **ikut diseragamkan** ke `Panggung Funworld Lt. 3` setelah dikonfirmasi. Hasil: `{"updated":2,"renamed":2}` → total kanonis **142 event, semuanya ber-`area_id`**, sisa `Lantai 3` = 0.
 
 Verifikasi tampilan: `https://www.metmalcommunityspace.web.id/events` → 5 section (Panggung Funworld Lt. 3, Panggung Lt. Dasar, Musholla Lt. 3, Foodventure Lt. 2, Parkir Timur); teks `Panggung Lt. 3` lama tidak ada lagi.
 
