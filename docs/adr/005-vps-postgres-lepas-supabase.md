@@ -44,7 +44,7 @@ Evaluasi (03–06 Sep 2026): pindah total Supabase Auth/RLS/realtime/storage = r
 
 ## Bukti produksi (2026-09-08, deploy fix `f922709`–`efb31da` + cutover `8e23ba4`)
 
-- `https://www.metmalcommunityspace.web.id/events` render **TOTAL 250 LIVE 0 COMING SOON 27** — semua fetch `[events, themes, holidays, settings/…]` ke `metmal.andotherstori.my.id`; 0 call ke supabase.co.
+- `https://www.metmalcommunityspace.web.id/events` render **TOTAL 250 LIVE 0 COMING SOON 27** — semua fetch `[events, themes, holidays, settings/…]` ke `api.metmalcommunityspace.web.id`; 0 call ke supabase.co.
 - Login browser superadmin OK; semua 4 akun API-OK (`success:true`), tabel Pendaftaran 12 baris nyata.
 - Matrix testing 24/24: auth pos/negatif, admin list*, publik 15+ route, validasi yang menolak junk, R2 presign→PUT→GET-magic-bytes→delete.
 - Cron backup pertama `metmal_20260908_210559.sql.gz` (56 K) lolos `gunzip -t`.

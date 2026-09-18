@@ -5,9 +5,9 @@ const ASSET_DIR = './presentasi/assets';
 const VIEWPORT = { width: 1440, height: 900 };
 
 // Opsi B (ADR 005): data produksi = REST VPS. Jalankan dengan env:
-//   VITE_API_URL=https://metmal.andotherstori.my.id npx playwright test deck-assets
+//   VITE_API_URL=https://api.metmalcommunityspace.web.id npx playwright test deck-assets
 // (utilitas regenerasi screenshot, bukan CI gate — tetap manual-run.)
-const API_BASE = process.env.VITE_API_URL || 'https://metmal.andotherstori.my.id';
+const API_BASE = process.env.VITE_API_URL || 'https://api.metmalcommunityspace.web.id';
 
 // Skip bila dijalankan tanpa VITE_API_URL (default suite run) — utilitas ini
 // butuh data produksi REST VPS; tanpa env, fetch localhost gagal CORS/route.

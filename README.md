@@ -112,7 +112,7 @@ Env var **client** (Vite, prefix `VITE_`) — buat file `.env` di root:
 ```env
 # Base API backend. Lokal: biarkan kosong bila SPA dan backend satu host.
 # Produksi (SPA di Vercel → api domain lain):
-VITE_API_URL=https://metmal.andotherstori.my.id
+VITE_API_URL=https://api.metmalcommunityspace.web.id
 VITE_R2_PUBLIC_URL=YOUR_R2_PUBLIC_URL
 # Opsional — auto-login saat dev:
 # VITE_DEV_AUTO_LOGIN=true

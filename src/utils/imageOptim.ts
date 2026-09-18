@@ -7,7 +7,7 @@
  * Savings: ~7MB JPG originals → ~27KB WebP thumbnails (99.6% reduction)
  *
  * Future: Can be migrated to Cloudflare Workers Image Resizing
- * when enabled on the andotherstori.my.id zone.
+ * when enabled on the metmalcommunityspace.web.id zone.
  */
 
 const R2_PUBLIC_URL = (import.meta.env.VITE_R2_PUBLIC_URL || '').replace(/\/$/, '');

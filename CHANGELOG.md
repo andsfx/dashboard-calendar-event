@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Script migrasi domain media** `server/scripts/migrate-cdn-domain.mjs` —
+  memindahkan URL di database dari `cdn.andotherstori.my.id` ke
+  `cdn.metmalcommunityspace.web.id` (67 baris: `events.poster_url`,
+  `event_areas.cover_photo_url`, `photo_albums.cover_photo_url`,
+  `event_photos.url`, `area_photos.url`, `event_proposals.file_url`,
+  `site_settings.value`). Objek R2 tidak dipindah — hanya hostname, jadi
+  penggantian string sudah cukup. Idempotent.
+  **Bawaan script adalah LAPOR SAJA**; menulis wajib `--apply`. Konvensi ini
+  sengaja dibalik: script pernah dijalankan tanpa sengaja ke produksi karena
+  flag `--dry-run` tertelan pembungkus shell, sehingga perubahan langsung
+  diterapkan. Dengan bawaan aman, kegagalan meneruskan flag berakibat
+  "tidak terjadi apa-apa".
 - **Execution plan doc** (`docs/PLAN_2026-09-17_15-30.md`) — mencatat dua fase audit: Impeccable a11y contrast + Hallmark anti-pattern.
 - **Role `demo`** — akun peragaan yang bisa MELIHAT seluruh permukaan dashboard (termasuk Manajemen Pengguna & Log Aktivitas) tetapi TIDAK bisa mengubah apa pun. Ditegakkan di **backend**, bukan hanya menyembunyikan tombol:
   - `server/src/auth.js`: `DEMO_ROLE`, `DEMO_READ_ROLES`, `DEMO_READ_ACTIONS` (allowlist 9 aksi baca), `canPerformAdminAction()`, `maskEmail()`.
@@ -17,8 +29,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `server/migrations/2026-09-18-demo-role.sql`: `ALTER TABLE users` menambah `demo` ke CHECK constraint (idempoten; `schema.sql` saja tidak cukup untuk DB yang sudah ada).
   - Frontend: `UserRole` + `usePermission` (`isDemo` + 8 flag `canView*` yang memisahkan "lihat" dari "kelola"), navigasi & kartu command center pakai flag view, `UserManagement`/`ExhibitionManager`/`SurveyDashboard`/`TenantSurveyPage` + 5 modal konten menerima `readOnly` untuk menyembunyikan aksi mutasi.
   - Dev: `VITE_DEV_AUTO_LOGIN_ROLE` untuk menguji UI per-role tanpa backend.
+- **Superadmin bisa mengedit user langsung dari dashboard** — sebelumnya hanya ada toggle aktif/nonaktif dan hapus; tombol `Pencil` bahkan sudah di-import di `UserManagement.tsx` tapi tidak pernah dipakai (niat yang belum diimplementasi). Kini tiap baris punya tombol Edit yang membuka `UserEditModal` untuk mengubah **email, nama tampilan, role, dan password**.
+  - `server/src/routes/extra.js`: `POST /users-update` menerima `email` (di-`trim`+lowercase, validasi regex, cek unik case-insensitive `lower(email)` → 409). Sebelumnya `email` tidak didukung sama sekali.
+  - **Role tak dikenal kini 400**, bukan diabaikan diam-diam. Dulu `if (ALL_VALID_ROLES.includes(...))` membuat role salah dibuang tanpa pesan — bila itu satu-satunya field, hasilnya `'Tidak ada perubahan'` yang menyesatkan.
+  - **Kunci sistem: superadmin aktif terakhir tidak bisa diturunkan/dinonaktifkan** (`/users-update` dan `/users-delete`) — mencegah sistem terkunci tanpa pengelola. Menonaktifkan akun sendiri juga ditolak (konsisten dengan `/users-delete`).
+  - `email` disamakan case-insensitive saat cek duplikat karena login memakai `lower(email)`.
+  - Frontend: label role `demo` ditambahkan ke `ROLE_LABELS` (sebelumnya badge tampil mentah karena kunci tidak ada) dan ke pilihan role di form buat user; email user kini tampil di daftar (sebelumnya hanya nama); role akun sendiri di-`disabled` di modal dengan penjelasan.
+  - `UserEditModal` hanya mengirim field yang **benar-benar berubah**, dan password kosong berarti "jangan ubah" — bukan "kosongkan". Password <6 karakter ditolak di klien tanpa memanggil server.
 
 ### Fixed
+- **Insiden: migrasi sempat dijalankan ke produksi tanpa disengaja.** 67 baris
+  database komunitas diubah ke domain yang saat itu belum ada DNS-nya
+  (NXDOMAIN), membuat gambar tidak tampil. Dibuatkan dan diverifikasi
+  rollback penuh (0 baris domain baru, 67 baris domain lama pulih, 0 gambar
+  rusak). Tidak ada data hilang — hanya hostname, objek R2 tidak disentuh.
+  Pencegahan: bawaan script kini lapor-saja (lihat di atas).
 - **Aksesibilitas — kontras ikon pada tint background** (`babe937`): ikon `*‑500` diganti ke `*‑700` (amber, primary, red) di `ToastContainer.tsx`, `EventAreaManagerModal.tsx`; teks placeholder `SearchBar.tsx` dari `slate‑500` ke `slate‑600`.
 - **Aksesibilitas — kelas mati** (`babe937`): `.landing‑grid` dihapus dari `motion.css` (tidak terpakai).
 - **UI — bare `transition` pada permukaan publik** (`50317ba`): 8 lokasi di `FeaturedEvents`, `CommunityEventAreas`, `CommunityBenefits`, `CommunityUpcomingEvents` diganti ke `transition‑shadow`, `transition‑colors`, atau `transition‑transform` agar ring fokus tidak ikut teranimasi.
@@ -32,4 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Guard regresi konstanta role server** (`src/__tests__/serverRoleConstants.test.ts`): `server/` tidak dicek `tsc` (JS, bukan TS) dan di-exclude dari vitest, sehingga import menggantung hanya ketahuan di runtime produksi. Test ini memverifikasi setiap pemakaian konstanta role ter-import/terdefinisi + modul route bisa di-import. Terverifikasi gagal-on-bug.
 
 ### Changed
+- **Domain media pindah ke `cdn.metmalcommunityspace.web.id`** (menggantikan
+  `cdn.andotherstori.my.id`) di `vercel.json`, `AGENTS.md`, `README.md`,
+  `deploy/vps/README-DEPLOY.md`, ADR 005, dan `e2e/deck-assets.spec.ts`.
+  Bucket R2 tetap `metmal-gallery`.
+- **Domain API pindah ke `api.metmalcommunityspace.web.id`** (menggantikan
+  `metmal.andotherstori.my.id`) di dokumentasi dan rewrite `vercel.json`.
+  Nilai runtime ada di env Vercel `VITE_API_URL`, bukan di source.
 - **Stamp `tokens.css`** (`50317ba`): `custom (Graphify‑tosca)` → `custom (Metmal tosca/pink warm paper)`; tambahan baris `design‑system: DESIGN.md (root)` untuk mencegah drift audit berikutnya.
