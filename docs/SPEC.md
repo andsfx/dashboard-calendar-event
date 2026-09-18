@@ -43,6 +43,7 @@ Glossary terms in **bold** match `CONTEXT.md`. Code identifiers in `backticks`.
 | **superadmin** | login | Semua **admin** + kelola user/permission | — |
 | **admin** | login | CRUD Event/Draft/Tema; review Registration; survey config; settings; activity log; export | User management (kecuali superadmin) |
 | **viewer** | login | Lihat dashboard (registrasi, survey, export); read-only | Edit/delete Event/Draft; manage users/themes/settings |
+| **demo** | login | Lihat SELURUH permukaan dashboard (termasuk users + activity log); read-only | Semua mutasi — ditegakkan backend (`DEMO_READ_ACTIONS`) |
 | **eo_tenant** | login | Surface Evaluasi Tenant / self-assessment terbatas | Operasional Event penuh; TR analytics penuh (kecuali diizinkan permission) |
 | **tenant_relation** | login | Hasil Evaluasi Tenant (analytics/export) | Edit Event/Draft; operasional penuh |
 | **Pendaftar** | non-login | Submit Community Registration | Dashboard; ubah status registration |
