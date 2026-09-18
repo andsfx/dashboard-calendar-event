@@ -72,7 +72,10 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
       const areaBuckets = new Map<string, EventItem[]>();
 
       for (const ev of sortedEvents) {
-        const key = ev.areaId || '__unmapped__';
+        // `areaId` bisa menunjuk area yang sudah dihapus/nonaktif sehingga
+        // tidak ada di `areaMap`. Perlakukan sebagai unmapped agar tidak
+        // menghasilkan bucket tanpa nama (dulu crash saat render).
+        const key = ev.areaId && areaMap.has(ev.areaId) ? ev.areaId : '__unmapped__';
         const bucket = areaBuckets.get(key) ?? [];
         bucket.push(ev);
         if (!areaBuckets.has(key)) areaBuckets.set(key, bucket);
@@ -94,7 +97,12 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
         const tableGroups: TableGroup[] = [];
         for (const areaKey of orderedKeys) {
           const areaEvts = areaBuckets.get(areaKey)!;
-          const areaName = areaKey === '__unmapped__' ? 'Tanpa lokasi' : (areaMap.get(areaKey)!.name);
+          // `areaKey` berasal dari `ev.areaId`, yang bisa menunjuk area yang
+          // sudah dihapus/nonaktif sehingga tidak ada di `areaMap`. Fallback ke
+          // key mentah agar baris tetap tampil alih-alih crash (dulu `!`).
+          const areaName = areaKey === '__unmapped__'
+            ? 'Tanpa lokasi'
+            : (areaMap.get(areaKey)?.name ?? areaKey);
 
           // Sub-group area events by month
           const monthBuckets: { monthKey: string; events: EventItem[] }[] = [];
