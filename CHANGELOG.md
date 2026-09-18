@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `email` disamakan case-insensitive saat cek duplikat karena login memakai `lower(email)`.
   - Frontend: label role `demo` ditambahkan ke `ROLE_LABELS` (sebelumnya badge tampil mentah karena kunci tidak ada) dan ke pilihan role di form buat user; email user kini tampil di daftar (sebelumnya hanya nama); role akun sendiri di-`disabled` di modal dengan penjelasan.
   - `UserEditModal` hanya mengirim field yang **benar-benar berubah**, dan password kosong berarti "jangan ubah" — bukan "kosongkan". Password <6 karakter ditolak di klien tanpa memanggil server.
+  - **Label aksesibel unik** pada tombol aksi user. Data nyata punya dua user bernama `demo` (`demo@demo.com` dan `user@demo.com`), sehingga label `Edit demo`/`Nonaktifkan demo` muncul dua kali dan screen reader tidak bisa membedakannya. Label kini menyertakan email (`Edit demo (demo@demo.com)`) — `display_name` tidak unik, email unik. Ada test regresinya.
 
 ### Fixed
 - **Insiden: migrasi sempat dijalankan ke produksi tanpa disengaja.** 67 baris

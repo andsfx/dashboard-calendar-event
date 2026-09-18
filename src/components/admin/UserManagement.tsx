@@ -199,6 +199,9 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
         <div className="divide-y divide-slate-100 dark:divide-slate-700">
           {users.map((u) => {
             const roleInfo = ROLE_LABELS[u.role] || { label: u.role, color: 'bg-slate-100 text-slate-700', icon: <Shield className="h-3 w-3" /> };
+            // Label aksesibel harus unik: display_name boleh sama (dua user
+            // bernama "demo"), email tidak — jadi email disertakan.
+            const userLabel = u.display_name ? `${u.display_name} (${u.email})` : u.email;
             return (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
                 {/* Avatar */}
@@ -226,7 +229,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                       onClick={() => setEditingUser(u)}
                       className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700"
                       title="Edit user"
-                      aria-label={`Edit ${u.display_name || u.email}`}
+                      aria-label={`Edit ${userLabel}`}
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -237,7 +240,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                       onClick={() => handleToggleActive(u.id, u.is_active)}
                       className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                      aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${u.display_name || u.email}`}
+                      aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${userLabel}`}
                       aria-pressed={u.is_active}
                     >
                       {u.is_active ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}

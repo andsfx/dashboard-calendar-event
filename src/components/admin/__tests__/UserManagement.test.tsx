@@ -79,7 +79,7 @@ describe('UserManagement (mount-smoke)', () => {
     const toggle = await screen.findByTitle('Nonaktifkan');
     expect(toggle).toBeInTheDocument();
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
-    expect(toggle.getAttribute('aria-label')).toBe('Nonaktifkan Viewer Test');
+    expect(toggle.getAttribute('aria-label')).toBe('Nonaktifkan Viewer Test (viewer@x.id)');
   });
 
   it('mode read-only (demo): daftar terlihat, tombol mutasi tidak ada', async () => {
@@ -103,6 +103,22 @@ describe('UserManagement (mount-smoke)', () => {
     mockFetchOnce(200, { users: [userFixture] });
     render(<UserManagement />);
     expect(await screen.findByText('viewer@x.id')).toBeInTheDocument();
+  });
+
+  it('label tombol edit unik walau display_name sama (dua user "demo")', async () => {
+    // Regresi: display_name tidak unik di data nyata (demo@demo.com dan
+    // user@demo.com dua-duanya bernama "demo"), sehingga label "Edit demo"
+    // muncul dua kali dan screen reader tak bisa membedakan.
+    mockFetchOnce(200, { users: [
+      { ...userFixture, id: 'u-1', email: 'demo@demo.com', display_name: 'demo' },
+      { ...userFixture, id: 'u-2', email: 'user@demo.com', display_name: 'demo' },
+    ] });
+    render(<UserManagement />);
+
+    const btnA = await screen.findByRole('button', { name: 'Edit demo (demo@demo.com)' });
+    const btnB = await screen.findByRole('button', { name: 'Edit demo (user@demo.com)' });
+    expect(btnA).toBeInTheDocument();
+    expect(btnB).toBeInTheDocument();
   });
 });
 
@@ -135,7 +151,7 @@ describe('UserManagement (edit user)', () => {
     mockUserApi([userFixture]);
     render(<UserManagement />);
 
-    const editBtn = await screen.findByRole('button', { name: 'Edit Viewer Test' });
+    const editBtn = await screen.findByRole('button', { name: 'Edit Viewer Test (viewer@x.id)' });
     editBtn.click();
 
     expect(await screen.findByRole('heading', { name: 'Edit Pengguna' })).toBeInTheDocument();
@@ -150,7 +166,7 @@ describe('UserManagement (edit user)', () => {
     const posted = mockUserApi([userFixture]);
     render(<UserManagement />);
 
-    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    (await screen.findByRole('button', { name: 'Edit Viewer Test (viewer@x.id)' })).click();
     await screen.findByRole('heading', { name: 'Edit Pengguna' });
 
     // Ubah role saja; email/nama dibiarkan.
@@ -168,7 +184,7 @@ describe('UserManagement (edit user)', () => {
     const posted = mockUserApi([userFixture]);
     render(<UserManagement />);
 
-    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    (await screen.findByRole('button', { name: 'Edit Viewer Test (viewer@x.id)' })).click();
     await screen.findByRole('heading', { name: 'Edit Pengguna' });
 
     const emailInput = screen.getByLabelText(/^Email$/) as HTMLInputElement;
@@ -184,7 +200,7 @@ describe('UserManagement (edit user)', () => {
     const posted = mockUserApi([userFixture]);
     render(<UserManagement />);
 
-    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    (await screen.findByRole('button', { name: 'Edit Viewer Test (viewer@x.id)' })).click();
     await screen.findByRole('heading', { name: 'Edit Pengguna' });
 
     const pwInput = screen.getByLabelText(/Password Baru/) as HTMLInputElement;
@@ -199,7 +215,7 @@ describe('UserManagement (edit user)', () => {
     mockUserApi([{ ...userFixture, role: 'superadmin' }]);
     render(<UserManagement currentUserId="u-1" />);
 
-    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    (await screen.findByRole('button', { name: 'Edit Viewer Test (viewer@x.id)' })).click();
     await screen.findByRole('heading', { name: 'Edit Pengguna' });
 
     expect((screen.getByLabelText(/^Role$/) as HTMLSelectElement).disabled).toBe(true);
