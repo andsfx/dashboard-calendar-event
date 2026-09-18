@@ -15,8 +15,9 @@ DO $$
 DECLARE
   c record;
 BEGIN
-  -- Lepas HANYA check constraint pada users.role (nama auto-generated bisa
-  -- berbeda antar-DB), lalu pasang ulang dengan daftar role yang baru.
+  -- Lepas HANYA check constraint pada users.role. Pola harus mencakup dua
+  -- bentuk: `role IN (...)` (schema.sql) DAN `role = ANY (ARRAY[...])`
+  -- (bentuk yang dipakai Postgres setelah CREATE TABLE — beda teksnya).
   FOR c IN
     SELECT con.conname
     FROM pg_constraint con
@@ -24,7 +25,8 @@ BEGIN
     JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
     WHERE rel.relname = 'users'
       AND con.contype = 'c'
-      AND pg_get_constraintdef(con.oid) ILIKE '%role IN%'
+      AND (pg_get_constraintdef(con.oid) ILIKE '%role IN%'
+           OR pg_get_constraintdef(con.oid) ILIKE '%role = ANY%')
   LOOP
     EXECUTE format('ALTER TABLE users DROP CONSTRAINT %I', c.conname);
   END LOOP;

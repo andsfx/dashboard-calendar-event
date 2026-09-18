@@ -842,7 +842,7 @@ router.get('/analytics', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req
   const allowedGroups = new Set(['tenant', 'event', 'month']);
   const groupBy = allowedGroups.has(group) ? group : 'tenant';
 
-  const isAdminScope = ANALYTICS_READ_ROLES.includes(req.auth.role);
+  const isAdminScope = ANALYTICS_READ_ROLES_WITH_DEMO.includes(req.auth.role);
   const tenantUserId = isAdminScope ? null : req.auth.user?.id || null;
 
   try {
