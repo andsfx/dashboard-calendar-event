@@ -16,7 +16,7 @@ function EmptyEvents() {
       <p className="mt-2 max-w-xs text-sm text-slate-600 dark:text-slate-300">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
       <a
         href="#contact"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+        className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
       >
         Hubungi Kami <ArrowRight className="h-4 w-4" />
       </a>
@@ -143,7 +143,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           <button
             type="button"
             onClick={() => onDetail?.(mainEvent)}
-            className="group text-left rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+            className="group text-left rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
@@ -195,7 +195,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                   </p>
                 </div>
               )}
-              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition group-hover:bg-[var(--brand-tosca-dark)]">
+              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition-colors group-hover:bg-[var(--brand-tosca-dark)]">
                 Lihat Detail Event <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -226,7 +226,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-3xl border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start gap-4 rounded-3xl border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200" style={{ backgroundColor: `${color}15` }}>
@@ -255,7 +255,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
         <div className="mt-8 flex justify-center">
           <Link
             to="/events"
-            className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
+            className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
           >
             Lihat Semua Event
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

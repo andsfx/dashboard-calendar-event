@@ -97,7 +97,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
                   }
                 } : undefined}
                 className={[
-                  'ui-campaign-card group overflow-hidden rounded-[2rem] bg-white shadow-[var(--shadow-card-soft)] transition hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900',
+                  'ui-campaign-card group overflow-hidden rounded-[2rem] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900',
                   clickable ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2' : '',
                 ].join(' ')}
               >

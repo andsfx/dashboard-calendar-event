@@ -51,7 +51,7 @@ export function CommunityBenefits() {
               </div>
               <Link
                 to="/sponsor"
-                className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 Lihat Peluang Sponsor
               </Link>
