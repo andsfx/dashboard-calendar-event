@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/events/:id+",
-      "destination": "https://api.metmalcommunityspace.web.id/events/:id"
+      "destination": "https://metmal.andotherstori.my.id/events/:id"
     },
                      {
                          "source":  "/((?!api|_vercel).*)",
