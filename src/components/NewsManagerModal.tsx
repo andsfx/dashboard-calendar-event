@@ -10,6 +10,8 @@ import { useConfirmDialog } from './ConfirmDialog';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -19,7 +21,7 @@ const inputClass =
 
 const labelClass = 'mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300';
 
-export function NewsManagerModal({ isOpen, onClose }: Props) {
+export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -227,14 +229,16 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
           {/* ===== VIEW 1: Article List ===== */}
           {view === 'list' && !isLoading && (
             <>
-              <button
-                type="button"
-                onClick={startCreate}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
-              >
-                <Plus className="h-4 w-4" />
-                Buat Artikel Baru
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={startCreate}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+                >
+                  <Plus className="h-4 w-4" />
+                  Buat Artikel Baru
+                </button>
+              )}
 
               {articles.length === 0 && (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
@@ -289,6 +293,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
 
                       {/* Actions */}
                       <div className="flex shrink-0 items-center gap-1">
+                        {!readOnly && (<>
                         <button
                           type="button"
                           onClick={() => startEdit(article)}
@@ -316,6 +321,7 @@ export function NewsManagerModal({ isOpen, onClose }: Props) {
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
+                        </>)}
                       </div>
                     </div>
                   ))}

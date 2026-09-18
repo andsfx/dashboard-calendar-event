@@ -3,7 +3,7 @@ import { DraftEventItem } from '../types';
 import { DraftProgressBadge } from './DraftProgressBadge';
 import { formatDraftPublishedAt, getWhatsAppUrl } from '../utils/draftUtils';
 
-export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore: (draft: DraftEventItem) => void }) {
+export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore?: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
     return (
       <div className="ui-empty-panel p-6 text-sm text-slate-500">
@@ -65,7 +65,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                       ) : (
                         <span className="text-xs text-slate-500">Tidak ada nomor</span>
                       )}
-                      {!draft.published && (draft.deleted || draft.progress === 'cancel') && (
+                      {onRestore && !draft.published && (draft.deleted || draft.progress === 'cancel') && (
                         <button
                           onClick={() => onRestore(draft)}
                           className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20"

@@ -16,6 +16,8 @@ import { useConfirmDialog } from './ConfirmDialog';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB — proposal file (PDF/docx/gambar)
@@ -33,7 +35,7 @@ const STATUS_CLASSES: Record<SponsorLeadStatus, string> = {
   agreed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
   declined: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
-export function SponsorManagerModal({ isOpen, onClose }: Props) {
+export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props) {
   const [tab, setTab] = useState<'proposals' | 'leads'>('proposals');
   const [events, setEvents] = useState<EventProposalEvent[]>([]);
   const [leads, setLeads] = useState<SponsorLead[]>([]);
@@ -251,6 +253,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                         >
                           <ExternalLink className="h-3 w-3" /> {item.proposal.fileName || 'Lihat proposal'}
                         </a>
+                        {!readOnly && (<>
                         <span className="text-slate-500">·</span>
                         <button
                           type="button"
@@ -259,21 +262,22 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                         >
                           Hapus
                         </button>
+                        </>)}
                       </div>
                     ) : (
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Belum ada proposal</p>
                     )}
                   </div>
                   <div className="flex-shrink-0">
-                    <input
+                    {!readOnly && (<input
                       ref={el => { fileInputRefs.current[item.event.id] = el; }}
                       type="file"
                       accept=".pdf,.doc,.docx,image/*"
                       className="hidden"
                       id={`proposal-file-${item.event.id}`}
                       onChange={(e) => handleProposalSelect(item.event.id, e.target.files?.[0])}
-                    />
-                    <button
+                    />)}
+                    {!readOnly && (<button
                       type="button"
                       onClick={() => document.getElementById(`proposal-file-${item.event.id}`)?.click()}
                       disabled={isUploading}
@@ -290,7 +294,7 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                           {item.proposal.fileUrl ? 'Ganti' : 'Upload'}
                         </>
                       )}
-                    </button>
+                    </button>)}
                   </div>
                 </div>
               ))}
@@ -343,22 +347,30 @@ export function SponsorManagerModal({ isOpen, onClose }: Props) {
                       </p>
                     </div>
                     <div className="flex flex-shrink-0 flex-col items-end gap-1.5">
-                      <select
-                        value={lead.status}
-                        onChange={(e) => handleStatusChange(lead, e.target.value as SponsorLeadStatus)}
-                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                      >
-                        {statusOptions.map((s) => (
-                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteLead(lead)}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline"
-                      >
-                        <Trash2 className="h-3 w-3" /> Hapus
-                      </button>
+                      {readOnly ? (
+                        <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+                          {STATUS_LABELS[lead.status]}
+                        </span>
+                      ) : (
+                        <>
+                          <select
+                            value={lead.status}
+                            onChange={(e) => handleStatusChange(lead, e.target.value as SponsorLeadStatus)}
+                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                          >
+                            {statusOptions.map((s) => (
+                              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteLead(lead)}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline"
+                          >
+                            <Trash2 className="h-3 w-3" /> Hapus
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

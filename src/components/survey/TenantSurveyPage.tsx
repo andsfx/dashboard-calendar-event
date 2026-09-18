@@ -405,6 +405,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           onToggleConfig={handleToggleConfig}
           configLoading={configLoading}
           activeConfigs={activeConfigs}
+          readOnly={!isAdmin}
         />
       </div>
     );
@@ -848,6 +849,7 @@ function TenantSurveyEventRow({
   onToggleConfig,
   configLoading,
   activeConfigs,
+  readOnly = false,
 }: {
   event: Pick<EventItem, 'id' | 'acara' | 'status'>;
   copiedId: string;
@@ -856,6 +858,7 @@ function TenantSurveyEventRow({
   onToggleConfig: (id: string, active: boolean) => void;
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
+  readOnly?: boolean;
 }) {
   const [showQR, setShowQR] = useState(false);
   const isActive = activeConfigs[event.id] === true;
@@ -873,7 +876,7 @@ function TenantSurveyEventRow({
           </p>
         </div>
 
-        <button
+        {!readOnly && <button
           onClick={() => onToggleConfig(event.id, isActive)}
           disabled={isToggling}
           className={`shrink-0 transition ${isActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`}
@@ -886,7 +889,7 @@ function TenantSurveyEventRow({
           ) : (
             <ToggleLeft className="h-5 w-5" />
           )}
-        </button>
+        </button>}
 
         <button
           onClick={() => onCopyLink(event.id)}
@@ -943,6 +946,7 @@ function TenantSurveyManagementSection({
   onToggleConfig,
   configLoading,
   activeConfigs,
+  readOnly = false,
 }: {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'status'>>;
   copiedId: string;
@@ -951,6 +955,7 @@ function TenantSurveyManagementSection({
   onToggleConfig: (id: string, active: boolean) => void;
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
+  readOnly?: boolean;
 }) {
   const [query, setQuery] = useState('');
   // Collapsed by default so list tab stays primary focus
@@ -1044,6 +1049,7 @@ function TenantSurveyManagementSection({
                   onToggleConfig={onToggleConfig}
                   configLoading={configLoading}
                   activeConfigs={activeConfigs}
+                  readOnly={readOnly}
                 />
               ))
             )}

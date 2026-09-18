@@ -46,11 +46,14 @@ interface Props {
   onLinkActivation: (exhibitionId: string, eventId: string) => Promise<boolean>;
   onUnlinkActivation: (eventId: string) => Promise<boolean>;
   onConfirm: (options: { title: string; message: string; subject?: string; confirmLabel?: string }) => Promise<boolean>;
+  /** Akun demo: hanya melihat. Form & tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 export function ExhibitionManager({
   exhibitions, leads, activations, events, isLoading, error, canDelete,
   onSave, onDelete, onReviewLead, onLinkActivation, onUnlinkActivation, onConfirm,
+  readOnly = false,
 }: Props) {
   const [form, setForm] = useState<ExhibitionInput>(EMPTY_FORM);
   const [editingId, setEditingId] = useState('');
@@ -140,7 +143,7 @@ export function ExhibitionManager({
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-4 p-5">
+      {!readOnly && <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-4 p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">
             {editingId ? 'Ubah Pameran' : 'Pameran Baru'}
@@ -215,7 +218,7 @@ export function ExhibitionManager({
           <Plus className="h-4 w-4" aria-hidden="true" />
           {isSubmitting ? 'Menyimpan…' : editingId ? 'Simpan perubahan' : 'Simpan pameran'}
         </button>
-      </form>
+      </form>}
 
       <section className="ui-dashboard-surface p-5">
         <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">Daftar Pameran</h2>
@@ -257,9 +260,9 @@ export function ExhibitionManager({
                   <button type="button" onClick={() => setSelectedId(exhibition.id === selectedId ? '' : exhibition.id)} className="rounded-[var(--radius-control)] border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">
                     {exhibition.id === selectedId ? 'Tutup' : 'Kelola'}
                   </button>
-                  <button type="button" onClick={() => startEdit(exhibition)} className="rounded-[var(--radius-control)] border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">
+                  {!readOnly && <button type="button" onClick={() => startEdit(exhibition)} className="rounded-[var(--radius-control)] border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">
                     Ubah
-                  </button>
+                  </button>}
                   {canDelete && (
                     <button type="button" onClick={() => handleDelete(exhibition)} aria-label={`Hapus ${exhibition.title}`} className="rounded-[var(--radius-control)] border border-red-200 p-1.5 text-red-600 dark:border-red-800 dark:text-red-400">
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -286,13 +289,13 @@ export function ExhibitionManager({
                             {item.title} · {formatDateRange(item.dateStart, item.dateEnd)}
                             {item.time && ` · ${item.time}`}
                           </span>
-                          <button type="button" onClick={() => handleUnlink(item.eventId, item.title)} className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
+                          {!readOnly && <button type="button" onClick={() => handleUnlink(item.eventId, item.title)} className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
                             <Unlink className="h-3.5 w-3.5" aria-hidden="true" /> Lepas
-                          </button>
+                          </button>}
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-3 flex flex-wrap items-end gap-2">
+                    {!readOnly && <div className="mt-3 flex flex-wrap items-end gap-2">
                       <div className="min-w-[220px] flex-1">
                         <label className={labelClass} htmlFor={`exh-link-${exhibition.id}`}>Tautkan event dalam periode pameran</label>
                         <select id={`exh-link-${exhibition.id}`} className={inputClass} value={linkEventId} onChange={e => setLinkEventId(e.target.value)}>
@@ -313,7 +316,7 @@ export function ExhibitionManager({
                       >
                         <Link2 className="h-4 w-4" aria-hidden="true" /> Tautkan
                       </button>
-                    </div>
+                    </div>}
                   </div>
 
                   <div>
@@ -336,7 +339,7 @@ export function ExhibitionManager({
                           {lead.proposal && <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{lead.proposal}</p>}
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{LEAD_STATUS_LABELS[lead.status]}</span>
-                            {(Object.keys(LEAD_STATUS_LABELS) as ExhibitionLead['status'][])
+                            {!readOnly && (Object.keys(LEAD_STATUS_LABELS) as ExhibitionLead['status'][])
                               .filter(status => status !== lead.status)
                               .map(status => (
                                 <button key={status} type="button" onClick={() => onReviewLead(lead.id, status)} className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200">

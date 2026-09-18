@@ -5,13 +5,15 @@ import { getWhatsAppUrl } from '../utils/draftUtils';
 
 interface Props {
   drafts: DraftEventItem[];
-  onEdit: (draft: DraftEventItem) => void;
-  onDelete: (draft: DraftEventItem) => void;
-  onPublish: (draft: DraftEventItem) => void;
-  onProgressChange: (draft: DraftEventItem, progress: DraftProgress) => void;
+  /** Opsional: tanpa callback, aksi mutasi disembunyikan (mode lihat-saja). */
+  onEdit?: (draft: DraftEventItem) => void;
+  onDelete?: (draft: DraftEventItem) => void;
+  onPublish?: (draft: DraftEventItem) => void;
+  onProgressChange?: (draft: DraftEventItem, progress: DraftProgress) => void;
 }
 
 export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgressChange }: Props) {
+  const canMutate = !!(onEdit || onDelete || onPublish || onProgressChange);
   if (drafts.length === 0) {
     return (
       <div className="ui-empty-panel p-8 text-sm text-slate-500">
@@ -53,22 +55,24 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                   <td className="px-4 py-3">
                     <div className="space-y-2">
                       <DraftProgressBadge progress={draft.progress} />
-                      <select
-                        value={draft.progress}
-                        onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
-                        className="ui-dashboard-control w-full rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-brand-primary-400 dark:text-slate-300"
-                      >
-                        <option value="draft">Draft</option>
-                        <option value="confirm">Konfirmasi</option>
-                        <option value="cancel">Batal</option>
-                      </select>
+                      {onProgressChange && (
+                        <select
+                          value={draft.progress}
+                          onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
+                          className="ui-dashboard-control w-full rounded-lg px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-brand-primary-400 dark:text-slate-300"
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="confirm">Konfirmasi</option>
+                          <option value="cancel">Batal</option>
+                        </select>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button onClick={() => onEdit(draft)} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"><Edit2 className="h-3.5 w-3.5" />Ubah</button>
-                      <button onClick={() => onDelete(draft)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>
-                       <button
+                      {onEdit && <button onClick={() => onEdit(draft)} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"><Edit2 className="h-3.5 w-3.5" />Ubah</button>}
+                      {onDelete && <button onClick={() => onDelete(draft)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
+                      {onPublish && <button
                         type="button"
                         onClick={() => onPublish(draft)}
                         disabled={draft.progress !== 'confirm'}
@@ -76,7 +80,8 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
                       >
                         <Upload className="h-3.5 w-3.5" />Terbitkan
-                      </button>
+                      </button>}
+                      {!canMutate && <span className="text-xs text-slate-400">–</span>}
                       {whatsappUrl && (
                         <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-green-200 px-2.5 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 dark:border-green-900/50 dark:text-green-300 dark:hover:bg-green-900/20">
                           <MessageCircle className="h-3.5 w-3.5" />WhatsApp

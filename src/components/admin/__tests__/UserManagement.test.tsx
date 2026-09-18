@@ -81,4 +81,19 @@ describe('UserManagement (mount-smoke)', () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     expect(toggle.getAttribute('aria-label')).toBe('Nonaktifkan Viewer Test');
   });
+
+  it('mode read-only (demo): daftar terlihat, tombol mutasi tidak ada', async () => {
+    mockFetchOnce(200, { users: [userFixture] });
+    render(<UserManagement readOnly />);
+
+    // Data tetap tampil
+    await waitFor(() => {
+      expect(screen.getByText('Viewer Test')).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Aksi mutasi disembunyikan
+    expect(screen.queryByRole('button', { name: /invite/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /buat manual/i })).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Nonaktifkan')).not.toBeInTheDocument();
+  });
 });

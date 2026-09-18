@@ -27,7 +27,12 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
   tenant_relation: { label: 'Tenant Relation', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', icon: <BarChart3 className="h-3 w-3" /> },
 };
 
-export function UserManagement() {
+interface UserManagementProps {
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
+}
+
+export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
@@ -127,12 +132,14 @@ export function UserManagement() {
           <p className="text-xs text-slate-600 dark:text-slate-300">{users.length} user terdaftar</p>
         </div>
         <div className="flex gap-2">
+          {!readOnly && (<>
           <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-primary-700">
             <Mail className="h-3.5 w-3.5" /> Invite
           </button>
           <button onClick={() => setShowForm('create')} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
             <UserPlus className="h-3.5 w-3.5" /> Buat Manual
           </button>
+          </>)}
         </div>
       </div>
 
@@ -140,7 +147,7 @@ export function UserManagement() {
       {error && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">{error}</div>}
 
       {/* Create/Invite Form */}
-      {showForm && (
+      {showForm && !readOnly && (
         <div className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/20">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -204,7 +211,7 @@ export function UserManagement() {
                     )}
                   </div>
                 </div>
-                {u.role !== 'superadmin' && (
+                {!readOnly && u.role !== 'superadmin' && (
                   <div className="flex shrink-0 items-center gap-1">
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}

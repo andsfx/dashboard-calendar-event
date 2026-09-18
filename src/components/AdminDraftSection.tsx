@@ -10,12 +10,13 @@ interface Props {
   isDraftLoading: boolean;
   showDraftHistory: boolean;
   setShowDraftHistory: React.Dispatch<React.SetStateAction<boolean>>;
-  onAddDraft: () => void;
-  onEditDraft: (draft: DraftEventItem) => void;
-  onDeleteDraft: (draft: DraftEventItem) => void;
-  onPublishDraft: (draft: DraftEventItem) => void;
-  onDraftProgressChange: (draft: DraftEventItem, progress: DraftEventItem['progress']) => void;
-  onRestoreDraft: (draft: DraftEventItem) => void;
+  /** Opsional: tanpa callback, aksi mutasi disembunyikan (mode lihat-saja). */
+  onAddDraft?: () => void;
+  onEditDraft?: (draft: DraftEventItem) => void;
+  onDeleteDraft?: (draft: DraftEventItem) => void;
+  onPublishDraft?: (draft: DraftEventItem) => void;
+  onDraftProgressChange?: (draft: DraftEventItem, progress: DraftEventItem['progress']) => void;
+  onRestoreDraft?: (draft: DraftEventItem) => void;
 }
 
 export function AdminDraftSection({
@@ -44,12 +45,14 @@ export function AdminDraftSection({
             <p className="text-xs ui-text-muted">Antrian event yang masih diproses</p>
           </div>
         </div>
-        <button
-          onClick={onAddDraft}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition dark:shadow-brand-primary-900/30"
-        >
-          <Plus className="h-4 w-4" /> Tambah Draft Event
-        </button>
+        {onAddDraft && (
+          <button
+            onClick={onAddDraft}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition dark:shadow-brand-primary-900/30"
+          >
+            <Plus className="h-4 w-4" /> Tambah Draft Event
+          </button>
+        )}
       </div>
 
       {draftError && (

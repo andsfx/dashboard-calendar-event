@@ -293,6 +293,7 @@ export function DashboardPage({
           selectedRegistration={registrations.selectedRegistration}
           onUpdateRegStatus={handlers.handleUpdateRegStatus}
           initialEventData={modalData.initialEventData}
+          readOnly={!permissions.canManageSettings}
         />
       }
     >
@@ -373,7 +374,7 @@ export function DashboardPage({
 
 
       {/* 3. Draft Queue */}
-      {permissions.canEditEvents && dashboardPath === '/drafts' && (
+      {permissions.canViewDrafts && dashboardPath === '/drafts' && (
         <section id="draft-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Antrian Draft</h1>
@@ -387,19 +388,19 @@ export function DashboardPage({
               isDraftLoading={drafts.isDraftLoading}
               showDraftHistory={modalState.showDraftHistory}
               setShowDraftHistory={modalState.setShowDraftHistory}
-              onAddDraft={handlers.handleAddDraft}
-              onEditDraft={handlers.handleEditDraft}
-              onDeleteDraft={handlers.handleDeleteDraft}
-              onPublishDraft={handlers.handlePublishDraft}
-              onDraftProgressChange={handlers.handleDraftProgressChange}
-              onRestoreDraft={handlers.handleRestoreDraft}
+              onAddDraft={permissions.canEditEvents ? handlers.handleAddDraft : undefined}
+              onEditDraft={permissions.canEditEvents ? handlers.handleEditDraft : undefined}
+              onDeleteDraft={permissions.canEditEvents ? handlers.handleDeleteDraft : undefined}
+              onPublishDraft={permissions.canEditEvents ? handlers.handlePublishDraft : undefined}
+              onDraftProgressChange={permissions.canEditEvents ? handlers.handleDraftProgressChange : undefined}
+              onRestoreDraft={permissions.canEditEvents ? handlers.handleRestoreDraft : undefined}
             />
           </Suspense>
         </section>
       )}
 
       {/* Exhibitions — pameran & aktivasi */}
-      {permissions.canEditEvents && dashboardPath === '/exhibitions' && (
+      {permissions.canViewExhibitions && dashboardPath === '/exhibitions' && (
         <section id="exhibitions-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Pameran &amp; Aktivasi</h1>
@@ -420,6 +421,7 @@ export function DashboardPage({
               onLinkActivation={exhibitions.onLinkActivation}
               onUnlinkActivation={exhibitions.onUnlinkActivation}
               onConfirm={modalState.openConfirm}
+              readOnly={!permissions.canEditEvents}
             />
           </Suspense>
         </section>
@@ -439,7 +441,7 @@ export function DashboardPage({
       )}
 
       {/* 5. Tema Tahunan — admin */}
-      {permissions.canManageThemes && dashboardPath === '/themes' && (
+      {permissions.canViewThemes && dashboardPath === '/themes' && (
         <section id="themes" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Tema Tahunan</h1>
@@ -554,13 +556,13 @@ export function DashboardPage({
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola Survey Kepuasan (pengunjung/organizer) per event</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <SurveyDashboard events={events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} />
+            <SurveyDashboard events={events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} readOnly={!permissions.canManageSurvey} />
           </Suspense>
         </section>
       )}
 
       {/* 8b. Tenant Self-Assessment */}
-      {(permissions.canEditEvents || permissions.isEoTenant) && dashboardPath === '/tenant-surveys' && (
+      {permissions.canViewTenantSurveys && dashboardPath === '/tenant-surveys' && (
         <section id="tenant-surveys-section" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h1>
@@ -573,14 +575,16 @@ export function DashboardPage({
       )}
 
       {/* 9. User Management */}
-      {permissions.canManageUsers && dashboardPath === '/users' && (
+      {permissions.canViewUsers && dashboardPath === '/users' && (
         <section id="user-management" className="scroll-mt-20">
           <div className="mb-6">
             <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola user dan permission (Superadmin only)</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {permissions.canManageUsers ? 'Kelola user dan permission (Superadmin only)' : 'Daftar user (mode lihat saja)'}
+            </p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <UserManagement />
+            <UserManagement readOnly={!permissions.canManageUsers} />
           </Suspense>
         </section>
       )}

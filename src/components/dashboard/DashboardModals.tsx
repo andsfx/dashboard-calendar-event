@@ -99,6 +99,9 @@ interface DashboardModalsProps {
   selectedRegistration: CommunityRegistration | null;
   onUpdateRegStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
   onCreateEventFromRegistration?: (registration: CommunityRegistration) => void;
+
+  /** Akun demo: modal konten tampil tanpa aksi mutasi. */
+  readOnly?: boolean;
 }
 
 export function DashboardModals({
@@ -161,6 +164,8 @@ export function DashboardModals({
   selectedRegistration,
   onUpdateRegStatus,
   onCreateEventFromRegistration,
+  /** Akun demo: modal konten tampil tanpa aksi mutasi. */
+  readOnly = false,
 }: DashboardModalsProps) {
   return (
     <>
@@ -244,6 +249,7 @@ export function DashboardModals({
             onSave={onSaveInstagramPosts}
             heroImageUrl={heroImageUrl}
             onSaveHeroImage={onSaveHeroImage}
+            readOnly={readOnly}
           />
         )}
         {showAlbumManager && (
@@ -252,24 +258,28 @@ export function DashboardModals({
             onClose={onCloseAlbumManager}
             pastEvents={pastEvents}
             annualThemes={annualThemes}
+            readOnly={readOnly}
           />
         )}
         {showNewsManager && (
           <NewsManagerModal
             isOpen={showNewsManager}
             onClose={onCloseNewsManager}
+            readOnly={readOnly}
           />
         )}
         {showSponsorManager && (
           <SponsorManagerModal
             isOpen={showSponsorManager}
             onClose={onCloseSponsorManager}
+            readOnly={readOnly}
           />
         )}
         {showEventAreaManager && (
           <EventAreaManagerModal
             isOpen={showEventAreaManager}
             onClose={onCloseEventAreaManager}
+            readOnly={readOnly}
           />
         )}
         {showRegDetail && (
@@ -279,6 +289,7 @@ export function DashboardModals({
             registration={selectedRegistration}
             onUpdateStatus={onUpdateRegStatus}
             onCreateEvent={onCreateEventFromRegistration}
+            readOnly={readOnly}
           />
         )}
       </Suspense>

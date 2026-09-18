@@ -12,9 +12,11 @@ interface Props {
   onSave: (posts: string[]) => Promise<boolean>;
   heroImageUrl?: string;
   onSaveHeroImage?: (url: string) => Promise<boolean>;
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
-export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroImageUrl = '', onSaveHeroImage }: Props) {
+export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroImageUrl = '', onSaveHeroImage, readOnly = false }: Props) {
   const [postUrls, setPostUrls] = useState<[string, string, string]>(['', '', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -116,17 +118,17 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
               <div className="relative overflow-hidden rounded-xl border border-[var(--border-subtle)] dark:border-slate-700">
                 <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                <button
+                {!readOnly && <button
                   type="button"
                   onClick={handleRemoveHero}
                   className="absolute right-2 top-2 rounded-lg bg-red-500/80 p-1.5 text-white transition hover:bg-red-600"
                   title="Hapus foto hero"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </button>}
                 <p className="absolute bottom-2 left-3 text-xs font-medium text-white/80">Hero background aktif</p>
               </div>
-            ) : (
+            ) : readOnly ? null : (
               <button
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
@@ -143,14 +145,14 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 )}
               </button>
             )}
-            <input
+            {!readOnly && <input
               ref={heroFileRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={e => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f); e.target.value = ''; }}
-            />
-            {heroUrl && (
+            />}
+            {heroUrl && !readOnly && (
               <button
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
@@ -176,8 +178,9 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 id={`ig-post-${i}`}
                 value={postUrls[i]}
                 onChange={e => setUrl(i, e.target.value)}
+                readOnly={readOnly}
                 placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 read-only:cursor-default read-only:opacity-70 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
             </div>
           ))}
@@ -187,7 +190,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
           </p>
 
           {/* Sync Instagram Button */}
-          <button
+          {!readOnly && <button
             type="button"
             disabled={isSyncing || postUrls.every(u => !u.trim())}
             onClick={async () => {
@@ -215,7 +218,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
           >
             <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
             {isSyncing ? 'Syncing via Apify...' : 'Sync & Cache Instagram Posts'}
-          </button>
+          </button>}
           {syncResult && (
             <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'}`}>
               {syncResult}
@@ -236,16 +239,16 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
               disabled={isSubmitting}
               className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
-              Batal
+              {readOnly ? 'Tutup' : 'Batal'}
             </button>
-            <button
+            {!readOnly && <button
               type="submit"
               disabled={isSubmitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-            </button>
+            </button>}
           </div>
         </form>
       </div>

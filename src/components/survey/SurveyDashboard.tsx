@@ -55,9 +55,11 @@ interface SurveyStats {
 
 interface SurveyDashboardProps {
   events: Array<{ id: string; acara: string; status: string }>;
+  /** Akun demo: hanya melihat. Toggle aktif/nonaktif survey disembunyikan. */
+  readOnly?: boolean;
 }
 
-export function SurveyDashboard({ events }: SurveyDashboardProps) {
+export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardProps) {
   const [stats, setStats] = useState<SurveyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -171,6 +173,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
           onToggleConfig={handleToggleConfig}
           configLoading={configLoading}
           activeConfigs={activeConfigs}
+          readOnly={readOnly}
         />
       </div>
     );
@@ -371,6 +374,7 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
         onToggleConfig={handleToggleConfig}
         configLoading={configLoading}
         activeConfigs={activeConfigs}
+        readOnly={readOnly}
       />
     </div>
   );
@@ -379,12 +383,13 @@ export function SurveyDashboard({ events }: SurveyDashboardProps) {
 
 /* ─── Event Management Section ─────────────────────────────────── */
 
-function EventManagementSection({ events, copiedId, onCopyLink, onExport, onToggleConfig, configLoading, activeConfigs }: {
+function EventManagementSection({ events, copiedId, onCopyLink, onExport, onToggleConfig, configLoading, activeConfigs, readOnly = false }: {
   events: Array<{ id: string; acara: string; status: string }>;
   copiedId: string;
   onCopyLink: (id: string) => void;
   onExport: (id: string) => void;
   onToggleConfig: (id: string, active: boolean) => void;
+  readOnly?: boolean;
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
 }) {
@@ -409,7 +414,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               <p className="min-w-0 flex-1 truncate text-xs text-slate-700 dark:text-slate-300">{ev.acara}</p>
 
               {/* Toggle active */}
-              <button
+              {!readOnly && <button
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
                 className={`shrink-0 transition ${isActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`}
@@ -422,7 +427,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 ) : (
                   <ToggleLeft className="h-5 w-5" />
                 )}
-              </button>
+              </button>}
 
               {/* Copy link */}
               <button

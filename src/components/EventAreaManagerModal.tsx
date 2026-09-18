@@ -39,12 +39,14 @@ import { useConfirmDialog } from './ConfirmDialog';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function EventAreaManagerModal({ isOpen, onClose }: Props) {
+export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Props) {
   const [view, setView] = useState<'list' | 'detail' | 'mapping'>('list');
   const [areas, setAreas] = useState<EventArea[]>([]);
   const [selectedArea, setSelectedArea] = useState<EventArea | null>(null);
@@ -443,7 +445,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
           {/* ===== VIEW 1: Area List ===== */}
           {view === 'list' && !isLoading && (
             <>
-              {!editing && areas.length > 0 && (
+              {!readOnly && !editing && areas.length > 0 && (
                 <button
                   type="button"
                   onClick={startCreate}
@@ -565,7 +567,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                       </div>
 
                       {/* Reorder */}
-                      <div className="flex flex-col opacity-0 transition group-hover:opacity-100">
+                      {!readOnly && <div className="flex flex-col opacity-0 transition group-hover:opacity-100">
                         <button
                           type="button"
                           onClick={() => handleMoveArea(area, -1)}
@@ -586,35 +588,35 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                         >
                           <ChevronLeft className="h-4 w-4 -rotate-90" />
                         </button>
-                      </div>
+                      </div>}
 
                       {/* Toggle active */}
-                      <button
+                      {!readOnly && <button
                         type="button"
                         onClick={() => handleToggleActive(area)}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
                         className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                      </button>
+                      </button>}
 
                       {/* Edit */}
-                      <button
+                      {!readOnly && <button
                         type="button"
                         onClick={() => startEdit(area)}
                         className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                       >
                         <Pencil className="h-4 w-4" />
-                      </button>
+                      </button>}
 
                       {/* Delete */}
-                      <button
+                      {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteArea(area); }}
                         className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </button>}
                     </div>
                   ))}
                 </div>
@@ -720,7 +722,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                     })}
                   </div>
 
-                  <button
+                  {!readOnly && <button
                     type="button"
                     onClick={handleApplyMapping}
                     disabled={isApplying}
@@ -732,7 +734,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                       <Save className="h-4 w-4" />
                     )}
                     {isApplying ? 'Menerapkan…' : 'Terapkan Pemetaan'}
-                  </button>
+                  </button>}
                 </>
               )}
             </>
@@ -773,7 +775,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                               <Star className="h-3.5 w-3.5 fill-current" />
                             </div>
                           )}
-                          {!isCover && (
+                          {!readOnly && !isCover && (
                             <button
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
@@ -783,13 +785,13 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                               <Star className="h-3.5 w-3.5" />
                             </button>
                           )}
-                          <button
+                          {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo)}
                             className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition hover:bg-red-600 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </button>}
 
                           <div className="aspect-[4/3] w-full">
                             <img
@@ -850,7 +852,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
               )}
 
               {/* Upload Section */}
-              <div className="space-y-3 rounded-xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-600 dark:bg-slate-700/30">
+              {!readOnly && <div className="space-y-3 rounded-xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-600 dark:bg-slate-700/30">
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Upload Foto Baru</p>
                 {isMaxPhotos && uploadFiles.length === 0 && (
                   <p className="text-xs text-amber-600 dark:text-amber-400">
@@ -934,7 +936,7 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                     )}
                   </div>
                 )}
-              </div>
+              </div>}
 
               {/* Edit area info */}
               {(editing?.id === selectedArea.id) && (

@@ -12,12 +12,14 @@ interface Props {
   onClose: () => void;
   pastEvents?: EventItem[];
   annualThemes?: AnnualTheme[];
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }: Props) {
+export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, readOnly = false }: Props) {
   const [view, setView] = useState<'list' | 'detail'>('list');
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<PhotoAlbum | null>(null);
@@ -374,7 +376,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes }:
           {view === 'list' && !isLoading && (
             <>
               {/* Create Album Button */}
-              {!showCreateForm && (
+              {!readOnly && !showCreateForm && (
                 <button
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
@@ -386,7 +388,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
               )}
 
               {/* Create Album Form */}
-              {showCreateForm && (
+              {showCreateForm && !readOnly && (
                 <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
                   <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Album Baru</p>
                   <div className="space-y-3">
@@ -553,13 +555,13 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       </div>
 
                       {/* Delete */}
-                      <button
+                      {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
                         className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </button>}
                     </div>
                   ))}
                 </div>
@@ -592,7 +594,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           )}
 
                           {/* Set cover button */}
-                          {!isCover && (
+                          {!readOnly && !isCover && (
                             <button
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
@@ -604,13 +606,13 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           )}
 
                           {/* Delete button */}
-                          <button
+                          {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
                             className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition hover:bg-red-600 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </button>}
 
                           {/* Thumbnail */}
                           <div className="aspect-[4/3] w-full">
@@ -656,7 +658,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                 )}
 
                 {/* Drag & drop upload zone */}
-                {!isMaxPhotos && !uploading && (
+                {!readOnly && !isMaxPhotos && !uploading && (
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -678,7 +680,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   </div>
                 )}
 
-                <input
+                {!readOnly && (<input
                   ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -686,7 +688,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   onChange={(e) => { if (e.target.files) handleFilesSelect(e.target.files); e.target.value = ''; }}
                   className="hidden"
                   disabled={isMaxPhotos}
-                />
+                />)}
 
                 {/* Preview grid */}
                 {uploadFiles.length > 0 && (

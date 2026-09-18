@@ -9,6 +9,8 @@ interface Props {
   registration: CommunityRegistration | null;
   onUpdateStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
   onCreateEvent?: (registration: CommunityRegistration) => void;
+  /** Akun demo: hanya melihat. Aksi review/approve disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
 }
 
 const WA_TEMPLATES: Record<string, string> = {
@@ -85,7 +87,7 @@ function StatusBadge({ status }: { status: RegistrationStatus }) {
   );
 }
 
-export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent }: Props) {
+export function CommunityRegistrationDetailModal({ isOpen, onClose, registration, onUpdateStatus, onCreateEvent, readOnly = false }: Props) {
   const [adminNote, setAdminNote] = useState('');
   const [waTemplate, setWaTemplate] = useState('reviewed');
   const [waMessage, setWaMessage] = useState('');
@@ -257,7 +259,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
           </div>
 
           {/* WhatsApp Template */}
-          <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
+          {!readOnly && <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
             <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               <MessageCircle className="h-3 w-3" /> Template WhatsApp
             </p>
@@ -286,12 +288,12 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             >
               <Send className="h-4 w-4" /> Kirim via WhatsApp
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6 shrink-0">
-          {onCreateEvent && registration?.status === 'approved' && (
+          {!readOnly && onCreateEvent && registration?.status === 'approved' && (
             <button
               onClick={() => {
                 if (registration) {
@@ -305,7 +307,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
             </button>
           )}
-          {canReview && (
+          {!readOnly && canReview && (
             <button
               onClick={() => handleStatusChange('reviewed')}
               disabled={isSubmitting}
@@ -314,7 +316,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tandai Direview'}
             </button>
           )}
-          {canApproveReject && (
+          {!readOnly && canApproveReject && (
             <button
               onClick={() => handleStatusChange('approved')}
               disabled={isSubmitting}
@@ -323,7 +325,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Setujui'}
             </button>
           )}
-          {canApproveReject && (
+          {!readOnly && canApproveReject && (
             <button
               onClick={() => handleStatusChange('rejected')}
               disabled={isSubmitting}
