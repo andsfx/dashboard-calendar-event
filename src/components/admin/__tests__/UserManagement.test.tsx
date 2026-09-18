@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { UserManagement } from '../UserManagement';
 
@@ -95,5 +95,114 @@ describe('UserManagement (mount-smoke)', () => {
     expect(screen.queryByRole('button', { name: /invite/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /buat manual/i })).not.toBeInTheDocument();
     expect(screen.queryByTitle('Nonaktifkan')).not.toBeInTheDocument();
+    // Edit juga tersembunyi — demo tidak boleh menyentuh user.
+    expect(screen.queryByRole('button', { name: /^edit /i })).not.toBeInTheDocument();
+  });
+
+  it('menampilkan email user di daftar (bukan hanya nama)', async () => {
+    mockFetchOnce(200, { users: [userFixture] });
+    render(<UserManagement />);
+    expect(await screen.findByText('viewer@x.id')).toBeInTheDocument();
+  });
+});
+
+/**
+ * Mock yang membedakan GET /users dan POST /users-update, dan merekam body
+ * POST terakhir — supaya bisa diverifikasi field mana yang benar-benar dikirim.
+ */
+function mockUserApi(users: unknown[]) {
+  const posted: Record<string, unknown>[] = [];
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : String(input);
+    const method = (init?.method || 'GET').toUpperCase();
+    let body: unknown = { success: true, data: { users } };
+    if (method === 'POST' && url.includes('/users-update')) {
+      posted.push(JSON.parse(String(init?.body || '{}')));
+      body = { success: true };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => body,
+      text: async () => JSON.stringify(body),
+    } as Response;
+  }));
+  return posted;
+}
+
+describe('UserManagement (edit user)', () => {
+  it('membuka modal edit dengan data user terisi', async () => {
+    mockUserApi([userFixture]);
+    render(<UserManagement />);
+
+    const editBtn = await screen.findByRole('button', { name: 'Edit Viewer Test' });
+    editBtn.click();
+
+    expect(await screen.findByRole('heading', { name: 'Edit Pengguna' })).toBeInTheDocument();
+    expect((screen.getByLabelText(/^Email$/) as HTMLInputElement).value).toBe('viewer@x.id');
+    expect((screen.getByLabelText('Nama Tampilan') as HTMLInputElement).value).toBe('Viewer Test');
+    expect((screen.getByLabelText(/^Role$/) as HTMLSelectElement).value).toBe('viewer');
+    // Password sengaja kosong — "kosong = jangan ubah", bukan "kosongkan".
+    expect((screen.getByLabelText(/Password Baru/) as HTMLInputElement).value).toBe('');
+  });
+
+  it('hanya mengirim field yang berubah — password kosong tidak dikirim', async () => {
+    const posted = mockUserApi([userFixture]);
+    render(<UserManagement />);
+
+    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    await screen.findByRole('heading', { name: 'Edit Pengguna' });
+
+    // Ubah role saja; email/nama dibiarkan.
+    const roleSelect = screen.getByLabelText(/^Role$/) as HTMLSelectElement;
+    fireEvent.change(roleSelect, { target: { value: 'admin' } });
+    (screen.getByRole('button', { name: /^Simpan$/ })).click();
+
+    await waitFor(() => expect(posted.length).toBe(1));
+    expect(posted[0]).toEqual({ user_id: 'u-1', role: 'admin' });
+    // Password tidak pernah terkirim bila kosong.
+    expect(posted[0]).not.toHaveProperty('password');
+  });
+
+  it('mengirim email baru bila diubah', async () => {
+    const posted = mockUserApi([userFixture]);
+    render(<UserManagement />);
+
+    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    await screen.findByRole('heading', { name: 'Edit Pengguna' });
+
+    const emailInput = screen.getByLabelText(/^Email$/) as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: '  Baru@X.id  ' } });
+    (screen.getByRole('button', { name: /^Simpan$/ })).click();
+
+    await waitFor(() => expect(posted.length).toBe(1));
+    // Dinormalisasi: trim + lowercase (login memakai lower(email)).
+    expect(posted[0]).toEqual({ user_id: 'u-1', email: 'baru@x.id' });
+  });
+
+  it('menolak password di bawah 6 karakter tanpa memanggil server', async () => {
+    const posted = mockUserApi([userFixture]);
+    render(<UserManagement />);
+
+    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    await screen.findByRole('heading', { name: 'Edit Pengguna' });
+
+    const pwInput = screen.getByLabelText(/Password Baru/) as HTMLInputElement;
+    fireEvent.change(pwInput, { target: { value: '123' } });
+    (screen.getByRole('button', { name: /^Simpan$/ })).click();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/minimal 6/i);
+    expect(posted.length).toBe(0);
+  });
+
+  it('menonaktifkan pilihan role saat mengedit akun sendiri', async () => {
+    mockUserApi([{ ...userFixture, role: 'superadmin' }]);
+    render(<UserManagement currentUserId="u-1" />);
+
+    (await screen.findByRole('button', { name: 'Edit Viewer Test' })).click();
+    await screen.findByRole('heading', { name: 'Edit Pengguna' });
+
+    expect((screen.getByLabelText(/^Role$/) as HTMLSelectElement).disabled).toBe(true);
+    expect(screen.getByText(/Role akun sendiri tidak bisa diubah/)).toBeInTheDocument();
   });
 });

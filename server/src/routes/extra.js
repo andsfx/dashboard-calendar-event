@@ -592,7 +592,7 @@ router.post('/users-create', requireRole(['superadmin']), async (req, res, next)
   }
 });
 
-// ─── POST /users-update ────────────────────────────────────────────
+// ─── POST /users-update — superadmin (role/status/profil/email/password) ──
 router.post('/users-update', requireRole(['superadmin']), async (req, res, next) => {
   const body = req.body || {};
   const userId = String(body.user_id || '').trim();
@@ -603,8 +603,21 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
     return res.status(400).json({ success: false, error: 'Tidak bisa mengubah role sendiri' });
   }
 
+  // Konsisten dengan /users-delete: jangan menonaktifkan akun sendiri.
+  if (userId === req.auth.user.id && body.is_active === false) {
+    return res.status(400).json({ success: false, error: 'Tidak bisa menonaktifkan akun sendiri' });
+  }
+
   const updates = {};
-  if (body.role !== undefined && ALL_VALID_ROLES.includes(String(body.role))) updates.role = String(body.role);
+  if (body.role !== undefined) {
+    // Dulu role tak dikenal diabaikan diam-diam (bila itu satu-satunya field,
+    // hasilnya 'Tidak ada perubahan' yang menyesatkan). Sekarang 400 eksplisit.
+    const role = String(body.role).trim();
+    if (!ALL_VALID_ROLES.includes(role)) {
+      return res.status(400).json({ success: false, error: 'Role tidak valid' });
+    }
+    updates.role = role;
+  }
   if (body.is_active !== undefined) updates.is_active = !!body.is_active;
   if (body.display_name !== undefined) updates.display_name = String(body.display_name).trim().slice(0, 100);
   if (body.eo_organization !== undefined) updates.eo_organization = String(body.eo_organization).trim().slice(0, 200);
@@ -612,6 +625,13 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
     updates.password_hash = await bcrypt.hash(String(body.password), 12);
   } else if (body.password !== undefined) {
     return res.status(400).json({ success: false, error: 'Password minimal 6 karakter' });
+  }
+  if (body.email !== undefined) {
+    const email = String(body.email).trim().toLowerCase();
+    if (!EMAIL_REGEX.test(email) || email.length < 5) {
+      return res.status(400).json({ success: false, error: 'Format email tidak valid.' });
+    }
+    updates.email = email;
   }
   if (body.assigned_events !== undefined && Array.isArray(body.assigned_events)) {
     updates.assigned_events = body.assigned_events.map((x) => String(x));
@@ -622,15 +642,56 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
   }
 
   try {
+    // Jaring kedua: jangan sampai superadmin aktif terakhir diturunkan atau
+    // dinonaktifkan. Lewat route ini jalur tersebut sebenarnya sudah tertutup
+    // oleh guard "akun sendiri" di atas (pelaku harus superadmin, jadi bila
+    // target = diri sendiri self-guard lebih dulu menangkap; bila target orang
+    // lain, jumlah superadmin aktif pasti >= 2). Guard ini dipertahankan
+    // sebagai jaring bila daftar role yang diizinkan route ini melebar nanti.
+    const losingSuperadmin =
+      (updates.role !== undefined && updates.role !== 'superadmin') ||
+      (updates.is_active !== undefined && updates.is_active === false);
+    if (losingSuperadmin) {
+      const { rows } = await db.query(
+        "SELECT role, is_active FROM users WHERE id = $1 LIMIT 1",
+        [userId],
+      );
+      const target = rows[0];
+      if (target?.role === 'superadmin' && target.is_active) {
+        const { rows: countRows } = await db.query(
+          "SELECT COUNT(*)::int AS n FROM users WHERE role = 'superadmin' AND is_active = true",
+        );
+        if ((countRows[0]?.n ?? 0) <= 1) {
+          return res.status(400).json({
+            success: false,
+            error: 'Ini satu-satunya superadmin aktif. Angkat superadmin lain dulu sebelum mengubah akun ini.',
+          });
+        }
+      }
+    }
+
+    // Email unik — bandingkan case-insensitive (login memakai lower(email)),
+    // supaya varian huruf besar/kecil tidak saling menutupi.
+    if (updates.email !== undefined) {
+      const { rows } = await db.query(
+        'SELECT id FROM users WHERE lower(email) = $1 AND id <> $2 LIMIT 1',
+        [updates.email, userId],
+      );
+      if (rows[0]) return res.status(409).json({ success: false, error: 'Email sudah terdaftar' });
+    }
+
     const keys = Object.keys(updates);
     const sets = keys.map((k, i) => `${k} = $${i + 1}`);
     const values = keys.map((k) => updates[k]);
     values.push(userId);
-    await db.query(
+    const { rowCount } = await db.query(
       `UPDATE users SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${values.length}`,
       values,
     );
-    logActivity(req.auth.user, 'update', 'user', userId, { changes: Object.keys(updates) }, req);
+    if (rowCount === 0) return res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan' });
+
+    // Catat nama field saja — nilai password/email tidak pernah masuk log.
+    logActivity(req.auth.user, 'update', 'user', userId, { changes: keys }, req);
     return res.json({ success: true });
   } catch (err) {
     return next(err);
@@ -647,6 +708,25 @@ router.post('/users-delete', requireRole(['superadmin']), async (req, res, next)
   }
 
   try {
+    // Jaring kedua (lihat catatan di /users-update): jalur ini sudah tertutup
+    // guard "tidak bisa menghapus akun sendiri" di atas.
+    const { rows } = await db.query(
+      "SELECT role, is_active FROM users WHERE id = $1 LIMIT 1",
+      [userId],
+    );
+    const target = rows[0];
+    if (target?.role === 'superadmin' && target.is_active) {
+      const { rows: countRows } = await db.query(
+        "SELECT COUNT(*)::int AS n FROM users WHERE role = 'superadmin' AND is_active = true",
+      );
+      if ((countRows[0]?.n ?? 0) <= 1) {
+        return res.status(400).json({
+          success: false,
+          error: 'Ini satu-satunya superadmin aktif. Angkat superadmin lain dulu sebelum menonaktifkan akun ini.',
+        });
+      }
+    }
+
     await db.query(
       'UPDATE users SET is_active = false, updated_at = NOW() WHERE id = $1',
       [userId],

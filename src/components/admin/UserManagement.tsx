@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useConfirmDialog } from '../ConfirmDialog';
 import { apiGet, apiPost } from '../../lib/rest';
+import { UserEditModal } from './UserEditModal';
 
 interface UserRecord {
   id: string;
@@ -23,6 +24,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
   superadmin: { label: 'Superadmin', color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300', icon: <Crown className="h-3 w-3" /> },
   admin: { label: 'Admin', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', icon: <Shield className="h-3 w-3" /> },
   viewer: { label: 'Viewer', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', icon: <Eye className="h-3 w-3" /> },
+  demo: { label: 'Demo', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300', icon: <Eye className="h-3 w-3" /> },
   eo_tenant: { label: 'EO/Tenant', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', icon: <Building2 className="h-3 w-3" /> },
   tenant_relation: { label: 'Tenant Relation', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', icon: <BarChart3 className="h-3 w-3" /> },
 };
@@ -30,9 +32,11 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
 interface UserManagementProps {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
+  /** Id user yang sedang login — role akun sendiri tidak boleh diubah. */
+  currentUserId?: string;
 }
 
-export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
+export function UserManagement({ readOnly = false, currentUserId }: UserManagementProps = {}) {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
@@ -42,6 +46,7 @@ export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+  const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -170,6 +175,7 @@ export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white">
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
+              <option value="demo">Demo (hanya lihat)</option>
               <option value="eo_tenant">EO/Tenant</option>
               <option value="tenant_relation">Tenant Relation</option>
             </select>
@@ -210,9 +216,23 @@ export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
                     )}
                   </div>
+                  <p className="truncate text-xs ui-text-muted">{u.email}</p>
                 </div>
-                {!readOnly && u.role !== 'superadmin' && (
+                {!readOnly && (
                   <div className="flex shrink-0 items-center gap-1">
+                    {/* Edit tersedia untuk semua baris — superadmin pun perlu
+                        bisa mengganti email/password miliknya sendiri. */}
+                    <button
+                      onClick={() => setEditingUser(u)}
+                      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700"
+                      title="Edit user"
+                      aria-label={`Edit ${u.display_name || u.email}`}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    {/* Toggle/delete sengaja tidak tersedia untuk superadmin:
+                        mencegah akun superadmin terakhir terkunci. */}
+                    {u.role !== 'superadmin' && (<>
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}
                       className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
@@ -229,6 +249,7 @@ export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    </>)}
                   </div>
                 )}
               </div>
@@ -236,6 +257,13 @@ export function UserManagement({ readOnly = false }: UserManagementProps = {}) {
           })}
         </div>
       </div>
+      <UserEditModal
+        isOpen={!!editingUser}
+        user={editingUser}
+        currentUserId={currentUserId}
+        onClose={() => setEditingUser(null)}
+        onSaved={fetchUsers}
+      />
       {confirmDialogEl}
     </div>
   );

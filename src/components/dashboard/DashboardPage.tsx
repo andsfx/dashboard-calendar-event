@@ -584,7 +584,7 @@ export function DashboardPage({
             </p>
           </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <UserManagement readOnly={!permissions.canManageUsers} />
+            <UserManagement readOnly={!permissions.canManageUsers} currentUserId={auth.user?.id} />
           </Suspense>
         </section>
       )}

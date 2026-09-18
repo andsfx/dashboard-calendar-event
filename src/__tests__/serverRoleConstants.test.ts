@@ -79,9 +79,11 @@ describe('server/ — konstanta role tidak boleh menggantung', () => {
   it('modul route bisa di-parse Node tanpa syntax error', async () => {
     // Import nyata menangkap syntax error yang lolos dari pembacaan teks.
     // Modul tidak menjalankan query DB saat import (pool lazy di db.js).
+    // Timeout longgar: 10 modul ESM + pg Pool, dan suite penuh (69 file)
+    // membuat import ini jauh lebih lambat daripada saat dijalankan sendiri.
     for (const file of serverFiles()) {
       const spec = 'file://' + file.replace(/\\/g, '/');
       await expect(import(/* @vite-ignore */ spec)).resolves.toBeDefined();
     }
-  });
+  }, 30000);
 });
