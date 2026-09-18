@@ -18,7 +18,7 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity } from '../auth.js';
+import { requireRole, logActivity, DEMO_READ_ROLES, canPerformAdminAction } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
@@ -32,9 +32,19 @@ import {
 
 const router = Router();
 
-// ─── Gate umum: staff roles + rate limit longgar + zod validation ─
-router.post('/:action', requireRole(['superadmin', 'admin']), async (req, res, next) => {
+// ─── Gate umum: staff roles (+ demo read-only) + rate limit longgar + zod ─
+router.post('/:action', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const action = req.params.action;
+
+  // Role demo: hanya aksi baca (allowlist di auth.js). Ini penegakan
+  // sesungguhnya — menyembunyikan tombol di UI saja tidak cukup karena
+  // request bisa dikirim langsung ke API.
+  if (!canPerformAdminAction(req.auth?.user?.role, action)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Akun demo hanya dapat melihat data (read-only).',
+    });
+  }
 
   // 120 req / menit per IP utk seluruh aksi admin (anti-burst; longgar).
   if (!enforceRateLimit(req, res, 'admin', 120, 60 * 1000)) return;

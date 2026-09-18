@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL UNIQUE,
   display_name TEXT NOT NULL,
-  role TEXT NOT NULL DEFAULT 'viewer' CHECK (role IN ('superadmin', 'admin', 'viewer', 'eo_tenant', 'tenant_relation')),
+  role TEXT NOT NULL DEFAULT 'viewer' CHECK (role IN ('superadmin', 'admin', 'demo', 'viewer', 'eo_tenant', 'tenant_relation')),
   is_active BOOLEAN NOT NULL DEFAULT true,
   password_hash TEXT,                              -- bcrypt; NULL utk user legacy sampai di-seed
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

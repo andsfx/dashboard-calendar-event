@@ -28,7 +28,7 @@ import { z } from 'zod';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { db } from '../db.js';
-import { requireRole, logActivity, STAFF_ROLES } from '../auth.js';
+import { requireRole, logActivity, STAFF_ROLES, DEMO_ROLE, DEMO_READ_ROLES, maskEmail } from '../auth.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 
 const router = Router();
@@ -493,24 +493,29 @@ router.post('/sponsor-leads', async (req, res) => {
 // USERS (superadmin-only)
 // ═══════════════════════════════════════════════════════════════════
 
-const VALID_ROLES = ['admin', 'viewer', 'eo_tenant', 'tenant_relation'];
+const VALID_ROLES = ['admin', 'demo', 'viewer', 'eo_tenant', 'tenant_relation'];
 const ALL_VALID_ROLES = ['superadmin', ...VALID_ROLES];
 
 // Guard per-route eksplisit (audit 2026-09-09): router.use array rentan
 // order-dependent — route staff baru di atas baris ini lolos tanpa auth.
 // Tiap endpoint users-* membawa requireRole sendiri (defense-in-depth;
 // router.use di bawah dipertahankan sebagai jaring kedua).
-router.use(['/users', '/users-invite', '/users-create', '/users-update', '/users-delete'], requireRole(['superadmin']));
+// `/users` (baca) sengaja TIDAK ikut di sini — demo boleh melihat daftar
+// user read-only; mutasi tetap superadmin-only.
+router.use(['/users-invite', '/users-create', '/users-update', '/users-delete'], requireRole(['superadmin']));
 
-// ─── GET /users ────────────────────────────────────────────────────
-router.get('/users', requireRole(['superadmin']), async (req, res, next) => {
+// ─── GET /users — superadmin (penuh) + demo (read-only, email disamarkan) ──
+router.get('/users', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `SELECT id, email, display_name, role, is_active, eo_organization, assigned_events,
               last_login_at, created_at
        FROM users ORDER BY created_at ASC`,
     );
-    return res.json({ success: true, data: { users: rows } });
+    // Demo: samarkan email (PII) — struktur tetap terlihat, identitas tidak.
+    const isDemo = req.auth?.user?.role === DEMO_ROLE;
+    const users = isDemo ? rows.map(u => ({ ...u, email: maskEmail(u.email) })) : rows;
+    return res.json({ success: true, data: { users } });
   } catch (err) {
     return next(err);
   }
@@ -657,7 +662,7 @@ router.post('/users-delete', requireRole(['superadmin']), async (req, res, next)
 // ACTIVITY LOG (staff)
 // ═══════════════════════════════════════════════════════════════════
 
-router.get('/activity-log', requireRole(STAFF_ROLES), async (req, res, next) => {
+router.get('/activity-log', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const page = Math.max(1, parseInt(req.query?.page || '1', 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query?.limit || '30', 10) || 30));
   const offset = (page - 1) * limit;

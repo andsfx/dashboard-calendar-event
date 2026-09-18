@@ -31,6 +31,45 @@ export const STAFF_ROLES = ['superadmin', 'admin'];
 export const ANALYTICS_READ_ROLES = ['superadmin', 'admin', 'tenant_relation'];
 export const LIST_READ_ROLES = ['superadmin', 'admin', 'tenant_relation', 'eo_tenant'];
 
+/**
+ * Role `demo` — akun peragaan: boleh MELIHAT seluruh permukaan dashboard
+ * (termasuk yang biasanya staff-only), tapi TIDAK boleh mengubah apa pun.
+ *
+ * Ditegakkan di backend, bukan hanya menyembunyikan tombol di UI: setiap
+ * aksi tulis ditolak 403 di sini, jadi request langsung ke API pun gagal.
+ * Baca tetap dibuka lewat ACTION_READ_ALLOWLIST di routes/admin.js.
+ */
+export const DEMO_ROLE = 'demo';
+export const DEMO_READ_ROLES = [...STAFF_ROLES, DEMO_ROLE];
+export const ANALYTICS_READ_ROLES_WITH_DEMO = [...ANALYTICS_READ_ROLES, DEMO_ROLE];
+export const LIST_READ_ROLES_WITH_DEMO = [...LIST_READ_ROLES, DEMO_ROLE];
+
+/**
+ * Aksi admin yang AMAN dibaca role `demo` (read-only). Semua aksi lain
+ * dianggap tulis dan ditolak 403 untuk demo.
+ *
+ * Sengaja allowlist (bukan blocklist): aksi baru otomatis TERTUTUP untuk
+ * demo. Lupa menambahkannya berarti demo tidak bisa membacanya — bukan
+ * berarti demo bisa menulisnya.
+ */
+export const DEMO_READ_ACTIONS = new Set([
+  'readDrafts',
+  'readRegistrations',
+  'listLetters',
+  'listNewsArticles',
+  'listSponsorLeads',
+  'getLocationMapping',
+  'listExhibitions',
+  'listExhibitionLeads',
+  'listExhibitionActivations',
+]);
+
+/** Boleh tidak role ini menjalankan aksi admin tersebut? (demo = baca saja) */
+export function canPerformAdminAction(role, action) {
+  if (role !== DEMO_ROLE) return true; // role lain diatur requireRole
+  return DEMO_READ_ACTIONS.has(action);
+}
+
 function secretKey() {
   const secret = process.env.JWT_SECRET || '';
   if (!secret) return null;
@@ -193,6 +232,17 @@ export function requireRole(allowedRoles = STAFF_ROLES) {
     req.auth = auth;
     next();
   };
+}
+
+/**
+ * Samarkan email untuk role read-only (demo): `sindi@mail.com` → `s***i@mail.com`.
+ * Domain dibiarkan agar struktur tetap terbaca, identitas tidak.
+ */
+export function maskEmail(email) {
+  if (typeof email !== 'string' || !email.includes('@')) return email;
+  const [local, domain] = email.split('@');
+  if (local.length <= 2) return `${local[0] ?? ''}***@${domain}`;
+  return `${local[0]}***${local[local.length - 1]}@${domain}`;
 }
 
 /** Public user row → session payload (untuk /auth/me dan /auth/login). */

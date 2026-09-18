@@ -30,8 +30,9 @@ import {
   requireRole,
   logActivity,
   STAFF_ROLES,
-  ANALYTICS_READ_ROLES,
-  LIST_READ_ROLES,
+  ANALYTICS_READ_ROLES_WITH_DEMO,
+  LIST_READ_ROLES_WITH_DEMO,
+  DEMO_READ_ROLES,
 } from '../auth.js';
 import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
 
@@ -597,7 +598,7 @@ router.get('/directory', async (req, res, next) => {
 // ═══════════════════════════════════════════════════════════════════
 
 // ─── GET /list ─────────────────────────────────────────────────────
-router.get('/list', requireRole(LIST_READ_ROLES), async (req, res, next) => {
+router.get('/list', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   const { role, user } = req.auth;
 
@@ -628,7 +629,7 @@ router.get('/list', requireRole(LIST_READ_ROLES), async (req, res, next) => {
 });
 
 // ─── GET /get ──────────────────────────────────────────────────────
-router.get('/get', requireRole(LIST_READ_ROLES), async (req, res, next) => {
+router.get('/get', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const id = String(req.query?.id || '').trim();
   if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
@@ -835,7 +836,7 @@ router.post('/delete', requireRole(STAFF_ROLES), async (req, res, next) => {
 });
 
 // ─── GET /analytics — group tenant/event/month ─────────────────────
-router.get('/analytics', requireRole(ANALYTICS_READ_ROLES), async (req, res, next) => {
+router.get('/analytics', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const group = String(req.query?.group || 'tenant').trim();
   const eventId = String(req.query?.event_id || '').trim() || null;
   const allowedGroups = new Set(['tenant', 'event', 'month']);
@@ -946,7 +947,7 @@ router.get('/analytics', requireRole(ANALYTICS_READ_ROLES), async (req, res, nex
 });
 
 // ─── GET /summary — ringkasan per-event (tenant + visitor) ─────────
-router.get('/summary', requireRole(ANALYTICS_READ_ROLES), async (req, res, next) => {
+router.get('/summary', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
@@ -1002,7 +1003,7 @@ router.get('/summary', requireRole(ANALYTICS_READ_ROLES), async (req, res, next)
 });
 
 // ─── GET /roster — roster tenant penuh untuk TR/staff (tanpa PIC) ──
-router.get('/roster', requireRole(ANALYTICS_READ_ROLES), async (_req, res, next) => {
+router.get('/roster', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (_req, res, next) => {
   if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
   try {
     const tenants = await fetchMidActiveTenants();
@@ -1016,7 +1017,7 @@ router.get('/roster', requireRole(ANALYTICS_READ_ROLES), async (_req, res, next)
 });
 
 // ─── GET /config — staff + EO ─────────────────────────────────────
-router.get('/config', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, res, next) => {
+router.get('/config', requireRole([...LIST_READ_ROLES_WITH_DEMO, 'eo_tenant']), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
@@ -1065,7 +1066,7 @@ router.post('/config-set', requireRole(STAFF_ROLES), async (req, res, next) => {
 });
 
 // ─── GET /export — staff (CSV dengan PIC) ─────────────────────────
-router.get('/export', requireRole(STAFF_ROLES), async (req, res, next) => {
+router.get('/export', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 

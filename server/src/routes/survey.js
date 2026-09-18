@@ -19,7 +19,7 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity } from '../auth.js';
+import { requireRole, logActivity, DEMO_READ_ROLES } from '../auth.js';
 import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
 
 const router = Router();
@@ -246,7 +246,7 @@ router.get('/summary', async (req, res, next) => {
 });
 
 // ─── GET /responses — staff (paginated) ────────────────────────────
-router.get('/responses', requireRole(['superadmin', 'admin']), async (req, res, next) => {
+router.get('/responses', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
 
@@ -283,7 +283,7 @@ router.get('/responses', requireRole(['superadmin', 'admin']), async (req, res, 
 });
 
 // ─── GET /config — staff ───────────────────────────────────────────
-router.get('/config', requireRole(['superadmin', 'admin']), async (req, res, next) => {
+router.get('/config', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
 
@@ -334,7 +334,7 @@ router.post('/config-set', requireRole(['superadmin', 'admin']), async (req, res
 });
 
 // ─── GET /stats — staff ────────────────────────────────────────────
-router.get('/stats', requireRole(['superadmin', 'admin']), async (_req, res, next) => {
+router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
   try {
     const [{ rows }, { rows: recent }] = await Promise.all([
       db.query(
@@ -420,7 +420,7 @@ router.get('/stats', requireRole(['superadmin', 'admin']), async (_req, res, nex
 });
 
 // ─── GET /export — staff (CSV UTF-8 + BOM) ─────────────────────────
-router.get('/export', requireRole(['superadmin', 'admin']), async (req, res, next) => {
+router.get('/export', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
 
