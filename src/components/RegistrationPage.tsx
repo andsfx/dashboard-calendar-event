@@ -54,7 +54,7 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           </div>
         </div>
       </header>
-        <main id="konten-utama" className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+        <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 outline-none">
           <div className="pt-10">
             <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftarkan Event Komunitas di Metropolitan Mall Bekasi</h1>
             <p className="mt-3 text-sm leading-7 ui-text-secondary">

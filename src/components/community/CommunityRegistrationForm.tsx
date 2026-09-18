@@ -444,7 +444,7 @@ export function RegistrationForm() {
 
 export function CommunityRegistrationForm() {
   return (
-    <RevealSection id="register" intensity="strong" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="register" tabIndex={-1} intensity="strong" className="scroll-mt-28 px-4 py-16 outline-none sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">

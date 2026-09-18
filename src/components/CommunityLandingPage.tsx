@@ -244,7 +244,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           )}
         </div>
       </header>
-      <main id="konten-utama" className="pb-20 sm:pb-0">
+      <main id="konten-utama" tabIndex={-1} className="pb-20 sm:pb-0 outline-none">
         <CommunityHero heroImageUrl={heroImageUrl} stats={stats} isLoading={isLoading} />
         <CommunitySocialProof totalEvents={stats?.total} totalCompleted={stats?.completed} totalOrganizers={stats?.organizers} isLoading={isLoading} />
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} isLoading={isLoading} />

@@ -81,7 +81,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
       </a>
       <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
 
-      <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Back button */}
         <button
           onClick={() => navigate('/gallery')}

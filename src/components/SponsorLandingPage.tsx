@@ -157,7 +157,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
         <div className="mb-10 max-w-3xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Sponsorship</p>

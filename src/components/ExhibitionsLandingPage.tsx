@@ -100,6 +100,12 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
   return (
     <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+      <a
+        href="#konten-utama"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Langsung ke konten
+      </a>
       <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
@@ -118,7 +124,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main id="konten-utama" className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 outline-none">
         {isLoading && <p className="text-sm text-slate-600 dark:text-slate-300">Memuat pameran…</p>}
 
         {!isLoading && loadError && (

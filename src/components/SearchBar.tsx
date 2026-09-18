@@ -46,10 +46,10 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         {value ? (
           <button
             onClick={() => { onChange(''); inputRef.current?.focus(); }}
-            className="rounded-lg p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
+            className="-m-1 rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
             aria-label="Hapus pencarian"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
           </button>
         ) : (
           <kbd className="hidden select-none rounded-md border border-[var(--border-subtle)] bg-[var(--brand-card)] px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 sm:inline-flex">

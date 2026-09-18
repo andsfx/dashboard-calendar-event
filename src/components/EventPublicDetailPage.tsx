@@ -126,7 +126,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main id="konten-utama" className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Loading skeleton */}
         {isLoading && (
           <div className="animate-pulse" aria-label="Memuat detail event">

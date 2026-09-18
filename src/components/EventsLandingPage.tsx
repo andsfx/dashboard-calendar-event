@@ -467,7 +467,7 @@ export function EventsLandingPage({
         </div>
       </header>
 
-      <main id="konten-utama">
+      <main id="konten-utama" tabIndex={-1} className="outline-none">
         {/* Split Studio hero */}
         <section className="border-b border-black/5 dark:border-slate-800">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-24">
@@ -764,7 +764,7 @@ export function EventsLandingPage({
         </section>
 
         {/* Calendar */}
-        <section id="calendar" className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
+        <section id="calendar" tabIndex={-1} className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 outline-none dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <CommunityEyebrow>Kalender</CommunityEyebrow>

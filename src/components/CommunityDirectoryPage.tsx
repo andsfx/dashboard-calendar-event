@@ -148,7 +148,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main id="konten-utama" className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 outline-none">
         {/* Hero */}
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Komunitas</p>

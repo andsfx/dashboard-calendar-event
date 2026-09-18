@@ -171,7 +171,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
         </div>
       </header>
 
-      <main id="konten-utama" className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {submitted ? (
           <div className="rounded-[2rem] border border-[var(--border-subtle)] bg-white px-6 py-10 text-center shadow-[var(--shadow-card-soft)] sm:px-10 dark:border-slate-700 dark:bg-slate-900">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">

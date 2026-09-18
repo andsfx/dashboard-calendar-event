@@ -571,18 +571,20 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                           onClick={() => handleMoveArea(area, -1)}
                           disabled={idx === 0}
                           title="Naik"
-                          className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          aria-label="Naik"
+                          className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
-                          <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                          <ChevronLeft className="h-4 w-4 rotate-90" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleMoveArea(area, 1)}
                           disabled={idx === areas.length - 1}
                           title="Turun"
-                          className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          aria-label="Turun"
+                          className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
-                          <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                          <ChevronLeft className="h-4 w-4 -rotate-90" />
                         </button>
                       </div>
 
@@ -815,18 +817,20 @@ export function EventAreaManagerModal({ isOpen, onClose }: Props) {
                                 onClick={() => handleMovePhoto(photo, -1)}
                                 disabled={idx === 0}
                                 title="Naik"
-                                className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                aria-label="Naik"
+                                className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
-                                <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                                <ChevronLeft className="h-4 w-4 rotate-90" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleMovePhoto(photo, 1)}
                                 disabled={idx === areaPhotos.length - 1}
                                 title="Turun"
-                                className="rounded p-0.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                aria-label="Turun"
+                                className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
-                                <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                                <ChevronLeft className="h-4 w-4 -rotate-90" />
                               </button>
                             </div>
                           </div>
