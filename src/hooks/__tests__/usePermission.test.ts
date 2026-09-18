@@ -82,4 +82,32 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.canViewRegistrations).toBe(false);
     expect(result.current.canManageSponsorship).toBe(false);
   });
+
+  it('demo: melihat semua, tidak bisa mengubah apa pun', () => {
+    const { result } = renderHook(() => usePermission(user('demo')));
+    // Bisa masuk dashboard + melihat semua permukaan
+    expect(result.current.canViewDashboard).toBe(true);
+    expect(result.current.isDemo).toBe(true);
+    expect(result.current.canViewDrafts).toBe(true);
+    expect(result.current.canViewThemes).toBe(true);
+    expect(result.current.canViewExhibitions).toBe(true);
+    expect(result.current.canViewUsers).toBe(true);
+    expect(result.current.canViewSettings).toBe(true);
+    expect(result.current.canViewSponsorship).toBe(true);
+    expect(result.current.canViewTenantSurveys).toBe(true);
+    expect(result.current.canViewInternalSchedule).toBe(true);
+    expect(result.current.canViewSurvey).toBe(true);
+    expect(result.current.canViewRegistrations).toBe(true);
+    expect(result.current.canViewActivityLog).toBe(true);
+    expect(result.current.canViewTenantSurveyResults).toBe(true);
+    // Tidak bisa mengubah apa pun
+    expect(result.current.canEditEvents).toBe(false);
+    expect(result.current.canDeleteEvents).toBe(false);
+    expect(result.current.canManageThemes).toBe(false);
+    expect(result.current.canManageSurvey).toBe(false);
+    expect(result.current.canManageSponsorship).toBe(false);
+    expect(result.current.canManageSettings).toBe(false);
+    expect(result.current.canManageUsers).toBe(false);
+    expect(result.current.isReadOnly).toBe(true);
+  });
 });

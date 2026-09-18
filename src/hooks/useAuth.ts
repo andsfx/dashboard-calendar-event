@@ -13,6 +13,15 @@ import { apiGet, apiPost } from '../lib/rest';
 
 // ─── Dev mode auto-login bypass ────────────────────────────────
 const DEV_AUTO_LOGIN = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTO_LOGIN === 'true';
+// Role yang dipakai bypass dev — untuk menguji UI per-role tanpa backend.
+// `VITE_DEV_AUTO_LOGIN_ROLE=demo` mis. memverifikasi tampilan read-only.
+const DEV_AUTO_LOGIN_ROLE = (import.meta.env.VITE_DEV_AUTO_LOGIN_ROLE || 'superadmin') as AuthUser['role'];
+const devUser = (): AuthUser => ({
+  id: 'dev-auto-login',
+  email: 'dev@localhost',
+  display_name: `Dev ${DEV_AUTO_LOGIN_ROLE}`,
+  role: DEV_AUTO_LOGIN_ROLE,
+});
 
 interface AuthMeResponse {
   success: boolean;
@@ -32,13 +41,7 @@ export function useAuth() {
   // ─── Session check on mount ─────────────────────────────────────
   useEffect(() => {
     if (DEV_AUTO_LOGIN) {
-      const devUser: AuthUser = {
-        id: 'dev-auto-login',
-        email: 'dev@localhost',
-        display_name: 'Dev Admin',
-        role: 'superadmin',
-      };
-      setUser(devUser);
+      setUser(devUser());
       setIsLoading(false);
       return;
     }
@@ -73,13 +76,7 @@ export function useAuth() {
   // ─── Login with email + password ────────────────────────────────
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     if (DEV_AUTO_LOGIN) {
-      const devUser: AuthUser = {
-        id: 'dev-auto-login',
-        email: 'dev@localhost',
-        display_name: 'Dev Admin',
-        role: 'superadmin',
-      };
-      setUser(devUser);
+      setUser(devUser());
       return { ok: true };
     }
 
@@ -103,13 +100,7 @@ export function useAuth() {
   const logout = useCallback(async () => {
     if (DEV_AUTO_LOGIN) {
       // Dev mode: re-login as dev user (logout = reset state)
-      const devUser: AuthUser = {
-        id: 'dev-auto-login',
-        email: 'dev@localhost',
-        display_name: 'Dev Admin',
-        role: 'superadmin',
-      };
-      setUser(devUser);
+      setUser(devUser());
       return;
     }
 

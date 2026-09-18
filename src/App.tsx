@@ -56,9 +56,9 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const auth = useAuth();
   const permissions = usePermission(auth.user);
-  const exhibitions = useExhibitions(permissions.canEditEvents);
+  const exhibitions = useExhibitions(permissions.canViewExhibitions);
   const isAdmin = permissions.canViewDashboard;
-  const canSeeInternalSchedule = permissions.canEditEvents;
+  const canSeeInternalSchedule = permissions.canViewInternalSchedule;
   const { toasts, showToast, removeToast } = useToast();
   // Dialog konfirmasi promise-based — pengganti window.confirm() di seluruh dashboard
   const confirmDialog = useConfirmDialog();

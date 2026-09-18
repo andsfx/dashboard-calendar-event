@@ -104,9 +104,9 @@ export function getDashboardNavGroups(
       label: 'Kelola Event',
       items: [
         ...(!isTrOnly ? [{ id: 'events', label: 'Jadwal Event', icon: <CalendarDays className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/events' }] : []),
-        ...(permissions.canEditEvents ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
-        ...(permissions.canManageThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
-        ...(permissions.canEditEvents ? [{ id: 'exhibitions', label: 'Pameran & Aktivasi', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/exhibitions' }] : []),
+        ...(permissions.canViewDrafts ? [{ id: 'drafts', label: 'Antrian Draft', icon: <FileEdit className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/drafts' }] : []),
+        ...(permissions.canViewThemes ? [{ id: 'themes', label: 'Tema Tahunan', icon: <Palette className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/themes' }] : []),
+        ...(permissions.canViewExhibitions ? [{ id: 'exhibitions', label: 'Pameran & Aktivasi', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/exhibitions' }] : []),
       ],
     },
     {
@@ -114,27 +114,27 @@ export function getDashboardNavGroups(
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
-        ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
+        ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
     },
     {
       label: 'Sistem',
       items: [
-        ...(permissions.canManageUsers ? [{ id: 'users', label: 'Manajemen Pengguna', icon: <UserCog className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/users' }] : []),
+        ...(permissions.canViewUsers ? [{ id: 'users', label: 'Manajemen Pengguna', icon: <UserCog className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/users' }] : []),
         ...(permissions.canViewActivityLog ? [{ id: 'activity-log', label: 'Log Aktivitas', icon: <Activity className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/activity-log' }] : []),
       ],
     },
     {
       label: 'Konten',
       items: [
-        ...(permissions.canManageSettings ? [
+        ...(permissions.canViewSettings ? [
           { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['landing-page'] },
           { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['album-gallery'] },
           { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['event-areas'] },
           { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['letter'] },
           { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['news'] },
         ] : []),
-        ...(permissions.canManageSponsorship ? [
+        ...(permissions.canViewSponsorship ? [
           { id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['sponsorship'] },
         ] : []),
       ],
@@ -207,7 +207,7 @@ export function getCommandCenterCards({
       route: '/dashboard/events',
       attention: ongoingEvents > 0,
     },
-    ...(permissions.canEditEvents ? [{
+    ...(permissions.canViewDrafts ? [{
       id: 'drafts',
       title: 'Antrian Draft',
       value: draftsError ? '—' : activeDrafts.length,
@@ -216,7 +216,7 @@ export function getCommandCenterCards({
       route: '/dashboard/drafts',
       attention: activeDrafts.length > 0,
     }] : []),
-    ...(permissions.canManageThemes ? [{
+    ...(permissions.canViewThemes ? [{
       id: 'themes',
       title: 'Tema Tahunan',
       value: annualThemes.length,
@@ -241,7 +241,7 @@ export function getCommandCenterCards({
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
     }] : []),
-    ...((permissions.canViewSurvey || permissions.isEoTenant) && !permissions.isTenantRelation ? [{
+    ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
       value: <Store className={VALUE} strokeWidth={sw} aria-hidden />,
@@ -273,7 +273,7 @@ export function getCommandCenterCards({
       icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
     }] : []),
-    ...(isSuperadmin && permissions.canManageUsers ? [{
+    ...(permissions.canViewUsers ? [{
       id: 'users',
       title: 'Manajemen Pengguna',
       value: <UserCog className={VALUE} strokeWidth={sw} aria-hidden />,

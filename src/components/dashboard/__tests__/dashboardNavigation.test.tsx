@@ -20,6 +20,15 @@ const adminPermissions: Permissions = {
   isReadOnly: false,
   isEoTenant: false,
   isTenantRelation: false,
+  isDemo: false,
+  canViewDrafts: true,
+  canViewThemes: true,
+  canViewExhibitions: true,
+  canViewUsers: true,
+  canViewSettings: true,
+  canViewSponsorship: true,
+  canViewTenantSurveys: true,
+  canViewInternalSchedule: true,
   role: 'superadmin',
 };
 
