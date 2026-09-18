@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Audit UI/UX halaman publik (Hallmark 58 gate + WCAG 2.2/axe-core).** Cakupan: `/`, `/events`, `/gallery`, `/community`, `/daftar` di produksi, viewport 320–1280. Laporan lengkap: `docs/PLAN_2026-09-18_20-18-audit-uiux.md`.
+  - Hasil: **2 critical · 4 major · 3 minor**. Yang bersih: `/gallery` dan `/daftar` nol pelanggaran axe; nav mobile punya hamburger `aria-label` + `aria-expanded`; nol gambar rusak; nol scroll horizontal; nol teks klik membungkus dua baris.
+  - **Critical · token tosca salah sebagai latar tombol.** `bg-[var(--brand-tosca)]` (`#00918e`, `brand-primary-500`) dipakai sebagai latar teks putih di **18 tempat** → kontras terhitung **3.85:1**, gagal AA 4.5:1. `DESIGN.md` sendiri sudah melarangnya ("Dekoratif saja (3.86:1 — JANGAN teks kecil di terang)") dan menyediakan token yang benar (`brand-primary-600` `#007a78`, 5.18:1). axe menandai 66 node di `/events` dan 86 node di `/community`.
+  - **Critical · angka hero tanpa sumber.** Lencana hero "232+ Event Sudah Terlaksana" bertentangan dengan "TOTAL 251" di `/events`; tidak ada yang bisa dilacak sumbernya.
+  - Major: teks 10–12px di atas latar tosca di `/events` (3.53–3.96:1); pink `#c92d62` sebagai teks 12px di `/community` (4.41:1); lompatan tingkat heading `h1→h3→h4→h2` di `/`.
+  - Minor: alt gambar mengulang judul di sebelahnya (3 node); panah `→` sebagai karakter teks di label "Lihat Foto"; tombol nav "Jadwal Event" membungkus dua baris.
+
+### Fixed
+- **Audit UI/UX `/dashboard` — 14 temuan (5 critical + 9 major) diperbaiki.** Sumber: audit Hallmark anti-pattern atas seluruh area dashboard (chrome, halaman, panel admin, survey).
+  - **Critical · toggle survey berbohong soal state.** `SurveyDashboard` menampilkan "survey aktif" untuk survey yang sebenarnya tertutup: `activeConfigs` **selalu kosong** karena komponen tidak pernah memuat config, lalu `?? true` menebak "aktif". Diperbaiki dua arah — hidrasi nyata via `GET /survey/config` per event (pola sama dengan `TenantSurveyPage`) **dan** default `false` sesuai `survey_config.is_active DEFAULT FALSE`.
+  - **Critical · metrik fabrikasi "Bersedia Repeat".** Nilainya `avg_overall_rating * 20`, padahal `overall_rating` berskala **1–5** (lihat label `overall_rating/5` di daftar). Jadi rating bintang-5 dikali 20 menjadi satuan persen yang tidak pernah ada, dengan ambang 70% yang tak bermakna. Kartu itu dihapus; rating asli sudah ditampilkan di kartu "Rating Rata-rata". Metrik repeat sungguhan butuh `would_repeat` yang saat ini tidak di-`SELECT` endpoint analytics mana pun (kolom ada di `schema.sql`, tapi mengeksposnya = perubahan `server/`).
+  - **Critical · error ditelan → state "tidak ada data" palsu.** `ActivityLog` gagal fetch akan menampilkan "Tidak ada aktivitas ditemukan" — pada halaman **audit trail**, itu menyimpulkan tidak ada aktivitas padahal permintaan gagal. Kini ada state error + tombol coba lagi. Sama untuk `SurveyDashboard` (export/copy/toggle) dan `TenantSurveyPage` (termasuk `if (!res.ok) return` senyap pada export CSV).
+  - **Critical · drift DESIGN.md.** Heatmap jam `AnalyticsDashboard` memakai residual indigo `rgba(99,102,241,…)` → `color-mix` token tosca. Badge role `demo` memakai `purple-*` di luar palet → `brand-secondary-*` (pink, allow-list badge).
+  - **Major · `<h1>` ganda.** Setiap route `/dashboard/*` punya `<h1>` di `DashboardHeader` **plus** `<h1>` section. Sembilan section diturunkan ke `<h2>`; tepat satu h1 per halaman.
+  - **Major · ring fokus beranimasi.** Tailwind `transition` menyertakan `box-shadow`, dan `.ui-focus-ring` menggambar ring lewat `box-shadow` → ring memudar 150ms. 95 `transition` telanjang diganti properti eksplisit (`transition-colors` / `transition-[…]`), sehingga tak ada lagi elemen ber-ring yang mentransisikan `box-shadow`.
+  - **Major · semantik tabel.** `role="button"` dihapus dari `<tr>` `EventTable` (menimpa peran `row` bawaan dan merusak pembacaan baris/kolom); `onClick` baris `TenantSurveyList` dihapus (nested interactive) beserta `stopPropagation` di `<td>` yang jadi tak perlu. Fungsi detail tetap ada lewat tombol aksi per baris.
+  - **Major · daftar kelola survey dipotong senyap.** `slice(0, 30)` + hanya status `past` diganti: `past` + `ongoing`, tanpa cap, dengan pencarian nama event (rules.md melarang hard-limit 30).
+  - **Major · filter tanggal zona waktu.** `ActivityLog` mengirim batas hari dengan suffix `Z` (UTC) padahal domain Asia/Jakarta → batas hari meleset 7 jam. Kini `+07:00`.
+  - **Major · JSON mentah di UI.** `JSON.stringify(log.details).slice(0,120)` diganti ringkasan field berlabel (kunci dikenal diberi label Indonesia, boolean → Ya/Tidak).
+  - **Major · card-in-card.** Kartu ber-border bersarang di dalam `ui-dashboard-surface` diratakan di `TenantSurveyAnalytics` (tile kategori) dan `TenantSurveyResultsPage` (item feedback).
+  - Minor ikut tersentuh: label Inggris → Indonesia (`Prev`/`Next`, `Copied!`, `Excellent`/`Good`/`Needs Improvement`), `<p>` kosong dihapus.
+  - **Dikecualikan dengan alasan:** `SurveyQRCode` & `SurveyPopup` (`catch` idiom canvas/clipboard/localStorage, bukan penelanan error data); `EventRatingSummary` (kontrak badge dekoratif — gagal = tak tampil, degradasi wajar); `AuditResumeDashboard` (komponen tidak pernah di-route = dead code, nol dampak).
+
+### Added
 - **Script migrasi domain media** `server/scripts/migrate-cdn-domain.mjs` —
   memindahkan URL di database dari `cdn.andotherstori.my.id` ke
   `cdn.metmalcommunityspace.web.id` (67 baris: `events.poster_url`,
