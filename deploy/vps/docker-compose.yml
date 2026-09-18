@@ -77,6 +77,9 @@ services:
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:?isi R2_SECRET_ACCESS_KEY di .env}
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:?isi R2_BUCKET_NAME di .env}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      # Proxy roster tenant MID (apiloyalty). Kosong = endpoint /tenant/roster
+      # fail-closed 500 dengan pesan 'Konfigurasi server tidak lengkap'.
+      MID_API_KEY: ${MID_API_KEY:-}
     volumes:
       # Repo root (server/ + file JS bersama yang di-import, mis. api/_lib) — ro.
       - ../../:/srv/app:ro
