@@ -17,6 +17,10 @@ const LEAD_STATUS_LABELS: Record<ExhibitionLead['status'], string> = {
   rejected: 'Ditolak',
 };
 
+/** Sumber tunggal nilai status yang sah. `satisfies` memvalidasi setiap
+ *  anggota terhadap union — bukan cast buta seperti `Object.keys(...) as ...[]`. */
+const LEAD_STATUSES = ['pending', 'contacted', 'approved', 'rejected'] as const satisfies readonly ExhibitionLead['status'][];
+
 const PUBLICATION_LABELS: Record<Exhibition['publication'], string> = {
   draft: 'Draft internal',
   published: 'Tayang publik',
@@ -200,7 +204,14 @@ export function ExhibitionManager({
           </div>
           <div>
             <label className={labelClass} htmlFor="exh-publication">Publikasi</label>
-            <select id="exh-publication" className={inputClass} value={form.publication} onChange={e => setForm({ ...form, publication: e.target.value as Exhibition['publication'] })}>
+            <select id="exh-publication" className={inputClass} value={form.publication} onChange={e => {
+              // Validasi runtime terhadap sumber kebenaran (bukan `as` buta):
+              // nilai di luar daftar diabaikan, bukan dipaksa ke tipe.
+              const next = e.target.value;
+              if (next in PUBLICATION_LABELS) {
+                setForm({ ...form, publication: next as Exhibition['publication'] });
+              }
+            }}>
               {Object.entries(PUBLICATION_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
@@ -212,7 +223,7 @@ export function ExhibitionManager({
           </label>
         </div>
 
-        {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
+        {formError && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
 
         <button type="submit" disabled={isSubmitting} className="ui-btn-primary inline-flex items-center gap-2 rounded-[var(--radius-control)] px-4 py-2 text-sm font-semibold disabled:opacity-60">
           <Plus className="h-4 w-4" aria-hidden="true" />
@@ -339,7 +350,7 @@ export function ExhibitionManager({
                           {lead.proposal && <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{lead.proposal}</p>}
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{LEAD_STATUS_LABELS[lead.status]}</span>
-                            {!readOnly && (Object.keys(LEAD_STATUS_LABELS) as ExhibitionLead['status'][])
+                            {!readOnly && LEAD_STATUSES
                               .filter(status => status !== lead.status)
                               .map(status => (
                                 <button key={status} type="button" onClick={() => onReviewLead(lead.id, status)} className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200">

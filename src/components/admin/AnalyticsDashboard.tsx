@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
-  TrendingUp, PieChart, MapPin, Calendar, DollarSign,
-  Clock, BarChart3, ArrowUpRight, ArrowDownRight, Minus,
+  TrendingUp, PieChart, MapPin, DollarSign,
+  Clock, ArrowUpRight, ArrowDownRight, Minus,
 } from 'lucide-react';
 import type { EventItem } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
@@ -12,10 +12,6 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
   const analytics = useMemo(() => computeAnalytics(events), [events]);
-  const years = useMemo(() => {
-    const set = new Set(events.map(e => new Date(e.dateStr).getFullYear()));
-    return [...set].sort((a, b) => b - a);
-  }, [events]);
 
   const currentYear = new Date().getFullYear();
   const prevYear = currentYear - 1;
@@ -86,7 +82,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                 <div
-                  className="h-full rounded-full transition-all duration-700"
+                  className="h-full rounded-full transition-[width] duration-700"
                   style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || '#00918e' }}
                 />
               </div>
@@ -126,7 +122,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
             <div key={name} className="flex items-center gap-3">
               <span className="w-28 truncate text-[11px] text-slate-600 dark:text-slate-300">{name}</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                <div className="h-full rounded-full bg-red-400 transition-all duration-700" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-red-400 transition-[width] duration-700" style={{ width: `${pct}%` }} />
               </div>
               <span className="w-8 text-right text-[11px] font-semibold text-slate-700 dark:text-slate-300">{count}</span>
             </div>
@@ -145,7 +141,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
             <div
               key={hour}
               className="flex flex-col items-center rounded-lg p-1.5"
-              style={{ backgroundColor: `rgba(99, 102, 241, ${intensity * 0.3})` }}
+              style={{ backgroundColor: `color-mix(in oklab, var(--brand-tosca) ${Math.round(intensity * 30)}%, transparent)` }}
             >
               <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300">{hour}:00</span>
               <span className="text-[11px] font-bold text-slate-800 dark:text-white">{count}</span>
@@ -177,13 +173,13 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
             <div className="flex w-full items-end justify-center gap-0.5" style={{ height: '100px' }}>
               {prev > 0 && (
                 <div
-                  className="w-2 rounded-t bg-slate-200 transition-all duration-700 dark:bg-slate-600"
+                  className="w-2 rounded-t bg-slate-200 transition-[height] duration-700 dark:bg-slate-600"
                   style={{ height: `${(prev / max) * 100}%` }}
                   title={`${prev} event`}
                 />
               )}
               <div
-                className="w-2 rounded-t bg-brand-primary-500 transition-all duration-700 sm:w-3"
+                className="w-2 rounded-t bg-brand-primary-500 transition-[height] duration-700 sm:w-3"
                 style={{ height: `${(cur / max) * 100}%`, minHeight: cur > 0 ? '4px' : '0' }}
                 title={`${cur} event`}
               />
@@ -226,14 +222,14 @@ function computeAnalytics(events: EventItem[]) {
   const prevYear = currentYear - 1;
 
   // Monthly trend
-  const monthlyTrend = Array(12).fill(0);
-  const monthlyTrendPrev = Array(12).fill(0);
+  const monthlyTrend: number[] = Array(12).fill(0);
+  const monthlyTrendPrev: number[] = Array(12).fill(0);
   events.forEach(e => {
     const d = new Date(e.dateStr);
     const y = d.getFullYear();
     const m = d.getMonth();
-    if (y === currentYear) monthlyTrend[m]++;
-    else if (y === prevYear) monthlyTrendPrev[m]++;
+    if (y === currentYear) monthlyTrend[m] = (monthlyTrend[m] ?? 0) + 1;
+    else if (y === prevYear) monthlyTrendPrev[m] = (monthlyTrendPrev[m] ?? 0) + 1;
   });
 
   // Top categories
@@ -286,7 +282,7 @@ function computeAnalytics(events: EventItem[]) {
     }
   });
   const maxHour = Math.max(...Object.values(hourCounts), 1);
-  const hourDistribution = [];
+  const hourDistribution: Array<{ hour: number; count: number; intensity: number }> = [];
   for (let h = 8; h <= 21; h++) {
     const count = hourCounts[h] || 0;
     hourDistribution.push({ hour: h, count, intensity: count / maxHour });

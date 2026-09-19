@@ -15,7 +15,7 @@ export const AdminBanner = memo(function AdminBanner({ onLogout }: AdminBannerPr
       </div>
       <button
         onClick={onLogout}
-        className="flex items-center gap-1.5 rounded-xl border border-brand-primary-300 px-3 py-1.5 text-xs font-medium text-brand-primary-700 transition hover:bg-brand-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/40 dark:focus-visible:ring-offset-slate-950"
+        className="flex items-center gap-1.5 rounded-xl border border-brand-primary-300 px-3 py-1.5 text-xs font-medium text-brand-primary-700 transition-colors hover:bg-brand-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/40 dark:focus-visible:ring-offset-slate-950"
       >
         Keluar
       </button>

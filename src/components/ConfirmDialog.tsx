@@ -55,7 +55,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
+              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
               aria-label="Tutup"
             >
               <X className="h-4 w-4" />
@@ -77,16 +77,16 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             {cancelLabel}
           </button>
           <button
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow transition hover:from-red-700 hover:to-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:from-red-700 hover:to-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : confirmLabel}
+            <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : confirmLabel}
           </button>
         </div>
       </div>

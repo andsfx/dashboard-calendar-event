@@ -27,18 +27,18 @@ function TrendBar({
     <div className="flex flex-col items-center gap-1" title={`${label}: ${total} submissions`}>
       <div className="flex items-end" style={{ height: '140px' }}>
         <div
-          className="flex w-8 flex-col-reverse overflow-hidden rounded-t-md transition-all duration-500"
+          className="flex w-8 flex-col-reverse overflow-hidden rounded-t-md transition-[height] duration-500"
           style={{ height: `${barH}%`, minHeight: v2H + v3H > 0 ? '4px' : '0' }}
         >
           {v3 > 0 && (
             <div
-              className="w-full bg-brand-primary-400 transition-all duration-500"
+              className="w-full bg-brand-primary-400 transition-[height] duration-500"
               style={{ height: `${v3H > 0 ? (v3H / (v2H + v3H)) * 100 : 0}%`, minHeight: v3H > 0 ? '2px' : '0' }}
             />
           )}
           {v2 > 0 && (
             <div
-              className="w-full bg-blue-400 transition-all duration-500"
+              className="w-full bg-blue-400 transition-[height] duration-500"
               style={{ height: `${v2H > 0 ? (v2H / (v2H + v3H)) * 100 : 100}%`, minHeight: v2H > 0 ? '2px' : '0' }}
             />
           )}
@@ -101,7 +101,7 @@ export default function TenantSurveyTrendChart({
       <div className="ui-dashboard-surface p-4">
         <div className="flex items-center gap-2 text-sm ui-text-muted">
           <BarChart3 className="h-4 w-4 animate-pulse" />
-          Memuat tren...
+          Memuat tren…
         </div>
       </div>
     );

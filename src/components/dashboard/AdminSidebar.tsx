@@ -31,7 +31,7 @@ interface AdminSidebarProps {
 }
 
 const navItemBase =
-  'ui-focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition';
+  'ui-focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors';
 
 export const AdminSidebar = memo(function AdminSidebar({
   isDark,
@@ -141,7 +141,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         <button
           type="button"
           onClick={closeMobile}
-          className="ui-focus-ring flex h-8 w-8 items-center justify-center rounded-lg ui-text-muted transition hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
+          className="ui-focus-ring touch-target relative flex h-8 w-8 items-center justify-center rounded-lg ui-text-muted transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
           aria-label="Tutup menu"
         >
           <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
@@ -245,7 +245,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         ref={hamburgerRef}
         type="button"
         onClick={() => setIsMobileOpen(true)}
-        className="ui-dashboard-control ui-focus-ring fixed left-4 top-20 z-40 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition hover:bg-[var(--brand-card)] dark:hover:bg-slate-700 lg:hidden"
+        className="ui-dashboard-control ui-focus-ring fixed left-4 top-20 z-40 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition-colors hover:bg-[var(--brand-card)] dark:hover:bg-slate-700 lg:hidden"
         aria-label="Buka menu"
         aria-expanded={isMobileOpen}
         aria-controls="admin-sidebar"
@@ -266,7 +266,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       <aside
         ref={asideRef}
         id="admin-sidebar"
-        className={`fixed left-0 top-0 z-50 h-screen w-64 border-r border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-xl transition-transform duration-300 dark:border-slate-700 dark:bg-slate-900 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-dvh w-64 border-r border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-xl transition-transform duration-300 dark:border-slate-700 dark:bg-slate-900 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Menu admin"

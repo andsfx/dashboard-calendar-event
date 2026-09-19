@@ -103,19 +103,19 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <div>
             <label htmlFor="annual-theme-name" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Tema <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-            <input id="annual-theme-name" value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+            <input id="annual-theme-name" value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:ring-2 dark:bg-slate-700 dark:text-white ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
             {errors.name && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <label htmlFor="annual-theme-date-start" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-              <input id="annual-theme-date-start" type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <input id="annual-theme-date-start" type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateStart && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.dateStart}</p>}
             </div>
             <div>
               <label htmlFor="annual-theme-date-end" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal Selesai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-              <input id="annual-theme-date-end" type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
+              <input id="annual-theme-date-end" type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:ring-2 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600'}`} />
               {errors.dateEnd && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.dateEnd}</p>}
             </div>
           </div>
@@ -130,7 +130,7 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
                     key={option.value}
                     type="button"
                     onClick={() => { setForm(prev => ({ ...prev, color: option.value })); setErrors(prev => ({ ...prev, color: '' })); }}
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition ${isSelected ? 'border-slate-900 ring-2 ring-slate-200 dark:border-white dark:ring-slate-600' : 'border-slate-200 hover:border-slate-300 dark:border-slate-600'}`}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${isSelected ? 'border-slate-900 ring-2 ring-slate-200 dark:border-white dark:ring-slate-600' : 'border-slate-200 hover:border-slate-300 dark:border-slate-600'}`}
                   >
                     <span className="h-3 w-3 rounded-full" style={{ backgroundColor: option.value }} />
                     <span>{option.label}</span>
@@ -142,12 +142,12 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
           </div>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
               Batal
             </button>
-            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
+            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
               <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan...' : editingTheme ? 'Simpan Tema' : 'Tambah Tema'}
+              {isSubmitting ? 'Menyimpan…' : editingTheme ? 'Simpan Tema' : 'Tambah Tema'}
             </button>
           </div>
         </form>

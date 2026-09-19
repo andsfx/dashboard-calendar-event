@@ -555,7 +555,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 { value: 'multi_day', label: 'Rangkaian acara', disabled: false },
                 { value: 'recurring', label: 'Event reguler', disabled: isEdit },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                <label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
                   opt.disabled
                     ? 'cursor-not-allowed border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500'
                     : `cursor-pointer ${form.eventType === opt.value
@@ -670,8 +670,8 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
               rows={2}
-              placeholder="Deskripsi singkat tentang acara..."
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              placeholder="Deskripsi singkat tentang acara…"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -694,7 +694,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     type="button"
                     onClick={() => posterInputRef.current?.click()}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                    className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                   >
                     <Upload className="h-3.5 w-3.5" />
                     Ganti
@@ -703,7 +703,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     type="button"
                     onClick={handleRemovePoster}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+                    className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     Hapus
@@ -715,12 +715,12 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 type="button"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-500 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-500 transition-colors hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
               >
                 {posterUploading ? (
                   <>
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400/30 border-t-emerald-500" />
-                    <span className="text-xs font-medium">Mengupload...</span>
+                    <span className="text-xs font-medium">Mengupload…</span>
                   </>
                 ) : (
                   <>
@@ -747,17 +747,17 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
+              {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
             </button>
           </div>
         </form>

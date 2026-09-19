@@ -67,7 +67,7 @@ export default function RatingSlider({ label, description, value, onChange, icon
               onClick={() => onChange(n)}
               className={`
                 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full
-                text-xs sm:text-sm font-bold transition-all duration-150
+                text-xs sm:text-sm font-bold transition-[transform,background-color,color] duration-150
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
                 ${selected
                   ? `${ratingColor(n)} scale-110 ring-2 shadow-md`

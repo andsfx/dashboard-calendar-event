@@ -62,7 +62,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
           <Link
             key={card.id}
             to={card.route}
-            className={`group flex items-start gap-3 rounded-2xl border p-4 shadow-[var(--shadow-card-soft)] transition hover:border-brand-primary-300 hover:shadow-md dark:hover:border-brand-primary-700 ui-focus-ring ${
+            className={`group flex items-start gap-3 rounded-2xl border p-4 shadow-[var(--shadow-card-soft)] transition-colors hover:border-brand-primary-300 hover:shadow-md dark:hover:border-brand-primary-700 ui-focus-ring ${
               card.attention
                 ? 'border-brand-primary-200 bg-[var(--brand-card)] dark:border-brand-primary-800 dark:bg-slate-800'
                 : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800'
@@ -91,7 +91,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
               </p>
             </div>
 
-            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-primary-500 dark:text-slate-600" strokeWidth={1.5} aria-hidden />
+            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-brand-primary-500 dark:text-slate-600" strokeWidth={1.5} aria-hidden />
           </Link>
         ))}
       </div>

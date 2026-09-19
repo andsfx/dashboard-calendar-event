@@ -85,7 +85,7 @@ export default function SurveyQRCode({
 
       ctx.font = '12px Arial, sans-serif';
       ctx.fillStyle = '#64748b';
-      const truncName = eventName.length > 40 ? eventName.slice(0, 37) + '...' : eventName;
+      const truncName = eventName.length > 40 ? eventName.slice(0, 37) + '…' : eventName;
       ctx.fillText(truncName, downloadCanvas.width / 2, size + padding + 50);
 
       ctx.font = '10px Arial, sans-serif';
@@ -154,7 +154,7 @@ export default function SurveyQRCode({
         {/* Download button */}
         <button
           onClick={handleDownload}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary-200 px-4 py-2 text-sm font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/20"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary-200 px-4 py-2 text-sm font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/20"
         >
           <Download className="h-4 w-4" />
           Download QR Code (PNG)
@@ -169,7 +169,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
         active
           ? 'bg-white text-brand-primary-700 shadow-sm dark:bg-slate-600 dark:text-brand-primary-300'
 : 'ui-text-muted hover:text-slate-700 '

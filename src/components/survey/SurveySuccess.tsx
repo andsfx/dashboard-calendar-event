@@ -29,7 +29,7 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali ke Dashboard

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Activity, Loader2, Calendar, Filter, User,
-  Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings,
+  Activity, Loader2, Filter,
+  Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings, AlertCircle,
 } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
 
@@ -44,9 +44,22 @@ const RESOURCE_LABELS: Record<string, string> = {
   registration: 'Registrasi',
 };
 
+/** Label ramah untuk kunci `details` yang dikenal (bukan JSON mentah). */
+const DETAIL_LABELS: Record<string, string> = {
+  deactivated: 'Dinonaktifkan',
+  is_active: 'Status aktif',
+  activated: 'Diaktifkan',
+  fields: 'Field diubah',
+  role: 'Role',
+  email: 'Email',
+  status: 'Status',
+  previous_status: 'Status sebelumnya',
+};
+
 export function ActivityLog() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [filterAction, setFilterAction] = useState('');
@@ -57,17 +70,25 @@ export function ActivityLog() {
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       // GET /api/v1/activity-log → data: { logs, total, page, limit } (staff).
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (filterAction) params.set('action_type', filterAction);
       if (filterResource) params.set('resource_type', filterResource);
-      if (dateFrom) params.set('from', dateFrom + 'T00:00:00Z');
-      if (dateTo) params.set('to', dateTo + 'T23:59:59Z');
+      // Batas hari dalam zona Asia/Jakarta (+07:00), bukan UTC — created_at
+      // adalah TIMESTAMPTZ dan pengguna membaca waktu lokal.
+      if (dateFrom) params.set('from', dateFrom + 'T00:00:00+07:00');
+      if (dateTo) params.set('to', dateTo + 'T23:59:59+07:00');
       const data = await apiGet<{ logs: LogEntry[]; total: number }>(`/activity-log?${params}`);
       setLogs(data.logs);
       setTotal(data.total);
-    } catch { /* ignore */ }
+    } catch (err) {
+      // Jangan biarkan daftar kosong menyamar sebagai "tidak ada aktivitas".
+      setError(err instanceof Error ? err.message : 'Gagal memuat log aktivitas');
+      setLogs([]);
+      setTotal(0);
+    }
     finally { setLoading(false); }
   }, [page, filterAction, filterResource, dateFrom, dateTo]);
 
@@ -122,6 +143,18 @@ export function ActivityLog() {
       {/* Log entries */}
       {loading ? (
         <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" /></div>
+      ) : error ? (
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>
+              <p>{error}</p>
+              <button type="button" onClick={fetchLogs} className="mt-1 cursor-pointer underline hover:no-underline">
+                Coba lagi
+              </button>
+            </div>
+          </div>
+        </div>
       ) : logs.length === 0 ? (
         <div className="ui-dashboard-surface p-6 text-center">
           <Activity className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
@@ -150,10 +183,25 @@ export function ActivityLog() {
                         <span className="ml-1 rounded bg-slate-100 px-1 py-0.5 font-mono text-[10px] ui-text-muted dark:bg-slate-700">{log.resource_id.slice(0, 12)}</span>
                       )}
                     </p>
-                    {/* Details */}
+                    {/* Details — ringkasan field yang dikenal, bukan JSON mentah */}
                     {log.details && Object.keys(log.details).length > 0 && (
-                      <p className="mt-0.5 truncate text-[10px] text-slate-500">
-                        {JSON.stringify(log.details).slice(0, 120)}
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-600 dark:text-slate-300">
+                        {Object.entries(log.details).map(([key, value]) => (
+                          <span key={key}>
+                            <span className="text-slate-500 dark:text-slate-400">
+                              {DETAIL_LABELS[key] || key}:
+                            </span>{' '}
+                            <span className="font-medium">
+                              {typeof value === 'boolean'
+                                ? value ? 'Ya' : 'Tidak'
+                                : Array.isArray(value)
+                                  ? value.join(', ')
+                                  : typeof value === 'object' && value !== null
+                                    ? `${Object.keys(value).length} field`
+                                    : String(value)}
+                            </span>
+                          </span>
+                        ))}
                       </p>
                     )}
                     <p className="mt-0.5 text-[10px] text-slate-500">
@@ -173,12 +221,12 @@ export function ActivityLog() {
         <div className="flex items-center justify-center gap-2">
           <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
             className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300">
-            Prev
+            Sebelumnya
           </button>
           <span className="text-xs text-slate-600 dark:text-slate-300">{page} / {totalPages}</span>
           <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
             className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300">
-            Next
+            Berikutnya
           </button>
         </div>
       )}

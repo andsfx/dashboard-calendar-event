@@ -453,7 +453,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                   {currentStep === STEPS.length - 1 ? (
                     <>
                       <Save className="h-4 w-4" />
-                      {isSubmitting ? 'Membuat draft...' : 'Buat Draft Surat'}
+                      {isSubmitting ? 'Membuat draft…' : 'Buat Draft Surat'}
                     </>
                   ) : (
                     <>

@@ -69,7 +69,7 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
         {/* Close */}
         <button
           onClick={handleDismiss}
-          className="absolute right-3 top-3 rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          className="touch-target-hit absolute right-3 top-3 flex items-center justify-center rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
           aria-label="Tutup"
         >
           <X className="h-4 w-4" />
@@ -94,13 +94,13 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
           <div className="flex w-full gap-3">
             <button
               onClick={handleDismiss}
-              className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Nanti Saja
             </button>
             <button
               onClick={handleOpen}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-700"
             >
               <ClipboardCheck className="h-4 w-4" />
               Isi Survey

@@ -121,7 +121,7 @@ function RatingRow({ label, value }: { label: string; value: number | null | und
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${v >= 8 ? 'bg-emerald-500' : v >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}
+          className={`h-full rounded-full transition-[width] duration-500 ${v >= 8 ? 'bg-emerald-500' : v >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

@@ -166,7 +166,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
           return (
           <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
             {showAreaHeader && (
-              <div className="ui-btn-primary px-4 py-2 text-[12px] font-bold text-white">
+              <div className="bg-brand-primary-100 px-4 py-2 text-[12px] font-bold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
                 <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
                 {group.areaName}
               </div>
@@ -288,8 +288,8 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
               return (
               <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
                 {showAreaHeader && (
-                  <tr className="ui-btn-primary">
-                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-white">
+                  <tr className="bg-brand-primary-100 dark:bg-brand-primary-950/50">
+                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-brand-primary-800 dark:text-brand-primary-200">
                       <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
                       {group.areaName}
                     </td>
@@ -303,12 +303,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 focus-visible:bg-brand-primary-50 dark:focus-visible:bg-brand-primary-900/20 focus-visible:outline-none ${ev.status === 'past' ? 'opacity-80' : ''}`}
-                    onClick={() => onDetail(ev)}
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`Lihat detail ${ev.acara}`}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
+                    className={`group transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   >
                     {/* Date */}
                     <td className="whitespace-nowrap px-4 py-3">

@@ -38,7 +38,7 @@ export function DashboardHeader({
           {onAddNew && (
             <button
               onClick={onAddNew}
-              className="flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:shadow-brand-primary-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
+              className="flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:shadow-brand-primary-900/30 dark:focus-visible:ring-offset-slate-950 shrink-0"
             >
               <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>Tambah</span>
             </button>

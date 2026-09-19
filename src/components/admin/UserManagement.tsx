@@ -24,7 +24,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.Re
   superadmin: { label: 'Superadmin', color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300', icon: <Crown className="h-3 w-3" /> },
   admin: { label: 'Admin', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', icon: <Shield className="h-3 w-3" /> },
   viewer: { label: 'Viewer', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', icon: <Eye className="h-3 w-3" /> },
-  demo: { label: 'Demo', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300', icon: <Eye className="h-3 w-3" /> },
+  demo: { label: 'Demo', color: 'bg-brand-secondary-100 text-brand-secondary-700 dark:bg-brand-secondary-900/40 dark:text-brand-secondary-300', icon: <Eye className="h-3 w-3" /> },
   eo_tenant: { label: 'EO/Tenant', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', icon: <Building2 className="h-3 w-3" /> },
   tenant_relation: { label: 'Tenant Relation', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', icon: <BarChart3 className="h-3 w-3" /> },
 };
@@ -158,8 +158,13 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               {showForm === 'invite' ? 'Undang User Baru' : 'Buat User Manual'}
             </h3>
-            <button onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }} className="text-slate-500 hover:text-slate-600">
-              <X className="h-4 w-4" />
+            <button
+              type="button"
+              onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }}
+              aria-label="Tutup form"
+              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -227,7 +232,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                         bisa mengganti email/password miliknya sendiri. */}
                     <button
                       onClick={() => setEditingUser(u)}
-                      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700"
+                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700"
                       title="Edit user"
                       aria-label={`Edit ${userLabel}`}
                     >
@@ -238,7 +243,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                     {u.role !== 'superadmin' && (<>
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}
-                      className={`rounded-lg p-1.5 transition ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                      className={`rounded-lg p-1.5 transition-colors ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                       aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${userLabel}`}
                       aria-pressed={u.is_active}
@@ -247,10 +252,11 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                     </button>
                     <button
                       onClick={() => handleDelete(u.id)}
-                      className="rounded-lg p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
                       title="Nonaktifkan user"
+                      aria-label={`Nonaktifkan ${userLabel}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                     </>)}
                   </div>

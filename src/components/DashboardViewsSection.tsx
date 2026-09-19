@@ -109,7 +109,7 @@ export function DashboardViewsSection(props: Props) {
       <div className="flex flex-col gap-3">
         {!isAdmin && (
           <div className="w-full sm:w-[360px]">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Cari acara, lokasi, penyelenggara..." />
+            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Cari acara, lokasi, penyelenggara…" />
           </div>
         )}
         <FilterBar
@@ -146,7 +146,7 @@ export function DashboardViewsSection(props: Props) {
                 type="button"
                 onClick={handleExportSchedulePdf}
                 disabled={isExportingPdf || visibleEvents.length === 0}
-                className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--brand-card-light)] px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-slate-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--brand-card-light)] px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 aria-label="Unduh jadwal event sebagai PDF"
               >
                 {isExportingPdf ? (

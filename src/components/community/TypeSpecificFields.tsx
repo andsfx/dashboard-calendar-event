@@ -29,7 +29,7 @@ function SelectField({ id, label, value, options, onChange, inputClass, labelCla
     <div>
       <label htmlFor={id} className={labelClass}>{label} {required && <span className="text-rose-600">*</span>}</label>
       <select id={id} value={value} onChange={e => onChange(e.target.value)} required={required} className={inputClass}>
-        <option value="">Pilih...</option>
+        <option value="">Pilih…</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>

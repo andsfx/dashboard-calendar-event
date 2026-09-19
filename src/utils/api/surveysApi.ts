@@ -501,14 +501,27 @@ export async function checkPublicTenantSurveyDuplicate(eventId: string, deviceFi
   }
 }
 
-export interface PublicTenantSurveySubmission extends Omit<TenantSurveyFormData, 'tenant_user_id'> {
-  device_fingerprint: string; ip_address?: string; user_agent?: string;
-  nama_gerai?: string | null; lokasi_zona?: string | null; kategori?: string | null;
-  kenaikan_traffic?: string | null; kenaikan_sales?: string | null; feedback_teks?: string | null;
-  tenant_id?: string | null; pic_name?: string | null; pic_phone?: string | null;
-  venue_rating?: number | null; management_rating?: number | null;
-  event_organization_rating?: number | null; booth_facility_rating?: number | null;
-  overall_rating?: number | null; sales_lift_pct?: number | null; traffic_lift_pct?: number | null;
+/**
+ * Payload submit publik (schema v3). Sebelumnya tipe ini `extends
+ * TenantSurveyFormData` (stub v2) dan mewajibkan `tenant_name`,
+ * `business_category`, `business_subcategory` yang TIDAK PERNAH dikirim
+ * halaman publik — pemanggil menutupinya dengan `as never`, sehingga
+ * ketidakcocokan bentuk payload tersembunyi dari compiler.
+ * Field di bawah = yang benar-benar divalidasi server
+ * (`validatePublicSubmission`) + metadata anti-spam.
+ */
+export interface PublicTenantSurveySubmission {
+  event_id: string;
+  nama_gerai: string;
+  lokasi_zona: string;
+  kategori: string;
+  kenaikan_traffic: string;
+  kenaikan_sales: string;
+  device_fingerprint: string;
+  feedback_teks?: string | null;
+  tenant_id?: string | null;
+  pic_name?: string | null;
+  pic_phone?: string | null;
 }
 
 export async function submitPublicTenantSurvey(data: PublicTenantSurveySubmission): Promise<{ id: string; created_at: string }> {

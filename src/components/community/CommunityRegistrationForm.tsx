@@ -381,7 +381,7 @@ export function RegistrationForm() {
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</label>
-              <textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi..." className={`${inputClass} resize-none`} />
+              <textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi…" className={`${inputClass} resize-none`} />
             </div>
             {/* Proposal / Company Profile Upload (optional) */}
             <div className="sm:col-span-2">
@@ -435,7 +435,7 @@ export function RegistrationForm() {
           className={`inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
         >
           <Send className="h-4 w-4" />
-          {submitting ? 'Mengirim...' : 'Kirim Pendaftaran'}
+          {submitting ? 'Mengirim…' : 'Kirim Pendaftaran'}
         </button>
       </div>
     </form>

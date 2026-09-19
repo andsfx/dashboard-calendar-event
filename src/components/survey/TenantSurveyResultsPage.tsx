@@ -427,7 +427,7 @@ export default function TenantSurveyResultsPage({
               <button
                 type="button"
                 onClick={resetFilter}
-                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
               >
                 <RotateCcw className="h-3 w-3" aria-hidden />
                 <span className="hidden sm:inline">Reset</span>
@@ -436,7 +436,7 @@ export default function TenantSurveyResultsPage({
             <button
               type="button"
               onClick={() => setFiltersOpen((v) => !v)}
-              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:hidden"
+              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:hidden"
               aria-expanded={filtersOpen}
             >
               Lanjutan
@@ -445,7 +445,7 @@ export default function TenantSurveyResultsPage({
                   {advancedFilterCount}
                 </span>
               )}
-              <ChevronDown className={`h-3.5 w-3.5 transition ${filtersOpen ? 'rotate-180' : ''}`} aria-hidden />
+              <ChevronDown className={`h-3.5 w-3.5 transition-colors ${filtersOpen ? 'rotate-180' : ''}`} aria-hidden />
             </button>
           </div>
         </div>
@@ -531,7 +531,14 @@ export default function TenantSurveyResultsPage({
               </span>
               <select
                 value={filter.status}
-                onChange={(e) => setField('status', e.target.value as ResultsFilter['status'])}
+                onChange={(e) => {
+                  // Hanya nilai yang benar-benar ada di <option> dan di union
+                  // ResultsFilter ('draft' BUKAN nilai sah di sini).
+                  const next = e.target.value;
+                  if (next === 'all' || next === 'submitted' || next === 'reviewed') {
+                    setField('status', next);
+                  }
+                }}
                 className={FIELD}
               >
                 <option value="all">Semua (telah dikirim)</option>
@@ -552,7 +559,7 @@ export default function TenantSurveyResultsPage({
                 key={c.key}
                 type="button"
                 onClick={() => clearChip(c.key)}
-                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
+                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition-colors hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
                 title="Hapus filter ini"
               >
                 <span className="truncate">{c.label}</span>
@@ -627,7 +634,7 @@ export default function TenantSurveyResultsPage({
               role="tab"
               aria-selected={active}
               onClick={() => setMainTab(t.id)}
-              className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
+              className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
                 active
                   ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-200'
@@ -758,7 +765,7 @@ export default function TenantSurveyResultsPage({
                   key={tab}
                   type="button"
                   onClick={() => setRosterTab(tab)}
-                  className={`ui-focus-ring rounded-lg px-2.5 py-1 text-[11px] font-semibold transition ${
+                  className={`ui-focus-ring rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                     active
                       ? 'bg-brand-primary-600 text-white'
                       : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
@@ -800,7 +807,7 @@ export default function TenantSurveyResultsPage({
             {checklistView.map((t) => (
               <li
                 key={t.id}
-                className="flex items-center gap-2.5 px-3 py-2.5 transition hover:bg-slate-50/80 dark:gap-3 dark:hover:bg-slate-800/40 sm:px-4"
+                className="flex items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-slate-50/80 dark:gap-3 dark:hover:bg-slate-800/40 sm:px-4"
               >
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
@@ -874,7 +881,7 @@ export default function TenantSurveyResultsPage({
               <button
                 type="button"
                 onClick={resetFilter}
-                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 Reset filter
@@ -930,7 +937,7 @@ export default function TenantSurveyResultsPage({
                   {agg.topGerai.map((g, i) => (
                     <div
                       key={g.nama_gerai}
-                      className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
+                      className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
                     >
                       <span
                         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${
@@ -1070,7 +1077,7 @@ export default function TenantSurveyResultsPage({
                   {feedbackFiltered.slice(0, 100).map((f) => (
                     <li
                       key={f.id}
-                      className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5 dark:border-slate-700/80 dark:bg-slate-800/40 sm:px-3.5 sm:py-3"
+                      className="px-3 py-2.5 sm:px-3.5 sm:py-3"
                     >
                       <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-slate-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
                         <span className="font-semibold text-brand-primary-700 dark:text-brand-primary-300">
@@ -1175,7 +1182,7 @@ export default function TenantSurveyResultsPage({
                   {agg.rows.slice(0, 100).map((s: TenantEventSurvey, idx) => (
                     <tr
                       key={s.id}
-                      className={`border-b border-slate-50 transition dark:border-slate-800/80 ${
+                      className={`border-b border-slate-50 transition-colors dark:border-slate-800/80 ${
                         idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-slate-800/25' : ''
                       } hover:bg-brand-primary-50/50 dark:hover:bg-brand-primary-950/20`}
                     >

@@ -58,8 +58,26 @@
   }
 }
 
-/* Touch target sizing - min 44x44px */
+/* Touch target sizing - min 44x44px (menaikkan KOTAK visual — pakai hanya pada
+   kontrol inline/flex yang ruangnya cukup, mis. tombol di header). */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* Ekspansi AREA SENTUH tanpa mengubah kotak visual — untuk tombol ikon
+   absolut/kompak (tutup modal, hapus di dalam input) yang kalau diperbesar
+   akan menutupi konten atau meluber keluar tepi kontainer.
+   Tombol WAJIB sudah berposisi (`relative`/`absolute`) agar ::after
+   ber-anchor ke tombol itu sendiri — jangan set `position` di sini, karena
+   file ini dimuat setelah Tailwind dan akan menimpa `absolute` tombol.
+   Area sentuh ≥44px; visual ikon tidak berubah. */
+.touch-target-hit::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
 }

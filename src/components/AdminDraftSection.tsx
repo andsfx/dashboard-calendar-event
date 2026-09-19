@@ -48,7 +48,7 @@ export function AdminDraftSection({
         {onAddDraft && (
           <button
             onClick={onAddDraft}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition dark:shadow-brand-primary-900/30"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors dark:shadow-brand-primary-900/30"
           >
             <Plus className="h-4 w-4" /> Tambah Draft Event
           </button>
@@ -56,7 +56,7 @@ export function AdminDraftSection({
       </div>
 
       {draftError && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
+        <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800/50 dark:bg-rose-900/20 dark:text-rose-300">
           {draftError}
         </div>
       )}

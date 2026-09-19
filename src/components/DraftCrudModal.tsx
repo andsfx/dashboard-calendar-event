@@ -398,7 +398,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
                 { value: 'multi_day', label: 'Rangkaian acara' },
                 { value: 'recurring', label: 'Event reguler' },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
                   form.eventType === opt.value
                     ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -472,7 +472,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               id="draft-progress"
               value={form.progress}
               onChange={e => set('progress', e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             >
               <option value="draft">Draft</option>
               <option value="confirm">Konfirmasi</option>
@@ -487,7 +487,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               onChange={e => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Tulis status progres atau catatan follow-up event"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
           <div>
@@ -498,7 +498,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               onChange={e => set('internalNote', e.target.value)}
               rows={2}
               placeholder="Catatan admin internal, tidak ikut diterbitkan ke event utama"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -507,17 +507,17 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan...' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
+              {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
             </button>
           </div>
         </form>

@@ -69,7 +69,7 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
               key={opt}
               className={`
                 flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
-                transition focus-within:ring-2 focus-within:ring-brand-primary-500
+                transition-colors focus-within:ring-2 focus-within:ring-brand-primary-500
                 ${selected
                   ? 'border-brand-primary-400 bg-brand-primary-50 shadow-sm dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
                   : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
@@ -255,13 +255,13 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           aria-required={required || undefined}
           aria-invalid={!!error || undefined}
           aria-describedby={describedBy}
-          className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-500 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+          className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
         />
         {query && !disabled && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
             aria-label="Hapus"
           >
             <X className="h-3.5 w-3.5" />
@@ -274,7 +274,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-xs ui-text-muted">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-              Memuat tenant...
+              Memuat tenant…
             </div>
           ) : tenants.length === 0 ? (
             <div className="px-4 py-3 text-xs ui-text-muted">
@@ -292,7 +292,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
                 aria-selected={i === highlighted}
                 onClick={() => selectTenant(t)}
                 onMouseEnter={() => setHighlighted(i)}
-                className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition last:border-b-0 dark:border-slate-700 ${
+                className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition-colors last:border-b-0 dark:border-slate-700 ${
                   i === highlighted
                     ? 'bg-brand-primary-50 dark:bg-brand-primary-950/30'
                     : 'hover:bg-brand-primary-50 dark:hover:bg-brand-primary-950/30'

@@ -3,7 +3,7 @@ import {
   ClipboardCheck, Download, Star, Users, Building2,
   TrendingUp, Loader2, RefreshCw, Link2, Check,
   ToggleLeft, ToggleRight, ChevronDown, ChevronUp,
-  MessageSquare, Calendar,
+  MessageSquare, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import { apiGet, apiPost } from '../../lib/rest';
 
@@ -69,6 +69,8 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  /** Error aksi (export/copy/toggle) — tidak menggantikan seluruh halaman. */
+  const [actionError, setActionError] = useState('');
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -86,13 +88,46 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
+  // ─── Hidrasi is_active per event (GET /survey/config) ──────────────
+  // Tanpa ini `activeConfigs` selalu kosong, sehingga toggle menampilkan
+  // status yang salah. Endpoint /survey/config sudah ada di server.
+  // Default false (schema: survey_config.is_active DEFAULT FALSE).
+  useEffect(() => {
+    const surveyableIds = events
+      .filter(e => e.status === 'past' || e.status === 'ongoing')
+      .map(e => e.id);
+    if (surveyableIds.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        surveyableIds.map(async (id) => {
+          try {
+            const cfg = await apiGet<{ is_active?: boolean }>(
+              `/survey/config?event_id=${encodeURIComponent(id)}`,
+            );
+            return [id, cfg?.is_active === true] as const;
+          } catch {
+            return [id, false] as const;
+          }
+        }),
+      );
+      if (!cancelled) setActiveConfigs(Object.fromEntries(entries));
+    })();
+    return () => { cancelled = true; };
+  }, [events]);
+
   const handleExport = useCallback(async (eventId: string) => {
+    setActionError('');
     try {
       // GET /api/v1/survey/export?event_id= — CSV blob (cookie auth).
       const res = await fetch(`${API_V1}/survey/export?event_id=${encodeURIComponent(eventId)}`, {
         credentials: 'include',
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -100,30 +135,40 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       a.download = `survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch { /* ignore */ }
+    } catch {
+      setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+    }
   }, []);
 
   const handleCopyLink = useCallback(async (eventId: string) => {
     const url = `${window.location.origin}/survey/${eventId}`;
+    setActionError('');
     try {
       await navigator.clipboard.writeText(url);
       setCopiedId(eventId);
       setTimeout(() => setCopiedId(''), 2000);
-    } catch { /* ignore */ }
+    } catch {
+      setActionError('Gagal menyalin tautan. Salin manual dari address bar.');
+    }
   }, []);
 
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
+    setActionError('');
     try {
       // POST /api/v1/survey/config-set — upsert survey_config per event.
-      const json = await apiPost<{ success: boolean }>('/survey/config-set', {
+      const json = await apiPost<{ success: boolean; error?: string }>('/survey/config-set', {
         event_id: eventId,
         is_active: !currentActive,
       });
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
+      } else {
+        setActionError(json.error || 'Gagal mengubah status survey.');
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survey.');
+    }
     finally { setConfigLoading(null); }
   }, []);
 
@@ -161,9 +206,14 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
           <p className="mt-3 text-sm font-medium ui-text-muted">
             Belum ada response survey
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-          </p>
         </div>
+        {actionError && (
+          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1">{actionError}</span>
+            <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
+          </div>
+        )}
         {/* Still show event management even with no responses */}
         <EventManagementSection
           events={events}
@@ -195,6 +245,14 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
           <RefreshCw className="h-4 w-4" />
         </button>
       </div>
+
+      {actionError && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1">{actionError}</span>
+          <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -249,7 +307,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
               </p>
             </div>
 <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium ui-text-muted dark:bg-slate-700 ">
-              {stats.nps_score >= 50 ? 'Excellent' : stats.nps_score >= 0 ? 'Good' : 'Needs Improvement'}
+              {stats.nps_score >= 50 ? 'Sangat Baik' : stats.nps_score >= 0 ? 'Baik' : 'Perlu Perbaikan'}
             </span>
           </div>
         </div>
@@ -299,7 +357,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
                   >
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${mallAvg >= 8 ? 'bg-emerald-500' : mallAvg >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}>
                       {mallAvg.toFixed(0)}
@@ -393,19 +451,44 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
 }) {
-  const pastEvents = events.filter(e => e.status === 'past').slice(0, 30);
+  const [query, setQuery] = useState('');
 
-  if (pastEvents.length === 0) return null;
+  // past + ongoing, tanpa hard-limit (rules.md melarang cap 30 di dashboard kelola).
+  const surveyableEvents = events.filter(e => e.status === 'past' || e.status === 'ongoing');
+  const q = query.trim().toLowerCase();
+  const visibleEvents = q
+    ? surveyableEvents.filter(e => e.acara.toLowerCase().includes(q))
+    : surveyableEvents;
+
+  if (surveyableEvents.length === 0) return null;
 
   return (
     <div className="ui-dashboard-surface">
       <div className="border-b border-black/[0.04] px-4 py-3 dark:border-slate-700">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Survey per Event</h3>
         <p className="text-[10px] text-slate-500 dark:text-slate-300">Copy link, aktifkan/nonaktifkan, atau export data</p>
+        <div className="relative mt-2">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari nama event…"
+            aria-label="Cari event"
+            className="ui-dashboard-control w-full rounded-xl py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:text-slate-200"
+          />
+        </div>
       </div>
       <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
-        {pastEvents.map((ev) => {
-          const isActive = activeConfigs[ev.id] ?? true; // default active
+        {visibleEvents.length === 0 ? (
+          <p className="px-4 py-6 text-center text-xs ui-text-muted">
+            Tidak ada event cocok “{query}”
+          </p>
+        ) : visibleEvents.map((ev) => {
+          // Default OFF: cocok dengan gate is_active server (schema:
+          // survey_config.is_active DEFAULT FALSE). Nilai sebenarnya dihidrasi
+          // lewat GET /survey/config di komponen induk.
+          const isActive = activeConfigs[ev.id] ?? false;
           const isCopied = copiedId === ev.id;
           const isToggling = configLoading === ev.id;
           return (
@@ -417,7 +500,9 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               {!readOnly && <button
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
-                className={`shrink-0 transition ${isActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`}
+                className={`shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`}
+                aria-pressed={isActive}
+                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
                 title={isActive ? 'Survey aktif — klik untuk nonaktifkan' : 'Survey nonaktif — klik untuk aktifkan'}
               >
                 {isToggling ? (
@@ -432,17 +517,19 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               {/* Copy link */}
               <button
                 onClick={() => onCopyLink(ev.id)}
-className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted hover:bg-slate-100 dark:hover:bg-slate-700"
-                title="Copy survey link"
+                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                title="Salin tautan survey"
+                aria-label={`Salin tautan survey ${ev.acara}`}
               >
                 {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
-                {isCopied ? 'Copied!' : 'Link'}
+                {isCopied ? 'Tersalin!' : 'Link'}
               </button>
 
               {/* Export */}
               <button
                 onClick={() => onExport(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-brand-primary-600 hover:bg-brand-primary-50 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/30"
+                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/30"
+                aria-label={`Unduh CSV survey ${ev.acara}`}
               >
                 <Download className="h-3 w-3" />
                 CSV
@@ -484,7 +571,7 @@ function RatingBar({ label, value, highlight }: { label: string; value: number; 
         <span className={`text-xs font-bold ${value >= 8 ? 'text-emerald-600' : value >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{value.toFixed(1)}</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-        <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full transition-[width] duration-700 ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

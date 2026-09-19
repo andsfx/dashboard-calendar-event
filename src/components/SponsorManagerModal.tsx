@@ -177,7 +177,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
             <button
               type="button"
               onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition ${tab === 'proposals'
+              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'proposals'
                 ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white'}`}
             >
@@ -186,7 +186,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
             <button
               type="button"
               onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition ${tab === 'leads'
+              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'leads'
                 ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white'}`}
             >
@@ -212,7 +212,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat...</span>
+              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
             </div>
           )}
 
@@ -231,7 +231,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
               {events.map((item) => (
                 <div
                   key={item.event.id}
-                  className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                  className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
                 >
                   <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
                     <FileText className="m-auto mt-3 h-6 w-6 text-slate-500 dark:text-slate-300" />
@@ -281,7 +281,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                       type="button"
                       onClick={() => document.getElementById(`proposal-file-${item.event.id}`)?.click()}
                       disabled={isUploading}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-tosca-600)] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-tosca-600)] px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] disabled:opacity-50"
                     >
                       {isUploading && uploadingEventId === item.event.id ? (
                         <>

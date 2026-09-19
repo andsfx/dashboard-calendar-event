@@ -62,7 +62,7 @@ const TYPE_SPECIFIC_LABELS: Record<string, string> = {
 
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition hover:bg-slate-100 dark:hover:bg-slate-700/60">
+    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/60">
       <div className="mt-0.5 shrink-0 text-slate-500">{icon}</div>
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
@@ -150,7 +150,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         <div className="relative shrink-0 border-b border-slate-100 bg-brand-primary-50 px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-brand-primary-950/30">
           <button
             onClick={onClose}
-            className="absolute right-4 top-3 rounded-xl p-2 text-slate-500 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-3 rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
@@ -253,8 +253,8 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               value={adminNote}
               onChange={e => setAdminNote(e.target.value)}
               rows={3}
-              placeholder="Tambahkan catatan admin..."
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
+              placeholder="Tambahkan catatan admin…"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
             />
           </div>
 
@@ -267,7 +267,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <select
               value={waTemplate}
               onChange={e => setWaTemplate(e.target.value)}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
             >
               <option value="reviewed">Direview</option>
               <option value="approved">Disetujui</option>
@@ -279,12 +279,12 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               value={waMessage}
               onChange={e => { setWaMessage(e.target.value); if (waTemplate !== 'custom') setWaTemplate('custom'); }}
               rows={5}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
+              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
             />
 
             <button
               onClick={handleSendWhatsApp}
-              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-emerald-600 active:scale-95"
+              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-emerald-600 active:scale-95"
             >
               <Send className="h-4 w-4" /> Kirim via WhatsApp
             </button>
@@ -302,7 +302,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                 }
               }}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 active:scale-95 disabled:opacity-50 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-100 active:scale-95 disabled:opacity-50 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
             >
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
             </button>
@@ -311,32 +311,32 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <button
               onClick={() => handleStatusChange('reviewed')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:scale-95 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
-              <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tandai Direview'}
+              <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tandai Direview'}
             </button>
           )}
           {!readOnly && canApproveReject && (
             <button
               onClick={() => handleStatusChange('approved')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-95 disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 active:scale-95 disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Setujui'}
+              <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Setujui'}
             </button>
           )}
           {!readOnly && canApproveReject && (
             <button
               onClick={() => handleStatusChange('rejected')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 active:scale-95 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
             >
-              <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses...' : 'Tolak'}
+              <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tolak'}
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Tutup
           </button>

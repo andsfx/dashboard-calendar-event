@@ -48,7 +48,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-xl p-2 text-slate-500 transition hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-4 rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
@@ -101,7 +101,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             {!isAdmin && (
               <a
                 href={`/survey/${event.id}`}
-                className="mb-3 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 transition hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
+                className="mb-3 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 transition-colors hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
                   <ClipboardCheckIcon />
@@ -156,14 +156,14 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Tutup
           </button>
           {!isAdmin && (
             <Link
               to={`/events/${event.id}`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 active:scale-95 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-100 active:scale-95 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
             >
               <ExternalLink className="h-3.5 w-3.5" /> Buka halaman event
             </Link>
@@ -171,7 +171,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {onEdit && (
             <button
               onClick={() => { onClose(); onEdit(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
             >
               <Edit2 className="h-3.5 w-3.5" /> Ubah
             </button>
@@ -179,7 +179,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {onDelete && (
             <button
               onClick={() => { onClose(); onDelete(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
             </button>
@@ -187,7 +187,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {isRecurring && onDeleteSeries && event.recurrenceGroupId && (
             <button
               onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-100 py-2.5 text-sm font-semibold text-red-800 transition hover:bg-red-200 active:scale-95 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-100 py-2.5 text-sm font-semibold text-red-800 transition-colors hover:bg-red-200 active:scale-95 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
             </button>

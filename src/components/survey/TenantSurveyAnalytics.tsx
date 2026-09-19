@@ -75,7 +75,7 @@ function LoadingState() {
     <div className="flex items-center justify-center py-12">
       <div className="flex items-center gap-2 text-sm ui-text-muted">
         <BarChart3 className="h-4 w-4 animate-pulse" />
-        Memuat analytics...
+        Memuat analytics…
       </div>
     </div>
   );
@@ -154,15 +154,10 @@ export default function TenantSurveyAnalyticsPanel({
       weightedAvgs[key] = denSum > 0 ? +(numSum / denSum).toFixed(2) : null;
     }
 
-    const avgRepeat = Math.round(
-      rated.reduce((sum, a) => sum + (a.avg_overall_rating || 0), 0) / rated.length * 20,
-    );
-
     return {
       totalSurveys,
       totalTenants,
       avgOverall: weightedAvgs.avg_overall_rating,
-      avgRepeat,
       weightedAvgs,
     };
   }, [analytics]);
@@ -257,7 +252,7 @@ export default function TenantSurveyAnalyticsPanel({
           </div>
 
           {/* Stat cards */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
               label="Total Self-Assessment"
               value={aggregate.totalSurveys}
@@ -273,18 +268,6 @@ export default function TenantSurveyAnalyticsPanel({
               value={aggregate.avgOverall?.toFixed(1) || '-'}
               icon={<Star className="h-4 w-4" />}
               color={ratingColor(aggregate.avgOverall)}
-            />
-            <StatCard
-              label="Bersedia Repeat"
-              value={aggregate.avgRepeat != null ? `${aggregate.avgRepeat}%` : '-'}
-              icon={<ThumbsUp className="h-4 w-4" />}
-              color={
-                aggregate.avgRepeat != null
-                  ? aggregate.avgRepeat >= 70
-                    ? 'text-emerald-500'
-                    : 'text-yellow-500'
-                  : 'text-slate-500'
-              }
             />
           </div>
 
@@ -304,7 +287,7 @@ export default function TenantSurveyAnalyticsPanel({
                 return (
                   <div
                     key={key}
-                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
+                    className="flex items-center gap-2 px-3 py-2"
                   >
                     <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>
                     <div className="flex-1 min-w-0">
@@ -463,7 +446,7 @@ function DistCard({
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                  className={`h-full rounded-full transition-[width] duration-500 ${barColor}`}
                   style={{ width: `${barWidth}%` }}
                 />
               </div>

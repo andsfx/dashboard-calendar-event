@@ -75,10 +75,15 @@ export default function TenantSurveyEventPicker() {
   // Error + no data
   if (error && events.length === 0) {
     const isEmptyList = /belum dibuka|sudah ditutup|belum ada event/i.test(error);
+    // Informasi (belum tersedia) memakai amber; kegagalan muat memakai rose —
+    // DESIGN.md: error = rose/red, amber hanya untuk warning.
+    const tone = isEmptyList
+      ? { box: 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30', tile: 'bg-amber-100 dark:bg-amber-900/50', icon: 'text-amber-500' }
+      : { box: 'border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30', tile: 'bg-rose-100 dark:bg-rose-900/50', icon: 'text-rose-500' };
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-6 py-16 text-center dark:border-amber-800 dark:bg-amber-950/30">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
-          <AlertTriangle className="h-8 w-8 text-amber-500" />
+      <div className={`flex flex-col items-center justify-center rounded-2xl border px-6 py-16 text-center ${tone.box}`}>
+        <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-full ${tone.tile}`}>
+          <AlertTriangle className={`h-8 w-8 ${tone.icon}`} />
         </div>
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
           {isEmptyList ? 'Survey Belum Tersedia' : 'Gagal Memuat'}
@@ -114,7 +119,7 @@ export default function TenantSurveyEventPicker() {
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Cari nama event, lokasi, atau penyelenggara..."
+            placeholder="Cari nama event, lokasi, atau penyelenggara…"
             className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-800"
           />
         </div>
@@ -131,7 +136,7 @@ export default function TenantSurveyEventPicker() {
             type="button"
             onClick={() => navigate(`/tenant-survey/${ev.id}`)}
             aria-label={`Isi survey tenant untuk event ${ev.acara}, tanggal ${formatDate(ev.tanggal)}${ev.lokasi ? `, lokasi ${ev.lokasi}` : ''}${ev.eo ? `, penyelenggara ${ev.eo}` : ''}`}
-            className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:border-brand-primary-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
+            className="group relative flex w-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-[transform,border-color,box-shadow] hover:border-brand-primary-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
           >
 
             {/* Status indicator bar */}
@@ -163,7 +168,7 @@ export default function TenantSurveyEventPicker() {
             </div>
 
             {/* Arrow */}
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-brand-primary-100 group-hover:text-brand-primary-600 dark:bg-slate-700 dark:text-slate-300 dark:group-hover:bg-brand-primary-900/50 dark:group-hover:text-brand-primary-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors group-hover:bg-brand-primary-100 group-hover:text-brand-primary-600 dark:bg-slate-700 dark:text-slate-300 dark:group-hover:bg-brand-primary-900/50 dark:group-hover:text-brand-primary-400">
               <ChevronRight className="h-4 w-4" />
             </div>
           </button>

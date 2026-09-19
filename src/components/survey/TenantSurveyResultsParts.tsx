@@ -102,7 +102,7 @@ export function DistBars({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${bar}`}
+                  className={`h-full rounded-full transition-[width] duration-500 ${bar}`}
                   style={{ width: `${w}%` }}
                 />
               </div>
@@ -260,7 +260,7 @@ export function ResultsReadingGuide() {
           </p>
         </div>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-sky-600 transition dark:text-sky-400 ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-sky-600 transition-colors dark:text-sky-400 ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
@@ -484,14 +484,14 @@ export function EventFilterSearch({
           )}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-500 transition ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-slate-500 transition-colors ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
 
       {open && (
         <div
-          className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,65dvh)] w-full flex-col overflow-hidden shadow-xl sm:left-0 sm:right-auto sm:min-w-[22rem] sm:max-w-[min(100vw-2rem,28rem)]"
+          className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,65dvh)] w-full flex-col overflow-hidden shadow-xl sm:left-0 sm:right-auto sm:min-w-[22rem] sm:max-w-[min(calc(100%-2rem),28rem)]"
           role="listbox"
         >
           <div className="shrink-0 border-b border-slate-100 p-2 dark:border-slate-700">
@@ -520,7 +520,7 @@ export function EventFilterSearch({
               role="option"
               aria-selected={value === 'all'}
               onClick={() => pick('all')}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
                 value === 'all'
                   ? 'bg-brand-primary-50 font-semibold text-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-200'
                   : 'text-slate-700 dark:text-slate-200'
@@ -541,7 +541,7 @@ export function EventFilterSearch({
                   role="option"
                   aria-selected={value === o.id}
                   onClick={() => pick(o.id)}
-                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
                     value === o.id
                       ? 'bg-brand-primary-50 dark:bg-brand-primary-950/40'
                       : ''
@@ -631,7 +631,7 @@ export function EventShareRow({
           <button
             type="button"
             onClick={handleCopy}
-            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             title="Salin link form survey"
           >
             {copied ? (
@@ -644,7 +644,7 @@ export function EventShareRow({
           <button
             type="button"
             onClick={() => setShowQR((v) => !v)}
-            className={`ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition ${
+            className={`ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition-colors ${
               showQR
                 ? 'border-brand-primary-300 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300'
                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'

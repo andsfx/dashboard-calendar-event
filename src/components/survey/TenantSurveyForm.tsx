@@ -141,7 +141,9 @@ export default function TenantSurveyForm({
     }
 
     const data = buildFormData();
-    const validation = validateTenantSurvey(data as unknown as Record<string, unknown>, isDraft);
+    // Spread membuat object literal baru → assignable ke Record<string, unknown>
+    // tanpa `as unknown as` yang mematikan pemeriksaan tipe.
+    const validation = validateTenantSurvey({ ...data }, isDraft);
 
     if (!validation.valid) {
       const fieldErrs: Record<string, string> = {};
@@ -217,7 +219,7 @@ export default function TenantSurveyForm({
           </div>
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
             <div
-              className="h-full rounded-full bg-brand-primary-500 transition-all duration-300"
+              className="h-full rounded-full bg-brand-primary-500 transition-[width] duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -326,7 +328,7 @@ export default function TenantSurveyForm({
               disabled={disabled}
               aria-required="true"
               aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
-              className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
             >
               <option value="">Pilih lokasi / zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -415,7 +417,7 @@ export default function TenantSurveyForm({
                 maxLength={100}
                 disabled={disabled}
                 autoComplete="name"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
             <div>
@@ -433,7 +435,7 @@ export default function TenantSurveyForm({
                 maxLength={20}
                 disabled={disabled}
                 autoComplete="tel"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
               />
             </div>
           </div>
@@ -453,7 +455,7 @@ export default function TenantSurveyForm({
               rows={5}
               maxLength={2000}
               disabled={disabled}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
             />
             <p className="mt-1 text-right text-[10px] text-slate-500">
               {2000 - formData.feedback_teks.length} karakter tersisa
@@ -466,7 +468,7 @@ export default function TenantSurveyForm({
       <div className="space-y-1.5">
         <div className="overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
           <div
-            className="h-2 rounded-full bg-brand-primary-500 transition-all duration-500"
+            className="h-2 rounded-full bg-brand-primary-500 transition-[width] duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -482,7 +484,7 @@ export default function TenantSurveyForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
         >
           <ChevronLeft className="h-4 w-4" />
           Batal
@@ -491,7 +493,7 @@ export default function TenantSurveyForm({
           type="button"
           onClick={() => handleSubmit(true)}
           disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
         >
           <Save className="h-4 w-4" />
           Simpan Draft
@@ -499,7 +501,7 @@ export default function TenantSurveyForm({
         <button
           type="submit"
           disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
         >
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -540,7 +542,7 @@ export function TenantSurveySuccess({
       <button
         type="button"
         onClick={onBack}
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke Dashboard
@@ -578,7 +580,7 @@ export function TenantSurveyDuplicate({
           <button
             type="button"
             onClick={onViewExisting}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-primary-300 px-5 py-2.5 text-sm font-semibold text-brand-primary-700 transition hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-primary-300 px-5 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
           >
             Lihat Survey
           </button>
@@ -586,7 +588,7 @@ export function TenantSurveyDuplicate({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali
@@ -619,7 +621,7 @@ export function TenantSurveyError({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             <RefreshCw className="h-4 w-4" />
             Coba Lagi
@@ -629,7 +631,7 @@ export function TenantSurveyError({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
           >
             <ChevronLeft className="h-4 w-4" />
             Kembali
@@ -640,7 +642,7 @@ export function TenantSurveyError({
   );
 }
 
-export function TenantSurveyLoading({ message = 'Memuat survey...' }: { message?: string }) {
+export function TenantSurveyLoading({ message = 'Memuat survey…' }: { message?: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
       <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />

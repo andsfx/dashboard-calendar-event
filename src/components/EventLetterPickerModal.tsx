@@ -53,7 +53,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Cari event, lokasi, atau EO"
-              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
             />
           </div>
 
@@ -68,7 +68,7 @@ export function EventLetterPickerModal({ isOpen, events, onClose, onSelect }: Pr
                   <button
                     key={event.id}
                     onClick={() => onSelect(event)}
-                    className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                    className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
                   >
                     <div className="min-w-0 space-y-1">
                       <p className="font-semibold text-slate-800 dark:text-white">{event.acara}</p>

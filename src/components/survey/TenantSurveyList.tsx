@@ -296,20 +296,20 @@ export default function TenantSurveyList({
             <button
               type="button"
               onClick={() => setShowEventPicker(!showEventPicker)}
-              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 sm:w-auto"
+              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 sm:w-auto"
             >
               <ClipboardCheck className="h-4 w-4" />
               Buat Self-Assessment
             </button>
 
             {showEventPicker && (
-              <div className="ui-dashboard-surface absolute right-0 z-20 mt-2 w-[min(100vw-2rem,20rem)] p-2 sm:w-80">
+              <div className="ui-dashboard-surface absolute right-0 z-20 mt-2 w-[min(calc(100%-2rem),20rem)] p-2 sm:w-80">
                 <input
                   type="search"
                   value={eventQuery}
                   onChange={(e) => setEventQuery(e.target.value)}
                   placeholder="Cari event…"
-                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none dark:text-slate-200"
+                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-200"
                 />
                 {availableEvents.length === 0 ? (
                   <p className="px-3 py-2 text-xs ui-text-muted">
@@ -328,7 +328,7 @@ export default function TenantSurveyList({
                           setShowEventPicker(false);
                           setEventQuery('');
                         }}
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-slate-50 dark:hover:bg-slate-700"
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
                       >
                         <span className="flex-1 truncate text-slate-800 dark:text-slate-200">{ev.acara}</span>
                         <span className="shrink-0 text-[10px] text-slate-500">
@@ -360,7 +360,7 @@ export default function TenantSurveyList({
                 type="button"
                 onClick={() => setStatusFilter(tab.key)}
                 aria-pressed={statusFilter === tab.key}
-                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                   statusFilter === tab.key
                     ? 'bg-brand-primary-600 text-white shadow-sm'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
@@ -421,7 +421,7 @@ export default function TenantSurveyList({
             <button
               type="button"
               onClick={clearFilters}
-className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold ui-text-muted transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold ui-text-muted transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
             >
               <X className="h-3 w-3" />
               Reset filter
@@ -570,8 +570,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     return (
                       <tr
                         key={survey.id}
-                        className="group cursor-pointer transition hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20"
-                        onClick={() => onViewDetail(survey)}
+                        className="group transition-colors hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20"
                       >
                         <td className="px-4 py-3">
                           <div className="min-w-0">
@@ -654,7 +653,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                         <td className="px-4 py-3 text-xs tabular-nums ui-text-muted">
                           {formatShortDate(survey.submitted_at || survey.created_at)}
                         </td>
-                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1.5">
                             <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" compact />
                             {(survey.status === 'draft' || isAdmin) && (
@@ -694,7 +693,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     type="button"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                     Sebelum
@@ -703,7 +702,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     type="button"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Berikut
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -795,7 +794,7 @@ function ActionBtn({
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`inline-flex cursor-pointer items-center gap-1 rounded-lg bg-brand-primary-600 font-semibold text-white transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`inline-flex cursor-pointer items-center gap-1 rounded-lg bg-brand-primary-600 font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 ${
           compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
         }`}
       >
@@ -809,7 +808,7 @@ function ActionBtn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-300 font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 ${
+      className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-300 font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 ${
         compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
       }`}
     >

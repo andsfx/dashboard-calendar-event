@@ -265,35 +265,47 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   // ─── Event Management Handlers ──────────────────────────────────
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
+    setActionError(null);
     try {
       // POST /api/v1/tenant/config-set — cookie auth via apiPost.
-      const json = await apiPost<{ success: boolean }>('/tenant/config-set', {
+      const json = await apiPost<{ success: boolean; error?: string }>('/tenant/config-set', {
         event_id: eventId,
         is_active: !currentActive,
       });
       if (json.success) {
         setActiveConfigs(prev => ({ ...prev, [eventId]: !currentActive }));
+      } else {
+        setActionError(json.error || 'Gagal mengubah status survey.');
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survey.');
+    }
     finally { setConfigLoading(null); }
   }, []);
 
   const handleCopyLink = useCallback(async (eventId: string) => {
     const url = `${window.location.origin}/tenant-survey/${eventId}`;
+    setActionError(null);
     try {
       await navigator.clipboard.writeText(url);
       setCopiedId(eventId);
       setTimeout(() => setCopiedId(''), 2000);
-    } catch { /* ignore */ }
+    } catch {
+      setActionError('Gagal menyalin tautan. Salin manual dari address bar.');
+    }
   }, []);
 
   const handleExport = useCallback(async (eventId: string) => {
+    setActionError(null);
     try {
       // GET /api/v1/tenant/export — CSV blob; cookie via credentials include.
       const res = await fetch(apiUrl(`/tenant/export?event_id=${encodeURIComponent(eventId)}`), {
         credentials: 'include',
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -301,7 +313,9 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
       a.download = `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch { /* ignore */ }
+    } catch {
+      setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
+    }
   }, []);
 
   // ─── Derived ───────────────────────────────────────────────────
@@ -324,7 +338,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             role="tab"
             aria-selected={activeTab === 'list'}
             onClick={() => setActiveTab('list')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
               activeTab === 'list'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -338,7 +352,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             role="tab"
             aria-selected={activeTab === 'analytics'}
             onClick={() => setActiveTab('analytics')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition sm:flex-none ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
               activeTab === 'analytics'
                 ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
                 : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -373,7 +387,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
-                className="ui-dashboard-control cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
+                className="ui-dashboard-control cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none transition-colors focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
               >
                 <option value="all">Semua Event</option>
                 {events
@@ -423,7 +437,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <button
           type="button"
           onClick={handleCancelForm}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -448,7 +462,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                 <button
                   type="button"
                   onClick={() => handleEditSurvey(editingSurvey)}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   <Edit className="h-3.5 w-3.5" />
                   Ubah
@@ -470,7 +484,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                       setActionLoading(null);
                     }
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:opacity-50"
                 >
                   {actionLoading === 'submit' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   Kirim
@@ -483,7 +497,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                     setReviewOpen((v) => !v);
                     setConfirmDelete(false);
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-brand-primary-300 bg-brand-primary-50 px-3 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-brand-primary-300 bg-brand-primary-50 px-3 py-1.5 text-xs font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-100 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   {editingSurvey.status === 'reviewed' ? 'Update review' : 'Review'}
@@ -496,7 +510,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                     setConfirmDelete(true);
                     setReviewOpen(false);
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Hapus
@@ -525,7 +539,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                       type="button"
                       disabled={actionLoading === 'delete'}
                       onClick={handleDelete}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                     >
                       {actionLoading === 'delete' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                       Ya, hapus
@@ -563,7 +577,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                   type="button"
                   disabled={actionLoading === 'review'}
                   onClick={handleReview}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:opacity-50"
                 >
                   {actionLoading === 'review' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                   Simpan review
@@ -698,11 +712,11 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
   // LOADING (initial event fetch or duplicate check)
   if (formStatus === 'submitting' && !editingSurvey && !selectedEvent) {
-    return <TenantSurveyLoading message="Menyimpan survey..." />;
+    return <TenantSurveyLoading message="Menyimpan survey…" />;
   }
 
   if (duplicateLoading && !editingSurvey && viewMode === 'form') {
-    return <TenantSurveyLoading message="Memeriksa status pengajuan..." />;
+    return <TenantSurveyLoading message="Memeriksa status pengajuan…" />;
   }
 
   if (!selectedEvent) {
@@ -721,7 +735,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <button
           type="button"
           onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -756,7 +770,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <button
           type="button"
           onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
@@ -782,7 +796,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <button
           type="button"
           onClick={() => setFormStatus('idle')}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Coba lagi
@@ -813,7 +827,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         type="button"
         onClick={handleCancelForm}
         disabled={formStatus === 'submitting'}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition hover:text-brand-primary-700 disabled:opacity-50 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 disabled:opacity-50 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke daftar
@@ -879,7 +893,7 @@ function TenantSurveyEventRow({
         {!readOnly && <button
           onClick={() => onToggleConfig(event.id, isActive)}
           disabled={isToggling}
-          className={`shrink-0 transition ${isActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`}
+          className={`shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`}
           title={isActive ? 'Survey aktif — klik untuk nonaktifkan' : 'Survey nonaktif — klik untuk aktifkan'}
         >
           {isToggling ? (
@@ -897,7 +911,7 @@ className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] fon
           title="Copy survey link"
         >
           {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
-          {isCopied ? 'Copied!' : 'Link'}
+          {isCopied ? 'Tersalin!' : 'Link'}
         </button>
 
         <button
@@ -998,7 +1012,7 @@ function TenantSurveyManagementSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[var(--brand-card)] dark:hover:bg-slate-700/40"
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--brand-card)] dark:hover:bg-slate-700/40"
       >
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -1025,7 +1039,7 @@ function TenantSurveyManagementSection({
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari event (contoh: Bekasi Criterium)..."
+                placeholder="Cari event (contoh: Bekasi Criterium)…"
                 className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
               />
             </div>

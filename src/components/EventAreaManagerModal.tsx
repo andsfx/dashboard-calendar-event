@@ -420,7 +420,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
               <button
                 type="button"
                 onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -438,7 +438,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat...</span>
+              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
             </div>
           )}
 
@@ -449,7 +449,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                 <button
                   type="button"
                   onClick={startCreate}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
                 >
                   <Plus className="h-4 w-4" />
                   Tambah Area Baru
@@ -460,7 +460,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                 <button
                   type="button"
                   onClick={() => { setView('mapping'); loadMapping(); }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] py-3 text-sm font-semibold text-slate-600 transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-brand-primary-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] py-3 text-sm font-semibold text-slate-600 transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-brand-primary-400"
                 >
                   <Layers className="h-4 w-4" />
                   Pemetaan Lokasi
@@ -480,7 +480,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="Atrium, Main Lobby, dsb."
-                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div>
@@ -490,14 +490,14 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
                       placeholder="Deskripsi singkat area (opsional)"
-                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => { setEditing(null); resetForm(); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
                       Batal
                     </button>
@@ -505,7 +505,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       {editing ? 'Simpan' : 'Buat Area'}
@@ -527,7 +527,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                   {areas.map((area, idx) => (
                     <div
                       key={area.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
                     >
                       <div
                         className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700"
@@ -567,14 +567,14 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       </div>
 
                       {/* Reorder */}
-                      {!readOnly && <div className="flex flex-col opacity-0 transition group-hover:opacity-100">
+                      {!readOnly && <div className="flex flex-col opacity-0 transition-[opacity] group-hover:opacity-100">
                         <button
                           type="button"
                           onClick={() => handleMoveArea(area, -1)}
                           disabled={idx === 0}
                           title="Naik"
                           aria-label="Naik"
-                          className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
                           <ChevronLeft className="h-4 w-4 rotate-90" />
                         </button>
@@ -584,7 +584,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           disabled={idx === areas.length - 1}
                           title="Turun"
                           aria-label="Turun"
-                          className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                         >
                           <ChevronLeft className="h-4 w-4 -rotate-90" />
                         </button>
@@ -595,7 +595,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                         type="button"
                         onClick={() => handleToggleActive(area)}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                       </button>}
@@ -604,7 +604,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       {!readOnly && <button
                         type="button"
                         onClick={() => startEdit(area)}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>}
@@ -613,7 +613,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteArea(area); }}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>}
@@ -679,7 +679,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                               setMappingTarget(prev => ({ ...prev, [row.lokasi]: areaName }));
                             }}
                             aria-label={`Area untuk ${row.lokasi}`}
-                            className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white sm:w-52 ${
+                            className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 dark:bg-slate-700 dark:text-white sm:w-52 ${
                               chosen ? 'border-brand-primary-400 dark:border-brand-primary-600' : 'border-slate-200 dark:border-slate-600'
                             }`}
                           >
@@ -713,7 +713,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={!mappingRename[row.lokasi]}
                                 placeholder="Nama lokasi baru"
                                 aria-label={`Teks lokasi baru untuk ${row.lokasi}`}
-                                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                               />
                             </label>
                           )}
@@ -726,7 +726,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                     type="button"
                     onClick={handleApplyMapping}
                     disabled={isApplying}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
                   >
                     {isApplying ? (
                       <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />
@@ -747,7 +747,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
               <button
                 type="button"
                 onClick={() => handleToggleActive(selectedArea)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                   selectedArea.isActive
                     ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-400'
                     : 'border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300'
@@ -780,7 +780,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
                               title="Jadikan Cover"
-                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition hover:bg-amber-500 group-hover:opacity-100"
+                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-amber-500 group-hover:opacity-100"
                             >
                               <Star className="h-3.5 w-3.5" />
                             </button>
@@ -788,7 +788,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo)}
-                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition hover:bg-red-600 group-hover:opacity-100"
+                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-600 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>}
@@ -820,7 +820,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={idx === 0}
                                 title="Naik"
                                 aria-label="Naik"
-                                className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
                                 <ChevronLeft className="h-4 w-4 rotate-90" />
                               </button>
@@ -830,7 +830,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={idx === areaPhotos.length - 1}
                                 title="Turun"
                                 aria-label="Turun"
-                                className="-m-1 rounded p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                               >
                                 <ChevronLeft className="h-4 w-4 -rotate-90" />
                               </button>
@@ -865,7 +865,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition ${
+                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
                       isDragOver
                         ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-900/20'
                         : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
@@ -903,7 +903,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setUploadFiles(prev => prev.filter((_, i) => i !== idx)); }}
-                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
+                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-[opacity] group-hover:opacity-100"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
@@ -928,7 +928,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
@@ -948,7 +948,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       id="area-name-edit"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div>
@@ -957,14 +957,14 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       id="area-desc-edit"
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => { setEditing(null); resetForm(); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
                       Batal
                     </button>
@@ -972,7 +972,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       Simpan
@@ -989,7 +989,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Tutup
           </button>

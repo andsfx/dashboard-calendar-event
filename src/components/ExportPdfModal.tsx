@@ -115,7 +115,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
     if (!canGenerate) return;
     setIsGenerating(true);
     setErrorMessage('');
-    setProgressText('Menyiapkan foto...');
+    setProgressText('Menyiapkan foto…');
 
     try {
       const albumIds = filteredAlbums.map(album => album.id);
@@ -138,9 +138,9 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       }));
 
       const blob = await generateAlbumPdf(payload, selectedTheme?.name, (current, total) => {
-        setProgressText(`Mengompres foto ${current}/${total}...`);
+        setProgressText(`Mengompres foto ${current}/${total}…`);
       });
-      setProgressText('Membuat PDF...');
+      setProgressText('Membuat PDF…');
       
       // Show preview instead of direct download
       const url = URL.createObjectURL(blob);
@@ -305,7 +305,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
               >
                 {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-                {isGenerating ? (progressText || 'Membuat PDF...') : 'Preview PDF'}
+                {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
               </button>
             </>
           )}

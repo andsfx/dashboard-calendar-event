@@ -121,7 +121,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 {!readOnly && <button
                   type="button"
                   onClick={handleRemoveHero}
-                  className="absolute right-2 top-2 rounded-lg bg-red-500/80 p-1.5 text-white transition hover:bg-red-600"
+                  className="absolute right-2 top-2 rounded-lg bg-red-500/80 p-1.5 text-white transition-colors hover:bg-red-600"
                   title="Hapus foto hero"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -133,10 +133,10 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm ui-text-muted transition hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm ui-text-muted transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
               >
                 {heroUploading ? (
-                  <span>Mengupload...</span>
+                  <span>Mengupload…</span>
                 ) : (
                   <>
                     <ImageIcon className="h-5 w-5" />
@@ -157,9 +157,9 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 type="button"
                 onClick={() => heroFileRef.current?.click()}
                 disabled={heroUploading}
-                className="text-xs font-medium text-brand-primary-600 transition hover:text-brand-primary-700 dark:text-brand-primary-400 disabled:opacity-60"
+                className="text-xs font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 disabled:opacity-60"
               >
-                {heroUploading ? 'Mengupload...' : 'Ganti foto'}
+                {heroUploading ? 'Mengupload…' : 'Ganti foto'}
               </button>
             )}
           </div>
@@ -180,7 +180,7 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 onChange={e => setUrl(i, e.target.value)}
                 readOnly={readOnly}
                 placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 read-only:cursor-default read-only:opacity-70 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 read-only:cursor-default read-only:opacity-70 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
               />
             </div>
           ))}
@@ -214,10 +214,10 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
                 setIsSyncing(false);
               }
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
           >
             <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Syncing via Apify...' : 'Sync & Cache Instagram Posts'}
+            {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
           </button>}
           {syncResult && (
             <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'}`}>
@@ -237,17 +237,17 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               {readOnly ? 'Tutup' : 'Batal'}
             </button>
             {!readOnly && <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
             >
               <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+              {isSubmitting ? 'Menyimpan…' : 'Simpan'}
             </button>}
           </div>
         </form>

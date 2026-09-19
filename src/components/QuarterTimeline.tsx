@@ -61,7 +61,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               : 'Tidak ada tema aktif'}
           </span>
           {isAdmin && onAddTheme && (
-            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20">
+            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20">
               <Plus className="h-3.5 w-3.5" />Tambah Tema
             </button>
           )}
@@ -75,7 +75,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               <select
                 value={selectedTheme.id}
                 onChange={e => setSelectedThemeId(e.target.value)}
-                className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
+                className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 shadow-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
               >
                 {themes.map(theme => (
                   <option key={theme.id} value={theme.id}>{theme.name}</option>
@@ -100,8 +100,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               </div>
               {isAdmin && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
                 </div>
               )}
               <p className="mt-1 text-xs ui-text-muted">
@@ -152,8 +152,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               )}
               {isAdmin && (
                 <div className="absolute right-3 top-3 flex gap-1">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-slate-200 bg-white/90 p-1 text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"><Pencil className="h-3.5 w-3.5" /></button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-rose-200 bg-white/90 p-1 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:bg-slate-800/80 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" /></button>}
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-slate-200 bg-white/90 p-1 text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"><Pencil className="h-3.5 w-3.5" /></button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-rose-200 bg-white/90 p-1 text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-900/50 dark:bg-slate-800/80 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" /></button>}
                 </div>
               )}
 

@@ -64,8 +64,8 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
     ? 'flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80'
     : 'flex items-center justify-between ui-btn-primary px-5 py-4';
   const headerBtnClass = isPublic
-    ? 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700'
-    : 'rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white';
+    ? 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700'
+    : 'rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/20 hover:text-white';
   const headerTitleClass = isPublic
     ? 'text-lg font-bold text-slate-900 dark:text-white'
     : 'text-lg font-bold text-white';
@@ -325,7 +325,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                 <button
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className="w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                  className="w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                     <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
@@ -386,7 +386,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                 <button
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
+                                  className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
                                     isSelectedCard
                                       ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
                                       : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
@@ -522,7 +522,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
               <p id="calendar-day-title" className="font-bold text-slate-800 dark:text-white">Agenda {selectedDayTitle}</p>
               <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayEvents.length} event pada tanggal ini</p>
             </div>
-            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup">
+            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup">
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
@@ -559,7 +559,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                   setSelectedDate(null);
                                   onDetail(ev);
                                 }}
-                                className="w-full rounded-lg border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                className="w-full rounded-lg border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                               >
                                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                   <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
@@ -620,7 +620,7 @@ export function CalendarView({ events, holidays, onDetail, variant = 'dashboard'
                                 setSelectedDate(null);
                                 onDetail(ev);
                               }}
-                              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
                             >
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-xs font-semibold ui-text-muted">{ev.day}, {ev.tanggal}</p>

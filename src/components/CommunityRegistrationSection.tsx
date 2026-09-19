@@ -106,7 +106,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               aria-pressed={activeTab === tab.key}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 activeTab === tab.key
                   ? 'bg-brand-primary-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
@@ -124,7 +124,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
             <Filter className="h-3.5 w-3.5 text-slate-500" />
             <button
               onClick={() => setOrgTypeFilter('all')}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
                 orgTypeFilter === 'all'
                   ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
 : 'bg-slate-100 ui-text-muted hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600'
@@ -138,7 +138,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                 <button
                   key={type}
                   onClick={() => setOrgTypeFilter(type)}
-                  className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
                     orgTypeFilter === type
                       ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
                       : `${config.color} hover:opacity-80`
@@ -172,7 +172,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               <button
                 key={reg.id}
                 onClick={() => onDetail(reg)}
-                className="ui-dashboard-surface w-full p-4 text-left transition hover:border-brand-primary-300 dark:hover:border-brand-primary-600"
+                className="ui-dashboard-surface w-full p-4 text-left transition-colors hover:border-brand-primary-300 dark:hover:border-brand-primary-600"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -216,7 +216,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                   <tr
                     key={reg.id}
                     onClick={() => onDetail(reg)}
-                    className="cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                    className="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/40"
                   >
                     <td className="px-4 py-3">
                       <p className="font-medium text-slate-800 dark:text-white">{reg.organizationName || reg.communityName}</p>

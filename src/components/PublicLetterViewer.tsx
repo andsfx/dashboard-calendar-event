@@ -65,7 +65,7 @@ export function PublicLetterViewer() {
       <div className="flex min-h-screen items-center justify-center bg-[var(--brand-paper)] dark:bg-slate-950">
         <div className="text-center">
           <FileText size={48} className="mx-auto mb-4 animate-pulse text-[var(--brand-tosca-soft)] motion-reduce:animate-none" />
-          <p className="text-slate-600 dark:text-slate-300">Memuat surat...</p>
+          <p className="text-slate-600 dark:text-slate-300">Memuat surat…</p>
         </div>
       </div>
     );

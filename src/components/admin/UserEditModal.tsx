@@ -117,7 +117,7 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Tutup"
-            className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-70 dark:hover:bg-slate-700"
+            className="touch-target-hit relative flex items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-70 dark:hover:bg-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -195,17 +195,17 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-primary-700 disabled:opacity-60"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:opacity-60"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-              {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+              {isSubmitting ? 'Menyimpan…' : 'Simpan'}
             </button>
           </div>
         </form>

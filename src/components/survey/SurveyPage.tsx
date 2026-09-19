@@ -51,9 +51,11 @@ export default function SurveyPage() {
   const [event, setEvent] = useState<EventInfo | null>(null);
   const [error, setError] = useState('');
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
-  const [surveyType, setSurveyType] = useState<SurveyType | null>(
-    (searchParams.get('type') as SurveyType) || null,
-  );
+  const [surveyType, setSurveyType] = useState<SurveyType | null>(() => {
+    // Validasi runtime: query string apa pun tidak boleh dipaksa ke union.
+    const t = searchParams.get('type');
+    return t === 'organizer' || t === 'public' ? t : null;
+  });
   const [ratings, setRatings] = useState<Record<RatingKey, number>>({
     mall_cleanliness: 0, mall_staff_service: 0, mall_coordination: 0, mall_security: 0,
     eo_event_quality: 0, eo_organization: 0, eo_committee_service: 0, eo_promotion_accuracy: 0, eo_recommendation: 0,
@@ -172,7 +174,7 @@ export default function SurveyPage() {
       <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-          <p className="mt-3 text-sm ui-text-muted">Memuat survey...</p>
+          <p className="mt-3 text-sm ui-text-muted">Memuat survey…</p>
         </div>
       </PageShell>
     );
@@ -183,7 +185,7 @@ export default function SurveyPage() {
     return (
       <PageShell onBack={goBack}>
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <AlertTriangle className="h-10 w-10 text-amber-500" />
+          <AlertTriangle className="h-10 w-10 text-rose-500" />
           <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">{error}</p>
           <button onClick={() => navigate('/dashboard')} className="mt-4 text-sm text-brand-primary-600 hover:underline">
             Kembali ke Dashboard
@@ -358,7 +360,7 @@ export default function SurveyPage() {
             </label>
             <textarea
               id="survey-general-comment"
-              placeholder="Saran, kritik, atau masukan lainnya..."
+              placeholder="Saran, kritik, atau masukan lainnya…"
               value={comments.general}
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
               maxLength={1000}
@@ -403,14 +405,14 @@ export default function SurveyPage() {
             type="button"
             disabled={!isValid() || submitting}
             onClick={handleSubmit}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary-200 transition hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
-            {submitting ? 'Mengirim...' : 'Kirim Survey'}
+            {submitting ? 'Mengirim…' : 'Kirim Survey'}
           </button>
         </div>
       )}
@@ -423,7 +425,7 @@ export default function SurveyPage() {
 
 function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
         <div className="mx-auto flex max-w-xl items-center gap-2 px-4 py-3">
@@ -431,7 +433,7 @@ function PageShell({ children, onBack }: { children: React.ReactNode; onBack?: (
             <button
               type="button"
               onClick={onBack}
-className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ui-text-muted transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+className="touch-target relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ui-text-muted transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               aria-label="Kembali"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -466,7 +468,7 @@ function TypeCard({ title, desc, icon, onClick }: { title: string; desc: string;
     <button
       type="button"
       onClick={onClick}
-      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-primary-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
+      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-brand-primary-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/50 dark:text-brand-primary-400">
         {icon}

@@ -149,7 +149,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         <button
           type="button"
           onClick={() => navigate('/dashboard/events')}
-          className={`mt-3 cursor-pointer text-xs font-medium transition hover:underline ${accentStyle.link}`}
+          className={`mt-3 cursor-pointer text-xs font-medium transition-colors hover:underline ${accentStyle.link}`}
         >
           +{events.length - 3} acara lainnya — lihat di daftar acara
         </button>

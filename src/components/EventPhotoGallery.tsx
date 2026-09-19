@@ -212,7 +212,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {uploading && (
         <div className="flex items-center gap-2 rounded-lg bg-brand-primary-50 px-3 py-2 text-xs text-brand-primary-700 dark:bg-brand-primary-900/20 dark:text-brand-primary-300">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Mengupload foto...
+          Mengupload foto…
         </div>
       )}
 

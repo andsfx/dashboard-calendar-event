@@ -348,7 +348,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
               <button
                 type="button"
                 onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -368,7 +368,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat...</span>
+              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
             </div>
           )}
 
@@ -380,7 +380,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
                 <button
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
-className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
@@ -399,7 +399,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         id="album-manager-event"
                         value={isCustomEvent ? '__custom__' : selectedEventId}
                       >
-                        <option value="">Pilih event yang sudah berlangsung...</option>
+                        <option value="">Pilih event yang sudah berlangsung…</option>
                         {(pastEvents || [])
                           .filter(e => !albums.some(a => a.eventId === e.id))
                           .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
@@ -418,9 +418,9 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         id="album-manager-theme"
                         value={selectedThemeId}
                         onChange={(e) => setSelectedThemeId(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       >
-                        <option value="">Pilih tema (opsional)...</option>
+                        <option value="">Pilih tema (opsional)…</option>
                         {(annualThemes || []).map(t => (
                           <option key={t.id} value={t.id}>{t.name} ({t.dateStart} — {t.dateEnd})</option>
                         ))}
@@ -438,7 +438,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="Nama event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
 
@@ -450,7 +450,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         value={newDesc}
                         onChange={(e) => setNewDesc(e.target.value)}
                         placeholder="Deskripsi event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
 
@@ -466,7 +466,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                             setNewDate(e.target.value);
                             if (!isCustomEvent) setSelectedThemeId(autoMatchTheme(e.target.value));
                           }}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
                         />
                       </div>
                       <div>
@@ -476,7 +476,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           value={newLokasi}
                           onChange={(e) => setNewLokasi(e.target.value)}
                           placeholder="Lokasi event"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                         />
                       </div>
                     </div>
@@ -487,7 +487,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     <button
                       type="button"
                       onClick={() => { setShowCreateForm(false); clearCreateForm(); setError(''); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
                       Batal
                     </button>
@@ -495,7 +495,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       type="button"
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
@@ -518,7 +518,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   {albums.map((album) => (
                     <div
                       key={album.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
                     >
                       {/* Cover thumbnail */}
                       <div
@@ -558,7 +558,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>}
@@ -599,7 +599,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
                               title="Jadikan Cover"
-                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition hover:bg-amber-500 group-hover:opacity-100"
+                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-amber-500 group-hover:opacity-100"
                             >
                               <Star className="h-3.5 w-3.5" />
                             </button>
@@ -609,7 +609,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
-                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition hover:bg-red-600 group-hover:opacity-100"
+                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-600 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>}
@@ -664,7 +664,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition ${
+                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
                       isDragOver
                         ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-900/20'
                         : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
@@ -705,7 +705,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
-                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100"
+                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-[opacity] group-hover:opacity-100"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
@@ -735,7 +735,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
@@ -753,7 +753,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
           >
             Tutup
           </button>
