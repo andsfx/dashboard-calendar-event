@@ -759,11 +759,6 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
         sets.push(`${f} = $${values.length}`);
       }
     }
-    if (body.would_repeat !== undefined) {
-      values.push(!!body.would_repeat);
-      sets.push(`would_repeat = $${values.length}`);
-    }
-
     if (body.status && ['draft', 'submitted'].includes(body.status)) {
       values.push(body.status);
       sets.push(`status = $${values.length}`);

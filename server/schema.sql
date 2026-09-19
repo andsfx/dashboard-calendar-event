@@ -497,7 +497,6 @@ CREATE TABLE IF NOT EXISTS tenant_event_surveys (
   crowd_management INTEGER,
   visitor_satisfaction_estimate INTEGER,
   overall_self_rating INTEGER,
-  would_repeat BOOLEAN DEFAULT NULL,
   what_went_well TEXT DEFAULT '',
   what_went_wrong TEXT DEFAULT '',
   improvements_needed TEXT DEFAULT '',
