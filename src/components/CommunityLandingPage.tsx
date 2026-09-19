@@ -18,6 +18,7 @@ import { CommunityGallery } from './community/CommunityGallery';
 import { CommunityNews } from './community/CommunityNews';
 import { CommunityContact } from './community/CommunityContact';
 import { usePageMeta } from '../utils/pageMeta';
+import { NavDropdown, type NavDropdownItem } from './nav/NavDropdown';
 
 const focusRing = 'ui-focus-ring';
 
@@ -52,25 +53,58 @@ interface CommunityLandingProps {
   stats?: CommunityStats;
 }
 
-const NAV_ITEMS = [
-  { href: '#upcoming-events', label: 'Event' },
-  { href: '#benefits', label: 'Keuntungan' },
-  { href: '#areas', label: 'Area' },
-  { href: '#how', label: 'Cara Daftar' },
-  { href: '#faq', label: 'FAQ' },
-  { href: '#gallery', label: 'Galeri' },
-  { href: '#news', label: 'Berita' },
-  { href: '/tenants', label: 'Tenant' },
-  { href: '/pameran', label: 'Pameran' },
-  { href: '#register', label: 'Daftar' },
-  { href: '#contact', label: 'Kontak' },
-] as const;
+/** Satu entri navigasi header: link langsung, atau dropdown berkategori. */
+type NavEntry =
+  | { kind: 'link'; label: string; href: string }
+  | { kind: 'menu'; label: string; items: NavDropdownItem[] };
+
+/**
+ * Navigasi utama halaman komunitas — 4 entri top-level (sebelumnya 11 link
+ * horizontal). `Event` & `Kontak` tetap link langsung; sisanya dikelompokkan
+ * per kategori. Anchor `#...` scroll in-page; `/tenants` & `/pameran` navigasi
+ * react-router (`route: true`).
+ */
+const NAV_ENTRIES: NavEntry[] = [
+  { kind: 'link', label: 'Event', href: '#upcoming-events' },
+  {
+    kind: 'menu',
+    label: 'Program',
+    items: [
+      { label: 'Keuntungan', href: '#benefits' },
+      { label: 'Area & Fasilitas', href: '#areas' },
+      { label: 'Cara Daftar', href: '#how' },
+      { label: 'FAQ', href: '#faq' },
+    ],
+  },
+  {
+    kind: 'menu',
+    label: 'Jelajahi',
+    items: [
+      { label: 'Galeri', href: '#gallery' },
+      { label: 'Berita', href: '#news' },
+      { label: 'Tenant', href: '/tenants', route: true },
+      { label: 'Pameran', href: '/pameran', route: true },
+    ],
+  },
+  { kind: 'link', label: 'Kontak', href: '#contact' },
+];
+
+/** Turunan NAV_ENTRIES untuk panel mobile: tiap kategori jadi satu section berjudul. */
+const MOBILE_NAV_GROUPS: Array<{ heading: string | null; items: NavDropdownItem[] }> =
+  NAV_ENTRIES.map((entry) =>
+    entry.kind === 'menu'
+      ? { heading: entry.label, items: entry.items }
+      : { heading: null, items: [{ label: entry.label, href: entry.href }] },
+  );
+
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
   usePageMeta({
     title: 'Komunitas — Metropolitan Mall Bekasi',
     description: 'Gabung komunitas dan kirim pengajuan event untuk digelar di Metropolitan Mall Bekasi.',
   });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  /** Label dropdown desktop yang terbuka — satu saja pada satu waktu. */
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const [cachedIgPosts, setCachedIgPosts] = useState<CachedInstagramPost[]>([]);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -156,15 +190,26 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <LogoMark className="h-auto w-[88px] sm:w-[124px]" />
             </a>
             <nav className={navClassName} aria-label="Navigasi utama">
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`whitespace-nowrap transition ${isHeaderPinned ? 'hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]' : 'hover:text-white'}`}
-                >
-                  {item.label}
-                </a>
-              ))}
+              {NAV_ENTRIES.map((entry) =>
+                entry.kind === 'link' ? (
+                  <a
+                    key={entry.href}
+                    href={entry.href}
+                    className={`whitespace-nowrap rounded-full px-2 py-2 transition-colors ${focusRing} ${isHeaderPinned ? 'hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)]' : 'hover:text-white'}`}
+                  >
+                    {entry.label}
+                  </a>
+                ) : (
+                  <NavDropdown
+                    key={entry.label}
+                    label={entry.label}
+                    items={entry.items}
+                    pinned={isHeaderPinned}
+                    open={openMenu === entry.label}
+                    onOpenChange={(next) => setOpenMenu(next ? entry.label : null)}
+                  />
+                ),
+              )}
             </nav>
             <div className="flex items-center gap-3">
               <button type="button" onClick={onToggleDark} className={`${utilityButtonClass} ${focusRing}`} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
@@ -206,22 +251,53 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           </div>
           {mobileNavOpen && (
             <div id="mobile-nav-panel" className={mobilePanelClass}>
-              <nav className="flex flex-col gap-1" aria-label="Navigasi mobile">
-                {NAV_ITEMS.map((item, idx) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    ref={idx === 0 ? mobilePanelFirstLinkRef : undefined}
-                    onClick={() => setMobileNavOpen(false)}
-                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${isHeaderPinned ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800' : 'text-white hover:bg-white/10'}`}
-                  >
-                    {item.label}
-                  </a>
+              <nav className="flex flex-col gap-3" aria-label="Navigasi mobile">
+                {MOBILE_NAV_GROUPS.map((group, groupIdx) => (
+                  <div key={group.heading ?? `direct-${groupIdx}`} className="flex flex-col gap-1">
+                    {group.heading && (
+                      <p
+                        className={`px-4 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-[0.18em] ${
+                          isHeaderPinned ? 'text-slate-500 dark:text-slate-400' : 'text-white/70'
+                        }`}
+                      >
+                        {group.heading}
+                      </p>
+                    )}
+                    {group.items.map((item, itemIdx) => {
+                      const isFirst = groupIdx === 0 && itemIdx === 0;
+                      const itemClass = `rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                        isHeaderPinned
+                          ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+                          : 'text-white hover:bg-white/10'
+                      }`;
+                      return item.route ? (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          ref={isFirst ? mobilePanelFirstLinkRef : undefined}
+                          onClick={() => setMobileNavOpen(false)}
+                          className={itemClass}
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <a
+                          key={item.href}
+                          href={item.href}
+                          ref={isFirst ? mobilePanelFirstLinkRef : undefined}
+                          onClick={() => setMobileNavOpen(false)}
+                          className={itemClass}
+                        >
+                          {item.label}
+                        </a>
+                      );
+                    })}
+                  </div>
                 ))}
                 <a
                   href="#register"
                   onClick={() => setMobileNavOpen(false)}
-                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
                 >
                   Daftar Sekarang
                 </a>
