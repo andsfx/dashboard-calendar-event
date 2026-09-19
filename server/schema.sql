@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS tenant_survey_config (
 CREATE INDEX IF NOT EXISTS idx_tsc_is_active ON tenant_survey_config (is_active) WHERE is_active = true;
 
 -- ============================================================================
--- 16. TENANT EVENT SURVEYS (54 kolom prod)
+-- 16. TENANT EVENT SURVEYS (37 kolom prod)
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS tenant_event_surveys (
@@ -485,24 +485,6 @@ CREATE TABLE IF NOT EXISTS tenant_event_surveys (
 
   feedback_comment TEXT DEFAULT '',
   improvement_suggestion TEXT DEFAULT '',
-
-  -- Legacy comprehensive fields (kept for backwards compat)
-  venue_preparation INTEGER,
-  logistics_smoothness INTEGER,
-  setup_teardown_efficiency INTEGER,
-  mall_coordination_rating INTEGER,
-  mall_support_rating INTEGER,
-  communication_quality INTEGER,
-  event_execution_quality INTEGER,
-  crowd_management INTEGER,
-  visitor_satisfaction_estimate INTEGER,
-  overall_self_rating INTEGER,
-  what_went_well TEXT DEFAULT '',
-  what_went_wrong TEXT DEFAULT '',
-  improvements_needed TEXT DEFAULT '',
-  issues_encountered TEXT DEFAULT '',
-  suggestions_for_mall TEXT DEFAULT '',
-  additional_notes TEXT DEFAULT '',
 
   status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'reviewed')),
   submitted_at TIMESTAMPTZ,
