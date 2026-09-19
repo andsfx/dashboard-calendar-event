@@ -35,13 +35,22 @@ export interface NavDropdownProps {
 /**
  * Dropdown navigasi header (desktop lg+).
  *
- * Pola ARIA menu-button: trigger `aria-haspopup="menu"` + `aria-expanded`,
- * panel `role="menu"` dengan item `role="menuitem"` (tabIndex -1 → Tab keluar
- * dari menu, bukan menyusuri tiap item).
+ * **Pola disclosure (APG), BUKAN menu-button.** Item di dalam panel adalah link
+ * navigasi sungguhan — `role="menu"`/`role="menuitem"` sengaja TIDAK dipakai
+ * karena akan membungkam semantik link (screen reader harus mengumumkan
+ * "link", dan `role="menu"` mengubah ekspektasi keyboard: Enter/Space jadi
+ * aktivasi menu, Tab keluar dari menu). Trigger hanya `aria-expanded` +
+ * `aria-controls`; `aria-haspopup` sengaja dihilangkan (disclosure tidak
+ * memakainya — halaman ini bukan menu aplikasi).
+ *
+ * Karena item adalah link biasa, Tab menelusuri tiap link secara alami (tidak
+ * ada `tabIndex={-1}`/roving tabindex, tidak ada focus trap). ArrowDown /
+ * ArrowUp / Home / End tetap disediakan sebagai *progressive enhancement* di
+ * atas perilaku Tab standar.
  *
  * Buka: hover (mouse, dengan intent delay), klik, Enter/Space, ArrowDown/ArrowUp.
- * Tutup: Escape (fokus balik ke trigger), klik di luar, kehilangan fokus (Tab keluar),
- * dan setelah item dipilih. Tidak pernah mengunci fokus.
+ * Tutup: Escape (fokus balik ke trigger), klik di luar, fokus keluar container
+ * (Tab), dan setelah item dipilih.
  */
 export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDropdownProps) {
   const panelId = useId();
@@ -51,6 +60,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
   const hoverTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
   const pendingFocus = useRef<'first' | 'last' | null>(null);
+  /** Target fokus setelah panel ditutup karena item dipilih (finding 3.2). */
+  const pendingAfterClose = useRef<{ targetId: string | null } | null>(null);
   // Nilai `open` terbaru — dibaca saat timer hover-close menyala, agar dropdown
   // yang sudah tersalip dropdown lain tidak menutup dropdown yang sedang aktif.
   const openRef = useRef(open);
@@ -84,6 +95,22 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
     else if (mode === 'last') itemRefs.current[items.length - 1]?.focus();
   }, [open, items.length]);
 
+  // Setelah panel tertutup karena item dipilih: pindahkan fokus secara sadar —
+  // ke section target bila fokusable (`tabIndex` eksplisit), selain itu kembali
+  // ke trigger. Fokus tidak boleh jatuh ke <body> saat panel ter-unmount.
+  useEffect(() => {
+    if (open) return;
+    const pending = pendingAfterClose.current;
+    if (!pending) return;
+    pendingAfterClose.current = null;
+    const target = pending.targetId ? document.getElementById(pending.targetId) : null;
+    if (target && target.hasAttribute('tabindex')) {
+      target.focus();
+      return;
+    }
+    triggerRef.current?.focus();
+  }, [open]);
+
   // Klik di luar menutup (tanpa merebut fokus).
   useEffect(() => {
     if (!open) return;
@@ -94,6 +121,20 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
     };
     document.addEventListener('mousedown', onPointerDown);
     return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [open, onOpenChange]);
+
+  // Fokus pindah KE LUAR container → tutup. Menangani menu yang dibuka lewat
+  // hover (fokus tidak pernah masuk container, jadi `onBlur` tidak pernah
+  // menyala) lalu pengguna menekan Tab — finding 1.4.
+  useEffect(() => {
+    if (!open) return;
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target as Node | null;
+      if (target && containerRef.current?.contains(target)) return;
+      onOpenChange(false);
+    };
+    document.addEventListener('focusin', onFocusIn);
+    return () => document.removeEventListener('focusin', onFocusIn);
   }, [open, onOpenChange]);
 
   // Escape saat fokus TIDAK di dalam container (mis. dibuka lewat hover).
@@ -144,6 +185,12 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
       }
       const current = itemRefs.current.findIndex((el) => el === document.activeElement);
       focusItem(current <= 0 ? items.length - 1 : current - 1);
+      return;
+    }
+    if (event.key === 'Home' || event.key === 'End') {
+      if (!open) return;
+      event.preventDefault();
+      focusItem(event.key === 'Home' ? 0 : items.length - 1);
     }
   };
 
@@ -180,6 +227,17 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
     clearHoverTimer();
   };
 
+  const onItemActivate = (item: NavDropdownItem) => {
+    if (item.route) {
+      // Navigasi react-router menangani perpindahan halaman — jangan rebut fokus.
+      onOpenChange(false);
+      return;
+    }
+    const targetId = item.href.startsWith('#') ? item.href.slice(1) : null;
+    pendingAfterClose.current = { targetId };
+    onOpenChange(false);
+  };
+
   const itemClass = `flex items-center rounded-xl px-3 py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] hover:text-[var(--brand-tosca-600)] focus-visible:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-[var(--brand-tosca-soft)] ${focusRing}`;
 
   return (
@@ -196,9 +254,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
         type="button"
         ref={triggerRef}
         onClick={() => onOpenChange(!open)}
-        aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
+        aria-controls={panelId}
         className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 transition-colors ${focusRing} ${
           pinned
             ? 'text-slate-700 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]'
@@ -216,7 +273,7 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
       {open && (
         <div
           id={panelId}
-          role="menu"
+          role="group"
           aria-label={label}
           className="nav-dropdown-panel absolute left-1/2 top-full z-50 mt-2 w-60 -translate-x-1/2 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)] dark:border-slate-700 dark:bg-slate-900"
         >
@@ -225,10 +282,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
               <Link
                 key={item.href}
                 to={item.href}
-                role="menuitem"
-                tabIndex={-1}
                 ref={(el) => { itemRefs.current[index] = el; }}
-                onClick={() => onOpenChange(false)}
+                onClick={() => onItemActivate(item)}
                 className={itemClass}
               >
                 {item.label}
@@ -237,10 +292,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
               <a
                 key={item.href}
                 href={item.href}
-                role="menuitem"
-                tabIndex={-1}
                 ref={(el) => { itemRefs.current[index] = el; }}
-                onClick={() => onOpenChange(false)}
+                onClick={() => onItemActivate(item)}
                 className={itemClass}
               >
                 {item.label}

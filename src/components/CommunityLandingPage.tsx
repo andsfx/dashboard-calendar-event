@@ -326,7 +326,13 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityUpcomingEvents events={featuredUpcomingEvents} albums={albums} onDetail={onEventDetail} isLoading={isLoading} />
         <CommunityBenefits />
         <CommunityFacilities />
-        <CommunityEventAreas areas={areas} isLoading={isLoading} />
+        {/* Anchor `#areas` harus stabil: CommunityEventAreas mengembalikan null
+            saat tidak ada area aktif, sehingga link nav "Area & Fasilitas" jadi
+            anchor mati. Wrapper ini selalu membawa id + scroll offset; saat
+            section benar-benar dirender, anchor resolve ke wrapper (bukan dobel id). */}
+        <div id="areas" tabIndex={-1} className="scroll-mt-28 outline-none">
+          <CommunityEventAreas areas={areas} isLoading={isLoading} />
+        </div>
         <CommunitySteps />
         <CommunityFAQ />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />

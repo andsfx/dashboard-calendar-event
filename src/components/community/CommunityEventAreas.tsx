@@ -66,7 +66,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
   if (!isLoading && empty) return null;
 
   return (
-    <RevealSection id="areas" className="border-b border-black/5 bg-white/60 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/20 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
+    <RevealSection className="border-b border-black/5 bg-white/60 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/20 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <CommunityEyebrow>Foto Area Event</CommunityEyebrow>
