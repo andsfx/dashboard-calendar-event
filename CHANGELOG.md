@@ -97,11 +97,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Guard regresi konstanta role server** (`src/__tests__/serverRoleConstants.test.ts`): `server/` tidak dicek `tsc` (JS, bukan TS) dan di-exclude dari vitest, sehingga import menggantung hanya ketahuan di runtime produksi. Test ini memverifikasi setiap pemakaian konstanta role ter-import/terdefinisi + modul route bisa di-import. Terverifikasi gagal-on-bug.
 
 ### Changed
+- **Pembersihan infrastruktur produksi + verifikasi final (2026-09-19).**
+  - **Alias domain VPS dihapus.** Blok `metmal.andotherstori.my.id` dicabut dari
+    Caddyfile host dan dikeluarkan dari `CORS_ORIGIN` (tersisa
+    `www.metmalcommunityspace.web.id`, `metmalcommunityspace.web.id`,
+    `localhost:5173`). Diverifikasi: preflight dari `www.*` → 204, dari
+    `metmal.andotherstori.my.id` → **403**. `metmal.metmalcommunityspace.web.id`
+    **sengaja dipertahankan** karena dipakai rewrite OG `/events/:id` di
+    `vercel.json`. Caddyfile bersama app lain (obsidian, promapi) — blok mereka
+    tidak disentuh; `caddy validate` lolos.
+  - **Env Vercel Production di-set ulang `--no-sensitive`.** Vercel menandai env
+    Production *sensitive* secara default, sehingga `vercel env pull`
+    mengembalikan `""` untuk `VITE_API_URL`/`VITE_R2_PUBLIC_URL` — memicu alarm
+    "env kosong" yang **keliru** (nilai sebenarnya benar; terbukti dari bundle
+    live). Kini keduanya non-sensitive dan terbaca, jadi bisa diaudit.
+    Diverifikasi dengan **redeploy produksi**: bundle hasil build memuat
+    `metmal.metmalcommunityspace.web.id".replace(/\/+$/,"")+"/api/v1"` (pola
+    benar, 2×) dan **nol** pola rusak `"".replace`; SPA memanggil API ke host
+    yang benar (8 call, 0 salah host).
+  - **File yatim `server/src/` VPS dikarantina** (4 file: `admin.js`,
+    `schemas.js`, `lib/exhibitions.js`, `routes/schemas.js`, + `extra.js.bak-*`)
+    — tidak pernah ada di git dan tidak di-import graf mana pun. Dipindah ke
+    `_orphan-quarantine-*` (bukan dihapus permanen) agar `server/src` VPS = lokal
+    (15 file). API di-recreate → **healthy**, tanpa error.
+  - **`README-DEPLOY.md` dikoreksi**: 9 referensi domain API `api.metmalcommunityspace.web.id`
+    (NXDOMAIN) → `metmal.metmalcommunityspace.web.id`; ditambah peringatan jebakan
+    env *sensitive* Vercel + cara verifikasi bundle.
+  - **Tidak dihapus (keputusan sadar):** env Vercel warisan (`VITE_SUPABASE_*`,
+    `ADMIN_API_TOKEN`, `APIFY_API_TOKEN`) dibiarkan — nol dampak runtime (Vite
+    hanya meng-inline `VITE_*`), dan menghapusnya berisiko membuat rebuild
+    deployment lama gagal. `APIFY_API_TOKEN` **masih dipakai** `extra.js`.
 - **Domain media pindah ke `cdn.metmalcommunityspace.web.id`** (menggantikan
   `cdn.andotherstori.my.id`) di `vercel.json`, `AGENTS.md`, `README.md`,
   `deploy/vps/README-DEPLOY.md`, ADR 005, dan `e2e/deck-assets.spec.ts`.
   Bucket R2 tetap `metmal-gallery`.
-- **Domain API pindah ke `api.metmalcommunityspace.web.id`** (menggantikan
+- **Domain API pindah ke `metmal.metmalcommunityspace.web.id`** (menggantikan
   `metmal.andotherstori.my.id`) di dokumentasi dan rewrite `vercel.json`.
   Nilai runtime ada di env Vercel `VITE_API_URL`, bukan di source.
+  (Catatan koreksi: sebelumnya didokumentasikan sebagai
+  `api.metmalcommunityspace.web.id`, yang ternyata **NXDOMAIN** — domain API
+  nyata adalah `metmal.metmalcommunityspace.web.id`, diverifikasi dari bundle
+  produksi live.)
 - **Stamp `tokens.css`** (`50317ba`): `custom (Graphify‑tosca)` → `custom (Metmal tosca/pink warm paper)`; tambahan baris `design‑system: DESIGN.md (root)` untuk mencegah drift audit berikutnya.

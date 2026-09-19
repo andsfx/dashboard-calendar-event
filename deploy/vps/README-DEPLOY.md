@@ -3,7 +3,7 @@
 Dokumen operasional singkat. Prasyarat: repo ini di VPS (Linux, Docker Engine +
 Compose plugin), domain sudah menunjuk ke IP VPS.
 
-**Status 2026-09-10:** live di `api.metmalcommunityspace.web.id` (SPA di Vercel
+**Status 2026-09-19:** live di `metmal.metmalcommunityspace.web.id` (SPA di Vercel
 `www.metmalcommunityspace.web.id`). Supabase project INACTIVE, dibiarkan
 auto-delete; VPS = source of truth.
 
@@ -64,10 +64,19 @@ npm ci
 npm run build   # menghasilkan dist/ yang di-mount nginx
 ```
 > `VITE_API_URL` di-inline Vite saat build. **Produksi:** SPA dibangun di Vercel
-> dengan `VITE_API_URL=https://api.metmalcommunityspace.web.id` (set di env Vercel).
+> dengan `VITE_API_URL=https://metmal.metmalcommunityspace.web.id` (set di env Vercel).
 > **Satu origin** (SPA + API di host yang sama, mis. stack ini tanpa Vercel)
 > atau lokal: biarkan KOSONG — reverse proxy sudah meneruskan `/api/v1`.
 > Jangan sertakan suffix `/api/v1`; `rest.ts` menambahkannya sendiri.
+>
+> ⚠️ **Vercel menandai env Production sebagai *sensitive* secara default.** Nilai
+> var sensitive TIDAK dikembalikan `vercel env pull` (muncul sebagai `""`), jadi
+> `VITE_API_URL=""` hasil pull **bukan** bukti env kosong. Agar bisa diaudit,
+> set ulang dengan `--no-sensitive`:
+> `vercel env add VITE_API_URL production --value https://metmal.metmalcommunityspace.web.id --force --no-sensitive`.
+> Kalau benar-benar kosong, SPA menembak same-origin `/api/v1` → Vercel balas
+> 404 dan seluruh app rusak. Verifikasi: grep bundle live harus memuat
+> `metmal.metmalcommunityspace.web.id".replace(/\/+$/,"")+"/api/v1"`.
 
 ### 5. Jalankan stack
 ```bash
@@ -102,15 +111,15 @@ ADMIN_PASSWORD='Password-Baru-Kuat' docker compose exec -e ADMIN_PASSWORD \
 ```
 Uji login (harus 200 + cookie `sb-access-token`):
 ```bash
-curl -s -X POST https://api.metmalcommunityspace.web.id/api/v1/auth/login \
+curl -s -X POST https://metmal.metmalcommunityspace.web.id/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"admin@domain.com","password":"Ganti-Password-Kuat-Min-8"}' | head -c 200
 ```
 Cek cepat publik/OG:
 ```bash
-curl -I https://api.metmalcommunityspace.web.id/                      # 200 index.html
-curl -s https://api.metmalcommunityspace.web.id/api/v1/events | head -c 200  # JSON {success,data}
-curl -s https://api.metmalcommunityspace.web.id/events/<id> | grep -o 'og:title[^>]*'
+curl -I https://metmal.metmalcommunityspace.web.id/                      # 200 index.html
+curl -s https://metmal.metmalcommunityspace.web.id/api/v1/events | head -c 200  # JSON {success,data}
+curl -s https://metmal.metmalcommunityspace.web.id/events/<id> | grep -o 'og:title[^>]*'
 ```
 (nginx container hanya bind `127.0.0.1:8080` — dari host pakai
 `curl -I http://127.0.0.1:8080/`, dari luar lewat Caddy/domain.)
@@ -132,9 +141,9 @@ Otomatis oleh Caddy (renewal ACME bawaan) — tidak ada cron certbot.
 
 ### 10. Verifikasi final
 ```bash
-curl -I https://api.metmalcommunityspace.web.id/          # 200, HSTS + cache header
-curl -s https://api.metmalcommunityspace.web.id/api/v1/events | head -c 200   # {success,data}
-curl -s https://api.metmalcommunityspace.web.id/events/<id> | grep -o 'og:title[^>]*'
+curl -I https://metmal.metmalcommunityspace.web.id/          # 200, HSTS + cache header
+curl -s https://metmal.metmalcommunityspace.web.id/api/v1/events | head -c 200   # {success,data}
+curl -s https://metmal.metmalcommunityspace.web.id/events/<id> | grep -o 'og:title[^>]*'
 docker compose ps                                    # postgres + api healthy
 ```
 Catatan: `/healthz` TIDAK diproxy nginx (jatuh ke SPA fallback → HTML 200).
