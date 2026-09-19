@@ -373,7 +373,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         )}
         <div ref={sentinelRef} className="absolute top-0 h-px w-px" aria-hidden="true" />
       </main>
-      <footer className="border-t border-black/5 bg-white px-4 py-12 dark:bg-slate-950 dark:border-slate-800 sm:px-6 sm:py-16">
+      <footer className="border-t border-black/5 bg-white px-4 py-16 dark:bg-slate-950 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <LogoMark className="h-auto w-[102px] opacity-90" />
           <div className="flex flex-col gap-2 sm:items-end">
