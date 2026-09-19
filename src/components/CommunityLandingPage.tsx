@@ -338,7 +338,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />
         <CommunityNews />
         {/* Ajukan event — pipeline EO formal (pola Orchard Road / Scentre) */}
-        <section className="px-4 pb-4 sm:px-6">
+        <section className="px-4 pt-16 pb-4 sm:px-6 sm:pt-24 lg:pt-32">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col items-start justify-between gap-3 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white px-6 py-5 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900">
               <div>
