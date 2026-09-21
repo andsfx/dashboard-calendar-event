@@ -36,6 +36,14 @@ reports/
 FINAL_VERIFICATION_REPORT.md
 DESIGN_AUDIT_REPORT.md
 
+# Local backup copies of edited files
+*.pre-polish.html
+*.bak
+
+# Experiment deck (presentasi-motion) — tidak dirujuk skrip/dokumen mana pun;
+# deck produksi tetap di presentasi/. Lepas ignore ini bila memang ingin di-track.
+presentasi-motion/
+
 # Deepwork session state
 .slim/deepwork/
 
