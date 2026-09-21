@@ -51,7 +51,7 @@ const errInput = 'border-red-400 focus:ring-red-100';
 
 export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Ajukan Event — Metropolitan Mall Bekasi',
+    title: 'Ajukan Event - Metropolitan Mall Bekasi',
     description: 'Ajukan event atau kegiatan komunitasmu untuk diselenggarakan di Metropolitan Mall Bekasi.',
   });
 
@@ -149,7 +149,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -192,7 +192,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
               >
                 <CalendarPlus className="h-4 w-4" aria-hidden="true" />
                 Ajukan event lain
@@ -213,7 +213,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 Ajukan Event di Metmal Bekasi
               </h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-300">
-                Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu — tim Marcomm kami akan mereview dan menghubungimu.
+                Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu. Tim Marcomm kami akan mereview dan menghubungimu.
               </p>
             </div>
 
@@ -404,7 +404,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
               >
                 {isSubmitting ? (
                   <>

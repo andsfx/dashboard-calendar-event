@@ -15,7 +15,7 @@ const ALL_CATEGORIES = 'Semua';
 
 export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Direktori Tenant — Metropolitan Mall Bekasi',
+    title: 'Direktori Tenant - Metropolitan Mall Bekasi',
     description: 'Direktori penyewa gerai (tenant) resmi di Metropolitan Mall Bekasi.',
   });
 
@@ -78,7 +78,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
       {/* Header */}
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -140,6 +140,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama tenant, kategori, atau lantai…"
+                aria-label="Cari tenant"
                 className="ui-focus-ring w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
               />
             </div>
@@ -253,8 +254,8 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
-        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
+        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>
   );

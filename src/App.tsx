@@ -5,6 +5,7 @@ import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
+import { deriveCommunityStats } from './components/community/communityStats';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
 import { useToast } from './hooks/useToast';
@@ -189,12 +190,8 @@ export default function App() {
   });
 
   const publicEvents = useMemo(() => events.filter(e => e.status !== 'draft'), [events]);
-  const communityStats = useMemo(() => {
-    const completed = publicEvents.filter(e => e.status === 'past').length;
-    const total = publicEvents.length;
-    const organizers = new Set(publicEvents.map(e => e.pic.trim()).filter(Boolean)).size;
-    return { completed, total, organizers };
-  }, [publicEvents]);
+  // Satu derivasi untuk semua permukaan publik — lihat communityStats.ts (C2).
+  const communityStats = useMemo(() => deriveCommunityStats(publicEvents), [publicEvents]);
   const visibleEvents = useMemo(
     () => filteredEvents.filter(e => canSeeInternalSchedule || e.status !== 'draft'),
     [filteredEvents, canSeeInternalSchedule]
@@ -430,7 +427,7 @@ export default function App() {
                 </div>
                 <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
               </div>
-              <p className="mt-6 text-center text-[11px] text-slate-500 dark:text-slate-300">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
+              <p className="mt-6 text-center text-[11px] text-slate-500 dark:text-slate-300">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
             </div>
           </div>
         </Suspense>

@@ -463,15 +463,15 @@ export function CommunityRegistrationForm() {
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Cara mengisi form pendaftaran event</h3>
             <ol className="mt-3 space-y-2.5 text-sm leading-6 ui-text-secondary">
               <li className="flex gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">1</span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">1</span>
                 Pilih tipe organisasi kamu di bagian atas form.
               </li>
               <li className="flex gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">2</span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">2</span>
                 Lengkapi data organisasi dan PIC. Kalau ada proposal atau company profile, lampirkan filenya (opsional, PDF atau Word maksimal 20MB).
               </li>
               <li className="flex gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">3</span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">3</span>
                 Kirim pendaftaran, tim kami akan review dan hubungi kamu lewat WhatsApp.
               </li>
             </ol>

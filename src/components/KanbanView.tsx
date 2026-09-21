@@ -77,7 +77,7 @@ function EventCard({
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
-      aria-label={`${ev.acara} — ${ev.tanggal}`}
+      aria-label={`${ev.acara} - ${ev.tanggal}`}
     >
       {/* Color top bar */}
       <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}55)` }} />

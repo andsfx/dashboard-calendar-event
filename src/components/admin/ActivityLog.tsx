@@ -131,7 +131,7 @@ export function ActivityLog() {
         </select>
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300" />
-        <span className="text-[10px] text-slate-500">—</span>
+        <span className="text-[10px] text-slate-500">-</span>
         <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
           className="rounded-lg border border-slate-200 px-2 py-1 text-[11px] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300" />
         {(filterAction || filterResource || dateFrom || dateTo) && (

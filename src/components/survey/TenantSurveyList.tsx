@@ -70,14 +70,14 @@ function StatusBadge({ status }: { status: TenantSurveyStatus }) {
 }
 
 function tenantLabel(survey: TenantEventSurvey): string {
-  if (isV3Survey(survey)) return survey.nama_gerai || survey.tenant_name || '—';
-  return survey.tenant_name || survey.tenant_organization || '—';
+  if (isV3Survey(survey)) return survey.nama_gerai || survey.tenant_name || '-';
+  return survey.tenant_name || survey.tenant_organization || '-';
 }
 
 function formatShortDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
+  if (Number.isNaN(d.getTime())) return '-';
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -118,7 +118,7 @@ export default function TenantSurveyList({
       else if (s.status === 'submitted') submitted += 1;
       else if (s.status === 'reviewed') reviewed += 1;
       const label = tenantLabel(s);
-      if (label && label !== '—') gerai.add(label.toLowerCase());
+      if (label && label !== '-') gerai.add(label.toLowerCase());
     }
     return { total: surveys.length, draft, submitted, reviewed, gerai: gerai.size };
   }, [surveys]);
@@ -619,24 +619,24 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                           <p className="max-w-[14rem] truncate text-slate-700 dark:text-slate-300">
                             {ev?.acara || survey.event_id}
                           </p>
-                          <p className="text-[11px] text-slate-500">{ev?.dateStr || '—'}</p>
+                          <p className="text-[11px] text-slate-500">{ev?.dateStr || '-'}</p>
                         </td>
                         <td className="px-4 py-3">
                           {v3 ? (
                             <div className="space-y-0.5 text-[11px]">
                               <p className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
                                 <TrendingUp className="h-3 w-3 text-slate-500" />
-                                {survey.kenaikan_traffic || '—'}
+                                {survey.kenaikan_traffic || '-'}
                               </p>
                               <p className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
                                 <DollarSign className="h-3 w-3 text-slate-500" />
-                                {survey.kenaikan_sales || '—'}
+                                {survey.kenaikan_sales || '-'}
                               </p>
                             </div>
                           ) : (
                             <span className={`inline-flex items-center gap-1 text-sm font-bold tabular-nums ${ratingColor(survey.overall_rating)}`}>
                               <Star className="h-3.5 w-3.5 fill-current" />
-                              {survey.overall_rating != null ? `${survey.overall_rating}/5` : '—'}
+                              {survey.overall_rating != null ? `${survey.overall_rating}/5` : '-'}
                             </span>
                           )}
                         </td>
@@ -684,7 +684,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                 <p className="text-xs ui-text-muted">
                   Halaman {safePage} / {totalPages}
                   <span className="ml-1 text-slate-500">
-                    · {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} dari{' '}
+                    · {(safePage - 1) * PAGE_SIZE + 1}-{Math.min(safePage * PAGE_SIZE, filtered.length)} dari{' '}
                     {filtered.length}
                   </span>
                 </p>

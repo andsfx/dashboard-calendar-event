@@ -1,6 +1,7 @@
-/* Font loaded via <link> in index.html for non-blocking render */
+/* Fonts are self-hosted via @font-face (no third-party font host) */
 
 @import "tailwindcss";
+@import "./styles/fonts.css";
 @import "./styles/theme.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";

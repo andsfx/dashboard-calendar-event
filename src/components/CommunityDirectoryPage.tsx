@@ -15,11 +15,20 @@ interface Props {
 const ALL_CATEGORIES = 'Semua';
 
 // Aksen pastel per tipe organisasi (warna avatar).
-const TYPE_ACCENT: Record<OrganizationType, string> = {
+// Kontras teks dihitung terhadap latarnya sendiri. Badge ini `aria-hidden`, yang
+// mengeluarkannya dari accessibility tree, tetapi TIDAK menyembunyikannya dari
+// axe: pemeriksaan kontras axe bersifat visual dan tetap mengevaluasi elemen ini
+// (terbukti eksperimen c1–c4). Semua pasangan harus >= 4.5:1 karena teksnya 12px
+// bold, bukan "large text".
+// Diekspor agar bisa dikunci unit test: test itu menghitung rasio dari token
+// asli dan memberi kegagalan yang presisi, serta mencakup seluruh 8 pasangan
+// sekaligus — bukan karena axe buta terhadap badge ini.
+export const TYPE_ACCENT: Record<OrganizationType, string> = {
   community: 'bg-brand-primary-100 text-brand-primary-700',
   school: 'bg-sky-100 text-sky-700',
   company: 'bg-violet-100 text-violet-700',
-  eo: 'bg-brand-secondary-100 text-brand-secondary-600',
+  // 600 (#c92d62) hanya 4.42:1 di atas secondary-100; 700 (#a82150) = 5.94:1.
+  eo: 'bg-brand-secondary-100 text-brand-secondary-700',
   campus: 'bg-amber-100 text-amber-700',
   government: 'bg-emerald-100 text-emerald-700',
   ngo: 'bg-rose-100 text-rose-700',
@@ -37,7 +46,7 @@ function initials(name: string): string {
 
 export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Direktori Komunitas — Metropolitan Mall Bekasi',
+    title: 'Direktori Komunitas - Metropolitan Mall Bekasi',
     description: 'Direktori komunitas aktif yang bekerja sama dengan Metropolitan Mall Bekasi.',
   });
 
@@ -116,7 +125,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
       {/* Header */}
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -201,6 +210,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama komunitas, EO, atau kategori…"
+                aria-label="Cari komunitas"
                 className="ui-focus-ring w-full rounded-lg bg-white py-2 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-500 dark:bg-slate-800 dark:text-white"
               />
             </div>
@@ -220,7 +230,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                     }`}
                   >
                     {cat === ALL_CATEGORIES ? ALL_CATEGORIES : ORG_TYPE_LABELS[cat as OrganizationType] ?? cat}
-                    <span className={`tabular-nums ${activeCategory === cat ? 'text-white/70' : 'text-slate-500'}`}>{count}</span>
+                    <span className={`tabular-nums ${activeCategory === cat ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>{count}</span>
                   </button>
                 );
               })}
@@ -269,7 +279,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                   </div>
 
                   <div className="mt-2 flex flex-wrap items-center gap-1 text-[11px]">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                       <CalendarDays className="h-3.5 w-3.5" aria-hidden />
                       {org.eventCount} acara
                     </span>

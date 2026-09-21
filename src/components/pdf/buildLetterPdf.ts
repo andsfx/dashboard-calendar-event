@@ -115,8 +115,8 @@ export function buildLetterPdf(letter: LetterRequestItem): jsPDF {
 
   // ── Metadata Surat ─────────────────────────────────────────
   const metaRows: Array<[string, string]> = [
-    ['Nomor', letter.nomorSurat || '—'],
-    ['Tanggal', tanggalFormatted || '—'],
+    ['Nomor', letter.nomorSurat || '-'],
+    ['Tanggal', tanggalFormatted || '-'],
     ['Perihal', 'Konfirmasi Pelaksanaan Event'],
   ];
   for (const [label, value] of metaRows) {
@@ -129,7 +129,7 @@ export function buildLetterPdf(letter: LetterRequestItem): jsPDF {
 
   // ── Pembuka / Kepada ───────────────────────────────────────
   y += line(doc, 'Kepada Yth.', MARGIN_X, y + 11, { size: 11, style: 'bold' }) + 4;
-  y += line(doc, letter.namaEO || '—', MARGIN_X, y + 11, { size: 11, style: 'bold' }) + 4;
+  y += line(doc, letter.namaEO || '-', MARGIN_X, y + 11, { size: 11, style: 'bold' }) + 4;
   if (letter.penanggungJawab) {
     y += line(doc, `u.p. ${letter.penanggungJawab}`, MARGIN_X, y + 11, { size: 10, color: COLORS.muted }) + 2;
   }
@@ -159,14 +159,14 @@ export function buildLetterPdf(letter: LetterRequestItem): jsPDF {
 
   // ── Data Event block ───────────────────────────────────────
   const rows: Array<[string, string]> = [
-    ['Nama Event', letter.namaEvent || '—'],
-    ['Lokasi', letter.lokasi || '—'],
-    ['Hari/Tanggal', letter.hariTanggalPelaksanaan || '—'],
-    ['Waktu', letter.waktuPelaksanaan || '—'],
+    ['Nama Event', letter.namaEvent || '-'],
+    ['Lokasi', letter.lokasi || '-'],
+    ['Hari/Tanggal', letter.hariTanggalPelaksanaan || '-'],
+    ['Waktu', letter.waktuPelaksanaan || '-'],
   ];
   const hasLoading = Boolean(letter.hariTanggalLoading || letter.waktuLoading);
   if (hasLoading) {
-    rows.push(['Hari/Tanggal', letter.hariTanggalLoading || '—'], ['Waktu', letter.waktuLoading || '—']);
+    rows.push(['Hari/Tanggal', letter.hariTanggalLoading || '-'], ['Waktu', letter.waktuLoading || '-']);
   }
   const sectionTitleCount = hasLoading ? 2 : 1;
   const blockHeight = 14 + sectionTitleCount * 18 + rows.length * 15 + 12;

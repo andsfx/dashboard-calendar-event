@@ -558,7 +558,7 @@ export function EventFilterSearch({
                       {o.label}
                     </span>
                     <span className="mt-0.5 block text-[10px] text-slate-500">
-                      {o.dateStr || '—'}
+                      {o.dateStr || '-'}
                       {o.status === 'ongoing'
                         ? ' · berlangsung'
                         : o.status === 'past'
@@ -620,7 +620,7 @@ export function EventShareRow({
               {event.acara}
             </p>
             <p className="mt-0.5 text-[11px] ui-text-muted">
-              {event.tanggal || event.dateStr || '—'}
+              {event.tanggal || event.dateStr || '-'}
               {' · '}
               {statusLabel}
               {typeof responseCount === 'number' ? ` · ${responseCount} respons` : ''}

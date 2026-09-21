@@ -86,6 +86,33 @@ function darkenChipText(hex: string): string {
   return `#${[r, g, b].map(v => dark(v).toString(16).padStart(2, '0')).join('')}`;
 }
 
+/**
+ * Dark-mode counterpart of `darkenChipText`. The darkened tone fixes LIGHT mode
+ * because the tint sits over a light card — but on the dark theme that same
+ * darkened tone is the failing color (measured: tosca 1.73:1, amber 2.76–2.92:1
+ * on their own dark tints). Mirror the `CountdownCell` precedent: keep the hue,
+ * flip the lightness.
+ *
+ * Returned as a custom property rather than a class because the light value is
+ * an inline `style`, which outranks utility classes; the `.dark [data-chip-tone]`
+ * rule in `utilities.css` performs the override. Light mode is untouched.
+ */
+function lightenChipText(hex: string): string {
+  const TOSCA = '#00918e';
+  const map: Record<string, string> = {
+    [TOSCA]: 'var(--brand-tosca-soft)',
+    '#e24378': 'var(--brand-secondary-300)',
+    '#f59e0b': '#fcd34d',
+  };
+  const key = hex.toLowerCase();
+  if (map[key]) return map[key];
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const lift = (v: number) => Math.min(255, Math.round(v + (255 - v) * 0.55));
+  return `#${[r, g, b].map(v => lift(v).toString(16).padStart(2, '0')).join('')}`;
+}
+
 function CountdownCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-[color-mix(in_srgb,var(--brand-tosca)_28%,transparent)] bg-[color-mix(in_srgb,var(--brand-tosca)_9%,white)] px-3 py-2.5 text-center dark:border-[color-mix(in_srgb,var(--brand-tosca)_40%,black)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_18%,black)]">
@@ -148,24 +175,33 @@ function HighlightEventCard({
       <div className="flex flex-1 flex-col p-6 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em]"
-            style={{
-              /* amber-500 10px on 7% wash = 2.0:1 fail; 700 passes AA (4.68:1 on wash) */
-              color: isLive ? catColor : darkenChipText(catColor),
-              borderColor: `${catColor}40`,
-              backgroundColor: `${catColor}12`,
-            }}
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.16em]"
+            data-chip-tone=""
+            style={
+              {
+                /* chip text sits on a ~7% tint of catColor over white; the bright 500 tone
+                   fails AA there (tosca 3.54:1, amber 2.03:1), so always use the darkened tone.
+                   darkenChipText(): tosca 8.01:1, amber 4.75:1 on the same tint.
+                   On the dark theme that same darkened tone fails (tosca 1.73:1), so
+                   `--chip-tone-dark` carries the lifted tone; `utilities.css` swaps it in
+                   because this inline color outranks any `dark:` utility class. */
+                color: darkenChipText(catColor),
+                '--chip-tone-dark': lightenChipText(catColor),
+                borderColor: `${catColor}40`,
+                backgroundColor: `${catColor}12`,
+              } as React.CSSProperties
+            }
           >
-            <span className="relative flex h-2 w-2 items-center justify-center">
-              {isLive && (
+            {isLive && (
+              <span className="relative flex h-2 w-2 items-center justify-center">
                 <span
                   className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70 motion-reduce:hidden"
                   style={{ backgroundColor: catColor }}
                   aria-hidden="true"
                 />
-              )}
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }} />
-            </span>
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }} />
+              </span>
+            )}
             {isLive ? 'Sedang Berlangsung' : 'Segera Hadir'}
           </span>
           <CategoryBadges categories={event.categories} maxVisible={2} />
@@ -204,7 +240,16 @@ function HighlightEventCard({
       <div className="border-t border-black/5 bg-[var(--brand-card-light)] p-6 sm:p-8 dark:border-slate-700 dark:bg-slate-800/60">
         {!isLive && (
           <>
-            <p className="mb-3 text-xs font-bold tracking-wide" style={{ color: darkenChipText(catColor) }}>
+            <p
+              className="mb-3 text-xs font-bold tracking-wide"
+              data-chip-tone=""
+              style={
+                {
+                  color: darkenChipText(catColor),
+                  '--chip-tone-dark': lightenChipText(catColor),
+                } as React.CSSProperties
+              }
+            >
               Countdown
             </p>
             <div className="mb-5 grid max-w-sm grid-cols-3 gap-2.5">
@@ -223,7 +268,7 @@ function HighlightEventCard({
         <button
           type="button"
           onClick={() => onDetail(event)}
-          className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+          className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
         >
           Lihat Detail Event
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
@@ -256,8 +301,15 @@ function EventRailCard({
     >
       <div className="flex w-full items-center justify-between gap-3">
         <span
-          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-          style={{ color, backgroundColor: `${color}15` }}
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider"
+          data-chip-tone=""
+          style={
+            {
+              color: darkenChipText(color),
+              '--chip-tone-dark': lightenChipText(color),
+              backgroundColor: `${color}15`,
+            } as React.CSSProperties
+          }
         >
           {isLive ? (
             <>
@@ -323,7 +375,7 @@ export function EventsLandingPage({
   onDetail,
 }: Props) {
   usePageMeta({
-    title: 'Jadwal Event — Metropolitan Mall Bekasi',
+    title: 'Jadwal Event - Metropolitan Mall Bekasi',
     description: 'Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.',
   });
   const ongoing = useMemo(
@@ -419,19 +471,19 @@ export function EventsLandingPage({
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#calendar"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke kalender
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
+      <header className="sticky top-0 z-50 h-16 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96 sm:h-20">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring"
             aria-label="Kembali ke Komunitas"
           >
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
+            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto sm:h-10" />
           </Link>
 
           <nav className="hidden items-center gap-6 text-[13px] font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Navigasi jadwal">
@@ -483,7 +535,7 @@ export function EventsLandingPage({
               {!isLoading && (
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
                   <div className="rounded-2xl border border-[var(--border-subtle)] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">Total</dt>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">Total Event</dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{events.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
@@ -503,7 +555,7 @@ export function EventsLandingPage({
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
                   href="#featured"
-                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
                 >
                   Sorotan
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
@@ -589,7 +641,7 @@ export function EventsLandingPage({
                   aria-pressed={(waktu || '') === value}
                   className={`rounded-full px-4 py-1.5 text-xs font-bold transition ui-focus-ring ${
                     (waktu || '') === value
-                      ? 'bg-[var(--brand-tosca)] text-white'
+                      ? 'bg-[var(--brand-tosca-600)] text-white'
                       : 'border border-black/10 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -644,8 +696,7 @@ export function EventsLandingPage({
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <CommunityEyebrow>Hasil Filter</CommunityEyebrow>
-                    <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                    <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
                       {filteredEvents.length} acara ditemukan
                     </h2>
                   </div>
@@ -701,10 +752,10 @@ export function EventsLandingPage({
                   <div key={g.key} id={`lokasi-${g.key}`} className="mb-12 scroll-mt-28">
                     <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
                       <div>
-                        <CommunityEyebrow>
+                        <p className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">
                           {g.area ? g.name : 'Lokasi Lainnya'}
-                        </CommunityEyebrow>
-                        <p className="mt-1 text-xl font-bold tracking-tight text-slate-950 dark:text-white">
+                        </p>
+                        <p className="mt-1 text-sm font-medium ui-text-muted">
                           {g.events.length} acara
                         </p>
                       </div>
@@ -721,8 +772,7 @@ export function EventsLandingPage({
               <>
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <CommunityEyebrow>Event Lainnya</CommunityEyebrow>
-                    <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+                    <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                       Akan Datang & Berlangsung
                     </h2>
                   </div>
@@ -767,8 +817,7 @@ export function EventsLandingPage({
         <section id="calendar" tabIndex={-1} className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 outline-none dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
-              <CommunityEyebrow>Kalender</CommunityEyebrow>
-              <h2 className="font-display mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+              <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 Jadwal Lengkap
               </h2>
               <p className="mt-3 text-base leading-8 text-slate-600 dark:text-slate-300">
@@ -788,10 +837,9 @@ export function EventsLandingPage({
         <section className="border-t border-black/5 py-14 sm:py-16 dark:border-slate-800">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center">
             <div className="max-w-xl">
-              <p className="text-xs font-bold uppercase tracking-widest text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Pendaftaran Organisasi</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">Mau mengadakan event di Metmal?</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">Mau mengadakan event di Metmal?</h2>
               <p className="mt-2 text-sm leading-7 ui-text-secondary">
-                EO, sekolah, komunitas, kampus, perusahaan, hingga instansi — daftarkan organisasimu dan tim Marcomm akan menghubungimu.
+                EO, sekolah, komunitas, kampus, perusahaan, hingga instansi. Daftarkan organisasimu dan tim Marcomm akan menghubungimu.
               </p>
             </div>
             <Link
@@ -811,9 +859,9 @@ export function EventsLandingPage({
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-white">Metropolitan Mall Bekasi</p>
-            <p className="mt-0.5 text-xs text-white/50">Jadwal Event</p>
+            <p className="mt-0.5 text-xs text-white/70">Jadwal Event</p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/60">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/80">
             <Link to="/" className="transition hover:text-white ui-focus-ring rounded-sm">
               Komunitas
             </Link>

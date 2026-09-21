@@ -40,14 +40,14 @@ function statusColor(status: string): string {
 
 function formatDateLine(ev: EventItem): string {
   if (ev.isMultiDay && ev.dateEnd) {
-    return `${ev.tanggal || ev.dateStr} – ${ev.dateEnd}`;
+    return `${ev.tanggal || ev.dateStr} - ${ev.dateEnd}`;
   }
-  return ev.tanggal || ev.dateStr || '–';
+  return ev.tanggal || ev.dateStr || '-';
 }
 
 function categoriesLine(ev: EventItem): string {
   if (ev.categories?.length) return ev.categories.join(', ');
-  return ev.category || '–';
+  return ev.category || '-';
 }
 
 function drawStatCard(doc: jsPDF, x: number, y: number, label: string, value: string, valueColor: string): void {
@@ -90,7 +90,7 @@ export interface SchedulePdfPayload {
 export function buildSchedulePdf({ events, generatedAt }: SchedulePdfPayload): jsPDF {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: false });
   doc.setProperties({
-    title: 'Jadwal Event — Metropolitan Mall Bekasi',
+    title: 'Jadwal Event - Metropolitan Mall Bekasi',
     author: 'Metropolitan Mall Bekasi',
     subject: 'Event Schedule',
   });
@@ -141,9 +141,9 @@ export function buildSchedulePdf({ events, generatedAt }: SchedulePdfPayload): j
     head: [['Tanggal', 'Jam', 'Acara', 'Lokasi', 'Kategori', 'Status']],
     body: sorted.map(ev => [
       formatDateLine(ev),
-      ev.jam || '–',
-      ev.eo ? `${ev.acara || '–'}\n${ev.eo}` : ev.acara || '–',
-      ev.lokasi || '–',
+      ev.jam || '-',
+      ev.eo ? `${ev.acara || '-'}\n${ev.eo}` : ev.acara || '-',
+      ev.lokasi || '-',
       categoriesLine(ev),
       STATUS_LABEL[ev.status] ?? ev.status,
     ]),
@@ -205,7 +205,7 @@ export function buildSchedulePdf({ events, generatedAt }: SchedulePdfPayload): j
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(8);
           doc.setTextColor(COLORS.text);
-          doc.text(ev.acara || '–', x + 4, y + 12);
+          doc.text(ev.acara || '-', x + 4, y + 12);
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(COLORS.muted);
           doc.text(ev.eo, x + 4, y + 23);

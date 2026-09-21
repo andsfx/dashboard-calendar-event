@@ -330,10 +330,10 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-300">
-                        {lead.eventAcara || '—'}{lead.eventDate ? ` · ${formatDate(lead.eventDate)}` : ''}
+                        {lead.eventAcara || '-'}{lead.eventDate ? ` · ${formatDate(lead.eventDate)}` : ''}
                       </p>
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
-                        PIC: {lead.contactName || '—'}
+                        PIC: {lead.contactName || '-'}
                         {lead.phone ? ` · WA: ${lead.phone}` : ''}
                         {lead.email ? ` · ${lead.email}` : ''}
                       </p>

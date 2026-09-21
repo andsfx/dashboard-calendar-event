@@ -13,7 +13,7 @@ export function InfoRow({ icon, label, value }: { icon: ReactNode; label: string
     <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 transition hover:bg-slate-100 dark:bg-slate-700/40 dark:hover:bg-slate-700/60">
       <div className="mt-0.5 shrink-0">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium leading-snug text-slate-800 dark:text-slate-100">{value}</p>
       </div>
     </div>
@@ -63,17 +63,17 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
         <InfoRow
           icon={<Clock className="h-4 w-4 text-blue-500" />}
           label="Waktu"
-          value={isMultiDay ? (getMultiDayJamDisplay(event) || '–') : (event.jam || '–')}
+          value={isMultiDay ? (getMultiDayJamDisplay(event) || '-') : (event.jam || '-')}
         />
         <InfoRow
           icon={<MapPin className="h-4 w-4 text-red-500" />}
           label="Lokasi"
-          value={event.lokasi || '–'}
+          value={event.lokasi || '-'}
         />
         <InfoRow
           icon={<User className="h-4 w-4 text-amber-500" />}
           label="Event Organizer"
-          value={event.eo || '–'}
+          value={event.eo || '-'}
         />
         {!!isAdmin && event.pic && (
           <InfoRow
@@ -114,7 +114,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
 
       {event.keterangan && (
         <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
             <Tag className="h-3 w-3" /> Keterangan
           </p>
           <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{event.keterangan}</p>
@@ -158,7 +158,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
                   </span>
                   <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                     <Clock className="h-3 w-3 text-slate-500" />
-                    {slot.jam || '–'}
+                    {slot.jam || '-'}
                   </span>
                 </div>
               );

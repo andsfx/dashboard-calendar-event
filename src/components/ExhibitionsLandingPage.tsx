@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CheckCircle2, Handshake, MapPin, Moon, RefreshCw, SunMedium } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Handshake, MapPin, Moon, RefreshCw, SunMedium } from 'lucide-react';
 import type { Exhibition, ExhibitionActivation, ExhibitionLeadInput } from '../types';
 import { fetchPublicExhibitions, fetchPublicExhibition, submitExhibitionLead } from '../utils/domainApi';
 import { formatDateRange } from '../utils/eventUtils';
@@ -30,7 +30,7 @@ const labelClass = 'mb-1.5 block text-xs font-semibold text-slate-600 dark:text-
 export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
   const { id } = useParams<{ id: string }>();
   usePageMeta({
-    title: 'Pameran & Kolaborasi — Metropolitan Mall Bekasi',
+    title: 'Pameran & Kolaborasi - Metropolitan Mall Bekasi',
     description: 'Ajak brand dan EO berkolaborasi mengisi pameran serta aktivasi di Metropolitan Mall Bekasi.',
   });
 
@@ -102,7 +102,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
     <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -140,7 +140,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
           <>
             <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Kolaborasi Pameran</h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
-              Metropolitan Mall Bekasi mengajak brand dan event organizer mengisi pameran bersama tim Casual Leasing dan Marcomm — baik sebagai peserta booth maupun pengisi aktivasi.
+              Metropolitan Mall Bekasi mengajak brand dan event organizer mengisi pameran bersama tim Casual Leasing dan Marcomm, baik sebagai peserta booth maupun pengisi aktivasi.
             </p>
 
             {list.length === 0 && (
@@ -204,10 +204,10 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                 {detail?.activations.map(activation => (
                   <li key={activation.eventId} className="rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                     <p className="font-semibold">{activation.title}</p>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      {formatDateRange(activation.dateStart, activation.dateEnd)}
-                      {activation.time && ` · ${activation.time}`}
-                      {activation.location && ` · ${activation.location}`}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
+                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" aria-hidden="true" />{formatDateRange(activation.dateStart, activation.dateEnd)}</span>
+                      {activation.time && <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" aria-hidden="true" />{activation.time}</span>}
+                      {activation.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{activation.location}</span>}
                     </p>
                   </li>
                 ))}
@@ -252,7 +252,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                     <label className={labelClass} htmlFor="lead-participation">Bentuk kontribusi</label>
                     <select id="lead-participation" className={inputClass} value={form.participation} onChange={e => setForm({ ...form, participation: e.target.value as ExhibitionLeadInput['participation'] })}>
                       {PARTICIPATION_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label} — {option.hint}</option>
+                        <option key={option.value} value={option.value}>{option.label} · {option.hint}</option>
                       ))}
                     </select>
                   </div>

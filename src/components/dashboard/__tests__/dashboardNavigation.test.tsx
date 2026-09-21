@@ -49,7 +49,7 @@ describe('getCommandCenterCards — kartu Antrian Draft', () => {
     const draftsCard = cards.find(card => card.id === 'drafts');
 
     expect(draftsCard).toBeDefined();
-    expect(draftsCard!.value).toBe('—');
+    expect(draftsCard!.value).toBe('-');
     expect(draftsCard!.subtitle).toBe('Gagal memuat');
   });
 

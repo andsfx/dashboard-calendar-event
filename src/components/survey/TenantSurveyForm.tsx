@@ -298,7 +298,7 @@ export default function TenantSurveyForm({
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>Lokasi tidak terdeteksi — silakan pilih manual dari dropdown.</span>
+                <span>Lokasi tidak terdeteksi. Silakan pilih manual dari dropdown.</span>
               </div>
             </div>
           )}
@@ -306,7 +306,7 @@ export default function TenantSurveyForm({
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>Kategori tidak terdeteksi — silakan pilih manual.</span>
+                <span>Kategori tidak terdeteksi. Silakan pilih manual.</span>
               </div>
             </div>
           )}
@@ -347,7 +347,7 @@ export default function TenantSurveyForm({
           {/* Kategori */}
           {autoFilled.kategori && (
             <div className="mb-1">
-              <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto — terdeteksi dari data tenant</span>
+              <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto - terdeteksi dari data tenant</span>
             </div>
           )}
           <RadioGroup

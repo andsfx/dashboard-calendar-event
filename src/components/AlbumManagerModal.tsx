@@ -404,7 +404,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           .filter(e => !albums.some(a => a.eventId === e.id))
                           .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
                           .map(e => (
-                            <option key={e.id} value={e.id}>{e.acara} — {e.tanggal}</option>
+                            <option key={e.id} value={e.id}>{e.acara} - {e.tanggal}</option>
                           ))
                         }
                         <option value="__custom__">✏ Custom (ketik manual)</option>
@@ -422,7 +422,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       >
                         <option value="">Pilih tema (opsional)…</option>
                         {(annualThemes || []).map(t => (
-                          <option key={t.id} value={t.id}>{t.name} ({t.dateStart} — {t.dateEnd})</option>
+                          <option key={t.id} value={t.id}>{t.name} ({t.dateStart} - {t.dateEnd})</option>
                         ))}
                       </select>
                       {selectedThemeId && !isCustomEvent && (

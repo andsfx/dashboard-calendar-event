@@ -11,14 +11,14 @@ export function GalleryHeader({ isDark, onToggleDark }: Props) {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/6 bg-[color-mix(in_srgb,var(--brand-paper)_96%,transparent)] backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3">
+    <header className="sticky top-0 z-50 h-16 border-b border-black/6 bg-[color-mix(in_srgb,var(--brand-paper)_96%,transparent)] backdrop-blur-md dark:bg-slate-950/96 dark:border-slate-800 sm:h-20">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6">
         <button
           onClick={() => navigate('/')}
           className="shrink-0 flex items-center gap-2 rounded-lg outline-none ui-focus-ring"
           aria-label="Kembali ke halaman utama"
         >
-          <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-auto w-[88px] sm:w-[124px]" />
+          <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto sm:h-10" />
         </button>
         <span className="hidden text-sm font-semibold tracking-wide text-slate-700 dark:text-slate-200 sm:block">
           Galeri Event

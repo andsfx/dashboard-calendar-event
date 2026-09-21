@@ -328,7 +328,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                 className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
                 placeholder="Dari"
               />
-              <span className="text-[10px] text-slate-500 dark:text-slate-300">—</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-300">-</span>
               <input
                 type="date"
                 value={dateTo}
@@ -503,7 +503,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 className={`shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`}
                 aria-pressed={isActive}
                 aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
-                title={isActive ? 'Survey aktif — klik untuk nonaktifkan' : 'Survey nonaktif — klik untuk aktifkan'}
+                title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
               >
                 {isToggling ? (
                   <Loader2 className="h-5 w-5 animate-spin" />

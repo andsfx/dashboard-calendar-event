@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet" />
   <style>
     /* ===========================================================
        Deck framework - DO NOT EDIT the rules in this <style> block.
@@ -26,29 +27,29 @@
     :root {
        /* SLOT: theme tokens - the only top-level CSS the agent edits.
          Add or override --bg / --fg / --accent / etc. here. */
-      --bg: oklch(0.965 0.014 82);
-      --surface: oklch(0.992 0.008 84);
-      --fg: oklch(0.30 0.022 48);
-      --muted: oklch(0.56 0.022 58);
-      --border: oklch(0.86 0.02 78);
-      --accent: oklch(0.52 0.085 182);
-      --accent-ink: oklch(0.97 0.01 182);
-      --pink: oklch(0.60 0.16 18);
-      --bg-soft: oklch(0.955 0.014 82);
-      --accent-soft: oklch(0.955 0.02 185);
-      --accent-mid: oklch(0.80 0.05 182);
-      --accent-deep: oklch(0.42 0.07 182);
-      --good-soft: oklch(0.92 0.05 185);
-      --green-soft: oklch(0.92 0.03 120);
-      --danger-soft: oklch(0.93 0.02 40);
-      --danger-bg: oklch(0.94 0.02 45);
-      --danger-border: oklch(0.8 0.03 40);
-      --danger-border-strong: oklch(0.82 0.04 42);
-      --danger-ink: oklch(0.45 0.06 30);
-      --danger-ink-strong: oklch(0.42 0.07 25);
-      --flat: oklch(0.80 0.02 70);
-      --border-strong: oklch(0.75 0.02 60);
-      --surface-muted: oklch(0.93 0.02 80);
+      --bg: #F8F7F0;
+      --surface: #FDFCF6;
+      --fg: #16211B;
+      --muted: #475569;
+      --border: rgba(22,33,27,.10);
+      --accent: #00918E;
+      --accent-ink: #FFFFFF;
+      --pink: #E24378;
+      --bg-soft: #E6F7F6;
+      --accent-soft: #E6F7F6;
+      --accent-mid: #33A8A5;
+      --accent-deep: #00554C;
+      --good-soft: #E6F7F6;
+      --green-soft: #A8D5BA;
+      --danger-soft: #FDE8EC;
+      --danger-bg: #FBD9E0;
+      --danger-border: #EFB9C6;
+      --danger-border-strong: #E58AA0;
+      --danger-ink: #9F1D45;
+      --danger-ink-strong: #7F1236;
+      --flat: #DDD9CB;
+      --border-strong: rgba(22,33,27,.22);
+      --surface-muted: #EFEBDD;
       --shell: #0e1310;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -70,7 +71,10 @@
     .deck-stage {
       width: 1920px;
       height: 1080px;
-      background: var(--bg);
+      background:
+        radial-gradient(900px 620px at 10% 6%, rgba(0,145,142,.10), transparent 65%),
+        radial-gradient(1000px 700px at 90% 94%, rgba(226,67,120,.07), transparent 65%),
+        radial-gradient(1200px 800px at 55% 45%, #FFFFFF 0%, var(--bg) 72%);
       position: relative;
       transform-origin: top left;
       box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
@@ -177,7 +181,7 @@
         -webkit-print-color-adjust: exact;
       }
     }
-    .serif { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; }
+    .serif { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; }
 
     .wrap {
       position: relative;
@@ -209,7 +213,7 @@
     .kicker--plain::before { display: none; }
 
     .h1 {
-      font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif;
+      font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
       font-weight: 600;
       font-size: 62px;
       line-height: 1.08;
@@ -274,7 +278,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       background: var(--surface);
-      box-shadow: 0 12px 32px rgba(90, 80, 60, 0.09);
+      box-shadow: 0 1px 3px rgba(22,33,27,.06), 0 18px 45px rgba(22,33,27,.08);
       display: flex;
       flex-direction: column;
     }
@@ -316,7 +320,7 @@
     .arc {
       border: 1px solid var(--border);
       background: var(--surface);
-      border-radius: 18px;
+      border-radius: 24px;
       padding: 34px 30px;
       display: flex;
       flex-direction: column;
@@ -446,12 +450,26 @@
        outline-offset: 3px;
      }
 
+     /* Benang gerak deck (bang-motion): satu arah masuk untuk semua slide —
+        kickerfassung, judul, isi naik berurutan; keluar slide lama ikut naik tipis. */
      @keyframes deck-slide-enter {
-       from { opacity: 0; transform: translateY(10px); }
-       to { opacity: 1; transform: translateY(0); }
+       from { opacity: 0; transform: translateY(26px); filter: blur(6px); }
+       to { opacity: 1; transform: translateY(0); filter: blur(0); }
+     }
+     @keyframes deck-slide-exit {
+       from { opacity: 1; transform: translateY(0); }
+       to { opacity: 0; transform: translateY(-18px); }
      }
      .slide.active > .wrap {
-       animation: deck-slide-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+       animation: deck-slide-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+     }
+     .slide.leaving > .wrap {
+       animation: deck-slide-exit 220ms ease-in both;
+     }
+     /* Reveal stagger: elemen .rv di slide aktif naik berurutan */
+     .slide.active .rv {
+       animation: deck-slide-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+       animation-delay: calc(var(--rv, 0) * 90ms + 120ms);
      }
      .deck-counter button {
        transition: background 0.15s ease, transform 0.15s ease;
@@ -465,10 +483,10 @@
     .discovery-shot { min-height: 0; }
     .event-card {
       border: 1px solid var(--border); background: var(--surface); border-radius: 16px;
-      padding: 30px 34px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(90, 80, 60, 0.08);
+      padding: 30px 34px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 1px 3px rgba(22,33,27,.06), 0 18px 45px rgba(22,33,27,.08);
     }
     .event-tag { align-self: flex-start; font-size: 12.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 999px; }
-    .event-name { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 40px; line-height: 1.1; font-weight: 600; }
+    .event-name { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; }
     .event-meta { display: flex; flex-direction: column; gap: 8px; font-size: 17px; color: var(--fg); }
     .event-meta div { display: flex; gap: 12px; }
     .event-meta .k { color: var(--muted); width: 96px; flex: 0 0 auto; }
@@ -479,6 +497,7 @@
     .disc-note p { font-size: 19px; line-height: 1.5; color: var(--fg); }
     .capsule { margin-top: auto; font-size: 14px; color: var(--muted); line-height: 1.55; border-top: 1px dashed var(--border); padding-top: 18px; }
 
+    .cycle { display: flex; gap: 10px; align-items: stretch; min-height: 0; }
     .cycle-step {
       flex: 1 1 0; min-width: 0; border: 1px solid var(--border); background: var(--surface); border-radius: 14px;
       padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; position: relative;
@@ -499,8 +518,8 @@
       gap: 14px;
       min-height: 0;
     }
-    .cycle-proof .cycle { flex: 0 1 auto; min-height: 0; }
-    .cycle-proof .proof-shot { flex: 0 1 400px; min-height: 0; }
+    .cycle-proof .cycle { flex: 0 0 auto; min-height: 0; }
+    .cycle-proof .proof-shot { flex: 0 1 auto; min-height: 0; max-height: 340px; }
 
     /* slide 08 result */
     .eval-line { font-size: 16px; color: var(--fg); line-height: 1.55; margin-bottom: 28px; max-width: 70ch; }
@@ -533,7 +552,7 @@
       gap: 14px;
     }
     .impact-sample .num {
-      font-family: "Iowan Old Style", Palatino, Georgia, serif;
+      font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
       font-size: 92px;
       line-height: 0.84;
       font-weight: 600;
@@ -588,7 +607,7 @@
     .region.next { background: var(--accent-soft); border-color: var(--accent); grid-column: 1 / -1; }
     .region-h { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
     .region-h .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
-    .region-h h3 { font-size: 22px; font-family: "Iowan Old Style", Palatino, Georgia, serif; font-weight: 600; }
+    .region-h h3 { font-size: 22px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; }
     .region.next .region-h .dot { background: var(--accent); }
     .region ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
     .region li { font-size: 18px; line-height: 1.5; color: var(--fg); padding-left: 24px; position: relative; }
@@ -600,7 +619,7 @@
     .paths { display: flex; flex-direction: column; gap: 22px; }
     .skm { font-size: 18px; color: var(--fg); font-weight: 500; margin-bottom: 6px; }
     .path { display: grid; grid-template-columns: 250px 1fr; gap: 24px; align-items: center; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); padding: 26px 30px; }
-    .path-name { font-size: 21px; font-weight: 600; font-family: "Iowan Old Style", Palatino, Georgia, serif; }
+    .path-name { font-size: 21px; font-weight: 600; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; }
     .path-desc { font-size: 17px; color: var(--muted); line-height: 1.5; }
     .path .leadline { color: var(--accent); font-weight: 500; }
 
@@ -615,9 +634,9 @@
     .dec-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 60px; align-items: center; }
     .dec-item { display: grid; grid-template-columns: 72px 1fr; gap: 26px; align-items: start; padding: 28px 0; border-bottom: 1px solid var(--border); }
     .dec-item:last-child { border-bottom: 0; }
-    .dec-item .n { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 56px; font-weight: 600; line-height: 1; color: var(--accent); }
+    .dec-item .n { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 56px; font-weight: 600; line-height: 1; color: var(--accent); }
     .dec-item .first { color: var(--accent); }
-    .dec-item h3 { font-size: 24px; font-family: "Iowan Old Style", Palatino, Georgia, serif; font-weight: 600; margin-bottom: 10px; color: var(--fg); }
+    .dec-item h3 { font-size: 24px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; margin-bottom: 10px; color: var(--fg); }
     .dec-item p { font-size: 18px; color: var(--muted); line-height: 1.5; }
     .order-panel { border: 1px solid var(--border); background: var(--surface); border-radius: 16px; padding: 34px 32px; }
     .order-panel h3 { font-size: 20px; font-weight: 600; margin-bottom: 18px; }
@@ -635,14 +654,14 @@
 
      @media (prefers-reduced-motion: reduce) {
        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
-       .slide.active > .wrap { animation: none !important; }
+       .slide.active > .wrap, .slide.leaving > .wrap, .slide.active .rv { animation: none !important; }
        .deck-counter button:not([disabled]):hover,
        .deck-counter button:not([disabled]):active { transform: none !important; }
      }
     /* appendix A1-A3 */
     .appx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     .appx-card { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); padding: 28px 30px; }
-    .appx-card h3 { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 20px; font-weight: 600; margin-bottom: 18px; }
+    .appx-card h3 { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 20px; font-weight: 600; margin-bottom: 18px; }
     .appx-list { list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 17px; line-height: 1.5; color: var(--fg); }
     .appx-list li { padding-left: 22px; position: relative; }
     .appx-list li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
@@ -699,8 +718,8 @@
     [data-od-id="slide-feature-parts"] .part-card { height: 100%; }
     .part-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px 38px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
     .part-card .part-head { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-    .part-card .part-glyph { position: absolute; right: 26px; top: 22px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 56px; font-weight: 600; line-height: 1; color: var(--accent-soft); }
-    .part-card h4 { margin: 0; font-size: 32px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
+    .part-card .part-glyph { position: absolute; right: 26px; top: 22px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 56px; font-weight: 600; line-height: 1; color: var(--accent-soft); }
+    .part-card h4 { margin: 0; font-size: 32px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
     .part-card p { margin: 0; font-size: 19px; color: var(--muted); line-height: 1.5; max-width: 34ch; }
     .part-card { position: relative; overflow: hidden; }
     .part-card.hot { background: var(--accent-soft); border-color: var(--accent-mid); }
@@ -708,8 +727,8 @@
     /* slide 09 - empat panel */
     .view-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 44px; }
     .view-card { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 34px 28px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
-    .view-card .v-glyph { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 600; }
-    .view-card h3 { margin: 0; font-size: 24px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
+    .view-card .v-glyph { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 26px; font-weight: 600; }
+    .view-card h3 { margin: 0; font-size: 24px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; line-height: 1.15; color: var(--fg); }
     .view-card p { margin: 0; font-size: 17px; line-height: 1.45; color: var(--muted); }
     .auto-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 36px; padding-top: 32px; border-top: 1px solid var(--border); }
     .feature-chip { display: flex; flex-direction: column; gap: 4px; }
@@ -721,7 +740,7 @@
     .route-row { display: grid; grid-template-columns: 340px 1fr; gap: 44px; align-items: center; flex: 1 1 0; padding: 20px 8px; border-bottom: 1px solid var(--border); }
     .route-row:first-child { border-top: 1px solid var(--border); }
     .route-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 23px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 12px 20px; white-space: nowrap; justify-self: start; }
-    .route-row h3 { margin: 0 0 7px; font-size: 25px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.1; color: var(--fg); }
+    .route-row h3 { margin: 0 0 7px; font-size: 25px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; line-height: 1.1; color: var(--fg); }
     .route-row p { margin: 0; font-size: 18px; color: var(--muted); line-height: 1.4; }
 
     /* slide 11 - mekanisme tenant */
@@ -730,13 +749,13 @@
     .tenant-panel { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 34px 36px; display: flex; flex-direction: column; justify-content: center; }
     .tenant-panel.hot { background: var(--accent-soft); border-color: var(--accent-mid); }
     .tenant-nums { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-    .tenant-nums .big-num { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 128px; line-height: 0.84; font-weight: 600; letter-spacing: -0.03em; color: var(--accent); }
+    .tenant-nums .big-num { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 128px; line-height: 0.84; font-weight: 600; letter-spacing: -0.03em; color: var(--accent); }
     .tenant-nums .small-label { font-size: 18px; color: var(--fg); text-align: center; }
     .tenant-nums .split { margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--border); font-size: 17px; color: var(--muted); line-height: 1.7; text-align: center; }
     .tenant-steps { display: flex; flex-direction: column; gap: 0; }
     .tenant-step { display: grid; grid-template-columns: 52px 1fr; gap: 20px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); }
     .tenant-step:last-child { border-bottom: 0; }
-    .tenant-step .n { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 30px; font-weight: 600; line-height: 1; color: var(--accent); }
+    .tenant-step .n { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 30px; font-weight: 600; line-height: 1; color: var(--accent); }
     .tenant-step .t { font-size: 20px; font-weight: 600; color: var(--fg); line-height: 1.35; }
     .tenant-step .d { display: block; margin-top: 5px; font-size: 16.5px; font-weight: 400; color: var(--muted); line-height: 1.45; }
     .tenant-foot { margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--border); font-size: 17px; color: var(--muted); line-height: 1.55; }
@@ -753,7 +772,7 @@
     .qa-item p small { display: block; margin-top: 4px; font-size: 17px; color: var(--muted); line-height: 1.45; }
     .qa-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 26px; }
     .qa-stat-box { display: flex; align-items: baseline; gap: 16px; padding: 20px 26px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
-    .qa-stat { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 64px; font-weight: 600; line-height: 0.84; letter-spacing: -0.02em; color: var(--accent); }
+    .qa-stat { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 64px; font-weight: 600; line-height: 0.84; letter-spacing: -0.02em; color: var(--accent); }
     .qa-stat-box .sub { font-size: 18px; line-height: 1.4; color: var(--muted); }
     .qa-stat-box .sub b { color: var(--fg); font-weight: 600; }
 
@@ -763,7 +782,7 @@
     .mx-head { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding: 0 0 14px; }
     .mx-row { padding: 24px 0; border-bottom: 1px solid var(--border); flex: 1 1 0; align-items: center; }
     .mx-row:last-child { border-bottom: 0; }
-    .mx-dim { font-size: 23px; font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-weight: 600; color: var(--fg); display: grid; align-content: center; }
+    .mx-dim { font-size: 23px; font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 600; color: var(--fg); display: grid; align-content: center; }
     .mx-cell { font-size: 19px; line-height: 1.4; color: var(--muted); display: grid; align-content: center; }
     .mx-cell.before { color: var(--danger-ink, #8a6d3b); }
     .mx-cell.after { color: var(--accent-deep); font-weight: 500; }
@@ -772,7 +791,7 @@
 
     /* slide 16 - penutup */
     .close-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 34px; }
-    .close-title { font-family: "Iowan Old Style", Palatino, Georgia, "Times New Roman", serif; font-size: 76px; line-height: 1.06; color: var(--fg); font-weight: 600; max-width: 22ch; letter-spacing: -0.02em; }
+    .close-title { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 76px; line-height: 1.06; color: var(--fg); font-weight: 600; max-width: 22ch; letter-spacing: -0.02em; }
     .close-byline { font-size: 25px; color: var(--muted); max-width: 54ch; line-height: 1.55; }
   </style>
    <script>
@@ -810,7 +829,7 @@
         <div class="wrap wrap--spread">
           <div class="cover-grid">
             <div class="cover-left">
-              <div class="kicker kicker--plain" data-od-id="cover-kicker">Metropolitan Mall Bekasi &#183; Marcomm</div>
+              <div class="kicker rv" style="--rv:0;" data-od-id="cover-kicker">Metropolitan Mall Bekasi &#183; Marcomm</div>
               <h1 class="serif cover-title" data-od-id="cover-title">1 Platform untuk <span class="stem">Semua Event</span> Metropolitan Mall Bekasi</h1>
               <p class="cover-sub">Satu sistem untuk seluruh siklus kerja event &mdash; dari pengajuan sampai evaluasi.</p>
               <div class="cover-byline">Andy Safii, <b>Marcomm, Metropolitan Mall Bekasi</b>.</div>
@@ -844,7 +863,7 @@
 <section class="slide" data-screen-label="02 Masalah" data-od-id="slide-problem">
         <div class="wrap">
           <div class="head-block">
-            <h1 class="h1" data-od-id="problem-title">Setiap event masuk lewat chat. Jawabannya tercecer di history.</h1>
+            <h1 class="h1 rv" style="--rv:1;" data-od-id="problem-title">Setiap event masuk lewat chat. Jawabannya tercecer di history.</h1>
           </div>
           <div class="main">
             <div class="situations" data-od-id="problem-situations">
@@ -886,7 +905,7 @@
 <section class="slide" data-screen-label="03 Baseline WhatsApp" data-od-id="slide-wa-baseline">
         <div class="wrap">
           <div class="head-block">
-             <h1 class="h1" data-od-id="wa-title">Pengajuan masuk lewat WhatsApp. Tindak lanjutnya sulit dilacak.</h1>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="wa-title">Pengajuan masuk lewat WhatsApp. Tindak lanjutnya sulit dilacak.</h1>
           </div>
           <div class="main">
             <div class="flows">
@@ -925,7 +944,7 @@
 <section class="slide" data-screen-label="04 Riset lokal" data-od-id="slide-local-scan">
         <div class="wrap">
           <div class="head-block">
-             <h1 class="h1" data-od-id="local-scan-title">Halaman publik mall belum menutup seluruh alur event.</h1>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="local-scan-title">Halaman publik mall belum menutup seluruh alur event.</h1>
           </div>
           <div class="scan-layout">
              <div class="scan-num" data-od-id="local-scan-count">22<span class="u"> mall</span></div>
@@ -948,7 +967,7 @@
 <section class="slide" data-screen-label="05 Pasar" data-od-id="slide-market">
         <div class="wrap">
           <div class="head-block">
-             <h1 class="h1" data-od-id="market-title">Kebutuhannya ada di pasar. Bentuknya terpisah-pisah.</h1>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="market-title">Kebutuhannya ada di pasar. Bentuknya terpisah-pisah.</h1>
           </div>
           <div class="main">
             <div class="mk-grid">
@@ -983,12 +1002,12 @@
 <section class="slide" data-screen-label="06 Discovery" data-od-id="slide-discovery">
         <div class="wrap">
           <div class="head-block">
-             <h1 class="h1" data-od-id="discovery-title">Event yang sulit ditemukan sulit dinilai hasilnya.</h1>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="discovery-title">Event yang sulit ditemukan sulit dinilai hasilnya.</h1>
           </div>
            <div class="disc-layout disc-layout--proof">
               <div class="event-card" data-od-id="discovery-event-card">
               <span class="event-tag">Akhir pekan</span>
-              <div class="event-name serif">Music Bazaar &#183; Atrium Utama</div>
+              <div class="event-name rv" style="--rv:1;">Music Bazaar &#183; Atrium Utama</div>
               <div class="event-meta">
                 <div><span class="k">Tanggal</span><span>Sabtu, 29 Agu 2026</span></div>
                 <div><span class="k">Waktu</span><span>10.00 - 18.00</span></div>
@@ -1020,8 +1039,8 @@
 <section class="slide" data-screen-label="07 Satu siklus" data-od-id="slide-cycle">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">07 &#183; Solusi</div>
-             <h1 class="h1" data-od-id="cycle-title">Semua event masuk ke satu alur yang bisa ditelusuri.</h1>
+            <div class="kicker rv" style="--rv:0;">07 &#183; Solusi</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="cycle-title">Semua event masuk ke satu alur yang bisa ditelusuri.</h1>
           </div>
            <div class="main cycle-proof">
              <div class="cycle">
@@ -1077,8 +1096,8 @@
       <section class="slide" data-screen-label="08 Di dalam platform" data-od-id="slide-feature-parts">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">08 &#183; Di dalam platform</div>
-             <h1 class="h1" data-od-id="feature-parts-title">Satu sistem, empat bagian kerja.</h1>
+             <div class="kicker rv" style="--rv:0;">08 &#183; Di dalam platform</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-parts-title">Satu sistem, empat bagian kerja.</h1>
           </div>
           <div class="main">
             <div class="parts">
@@ -1116,8 +1135,8 @@
       <section class="slide" data-screen-label="09 Panel admin" data-od-id="slide-feature-views">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">09 &#183; Alat kerja tim</div>
-             <h1 class="h1" data-od-id="feature-views-title">Empat panel untuk tugas berbeda.</h1>
+             <div class="kicker rv" style="--rv:0;">09 &#183; Alat kerja tim</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-views-title">Empat panel untuk tugas berbeda.</h1>
           </div>
           <div class="main" style="display:flex;flex-direction:column;justify-content:center;">
             <div class="view-grid">
@@ -1173,8 +1192,8 @@
       <section class="slide" data-screen-label="10 Jalur publik" data-od-id="slide-feature-routes">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">10 &#183; Untuk pengunjung</div>
-             <h1 class="h1" data-od-id="feature-routes-title">Halaman publik yang bisa dikunjungi langsung.</h1>
+             <div class="kicker rv" style="--rv:0;">10 &#183; Untuk pengunjung</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-routes-title">Halaman publik yang bisa dikunjungi langsung.</h1>
           </div>
           <div class="main">
           <div class="route-table">
@@ -1227,8 +1246,8 @@
       <section class="slide" data-screen-label="11 Mekanisme tenant" data-od-id="slide-feature-tenant">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">11 &#183; Survey pasca-event</div>
-             <h1 class="h1" data-od-id="feature-tenant-title">Tanpa login, tetap terstruktur.</h1>
+             <div class="kicker rv" style="--rv:0;">11 &#183; Survey pasca-event</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-tenant-title">Tanpa login, tetap terstruktur.</h1>
           </div>
           <div class="main">
           <div class="tenant-grid">
@@ -1275,7 +1294,7 @@
 <section class="slide" data-screen-label="12 Hasil pertama" data-od-id="slide-impact">
         <div class="wrap">
           <div class="head-block">
-             <h1 class="h1" data-od-id="impact-title">Sekarang hasil event bisa dibahas dengan data.</h1>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="impact-title">Sekarang hasil event bisa dibahas dengan data.</h1>
           </div>
             <div class="main impact-proof">
               <div>
@@ -1327,8 +1346,8 @@
       <section class="slide" data-screen-label="13 Kontrol &amp; jaminan" data-od-id="slide-feature-controls">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">13 &#183; Kontrol &amp; jaminan</div>
-             <h1 class="h1" data-od-id="feature-controls-title">Kesalahan dicegah sistem, bukan ingatan.</h1>
+             <div class="kicker rv" style="--rv:0;">13 &#183; Kontrol &amp; jaminan</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-controls-title">Kesalahan dicegah sistem, bukan ingatan.</h1>
           </div>
           <div class="main" style="display:flex;flex-direction:column;justify-content:center;">
             <div class="role-rail" data-od-id="controls-roles">
@@ -1384,8 +1403,8 @@
 <section class="slide" data-screen-label="14 Masih tertinggal" data-od-id="slide-gaps">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">14 &#183; Peta kemampuan</div>
-             <h1 class="h1" data-od-id="gaps-title">Alur internal sudah tersusun. Discovery dan ruang masih perlu dirapikan.</h1>
+            <div class="kicker rv" style="--rv:0;">14 &#183; Peta kemampuan</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="gaps-title">Alur internal sudah tersusun. Discovery dan ruang masih perlu dirapikan.</h1>
           </div>
           <div class="main regions">
              <div class="region in" data-od-id="gaps-available">
@@ -1429,8 +1448,8 @@
       <section class="slide" data-screen-label="15 Sebelum / sesudah" data-od-id="slide-feature-matrix">
         <div class="wrap">
           <div class="head-block">
-             <div class="kicker">15 &#183; Sebelum / sesudah</div>
-             <h1 class="h1" data-od-id="feature-matrix-title">Lima dimensi yang berubah.</h1>
+             <div class="kicker rv" style="--rv:0;">15 &#183; Sebelum / sesudah</div>
+             <h1 class="h1 rv" style="--rv:1;" data-od-id="feature-matrix-title">Lima dimensi yang berubah.</h1>
           </div>
           <div class="main">
           <div class="matrix">
@@ -1478,7 +1497,7 @@
       <section class="slide" data-screen-label="16 Penutup" data-od-id="slide-feature-closing">
         <div class="wrap wrap--center">
           <div class="close-wrap">
-            <h1 class="close-title" data-od-id="closing-statement">Terencana matang. Terpublikasi luas. Terevaluasi akurat.</h1>
+            <h1 class="close-title rv" style="--rv:1;" data-od-id="closing-statement">Terencana matang. Terpublikasi luas. Terevaluasi akurat.</h1>
             <p class="close-byline" data-od-id="closing-byline">Satu platform untuk seluruh siklus event Metropolitan Mall Bekasi &#8212; dari pengajuan sampai bukti dampak.</p>
             <p style="font-size:18px;color:var(--fg);"><b>Andy Safii</b>, Marcomm, Metropolitan Mall Bekasi.</p>
           </div>
@@ -1494,8 +1513,8 @@
 <section class="slide" data-screen-label="A1 Metodologi scan" data-od-id="slide-appendix-method">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">Appendix &#183; A1</div>
-            <h1 class="h1" data-od-id="appendix-method-title">Bagaimana scan 22 mall dikerjakan.</h1>
+            <div class="kicker rv" style="--rv:0;">Appendix &#183; A1</div>
+            <h1 class="h1 rv" style="--rv:1;" data-od-id="appendix-method-title">Bagaimana scan 22 mall dikerjakan.</h1>
           </div>
           <div class="main appx-grid">
             <div class="appx-card" data-od-id="appendix-method-scope">
@@ -1530,8 +1549,8 @@
 <section class="slide" data-screen-label="A2 Distribusi evaluasi" data-od-id="slide-appendix-distribution">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">Appendix &#183; A2</div>
-            <h1 class="h1" data-od-id="appendix-distribution-title">Distribusi jawaban evaluasi tenant.</h1>
+            <div class="kicker rv" style="--rv:0;">Appendix &#183; A2</div>
+            <h1 class="h1 rv" style="--rv:1;" data-od-id="appendix-distribution-title">Distribusi jawaban evaluasi tenant.</h1>
           </div>
           <div class="main appx-grid">
             <div class="appx-card" data-od-id="appendix-distribution-traffic">
@@ -1628,8 +1647,8 @@
 <section class="slide" data-screen-label="A3 Matriks akses" data-od-id="slide-appendix-access">
         <div class="wrap">
           <div class="head-block">
-            <div class="kicker">Appendix &#183; A3</div>
-            <h1 class="h1" data-od-id="appendix-access-title">Peran dan hak akses.</h1>
+            <div class="kicker rv" style="--rv:0;">Appendix &#183; A3</div>
+            <h1 class="h1 rv" style="--rv:1;" data-od-id="appendix-access-title">Peran dan hak akses.</h1>
           </div>
           <div class="main">
             <p class="appx-note" style="margin:0 0 18px;font-size:16px;">Hierarki <b>superadmin &#8594; admin &#8594; viewer</b>, dengan dua peran akses terbatas: <b>eo_tenant</b> (survey/evaluasi) dan <b>tenant_relation</b> (hasil evaluasi, read-only).</p>
@@ -1701,15 +1720,29 @@
       }
 
       function pad2(n) { return (n < 10 ? '0' : '') + n; }
+      var prevIdx = 0;
       function paint() {
-        slides.forEach(function (el, i) { el.classList.toggle('active', i === idx); });
+        slides.forEach(function (el, i) {
+          el.classList.toggle('active', i === idx);
+          el.classList.remove('leaving');
+        });
         if (cur) cur.textContent = pad2(idx + 1);
         if (total) total.textContent = pad2(slides.length);
         if (prev) prev.toggleAttribute('disabled', idx <= 0);
         if (next) next.toggleAttribute('disabled', idx >= slides.length - 1);
       }
       function go(i) {
-        idx = Math.max(0, Math.min(slides.length - 1, i));
+        var next = Math.max(0, Math.min(slides.length - 1, i));
+        if (next === idx) { paint(); return; }
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var old = slides[idx];
+        prevIdx = idx;
+        idx = next;
+        if (!reduce && old && old !== slides[idx]) {
+          old.classList.remove('active');
+          old.classList.add('leaving');
+          window.setTimeout(function () { old.classList.remove('leaving'); }, 240);
+        }
         paint();
         try { localStorage.setItem(STORE, String(idx)); } catch (_) {}
       }

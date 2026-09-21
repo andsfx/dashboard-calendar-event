@@ -17,7 +17,7 @@ interface Props {
  */
 export function RegistrationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Daftar Komunitas — Metropolitan Mall Bekasi',
+    title: 'Daftar Komunitas - Metropolitan Mall Bekasi',
     description: 'Daftarkan komunitas atau organisasimu untuk berkolaborasi dengan Metropolitan Mall Bekasi.',
   });
 
@@ -25,7 +25,7 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
     <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -67,8 +67,8 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
           </div>
         </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800">
-        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
+      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
+        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>
   );

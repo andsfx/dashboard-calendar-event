@@ -47,8 +47,8 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                     <p className="font-semibold text-slate-800 dark:text-white">{draft.acara}</p>
                     {draft.keterangan && <p className="mt-1 line-clamp-2 text-xs text-slate-500">{draft.keterangan}</p>}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.jam || '–'}</td>
-                  <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '–'}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.jam || '-'}</td>
+                  <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '-'}</td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.pic}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.phone}</td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.lokasi}</td>
@@ -81,7 +81,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                       >
                         <Upload className="h-3.5 w-3.5" />Terbitkan
                       </button>}
-                      {!canMutate && <span className="text-xs text-slate-400">–</span>}
+                      {!canMutate && <span className="text-xs text-slate-400">-</span>}
                       {whatsappUrl && (
                         <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-green-200 px-2.5 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 dark:border-green-900/50 dark:text-green-300 dark:hover:bg-green-900/20">
                           <MessageCircle className="h-3.5 w-3.5" />WhatsApp

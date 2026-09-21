@@ -66,7 +66,7 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
       <div className="mt-0.5 shrink-0 text-slate-500">{icon}</div>
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
-        <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-white break-words">{value || '–'}</p>
+        <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-white break-words">{value || '-'}</p>
       </div>
     </div>
   );

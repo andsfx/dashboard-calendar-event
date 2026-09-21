@@ -629,7 +629,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
             <>
               <p className="rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] px-4 py-3 text-xs leading-6 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 Teks lokasi lama dipetakan ke area kanonis. Hanya event yang <strong>belum</strong> punya area
-                yang akan diisi — pemetaan manual sebelumnya tidak ditimpa. Centang
+                yang akan diisi. Pemetaan manual sebelumnya tidak ditimpa. Centang
                 <strong> Seragamkan teks lokasi</strong> bila ejaan lama juga ingin diganti (berlaku untuk semua
                 event dengan teks itu, termasuk yang sudah punya area).
               </p>
@@ -683,7 +683,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                               chosen ? 'border-brand-primary-400 dark:border-brand-primary-600' : 'border-slate-200 dark:border-slate-600'
                             }`}
                           >
-                            <option value="">— Abaikan —</option>
+                            <option value="">- Abaikan -</option>
                             {areas.map(a => (
                               <option key={a.id} value={a.id}>
                                 {a.name}{a.id === suggested ? ' (saran)' : ''}

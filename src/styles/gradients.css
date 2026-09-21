@@ -1,5 +1,7 @@
 /* Graphify-style gradients — tosca-tinted */
-/* Hero: 8-stop dark tosca → cream */
+/* Hero: 8-stop dark tosca → cream. The dark stays ≥92% so white hero copy
+   (text-white, /65, /75) clears WCAG AA 4.5:1 at every viewport: content runs to
+   ~87% of the box at 320px, so the light tail lives only in the empty band below. */
 /* Reasoning: radial + linear dark tosca */
 /* Seam: light → dark transition between sections */
 
@@ -7,12 +9,12 @@
 .bg-gradient-hero-tosca {
   background: linear-gradient(180deg,
     #003230 0%,
-    #004a48 35%,
-    #006260 60%,
-    #008070 74%,
-    #33a8a5 85%,
-    #99dfde 93%,
-    #d4eee8 98%,
+    #004a48 34%,
+    #00554c 66%,
+    #00554c 92%,
+    #33a8a5 96.5%,
+    #99dfde 98.2%,
+    #d4eee8 99.4%,
     #f8f7f0 100%
   );
 }

@@ -19,6 +19,7 @@ import { CommunityNews } from './community/CommunityNews';
 import { CommunityContact } from './community/CommunityContact';
 import { usePageMeta } from '../utils/pageMeta';
 import { NavDropdown, type NavDropdownItem } from './nav/NavDropdown';
+import type { CommunityStats } from './community/communityStats';
 
 const focusRing = 'ui-focus-ring';
 
@@ -31,12 +32,6 @@ interface CachedInstagramPost {
   postUrl?: string;
   imageUrl?: string;
   caption?: string;
-}
-
-interface CommunityStats {
-  completed: number;
-  total: number;
-  organizers: number;
 }
 
 interface CommunityLandingProps {
@@ -99,7 +94,7 @@ const MOBILE_NAV_GROUPS: Array<{ heading: string | null; items: NavDropdownItem[
 
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
   usePageMeta({
-    title: 'Komunitas — Metropolitan Mall Bekasi',
+    title: 'Komunitas - Metropolitan Mall Bekasi',
     description: 'Gabung komunitas dan kirim pengajuan event untuk digelar di Metropolitan Mall Bekasi.',
   });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -172,8 +167,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:text-white dark:border-slate-700 sm:h-9 sm:w-9'
     : 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm sm:h-9 sm:w-9';
   const mobilePanelClass = isHeaderPinned
-    ? 'mt-3 rounded-[1.6rem] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
-    : 'mt-3 rounded-[1.6rem] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
+    ? 'mt-3 rounded-3xl border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
+    : 'mt-3 rounded-3xl border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
     <div className="community-landing min-h-screen overflow-x-clip bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
@@ -218,7 +213,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               <button
                 type="button"
                 onClick={onBack}
-                className={`hidden items-center gap-2 rounded-full border px-3.5 py-2.5 text-[13px] font-medium transition sm:inline-flex ${focusRing} ${
+                className={`hidden items-center gap-2 rounded-full border px-3.5 py-2.5 text-[13px] font-medium whitespace-nowrap transition sm:inline-flex ${focusRing} ${
                   isHeaderPinned
                     ? 'border-black/10 bg-transparent text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800'
                     : 'border-white/30 bg-white/10 text-white hover:bg-white/15'
@@ -227,14 +222,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                 <CalendarDays className="h-4 w-4" aria-hidden="true" /> Jadwal Event
               </button>
               <a
-                href="#register"
+                href="/daftar"
                 className={`hidden items-center gap-2 rounded-full border px-5 py-2.5 text-[13px] font-semibold whitespace-nowrap transition sm:inline-flex ${focusRing} ${
                   isHeaderPinned
                     ? 'border-black/10 bg-transparent text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800'
                     : 'border-white/30 bg-white/10 text-white hover:bg-white/15'
                 }`}
               >
-                Daftar Sekarang
+                Daftar Event
               </a>
               <button
                 type="button"
@@ -295,11 +290,11 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
                   </div>
                 ))}
                 <a
-                  href="#register"
+                  href="/daftar"
                   onClick={() => setMobileNavOpen(false)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
                 >
-                  Daftar Sekarang
+                  Daftar Event
                 </a>
                 <button
                   type="button"
@@ -349,7 +344,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               </div>
               <Link
                 to="/ajukan-event"
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
               >
                 Ajukan Event
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -363,10 +358,10 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         {isHeaderPinned && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/50 bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-lg sm:hidden dark:bg-slate-900/95 dark:border-slate-800">
             <a
-              href="#register"
+              href="/daftar"
               className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-lg hover:bg-[var(--brand-tosca-dark)]"
             >
-              Daftar Gratis Sekarang
+              Daftar Event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
@@ -377,8 +372,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <LogoMark className="h-auto w-[102px] opacity-90" />
           <div className="flex flex-col gap-2 sm:items-end">
-            <a href="#register" className="text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
-              Daftar event komunitas
+            <a href="/daftar" className="text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
+              Daftar Event
             </a>
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
               &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi

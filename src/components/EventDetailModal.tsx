@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { X, Edit2, Trash2, Zap, CalendarDays, Repeat, QrCode, ExternalLink } from 'lucide-react';
+import { X, Edit2, Trash2, Zap, CalendarDays, Repeat, QrCode, ExternalLink, ClipboardCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventItem } from '../types';
 import { StatusBadge } from './StatusBadge';
@@ -120,8 +120,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <QrCode className="h-3.5 w-3.5" />
                 <span>QR Code Survey</span>
-                <span className="ml-auto text-[10px] text-slate-500 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-500 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
                 <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
@@ -134,8 +134,8 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
                 <ClipboardCheckIcon />
                 <span>QR Code Self-Assessment Tenant</span>
-                <span className="ml-auto text-[10px] text-slate-500 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-500 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
                 <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
@@ -198,13 +198,9 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
   );
 }
 
-/** ClipboardCheck icon inline (lazy-adjacent, keeps imports tidy) */
+/** ClipboardCheck icon (lucide, lazy-adjacent, keeps imports tidy) */
 function ClipboardCheckIcon() {
   return (
-    <svg className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <path d="m9 14 2 2 4-4" />
-    </svg>
+    <ClipboardCheck className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
   );
 }

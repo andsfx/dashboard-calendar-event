@@ -123,7 +123,7 @@ function drawFooterAll(doc: jsPDF): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(COLORS.muted);
-    doc.text('Internal — Tenant Relation · tanpa data PIC', MARGIN, FOOTER_Y);
+    doc.text('Internal - Tenant Relation · tanpa data PIC', MARGIN, FOOTER_Y);
     doc.text(`${page} / ${total}`, PAGE_W - MARGIN, FOOTER_Y, { align: 'right' });
   }
 }
@@ -152,7 +152,7 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
   doc.setFontSize(8);
   doc.text(`Event: ${eventLabel}`, MARGIN, y); y += 11;
   doc.text(
-    `Periode: ${filter.dateFrom || '—'} s/d ${filter.dateTo || '—'} · Zona: ${filter.zona === 'all' ? 'Semua' : filter.zona} · Kategori: ${filter.kategori === 'all' ? 'Semua' : filter.kategori} · Status: ${filter.status === 'all' ? 'submitted+reviewed' : filter.status}`,
+    `Periode: ${filter.dateFrom || '-'} s/d ${filter.dateTo || '-'} · Zona: ${filter.zona === 'all' ? 'Semua' : filter.zona} · Kategori: ${filter.kategori === 'all' ? 'Semua' : filter.kategori} · Status: ${filter.status === 'all' ? 'submitted+reviewed' : filter.status}`,
     MARGIN,
     y,
   );

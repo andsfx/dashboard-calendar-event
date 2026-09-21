@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap, SunMedium, Moon } from 'lucide-react';
 import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
 import { EventPhotoGallery } from './EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from './EventDetailContent';
@@ -48,10 +48,10 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const metaDescription = useMemo(() => {
     if (!event) return undefined;
     const parts = [event.tanggal, event.lokasi, event.jam].filter(Boolean);
-    return parts.length > 0 ? `${event.acara} — ${parts.join(' · ')} di Metropolitan Mall Bekasi.` : `${event.acara} di Metropolitan Mall Bekasi.`;
+    return parts.length > 0 ? `${event.acara} - ${parts.join(' · ')} di Metropolitan Mall Bekasi.` : `${event.acara} di Metropolitan Mall Bekasi.`;
   }, [event]);
   usePageMeta({
-    title: event ? `${event.acara} — Jadwal Event Metropolitan Mall Bekasi` : 'Jadwal Event — Metropolitan Mall Bekasi',
+    title: event ? `${event.acara} - Jadwal Event Metropolitan Mall Bekasi` : 'Jadwal Event - Metropolitan Mall Bekasi',
     description: metaDescription,
   });
 
@@ -104,7 +104,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
       {/* Header — konsisten EventsLandingPage */}
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -121,7 +121,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ui-focus-ring"
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
           >
-            <span className="text-sm">{isDark ? '☀' : '☾'}</span>
+            {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
         </div>
       </header>

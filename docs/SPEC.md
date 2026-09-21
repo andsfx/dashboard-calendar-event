@@ -293,6 +293,14 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 |---------|--------|
 | `/` Community Hub | Publik |
 | `/events` jadwal publik | Publik |
+| `/events/:id` detail event publik (permalink shareable) | Publik |
+| `/daftar` pendaftaran komunitas (form yang sama dengan `#register` di `/`) | Publik |
+| `/ajukan-event` pengajuan event EO/komunitas (masuk antrian draft) | Publik |
+| `/community` direktori komunitas | Publik |
+| `/tenants` direktori tenant | Publik |
+| `/pameran`, `/pameran/:id` pameran & kolaborasi | Publik |
+| `/sponsor` sponsorship & lead sponsor | Publik |
+| `/news`, `/news/:slug` berita & artikel | Publik |
 | `/gallery`, `/gallery/:slug` | Publik |
 | `/survey/:eventId` Survey Kepuasan | Publik |
 | `/tenant-survey` (+ event) Evaluasi Tenant form | Publik / eo_tenant policy |

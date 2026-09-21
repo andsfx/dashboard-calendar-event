@@ -157,7 +157,7 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
       </main>
 
       <footer className="pb-6 text-center text-[11px] text-slate-500 dark:text-slate-300">
-        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life
+        &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>
   );

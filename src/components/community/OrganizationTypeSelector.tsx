@@ -1,6 +1,6 @@
 import { type KeyboardEvent } from 'react';
 import { type OrganizationType } from '../../types';
-import { Users, GraduationCap, Building2, PartyPopper, School, Landmark, Heart, MoreHorizontal } from 'lucide-react';
+import { Users, GraduationCap, Building2, PartyPopper, School, Landmark, Heart, MoreHorizontal, Check } from 'lucide-react';
 
 interface OrgTypeOption {
   value: OrganizationType;
@@ -109,9 +109,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
               </div>
               {isSelected && (
                 <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--brand-tosca-600)] text-white">
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
                 </div>
               )}
             </button>

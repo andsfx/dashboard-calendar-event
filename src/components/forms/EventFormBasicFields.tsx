@@ -127,7 +127,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
             areaId ? 'border-brand-primary-400 dark:border-brand-primary-600' : 'border-slate-200 dark:border-slate-600'
           }`}
         >
-          <option value="">— Pilih area —</option>
+          <option value="">- Pilih area -</option>
           {areaOptions.map(area => (
             <option key={area.id} value={area.id}>{area.name}</option>
           ))}
@@ -140,7 +140,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
             </p>
             <ul className="mt-1 list-inside list-disc">
               {conflictEvents.slice(0, 3).map(ev => (
-                <li key={ev.id}>{ev.acara} — {ev.dateStr}{ev.dateEnd ? ` s/d ${ev.dateEnd}` : ''}</li>
+                <li key={ev.id}>{ev.acara} - {ev.dateStr}{ev.dateEnd ? ` s/d ${ev.dateEnd}` : ''}</li>
               ))}
             </ul>
             <label className="mt-2 flex cursor-pointer items-center gap-1.5 font-semibold">

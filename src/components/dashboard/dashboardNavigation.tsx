@@ -210,7 +210,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewDrafts ? [{
       id: 'drafts',
       title: 'Antrian Draft',
-      value: draftsError ? '—' : activeDrafts.length,
+      value: draftsError ? '-' : activeDrafts.length,
       subtitle: draftsError ? 'Gagal memuat' : activeDrafts.length === 0 ? 'Antrian kosong' : 'Perlu review',
       icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',

@@ -105,7 +105,7 @@ export function buildAlbumPdf(
   const dateRange = getDateRange(albumsWithPhotos.map(a => a.album));
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'landscape', compress: false });
   doc.setProperties({
-    title: `Dokumentasi Event${themeName ? ` — ${themeName}` : ''}`,
+    title: `Dokumentasi Event${themeName ? ` - ${themeName}` : ''}`,
     author: 'Metropolitan Mall Bekasi',
     subject: 'Dokumentasi Event',
   });
@@ -131,7 +131,7 @@ export function buildAlbumPdf(
 
   const metaY = PAGE_H - 120;
   const periode = dateRange.start && dateRange.end
-    ? `${formatDateID(dateRange.start)} — ${formatDateID(dateRange.end)}`
+    ? `${formatDateID(dateRange.start)} - ${formatDateID(dateRange.end)}`
     : 'Semua tanggal';
   doc.setFontSize(9);
   doc.setTextColor('#a5b4fc');

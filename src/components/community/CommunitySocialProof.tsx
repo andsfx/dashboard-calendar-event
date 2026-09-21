@@ -1,6 +1,7 @@
 import { type RefObject } from 'react';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { formatCount } from './countFormat';
+import { COMMUNITY_STAT_LABELS } from './communityStats';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { useCountUp } from './useCountUp';
 
@@ -17,7 +18,7 @@ function AnimatedStatBadge({ value, label }: { value: number; label: string }) {
   return (
     <div ref={ref as RefObject<HTMLDivElement>} className="flex items-center gap-3">
       <span className="text-2xl font-extrabold tabular-nums text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">
-        {value > 0 ? formatCount(counted) + '+' : '—'}
+        {value > 0 ? formatCount(counted) + '+' : '-'}
       </span>
       <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-300">{label}</span>
     </div>
@@ -43,15 +44,15 @@ export function CommunitySocialProof({ totalEvents = 0, totalCompleted = 0, tota
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4" aria-live="polite" aria-busy={isLoading}>
           {isLoading ? (
             <>
-              <StatBadgeSkeleton label="Event Terlaksana" />
-              <StatBadgeSkeleton label="Penyelenggara" />
-              <StatBadgeSkeleton label="Total Event" />
+              <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.completed} />
+              <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.organizers} />
+              <StatBadgeSkeleton label={COMMUNITY_STAT_LABELS.total} />
             </>
           ) : (
             <>
-              <AnimatedStatBadge value={totalCompleted} label="Event Terlaksana" />
-              <AnimatedStatBadge value={totalOrganizers} label="Penyelenggara" />
-              <AnimatedStatBadge value={totalEvents} label="Total Event" />
+              <AnimatedStatBadge value={totalCompleted} label={COMMUNITY_STAT_LABELS.completed} />
+              <AnimatedStatBadge value={totalOrganizers} label={COMMUNITY_STAT_LABELS.organizers} />
+              <AnimatedStatBadge value={totalEvents} label={COMMUNITY_STAT_LABELS.total} />
             </>
           )}
         </div>

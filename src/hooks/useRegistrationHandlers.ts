@@ -109,7 +109,7 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
       progress: 'draft', published: false, deleted: false,
     });
     setShowDraftModal(true);
-    showToast('info', 'Buat Draft dari pendaftaran', 'Form Draft diisi dari data pendaftaran. Lengkapi lalu simpan — Approve tidak membuat Draft otomatis.');
+    showToast('info', 'Buat Draft dari pendaftaran', 'Form Draft diisi dari data pendaftaran. Lengkapi lalu simpan. Approve tidak membuat Draft otomatis.');
   }, [setEditingDraft, setShowDraftModal, showToast]);
 
   return {

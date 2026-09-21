@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="id">
+<!-- Pitch motion: Dashboard Calendar Event — Metropolitan Mall Bekasi. Dibangun dengan skill bang-motion v1.19.0 (MIT). -->
+<head>
+<meta charset="utf-8">
+<title>Pitch — Dashboard Calendar Event · Metropolitan Mall Bekasi</title>
+<!--
+  STYLE BRIEF (disetujui user)
+  Tema/produk + 3 kata sifat : Sistem operasi event Metropolitan Mall Bekasi — rapi, aktif, terpercaya
+  Konsep                     : #19 Tur produk berselang klaim (kandidat lain: #16 Ekosistem UI hidup, #5 Perjalanan di dalam UI)
+  Sidik jari struktur        : tur-klaim · 10 babak · kalender hidup → dashboard → klaim tosca → 4 view → draft→event → klaim komunitas → landing/galeri → form/survei → angka → wordmark · pembuka: judul + kalender di celah kata · penutup: wordmark di paper hangat
+  Palet (dari DESIGN.md)     : utama #00918E (brand tosca) · latar #F8F7F0 (warm paper) · aksen #E24378 (brand pink, ≤1 sinyal/viewport) · ink #16211B
+  Font display / pendamping  : Bricolage Grotesque / Geist (fallback Inter, system-ui)
+  Bahasa latar               : editorial terang (paper hangat, ruang luas, garis tipis)
+  Tanda tangan gerak         : kartu UI terangkat + kamera mendekat ke titik klik, lalu mundur
+  Gerak latar (§7c)          : #2 gradien/blob berpindah pelan + #12 medan tosca snap 0,2 dtk di 2 klaim (dipicu kartu)
+  Permukaan latar (§7d)      : mesh terang (paper + 3 blob) + grain halus + hairline grid
+  Gaya render (§7e)          : flat solid + screenshot UI asli sebagai footage (presentasi/assets/)
+  Transisi (§4c)             : #2 kartu rotateY masuk + #8 koreografi beririsan + #9 ganti latar di balik transisi
+  Momen istimewa (1×, ~21 dtk): kartu Draft menyusut jadi titik, mekar jadi Event di kalender
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<style>
+:root{
+  --tosca:#00918E; --tosca-600:#007A78; --tosca-dark:#00554C; --tosca-wash:#E6F7F6;
+  --pink:#E24378; --pink-soft:#EE95A9;
+  --paper:#F8F7F0; --card:#FDFCF6; --ink:#16211B;
+  --slate-500:#64748B; --slate-600:#475569;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#111;overflow:hidden}
+body{font-family:"Geist","Inter",system-ui,sans-serif;color:var(--ink)}
+#filters{position:fixed;width:0;height:0;opacity:0;pointer-events:none}
+#stage{position:fixed;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(1);overflow:hidden;background:var(--paper)}
+#world{position:absolute;inset:-120px;will-change:transform} /* overscan untuk shot kamera */
+#sway{position:absolute;inset:0;will-change:transform}
+/* ---- permukaan latar: mesh terang + grid rambut + grain ---- */
+.mesh{position:absolute;inset:0;
+  background:
+    radial-gradient(900px 620px at 12% 8%, rgba(0,145,142,.14), transparent 65%),
+    radial-gradient(1000px 700px at 88% 90%, rgba(226,67,120,.10), transparent 65%),
+    radial-gradient(1200px 800px at 55% 45%, #FFFFFF 0%, var(--paper) 70%);}
+.blob{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
+.blob.b1{left:-240px;top:-320px;width:980px;height:980px;background:radial-gradient(circle,rgba(0,145,142,.20),transparent 66%)}
+.blob.b2{right:-280px;bottom:-340px;width:1040px;height:1040px;background:radial-gradient(circle,rgba(0,145,142,.13),transparent 66%)}
+.blob.b3{left:560px;top:640px;width:760px;height:760px;background:radial-gradient(circle,rgba(226,67,120,.12),transparent 66%)}
+.gridhair{position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(22,33,27,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(22,33,27,.055) 1px,transparent 1px);
+  background-size:96px 96px;
+  mask-image:radial-gradient(75% 70% at 50% 45%, #000 30%, transparent 100%);}
+/* ---- medan klaim tosca ---- */
+#claim{position:absolute;inset:0;background:linear-gradient(160deg,#00A5A1 0%,var(--tosca) 55%,var(--tosca-dark) 100%);
+  transform:scaleY(0);transform-origin:50% 100%;visibility:hidden;z-index:5}
+#claim::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(900px 600px at 50% 110%,rgba(255,255,255,.16),transparent 60%),
+             radial-gradient(700px 500px at 85% 10%,rgba(255,255,255,.10),transparent 60%);}
+/* ---- beat ---- */
+.beat{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;z-index:6}
+.hero{font-family:"Bricolage Grotesque","Geist",system-ui,sans-serif;font-weight:500;letter-spacing:-.015em;
+  color:var(--ink);white-space:nowrap;line-height:1.08;text-shadow:0 2px 18px rgba(22,33,27,.10)}
+.hero.sm{font-size:76px}.hero.md{font-size:104px}.hero.lg{font-size:138px}
+.hero.on-tosca{color:#fff;text-shadow:0 3px 24px rgba(0,40,38,.35)}
+#shot-dash img{height:560px;object-fit:cover;object-position:top center}
+#shot-draft img,#shot-evcal img{height:420px;object-fit:cover;object-position:top center}
+#shot-reg img,#shot-surv img{height:480px;object-fit:cover;object-position:top center}
+#shot-analytics img{height:520px;object-fit:cover;object-position:top center}
+.shot img{display:block;width:100%;height:auto}
+.shot.tall{max-height:640px}
+#views .shot{height:660px}
+#views .shot img{height:556px;object-fit:cover;object-position:top center}
+.ch{display:inline-block;will-change:transform,opacity,filter;opacity:0}
+.hl{position:relative;display:inline-block}
+.hl i{position:absolute;left:0;right:0;bottom:-.06em;height:.13em;border-radius:.07em;background:var(--tosca);transform:scaleX(0);transform-origin:0 50%}
+.hl.on-tosca i{background:#fff}
+.hl-t{position:relative}
+.sub{font-size:44px;color:var(--slate-600);margin-top:26px;text-align:center}
+.sub.on-tosca{color:rgba(255,255,255,.88)}
+.kicker{font-size:34px;letter-spacing:.32em;text-transform:uppercase;color:var(--tosca-600);margin-bottom:22px;text-align:center}
+.kicker.on-tosca{color:rgba(255,255,255,.85)}
+.centercol{display:flex;flex-direction:column;align-items:center;max-width:1680px}
+/* ---- kartu UI footage ---- */
+.shot{background:var(--card);border:1px solid rgba(22,33,27,.10);border-radius:24px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(22,33,27,.16), 0 2px 6px rgba(22,33,27,.08);will-change:transform}
+.shot img{display:block;width:100%;height:auto}
+.shot .cap{display:flex;align-items:center;gap:12px;padding:14px 22px;font-size:30px;color:var(--slate-600);background:var(--card)}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--tosca);flex:none}
+.tag{display:inline-block;font-size:30px;padding:8px 22px;border-radius:999px;background:var(--tosca-wash);color:var(--tosca-dark);border:1px solid rgba(0,145,142,.25)}
+.pill{font-size:34px;padding:12px 30px;border-radius:999px;background:#fff;color:var(--tosca-dark);
+  border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 30px rgba(0,60,58,.18)}
+/* kalender mini pembuka */
+.mini-cal{background:var(--card);border:1px solid rgba(22,33,27,.10);border-radius:22px;padding:20px 26px;
+  box-shadow:0 24px 60px rgba(22,33,27,.14);display:grid;grid-template-columns:repeat(7,54px);gap:10px}
+.mini-cal b{grid-column:1/-1;font-size:28px;color:var(--slate-600);font-weight:600}
+.mini-cal span{height:54px;border-radius:12px;background:#EFF3F0;font-size:26px;display:flex;align-items:center;justify-content:center;color:var(--slate-600)}
+.wordmark{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:118px;letter-spacing:-.02em;color:var(--ink);white-space:nowrap}
+.mini-cal span.pk{background:var(--pink);color:#fff}
+/* kursor demo */
+.cursor{position:absolute;width:34px;height:34px;border-radius:50%;border:4px solid var(--tosca-600);background:rgba(0,145,142,.18);
+  box-shadow:0 0 0 0 rgba(0,145,142,.5);z-index:9}
+.clickring{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;border:5px solid var(--tosca);opacity:0;z-index:9}
+#ui{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:none;align-items:center;gap:14px;
+  padding:11px 18px;border-radius:16px;background:rgba(14,16,22,.92);border:1px solid rgba(255,255,255,.12);
+  font-size:13px;color:#A0A6B4;z-index:50;font-family:system-ui,sans-serif}
+#ui.on{display:flex}
+#ui button{background:#262A34;color:#fff;border:none;padding:8px 16px;border-radius:9px;font:inherit;cursor:pointer}
+#scrub{width:340px;accent-color:#00918E}
+#clock{font-variant-numeric:tabular-nums;min-width:5.2ch;text-align:right}
+</style>
+</head>
+<body>
+<svg id="filters"><defs>
+<filter id="grainF" x="0" y="0" width="100%" height="100%">
+  <feTurbulence id="grainT" type="fractalNoise" baseFrequency=".8" numOctaves="2" stitchTiles="stitch" result="n"/>
+  <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.09  0 0 0 0 0.13  0 0 0 0 0.11  0 0 0 .5 0"/>
+</filter>
+</defs></svg>
+
+<div id="stage">
+  <div id="world">
+    <div id="sway">
+      <div class="mesh"></div>
+      <div class="blob b1" id="blob1"></div><div class="blob b2" id="blob2"></div><div class="blob b3" id="blob3"></div>
+      <div class="gridhair"></div>
+      <div id="claim"></div>
+
+      <!-- B1 pembuka: judul + kalender di celah kata -->
+      <div class="beat" id="b1"><div class="centercol">
+        <div class="kicker" id="k1">Dashboard calendar event</div>
+        <h1 class="hero lg" id="h1"><span class="txt">Sistem event</span></h1>
+        <div class="mini-cal" id="cal1"><b>Kalender mall — bulan ini</b>
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+          <span>8</span><span class="on">9</span><span>10</span><span>11</span><span>12</span><span class="pk">13</span><span>14</span>
+          <span>15</span><span>16</span><span class="on">17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+        </div>
+        <h1 class="hero md" id="h1b" style="margin-top:26px"><span class="txt">Metropolitan Mall Bekasi</span></h1>
+      </div></div>
+
+      <div class="beat" id="b2"><div class="centercol">
+        <div class="shot" id="shot-dash" style="width:1240px"><img src="assets/06-dashboard-command-center.png" alt="Dashboard command center">
+          <div class="cap"><span class="dot"></span>Command center — statistik, draft, dan aktivitas hari ini</div></div>
+        <div style="display:flex;gap:22px;margin-top:26px" id="statrow">
+          <span class="tag">Total event</span><span class="tag">Berlangsung</span><span class="tag">Mendatang</span><span class="tag">Selesai</span>
+        </div>
+      </div></div>
+
+      <!-- B3 klaim 1 -->
+      <div class="beat" id="b3"><div class="centercol">
+        <div class="kicker on-tosca" id="k3">Kenapa sistem ini ada</div>
+        <h1 class="hero lg on-tosca" id="h3"><span class="txt">Jadwal akuntabel,</span></h1>
+        <h1 class="hero md on-tosca" id="h3b"><span class="txt">bukan </span><span class="hl on-tosca" id="hl3"><i></i><span class="hl-t">catatan lepas</span></span></h1>
+      </div></div>
+
+      <!-- B4 empat view -->
+      <div class="beat" id="b4"><div class="centercol">
+        <div class="kicker" id="k4">Satu jadwal, empat cara melihat</div>
+        <div style="position:relative;width:1240px;height:660px" id="views">
+          <div class="shot" id="v-table" style="position:absolute;inset:0"><img src="assets/16-dashboard-table.png" alt="Tampilan tabel"><div class="cap"><span class="dot"></span>Tabel — daftar lengkap</div></div>
+          <div class="shot" id="v-cal" style="position:absolute;inset:0"><img src="assets/17-dashboard-calendar.png" alt="Tampilan kalender"><div class="cap"><span class="dot"></span>Kalender — bentrok terlihat</div></div>
+          <div class="shot" id="v-kanban" style="position:absolute;inset:0"><img src="assets/18-dashboard-kanban.png" alt="Tampilan kanban"><div class="cap"><span class="dot"></span>Kanban — status berjalan</div></div>
+          <div class="shot" id="v-time" style="position:absolute;inset:0"><img src="assets/19-dashboard-timeline.png" alt="Tampilan timeline"><div class="cap"><span class="dot"></span>Timeline — alur waktu</div></div>
+        </div>
+      </div></div>
+
+      <!-- B5 momen istimewa: draft → event -->
+      <div class="beat" id="b5"><div class="centercol">
+        <div class="kicker" id="k5">Akuntabilitasnya terlihat</div>
+        <h1 class="hero sm" id="h5"><span class="txt">Dari draft dikurasi jadi jadwal resmi</span></h1>
+        <div style="display:flex;gap:60px;align-items:center;margin-top:34px">
+          <div class="shot" id="shot-draft" style="width:560px"><img src="assets/08-dashboard-drafts.png" alt="Antrian draft"><div class="cap"><span class="dot"></span>Draft — antrian kurasi</div></div>
+          <div class="shot" id="shot-evcal" style="width:560px"><img src="assets/17-dashboard-calendar.png" alt="Kalender resmi"><div class="cap"><span class="dot"></span>Event — jadwal resmi</div></div>
+        </div>
+        <div class="cursor" id="dotfly" style="opacity:0"></div>
+      </div></div>
+
+      <!-- B6 klaim 2 -->
+      <div class="beat" id="b6"><div class="centercol">
+        <div class="kicker on-tosca" id="k6">Bukti, bukan janji</div>
+        <h1 class="hero lg on-tosca" id="h6"><span class="txt">Komunitas </span><span class="hl on-tosca" id="hl6"><i></i><span class="hl-t">terbukti aktif</span></span></h1>
+        <div style="display:flex;gap:22px;margin-top:34px" id="comrow">
+          <span class="pill">Komunitas</span><span class="pill">Sekolah &amp; kampus</span><span class="pill">EO &amp; brand</span>
+        </div>
+      </div></div>
+
+      <!-- B7 publik: landing → jadwal → galeri -->
+      <div class="beat" id="b7"><div class="centercol">
+        <div class="kicker" id="k7">Wajah publiknya</div>
+        <div style="display:flex;gap:30px;align-items:flex-start">
+          <div class="shot tall" id="shot-land" style="width:520px"><img src="assets/01-landing-community.png" alt="Community hub"><div class="cap"><span class="dot"></span>Community hub</div></div>
+          <div class="shot tall" id="shot-pub" style="width:520px"><img src="assets/02-events-public.png" alt="Jadwal publik"><div class="cap"><span class="dot"></span>Jadwal publik</div></div>
+          <div class="shot tall" id="shot-gal" style="width:520px"><img src="assets/03-gallery.png" alt="Galeri"><div class="cap"><span class="dot"></span>Galeri bukti</div></div>
+        </div>
+      </div></div>
+
+      <!-- B8 satu alur: daftar → survei -->
+      <div class="beat" id="b8"><div class="centercol">
+        <div class="kicker" id="k8">Satu alur tertutup</div>
+        <h1 class="hero sm" id="h8"><span class="txt">Daftar, survei, galeri — satu alur</span></h1>
+        <div style="display:flex;gap:60px;align-items:center;margin-top:34px;position:relative" id="flowrow">
+          <div class="shot" id="shot-reg" style="width:560px"><img src="assets/04-tenant-survey-picker.png" alt="Formulir publik"><div class="cap"><span class="dot"></span>Formulir publik</div></div>
+          <div class="shot" id="shot-surv" style="width:560px"><img src="assets/05-tenant-survey-results.png" alt="Hasil survei masuk"><div class="cap"><span class="dot"></span>Hasil survei masuk</div></div>
+          <div class="cursor" id="cursor1" style="opacity:0"></div>
+          <div class="clickring" id="ring1"></div>
+        </div>
+      </div></div>
+
+      <!-- B9 analitik: angka dari sistem -->
+      <div class="beat" id="b9"><div class="centercol">
+        <div class="kicker" id="k9">Angkanya dari sistem</div>
+        <h1 class="hero md" id="h9"><span class="txt">Dibaca dari analitik</span></h1>
+        <div class="shot" id="shot-analytics" style="width:1100px;margin-top:30px"><img src="assets/13-dashboard-analytics.png" alt="Analitik dashboard"><div class="cap"><span class="dot"></span>Analitik — tren dan sebaran event</div></div>
+      </div></div>
+
+
+      <!-- B10 penutup -->
+      <div class="beat" id="b10"><div class="centercol">
+        <div class="kicker" id="k10">Presentasi internal</div>
+        <div class="wordmark" id="wm">Metropolitan Mall Bekasi</div>
+        <div class="rule" id="wmrule"></div>
+        <div class="sub" id="wmsub">Community Space — sistem operasi event</div>
+      </div></div>
+
+      <div id="grain"></div>
+    </div>
+  </div>
+</div>
+
+<div id="ui">
+  <button id="btn-play">Pause</button><button id="btn-restart">Restart</button>
+  <input id="scrub" type="range" min="0" max="1000" value="0">
+  <span id="clock">0.00s</span>
+</div>
+
+<script>
+/* Deterministik: semua visual fungsi tl.time(). Tanpa Date.now/Math.random di jalur render. */
+const $=(s,r=document)=>r.querySelector(s);
+const W=1920,H=1080,D=52;
+const Q=new URLSearchParams(location.search);
+const rig=$('#world'),sway=$('#sway');
+
+/* split per huruf */
+function splitChars(el){const words=(el.textContent||'').split(' ');el.textContent='';const out=[];
+  words.forEach((w,i)=>{const wr=document.createElement('span');wr.className='wd';
+    for(const c of w){const s=document.createElement('span');s.className='ch';s.textContent=c;wr.appendChild(s);out.push(s);}
+    el.appendChild(wr);if(i<words.length-1){const sp=document.createElement('span');sp.className='ch';sp.innerHTML='&nbsp;';el.appendChild(sp);out.push(sp);}});
+  return out;}
+
+/* motion blur berarah (feGaussianBlur x/y terpisah) */
+const defs=$('#filters defs');let fc=0;
+function makeBlur(){const id='mb'+(fc++),NS='http://www.w3.org/2000/svg';
+  const f=document.createElementNS(NS,'filter');f.id=id;
+  f.setAttribute('x','-70%');f.setAttribute('y','-70%');f.setAttribute('width','240%');f.setAttribute('height','240%');
+  const g=document.createElementNS(NS,'feGaussianBlur');g.setAttribute('stdDeviation','0 0');f.appendChild(g);defs.appendChild(f);
+  return{url:`url(#${id})`,node:g};}
+function blurTween(tl,targets,at,from,to,dur,o){o=o||{};const ease=o.ease||'power3.out',ax=o.ax==null?1:o.ax,ay=o.ay==null?.08:o.ay;
+  const b=makeBlur(),v={v:from};tl.set(targets,{filter:b.url},at);
+  tl.to(v,{v:to,duration:dur,ease,onUpdate(){b.node.setAttribute('stdDeviation',(v.v*ax).toFixed(2)+' '+(v.v*ay).toFixed(2));}},at);
+  tl.set(targets,{filter:'none'},at+dur);}
+const VERT={ax:.1,ay:1};
+
+const tl=gsap.timeline({paused:true,onComplete(){tl.play(0);}});
+
+/* pintu teks (arti → pilihan; dua adegan berturut-turut tidak sama) */
+const inUp=(ch,el,at,o)=>{o=o||{};const dur=o.dur||.8,st=o.st||.024;
+  tl.fromTo(ch,{opacity:0,yPercent:60,scaleY:1.45},{opacity:1,yPercent:0,scaleY:1,duration:dur,ease:'power4.out',stagger:st,immediateRender:false},at);
+  blurTween(tl,el,at,30,0,dur,VERT);};
+const inLeft=(ch,el,at,o)=>{o=o||{};const dur=o.dur||.75,st=o.st||.02;
+  tl.fromTo(ch,{opacity:0,xPercent:-45},{opacity:1,xPercent:0,duration:dur,ease:'power4.out',stagger:st,immediateRender:false},at);
+  blurTween(tl,el,at,50,0,dur,{ease:'power4.out'});};
+const inWords=(ch,el,at,o)=>{o=o||{};const dur=o.dur||.6,st=o.st||.12;const w=el.querySelectorAll('.wd');
+  tl.set(ch,{opacity:1,xPercent:0,yPercent:0,scale:1,scaleY:1},at);
+  tl.fromTo(w,{opacity:0,yPercent:40,rotateX:-55},{opacity:1,yPercent:0,rotateX:0,duration:dur,ease:'back.out(1.6)',stagger:st,immediateRender:false},at);};
+const outUp=(ch,el,at,o)=>{o=o||{};const dur=o.dur||.4,st=o.st||.01;
+  tl.to(ch,{opacity:0,yPercent:-70,duration:dur,ease:'power2.in',stagger:st},at);
+  blurTween(tl,el,at,0,45,dur+.1,{ease:'power2.in',ax:.1,ay:1});};
+const outLeft=(ch,el,at,o)=>{o=o||{};const dur=o.dur||.4,st=o.st||.01;
+  tl.to(ch,{opacity:0,xPercent:-60,duration:dur,ease:'power2.in',stagger:st},at);
+  blurTween(tl,el,at,0,55,dur+.1,{ease:'power2.in'});};
+const mark=(hl,at)=>{const i=$('i',hl);if(i)tl.fromTo(i,{scaleX:0},{scaleX:1,duration:.5,ease:'power3.out',immediateRender:false},at);
+  tl.fromTo($('.hl-t',hl),{opacity:0,yPercent:60},{opacity:1,yPercent:0,duration:.7,ease:'power4.out',immediateRender:false},at);};
+/* kartu rotateY masuk (transisi berkedalaman #2) */
+const cardIn=(el,at,dir)=>{dir=dir||1;
+  tl.fromTo(el,{autoAlpha:0,rotateY:-38*dir,scale:.92,y:40},{autoAlpha:1,rotateY:0,scale:1,y:0,duration:.9,ease:'expo.out',immediateRender:false},at);};
+const cardOut=(el,at,dir)=>{dir=dir||-1;
+  tl.to(el,{autoAlpha:0,rotateY:30*dir,scale:.94,y:-30,duration:.45,ease:'power2.in'},at);};
+/* kamera dunia */
+const cam=(at,dur,scale,x,y,ease)=>{tl.to(rig,{scale:scale,x:x||0,y:y||0,duration:dur,ease:ease||'power2.inOut'},at);};
+
+/* ---- gerak latar kontinu (blob drift + sway, didorong tl.time) ---- */
+tl.to('#blob1',{x:70,y:-50,duration:13,ease:'sine.inOut',yoyo:true,repeat:3},0);
+tl.to('#blob2',{x:-60,y:50,duration:13,ease:'sine.inOut',yoyo:true,repeat:3},0);
+tl.to('#blob3',{x:50,y:60,duration:13,ease:'sine.inOut',yoyo:true,repeat:3},0);
+tl.fromTo(sway,{scale:1},{scale:1.03,duration:D,ease:'none'},0);
+
+/* ================= RUNDOWN (konsep #19) ================= */
+/* B1 0–4.5 judul + kalender */
+const h1=splitChars($('#h1 .txt')),h1b=splitChars($('#h1b .txt'));
+tl.set('#b1',{autoAlpha:1},0);
+tl.fromTo('#k1',{opacity:0,y:20},{opacity:1,y:0,duration:.5},.2);
+inWords(h1,$('#h1'),.35);
+tl.fromTo('#cal1',{autoAlpha:0,y:60,rotateX:-30},{autoAlpha:1,y:0,rotateX:0,duration:.9,ease:'expo.out',immediateRender:false},.9);
+tl.fromTo('#cal1 .on',{scale:.4},{scale:1,duration:.5,ease:'back.out(2.5)',stagger:.3,immediateRender:false},1.6);
+tl.fromTo('#cal1 .pk',{scale:.4},{scale:1,duration:.5,ease:'back.out(2.5)',immediateRender:false},2.1);
+inLeft(h1b,$('#h1b'),2.2);
+cam(0,4.5,1.1,0,30,'sine.inOut');
+outUp(h1,$('#h1'),3.8);tl.to('#cal1',{autoAlpha:0,y:-40,duration:.4,ease:'power2.in'},3.8);
+outLeft(h1b,$('#h1b'),3.9);tl.to('#k1',{opacity:0,duration:.3},3.9);
+tl.set('#b1',{autoAlpha:0},4.4);
+
+/* B2 4.2–9.5 command center dirakit */
+tl.set('#b2',{autoAlpha:1},4.2);
+cardIn('#shot-dash',4.4,1);
+tl.fromTo('#statrow .tag',{autoAlpha:0,y:30,scale:.9},{autoAlpha:1,y:0,scale:1,duration:.5,ease:'back.out(1.8)',stagger:.12,immediateRender:false},5.6);
+cam(4.2,2.6,1.18,0,-40);cam(6.8,2.7,1.02,0,0); /* dekat ke titik klik → mundur */
+cardOut('#shot-dash',8.8,1);tl.to('#statrow .tag',{autoAlpha:0,y:-20,duration:.3,stagger:.05},8.8);
+tl.set('#b2',{autoAlpha:0},9.4);
+
+/* B3 9.3–13.5 klaim 1 di medan tosca */
+const h3=splitChars($('#h3 .txt')),h3b=splitChars($('#h3b .txt'));
+tl.set('#claim',{visibility:'visible'},9.3);
+tl.fromTo('#claim',{scaleY:0},{scaleY:1,duration:.35,ease:'power3.out',immediateRender:false},9.3);
+tl.set('#b3',{autoAlpha:1},9.5);
+tl.fromTo('#k3',{opacity:0,y:20},{opacity:1,y:0,duration:.4},9.6);
+inUp(h3,$('#h3'),9.8);inLeft(h3b,$('#h3b'),10.6);mark($('#hl3'),11.2);
+cam(9.3,4,1.05,0,0);
+outUp(h3,$('#h3'),12.7);outUp(h3b,$('#h3b'),12.8);tl.to('#k3',{opacity:0,duration:.3},12.8);
+tl.to('#claim',{scaleY:0,transformOrigin:'50% 0%',duration:.35,ease:'power3.in'},13.0);
+tl.set('#b3',{autoAlpha:0},13.4);tl.set('#claim',{visibility:'hidden',scaleY:0,transformOrigin:'50% 100%'},13.4);
+
+/* B4 13.2–19.5 empat view */
+const views=['#v-table','#v-cal','#v-kanban','#v-time'];
+tl.set('#b4',{autoAlpha:1},13.2);
+tl.fromTo('#k4',{opacity:0,y:20},{opacity:1,y:0,duration:.4},13.3);
+views.forEach((v,i)=>{const at=13.6+i*1.35;
+  if(i===0)cardIn(v,at,1);
+  else{tl.set(views[i-1],{zIndex:1},at);cardIn(v,at,i%2?1:-1);cardOut(views[i-1],at,i%2?1:-1);}
+  cam(at,1.5,1.14,0,-30);});
+cam(18.2,1.3,1.03,0,0);
+cardOut('#v-time',18.9,-1);tl.to('#k4',{opacity:0,duration:.3},18.9);
+tl.set('#b4',{autoAlpha:0},19.4);
+
+/* B5 19.2–24.5 momen istimewa draft → event */
+const h5=splitChars($('#h5 .txt'));
+tl.set('#b5',{autoAlpha:1},19.2);
+tl.fromTo('#k5',{opacity:0,y:20},{opacity:1,y:0,duration:.4},19.3);
+inWords(h5,$('#h5'),19.5);
+cardIn('#shot-draft',20.2,-1);cardIn('#shot-evcal',20.5,1);
+/* titik terbang: draft menyusut → titik → mekar di kalender */
+tl.set('#dotfly',{opacity:1,left:'640px',top:'640px',scale:1},21.4);
+tl.to('#shot-draft',{scale:.15,autoAlpha:0,transformOrigin:'80% 60%',duration:.5,ease:'power3.in'},21.4);
+tl.to('#dotfly',{left:'1240px',top:'640px',scale:1.6,background:'#E24378',borderColor:'#E24378',duration:.8,ease:'power2.inOut'},21.9);
+tl.fromTo('#shot-evcal',{scale:.9},{scale:1.06,duration:.35,ease:'power3.out',yoyo:true,repeat:1},22.7);
+tl.to('#dotfly',{opacity:0,scale:2.2,duration:.3},22.9);
+cam(19.2,2.6,1.08,0,0);cam(21.8,2.7,1.16,-60,-20);
+outUp(h5,$('#h5'),23.8);cardOut('#shot-evcal',23.9,1);tl.to('#k5',{opacity:0,duration:.3},23.9);
+tl.set('#b5',{autoAlpha:0},24.4);
+
+/* B6 24.3–28.5 klaim 2 */
+const h6=splitChars($('#h6 .txt'));
+tl.set('#claim',{visibility:'visible'},24.3);
+tl.fromTo('#claim',{scaleY:0},{scaleY:1,duration:.35,ease:'power3.out',immediateRender:false},24.3);
+tl.set('#b6',{autoAlpha:1},24.5);
+tl.fromTo('#k6',{opacity:0,y:20},{opacity:1,y:0,duration:.4},24.6);
+inUp(h6,$('#h6'),24.8);mark($('#hl6'),25.4);
+tl.fromTo('#comrow .pill',{autoAlpha:0,y:40,scale:.85},{autoAlpha:1,y:0,scale:1,duration:.55,ease:'back.out(1.8)',stagger:.14,immediateRender:false},25.8);
+cam(24.3,4,1.05,0,0);
+outUp(h6,$('#h6'),27.7);tl.to('#comrow .pill',{autoAlpha:0,y:-24,duration:.3,stagger:.06},27.7);
+tl.to('#k6',{opacity:0,duration:.3},27.8);
+tl.to('#claim',{scaleY:0,transformOrigin:'50% 0%',duration:.35,ease:'power3.in'},28.0);
+tl.set('#b6',{autoAlpha:0},28.4);tl.set('#claim',{visibility:'hidden',scaleY:0,transformOrigin:'50% 100%'},28.4);
+
+/* B7 28.2–35 publik */
+tl.set('#b7',{autoAlpha:1},28.2);
+tl.fromTo('#k7',{opacity:0,y:20},{opacity:1,y:0,duration:.4},28.3);
+cardIn('#shot-land',28.5,-1);cardIn('#shot-pub',29.2,1);cardIn('#shot-gal',29.9,-1);
+cam(28.2,3,1.02,-120,0);cam(31.2,3.6,1.02,120,0); /* susur kiri → kanan */
+cardOut('#shot-land',34.2,-1);cardOut('#shot-pub',34.3,1);cardOut('#shot-gal',34.4,-1);
+tl.to('#k7',{opacity:0,duration:.3},34.3);
+tl.set('#b7',{autoAlpha:0},34.9);
+
+/* B8 34.7–41 satu alur */
+const h8=splitChars($('#h8 .txt'));
+tl.set('#b8',{autoAlpha:1},34.7);
+tl.fromTo('#k8',{opacity:0,y:20},{opacity:1,y:0,duration:.4},34.8);
+inLeft(h8,$('#h8'),35);
+cardIn('#shot-reg',35.8,-1);cardIn('#shot-surv',36.2,1);
+tl.set('#cursor1',{opacity:1,left:'560px',top:'700px'},36.6);
+tl.to('#cursor1',{left:'700px',top:'790px',duration:.9,ease:'power2.inOut'},36.8);
+tl.fromTo('#ring1',{opacity:.9,scale:.4,left:'700px',top:'790px'},{opacity:0,scale:1.4,duration:.6,ease:'power2.out'},37.7);
+tl.fromTo('#shot-surv',{scale:.92},{scale:1,duration:.6,ease:'back.out(1.6)'},37.9);
+cam(34.7,3,1.1,60,-20);cam(37.7,3.3,1.03,0,0);
+outUp(h8,$('#h8'),40.2);cardOut('#shot-reg',40.3,-1);cardOut('#shot-surv',40.4,1);
+tl.to(['#k8','#cursor1'],{opacity:0,duration:.3},40.3);
+tl.set('#b8',{autoAlpha:0},40.9);
+
+/* B9 40.7–46 analitik: angka dibaca dari sistem */
+const h9=splitChars($('#h9 .txt'));
+tl.set('#b9',{autoAlpha:1},40.7);
+tl.fromTo('#k9',{opacity:0,y:20},{opacity:1,y:0,duration:.4},40.8);
+inUp(h9,$('#h9'),41);
+cardIn('#shot-analytics',41.8,1);
+cam(40.7,2.6,1.1,0,-30);cam(43.3,2.4,1.03,0,0);
+outUp(h9,$('#h9'),45.2);cardOut('#shot-analytics',45.3,1);tl.to('#k9',{opacity:0,duration:.3},45.2);
+tl.set('#b9',{autoAlpha:0},45.8);
+
+/* B10 45.7–52 penutup */
+tl.set('#b10',{autoAlpha:1},45.7);
+tl.fromTo('#k10',{opacity:0,y:20},{opacity:1,y:0,duration:.4},45.8);
+const wm=splitChars($('#wm'));inWords(wm,$('#wm'),46,{dur:.7,st:.03});
+tl.fromTo('#wmrule',{scaleX:0},{scaleX:1,duration:.6,ease:'power3.out',immediateRender:false},47.2);
+tl.fromTo('#wmsub',{opacity:0,y:24},{opacity:1,y:0,duration:.6},47.5);
+cam(45.7,6.3,1.08,0,0); /* push penutup yang ditahan */
+tl.to({},{duration:.01},D);
+
+/* grain hidup deterministik: lompat 12×/dtk dari t */
+const grainEl=$('#grain');
+gsap.ticker.add(()=>{const t=tl.time(),k=Math.floor(t*12);
+  grainEl.style.transform=`translate(${k*37%60-30}px,${k*61%60-30}px)`;});
+
+
+/* perekat */
+const stage=$('#stage');
+const fit=()=>{const s=Math.min(innerWidth/W,innerHeight/H);stage.style.transform=`translate(-50%,-50%) scale(${s})`;};
+addEventListener('resize',fit);fit();
+const clock=$('#clock'),scrub=$('#scrub'),btn=$('#btn-play');
+let scrubbing=false;
+(function frame(){const t=tl.time();clock.textContent=t.toFixed(2)+'s';
+  if(!scrubbing)scrub.value=String(t/D*1000);requestAnimationFrame(frame);})();
+const toggle=()=>{if(tl.paused()||tl.progress()>=1){if(tl.progress()>=1)tl.progress(0);tl.play();btn.textContent='Pause';}
+  else{tl.pause();btn.textContent='Play';}};
+btn.onclick=toggle;
+$('#btn-restart').onclick=()=>{tl.pause(0);tl.play();btn.textContent='Pause';};
+scrub.addEventListener('pointerdown',()=>{scrubbing=true;tl.pause();btn.textContent='Play';});
+addEventListener('pointerup',()=>scrubbing=false);
+scrub.addEventListener('input',()=>{tl.pause();tl.time(scrub.value/1000*D);});
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();toggle();}
+  if(/^[rR]$/.test(e.key)){tl.pause(0);tl.play();}});
+if(Q.has('debug'))$('#ui').classList.add('on');
+window.__pitch={tl,DURATION:D,seek(t){tl.pause();tl.time(t);},ready:false};
+document.fonts.ready.then(()=>{window.__pitch.ready=true;if(!Q.has('clean'))tl.play(0);});
+</script>
+</body>
+</html>

@@ -280,12 +280,12 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                       <div className="flex">
                         <span className="w-16 text-slate-500">Nomor</span>
                         <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-500">—</span>}</span>
+                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-500">-</span>}</span>
                       </div>
                       <div className="flex">
                         <span className="w-16 text-slate-500">Tanggal</span>
                         <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-500">—</span>}</span>
+                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-500">-</span>}</span>
                       </div>
                       <div className="flex">
                         <span className="w-16 text-slate-500">Perihal</span>
@@ -297,7 +297,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     {/* Kepada */}
                     <div className="text-[11px] mb-5">
                       <p className="font-semibold">Kepada Yth.</p>
-                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-500">—</span>}</p>
+                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-500">-</span>}</p>
                       {letter.penanggungJawab && <p className="text-slate-600">u.p. {letter.penanggungJawab}</p>}
                       {letter.alamatEO && <p className="text-slate-600">{letter.alamatEO}</p>}
                       {letter.nomorTelepon && <p className="text-slate-600">Telp. {letter.nomorTelepon}</p>}

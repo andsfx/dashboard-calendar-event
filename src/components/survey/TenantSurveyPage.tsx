@@ -569,7 +569,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                 onChange={(e) => setReviewNotes(e.target.value)}
                 rows={3}
                 maxLength={2000}
-                placeholder="Opsional — ringkas temuan admin…"
+                placeholder="Opsional. Ringkas temuan admin…"
                 className="mt-1.5 w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-brand-primary-800 dark:bg-slate-900 dark:text-slate-200"
               />
               <div className="mt-2 flex flex-wrap gap-2">
@@ -894,7 +894,7 @@ function TenantSurveyEventRow({
           onClick={() => onToggleConfig(event.id, isActive)}
           disabled={isToggling}
           className={`shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`}
-          title={isActive ? 'Survey aktif — klik untuk nonaktifkan' : 'Survey nonaktif — klik untuk aktifkan'}
+          title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
         >
           {isToggling ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -1031,7 +1031,7 @@ function TenantSurveyManagementSection({
         <>
           <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-700">
             <p className="mb-2 text-[10px] text-slate-500">
-              Cari event, aktifkan toggle, copy link/QR. Default nonaktif — nyalakan dulu agar form public buka.
+              Cari event, aktifkan toggle, copy link/QR. Default nonaktif. Nyalakan dulu agar form public buka.
             </p>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />

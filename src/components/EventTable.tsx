@@ -220,7 +220,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                      </div>
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-500" />
-                      <span className="line-clamp-2">{ev.lokasi || '–'}</span>
+                      <span className="line-clamp-2">{ev.lokasi || '-'}</span>
                     </div>
                     {ev.eo && <p className="text-slate-600 dark:text-slate-300">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
                   </div>
@@ -320,7 +320,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     <td className="whitespace-nowrap px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                         <Clock className="h-3 w-3 text-slate-500" />
-                        {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '–')}
+                        {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '-')}
                       </span>
                     </td>
                     {/* Event name */}
@@ -339,7 +339,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                         <MapPin className="h-3 w-3 flex-shrink-0 text-slate-500" />
-                        <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '–'}</span>
+                        <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '-'}</span>
                       </span>
                     </td>
                     {/* Status */}
@@ -369,7 +369,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     )}
                     {/* EO */}
                     <td className="whitespace-nowrap px-4 py-3 text-xs ui-text-muted">
-                      {ev.eo || '–'}
+                      {ev.eo || '-'}
                     </td>
                     {/* Actions */}
                     <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>

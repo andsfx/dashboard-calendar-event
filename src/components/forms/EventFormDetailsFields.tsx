@@ -81,7 +81,7 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
             onChange={e => onFieldChange('organizationId', e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
           >
-            <option value="">— Tanpa organisasi terdaftar —</option>
+            <option value="">- Tanpa organisasi terdaftar -</option>
             {organizationOptions.map(opt => (
               <option key={opt.id} value={opt.id}>{opt.name}</option>
             ))}

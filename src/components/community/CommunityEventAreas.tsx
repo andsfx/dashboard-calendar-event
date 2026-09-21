@@ -22,6 +22,58 @@ function SkeletonAreas() {
   );
 }
 
+/**
+ * Media kartu area. Saat area punya foto, media dibungkus `<button>` asli;
+ * kalau tidak ada aksi, media dirender polos tanpa kontrol.
+ *
+ * Sebelumnya seluruh `<figure>` diberi `role="button"` + onClick + onKeyDown —
+ * ARIA melarang `role="button"` di atas `<figure>` (axe: `aria-allowed-role`).
+ * `figure`/`figcaption` tetap dipertahankan sebagai pembungkus semantik.
+ */
+function AreaMedia({ area, photoCount, clickable, onOpen }: {
+  area: EventArea;
+  photoCount: number;
+  clickable: boolean;
+  onOpen: () => void;
+}) {
+  const media = (
+    <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-700">
+      {area.coverPhotoUrl ? (
+        <img
+          src={thumbUrl(area.coverPhotoUrl)}
+          alt={area.name}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
+          <Camera className="h-9 w-9 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
+        </div>
+      )}
+      {photoCount > 0 && (
+        <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+          <Camera className="h-3 w-3" aria-hidden="true" />
+          {photoCount} foto
+        </span>
+      )}
+    </div>
+  );
+
+  if (!clickable) return media;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={`Lihat ${photoCount} foto ${area.name}`}
+      className="block w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2"
+    >
+      {media}
+    </button>
+  );
+}
+
 /** Section "Foto Area Event" — grid area event dengan cover foto (kurasi admin). */
 export function CommunityEventAreas({ areas, isLoading = false }: Props) {
   const [lightbox, setLightbox] = useState<{ areaId: string; index: number } | null>(null);
@@ -86,42 +138,18 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
               return (
               <figure
                 key={area.id}
-                role={clickable ? 'button' : undefined}
-                tabIndex={clickable ? 0 : undefined}
-                aria-label={clickable ? `Lihat ${photoCount} foto ${area.name}` : undefined}
-                onClick={clickable ? () => { void openArea(area); } : undefined}
-                onKeyDown={clickable ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    void openArea(area);
-                  }
-                } : undefined}
-                className={[
-                  'ui-campaign-card group overflow-hidden rounded-[2rem] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900',
-                  clickable ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2' : '',
-                ].join(' ')}
+                className="ui-campaign-card group overflow-hidden rounded-[2rem] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-700">
-                  {area.coverPhotoUrl ? (
-                    <img
-                      src={thumbUrl(area.coverPhotoUrl)}
-                      alt={area.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
-                      <Camera className="h-9 w-9 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
-                    </div>
-                  )}
-                  {typeof area.photoCount === 'number' && area.photoCount > 0 && (
-                    <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-                      <Camera className="h-3 w-3" aria-hidden="true" />
-                      {area.photoCount} foto
-                    </span>
-                  )}
-                </div>
+                {/* Interaksi ada di elemen nyata (<button> di dalam AreaMedia),
+                    bukan role="button" di atas <figure> — ARIA melarang role itu
+                    di figure (axe: aria-allowed-role). figure/figcaption tetap
+                    sebagai pembungkus semantik. */}
+                <AreaMedia
+                  area={area}
+                  photoCount={photoCount}
+                  clickable={clickable}
+                  onOpen={() => { void openArea(area); }}
+                />
                 <figcaption className="p-5 sm:p-6">
                   <div className="flex items-start gap-2">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />

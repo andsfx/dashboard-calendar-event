@@ -66,7 +66,7 @@ export default function TenantSurveyResultsPage({
   publicMode = true,
 }: Props) {
   usePageMeta({
-    title: 'Hasil Survey Tenant — Metropolitan Mall Bekasi',
+    title: 'Hasil Survey Tenant - Metropolitan Mall Bekasi',
     description: 'Hasil survey traffic dan sales tenant setelah event di Metropolitan Mall Bekasi.',
   });
   const { surveys, isLoading, error } = useTenantSurveys(undefined, { publicMode });
@@ -605,14 +605,14 @@ export default function TenantSurveyResultsPage({
         />
         <KpiCard
           label="Traffic Positif"
-          value={agg.total > 0 ? `${agg.trafficPosPct}%` : '—'}
+          value={agg.total > 0 ? `${agg.trafficPosPct}%` : '-'}
           icon={<TrendingUp className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.trafficPosPct)}
           helper="Menyatakan pengunjung meningkat"
         />
         <KpiCard
           label="Sales Positif"
-          value={agg.total > 0 ? `${agg.salesPosPct}%` : '—'}
+          value={agg.total > 0 ? `${agg.salesPosPct}%` : '-'}
           icon={<DollarSign className="h-4 w-4" aria-hidden />}
           tone={pctTone(agg.salesPosPct)}
           helper="Omzet meningkat minimal 10%"
@@ -843,7 +843,7 @@ export default function TenantSurveyResultsPage({
                     {t.name}
                   </p>
                   <p className="truncate text-[11px] ui-text-muted">
-                    {[t.floor, t.lot].filter(Boolean).join(' · ') || '—'}
+                    {[t.floor, t.lot].filter(Boolean).join(' · ') || '-'}
                     {t.category ? ` · ${t.category}` : ''}
                   </p>
                 </div>
@@ -1118,7 +1118,7 @@ export default function TenantSurveyResultsPage({
                 <article key={s.id} className="space-y-1.5 px-3 py-3">
                   <div className="flex items-start justify-between gap-2">
                     <p className="min-w-0 text-sm font-semibold text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
-                      {s.nama_gerai || s.tenant_name || '—'}
+                      {s.nama_gerai || s.tenant_name || '-'}
                     </p>
                     <StatusBadge status={s.status} />
                   </div>
@@ -1128,21 +1128,21 @@ export default function TenantSurveyResultsPage({
                   <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
                     <div>
                       <dt className="text-slate-500">Zona</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.lokasi_zona || '—'}</dd>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.lokasi_zona || '-'}</dd>
                     </div>
                     <div>
                       <dt className="text-slate-500">Kategori</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-300 [overflow-wrap:anywhere]">
-                        {s.kategori || '—'}
+                        {s.kategori || '-'}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-slate-500">Traffic</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_traffic || '—'}</dd>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_traffic || '-'}</dd>
                     </div>
                     <div>
                       <dt className="text-slate-500">Sales</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_sales || '—'}</dd>
+                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_sales || '-'}</dd>
                     </div>
                   </dl>
                 </article>
@@ -1187,22 +1187,22 @@ export default function TenantSurveyResultsPage({
                       } hover:bg-brand-primary-50/50 dark:hover:bg-brand-primary-950/20`}
                     >
                       <td className="max-w-[140px] truncate px-4 py-2 font-medium text-slate-800 dark:text-slate-100">
-                        {s.nama_gerai || s.tenant_name || '—'}
+                        {s.nama_gerai || s.tenant_name || '-'}
                       </td>
                       <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
                         {eventMap.get(s.event_id) || s.event_id}
                       </td>
                       <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
-                        {s.lokasi_zona || '—'}
+                        {s.lokasi_zona || '-'}
                       </td>
                       <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
-                        {s.kategori || '—'}
+                        {s.kategori || '-'}
                       </td>
                       <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
-                        {s.kenaikan_traffic || '—'}
+                        {s.kenaikan_traffic || '-'}
                       </td>
                       <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
-                        {s.kenaikan_sales || '—'}
+                        {s.kenaikan_sales || '-'}
                       </td>
                       <td className="px-4 py-2">
                         <StatusBadge status={s.status} />

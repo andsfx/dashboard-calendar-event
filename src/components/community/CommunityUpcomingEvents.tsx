@@ -10,7 +10,7 @@ function EmptyEvents() {
   return (
     <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-16 text-center dark:border-slate-700 dark:bg-slate-800/30">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]">
-        <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca)]" aria-hidden="true" />
+        <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
       <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
       <p className="mt-2 max-w-xs text-sm text-slate-600 dark:text-slate-300">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
@@ -147,15 +147,17 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
-                <span className="relative flex h-2 w-2 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:hidden" style={{ backgroundColor: catColor }}></span>
-                                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
-                </span>
+                {showOngoing && (
+                  <span className="relative flex h-2 w-2 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:hidden" style={{ backgroundColor: catColor }}></span>
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }}></span>
+                  </span>
+                )}
                 {showOngoing ? 'Sedang Berlangsung' : 'Event Berikutnya'}
               </span>
-              <h3 className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+              <h2 className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 {mainEvent.acara}
-              </h3>
+              </h2>
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
                   <CalendarDays className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.tanggal}
@@ -236,9 +238,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                   <ArrowRight className="h-4 w-4 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold leading-tight text-slate-900 dark:text-white line-clamp-2">
+                  <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white line-clamp-2">
                     {ev.acara}
-                  </h4>
+                  </h3>
                   {(ev.jam || ev.lokasi) && (
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                       {ev.jam && <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {ev.jam}</span>}

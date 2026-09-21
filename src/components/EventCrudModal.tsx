@@ -726,7 +726,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                   <>
                     <Upload className="h-5 w-5" />
                     <span className="text-xs font-medium">Klik untuk upload poster / flyer</span>
-                    <span className="text-[10px]">JPG, PNG, WebP — maks. 10 MB</span>
+                    <span className="text-[10px]">JPG, PNG, WebP · maks. 10 MB</span>
                   </>
                 )}
               </button>

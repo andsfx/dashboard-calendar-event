@@ -6,7 +6,6 @@ Dashboard Calendar Event is an event operations and public marketing system for 
 
 ## Register
 
-brand
 
 The public landing page is a marketing/campaign surface. Design is part of the product: it must persuade communities, schools, companies, organizers, and institutions to collaborate with Metropolitan Mall Bekasi.
 
@@ -58,10 +57,10 @@ Preferred tone:
 
 Use:
 
-- "Daftar Kolaborasi"
+- "Ajukan Kolaborasi"
 - "Fasilitas"
 - "Cara Daftar"
-- "Tim kami akan menghubungi PIC dalam 3-5 hari kerja"
+- "Tim kami akan menghubungi PIC dalam 5 hari kerja"
 - "Sesuai kurasi dan ketersediaan jadwal"
 
 Avoid overusing:

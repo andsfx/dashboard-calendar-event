@@ -103,7 +103,7 @@
 ### 4. Test UI
 - Visit homepage
 - Scroll to hero section
-- Hover over "Daftar Sekarang" button
+- Hover over "Daftar Sekarang" button (label basi — sejak 2026-09-21 tombol ini berlabel "Daftar Event")
 - Check shadow and scale effect
 - Scroll to benefits section
 - Hover over benefit cards

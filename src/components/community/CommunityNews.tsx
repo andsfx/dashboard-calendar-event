@@ -99,7 +99,7 @@ export function CommunityNews() {
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
                       <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
-                      <span className="font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Baca selengkapnya →</span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Baca selengkapnya <ArrowRight className="h-3 w-3" aria-hidden="true" /></span>
                     </div>
                   </div>
                 </Link>

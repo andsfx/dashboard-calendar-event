@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommunityHero } from '../CommunityHero'
+import { COMMUNITY_STAT_LABELS } from '../communityStats'
 
 describe('CommunityHero', () => {
   it('renders main heading with the highlighted "Gratis"', () => {
@@ -14,8 +15,8 @@ describe('CommunityHero', () => {
 
   it('renders CTA buttons', () => {
     render(<CommunityHero />)
-    expect(screen.getByText('Daftar Sekarang')).toBeInTheDocument()
-    expect(screen.getByText('Isi Form di Halaman Ini')).toBeInTheDocument()
+    expect(screen.getByText('Daftar Event')).toBeInTheDocument()
+    expect(screen.getByText('Cek Event')).toBeInTheDocument()
   })
 
   it('renders quick stats', () => {
@@ -32,7 +33,8 @@ describe('CommunityHero', () => {
 
   it('renders live completed count in the badge with a "+" suffix', () => {
     render(<CommunityHero stats={{ completed: 1234 }} />)
-    expect(screen.getByText('1.234+ Event Sudah Terlaksana')).toBeInTheDocument()
+    // Label dibaca dari sumber tunggal (C2) supaya tidak bisa menyimpang dari /events.
+    expect(screen.getByText(`1.234+ ${COMMUNITY_STAT_LABELS.completed}`)).toBeInTheDocument()
   })
 
   it('shows a skeleton instead of "0 Event" while loading', () => {

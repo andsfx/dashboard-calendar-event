@@ -62,3 +62,14 @@
   --accent-soft: #66cfab;
   --border-subtle: rgba(22, 33, 27, 0.06);
 }
+
+/* Dark mode: the cream band above reads as a LIGHT stripe on the dark page
+ * (measured 3.42:1 against rgb(14,22,18)), so the four sections that use
+ * `bg-[var(--section-alt)]` (SocialProof, #benefits, #how, #gallery) looked
+ * inverted. Flip it to a faint white wash: a dark band in dark mode, and
+ * byte-identical in light mode (this rule only matches `<html class="dark">`,
+ * the same `.dark` scope base.css/utilities.css already use).
+ */
+.dark {
+  --section-alt: rgba(255, 255, 255, 0.04);
+}

@@ -310,7 +310,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
                     {t.name}
                   </p>
                   <p className="truncate text-[11px] ui-text-muted">
-                    {t.category || '—'}
+                    {t.category || '-'}
                     {t.floor ? ` • ${t.floor}` : ''}
                     {t.lot ? ` • Lot ${t.lot}` : ''}
                   </p>

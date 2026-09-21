@@ -107,14 +107,18 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
       <div className="max-w-4xl px-16" onClick={(e) => e.stopPropagation()}>
         <img
           src={lightboxUrl(photo.url)}
-          alt={hideCaption ? `${title || 'Foto'} — ${currentIndex + 1}` : photo.caption}
+          alt={hideCaption ? `${title || 'Foto'} - ${currentIndex + 1}` : photo.caption}
           className="max-h-[80vh] w-full rounded-lg object-contain"
           onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
         />
         <div className="mt-4 text-center">
           {!hideCaption && <p className="text-lg font-semibold text-white">{photo.caption}</p>}
           {!hideCaption && photo.eventDate && <p className="mt-1 text-sm text-white/60">{photo.eventDate}</p>}
-          <p className="text-xs text-white/40">{currentIndex + 1} / {photos.length}</p>
+          {/* text-white/40 failed AA: 3.33:1 measured over the slate-950/85
+              overlay (axe: 3.34, minimum alpha to reach 4.5:1 is 0.522).
+              /70 gives 6.72:1 worst-case (white page behind the overlay) and
+              keeps the counter subdued relative to the full-white caption. */}
+          <p className="text-xs text-white/70">{currentIndex + 1} / {photos.length}</p>
         </div>
       </div>
     </div>

@@ -44,6 +44,20 @@
 .dark .ui-empty-panel {
   border-color: #4a554c;
   background: rgb(26 36 30 / 0.5);
+  /* The panel had no dark text color, so muted copy inside it inherited the
+   * light-mode slate-500 (#586056) and measured 1.87:1 on this dark surface.
+   * slate-300 is the palette's dark-mode muted tone (535 existing uses). */
+  color: var(--color-slate-300);
+}
+
+/* Chip text whose LIGHT-mode color is computed in JS (`darkenChipText`) and set
+ * as an inline style. Inline styles outrank utility classes, so the dark
+ * override has to be an attribute-matched rule rather than a `dark:` utility.
+ * The component sets `--chip-tone-dark` alongside the inline color.
+ * Light mode is untouched: this only matches inside `.dark`.
+ * Measured before: tosca 1.73:1, amber 2.76–2.92:1 on their own dark tints. */
+.dark [data-chip-tone] {
+  color: var(--chip-tone-dark) !important;
 }
 
 .ui-alert-panel {
@@ -63,7 +77,8 @@
 }
 
 .ui-campaign-icon-gradient {
-  background: var(--brand-tosca);
+  /* AA: white-on-tosca-600 = 5.18:1 (same rule as .ui-btn-primary below) */
+  background: var(--brand-tosca-600);
   color: #fff;
 }
 

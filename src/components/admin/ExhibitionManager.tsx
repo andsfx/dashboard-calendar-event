@@ -312,7 +312,7 @@ export function ExhibitionManager({
                         <select id={`exh-link-${exhibition.id}`} className={inputClass} value={linkEventId} onChange={e => setLinkEventId(e.target.value)}>
                           <option value="">Pilih event…</option>
                           {eligibleEvents.map(ev => (
-                            <option key={ev.id} value={ev.id}>{ev.acara} — {ev.dateStr}</option>
+                            <option key={ev.id} value={ev.id}>{ev.acara} - {ev.dateStr}</option>
                           ))}
                         </select>
                       </div>

@@ -26,7 +26,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   usePageMeta({
-    title: album ? `${album.name} — Galeri Metropolitan Mall Bekasi` : 'Galeri Foto — Metropolitan Mall Bekasi',
+    title: album ? `${album.name} - Galeri Metropolitan Mall Bekasi` : 'Galeri Foto - Metropolitan Mall Bekasi',
     description: album?.description || 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
   });
 
@@ -75,7 +75,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
     <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -200,21 +200,22 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
                     key={photo.id}
                     type="button"
                     onClick={() => setLightboxIndex(idx)}
-                    className="group relative cursor-pointer overflow-hidden rounded-xl aspect-[4/3] bg-slate-200 dark:bg-slate-700"
+                    className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-slate-200 bg-white text-left dark:border-slate-700 dark:bg-slate-800"
                   >
-                    <img
-                      src={gridUrl(photo.url)}
-                      alt={photo.caption}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
-                    />
-                    {/* Hover overlay with caption */}
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100">
-                      <div className="p-3 sm:p-4">
-                        <p className="text-sm font-semibold text-white line-clamp-2">{photo.caption}</p>
-                        {photo.eventDate && <p className="mt-0.5 text-xs text-white/70">{photo.eventDate}</p>}
-                      </div>
+                    <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-slate-200 dark:bg-slate-700">
+                      <img
+                        src={gridUrl(photo.url)}
+                        alt={photo.caption}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
+                      />
+                      {/* Scrim on hover only; caption sits below the image (9.F) */}
+                      <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" aria-hidden="true" />
+                    </div>
+                    <div className="p-3 sm:p-4">
+                      <p className="text-sm font-semibold text-slate-800 line-clamp-2 dark:text-white">{photo.caption}</p>
+                      {photo.eventDate && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{photo.eventDate}</p>}
                     </div>
                   </button>
                 ))}
@@ -227,7 +228,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
       {/* ─── Footer ─────────────────────────────────────────── */}
 <footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
-          <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
+          <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
         </div>
       </footer>
 

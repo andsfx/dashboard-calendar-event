@@ -26,7 +26,7 @@ interface Props {
 
 export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
-    title: 'Galeri Foto — Metropolitan Mall Bekasi',
+    title: 'Galeri Foto - Metropolitan Mall Bekasi',
     description: 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
   });
 
@@ -95,7 +95,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
     <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Langsung ke konten
       </a>
@@ -206,7 +206,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
                   </h2>
                   <p className="mt-1 text-sm ui-text-muted">
                     {theme
-                      ? `${formatThemeDate(theme.dateStart)} — ${formatThemeDate(theme.dateEnd)}`
+                      ? `${formatThemeDate(theme.dateStart)} - ${formatThemeDate(theme.dateEnd)}`
                       : 'Album di luar tema tahunan'
                     }
                     {' · '}{groupAlbums.length} album
@@ -236,9 +236,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
                             <Camera className="h-10 w-10 text-brand-primary-300 dark:text-brand-primary-500" />
                           </div>
                         )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition duration-300 group-hover:opacity-100">
-                          <span className="text-sm font-semibold text-white">Lihat Foto &rarr;</span>
-                        </div>
+                        <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
                       </div>
 
                       {/* Card body */}
@@ -279,7 +277,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
       {/* ─── Footer ─────────────────────────────────────────── */}
 <footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
-          <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &mdash; Metland Coloring Life</p>
+          <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
         </div>
       </footer>
 

@@ -60,6 +60,12 @@ Cap: at most **one** pink signal per viewport region. If tosca already carries t
 
 Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500).
 
+**Aturan mutlak kontras — `brand-primary-500` vs `brand-primary-600`:**
+
+- `--brand-tosca` / `brand-primary-500` (`#00918e`) **DILARANG** dipakai sebagai background/fill di belakang teks — hanya untuk elemen dekoratif tanpa teks: ikon fill, dot, bar chart, garis timeline, progress fill, gradient stop, `border-*`, `text-*`, `ring-*`, atau wash transparan (`bg-[var(--brand-tosca)]/10`, `color-mix(… N%, transparent)`). Putih di atas `#00918e` cuma 3.85:1 — gagal WCAG 2.2 AA.
+- Setiap permukaan yang membawa teks (button solid, chip aktif, badge, skip-link, CTA) **WAJIB** pakai `--brand-tosca-600` / `brand-primary-600` (`#007a78`) — putih di atasnya 5.18:1 (AA). Termasuk varian `hover:` / `active:` / `focus:` / `dark:` / `group-hover:`.
+- Saat menemukan `bg-[var(--brand-tosca)]` dengan teks di atasnya, ganti ke `bg-[var(--brand-tosca-600)]`; jangan biarkan alasan "teksnya besar" — tetap pakai 600 kecuali harus menyamai elemen tosca-500 di sebelahnya.
+
 ### Surfaces
 
 - Warm paper: `#f8f7f0` (`--brand-paper`)
@@ -175,7 +181,7 @@ Primary landing CTA:
 - solid tosca 600 (`var(--brand-tosca-600)` / `bg-brand-primary-600`, AA 5.18:1)
 - white text
 - no orange→violet gradient
-- clear verb: `Daftar Sekarang`, `Daftar Kolaborasi`, or `Hubungi Kami`
+- clear verb: `Daftar Event`, `Ajukan Kolaborasi`, or `Hubungi Kami`
 
 Secondary CTA:
 
@@ -296,7 +302,7 @@ Use Indonesian-first labels. English is allowed for known event terms only, but 
 
 Preferred:
 
-- `Daftar Sekarang`
+- `Daftar Event`
 - `Hubungi Kami`
 - `Cara Daftar`
 - `Fasilitas`

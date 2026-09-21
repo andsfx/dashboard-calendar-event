@@ -36,7 +36,7 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                     <p className="font-semibold text-slate-800 dark:text-white">{draft.acara}</p>
                     <p className="mt-1 text-xs text-slate-500">{draft.lokasi}</p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '–'}</td>
+                  <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.eo || '-'}</td>
                   <td className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.pic}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-slate-300">{draft.phone}</td>
                   <td className="px-4 py-3"><DraftProgressBadge progress={draft.progress} /></td>

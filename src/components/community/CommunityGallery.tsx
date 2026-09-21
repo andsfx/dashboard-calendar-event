@@ -96,7 +96,7 @@ function LazyInstagramEmbed({ url }: { url: string }) {
           className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-slate-600 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
         >
           <Globe className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
-          <span>Lihat di Instagram &rarr;</span>
+          <span className="inline-flex items-center gap-1.5">Lihat di Instagram <ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
         </a>
       ) : (
         <div className="relative">
@@ -130,7 +130,9 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
         {imgSrc && !imgFailed ? (
           <img
             src={imgSrc}
-            alt={post.caption || 'Instagram post'}
+            // Caption tampil sebagai teks di kartu yang sama; alt yang mengulanginya
+            // membuat screen reader membaca dua kali (axe: image-redundant-alt).
+            alt={post.caption ? '' : 'Instagram post'}
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none"
             loading="lazy"
             referrerPolicy="no-referrer"
@@ -220,7 +222,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                       {typeof album.photoCount === 'number' && album.photoCount > 0 && (
                         <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
                       )}
-                      <span className="font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Lihat foto →</span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Lihat foto <ArrowRight className="h-3 w-3" aria-hidden="true" /></span>
                     </div>
                   </div>
                 </Link>
@@ -233,7 +235,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                 className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
-                Lihat Semua Gallery
+                Lihat Semua Galeri
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

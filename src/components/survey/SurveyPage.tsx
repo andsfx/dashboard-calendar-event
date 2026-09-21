@@ -453,7 +453,7 @@ className="touch-target relative flex h-8 w-8 shrink-0 items-center justify-cent
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 dark:border-slate-800">
+      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi
       </footer>
     </div>

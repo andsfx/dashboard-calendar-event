@@ -117,7 +117,7 @@ describe('EventPublicDetailPage', () => {
   it('document.title di-set per event', async () => {
     fetchEventByIdMock.mockResolvedValueOnce(makeEvent());
     renderAt('/events/evt_1');
-    await waitFor(() => expect(document.title).toBe('Festival Minang 2026 — Jadwal Event Metropolitan Mall Bekasi'));
+    await waitFor(() => expect(document.title).toBe('Festival Minang 2026 - Jadwal Event Metropolitan Mall Bekasi'));
   });
 
   it('salin link → clipboard berisi permalink', async () => {
