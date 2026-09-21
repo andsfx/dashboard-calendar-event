@@ -30,9 +30,11 @@ interface AdminSidebarProps {
   onOpenEventAreaManager: () => void;
 }
 
-const navItemBase =
-  'ui-focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors';
-
+/**
+ * The pylon: a dark mall-directory totem. Group headings are zone plates, nav
+ * rows are directory entries, and the current row is marked with a sign pointer
+ * ("you are here"). All focus management below is load-bearing — keep it.
+ */
 export const AdminSidebar = memo(function AdminSidebar({
   isDark,
   onToggleDark,
@@ -136,25 +138,31 @@ export const AdminSidebar = memo(function AdminSidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-4 dark:border-slate-700">
-        <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-9 w-auto shrink-0" />
+      {/* Lit logo panel — the pylon's one illuminated element */}
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--wf-pylon-rule)] px-4 py-4">
+        <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5">
+          <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-7 w-auto" />
+        </span>
         <button
           type="button"
           onClick={closeMobile}
-          className="ui-focus-ring touch-target relative flex h-8 w-8 items-center justify-center rounded-lg ui-text-muted transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"
+          className="wf-focus-pylon relative flex h-8 w-8 items-center justify-center rounded-lg text-[var(--wf-pylon-ink-muted)] transition-colors hover:bg-[var(--wf-pylon-2)] hover:text-[var(--wf-pylon-ink)] lg:hidden"
           aria-label="Tutup menu"
         >
           <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
         </button>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">
+      <div className="px-4 pb-1 pt-4">
+        <p className="wf-pylon-plate">Direktori</p>
+        <p className="mt-0.5 text-[13px] font-semibold text-[var(--wf-pylon-ink)]">Menu admin</p>
+      </div>
+
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">
         {navGroups.map((group, groupIdx) => (
           <div key={groupIdx}>
-            <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
-              {group.label}
-            </h3>
-            <div className="space-y-1">
+            <h3 className="wf-pylon-plate mb-1.5 px-2.5">{group.label}</h3>
+            <div className="space-y-0.5">
               {group.items.map(item => {
                 const active = isActive(item);
                 return item.action === 'route' && item.route ? (
@@ -163,24 +171,20 @@ export const AdminSidebar = memo(function AdminSidebar({
                     to={item.route}
                     onClick={() => handleNavClick(item)}
                     aria-current={active ? 'page' : undefined}
-                    className={`${navItemBase} ${
-                      active
-                        ? 'bg-brand-primary-600 text-white ring-1 ring-brand-primary-400/40'
-                        : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-                    }`}
+                    className="wf-pylon-row wf-focus-pylon"
                   >
                     {item.icon}
-                    <span>{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 ) : (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => handleNavClick(item)}
-                    className={`${navItemBase} w-full text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`}
+                    className="wf-pylon-row wf-focus-pylon w-full"
                   >
                     {item.icon}
-                    <span>{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                   </button>
                 );
               })}
@@ -189,52 +193,52 @@ export const AdminSidebar = memo(function AdminSidebar({
         ))}
       </nav>
 
-      <div className="border-t border-[var(--border-subtle)] px-3 py-3 dark:border-slate-700">
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={onToggleDark}
-            aria-pressed={isDark}
-            className={`${navItemBase} w-full text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`}
-          >
-            {isDark ? (
-              <>
-                <Sun className="h-4 w-4 text-amber-500" strokeWidth={1.5} aria-hidden />
-                <span>Mode Terang</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-                <span>Mode Gelap</span>
-              </>
-            )}
-          </button>
+      <div className="space-y-1.5 border-t border-[var(--wf-pylon-rule)] px-3 py-3">
+        <button
+          type="button"
+          onClick={onToggleDark}
+          aria-pressed={isDark}
+          className="wf-pylon-row wf-focus-pylon w-full"
+        >
+          {isDark ? (
+            <>
+              <Sun className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+              <span>Mode Terang</span>
+            </>
+          ) : (
+            <>
+              <Moon className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+              <span>Mode Gelap</span>
+            </>
+          )}
+        </button>
 
-          <div className="flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
-            {isSuperadmin ? (
-              <Crown className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" strokeWidth={1.5} aria-hidden />
-            ) : (
-              <Shield className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} aria-hidden />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-slate-700 dark:text-slate-300">
-                {user?.display_name || 'Admin'}
-              </p>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
-                {isSuperadmin ? 'Superadmin' : 'Administrator'}
-              </p>
-            </div>
+        {/* Role plate. Role identity is not a status, so it takes no colour from
+            the legend — the label carries it, and the icon stays pylon ink. */}
+        <div className="flex items-center gap-2.5 rounded-lg border border-[var(--wf-pylon-rule)] bg-[var(--wf-pylon-2)] px-2.5 py-2.5">
+          {isSuperadmin ? (
+            <Crown className="h-4 w-4 shrink-0 text-[var(--wf-pylon-ink-muted)]" strokeWidth={1.5} aria-hidden />
+          ) : (
+            <Shield className="h-4 w-4 shrink-0 text-[var(--wf-pylon-ink-muted)]" strokeWidth={1.5} aria-hidden />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-[var(--wf-pylon-ink)]">
+              {user?.display_name || 'Admin'}
+            </p>
+            <p className="text-[11px] text-[var(--wf-pylon-ink-muted)]">
+              {isSuperadmin ? 'Superadmin' : 'Administrator'}
+            </p>
           </div>
-
-          <button
-            type="button"
-            onClick={onLogout}
-            className={`${navItemBase} w-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20`}
-          >
-            <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-            <span>Keluar</span>
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={onLogout}
+          className="wf-pylon-row wf-focus-pylon w-full text-red-300 hover:bg-red-500/15 hover:text-red-200"
+        >
+          <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+          <span>Keluar</span>
+        </button>
       </div>
     </div>
   );
@@ -266,7 +270,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       <aside
         ref={asideRef}
         id="admin-sidebar"
-        className={`fixed left-0 top-0 z-50 h-dvh w-64 border-r border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-xl transition-transform duration-300 dark:border-slate-700 dark:bg-slate-900 lg:translate-x-0 ${
+        className={`wf-pylon wf-pylon--side fixed left-0 top-0 z-50 h-dvh w-64 transition-transform duration-300 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Menu admin"

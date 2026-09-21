@@ -35,9 +35,9 @@
 }
 
 .ui-empty-panel {
-  border-radius: var(--radius-card-lg);
-  border: 1px dashed #bcc1b5;
-  background: var(--brand-card);
+  border-radius: var(--wf-radius-board);
+  border: 1px solid var(--wf-rule);
+  background: var(--wf-board-2);
   text-align: center;
 }
 
@@ -143,16 +143,20 @@
   background: rgb(22 33 27 / 0.88);
 }
 
-/* Compact controls on warm page: search, filter, chips */
+/* Compact controls on the board: search, filter, chips.
+ * Signage grammar — a hairline-ruled field on the board surface, no drop
+ * shadow. Elevation is declared once (the rule), never rule + shadow. */
 .ui-dashboard-control {
-  border: 1px solid var(--border-subtle);
-  background: var(--brand-card-light);
-  box-shadow: var(--shadow-xs, 0 1px 2px rgb(0 0 0 / 0.05));
+  border: 1px solid var(--wf-rule);
+  border-radius: var(--wf-radius-control);
+  background: var(--wf-board);
+  color: var(--wf-ink);
+  box-shadow: none;
 }
 
 .dark .ui-dashboard-control {
-  border-color: #2d382f;
-  background: #1a241e;
+  border-color: var(--wf-rule);
+  background: var(--wf-board);
   box-shadow: none;
 }
 

@@ -9,18 +9,25 @@ describe('DashboardHeader', () => {
     searchQuery: '',
     onSearchChange: vi.fn(),
     onAddNew: vi.fn(),
-    stats: { total: 42, ongoing: 7 },
+    dashboardPath: '/events',
   }
 
-  it('renders admin heading with real stats when isAdmin is true', () => {
+  it('renders the route heading, not a generic dashboard title', () => {
     render(<DashboardHeader {...mockProps} />)
-    expect(screen.getByText('Dashboard Event')).toBeInTheDocument()
-    expect(screen.getByText('42 acara dalam pipeline · 7 sedang berlangsung')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Jadwal Event')
+    expect(screen.getByText('Kelola semua event dalam berbagai tampilan')).toBeInTheDocument()
   })
 
-  it('renders loading subtitle when stats not provided', () => {
-    render(<DashboardHeader isAdmin searchQuery="" onSearchChange={vi.fn()} />)
-    expect(screen.getByText('Memuat statistik acara…')).toBeInTheDocument()
+  it('renders the route description for the overview path', () => {
+    render(<DashboardHeader {...mockProps} dashboardPath="/" />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pusat Komando')
+  })
+
+  it('marks the current location through the single level-1 heading', () => {
+    render(<DashboardHeader {...mockProps} />)
+    const headings = screen.getAllByRole('heading', { level: 1 })
+    expect(headings).toHaveLength(1)
+    expect(headings[0]).toHaveTextContent('Jadwal Event')
   })
 
   it('renders public heading when isAdmin is false', () => {

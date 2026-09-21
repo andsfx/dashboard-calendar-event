@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import type { Dispatch, SetStateAction, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
@@ -41,7 +41,7 @@ const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ defau
 const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
-  return <div className={`animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 ${height}`} />;
+  return <div className={`animate-pulse rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] ${height}`} />;
 }
 
 // ─── Props ───────────────────────────────────────────────────────
@@ -302,7 +302,7 @@ export function DashboardPage({
         searchQuery={filters.searchQuery}
         onSearchChange={filters.setSearchQuery}
         onAddNew={permissions.canEditEvents ? handlers.handleAddNew : undefined}
-        stats={{ total: events.visibleStats.total, ongoing: events.visibleStats.ongoing }}
+        dashboardPath={dashboardPath}
       />
 
       {/* 1. Overview */}
@@ -323,14 +323,16 @@ export function DashboardPage({
         </section>
       )}
 
-      {/* 2. Jadwal Event — admin landing & dedicated route (prototype order: header → stats → command center → jadwal) */}
+      {/* 2. Jadwal Event — admin landing & dedicated route (header → stats → command center → jadwal) */}
       {isAdmin && (dashboardPath === '/' || dashboardPath === '/events') && (
         <section id="views" className="scroll-mt-20">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Jadwal Event</h2>
-              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Kelola semua event dalam berbagai tampilan</p>
-            </div>
+            {dashboardPath !== '/events' && (
+              <div>
+                <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Jadwal Event</h2>
+                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Kelola semua event dalam berbagai tampilan</p>
+              </div>
+            )}
               <ViewToggle
                 tabs={availableViewTabs}
                 viewMode={view.viewMode}
@@ -374,10 +376,6 @@ export function DashboardPage({
       {/* 3. Draft Queue */}
       {permissions.canViewDrafts && dashboardPath === '/drafts' && (
         <section id="draft-section" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Antrian Draft</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola draft event sebelum dipublikasikan</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-64" />}>
             <AdminDraftSection
               activeDrafts={drafts.activeDrafts}
@@ -400,10 +398,6 @@ export function DashboardPage({
       {/* Exhibitions — pameran & aktivasi */}
       {permissions.canViewExhibitions && dashboardPath === '/exhibitions' && (
         <section id="exhibitions-section" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Pameran &amp; Aktivasi</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola pameran Casual Leasing, tautan event aktivasi, dan pengajuan brand/EO</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-64" />}>
             <ExhibitionManager
               exhibitions={exhibitions.exhibitions}
@@ -428,10 +422,6 @@ export function DashboardPage({
       {/* 4. Community Registrations */}
       {permissions.canViewRegistrations && dashboardPath === '/registrations' && (
         <section id="registrations" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Community</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola permintaan pendaftaran dari community</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-40" />}>
             <CommunityRegistrationSection registrations={registrations.communityRegistrations} isLoading={registrations.isRegLoading} onDetail={handlers.handleRegDetail} />
           </Suspense>
@@ -441,10 +431,6 @@ export function DashboardPage({
       {/* 5. Tema Tahunan — admin */}
       {permissions.canViewThemes && dashboardPath === '/themes' && (
         <section id="themes" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Tema Tahunan</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola tema dan perencanaan tahunan</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-40" />}>
             <QuarterTimeline themes={events.annualThemes} isAdmin onAddTheme={permissions.canManageThemes ? handlers.handleAddTheme : undefined} onEditTheme={permissions.canManageThemes ? handlers.handleEditTheme : undefined} onDeleteTheme={permissions.canManageThemes ? handlers.handleDeleteTheme : undefined} />
           </Suspense>
@@ -536,10 +522,6 @@ export function DashboardPage({
       {/* 7. Analytics */}
       {permissions.canViewSurvey && dashboardPath === '/analytics' && (
         <section id="category-chart" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Analitik</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Analisis tren dan statistik event</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <AnalyticsDashboard events={events.events} />
           </Suspense>
@@ -549,10 +531,6 @@ export function DashboardPage({
       {/* 8. Survey Kepuasan */}
       {permissions.canViewSurvey && dashboardPath === '/survey' && (
         <section id="survey-section" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Survey Kepuasan</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Kelola Survey Kepuasan (pengunjung/organizer) per event</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <SurveyDashboard events={events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} readOnly={!permissions.canManageSurvey} />
           </Suspense>
@@ -562,10 +540,6 @@ export function DashboardPage({
       {/* 8b. Tenant Self-Assessment */}
       {permissions.canViewTenantSurveys && dashboardPath === '/tenant-surveys' && (
         <section id="tenant-surveys-section" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Evaluasi Tenant</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Self-assessment tenant/gerai per event (terpisah dari Survey Kepuasan)</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <TenantSurveyPage events={events.events} isAdmin={permissions.canEditEvents} />
           </Suspense>
@@ -575,12 +549,6 @@ export function DashboardPage({
       {/* 9. User Management */}
       {permissions.canViewUsers && dashboardPath === '/users' && (
         <section id="user-management" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Manajemen Pengguna</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              {permissions.canManageUsers ? 'Kelola user dan permission (Superadmin only)' : 'Daftar user (mode lihat saja)'}
-            </p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <UserManagement readOnly={!permissions.canManageUsers} currentUserId={auth.user?.id} />
           </Suspense>
@@ -590,10 +558,6 @@ export function DashboardPage({
       {/* 10. Activity Log */}
       {permissions.canViewActivityLog && dashboardPath === '/activity-log' && (
         <section id="activity-log" className="scroll-mt-20">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white">Log Aktivitas</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Audit trail dari semua aktivitas sistem</p>
-          </div>
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <ActivityLog />
           </Suspense>

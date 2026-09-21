@@ -1,0 +1,387 @@
+/* ============================================================================
+ * Mall Wayfinding — dashboard admin (/dashboard/*, /tenant-survey-results)
+ * ----------------------------------------------------------------------------
+ * Direction: papan direktori mall. Tiang penunjuk (pylon) + plat zona + papan
+ * berkas. Pemilahan lewat garis rambut dan latar berlapis, bukan kartu
+ * mengambang berbayang lebar.
+ *
+ * Makna warna (terdokumentasi, bukan dekorasi) — selalu dipasangkan dengan
+ * BENTUK (titik penuh vs titik kosong) supaya tidak bergantung warna saja:
+ *   titik penuh amber   = perlu tindakan / menunggu review
+ *   titik penuh tosca   = bisa ditekan (aksi)
+ *   titik penuh emerald = aktif / berjalan
+ *   titik kosong        = kosong / tidak aktif
+ *   garis biru          = informasi / panduan / status terkirim (komponen lama)
+ *
+ * Radius: 12px papan, 8px kontrol, 9999px hanya untuk chip status kecil.
+ * Elevasi: satu saja per elemen — garis rambut ATAU bayangan, tidak keduanya.
+ * ========================================================================= */
+
+:root {
+  /* Pylon — material tiang penunjuk: gelap, huruf terang */
+  --wf-pylon: #16211b;
+  --wf-pylon-2: #1e2b23;
+  --wf-pylon-rule: rgba(255, 255, 255, 0.14);
+  --wf-pylon-ink: #eef2ea;
+  --wf-pylon-ink-muted: #a9b4a5;
+
+  /* Board — papan konten terang */
+  --wf-page: #f8f7f0;
+  --wf-board: #fdfcf6;
+  --wf-board-2: #f2f0e6; /* band reses */
+  --wf-rule: rgba(22, 33, 27, 0.14);
+  --wf-rule-strong: rgba(22, 33, 27, 0.3);
+  --wf-ink: #16211b;
+  --wf-ink-muted: #58645a;
+
+  /* Semantik (kontras terukur terhadap --wf-board #fdfcf6 DAN --wf-board-2 #f2f0e6) */
+  --wf-accent: #00706e; /* 5.77 on board · 5.19 on board-2 (was #007a78 = 4.53 on board-2) */
+  --wf-accent-soft: #e6f7f6;
+  --wf-action: #9a4a06; /* amber gelap · 6.09 on board · 5.48 on board-2 */
+  --wf-live: #046a4e; /* emerald gelap · 6.43 on board · 5.79 on board-2 */
+
+  --wf-radius-board: 0.75rem;
+  --wf-radius-control: 0.5rem;
+
+  /* Semantic values for the PYLON. The pylon is dark in BOTH themes, so it can
+   * never use --wf-live/--wf-accent/--wf-action: those swap to their light-mode
+   * (dark) values under the plain :root, and measured on the pylon they fell to
+   * 2.51:1 (live key) and 2.85:1 (the "you are here" pointer). These are the
+   * theme-invariant values; measured on --wf-pylon / --wf-pylon-2 they hold
+   * 6.5:1-11.5:1 in both themes. */
+  --wf-on-pylon-accent: #33bfbc; /* 7.35 on pylon · 6.54 on pylon-2 */
+  --wf-on-pylon-live: #34d399; /* 8.62 on pylon · 7.67 on pylon-2 */
+}
+
+.dark {
+  --wf-pylon: #0a110d;
+  --wf-pylon-2: #111a14;
+  --wf-pylon-rule: rgba(255, 255, 255, 0.12);
+  --wf-pylon-ink: #e8ede4;
+  --wf-pylon-ink-muted: #98a494;
+
+  --wf-page: #0e1612;
+  --wf-board: #16211b;
+  --wf-board-2: #121a15;
+  --wf-rule: rgba(255, 255, 255, 0.14);
+  --wf-rule-strong: rgba(255, 255, 255, 0.3);
+  --wf-ink: #eef2ea;
+  --wf-ink-muted: #a9b4a5;
+
+  --wf-accent: #33bfbc; /* tosca-400 · 7.35:1 */
+  --wf-accent-soft: rgba(51, 191, 188, 0.14);
+  --wf-action: #fbbf24; /* amber-400 · 9.92:1 */
+  --wf-live: #34d399; /* emerald-400 · 8.62:1 */
+}
+
+/* ── Pylon (sidebar) ────────────────────────────────────────────────────── */
+
+.wf-pylon {
+  background: var(--wf-pylon);
+  color: var(--wf-pylon-ink);
+}
+
+/* The vertical rule belongs to the sidebar <aside> only. Putting it on the
+ * shared .wf-pylon material leaked a stray 1px right edge onto the sticky top
+ * bar, which also wears .wf-pylon. */
+.wf-pylon--side {
+  border-right: 1px solid var(--wf-pylon-rule);
+}
+
+/* The "you are here" pointer must use the pylon-invariant accent: the shared
+ * --wf-accent is the light-mode value and measured 2.85:1 on the pylon. */
+
+.wf-pylon-plate {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wf-pylon-ink-muted);
+}
+
+/* Nav row on the pylon — wayfinding list, not a stack of pills */
+.wf-pylon-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: var(--wf-radius-control);
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--wf-pylon-ink-muted);
+  transition:
+    background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wf-pylon-row:hover {
+  background: var(--wf-pylon-2);
+  color: var(--wf-pylon-ink);
+}
+
+/* Active = "you are here": the row lifts, and a sign pointer marks it.
+ * A drawn pointer, not a coloured border bar — a border-left on a list item is
+ * the banned pattern; a triangle is how a directory sign actually marks a row. */
+.wf-pylon-row[aria-current='page'] {
+  background: var(--wf-pylon-2);
+  color: var(--wf-pylon-ink);
+  font-weight: 600;
+  padding-left: 1.25rem;
+}
+
+.wf-pylon-row[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0.125rem;
+  top: 50%;
+  translate: 0 -50%;
+  width: 0;
+  height: 0;
+  border-block: 0.3rem solid transparent;
+  border-left: 0.4rem solid var(--wf-on-pylon-accent);
+}
+
+/* ── Location plate (page header) ───────────────────────────────────────── */
+
+.wf-plate {
+  border: 1px solid var(--wf-rule);
+  border-radius: var(--wf-radius-board);
+  background: var(--wf-board);
+}
+
+/* ── Register (the directory listing) ───────────────────────────────────── */
+
+.wf-register {
+  border: 1px solid var(--wf-rule);
+  border-radius: var(--wf-radius-board);
+  background: var(--wf-board);
+  overflow: hidden;
+}
+
+/* One row per entry. Hairline separators; no per-row card, no left accent bar. */
+.wf-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid var(--wf-rule);
+  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wf-row:first-child {
+  border-top: 0;
+}
+
+a.wf-row:hover,
+button.wf-row:hover {
+  background: var(--wf-board-2);
+}
+
+.wf-row:focus-visible {
+  outline: 2px solid var(--wf-accent);
+  outline-offset: -2px;
+}
+
+/* Column header of a register */
+.wf-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--wf-rule-strong);
+  background: var(--wf-board-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wf-ink-muted);
+}
+
+/* ── Status key: shape + colour, redundant by design ────────────────────── */
+
+.wf-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wf-key--action {
+  color: var(--wf-action);
+}
+
+.wf-key--live {
+  color: var(--wf-live);
+}
+
+/* On the dark pylon the live key needs the theme-invariant emerald. */
+.wf-pylon .wf-key--live {
+  color: var(--wf-on-pylon-live);
+}
+
+.wf-key--idle {
+  color: var(--wf-ink-muted);
+}
+
+/* "Akan Datang" is neither running nor done; it carries the brand accent so the
+ * status key's four entries stay four distinct readings. */
+.wf-key--accent {
+  color: var(--wf-accent);
+}
+
+/* Both keys must stay readable on the always-dark pylon. */
+.wf-pylon .wf-key--idle {
+  color: var(--wf-pylon-ink-muted);
+}
+
+/* Sentence-case key for running prose (page footer), where the signage caps
+ * would read as shouting. Colour and shape still carry the meaning. */
+.wf-key--plain {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+/* ── Measured values (mono carries real measurement, not costume) ───────── */
+
+.wf-code {
+  font-family: var(--font-family-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* ── Signage button ─────────────────────────────────────────────────────── */
+
+.wf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: var(--wf-radius-control);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wf-btn--primary {
+  background: var(--wf-accent);
+  color: #fff;
+}
+
+.dark .wf-btn--primary {
+  color: #0e1612;
+}
+
+.wf-btn--primary:hover {
+  background: #005f5e;
+}
+
+.dark .wf-btn--primary:hover {
+  background: #66cfcd;
+}
+
+.wf-btn--quiet {
+  border: 1px solid var(--wf-rule);
+  background: transparent;
+  color: var(--wf-ink);
+}
+
+.wf-btn--quiet:hover {
+  background: var(--wf-board-2);
+}
+
+/* ── Admin board: one system across every module ─────────────────────────── */
+
+/* The shared card surface is restyled into a ruled board so every admin module
+ * reads as one system. Scoped to .wf-page (the admin shell) on purpose: the
+ * public /tenant-survey form uses the same class and keeps its own look. */
+.wf-page .ui-dashboard-surface,
+.wf-page .ui-dashboard-panel,
+.wf-page .ui-dashboard-card-padded {
+  border-radius: var(--wf-radius-board);
+  border-color: var(--wf-rule);
+  background: var(--wf-board);
+  box-shadow: none;
+}
+
+.dark .wf-page .ui-dashboard-surface,
+.dark .wf-page .ui-dashboard-panel,
+.dark .wf-page .ui-dashboard-card-padded {
+  border-color: var(--wf-rule);
+  background: var(--wf-board);
+  box-shadow: none;
+}
+
+/* ── Overlays ───────────────────────────────────────────────────────────── */
+
+/* A floating menu is the one place a shadow is the correct elevation: it must
+ * separate from the board it covers. Offset + soft blur, never a flat halo, and
+ * no competing border underneath it. */
+.wf-popover {
+  background: var(--wf-board);
+  border-radius: var(--wf-radius-board);
+  box-shadow:
+    0 12px 32px -8px rgb(22 33 27 / 0.28),
+    0 2px 6px -2px rgb(22 33 27 / 0.12);
+  overflow: hidden;
+}
+
+.dark .wf-popover {
+  box-shadow:
+    0 12px 32px -8px rgb(0 0 0 / 0.6),
+    0 2px 6px -2px rgb(0 0 0 / 0.4);
+}
+
+/* ── Page surface ───────────────────────────────────────────────────────── */
+
+.wf-page {
+  background: var(--wf-page);
+}
+
+/* ── Focus ring on the dark pylon ───────────────────────────────────────── */
+
+.wf-focus-pylon:focus-visible {
+  outline: 2px solid var(--wf-accent);
+  outline-offset: 2px;
+}
+
+/* ── The one authored motion ────────────────────────────────────────────── */
+@keyframes wf-pulse-once {
+  0% {
+    opacity: 1;
+    scale: 1;
+  }
+  40% {
+    opacity: 0.35;
+    scale: 0.82;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.wf-beacon {
+  animation: wf-pulse-once 250ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wf-beacon {
+    animation: none;
+  }
+
+  .wf-pylon-row,
+  .wf-row,
+  .wf-btn {
+    transition: none;
+  }
+}

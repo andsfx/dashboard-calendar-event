@@ -3,7 +3,6 @@ import {
   BarChart3,
   CalendarDays,
   ClipboardCheck,
-  ClipboardList,
   FileEdit,
   FileText,
   Globe,
@@ -24,7 +23,6 @@ import type { Permissions } from '../../hooks/usePermission';
 /** Monoline admin icons — stroke 1.5 matches brand-spec / HTML prototype (1.4) */
 const NAV = 'h-4 w-4 shrink-0';
 const CARD = 'h-5 w-5 shrink-0';
-const VALUE = 'h-6 w-6 shrink-0';
 const sw = 1.5;
 
 export interface DashboardNavItem {
@@ -63,7 +61,10 @@ export const CONTENT_MODAL_ROUTES: Record<string, string> = {
 interface CommandCenterCard {
   id: string;
   title: string;
-  value: React.ReactNode;
+  /** Measured count, when the module has one. Omitted for modules that are
+   *  destinations rather than queues — an icon in this slot would read as a
+   *  second icon next to the row's own. */
+  value?: React.ReactNode;
   subtitle: string;
   icon: React.ReactNode;
   route: string;
@@ -160,6 +161,49 @@ export function getAllowedDashboardPaths(permissions: Permissions): string[] {
   return Array.from(new Set(routeItems));
 }
 
+/**
+ * Wayfinding map: what each admin route calls itself and what it is for.
+ * Labels match the pylon entries; descriptions are the same sentences the
+ * page bodies already used, so no new product claims are introduced.
+ */
+export interface WayfindingEntry {
+  path: string;
+  label: string;
+  description: string;
+}
+
+const WAYFINDING: WayfindingEntry[] = [
+  { path: '/', label: 'Pusat Komando', description: 'Keadaan hari ini dan antrian yang perlu tindakan' },
+  { path: '/events', label: 'Jadwal Event', description: 'Kelola semua event dalam berbagai tampilan' },
+  { path: '/drafts', label: 'Antrian Draft', description: 'Kelola draft event sebelum dipublikasikan' },
+  { path: '/themes', label: 'Tema Tahunan', description: 'Kelola tema dan perencanaan tahunan' },
+  { path: '/exhibitions', label: 'Pameran & Aktivasi', description: 'Kelola pameran Casual Leasing, tautan aktivasi, dan pengajuan brand/EO' },
+  { path: '/registrations', label: 'Pendaftaran', description: 'Kelola permintaan pendaftaran dari community' },
+  { path: '/survey', label: 'Survey Kepuasan', description: 'Kelola Survey Kepuasan pengunjung dan organizer per event' },
+  { path: '/tenant-surveys', label: 'Evaluasi Tenant', description: 'Self-assessment tenant/gerai per event' },
+  { path: '/analytics', label: 'Analitik', description: 'Analisis tren dan statistik event' },
+  { path: '/users', label: 'Manajemen Pengguna', description: 'Kelola user dan permission' },
+  { path: '/activity-log', label: 'Log Aktivitas', description: 'Audit trail dari semua aktivitas sistem' },
+];
+
+const CONTENT_FALLBACK: WayfindingEntry = {
+  path: '/content',
+  label: 'Konten',
+  description: 'Kelola konten publik: halaman landing, galeri, surat, berita, dan sponsorship',
+};
+
+/**
+ * Resolve the current route to its location plate. Falls back to the first
+ * entry (Pusat Komando) for unknown paths so the header never renders empty.
+ */
+export function getWayfindingMap(dashboardPath: string): { current: WayfindingEntry } {
+  const normalized = dashboardPath === '' ? '/' : dashboardPath;
+  const current = WAYFINDING.find(entry => entry.path === normalized)
+    ?? (normalized.startsWith('/content') ? CONTENT_FALLBACK : undefined)
+    ?? WAYFINDING[0];
+  return { current: current as WayfindingEntry };
+}
+
 /** Absolute path for post-login / unauthorized redirect (may be outside /dashboard). */
 export function getDefaultAppPath(permissions: Permissions): string {
   if (permissions.isTenantRelation) return '/tenant-survey-results';
@@ -236,7 +280,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewSurvey ? [{
       id: 'survey',
       title: 'Survey Kepuasan',
-      value: <ClipboardList className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Lihat respons survey',
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
@@ -244,7 +287,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
-      value: <Store className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Evaluasi EO/tenant',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
@@ -252,7 +294,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewTenantSurveyResults ? [{
       id: 'tenant-survey-results',
       title: 'Hasil Evaluasi Tenant',
-      value: <TrendingUp className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Hasil evaluasi tenant',
       icon: <TrendingUp className={CARD} strokeWidth={sw} />,
       route: '/tenant-survey-results',
@@ -260,7 +301,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',
       title: 'Analitik',
-      value: <BarChart3 className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Tren & insight',
       icon: <BarChart3 className={CARD} strokeWidth={sw} />,
       route: '/dashboard/analytics',
@@ -268,7 +308,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',
       title: 'Log Aktivitas',
-      value: <Activity className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Aktivitas terbaru',
       icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
@@ -276,7 +315,6 @@ export function getCommandCenterCards({
     ...(permissions.canViewUsers ? [{
       id: 'users',
       title: 'Manajemen Pengguna',
-      value: <UserCog className={VALUE} strokeWidth={sw} aria-hidden />,
       subtitle: 'Kelola admin',
       icon: <UserCog className={CARD} strokeWidth={sw} />,
       route: '/dashboard/users',

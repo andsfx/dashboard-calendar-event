@@ -14,7 +14,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.getByRole('heading', { name: 'Dashboard Event' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Pusat Komando' })).toBeVisible();
   });
 
   test('eo tenant unauthorized route redirects to tenant surveys', async ({ page }) => {

@@ -56,7 +56,7 @@ export function DashboardShell({
 }: DashboardShellProps) {
   const { pathname } = useLocation();
   return (
-    <div className="ui-dashboard-page min-h-dvh transition-colors duration-300 dark:bg-slate-950">
+    <div className="ui-dashboard-page wf-page min-h-dvh transition-colors duration-300 dark:bg-slate-950">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none ui-focus-ring"
@@ -86,10 +86,7 @@ export function DashboardShell({
           isDark={isDark}
           onToggleDark={onToggleDark}
           isAdmin={isAdmin}
-          isSuperadmin={isSuperadmin}
-          user={user}
           onLoginClick={onLoginClick}
-          onLogout={onLogout}
           ongoingCount={ongoingCount}
         />
 
@@ -107,16 +104,18 @@ export function DashboardShell({
               {children}
             </div>
 
-            <footer className="border-t border-slate-200 pt-4 sm:pt-6 pb-4 dark:border-slate-800">
-              <div className="flex flex-col gap-2 text-left text-xs text-slate-500 dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
+            <footer className="mt-2 border-t border-[var(--wf-rule)] pb-4 pt-4">
+              <div className="flex flex-col gap-2 text-left text-xs text-[var(--wf-ink-muted)] sm:flex-row sm:items-center sm:justify-between">
                 <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
-                <div className="flex flex-wrap items-center gap-2 sm:justify-end sm:gap-3">
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-primary-500 live-dot" aria-hidden="true" />
-                    <span>{ongoingCount} berlangsung</span>
+                <div className="flex flex-wrap items-center gap-4 sm:justify-end">
+                  <span className="wf-key wf-key--live wf-key--plain">
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                    {ongoingCount} berlangsung
                   </span>
-                  <span className="hidden sm:inline">·</span>
-                  <span>{upcomingCount} mendatang</span>
+                  <span className="wf-key wf-key--idle wf-key--plain">
+                    <span className="h-1.5 w-1.5 rounded-full border border-current" aria-hidden="true" />
+                    {upcomingCount} mendatang
+                  </span>
                 </div>
               </div>
             </footer>

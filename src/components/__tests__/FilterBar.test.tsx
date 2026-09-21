@@ -29,7 +29,8 @@ describe('FilterBar', () => {
   it('highlights active status tab', () => {
     render(<FilterBar {...mockProps} />)
     const upcomingTab = screen.getByText('Mendatang')
-    expect(upcomingTab.className).toContain('brand-card-light')
+    expect(upcomingTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Berlangsung')).toHaveAttribute('aria-selected', 'false')
   })
 
   it('calls onFilterChange when status tab clicked', () => {

@@ -89,10 +89,10 @@ function CustomDropdown({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className={`ui-dashboard-control flex h-10 w-full items-center justify-between gap-2 rounded-xl px-3 text-xs font-medium transition dark:text-slate-300 ${focusRing} ${
+        className={`ui-dashboard-control flex h-10 w-full items-center justify-between gap-2 px-3 text-xs font-medium transition ${focusRing} ${
           open
-            ? 'border-brand-primary-400 ring-2 ring-brand-primary-100 dark:border-brand-primary-600 dark:ring-brand-primary-900/30'
-            : 'text-slate-700 hover:border-slate-300 dark:border-slate-600'
+            ? 'border-[var(--wf-accent)] ring-2 ring-[var(--wf-accent-soft)]'
+            : 'hover:border-[var(--wf-rule-strong)]'
         }`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -101,7 +101,7 @@ function CustomDropdown({
         aria-activedescendant={open && value ? `opt-${cleanLabel}-${value}` : undefined}
       >
         <span className="truncate text-left">{selected?.label ?? label}</span>
-        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-500 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)] transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
@@ -110,7 +110,7 @@ function CustomDropdown({
           ref={listboxRef} 
           role="listbox" 
           aria-label={label} 
-          className="ui-dashboard-control absolute left-0 top-full z-40 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto rounded-xl py-1 shadow-xl"
+          className="wf-popover absolute left-0 top-full z-40 mt-1.5 max-h-64 w-full min-w-[160px] overflow-y-auto py-1"
         >
           {options.map(opt => (
             <button
@@ -120,14 +120,14 @@ function CustomDropdown({
               role="option"
               aria-selected={value === opt.key}
               onClick={() => { onChange(opt.key); setOpen(false); }}
-              className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing} ${
+              className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-[var(--wf-board-2)] ${focusRing} ${
                 value === opt.key
-                  ? 'bg-brand-primary-50 font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300'
-                  : 'text-slate-700 dark:text-slate-300'
+                  ? 'bg-[var(--wf-accent-soft)] font-semibold text-[var(--wf-accent)]'
+                  : 'text-[var(--wf-ink)]'
               }`}
             >
               {opt.label}
-              {value === opt.key && <Check className="h-3 w-3 text-brand-primary-600 dark:text-brand-primary-400" />}
+              {value === opt.key && <Check className="h-3 w-3 text-[var(--wf-accent)]" />}
             </button>
           ))}
         </div>
@@ -196,7 +196,7 @@ export function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       {/* Status pill tabs - scrollable on mobile */}
-      <div className="ui-dashboard-muted flex w-full gap-1 overflow-x-auto rounded-[0.85rem] border border-[var(--border-subtle)] p-1 dark:border-slate-700" role="tablist" aria-label="Filter status acara">
+      <div className="wf-register flex w-full gap-1 overflow-x-auto p-1" role="tablist" aria-label="Filter status acara">
         {statusTabs.map((tab, index) => (
           <button
             key={tab.key}
@@ -207,10 +207,10 @@ export function FilterBar({
             onKeyDown={(e) => handleStatusKeyDown(e, index)}
             aria-selected={activeFilter === tab.key}
             tabIndex={activeFilter === tab.key ? 0 : -1}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${focusRing} ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${focusRing} ${
               activeFilter === tab.key
-                ? 'bg-[var(--brand-card-light)] text-slate-800 shadow dark:bg-slate-700 dark:text-white'
-: 'ui-text-muted hover:text-slate-700 dark:hover:text-slate-200'
+                ? 'bg-[var(--wf-board-2)] text-[var(--wf-ink)]'
+                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
             }`}
           >
             {tab.dot && (
@@ -252,7 +252,7 @@ export function FilterBar({
               key={chip.key}
               type="button"
               onClick={chip.clear}
-              className={`inline-flex items-center gap-1.5 rounded-full border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1 text-[11px] font-semibold text-brand-primary-700 transition hover:border-brand-primary-300 hover:bg-brand-primary-100 dark:border-brand-primary-900/50 dark:bg-brand-primary-950/40 dark:text-brand-primary-300 ${focusRing}`}
+              className={`inline-flex items-center gap-1.5 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1 text-[11px] font-semibold text-[var(--wf-ink)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
               aria-label={`Hapus filter ${chip.label}`}
             >
               {chip.label}

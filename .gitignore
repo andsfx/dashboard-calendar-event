@@ -50,6 +50,9 @@ presentasi-motion/
 # Hallmark design agent local state
 .hallmark/
 
+# Impeccable design skill local state (surface briefs, review screenshots, mocks)
+.impeccable/
+
 # Knowledge graph local output
 graphify-out/
 .scratch/

@@ -98,13 +98,11 @@ export function ActivityLog() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">Log Aktivitas</h2>
           <p className="text-xs text-slate-600 dark:text-slate-300">{total} aktivitas tercatat</p>
         </div>
-        <Activity className="h-5 w-5 text-slate-300 dark:text-slate-600" />
       </div>
 
       {/* Filters */}

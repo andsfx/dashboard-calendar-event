@@ -8,6 +8,7 @@
 @import "./styles/typography.css";
 @import "./styles/gradients.css";
 @import "./styles/utilities.css";
+@import "./styles/dashboard-wayfinding.css";
 @import "./styles/motion.css";
 @import "./styles/accessibility.css";
 @variant dark (&:where(.dark, .dark *));

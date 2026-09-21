@@ -127,14 +127,6 @@ export function KpiCard({
   tone?: 'neutral' | 'good' | 'warn' | 'bad';
   helper?: string;
 }) {
-  const accent =
-    tone === 'good'
-      ? 'border-l-emerald-400 dark:border-l-emerald-500'
-      : tone === 'warn'
-        ? 'border-l-amber-400 dark:border-l-amber-500'
-        : tone === 'bad'
-          ? 'border-l-red-400 dark:border-l-red-500'
-          : 'border-l-brand-primary-400 dark:border-l-brand-primary-500';
   const valueClass =
     tone === 'good'
       ? 'text-emerald-600 dark:text-emerald-400'
@@ -152,8 +144,11 @@ export function KpiCard({
           ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'
           : 'bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/40 dark:text-brand-primary-400';
 
+  // Tone lives in the icon pill and the value colour. It is deliberately not a
+  // coloured left edge: a border-left on a card is a banned pattern, and the
+  // meaning already survives twice over without it.
   return (
-    <div className={`ui-dashboard-surface border-l-[3px] p-2.5 sm:p-3.5 ${accent}`}>
+    <div className="ui-dashboard-surface p-2.5 sm:p-3.5">
       <div className="flex items-start gap-2 sm:gap-3">
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-9 sm:w-9 sm:rounded-xl ${pill}`}>
           {icon}

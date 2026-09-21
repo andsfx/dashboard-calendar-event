@@ -448,7 +448,7 @@ export default function App() {
       {/* Tenant survey results — public */}
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
+          <div className="ui-dashboard-page wf-page min-h-screen dark:bg-slate-950">
             <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
               <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
                 <div className="flex min-w-0 items-center gap-3">

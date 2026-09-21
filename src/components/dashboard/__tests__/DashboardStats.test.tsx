@@ -19,9 +19,13 @@ describe('DashboardStats', () => {
     expect(screen.getByText('Selesai')).toBeInTheDocument()
   })
 
-  it('displays correct stat values', () => {
+  it('shows the settled values directly, with no decorative count-up', () => {
     render(<DashboardStats stats={mockStats} />)
-    // Values start at 0 due to count-up animation
-    expect(screen.getAllByText('0')).toHaveLength(4)
+    // Values are real numbers immediately; nothing animates from 0.
+    expect(screen.getByText('100')).toBeInTheDocument()
+    expect(screen.getByText('5')).toBeInTheDocument()
+    expect(screen.getByText('20')).toBeInTheDocument()
+    expect(screen.getByText('75')).toBeInTheDocument()
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
   })
 })
