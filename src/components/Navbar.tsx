@@ -1,7 +1,7 @@
 import { Moon, Sun, CalendarDays, Shield, Users } from 'lucide-react';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
-const focusRingPylon = 'wf-focus-pylon focus-visible:outline-none';
+const focusRingPylon = 'wf-focus-rail focus-visible:outline-none';
 
 interface Props {
   isDark: boolean;
@@ -12,16 +12,16 @@ interface Props {
 }
 
 export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCount = 0 }: Props) {
-  // Admin chrome is the pylon's crossbar: same dark material as the sidebar, so
-  // the sidebar and the bar read as one sign assembly. Public pages keep the
-  // light marketing chrome untouched.
+  // Admin chrome is the topbar of the rail layout: a board band with a hairline
+  // under it, matching the rail's material. Public pages keep the light
+  // marketing chrome untouched.
   if (isAdmin) {
     return (
-      <nav className="wf-pylon sticky top-0 z-40 border-b-0">
+      <nav className="wf-topbar sticky top-0 z-40">
         <div className="flex w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-2.5 pl-10 lg:pl-0">
             <CalendarDays className="h-4 w-4 shrink-0 text-[var(--wf-accent)]" strokeWidth={1.5} aria-hidden />
-            <span className="wf-pylon-plate truncate">Metropolitan Mall Bekasi</span>
+            <span className="wf-rail-plate truncate">Metropolitan Mall Bekasi</span>
             {ongoingCount > 0 && (
               <span className="wf-key wf-key--live hidden sm:inline-flex">
                 <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -34,7 +34,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
             <a
               href="/"
               title="Ruang Komunitas"
-              className={`wf-btn wf-btn--quiet border-[var(--wf-pylon-rule)] text-[var(--wf-pylon-ink)] hover:bg-[var(--wf-pylon-2)] ${focusRingPylon}`}
+              className={`wf-btn wf-btn--quiet border-[var(--wf-rail-rule)] text-[var(--wf-rail-ink)] hover:bg-[var(--wf-rail-2)] ${focusRingPylon}`}
             >
               <Users className="h-3.5 w-3.5" aria-hidden />
               <span className="hidden sm:inline">Komunitas</span>
@@ -42,7 +42,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
 
             <button
               onClick={onToggleDark}
-              className={`flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-pylon-ink-muted)] transition-colors hover:bg-[var(--wf-pylon-2)] hover:text-[var(--wf-pylon-ink)] ${focusRingPylon}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] ${focusRingPylon}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}

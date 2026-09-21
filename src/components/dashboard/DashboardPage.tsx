@@ -308,7 +308,14 @@ export function DashboardPage({
       {/* 1. Overview */}
       {isAdmin && dashboardPath === '/' && (
         <section id="overview" className="scroll-mt-20 space-y-6">
-          <DashboardStats stats={events.visibleStats} />
+          <DashboardStats
+            stats={events.visibleStats}
+            attention={{
+              draftCount: drafts.activeDrafts.length,
+              pendingRegistrations: registrations.communityRegistrations.filter(r => r.status === 'pending').length,
+              draftsError: drafts.draftError,
+            }}
+          />
           <CommandCenterSummary
             totalEvents={events.visibleStats.total}
             upcomingEvents={events.visibleStats.upcoming}

@@ -47,7 +47,6 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   });
 
   const attention = cards.filter(card => card.attention);
-  const rest = cards.filter(card => !card.attention);
 
   const renderRow = (card: (typeof cards)[number]) => (
     <Link key={card.id} to={card.route} className="wf-row group">
@@ -56,20 +55,21 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold text-[var(--wf-ink)]">{card.title}</span>
+        <span className="flex items-center gap-2 text-sm font-semibold text-[var(--wf-ink)]">
+          {/* A dot only where a module is actually waiting on a person. Marking
+              every row would make the mark a legend instead of a signal. */}
+          {card.attention && <span className="wf-dot wf-dot--action" aria-hidden="true" />}
+          <span className="truncate">{card.title}</span>
+        </span>
         <span className="block truncate text-xs text-[var(--wf-ink-muted)]">{card.subtitle}</span>
       </span>
 
       {card.attention && (
-        <span className="wf-key wf-key--action shrink-0">
-          <span className="wf-beacon h-2 w-2 rounded-full bg-current" aria-hidden="true" />
-          <span className="hidden sm:inline">Perlu tindakan</span>
-          <span className="sr-only sm:hidden">Perlu tindakan</span>
-        </span>
+        <span className="sr-only">Perlu tindakan</span>
       )}
 
       {card.value !== undefined && (
-        <span className="wf-code shrink-0 text-base font-semibold text-[var(--wf-ink)]">{card.value}</span>
+        <span className={`wf-code shrink-0 text-base font-semibold ${card.attention ? 'text-[var(--wf-action)]' : 'text-[var(--wf-ink)]'}`}>{card.value}</span>
       )}
 
       <ArrowRight
@@ -81,28 +81,23 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   );
 
   return (
-    <section aria-label="Pusat Komando" className="space-y-5">
-      <div className="wf-register">
-        <h2 className="wf-row-head">
-          <span>Perlu Tindakan</span>
-          <span className="wf-code ml-auto">{attention.length}</span>
-        </h2>
-        {attention.length > 0 ? (
-          <div>{attention.map(renderRow)}</div>
-        ) : (
-          <p className="flex items-center gap-2 px-3.5 py-3.5 text-sm text-[var(--wf-ink-muted)]">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--wf-live)]" strokeWidth={1.5} aria-hidden />
-            Tidak ada modul yang menunggu tindakan. Antrian kosong.
-          </p>
-        )}
-      </div>
+    <section aria-label="Pusat Komando" className="space-y-3">
+      {/* One register. The queue's total already leads the page, so listing the
+          waiting modules a second time would just repeat it — the dot marks
+          them in place instead. */}
+      {attention.length === 0 && (
+        <p className="flex items-center gap-2 text-sm text-[var(--wf-ink-muted)]">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--wf-live)]" strokeWidth={1.5} aria-hidden />
+          Tidak ada modul yang menunggu tindakan. Antrian kosong.
+        </p>
+      )}
 
       <div className="wf-register">
         <h2 className="wf-row-head">
           <span>Semua Modul</span>
-          <span className="wf-code ml-auto">{rest.length}</span>
+          <span className="wf-code ml-auto">{cards.length}</span>
         </h2>
-        <div>{rest.map(renderRow)}</div>
+        <div>{cards.map(renderRow)}</div>
       </div>
     </section>
   );

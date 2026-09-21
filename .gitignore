@@ -58,3 +58,7 @@ graphify-out/
 .scratch/
 .tmp/
 coverage/
+
+# Rekaman desain lokal (prototipe admin-v2/v3). Ada di public/ sehingga Vite
+# menyalinnya ke dist/ -- jangan di-commit, agar tidak terbit sebagai halaman.
+public/prototypes/

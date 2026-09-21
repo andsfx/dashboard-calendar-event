@@ -41,7 +41,7 @@ export function ViewToggle({ tabs, viewMode, onSelect, panelId, className = '' }
     <div
       role="tablist"
       aria-label="Pilih tampilan jadwal"
-      className={`inline-flex flex-wrap gap-0.5 rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-1 dark:border-slate-700 dark:bg-slate-800/60 ${className}`}
+      className={`inline-flex max-w-full flex-wrap gap-0.5 rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-1 dark:border-slate-700 dark:bg-slate-800/60 ${className}`}
     >
       {tabs.map(tab => {
         const active = viewMode === tab.key;

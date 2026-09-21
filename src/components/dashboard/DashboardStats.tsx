@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { CalendarDays, Radio, Clock3, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, Radio, Clock3, CheckCircle2, ArrowUp } from 'lucide-react';
 import { StatCard } from '../StatCard';
 
 interface DashboardStatsProps {
@@ -11,6 +11,16 @@ interface DashboardStatsProps {
   };
   /** compact = ringkasan publik: hanya Akan Datang + Sedang Berlangsung */
   compact?: boolean;
+  /**
+   * Antrian yang benar-benar menunggu keputusan manusia. Hanya diisi di Pusat
+   * Komando; kalau kosong pita perhatian tidak dirender sama sekali (bukan
+   * dirender dengan angka 0, yang akan terbaca sebagai "ada antrian").
+   */
+  attention?: {
+    draftCount: number;
+    pendingRegistrations: number;
+    draftsError?: string | null;
+  } | null;
 }
 
 interface StatEntry {
@@ -26,7 +36,7 @@ interface StatEntry {
  * Deliberately not four equal cards with oversized numerals — those read as
  * decoration, and they made the running count compete with the total.
  */
-export const DashboardStats = memo(function DashboardStats({ stats, compact }: DashboardStatsProps) {
+export const DashboardStats = memo(function DashboardStats({ stats, compact, attention }: DashboardStatsProps) {
   if (compact) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -54,17 +64,41 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact }: D
     { label: 'Selesai', value: stats.past, icon: <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />, tone: 'idle' },
   ];
 
+  const pendingTotal = attention
+    ? attention.draftCount + attention.pendingRegistrations
+    : 0;
+
   return (
-    <div className="wf-register grid grid-cols-2 gap-px bg-[var(--wf-rule)] sm:grid-cols-4">
-      {entries.map(entry => (
-        <div key={entry.label} className="flex items-baseline justify-between gap-2 bg-[var(--wf-board)] px-3.5 py-3">
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className={`wf-key wf-key--${entry.tone}`}>{entry.icon}</span>
-            <span className="truncate text-xs font-medium text-[var(--wf-ink-muted)]">{entry.label}</span>
-          </span>
-          <span className="wf-code shrink-0 text-lg font-semibold text-[var(--wf-ink)]">{entry.value}</span>
+    <div className="space-y-3">
+      {/* The queue leads: it is the one number that needs a decision today. */}
+      {attention && (pendingTotal > 0 || attention.draftsError) && (
+        <div className="wf-metric wf-metric--lead">
+          <div className="wf-metric__top">
+            <span className="wf-metric__label">Menunggu keputusan</span>
+            <span className="wf-metric__icon">
+              <ArrowUp className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            </span>
+          </div>
+          <p className="wf-metric__value">{attention.draftsError ? '—' : pendingTotal}</p>
+          <p className="wf-metric__hint">
+            {attention.draftsError
+              ? `Antrian draft gagal dimuat: ${attention.draftsError}`
+              : `${attention.draftCount} draft menunggu dipublikasikan · ${attention.pendingRegistrations} pendaftaran komunitas menunggu review`}
+          </p>
         </div>
-      ))}
+      )}
+
+      <div className="wf-metrics">
+        {entries.map(entry => (
+          <div key={entry.label} className="wf-metric wf-metric--secondary">
+            <div className="wf-metric__top">
+              <span className="wf-metric__label">{entry.label}</span>
+              <span className={`wf-metric__icon wf-key--${entry.tone}`}>{entry.icon}</span>
+            </div>
+            <p className="wf-metric__value">{entry.value}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 });

@@ -18,12 +18,15 @@
  * ========================================================================= */
 
 :root {
-  /* Pylon — material tiang penunjuk: gelap, huruf terang */
-  --wf-pylon: #16211b;
-  --wf-pylon-2: #1e2b23;
-  --wf-pylon-rule: rgba(255, 255, 255, 0.14);
-  --wf-pylon-ink: #eef2ea;
-  --wf-pylon-ink-muted: #a9b4a5;
+  /* Rail — the navigation panel. It is a BOARD surface, not a dark totem: it
+   * follows the theme like every other panel, separated from the page by a
+   * hairline. That removes the old "dark in both themes" special case and the
+   * four theme-invariant colour tokens it needed. */
+  --wf-rail: var(--wf-board);
+  --wf-rail-2: var(--wf-board-2);
+  --wf-rail-rule: var(--wf-rule);
+  --wf-rail-ink: var(--wf-ink);
+  --wf-rail-ink-muted: var(--wf-ink-muted);
 
   /* Board — papan konten terang */
   --wf-page: #f8f7f0;
@@ -36,30 +39,17 @@
 
   /* Semantik (kontras terukur terhadap --wf-board #fdfcf6 DAN --wf-board-2 #f2f0e6) */
   --wf-accent: #00706e; /* 5.77 on board · 5.19 on board-2 (was #007a78 = 4.53 on board-2) */
+  --wf-accent-hover: #005f5e;
+  --wf-accent-ink: #ffffff; /* 5.85:1 on the accent fill */
   --wf-accent-soft: #e6f7f6;
   --wf-action: #9a4a06; /* amber gelap · 6.09 on board · 5.48 on board-2 */
   --wf-live: #046a4e; /* emerald gelap · 6.43 on board · 5.79 on board-2 */
 
   --wf-radius-board: 0.75rem;
   --wf-radius-control: 0.5rem;
-
-  /* Semantic values for the PYLON. The pylon is dark in BOTH themes, so it can
-   * never use --wf-live/--wf-accent/--wf-action: those swap to their light-mode
-   * (dark) values under the plain :root, and measured on the pylon they fell to
-   * 2.51:1 (live key) and 2.85:1 (the "you are here" pointer). These are the
-   * theme-invariant values; measured on --wf-pylon / --wf-pylon-2 they hold
-   * 6.5:1-11.5:1 in both themes. */
-  --wf-on-pylon-accent: #33bfbc; /* 7.35 on pylon · 6.54 on pylon-2 */
-  --wf-on-pylon-live: #34d399; /* 8.62 on pylon · 7.67 on pylon-2 */
 }
 
 .dark {
-  --wf-pylon: #0a110d;
-  --wf-pylon-2: #111a14;
-  --wf-pylon-rule: rgba(255, 255, 255, 0.12);
-  --wf-pylon-ink: #e8ede4;
-  --wf-pylon-ink-muted: #98a494;
-
   --wf-page: #0e1612;
   --wf-board: #16211b;
   --wf-board-2: #121a15;
@@ -69,38 +59,35 @@
   --wf-ink-muted: #a9b4a5;
 
   --wf-accent: #33bfbc; /* tosca-400 · 7.35:1 */
+  --wf-accent-hover: #66cfcd;
+  --wf-accent-ink: #06120f; /* 7.88:1 on the accent fill */
   --wf-accent-soft: rgba(51, 191, 188, 0.14);
   --wf-action: #fbbf24; /* amber-400 · 9.92:1 */
   --wf-live: #34d399; /* emerald-400 · 8.62:1 */
 }
 
-/* ── Pylon (sidebar) ────────────────────────────────────────────────────── */
+/* ── Rail (navigation panel) ────────────────────────────────────────────── */
 
-.wf-pylon {
-  background: var(--wf-pylon);
-  color: var(--wf-pylon-ink);
+.wf-rail {
+  background: var(--wf-rail);
+  color: var(--wf-rail-ink);
 }
 
-/* The vertical rule belongs to the sidebar <aside> only. Putting it on the
- * shared .wf-pylon material leaked a stray 1px right edge onto the sticky top
- * bar, which also wears .wf-pylon. */
-.wf-pylon--side {
-  border-right: 1px solid var(--wf-pylon-rule);
+/* The vertical rule belongs to the sidebar <aside> only. */
+.wf-rail--side {
+  border-right: 1px solid var(--wf-rail-rule);
 }
 
-/* The "you are here" pointer must use the pylon-invariant accent: the shared
- * --wf-accent is the light-mode value and measured 2.85:1 on the pylon. */
-
-.wf-pylon-plate {
+.wf-rail-plate {
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--wf-pylon-ink-muted);
+  color: var(--wf-rail-ink-muted);
 }
 
-/* Nav row on the pylon — wayfinding list, not a stack of pills */
-.wf-pylon-row {
+/* Nav row on the rail — wayfinding list, not a stack of pills */
+.wf-rail-row {
   position: relative;
   display: flex;
   align-items: center;
@@ -110,37 +97,40 @@
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
-  color: var(--wf-pylon-ink-muted);
+  color: var(--wf-rail-ink-muted);
   transition:
     background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
     color 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.wf-pylon-row:hover {
-  background: var(--wf-pylon-2);
-  color: var(--wf-pylon-ink);
+.wf-rail-row:hover {
+  background: var(--wf-rail-2);
+  color: var(--wf-rail-ink);
 }
 
-/* Active = "you are here": the row lifts, and a sign pointer marks it.
- * A drawn pointer, not a coloured border bar — a border-left on a list item is
- * the banned pattern; a triangle is how a directory sign actually marks a row. */
-.wf-pylon-row[aria-current='page'] {
-  background: var(--wf-pylon-2);
-  color: var(--wf-pylon-ink);
+/* Active = "you are here". The row takes the accent as a FILL, not a coloured
+ * left bar (a thick border-left on a list item is the banned pattern). The
+ * accent carries --wf-accent-ink text, so the pair clears AA in both themes. */
+.wf-rail-row[aria-current='page'] {
+  background: var(--wf-accent);
+  color: var(--wf-accent-ink);
   font-weight: 600;
-  padding-left: 1.25rem;
 }
 
-.wf-pylon-row[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  left: 0.125rem;
-  top: 50%;
-  translate: 0 -50%;
-  width: 0;
-  height: 0;
-  border-block: 0.3rem solid transparent;
-  border-left: 0.4rem solid var(--wf-on-pylon-accent);
+.wf-rail-row[aria-current='page']:hover {
+  background: var(--wf-accent);
+  color: var(--wf-accent-ink);
+}
+
+/* ── Topbar (admin) ─────────────────────────────────────────────────────── */
+
+/* A board band with a hairline under it. Not the rail material: the rail is a
+ * column, the topbar is a bar, and giving them one shared class leaked a stray
+ * right edge onto the bar before. */
+.wf-topbar {
+  background: var(--wf-board);
+  color: var(--wf-ink);
+  border-bottom: 1px solid var(--wf-rule);
 }
 
 /* ── Location plate (page header) ───────────────────────────────────────── */
@@ -151,13 +141,137 @@
   background: var(--wf-board);
 }
 
+/* ── Metric tier ────────────────────────────────────────────────────────── */
+
+/* The queue leads the page and takes the accent border; reference counts sit
+ * one tier down (dashed, no fill, smaller figure) so the operator's eye lands
+ * on the one number that needs a decision. */
+.wf-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wf-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid var(--wf-rule);
+  border-radius: var(--wf-radius-board);
+  background: var(--wf-board);
+  padding: 0.875rem 1rem;
+}
+
+.wf-metric--lead {
+  grid-column: 1 / -1;
+  border-color: var(--wf-action);
+}
+
+.wf-metric--secondary {
+  border-style: dashed;
+  background: transparent;
+}
+
+.wf-metric__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.wf-metric__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--wf-ink-muted);
+}
+
+.wf-metric__icon {
+  flex-shrink: 0;
+  color: var(--wf-ink-muted);
+}
+
+.wf-metric__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--wf-ink);
+}
+
+.wf-metric--lead .wf-metric__value {
+  font-size: 2.25rem;
+  color: var(--wf-action);
+}
+
+.wf-metric--secondary .wf-metric__value {
+  font-size: 1.125rem;
+}
+
+.wf-metric__hint {
+  font-size: 0.75rem;
+  color: var(--wf-ink-muted);
+}
+
+@media (max-width: 64rem) {
+  .wf-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wf-metric--secondary {
+    border-style: solid;
+    background: var(--wf-board);
+  }
+}
+
+@media (max-width: 34rem) {
+  .wf-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* State marker. A dot only appears where there is a state to mark — a dot on
+ * every row would be a legend, not a signal. Shape carries it as well as
+ * colour, so the meaning survives without hue. */
+.wf-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.wf-dot--action {
+  color: var(--wf-action);
+}
+
 /* ── Register (the directory listing) ───────────────────────────────────── */
 
+/* NOTE: no `overflow: hidden` here. This stylesheet is unlayered, so it beats
+ * Tailwind's layered `overflow-x-auto` — the shorthand silently turned a
+ * consumer's horizontal scroller (the filter chip row) into a clipper with no
+ * scrollbar, making its chips unreachable on narrow screens. Corner clipping is
+ * done on the children instead. */
 .wf-register {
   border: 1px solid var(--wf-rule);
   border-radius: var(--wf-radius-board);
   background: var(--wf-board);
-  overflow: hidden;
+}
+
+.wf-register > :first-child {
+  border-top-left-radius: calc(var(--wf-radius-board) - 1px);
+  border-top-right-radius: calc(var(--wf-radius-board) - 1px);
+}
+
+.wf-register > :last-child {
+  border-bottom-left-radius: calc(var(--wf-radius-board) - 1px);
+  border-bottom-right-radius: calc(var(--wf-radius-board) - 1px);
+}
+
+.wf-register > :last-child > :last-child {
+  border-bottom-left-radius: calc(var(--wf-radius-board) - 1px);
+  border-bottom-right-radius: calc(var(--wf-radius-board) - 1px);
 }
 
 /* One row per entry. Hairline separators; no per-row card, no left accent bar. */
@@ -220,11 +334,6 @@ button.wf-row:hover {
   color: var(--wf-live);
 }
 
-/* On the dark pylon the live key needs the theme-invariant emerald. */
-.wf-pylon .wf-key--live {
-  color: var(--wf-on-pylon-live);
-}
-
 .wf-key--idle {
   color: var(--wf-ink-muted);
 }
@@ -233,11 +342,6 @@ button.wf-row:hover {
  * status key's four entries stay four distinct readings. */
 .wf-key--accent {
   color: var(--wf-accent);
-}
-
-/* Both keys must stay readable on the always-dark pylon. */
-.wf-pylon .wf-key--idle {
-  color: var(--wf-pylon-ink-muted);
 }
 
 /* Sentence-case key for running prose (page footer), where the signage caps
@@ -274,19 +378,11 @@ button.wf-row:hover {
 
 .wf-btn--primary {
   background: var(--wf-accent);
-  color: #fff;
-}
-
-.dark .wf-btn--primary {
-  color: #0e1612;
+  color: var(--wf-accent-ink);
 }
 
 .wf-btn--primary:hover {
-  background: #005f5e;
-}
-
-.dark .wf-btn--primary:hover {
-  background: #66cfcd;
+  background: var(--wf-accent-hover);
 }
 
 .wf-btn--quiet {
@@ -347,39 +443,20 @@ button.wf-row:hover {
   background: var(--wf-page);
 }
 
-/* ── Focus ring on the dark pylon ───────────────────────────────────────── */
+/* ── Focus ring ─────────────────────────────────────────────────────────── */
 
-.wf-focus-pylon:focus-visible {
+.wf-focus-rail:focus-visible {
   outline: 2px solid var(--wf-accent);
   outline-offset: 2px;
 }
 
-/* ── The one authored motion ────────────────────────────────────────────── */
-@keyframes wf-pulse-once {
-  0% {
-    opacity: 1;
-    scale: 1;
-  }
-  40% {
-    opacity: 0.35;
-    scale: 0.82;
-  }
-  100% {
-    opacity: 1;
-    scale: 1;
-  }
-}
+/* ── Motion ─────────────────────────────────────────────────────────────── */
 
-.wf-beacon {
-  animation: wf-pulse-once 250ms cubic-bezier(0.22, 1, 0.36, 1) 1;
-}
-
+/* The pulse-once beacon was removed with the per-row state tick it animated —
+   the dot is static, so no keyframe is needed. What remains is the
+   reduced-motion opt-out for the transitions that are still live. */
 @media (prefers-reduced-motion: reduce) {
-  .wf-beacon {
-    animation: none;
-  }
-
-  .wf-pylon-row,
+  .wf-rail-row,
   .wf-row,
   .wf-btn {
     transition: none;

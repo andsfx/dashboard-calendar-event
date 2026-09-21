@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import { getDashboardNavGroups } from './dashboardNavigation';
+import { getDashboardNavGroups, getWayfindingMap } from './dashboardNavigation';
 import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
 import type { DashboardNavItem } from './dashboardNavigation';
 
@@ -31,9 +31,11 @@ interface AdminSidebarProps {
 }
 
 /**
- * The pylon: a dark mall-directory totem. Group headings are zone plates, nav
- * rows are directory entries, and the current row is marked with a sign pointer
- * ("you are here"). All focus management below is load-bearing — keep it.
+ * The rail: the admin navigation panel. A board surface like every other panel,
+ * separated from the page by a hairline — the active row is an accent FILL, not
+ * a coloured side-stripe. Group labels come from getDashboardNavGroups, so the
+ * rail never invents a destination. All focus management below is load-bearing
+ * — keep it.
  */
 export const AdminSidebar = memo(function AdminSidebar({
   isDark,
@@ -71,6 +73,12 @@ export const AdminSidebar = memo(function AdminSidebar({
     onOpenSponsorManager,
     onOpenEventAreaManager,
   }), [onOpenInstagramSettings, onOpenAlbumManager, onOpenLetterPicker, onOpenNewsManager, onOpenSponsorManager, onOpenEventAreaManager, permissions]);
+
+  // Same source the page header reads, so the two can never disagree.
+  const currentLocation = useMemo(
+    () => getWayfindingMap(location.pathname.replace(/^\/dashboard/, '') || '/').current,
+    [location.pathname],
+  );
 
   const closeMobile = useCallback(() => setIsMobileOpen(false), []);
 
@@ -138,30 +146,36 @@ export const AdminSidebar = memo(function AdminSidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* Lit logo panel — the pylon's one illuminated element */}
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--wf-pylon-rule)] px-4 py-4">
-        <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5">
-          <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-7 w-auto" />
-        </span>
+      {/* Identity: the mall wordmark, then where you are right now. The current
+          route label is the same string the page header uses, so the rail and
+          the plate can never disagree. */}
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--wf-rail-rule)] px-4 py-4">
+        <div className="min-w-0">
+          {/* The wordmark's darkest fills (deep tosca, maroon) measure 1.39:1 on
+              the dark rail and 11.89:1 on white, so dark mode gives it a plate.
+              On the light rail it sits directly on the board — a white box
+              there would read as a stray card. */}
+          <span className="inline-flex items-center rounded-lg dark:bg-white dark:px-2 dark:py-1.5">
+            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-7 w-auto" />
+          </span>
+          <p className="mt-1.5 truncate text-[11px] text-[var(--wf-rail-ink-muted)]">
+            {currentLocation.label}
+          </p>
+        </div>
         <button
           type="button"
           onClick={closeMobile}
-          className="wf-focus-pylon relative flex h-8 w-8 items-center justify-center rounded-lg text-[var(--wf-pylon-ink-muted)] transition-colors hover:bg-[var(--wf-pylon-2)] hover:text-[var(--wf-pylon-ink)] lg:hidden"
+          className="wf-focus-rail relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] lg:hidden"
           aria-label="Tutup menu"
         >
           <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
         </button>
       </div>
 
-      <div className="px-4 pb-1 pt-4">
-        <p className="wf-pylon-plate">Direktori</p>
-        <p className="mt-0.5 text-[13px] font-semibold text-[var(--wf-pylon-ink)]">Menu admin</p>
-      </div>
-
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">
         {navGroups.map((group, groupIdx) => (
           <div key={groupIdx}>
-            <h3 className="wf-pylon-plate mb-1.5 px-2.5">{group.label}</h3>
+            <h3 className="wf-rail-plate mb-1.5 px-2.5">{group.label}</h3>
             <div className="space-y-0.5">
               {group.items.map(item => {
                 const active = isActive(item);
@@ -171,7 +185,7 @@ export const AdminSidebar = memo(function AdminSidebar({
                     to={item.route}
                     onClick={() => handleNavClick(item)}
                     aria-current={active ? 'page' : undefined}
-                    className="wf-pylon-row wf-focus-pylon"
+                    className="wf-rail-row wf-focus-rail"
                   >
                     {item.icon}
                     <span className="truncate">{item.label}</span>
@@ -181,7 +195,7 @@ export const AdminSidebar = memo(function AdminSidebar({
                     key={item.id}
                     type="button"
                     onClick={() => handleNavClick(item)}
-                    className="wf-pylon-row wf-focus-pylon w-full"
+                    className="wf-rail-row wf-focus-rail w-full"
                   >
                     {item.icon}
                     <span className="truncate">{item.label}</span>
@@ -193,12 +207,12 @@ export const AdminSidebar = memo(function AdminSidebar({
         ))}
       </nav>
 
-      <div className="space-y-1.5 border-t border-[var(--wf-pylon-rule)] px-3 py-3">
+      <div className="space-y-1.5 border-t border-[var(--wf-rail-rule)] px-3 py-3">
         <button
           type="button"
           onClick={onToggleDark}
           aria-pressed={isDark}
-          className="wf-pylon-row wf-focus-pylon w-full"
+          className="wf-rail-row wf-focus-rail w-full"
         >
           {isDark ? (
             <>
@@ -214,18 +228,18 @@ export const AdminSidebar = memo(function AdminSidebar({
         </button>
 
         {/* Role plate. Role identity is not a status, so it takes no colour from
-            the legend — the label carries it, and the icon stays pylon ink. */}
-        <div className="flex items-center gap-2.5 rounded-lg border border-[var(--wf-pylon-rule)] bg-[var(--wf-pylon-2)] px-2.5 py-2.5">
+            the legend — the label carries it and the icon stays rail ink. */}
+        <div className="flex items-center gap-2.5 rounded-lg border border-[var(--wf-rail-rule)] px-2.5 py-2.5">
           {isSuperadmin ? (
-            <Crown className="h-4 w-4 shrink-0 text-[var(--wf-pylon-ink-muted)]" strokeWidth={1.5} aria-hidden />
+            <Crown className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
           ) : (
-            <Shield className="h-4 w-4 shrink-0 text-[var(--wf-pylon-ink-muted)]" strokeWidth={1.5} aria-hidden />
+            <Shield className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-[var(--wf-pylon-ink)]">
+            <p className="truncate text-xs font-semibold text-[var(--wf-rail-ink)]">
               {user?.display_name || 'Admin'}
             </p>
-            <p className="text-[11px] text-[var(--wf-pylon-ink-muted)]">
+            <p className="text-[11px] text-[var(--wf-rail-ink-muted)]">
               {isSuperadmin ? 'Superadmin' : 'Administrator'}
             </p>
           </div>
@@ -234,7 +248,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         <button
           type="button"
           onClick={onLogout}
-          className="wf-pylon-row wf-focus-pylon w-full text-red-300 hover:bg-red-500/15 hover:text-red-200"
+          className="wf-rail-row wf-focus-rail w-full text-red-700 hover:bg-red-600/10 dark:text-red-300 dark:hover:bg-red-500/15"
         >
           <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
           <span>Keluar</span>
@@ -270,7 +284,7 @@ export const AdminSidebar = memo(function AdminSidebar({
       <aside
         ref={asideRef}
         id="admin-sidebar"
-        className={`wf-pylon wf-pylon--side fixed left-0 top-0 z-50 h-dvh w-64 transition-transform duration-300 lg:translate-x-0 ${
+        className={`wf-rail wf-rail--side fixed left-0 top-0 z-50 h-dvh w-64 transition-transform duration-300 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Menu admin"

@@ -100,7 +100,11 @@ export function DashboardShell({
             tabIndex={-1}
             className={`${isAdmin ? 'w-full px-4 sm:px-6 lg:px-8' : 'mx-auto max-w-7xl px-3 sm:px-4'} py-4 sm:py-6 space-y-4 sm:space-y-6 transition-opacity duration-150 outline-none`}
           >
-            <div key={pathname} className="dashboard-fade">
+            {/* `space-y-6` lives here, not on <main>: the fade wrapper is
+                <main>'s only child, so the sections inside it would otherwise
+                have no gap between them. Admin only — public sections already
+                carry their own spacing. */}
+            <div key={pathname} className={`dashboard-fade ${isAdmin ? 'space-y-6' : ''}`}>
               {children}
             </div>
 
