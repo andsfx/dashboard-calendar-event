@@ -4,7 +4,7 @@ function SkeletonBlock({ className }: { className: string }) {
 
 export function DashboardSkeleton({ isAdmin }: { isAdmin: boolean }) {
   return (
-    <main className="mx-auto max-w-7xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6" aria-busy="true" aria-label="Memuat dashboard">
+    <main className={`space-y-4 py-4 sm:space-y-6 sm:py-6 ${isAdmin ? 'w-full px-4 sm:px-6 lg:px-8' : 'mx-auto max-w-7xl px-3 sm:px-4'}`} aria-busy="true" aria-label="Memuat dashboard">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <SkeletonBlock className="h-7 w-52" />

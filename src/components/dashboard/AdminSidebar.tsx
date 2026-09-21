@@ -245,7 +245,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         ref={hamburgerRef}
         type="button"
         onClick={() => setIsMobileOpen(true)}
-        className="ui-dashboard-control ui-focus-ring fixed left-4 top-20 z-40 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition-colors hover:bg-[var(--brand-card)] dark:hover:bg-slate-700 lg:hidden"
+        className="ui-focus-ring fixed left-3 top-2.5 z-50 flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
         aria-label="Buka menu"
         aria-expanded={isMobileOpen}
         aria-controls="admin-sidebar"

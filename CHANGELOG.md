@@ -48,6 +48,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Tidak dapat diperbaiki tanpa keputusan produk:** metrik "Bersedia Repeat" **tidak bisa dihitung** — kolom `would_repeat` ada (`schema.sql:500`) tapi **tidak pernah di-INSERT** dari jalur submit mana pun (`/tenant/submit` publik & `/tenant/create` keduanya tidak memuatnya; hanya `/tenant/update` yang mengenalnya dan FE tak pernah mengirimnya). Jadi mengeksposnya di endpoint analytics akan selalu menghasilkan 0%/kosong — metrik bohong baru. Membuatnya nyata = menambah pertanyaan ke form survey tenant (perubahan produk) + `INSERT` + agregasi + deploy VPS.
 
 
+- **Dashboard admin: konten rata kiri full-width, bukan kolom center `max-w-7xl` (2026-09-21).** `DashboardShell` memakai kolom marketing (`mx-auto max-w-7xl`) **di dalam** offset sidebar (`lg:ml-64`), sehingga konten mengambang center dengan **~190px ruang mati** di kiri dan kanan pada 1920px (terukur: `#main-content` kiri **445px**, kanan **1725px**). Standar dashboard = konten menempel kiri, full-width.
+  - `src/components/dashboard/DashboardShell.tsx`: `<main id="main-content">` cabang admin jadi `w-full px-4 sm:px-6 lg:px-8` (tanpa `mx-auto`/`max-w-7xl`); footer rata kiri. Cabang non-admin (publik) tetap centered.
+  - `src/components/Navbar.tsx`: container inner admin full-width agar topbar sejajar konten; brand dapat `pl-10 lg:pl-0` agar tidak tertimpa tombol menu mobile.
+  - `src/components/DashboardSkeleton.tsx`: skeleton admin full-width supaya tidak ada lompatan layout saat loading.
+  - `src/components/dashboard/AdminSidebar.tsx`: tombol menu mobile dipindah ke band topbar (`left-3 top-2.5`, `z-50`); sebelumnya `top-20` **menimpa judul `h1`** di <1024px.
+  - Bukti ukur: `leftGutter = 0` di semua route dashboard (320/768/1024/1440/1920); tanpa overflow dokumen di 320px (`scrollW == clientW`); 1 `<main>`, `<nav aria-label>`, skip-link, `aria-current="page"` benar per route, tanpa lompatan level heading. `npx tsc --noEmit` exit 0; `npm run build` exit 0; `npx vitest run` **518/518 (74 file)**; `npx playwright test` (config root) **16 passed, 1 skipped**; `npm run test:a11y` **28/28** (light+dark, 320-1280px) tanpa pelanggaran baru.
+  - `mx-auto max-w-7xl` yang tersisa sengaja **tidak** diubah: semuanya halaman publik (landing/gallery/news/sponsor/tenant/community/registration/letter/tenant-survey-results) di mana kolom tercenter memang benar.
+
 ### Added
 - **Script migrasi domain media** `server/scripts/migrate-cdn-domain.mjs` —
   memindahkan URL di database dari `cdn.andotherstori.my.id` ke

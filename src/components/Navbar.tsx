@@ -39,10 +39,10 @@ function RoleBadge({ user, isSuperadmin }: { user?: AuthUser | null; isSuperadmi
 export function Navbar({ isDark, onToggleDark, isAdmin, isSuperadmin, user, onLoginClick, onLogout, ongoingCount = 0 }: Props) {
   return (
     <nav className="ui-dashboard-chrome sticky top-0 z-40 border-b backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
+      <div className={`flex items-center justify-between gap-3 py-3 ${isAdmin ? 'w-full px-4 sm:px-6 lg:px-8' : 'mx-auto w-full max-w-7xl px-3 sm:px-4'}`}>
 
         {/* Brand */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className={`flex min-w-0 items-center gap-2 sm:gap-3 ${isAdmin ? 'pl-10 lg:pl-0' : ''}`}>
           <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/40">
             <CalendarDays className="h-5 w-5 text-white" />
             {/* Live events indicator */}
