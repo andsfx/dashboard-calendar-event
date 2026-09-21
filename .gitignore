@@ -25,7 +25,11 @@ pnpm-workspace.yaml
 # Playwright E2E
 test-results/
 playwright-report/
-e2e/__smoke*
+e2e/__*
+
+# Python bytecode (skill scripts) — never commit
+__pycache__/
+*.py[cod]
 
 # Generated reports
 reports/
