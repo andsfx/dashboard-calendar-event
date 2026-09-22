@@ -327,13 +327,13 @@ export default function TenantSurveyResultsPage({
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary-50 dark:bg-brand-primary-950/40">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-primary-600 dark:text-brand-primary-400" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--wf-accent-soft)]">
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)]" />
         </div>
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+        <p className="text-sm font-medium text-[var(--wf-ink-muted)]">
           Memuat hasil evaluasi tenant…
         </p>
-        <p className="text-xs text-slate-500">Memuat data survey…</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Memuat data survey…</p>
       </div>
     );
   }
@@ -359,12 +359,12 @@ export default function TenantSurveyResultsPage({
       {/* Report header — compact */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+          <h1 className="text-lg font-bold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
             Hasil Evaluasi Tenant
           </h1>
           {selectedEvent ? (
             <p className="mt-1">
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-primary-50 px-2.5 py-0.5 text-xs font-semibold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[var(--wf-accent-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--wf-accent)]">
                 <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
                 <span className="truncate">{selectedEvent.acara}</span>
               </span>
@@ -376,7 +376,7 @@ export default function TenantSurveyResultsPage({
             type="button"
             onClick={handleExportPdf}
             disabled={exporting || agg.total === 0}
-            className="ui-btn-primary ui-focus-ring inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
+            className="ui-btn-primary ui-focus-ring inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
           >
             {exporting ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -391,7 +391,7 @@ export default function TenantSurveyResultsPage({
       {error && (
         <div
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+          className="rounded-[var(--wf-radius-board)] border border-red-600/20 bg-red-600/10 px-3.5 py-2.5 text-xs text-red-700 dark:text-red-300"
         >
           {error}
         </div>
@@ -399,7 +399,7 @@ export default function TenantSurveyResultsPage({
       {exportError && (
         <div
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+          className="rounded-[var(--wf-radius-board)] border border-red-600/20 bg-red-600/10 px-3.5 py-2.5 text-xs text-red-700 dark:text-red-300"
         >
           {exportError}
         </div>
@@ -409,16 +409,16 @@ export default function TenantSurveyResultsPage({
 
       {/* Filter toolbar — overflow-visible so event dropdown is not clipped */}
       <section
-        className="ui-dashboard-surface sticky top-[3.25rem] z-30 overflow-visible shadow-md supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--brand-card-light)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md dark:supports-[backdrop-filter]:bg-slate-900/90"
+        className="ui-dashboard-surface sticky top-[3.25rem] z-30 overflow-visible supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--wf-board)_92%,transparent)] supports-[backdrop-filter]:backdrop-blur-md"
         aria-labelledby="filter-heading"
       >
-        <div className="ui-dashboard-muted flex flex-wrap items-center justify-between gap-2 border-b border-black/[0.04] px-3 py-2 dark:border-slate-700 sm:px-4">
-          <div className="flex min-w-0 items-center gap-2 text-slate-600 dark:text-slate-300">
-            <Filter className="h-3.5 w-3.5 shrink-0 text-brand-primary-500" aria-hidden />
+        <div className="bg-[var(--wf-board-2)] flex flex-wrap items-center justify-between gap-2 border-b border-[var(--wf-rule)] px-3 py-2 sm:px-4">
+          <div className="flex min-w-0 items-center gap-2 text-[var(--wf-ink-muted)]">
+            <Filter className="h-3.5 w-3.5 shrink-0 text-[var(--wf-accent)]" aria-hidden />
             <h2 id="filter-heading" className="text-[11px] font-bold uppercase tracking-wide">
               Filter
             </h2>
-            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+            <span className="rounded-full bg-[var(--wf-rule-strong)] px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-[var(--wf-ink-muted)]">
               {agg.total}
             </span>
           </div>
@@ -427,7 +427,7 @@ export default function TenantSurveyResultsPage({
               <button
                 type="button"
                 onClick={resetFilter}
-                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
               >
                 <RotateCcw className="h-3 w-3" aria-hidden />
                 <span className="hidden sm:inline">Reset</span>
@@ -436,12 +436,12 @@ export default function TenantSurveyResultsPage({
             <button
               type="button"
               onClick={() => setFiltersOpen((v) => !v)}
-              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:hidden"
+              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] sm:hidden"
               aria-expanded={filtersOpen}
             >
               Lanjutan
               {advancedFilterCount > 0 && (
-                <span className="rounded-full bg-brand-primary-100 px-1.5 text-[10px] tabular-nums text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">
+                <span className="rounded-full bg-[var(--wf-accent-soft)] px-1.5 text-[10px] tabular-nums text-[var(--wf-accent)]">
                   {advancedFilterCount}
                 </span>
               )}
@@ -453,7 +453,7 @@ export default function TenantSurveyResultsPage({
         <div className="space-y-2.5 p-3 sm:p-4">
           {/* Event always visible — primary control */}
           <div className="min-w-0">
-            <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+            <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
               Event
             </span>
             <EventFilterSearch
@@ -470,7 +470,7 @@ export default function TenantSurveyResultsPage({
             }`}
           >
             <label className="block min-w-0">
-              <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+              <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Dari tanggal
               </span>
               <input
@@ -481,7 +481,7 @@ export default function TenantSurveyResultsPage({
               />
             </label>
             <label className="block min-w-0">
-              <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+              <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Sampai tanggal
               </span>
               <input
@@ -492,7 +492,7 @@ export default function TenantSurveyResultsPage({
               />
             </label>
             <label className="block min-w-0">
-              <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+              <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Zona
               </span>
               <select
@@ -509,7 +509,7 @@ export default function TenantSurveyResultsPage({
               </select>
             </label>
             <label className="block min-w-0">
-              <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+              <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Kategori
               </span>
               <select
@@ -526,7 +526,7 @@ export default function TenantSurveyResultsPage({
               </select>
             </label>
             <label className="block min-w-0 sm:col-span-2 xl:col-span-1">
-              <span className="mb-1 block text-[11px] font-medium ui-text-muted">
+              <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Status
               </span>
               <select
@@ -550,8 +550,8 @@ export default function TenantSurveyResultsPage({
         </div>
 
         {activeChips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-black/[0.04] px-3 py-2 dark:border-slate-700 sm:px-4 sm:py-2.5">
-            <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-[var(--wf-rule)] px-3 py-2 sm:px-4 sm:py-2.5">
+            <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
               Aktif
             </span>
             {activeChips.map((c) => (
@@ -559,7 +559,7 @@ export default function TenantSurveyResultsPage({
                 key={c.key}
                 type="button"
                 onClick={() => clearChip(c.key)}
-                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-brand-primary-50 px-2 py-0.5 text-[11px] font-medium text-brand-primary-800 ring-1 ring-inset ring-brand-primary-200 transition-colors hover:bg-brand-primary-100 dark:bg-brand-primary-950/40 dark:text-brand-primary-200 dark:ring-brand-primary-800 dark:hover:bg-brand-primary-900/40"
+                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--wf-accent)] ring-1 ring-inset ring-[var(--wf-accent)]/25 transition-colors hover:bg-[var(--wf-accent)]/15"
                 title="Hapus filter ini"
               >
                 <span className="truncate">{c.label}</span>
@@ -623,7 +623,7 @@ export default function TenantSurveyResultsPage({
       <div
         role="tablist"
         aria-label="Bagian konten"
-        className="grid grid-cols-4 gap-1 rounded-xl border border-slate-200/80 bg-slate-100/80 p-1 dark:border-slate-700 dark:bg-slate-800/60"
+        className="grid grid-cols-4 gap-1 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-1"
       >
         {mainTabs.map((t) => {
           const active = mainTab === t.id;
@@ -636,8 +636,8 @@ export default function TenantSurveyResultsPage({
               onClick={() => setMainTab(t.id)}
               className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
                 active
-                  ? 'bg-white text-brand-primary-800 shadow-sm dark:bg-slate-900 dark:text-brand-primary-200'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-200'
+                  ? 'bg-[var(--wf-board)] text-[var(--wf-accent)]'
+                  : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
               }`}
             >
               <span className="max-w-full truncate text-[11px] font-semibold leading-tight sm:text-xs">
@@ -648,8 +648,8 @@ export default function TenantSurveyResultsPage({
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none ${
                     active
-                      ? 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300'
-: 'bg-slate-200/80 ui-text-muted dark:bg-slate-700 '
+                      ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+: 'bg-[var(--wf-rule-strong)] text-[var(--wf-ink-muted)]'
                   }`}
                 >
                   {t.count}
@@ -666,19 +666,19 @@ export default function TenantSurveyResultsPage({
         aria-labelledby="share-heading"
         className="ui-dashboard-surface overflow-hidden"
       >
-        <div className="ui-dashboard-muted flex flex-col gap-3 border-b border-black/[0.04] px-4 py-3 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+        <div className="bg-[var(--wf-board-2)] flex flex-col gap-3 border-b border-[var(--wf-rule)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
               <Share2 className="h-3.5 w-3.5" aria-hidden />
             </span>
             <div>
               <h2
                 id="share-heading"
-                className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+                className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
               >
                 Bagikan form survey
               </h2>
-              <p className="text-[11px] ui-text-muted">
+              <p className="text-[11px] text-[var(--wf-ink-muted)]">
                 {selectedEvent
                   ? `Tautan dan kode QR formulir: ${selectedEvent.acara}`
                   : 'Salin tautan atau tampilkan QR, lalu kirim kepada tenant yang belum mengisi'}
@@ -688,7 +688,7 @@ export default function TenantSurveyResultsPage({
           {filter.eventId === 'all' && (
             <div className="relative min-w-[160px] sm:max-w-[220px] sm:flex-1">
               <Search
-                className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+                className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                 aria-hidden
               />
               <input
@@ -696,7 +696,7 @@ export default function TenantSurveyResultsPage({
                 value={shareSearch}
                 onChange={(e) => setShareSearch(e.target.value)}
                 placeholder="Cari nama event…"
-                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-7 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
                 aria-label="Cari event untuk dibagikan"
               />
             </div>
@@ -704,7 +704,7 @@ export default function TenantSurveyResultsPage({
         </div>
 
         {shareList.length === 0 ? (
-          <p className="px-4 py-8 text-center text-xs ui-text-muted">
+          <p className="px-4 py-8 text-center text-xs text-[var(--wf-ink-muted)]">
             Tidak ada event ongoing/past untuk dibagikan
             {shareSearch ? ' / cocok pencarian' : ''}.
           </p>
@@ -735,16 +735,16 @@ export default function TenantSurveyResultsPage({
         aria-label="Checklist tenant"
         className="ui-dashboard-surface overflow-hidden"
       >
-        <div className="ui-dashboard-muted flex flex-col gap-3 border-b border-black/[0.04] px-4 py-3 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+        <div className="bg-[var(--wf-board-2)] flex flex-col gap-3 border-b border-[var(--wf-rule)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
               <Store className="h-3.5 w-3.5" aria-hidden />
             </span>
             <div>
-              <h2 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
                 Checklist tenant
               </h2>
-              <p className="text-[11px] ui-text-muted">
+              <p className="text-[11px] text-[var(--wf-ink-muted)]">
                 {filter.eventId === 'all'
                   ? 'Daftar tenant yang telah atau belum mengisi. Pilih satu event pada filter agar angkanya lebih akurat.'
                   : `Status pengisian untuk: ${eventLabel}`}
@@ -767,53 +767,53 @@ export default function TenantSurveyResultsPage({
                   onClick={() => setRosterTab(tab)}
                   className={`ui-focus-ring rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                     active
-                      ? 'bg-brand-primary-600 text-white'
-                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                      ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                      : 'border border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
                   }`}
                 >
                   {tab === 'pending' ? 'Belum isi' : tab === 'done' ? 'Sudah isi' : 'Semua'}
-                  <span className={`ml-1 tabular-nums ${active ? 'text-white/80' : 'text-slate-500'}`}>
+                  <span className={`ml-1 tabular-nums ${active ? 'text-[var(--wf-accent-ink)]/80' : 'text-[var(--wf-ink-muted)]'}`}>
                     {count}
                   </span>
                 </button>
               );
             })}
             <div className="relative min-w-[140px] flex-1 sm:max-w-[200px]">
-              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" aria-hidden />
+              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" aria-hidden />
               <input
                 type="search"
                 value={rosterQ}
                 onChange={(e) => setRosterQ(e.target.value)}
                 placeholder="Cari tenant…"
-                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-7 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
               />
             </div>
           </div>
         </div>
 
         {rosterLoading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-sm ui-text-muted">
-            <Loader2 className="h-4 w-4 animate-spin text-brand-primary-500" aria-hidden />
+          <div className="flex items-center justify-center gap-2 py-10 text-sm text-[var(--wf-ink-muted)]">
+            <Loader2 className="h-4 w-4 animate-spin text-[var(--wf-accent)]" aria-hidden />
             Memuat daftar tenant…
           </div>
         ) : rosterError && roster.length === 0 ? (
-          <p className="px-4 py-8 text-center text-xs ui-text-muted">{rosterError}</p>
+          <p className="px-4 py-8 text-center text-xs text-[var(--wf-ink-muted)]">{rosterError}</p>
         ) : checklistView.length === 0 ? (
-          <p className="px-4 py-8 text-center text-xs ui-text-muted">
+          <p className="px-4 py-8 text-center text-xs text-[var(--wf-ink-muted)]">
             Tidak ada tenant di tab ini{rosterQ ? ' / hasil pencarian' : ''}.
           </p>
         ) : (
-          <ul className="max-h-[min(36rem,70dvh)] divide-y divide-slate-100 overflow-y-auto overscroll-contain dark:divide-slate-800">
+          <ul className="max-h-[min(36rem,70dvh)] divide-y divide-[var(--wf-rule)] overflow-y-auto overscroll-contain">
             {checklistView.map((t) => (
               <li
                 key={t.id}
-                className="flex items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-slate-50/80 dark:gap-3 dark:hover:bg-slate-800/40 sm:px-4"
+                className="flex items-center gap-2.5 px-3 py-2.5 transition-colors hover:bg-[var(--wf-board-2)] sm:gap-3 sm:px-4"
               >
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                     t.filled
-                      ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
-                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300'
+                      ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]'
+                      : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]'
                   }`}
                   title={t.filled ? 'Sudah isi' : 'Belum isi'}
                   aria-label={t.filled ? 'Sudah isi' : 'Belum isi'}
@@ -828,21 +828,21 @@ export default function TenantSurveyResultsPage({
                   <img
                     src={t.logo}
                     alt=""
-                    className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600"
+                    className="h-9 w-9 shrink-0 rounded-lg border border-[var(--wf-rule)] object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : (
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-500 dark:border-slate-600 dark:bg-slate-800">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[10px] font-bold text-[var(--wf-ink-muted)]">
                     {(t.name || '?').charAt(0).toUpperCase()}
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                     {t.name}
                   </p>
-                  <p className="truncate text-[11px] ui-text-muted">
+                  <p className="truncate text-[11px] text-[var(--wf-ink-muted)]">
                     {[t.floor, t.lot].filter(Boolean).join(' · ') || '-'}
                     {t.category ? ` · ${t.category}` : ''}
                   </p>
@@ -850,8 +850,8 @@ export default function TenantSurveyResultsPage({
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                     t.filled
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                      : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                      ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]'
+                      : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'
                   }`}
                 >
                   {t.filled ? 'Sudah' : 'Belum'}
@@ -867,13 +867,13 @@ export default function TenantSurveyResultsPage({
       {mainTab === 'ringkasan' && (
         agg.total === 0 ? (
           <div className="ui-empty-panel px-6 py-14">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
-              <Inbox className="h-6 w-6 text-slate-500 dark:text-slate-300" aria-hidden />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--wf-board-2)]">
+              <Inbox className="h-6 w-6 text-[var(--wf-ink-muted)]" aria-hidden />
             </div>
-            <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <p className="mt-3 text-sm font-semibold text-[var(--wf-ink)]">
               Belum ada data sesuai filter
             </p>
-            <p className="mx-auto mt-1 max-w-sm text-xs ui-text-muted">
+            <p className="mx-auto mt-1 max-w-sm text-xs text-[var(--wf-ink-muted)]">
               Tidak ada data yang sesuai filter. Longgarkan filter, buka Bagikan untuk mengirim
               formulir, atau Checklist untuk memeriksa partisipasi.
             </p>
@@ -881,7 +881,7 @@ export default function TenantSurveyResultsPage({
               <button
                 type="button"
                 onClick={resetFilter}
-                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 Reset filter
@@ -925,42 +925,42 @@ export default function TenantSurveyResultsPage({
 
             <section className="grid gap-3 lg:grid-cols-2">
               <div className="ui-dashboard-surface overflow-hidden">
-                <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
                     Top Gerai
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                     Diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi
                   </p>
                 </div>
-                <div className="divide-y divide-slate-100 dark:divide-slate-700/80">
+                <div className="divide-y divide-[var(--wf-rule)]">
                   {agg.topGerai.map((g, i) => (
                     <div
                       key={g.nama_gerai}
-                      className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
+                      className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[var(--wf-board-2)]"
                     >
                       <span
                         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${
                           i === 0
-                            ? 'bg-brand-primary-500 text-white'
+                            ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                             : i < 3
-                              ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300'
-                              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                              ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                              : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]'
                         }`}
                       >
                         {i + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                           {g.nama_gerai}
                         </p>
-                        <p className="text-[11px] text-slate-500">{g.count} respons</p>
+                        <p className="text-[11px] text-[var(--wf-ink-muted)]">{g.count} respons</p>
                       </div>
-                        <div className="shrink-0 text-right text-[11px] ui-text-muted">
+                        <div className="shrink-0 text-right text-[11px] text-[var(--wf-ink-muted)]">
                         <p>
                           Traffic naik {g.trafficPos} · Omzet naik {g.salesPos}
                         </p>
-                        <p className="font-bold text-brand-primary-600 dark:text-brand-primary-400">
+                        <p className="font-bold text-[var(--wf-accent)]">
                           skor {g.score}
                         </p>
                       </div>
@@ -970,18 +970,18 @@ export default function TenantSurveyResultsPage({
               </div>
 
               <div className="ui-dashboard-surface overflow-hidden">
-                <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
                     Kategori × Sales
                   </h3>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                     Jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya
                   </p>
                 </div>
                 <div className="max-h-80 overflow-auto">
                   <table className="w-full min-w-[320px] text-left text-xs">
                     <thead className="sticky top-0 z-10">
-<tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
+<tr className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)]">
                         <th scope="col" className="px-4 py-2 font-semibold">
                           Kategori
                         </th>
@@ -997,15 +997,15 @@ export default function TenantSurveyResultsPage({
                       {agg.crossTab.slice(0, 15).map((c, idx) => (
                         <tr
                           key={`${c.kategori}-${c.sales}`}
-                          className={`border-b border-slate-50 dark:border-slate-800/80 ${
-                            idx % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''
-                          } hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20`}
+                          className={`border-b border-[var(--wf-rule)] ${
+                            idx % 2 === 1 ? 'bg-[var(--wf-board-2)]' : ''
+                          } hover:bg-[var(--wf-accent-soft)]`}
                         >
-                          <td className="max-w-[140px] truncate px-4 py-2 text-slate-700 dark:text-slate-300">
+                          <td className="max-w-[140px] truncate px-4 py-2 text-[var(--wf-ink)]">
                             {c.kategori}
                           </td>
-                          <td className="px-2 py-2 text-slate-600 dark:text-slate-300">{c.sales}</td>
-                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-slate-800 dark:text-slate-200">
+                          <td className="px-2 py-2 text-[var(--wf-ink-muted)]">{c.sales}</td>
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-[var(--wf-ink)]">
                             {c.count}
                           </td>
                         </tr>
@@ -1025,22 +1025,22 @@ export default function TenantSurveyResultsPage({
       {mainTab === 'detail' && (
         <div className="space-y-4">
           <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="feedback-heading">
-            <div className="ui-dashboard-muted flex flex-col gap-2.5 border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+            <div className="bg-[var(--wf-board-2)] flex flex-col gap-2.5 border-b border-[var(--wf-rule)] px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
                   <MessageSquareText className="h-3.5 w-3.5" aria-hidden />
                 </span>
                 <div>
                   <h3
                     id="feedback-heading"
-                    className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+                    className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
                   >
                     Feedback Gerai
-                    <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-500">
+                    <span className="ml-1.5 font-semibold normal-case tracking-normal text-[var(--wf-ink-muted)]">
                       ({feedbackFiltered.length})
                     </span>
                   </h3>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-[var(--wf-ink-muted)]">
                     Komentar dari gerai. Perhatikan keluhan atau saran yang sering muncul.
                   </p>
                 </div>
@@ -1050,7 +1050,7 @@ export default function TenantSurveyResultsPage({
                   Cari feedback atau gerai
                 </label>
                 <Search
-                  className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+                  className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                   aria-hidden
                 />
                 <input
@@ -1065,12 +1065,12 @@ export default function TenantSurveyResultsPage({
             </div>
             <div className="max-h-[min(40rem,70dvh)] overflow-y-auto overscroll-contain p-2.5 sm:p-4">
               {feedbackFiltered.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center dark:border-slate-700">
+                <div className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] px-4 py-8 text-center">
                   <MessageSquareText
-                    className="mx-auto h-6 w-6 text-slate-300 dark:text-slate-600"
+                    className="mx-auto h-6 w-6 text-[var(--wf-ink-muted)]"
                     aria-hidden
                   />
-                  <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-300">Tidak ada feedback teks</p>
+                  <p className="mt-2 text-xs font-medium text-[var(--wf-ink-muted)]">Tidak ada feedback teks</p>
                 </div>
               ) : (
                 <ul className="grid gap-2.5 sm:gap-3">
@@ -1079,18 +1079,18 @@ export default function TenantSurveyResultsPage({
                       key={f.id}
                       className="px-3 py-2.5 sm:px-3.5 sm:py-3"
                     >
-                      <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-slate-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
-                        <span className="font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                      <div className="mb-1.5 flex flex-col gap-0.5 text-[10px] text-[var(--wf-ink-muted)] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
+                        <span className="font-semibold text-[var(--wf-accent)]">
                           {f.gerai}
                         </span>
                         <span className="hidden sm:inline" aria-hidden>
                           ·
                         </span>
-                        <span className="truncate text-slate-500">
+                        <span className="truncate text-[var(--wf-ink-muted)]">
                           {eventMap.get(f.event_id) || f.event_id}
                         </span>
                       </div>
-                      <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-slate-700 dark:text-slate-200 sm:text-sm">
+                      <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-[var(--wf-ink)] sm:text-sm">
                         {f.text}
                       </p>
                     </li>
@@ -1101,60 +1101,60 @@ export default function TenantSurveyResultsPage({
           </section>
 
           <section className="ui-dashboard-surface overflow-hidden" aria-labelledby="detail-heading">
-            <div className="ui-dashboard-muted border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
+            <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
               <h3
                 id="detail-heading"
-                className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200"
+                className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
               >
                 Detail Respons
-                <span className="ml-1.5 font-semibold normal-case tracking-normal text-slate-500">
+                <span className="ml-1.5 font-semibold normal-case tracking-normal text-[var(--wf-ink-muted)]">
                   ({agg.rows.length})
                 </span>
               </h3>
             </div>
             {/* Mobile cards + desktop table */}
-            <div className="divide-y divide-slate-100 dark:divide-slate-800 sm:hidden">
+            <div className="divide-y divide-[var(--wf-rule)] sm:hidden">
               {agg.rows.slice(0, 100).map((s: TenantEventSurvey) => (
                 <article key={s.id} className="space-y-1.5 px-3 py-3">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="min-w-0 text-sm font-semibold text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
+                    <p className="min-w-0 text-sm font-semibold text-[var(--wf-ink)] [overflow-wrap:anywhere]">
                       {s.nama_gerai || s.tenant_name || '-'}
                     </p>
                     <StatusBadge status={s.status} />
                   </div>
-                  <p className="text-[11px] ui-text-muted [overflow-wrap:anywhere]">
+                  <p className="text-[11px] text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">
                     {eventMap.get(s.event_id) || s.event_id}
                   </p>
                   <dl className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
                     <div>
-                      <dt className="text-slate-500">Zona</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.lokasi_zona || '-'}</dd>
+                      <dt className="text-[var(--wf-ink-muted)]">Zona</dt>
+                      <dd className="font-medium text-[var(--wf-ink)]">{s.lokasi_zona || '-'}</dd>
                     </div>
                     <div>
-                      <dt className="text-slate-500">Kategori</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300 [overflow-wrap:anywhere]">
+                      <dt className="text-[var(--wf-ink-muted)]">Kategori</dt>
+                      <dd className="font-medium text-[var(--wf-ink)] [overflow-wrap:anywhere]">
                         {s.kategori || '-'}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-slate-500">Traffic</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_traffic || '-'}</dd>
+                      <dt className="text-[var(--wf-ink-muted)]">Traffic</dt>
+                      <dd className="font-medium text-[var(--wf-ink)]">{s.kenaikan_traffic || '-'}</dd>
                     </div>
                     <div>
-                      <dt className="text-slate-500">Sales</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-300">{s.kenaikan_sales || '-'}</dd>
+                      <dt className="text-[var(--wf-ink-muted)]">Sales</dt>
+                      <dd className="font-medium text-[var(--wf-ink)]">{s.kenaikan_sales || '-'}</dd>
                     </div>
                   </dl>
                 </article>
               ))}
               {agg.rows.length === 0 && (
-                <p className="px-3 py-8 text-center text-xs ui-text-muted">Tidak ada respons</p>
+                <p className="px-3 py-8 text-center text-xs text-[var(--wf-ink-muted)]">Tidak ada respons</p>
               )}
             </div>
             <div className="hidden max-h-[28rem] overflow-auto sm:block">
               <table className="w-full min-w-[720px] text-left text-xs">
                 <thead className="sticky top-0 z-10">
-<tr className="ui-dashboard-muted border-b border-black/[0.04] text-[10px] uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
+<tr className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)]">
                     <th scope="col" className="px-4 py-2.5 font-semibold">
                       Gerai
                     </th>
@@ -1182,26 +1182,26 @@ export default function TenantSurveyResultsPage({
                   {agg.rows.slice(0, 100).map((s: TenantEventSurvey, idx) => (
                     <tr
                       key={s.id}
-                      className={`border-b border-slate-50 transition-colors dark:border-slate-800/80 ${
-                        idx % 2 === 1 ? 'bg-slate-50/40 dark:bg-slate-800/25' : ''
-                      } hover:bg-brand-primary-50/50 dark:hover:bg-brand-primary-950/20`}
+                      className={`border-b border-[var(--wf-rule)] transition-colors ${
+                        idx % 2 === 1 ? 'bg-[var(--wf-board-2)]' : ''
+                      } hover:bg-[var(--wf-accent-soft)]`}
                     >
-                      <td className="max-w-[140px] truncate px-4 py-2 font-medium text-slate-800 dark:text-slate-100">
+                      <td className="max-w-[140px] truncate px-4 py-2 font-medium text-[var(--wf-ink)]">
                         {s.nama_gerai || s.tenant_name || '-'}
                       </td>
-                      <td className="max-w-[140px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
+                      <td className="max-w-[140px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
                         {eventMap.get(s.event_id) || s.event_id}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
+                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.lokasi_zona || '-'}
                       </td>
-                      <td className="max-w-[120px] truncate px-2 py-2 text-slate-600 dark:text-slate-300">
+                      <td className="max-w-[120px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kategori || '-'}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
+                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kenaikan_traffic || '-'}
                       </td>
-                      <td className="px-2 py-2 text-slate-600 dark:text-slate-300">
+                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kenaikan_sales || '-'}
                       </td>
                       <td className="px-4 py-2">
@@ -1213,7 +1213,7 @@ export default function TenantSurveyResultsPage({
               </table>
             </div>
             {agg.rows.length > 100 && (
-              <p className="border-t border-black/[0.04] px-4 py-2 text-[11px] text-slate-500 dark:border-slate-700">
+              <p className="border-t border-[var(--wf-rule)] px-4 py-2 text-[11px] text-[var(--wf-ink-muted)]">
                 Menampilkan 100 dari {agg.rows.length} baris
               </p>
             )}

@@ -26,7 +26,7 @@ interface Props {
 export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, onDelete, onDeleteSeries, isAdmin = false }: Props) {
   if (!event) return null;
 
-  const color = CATEGORY_COLORS[event.category] ?? '#00918e';
+  const color = CATEGORY_COLORS[event.category] ?? 'var(--wf-accent)';
   const isOngoing = event.status === 'ongoing';
   const isMultiDay = isMultiDayEvent(event);
   const duration = isMultiDay ? getEventDuration(event.dateStr, event.dateEnd) : 1;
@@ -34,7 +34,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-detail-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
+      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--wf-board)]">
         {/* Color accent header */}
         <div
           className="relative px-4 pb-5 pt-6 sm:px-6"
@@ -48,7 +48,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-4 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
@@ -59,23 +59,23 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             <CategoryBadges categories={event.categories} />
             {!!isAdmin && <PriorityBadge priority={event.priority} />}
             {isOngoing && (
-              <span aria-label="Event sedang berlangsung" className="flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+              <span aria-label="Event sedang berlangsung" className="flex items-center gap-1 rounded-full bg-[var(--wf-live)]/10 px-2.5 py-1 text-xs font-bold text-[var(--wf-live)]">
                 <Zap className="h-3 w-3" aria-hidden="true" /> LIVE
               </span>
             )}
             {isMultiDay && (
-              <span aria-label={`Rangkaian acara ${duration} hari`} className="flex items-center gap-1 rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+              <span aria-label={`Rangkaian acara ${duration} hari`} className="flex items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2.5 py-1 text-xs font-bold text-[var(--wf-accent)]">
                 <CalendarDays className="h-3 w-3" aria-hidden="true" /> Rangkaian acara · {duration} hari
               </span>
             )}
             {isRecurring && (
-              <span aria-label="Event reguler berulang" className="flex items-center gap-1 rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+              <span aria-label="Event reguler berulang" className="flex items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2.5 py-1 text-xs font-bold text-[var(--wf-accent)]">
                 <Repeat className="h-3 w-3" aria-hidden="true" /> Event reguler
               </span>
             )}
           </div>
 
-          <h2 id="event-detail-title" className="pr-8 text-lg font-bold leading-snug text-slate-900 dark:text-white sm:pr-10 sm:text-xl">
+          <h2 id="event-detail-title" className="pr-8 text-lg font-bold leading-snug text-[var(--wf-ink)] sm:pr-10 sm:text-xl">
             {event.acara}
           </h2>
         </div>
@@ -86,7 +86,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         </div>
 
         {/* Photo Gallery — always show, upload only for ongoing/past admin */}
-        <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-700 sm:px-6">
+        <div className="border-t border-[var(--wf-rule)] px-4 pt-4 sm:px-6">
           <EventPhotoGallery
             eventId={event.id}
             eventName={event.acara}
@@ -96,49 +96,49 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
         {/* Survey section — for past events (both admin & public) */}
         {event.status === 'past' && (
-          <div className="border-t border-slate-100 px-4 pt-4 dark:border-slate-700 sm:px-6">
+          <div className="border-t border-[var(--wf-rule)] px-4 pt-4 sm:px-6">
             {/* Public: CTA banner */}
             {!isAdmin && (
               <a
                 href={`/survey/${event.id}`}
-                className="mb-3 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 transition-colors hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
+                className="mb-3 flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3 transition-colors hover:bg-[var(--wf-board-2)]"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)]">
                   <ClipboardCheckIcon />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Isi Survey Kepuasan</p>
-                  <p className="text-[11px] text-brand-primary-700 dark:text-brand-primary-400">Bantu kami meningkatkan kualitas layanan</p>
+                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi Survey Kepuasan</p>
+                  <p className="text-[11px] text-[var(--wf-accent)]">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
-                <span className="shrink-0 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white">
+                <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">
                   Isi Survey
                 </span>
               </a>
             )}
             {/* QR Code (both admin & public) */}
             <details className="group">
-<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
+<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">
                 <QrCode className="h-3.5 w-3.5" />
                 <span>QR Code Survey</span>
-                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
-                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
+                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" /></div>}>
                   <SurveyQRCode eventId={event.id} eventName={event.acara} />
                 </Suspense>
               </div>
             </details>
             {/* QR Code Tenant Self-Assessment */}
             <details className="group">
-<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium ui-text-muted hover:text-brand-primary-600 dark:hover:text-brand-primary-400">
+<summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]">
                 <ClipboardCheckIcon />
                 <span>QR Code Self-Assessment Tenant</span>
-                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 group-open:hidden">Tampilkan</span>
-                <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-300 hidden group-open:inline">Sembunyikan</span>
+                <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] group-open:hidden">Tampilkan</span>
+                <span className="ml-auto text-[10px] text-[var(--wf-ink-muted)] hidden group-open:inline">Sembunyikan</span>
               </summary>
               <div className="mt-3">
-                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-primary-300 border-t-brand-primary-600" /></div>}>
+                <Suspense fallback={<div className="flex justify-center py-4"><div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" /></div>}>
                   <SurveyQRCode
                     eventId={event.id}
                     eventName={event.acara}
@@ -153,17 +153,17 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
         )}
 
         {/* Footer actions */}
-        <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6">
+        <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
           >
             Tutup
           </button>
           {!isAdmin && (
             <Link
               to={`/events/${event.id}`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-100 active:scale-95 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
             >
               <ExternalLink className="h-3.5 w-3.5" /> Buka halaman event
             </Link>
@@ -171,7 +171,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {onEdit && (
             <button
               onClick={() => { onClose(); onEdit(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:scale-95 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
             >
               <Edit2 className="h-3.5 w-3.5" /> Ubah
             </button>
@@ -179,7 +179,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {onDelete && (
             <button
               onClick={() => { onClose(); onDelete(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 active:scale-95 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-600/10 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600/20 active:scale-95 dark:border-red-900/50 dark:text-red-300"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
             </button>
@@ -187,7 +187,7 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           {isRecurring && onDeleteSeries && event.recurrenceGroupId && (
             <button
               onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-100 py-2.5 text-sm font-semibold text-red-800 transition-colors hover:bg-red-200 active:scale-95 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-600/20 py-2.5 text-sm font-semibold text-red-800 transition-colors hover:bg-red-600/30 active:scale-95 dark:border-red-900/50 dark:text-red-300"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
             </button>
@@ -201,6 +201,6 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 /** ClipboardCheck icon (lucide, lazy-adjacent, keeps imports tidy) */
 function ClipboardCheckIcon() {
   return (
-    <ClipboardCheck className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
+    <ClipboardCheck className="h-4 w-4 text-[var(--wf-accent)]" aria-hidden="true" />
   );
 }

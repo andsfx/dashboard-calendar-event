@@ -34,26 +34,26 @@ export function ModalHeader({
   return (
     <div
       className={cn(
-        'flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-6 dark:border-slate-700',
+        'flex items-center justify-between border-b border-[var(--wf-rule)] px-4 py-3 sm:px-6',
         className,
       )}
     >
       <div className="flex min-w-0 items-center gap-3">
         {leading}
         {icon != null && (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary-600">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
             <span className="[&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-white">{icon}</span>
           </div>
         )}
         <div className="min-w-0">
           <h2
             id={titleId}
-            className="truncate text-base font-bold text-slate-800 dark:text-white"
+            className="truncate text-base font-bold text-[var(--wf-ink)]"
           >
             {title}
           </h2>
           {subtitle != null && subtitle !== '' && (
-            <p className="truncate text-xs text-slate-500 dark:text-slate-300">{subtitle}</p>
+            <p className="truncate text-xs text-[var(--wf-ink-muted)]">{subtitle}</p>
           )}
         </div>
       </div>
@@ -63,7 +63,7 @@ export function ModalHeader({
           onClick={onClose}
           disabled={closeDisabled}
           aria-label={closeAriaLabel}
-          className="shrink-0 rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
+          className="shrink-0 rounded-xl p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           <X className="h-4 w-4" />
         </button>

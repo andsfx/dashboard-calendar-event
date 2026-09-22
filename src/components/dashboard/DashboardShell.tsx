@@ -56,10 +56,10 @@ export function DashboardShell({
 }: DashboardShellProps) {
   const { pathname } = useLocation();
   return (
-    <div className="ui-dashboard-page wf-page min-h-dvh transition-colors duration-300 dark:bg-slate-950">
+    <div className="ui-dashboard-page wf-page min-h-dvh transition-colors duration-300">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none ui-focus-ring"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)] focus:shadow-lg focus:outline-none ui-focus-ring"
       >
         Lewati ke konten utama
       </a>

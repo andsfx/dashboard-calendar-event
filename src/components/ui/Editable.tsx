@@ -63,10 +63,10 @@ export function EditableText({
   const baseClasses = 'transition-colors duration-200';
   const displayClasses = `${baseClasses} ${
     disabled 
-      ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
-      : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50'
+      ? 'text-[var(--wf-ink-muted)] cursor-not-allowed' 
+      : 'cursor-text hover:bg-[var(--wf-board-2)]'
   }`;
-  const editClasses = `${baseClasses} w-full border-b border-slate-300 bg-transparent py-0.5 outline-none focus:border-brand-primary-500 dark:border-slate-600 dark:focus:border-brand-primary-400`;
+  const editClasses = `${baseClasses} w-full border-b border-[var(--wf-rule)] bg-transparent py-0.5 outline-none focus:border-[var(--wf-accent)]`;
 
   return (
     <span
@@ -99,7 +99,7 @@ export function EditableText({
       ) : (
         <span className={displayClasses}>
           {value || (
-            <span className="text-slate-500 dark:text-slate-300 italic">
+            <span className="text-[var(--wf-ink-muted)] italic">
               {placeholder}
             </span>
           )}
@@ -181,10 +181,10 @@ export function EditableArea({
   const baseClasses = 'transition-colors duration-200 leading-relaxed';
   const displayClasses = `${baseClasses} ${
     disabled 
-      ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed' 
-      : 'cursor-text hover:bg-slate-100 hover:dark:bg-slate-700/50 p-1 -m-1 rounded'
+      ? 'text-[var(--wf-ink-muted)] cursor-not-allowed' 
+      : 'cursor-text hover:bg-[var(--wf-board-2)] p-1 -m-1 rounded'
   }`;
-  const editClasses = `${baseClasses} w-full resize-none border border-slate-300 bg-transparent p-2 outline-none focus:border-brand-primary-500 dark:border-slate-600 dark:focus:border-brand-primary-400 min-h-[60px]`;
+  const editClasses = `${baseClasses} w-full resize-none border border-[var(--wf-rule)] bg-transparent p-2 outline-none focus:border-[var(--wf-accent)] min-h-[60px]`;
 
   return (
     <div
@@ -223,7 +223,7 @@ export function EditableArea({
               </p>
             ))
           ) : (
-            <span className="text-slate-500 dark:text-slate-300 italic">
+            <span className="text-[var(--wf-ink-muted)] italic">
               {placeholder}
             </span>
           )}

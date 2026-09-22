@@ -48,15 +48,15 @@ interface DashboardNavCallbacks {
   onOpenEventAreaManager: () => void;
 }
 
-/** Modal konten → query param agar refresh/deep-link/back bisa membuka. */
-export const CONTENT_MODAL_ROUTES: Record<string, string> = {
-  'landing-page': '/dashboard/content?panel=landing-page',
-  'album-gallery': '/dashboard/content?panel=album-gallery',
-  'event-areas': '/dashboard/content?panel=event-areas',
-  letter: '/dashboard/content?panel=letter',
-  news: '/dashboard/content?panel=news',
-  sponsorship: '/dashboard/content?panel=sponsorship',
-};
+/** Rute nyata per modul konten — bukan query param yang membuka modal. */
+export const CONTENT_ROUTES = {
+  'landing-page': '/dashboard/content/landing',
+  'album-gallery': '/dashboard/content/galeri',
+  'event-areas': '/dashboard/content/foto-area',
+  letter: '/dashboard/content/surat',
+  news: '/dashboard/content/berita',
+  sponsorship: '/dashboard/content/sponsorship',
+} as const satisfies Record<string, string>;
 
 interface CommandCenterCard {
   id: string;
@@ -129,14 +129,14 @@ export function getDashboardNavGroups(
       label: 'Konten',
       items: [
         ...(permissions.canViewSettings ? [
-          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['landing-page'] },
-          { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['album-gallery'] },
-          { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['event-areas'] },
-          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['letter'] },
-          { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['news'] },
+          { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['landing-page'] },
+          { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['album-gallery'] },
+          { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['event-areas'] },
+          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['letter'] },
+          { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['news'] },
         ] : []),
         ...(permissions.canViewSponsorship ? [
-          { id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_MODAL_ROUTES['sponsorship'] },
+          { id: 'sponsorship', label: 'Sponsorship', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['sponsorship'] },
         ] : []),
       ],
     },
@@ -184,6 +184,12 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/analytics', label: 'Analitik', description: 'Analisis tren dan statistik event' },
   { path: '/users', label: 'Manajemen Pengguna', description: 'Kelola user dan permission' },
   { path: '/activity-log', label: 'Log Aktivitas', description: 'Audit trail dari semua aktivitas sistem' },
+  { path: '/content/landing', label: 'Halaman Landing', description: 'Gambar hero dan feed Instagram halaman landing' },
+  { path: '/content/galeri', label: 'Galeri Album', description: 'Album foto yang tampil di halaman galeri publik' },
+  { path: '/content/foto-area', label: 'Foto Area Event', description: 'Area event dan foto representatifnya' },
+  { path: '/content/surat', label: 'Buat Surat', description: 'Susun dan unduh surat untuk event terpilih' },
+  { path: '/content/berita', label: 'Berita', description: 'Artikel berita yang tampil di situs publik' },
+  { path: '/content/sponsorship', label: 'Sponsorship', description: 'Sponsor, status penawaran, dan kerja sama' },
 ];
 
 const CONTENT_FALLBACK: WayfindingEntry = {

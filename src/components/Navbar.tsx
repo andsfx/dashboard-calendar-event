@@ -1,6 +1,6 @@
 import { Moon, Sun, CalendarDays, Shield, Users } from 'lucide-react';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)]';
 const focusRingPylon = 'wf-focus-rail focus-visible:outline-none';
 
 interface Props {
@@ -45,7 +45,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
               className={`flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] ${focusRingPylon}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
-              {isDark ? <Sun className="h-4 w-4 text-amber-400" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+              {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
             </button>
           </div>
         </div>
@@ -58,18 +58,18 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
         {/* Brand */}
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary-600 shadow-md shadow-brand-primary-200 dark:shadow-brand-primary-900/40">
-            <CalendarDays className="h-5 w-5 text-white" />
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
+            <CalendarDays className="h-5 w-5 text-[var(--wf-accent-ink)]" />
             {/* Live events indicator */}
             {ongoingCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow live-dot">
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--wf-live)] text-[9px] font-bold text-[var(--wf-accent-ink)] shadow live-dot">
                 {ongoingCount}
               </span>
             )}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold leading-tight text-slate-800 dark:text-white">Dashboard Event</p>
-            <p className="truncate text-[10px] leading-tight ui-text-muted">Metropolitan Mall Bekasi</p>
+            <p className="truncate text-sm font-bold leading-tight text-[var(--wf-ink)]">Dashboard Event</p>
+            <p className="truncate text-[10px] leading-tight text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
           <button
             onClick={onLoginClick}
             title="Masuk sebagai admin"
-            className={`flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-brand-primary-300 hover:bg-brand-primary-50 hover:text-brand-primary-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-brand-primary-700 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400 sm:px-3 ${focusRing}`}
+            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] sm:px-3 ${focusRing}`}
           >
             <Shield className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Admin</span>
@@ -87,24 +87,24 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
           <a
             href="/"
             title="Ruang Komunitas"
-            className={`flex h-9 items-center gap-1.5 rounded-xl border border-brand-primary-200 bg-brand-primary-50 px-2.5 py-1.5 text-xs font-semibold text-brand-primary-700 transition hover:bg-brand-primary-100 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/20 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/30 sm:px-3 ${focusRing}`}
+            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-accent)] transition hover:bg-[var(--wf-board-2)] sm:px-3 ${focusRing}`}
           >
             <Users className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Komunitas</span>
           </a>
 
           {/* Divider */}
-          <div className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+          <div className="mx-0.5 h-5 w-px bg-[var(--wf-rule)]" />
 
           {/* Dark mode toggle */}
           <div className="tooltip-parent hidden sm:block">
             <button
               onClick={onToggleDark}
-              className={`flex h-9 w-9 items-center justify-center rounded-xl ui-text-muted transition hover:bg-slate-100 dark:hover:bg-slate-800 ${focusRing}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark
-                ? <Sun className="h-4 w-4 text-amber-500" />
+                ? <Sun className="h-4 w-4" />
                 : <Moon className="h-4 w-4" />
               }
             </button>
@@ -112,11 +112,11 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
           </div>
           <button
             onClick={onToggleDark}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl ui-text-muted transition hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden ${focusRing}`}
+            className={`flex h-9 w-9 items-center justify-center rounded-xl text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] sm:hidden ${focusRing}`}
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
           >
             {isDark
-              ? <Sun className="h-4 w-4 text-amber-500" />
+              ? <Sun className="h-4 w-4" />
               : <Moon className="h-4 w-4" />
             }
           </button>

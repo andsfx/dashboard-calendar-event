@@ -22,21 +22,21 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h2 className="text-base font-bold text-slate-900 dark:text-white">Analitik Lanjutan</h2>
-        <p className="text-xs text-slate-600 dark:text-slate-300">Insight mendalam tentang event & venue</p>
+        <h2 className="text-base font-bold text-[var(--wf-ink)]">Analitik Lanjutan</h2>
+        <p className="text-xs text-[var(--wf-ink-muted)]">Insight mendalam tentang event & venue</p>
       </div>
 
       {/* 1. Tren Event per Bulan */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-brand-primary-500" />
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Tren Event per Bulan</h3>
+            <TrendingUp className="h-4 w-4 text-[var(--wf-accent)]" />
+            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Tren Event per Bulan</h3>
           </div>
           <div className="flex items-center gap-1 text-[10px]">
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-brand-primary-500" />{currentYear}</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" />{currentYear}</span>
             {prevYearEvents.length > 0 && (
-              <span className="flex items-center gap-1 ml-2"><span className="h-2 w-2 rounded-full bg-slate-300" />{prevYear}</span>
+              <span className="flex items-center gap-1 ml-2"><span className="h-2 w-2 rounded-full bg-[var(--wf-rule-strong)]" />{prevYear}</span>
             )}
           </div>
         </div>
@@ -70,23 +70,23 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 3. Kategori Terpopuler (donut) */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
-          <PieChart className="h-4 w-4 text-amber-500" />
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kategori Terpopuler</h3>
+          <PieChart className="h-4 w-4 text-[var(--wf-action)]" />
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kategori Terpopuler</h3>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {analytics.topCategories.slice(0, 6).map(({ name, count, pct }) => (
             <div key={name} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="truncate text-[11px] text-slate-600 dark:text-slate-300">{name}</span>
-                <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{count}</span>
+                <span className="truncate text-[11px] text-[var(--wf-ink-muted)]">{name}</span>
+                <span className="text-[11px] font-bold text-[var(--wf-ink)]">{count}</span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--wf-board-2)]">
                 <div
                   className="h-full rounded-full transition-[width] duration-700"
-                  style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || '#00918e' }}
+                  style={{ width: `${pct}%`, backgroundColor: CATEGORY_COLORS[name] || 'var(--wf-accent)' }}
                 />
               </div>
-              <p className="text-[10px] text-slate-500">{pct.toFixed(0)}%</p>
+              <p className="text-[10px] text-[var(--wf-ink-muted)]">{pct.toFixed(0)}%</p>
             </div>
           ))}
         </div>
@@ -95,17 +95,17 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 4. Revenue/Model Breakdown */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-emerald-500" />
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Model Event Breakdown</h3>
+          <DollarSign className="h-4 w-4 text-[var(--wf-live)]" />
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Model Event Breakdown</h3>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {analytics.modelBreakdown.map(({ model, count, pct, color }) => (
-            <div key={model} className="rounded-xl border border-slate-100 p-3 dark:border-slate-700">
+            <div key={model} className="rounded-xl border border-[var(--wf-rule)] p-3">
               <div className={`mb-1 inline-flex rounded-lg px-2 py-0.5 text-[10px] font-semibold ${color}`}>
                 {model}
               </div>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">{count}</p>
-              <p className="text-[10px] text-slate-500">{pct.toFixed(0)}% dari total</p>
+              <p className="text-lg font-bold text-[var(--wf-ink)]">{count}</p>
+              <p className="text-[10px] text-[var(--wf-ink-muted)]">{pct.toFixed(0)}% dari total</p>
             </div>
           ))}
         </div>
@@ -114,17 +114,17 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 5. Heatmap Lokasi & Waktu */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-red-500" />
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Top Lokasi</h3>
+          <MapPin className="h-4 w-4 text-red-700 dark:text-red-300" />
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Top Lokasi</h3>
         </div>
         <div className="space-y-2">
           {analytics.topLocations.slice(0, 8).map(({ name, count, pct }) => (
             <div key={name} className="flex items-center gap-3">
-              <span className="w-28 truncate text-[11px] text-slate-600 dark:text-slate-300">{name}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+              <span className="w-28 truncate text-[11px] text-[var(--wf-ink-muted)]">{name}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
                 <div className="h-full rounded-full bg-red-400 transition-[width] duration-700" style={{ width: `${pct}%` }} />
               </div>
-              <span className="w-8 text-right text-[11px] font-semibold text-slate-700 dark:text-slate-300">{count}</span>
+              <span className="w-8 text-right text-[11px] font-semibold text-[var(--wf-ink)]">{count}</span>
             </div>
           ))}
         </div>
@@ -133,22 +133,22 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 6. Occupancy / Jam Populer */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-blue-500" />
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Distribusi Waktu Event</h3>
+          <Clock className="h-4 w-4 text-[var(--wf-accent)]" />
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Distribusi Waktu Event</h3>
         </div>
         <div className="grid grid-cols-4 gap-1 sm:grid-cols-6">
           {analytics.hourDistribution.map(({ hour, count, intensity }) => (
             <div
               key={hour}
               className="flex flex-col items-center rounded-lg p-1.5"
-              style={{ backgroundColor: `color-mix(in oklab, var(--brand-tosca) ${Math.round(intensity * 30)}%, transparent)` }}
+              style={{ backgroundColor: `color-mix(in oklab, var(--wf-accent) ${Math.round(intensity * 30)}%, transparent)` }}
             >
-              <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300">{hour}:00</span>
-              <span className="text-[11px] font-bold text-slate-800 dark:text-white">{count}</span>
+              <span className="text-[10px] font-medium text-[var(--wf-ink-muted)]">{hour}:00</span>
+              <span className="text-[11px] font-bold text-[var(--wf-ink)]">{count}</span>
             </div>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-slate-500">
+        <p className="mt-2 text-[10px] text-[var(--wf-ink-muted)]">
           Jam tersibuk: <span className="font-semibold">{analytics.peakHour}:00</span> ({analytics.peakHourCount} event)
         </p>
       </div>
@@ -173,18 +173,18 @@ function MonthlyTrendChart({ currentYear, prevYear }: { currentYear: number[]; p
             <div className="flex w-full items-end justify-center gap-0.5" style={{ height: '100px' }}>
               {prev > 0 && (
                 <div
-                  className="w-2 rounded-t bg-slate-200 transition-[height] duration-700 dark:bg-slate-600"
+                  className="w-2 rounded-t bg-[var(--wf-rule-strong)] transition-[height] duration-700"
                   style={{ height: `${(prev / max) * 100}%` }}
                   title={`${prev} event`}
                 />
               )}
               <div
-                className="w-2 rounded-t bg-brand-primary-500 transition-[height] duration-700 sm:w-3"
+                className="w-2 rounded-t bg-[var(--wf-accent)] transition-[height] duration-700 sm:w-3"
                 style={{ height: `${(cur / max) * 100}%`, minHeight: cur > 0 ? '4px' : '0' }}
                 title={`${cur} event`}
               />
             </div>
-            <span className="text-[9px] text-slate-500">{m}</span>
+            <span className="text-[9px] text-[var(--wf-ink-muted)]">{m}</span>
           </div>
         );
       })}
@@ -201,11 +201,11 @@ function CompareCard({ label, current, previous }: { label: string; current: num
   const isDown = diff < 0;
 
   return (
-    <div className="ui-dashboard-panel rounded-xl p-3">
-      <p className="text-[10px] ui-text-muted">{label}</p>
-      <p className="text-lg font-bold text-slate-900 dark:text-white">{current}</p>
+    <div className="ui-dashboard-panel p-3">
+      <p className="text-[10px] text-[var(--wf-ink-muted)]">{label}</p>
+      <p className="text-lg font-bold text-[var(--wf-ink)]">{current}</p>
       {previous > 0 && (
-        <div className={`flex items-center gap-0.5 text-[10px] font-medium ${isUp ? 'text-emerald-600' : isDown ? 'text-red-600' : 'text-slate-500'}`}>
+        <div className={`flex items-center gap-0.5 text-[10px] font-medium ${isUp ? 'text-[var(--wf-live)]' : isDown ? 'text-red-700 dark:text-red-300' : 'text-[var(--wf-ink-muted)]'}`}>
           {isUp ? <ArrowUpRight className="h-3 w-3" /> : isDown ? <ArrowDownRight className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
           {Math.abs(diff).toFixed(0)}% vs tahun lalu
         </div>
@@ -254,10 +254,10 @@ function computeAnalytics(events: EventItem[]) {
   });
   const totalModels = events.length || 1;
   const modelBreakdown = [
-    { model: 'Free', count: modelCounts.free, pct: (modelCounts.free / totalModels) * 100, color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
-    { model: 'Bayar', count: modelCounts.bayar, pct: (modelCounts.bayar / totalModels) * 100, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
-    { model: 'Support', count: modelCounts.support, pct: (modelCounts.support / totalModels) * 100, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
-    { model: 'Lainnya', count: modelCounts.other, pct: (modelCounts.other / totalModels) * 100, color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300' },
+    { model: 'Free', count: modelCounts.free, pct: (modelCounts.free / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
+    { model: 'Bayar', count: modelCounts.bayar, pct: (modelCounts.bayar / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
+    { model: 'Support', count: modelCounts.support, pct: (modelCounts.support / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
+    { model: 'Lainnya', count: modelCounts.other, pct: (modelCounts.other / totalModels) * 100, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]' },
   ];
 
   // Top locations

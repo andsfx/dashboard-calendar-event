@@ -47,7 +47,6 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const dashboardPath = location.pathname.replace('/dashboard', '') || '/';
-  const contentPanel = new URLSearchParams(location.search).get('panel');
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     const dark = saved === 'dark';
@@ -111,8 +110,6 @@ export default function App() {
     showLoginModal, setShowLoginModal,
     showCrudModal, setShowCrudModal,
     showDraftModal, setShowDraftModal,
-    showLetterPickerModal, setShowLetterPickerModal,
-    showLetterModal, setShowLetterModal,
     showDeleteModal, setShowDeleteModal,
     showDetailModal, setShowDetailModal,
     showDraftHistory, setShowDraftHistory,
@@ -125,11 +122,7 @@ export default function App() {
     detailEvent, setDetailEvent,
     showInstagramSettings, setShowInstagramSettings,
     instagramPosts,
-    showAlbumManager, setShowAlbumManager,
     heroImageUrl,
-    showNewsManager, setShowNewsManager,
-    showSponsorManager, setShowSponsorManager,
-    showEventAreaManager, setShowEventAreaManager,
     landingAlbums,
     eventAreas,
     communityRegistrations,
@@ -147,7 +140,6 @@ export default function App() {
     handleEdit,
     handleAddDraft,
     handleEditDraft,
-    handleOpenLetterPicker,
     handleAddTheme,
     handleEditTheme,
     handleSaveTheme,
@@ -242,20 +234,6 @@ export default function App() {
     }
   }, [allowedDashboardPaths, dashboardPath, defaultDashboardPath, isLoading, location.pathname, navigate, permissions]);
 
-  // Konten via ?panel= — refresh/deep-link/back membuka modal yg sama.
-  useEffect(() => {
-    if (!location.pathname.startsWith('/dashboard')) return;
-    switch (contentPanel) {
-      case 'landing-page': setShowInstagramSettings(true); break;
-      case 'album-gallery': setShowAlbumManager(true); break;
-      case 'event-areas': setShowEventAreaManager(true); break;
-      case 'letter': setShowLetterPickerModal(true); break;
-      case 'news': setShowNewsManager(true); break;
-      case 'sponsorship': setShowSponsorManager(true); break;
-    }
-  }, [contentPanel, location.pathname]);
-
-
   // ─── Build sub-props for DashboardPage ───────────────────────
   const dpAuth: DashboardPageAuth = { user: auth.user, isSuperadmin: auth.isSuperadmin, login: auth.login };
   const dpEvents: DashboardPageEvents = { events, publicEvents, visibleEvents, visibleStats, ongoingEvents, upcomingEvents, holidays, annualThemes, error };
@@ -274,11 +252,11 @@ export default function App() {
   };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
-  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleOpenLetterPicker, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
-  const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showLetterPickerModal, setShowLetterPickerModal, showLetterModal, setShowLetterModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };
+  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
+  const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
-  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, showInstagramSettings, setShowInstagramSettings, showAlbumManager, setShowAlbumManager, showNewsManager, setShowNewsManager, showSponsorManager, setShowSponsorManager, showEventAreaManager, setShowEventAreaManager };
+  const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas };
   return (
     <>
     <Routes>
@@ -448,24 +426,24 @@ export default function App() {
       {/* Tenant survey results — public */}
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="ui-dashboard-page wf-page min-h-screen dark:bg-slate-950">
+          <div className="ui-dashboard-page wf-page min-h-screen">
             <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
               <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
                 <div className="flex min-w-0 items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-                  <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-                  <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Tenant Relation</span>
+                  <div className="hidden h-7 w-px shrink-0 bg-[var(--wf-rule)] sm:block" />
+                  <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest text-[var(--wf-ink-muted)] sm:inline">Tenant Relation</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {auth.isAuthenticated && (
                     <>
                       {auth.user?.display_name && (
-                        <div className="hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-2.5 py-1 dark:border-slate-600 dark:bg-slate-800/70 sm:flex">
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary-100 text-[10px] font-bold text-brand-primary-700 dark:bg-brand-primary-900/50 dark:text-brand-primary-300">{(auth.user?.display_name || 'A').charAt(0).toUpperCase()}</span>
-                          <span className="max-w-[120px] truncate text-[11px] font-semibold text-slate-700 dark:text-slate-200">{auth.user?.display_name || 'Admin'}</span>
+                        <div className="hidden items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1 sm:flex">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--wf-accent-soft)] text-[10px] font-bold text-[var(--wf-accent)]">{(auth.user?.display_name || 'A').charAt(0).toUpperCase()}</span>
+                          <span className="max-w-[120px] truncate text-[11px] font-semibold text-[var(--wf-ink)]">{auth.user?.display_name || 'Admin'}</span>
                         </div>
                       )}
-                      <button type="button" onClick={handleLogout} className="ui-focus-ring rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">Keluar</button>
+                      <button type="button" onClick={handleLogout} className="ui-focus-ring rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]">Keluar</button>
                     </>
                   )}
                 </div>
@@ -498,9 +476,6 @@ export default function App() {
               onToggleDark={toggleDark}
               dashboardPath={dashboardPath}
               publicSectionItems={publicSectionItems}
-              onCloseContentPanel={() => {
-                if (new URLSearchParams(location.search).get('panel')) navigate('/dashboard', { replace: true });
-              }}
               auth={dpAuth}
               events={dpEvents}
               drafts={dpDrafts}

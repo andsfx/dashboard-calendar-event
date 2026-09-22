@@ -10,21 +10,23 @@ interface Props {
 
 const STATUS_TABS: Array<{ key: RegistrationStatus | 'all'; label: string; dot?: string }> = [
   { key: 'all', label: 'Semua' },
-  { key: 'pending', label: 'Menunggu', dot: 'bg-amber-500' },
-  { key: 'reviewed', label: 'Direview', dot: 'bg-blue-500' },
-  { key: 'approved', label: 'Disetujui', dot: 'bg-emerald-500' },
-  { key: 'rejected', label: 'Ditolak', dot: 'bg-red-500' },
+  { key: 'pending', label: 'Menunggu', dot: 'bg-[var(--wf-action)]' },
+  { key: 'reviewed', label: 'Direview', dot: 'bg-[var(--wf-accent)]' },
+  { key: 'approved', label: 'Disetujui', dot: 'bg-[var(--wf-live)]' },
+  { key: 'rejected', label: 'Ditolak', dot: 'bg-red-600' },
 ];
 
+const ORG_TYPE_CHIP = 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]';
+
 const ORG_TYPE_CONFIG: Record<OrganizationType, { label: string; color: string }> = {
-  community: { label: 'Komunitas', color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300' },
-  school: { label: 'Sekolah', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
-  company: { label: 'Perusahaan', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
-  eo: { label: 'EO', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
-  campus: { label: 'Kampus', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300' },
-  government: { label: 'Pemerintah', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
-  ngo: { label: 'NGO', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
-  other: { label: 'Lainnya', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300' },
+  community: { label: 'Komunitas', color: ORG_TYPE_CHIP },
+  school: { label: 'Sekolah', color: ORG_TYPE_CHIP },
+  company: { label: 'Perusahaan', color: ORG_TYPE_CHIP },
+  eo: { label: 'EO', color: ORG_TYPE_CHIP },
+  campus: { label: 'Kampus', color: ORG_TYPE_CHIP },
+  government: { label: 'Pemerintah', color: ORG_TYPE_CHIP },
+  ngo: { label: 'NGO', color: ORG_TYPE_CHIP },
+  other: { label: 'Lainnya', color: ORG_TYPE_CHIP },
 };
 
 function OrgTypeBadge({ type }: { type: OrganizationType }) {
@@ -38,10 +40,10 @@ function OrgTypeBadge({ type }: { type: OrganizationType }) {
 
 function StatusBadgeReg({ status }: { status: RegistrationStatus }) {
   const config = {
-    pending: { label: 'Menunggu', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
-    reviewed: { label: 'Direview', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
-    approved: { label: 'Disetujui', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
-    rejected: { label: 'Ditolak', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
+    pending: { label: 'Menunggu', className: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]' },
+    reviewed: { label: 'Direview', className: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]' },
+    approved: { label: 'Disetujui', className: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' },
+    rejected: { label: 'Ditolak', className: 'bg-red-600/10 text-red-700 dark:text-red-300' },
   };
   const c = config[status] || config.pending;
   return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${c.className}`}>{c.label}</span>;
@@ -81,16 +83,16 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       {/* Header card */}
       <div className="ui-dashboard-surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-800 dark:text-white">Pendaftaran Organisasi</p>
-            <p className="text-xs ui-text-muted">Antrian pendaftaran dari landing page</p>
+            <p className="text-sm font-bold text-[var(--wf-ink)]">Pendaftaran Organisasi</p>
+            <p className="text-xs text-[var(--wf-ink-muted)]">Antrian pendaftaran dari landing page</p>
           </div>
         </div>
         {pendingCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--wf-action)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--wf-action)]">
             <Clock className="h-3.5 w-3.5" />
             {pendingCount} pending
           </span>
@@ -108,11 +110,11 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               aria-pressed={activeTab === tab.key}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 activeTab === tab.key
-                  ? 'bg-brand-primary-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+                  ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                  : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
               }`}
             >
-              {tab.dot && <span className={`h-2 w-2 rounded-full ${activeTab === tab.key ? 'bg-white/80' : tab.dot}`} />}
+              {tab.dot && <span className={`h-2 w-2 rounded-full ${activeTab === tab.key ? 'bg-[var(--wf-accent-ink)]/80' : tab.dot}`} />}
               {tab.label}
             </button>
           ))}
@@ -121,13 +123,13 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
         {/* Org type filter (only show if multiple types exist) */}
         {orgTypesInData.length > 1 && (
           <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-slate-500" />
+            <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
             <button
               onClick={() => setOrgTypeFilter('all')}
               className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
                 orgTypeFilter === 'all'
-                  ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
-: 'bg-slate-100 ui-text-muted hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600'
+                  ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                  : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
               }`}
             >
               Semua Tipe
@@ -140,7 +142,7 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                   onClick={() => setOrgTypeFilter(type)}
                   className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
                     orgTypeFilter === type
-                      ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-800'
+                      ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                       : `${config.color} hover:opacity-80`
                   }`}
                 >
@@ -156,13 +158,13 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div key={i} className="h-16 rounded-xl bg-[var(--wf-board-2)]" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="ui-dashboard-surface flex flex-col items-center justify-center gap-3 py-16">
-          <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="text-sm text-slate-500 dark:text-slate-300">Belum ada pendaftaran</p>
+          <Inbox className="h-10 w-10 text-[var(--wf-ink-muted)]" />
+          <p className="text-sm text-[var(--wf-ink-muted)]">Belum ada pendaftaran</p>
         </div>
       ) : (
         <>
@@ -172,23 +174,23 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
               <button
                 key={reg.id}
                 onClick={() => onDetail(reg)}
-                className="ui-dashboard-surface w-full p-4 text-left transition-colors hover:border-brand-primary-300 dark:hover:border-brand-primary-600"
+                className="ui-dashboard-surface w-full p-4 text-left transition-colors hover:border-[var(--wf-accent)]"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-800 dark:text-white">
+                    <p className="truncate text-sm font-bold text-[var(--wf-ink)]">
                       {reg.organizationName || reg.communityName}
                     </p>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       <OrgTypeBadge type={reg.organizationType || 'community'} />
                       {reg.organizationType === 'community' && reg.communityType && (
-                        <span className="text-[10px] ui-text-muted">• {reg.communityType}</span>
+                        <span className="text-[10px] text-[var(--wf-ink-muted)]">• {reg.communityType}</span>
                       )}
                     </div>
                   </div>
                   <StatusBadgeReg status={reg.status} />
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs ui-text-muted">
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                   <span>PIC: {reg.pic}</span>
                   <span>{reg.phone}</span>
                   <span>{formatDate(reg.createdAt)}</span>
@@ -201,35 +203,35 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
           <div className="ui-dashboard-surface hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="ui-dashboard-muted border-b border-black/[0.04] dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Nama</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Tipe</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">PIC</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Telepon</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Status</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Tanggal</th>
+                <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Nama</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tipe</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">PIC</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Telepon</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Status</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tanggal</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              <tbody className="divide-y divide-[var(--wf-rule)]">
                 {filtered.map((reg) => (
                   <tr
                     key={reg.id}
                     onClick={() => onDetail(reg)}
-                    className="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                    className="cursor-pointer transition-colors hover:bg-[var(--wf-board-2)]"
                   >
                     <td className="px-4 py-3">
-                      <p className="font-medium text-slate-800 dark:text-white">{reg.organizationName || reg.communityName}</p>
+                      <p className="font-medium text-[var(--wf-ink)]">{reg.organizationName || reg.communityName}</p>
                     </td>
                     <td className="px-4 py-3">
                       <OrgTypeBadge type={reg.organizationType || 'community'} />
                     </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.pic}</td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{reg.phone}</td>
+                    <td className="px-4 py-3 text-[var(--wf-ink-muted)]">{reg.pic}</td>
+                    <td className="px-4 py-3 text-[var(--wf-ink-muted)]">{reg.phone}</td>
                     <td className="px-4 py-3"><StatusBadgeReg status={reg.status} /></td>
-                    <td className="px-4 py-3 ui-text-muted">{formatDate(reg.createdAt)}</td>
+                    <td className="px-4 py-3 text-[var(--wf-ink-muted)]">{formatDate(reg.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <Eye className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                      <Eye className="h-4 w-4 text-[var(--wf-ink-muted)]" />
                     </td>
                   </tr>
                 ))}

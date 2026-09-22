@@ -127,8 +127,8 @@ export function DashboardViewsSection(props: Props) {
           showPriority={isAdmin}
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs ui-text-muted">
-            Menampilkan <span className="font-semibold text-slate-700 dark:text-slate-200">{visibleEvents.length}</span> dari {visibleStats.total} acara
+          <p className="text-xs text-[var(--wf-ink-muted)]">
+            Menampilkan <span className="font-semibold text-[var(--wf-ink)]">{visibleEvents.length}</span> dari {visibleStats.total} acara
             {searchQuery && <span>, pencarian &ldquo;<em>{searchQuery}</em>&rdquo;</span>}
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -136,7 +136,7 @@ export function DashboardViewsSection(props: Props) {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-brand-primary-600 hover:underline dark:text-brand-primary-400"
+                className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-[var(--wf-accent)] hover:underline"
               >
                 <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
               </button>
@@ -146,7 +146,7 @@ export function DashboardViewsSection(props: Props) {
                 type="button"
                 onClick={handleExportSchedulePdf}
                 disabled={isExportingPdf || visibleEvents.length === 0}
-                className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--brand-card-light)] px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-strong)] hover:text-[var(--wf-ink)] disabled:opacity-50"
                 aria-label="Unduh jadwal event sebagai PDF"
               >
                 {isExportingPdf ? (
@@ -175,12 +175,12 @@ export function DashboardViewsSection(props: Props) {
         <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="ui-focus-ring-panel">
           {visibleEvents.length === 0 && visibleStats.total > 0 ? (
             <div className="ui-empty-panel flex flex-col items-center gap-3 py-16" role="status" aria-live="polite">
-              <SearchX className="h-10 w-10 text-slate-500" aria-hidden="true" />
-              <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada acara yang cocok</p>
-              <p className="text-sm text-slate-500 dark:text-slate-300">Coba ubah atau reset filter.</p>
+              <SearchX className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+              <p className="font-semibold text-[var(--wf-ink)]">Tidak ada acara yang cocok</p>
+              <p className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</p>
               <button
                 onClick={resetFilters}
-                className="ui-focus-ring mt-1 rounded-xl bg-brand-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-primary-700"
+                className="ui-focus-ring mt-1 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-xs font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)]"
               >
                 Reset Filter
               </button>

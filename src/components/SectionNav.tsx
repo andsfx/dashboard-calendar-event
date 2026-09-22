@@ -50,7 +50,7 @@ export function SectionNav({ items }: Props) {
   if (items.length === 0) return null;
 
   return (
-    <div className="sticky top-14 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/90">
+    <div className="sticky top-14 z-30 border-b border-[var(--wf-rule)] bg-[var(--wf-board)]/90 backdrop-blur-md">
       <div className="mx-auto max-w-7xl overflow-x-auto px-3 py-2 sm:px-4">
         <div className="flex min-w-max items-center gap-2">
           {items.map(item => (
@@ -63,10 +63,10 @@ export function SectionNav({ items }: Props) {
                 el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
               }}
               aria-current={activeId === item.id ? 'true' : undefined}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] ${
                 activeId === item.id
-                  ? 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
-: 'ui-text-muted hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                  ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                  : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'
               }`}
             >
               {item.label}

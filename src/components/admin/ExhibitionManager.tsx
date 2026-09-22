@@ -33,8 +33,8 @@ const EMPTY_FORM: ExhibitionInput = {
   leasingPic: '', marcommPic: '', publication: 'draft', acceptingApplications: false,
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
-const labelClass = 'mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300';
+const inputClass = 'w-full rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]';
+const labelClass = 'mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]';
 
 interface Props {
   exhibitions: AdminExhibition[];
@@ -142,18 +142,18 @@ export function ExhibitionManager({
   return (
     <div className="space-y-6">
       {error && (
-        <p className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400">
+        <p className="rounded-[var(--radius-card)] border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
 
       {!readOnly && <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-4 p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+          <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">
             {editingId ? 'Ubah Pameran' : 'Pameran Baru'}
           </h2>
           {editingId && (
-            <button type="button" onClick={startCreate} className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+            <button type="button" onClick={startCreate} className="text-xs font-semibold text-[var(--wf-accent)]">
               Buat pameran baru
             </button>
           )}
@@ -217,13 +217,13 @@ export function ExhibitionManager({
               ))}
             </select>
           </div>
-          <label className="flex items-center gap-2 self-end text-sm text-slate-700 dark:text-slate-200">
+          <label className="flex items-center gap-2 self-end text-sm text-[var(--wf-ink)]">
             <input type="checkbox" checked={form.acceptingApplications} onChange={e => setForm({ ...form, acceptingApplications: e.target.checked })} />
             Terima pengajuan kolaborasi
           </label>
         </div>
 
-        {formError && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
+        {formError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{formError}</p>}
 
         <button type="submit" disabled={isSubmitting} className="ui-btn-primary inline-flex items-center gap-2 rounded-[var(--radius-control)] px-4 py-2 text-sm font-semibold disabled:opacity-60">
           <Plus className="h-4 w-4" aria-hidden="true" />
@@ -232,50 +232,50 @@ export function ExhibitionManager({
       </form>}
 
       <section className="ui-dashboard-surface p-5">
-        <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">Daftar Pameran</h2>
-        {isLoading && exhibitions.length === 0 && <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Memuat pameran…</p>}
+        <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Daftar Pameran</h2>
+        {isLoading && exhibitions.length === 0 && <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat pameran…</p>}
         {!isLoading && exhibitions.length === 0 && (
-          <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Belum ada pameran. Buat pameran untuk mulai mengajak brand dan EO.</p>
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Belum ada pameran. Buat pameran untuk mulai mengajak brand dan EO.</p>
         )}
         <ul className="mt-3 space-y-3">
           {exhibitions.map(exhibition => (
-            <li key={exhibition.id} className="rounded-[var(--radius-card)] border border-slate-200 p-4 dark:border-slate-700">
+            <li key={exhibition.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">{exhibition.title}</p>
-                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
+                  <p className="font-semibold text-[var(--wf-ink)]">{exhibition.title}</p>
+                  <p className="mt-0.5 text-sm text-[var(--wf-ink-muted)]">
                     {formatDateRange(exhibition.dateStart, exhibition.dateEnd)}
                     {exhibition.location && ` · ${exhibition.location}`}
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    <span className="rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 font-semibold text-[var(--wf-ink-muted)]">
                       {PUBLICATION_LABELS[exhibition.publication]}
                     </span>
                     {exhibition.acceptingApplications && (
-                      <span className="rounded-full bg-brand-primary-100 px-2 py-0.5 font-semibold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                      <span className="rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 font-semibold text-[var(--wf-accent)]">
                         Menerima pengajuan
                       </span>
                     )}
                     {exhibition.activationCount === 0 ? (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                      <span className="rounded-full bg-[var(--wf-action)]/10 px-2 py-0.5 font-semibold text-[var(--wf-action)]">
                         Belum ada aktivasi
                       </span>
                     ) : (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                      <span className="rounded-full bg-[var(--wf-live)]/10 px-2 py-0.5 font-semibold text-[var(--wf-live)]">
                         {exhibition.activationCount} event aktivasi
                       </span>
                     )}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setSelectedId(exhibition.id === selectedId ? '' : exhibition.id)} className="rounded-[var(--radius-control)] border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">
+                  <button type="button" onClick={() => setSelectedId(exhibition.id === selectedId ? '' : exhibition.id)} className="rounded-[var(--radius-control)] border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)]">
                     {exhibition.id === selectedId ? 'Tutup' : 'Kelola'}
                   </button>
-                  {!readOnly && <button type="button" onClick={() => startEdit(exhibition)} className="rounded-[var(--radius-control)] border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">
+                  {!readOnly && <button type="button" onClick={() => startEdit(exhibition)} className="rounded-[var(--radius-control)] border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)]">
                     Ubah
                   </button>}
                   {canDelete && (
-                    <button type="button" onClick={() => handleDelete(exhibition)} aria-label={`Hapus ${exhibition.title}`} className="rounded-[var(--radius-control)] border border-red-200 p-1.5 text-red-600 dark:border-red-800 dark:text-red-400">
+                    <button type="button" onClick={() => handleDelete(exhibition)} aria-label={`Hapus ${exhibition.title}`} className="rounded-[var(--radius-control)] border border-red-600/20 p-1.5 text-red-700 dark:text-red-300">
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
@@ -283,24 +283,24 @@ export function ExhibitionManager({
               </div>
 
               {exhibition.id === selectedId && (
-                <div className="mt-4 space-y-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                <div className="mt-4 space-y-4 border-t border-[var(--wf-rule)] pt-4">
                   <div>
-                    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--wf-ink)]">
                       <CalendarDays className="h-4 w-4" aria-hidden="true" /> Event aktivasi
                     </h3>
                     <ul className="mt-2 space-y-2">
                       {linkedActivations.length === 0 && (
-                        <li className="text-sm text-slate-600 dark:text-slate-300">
+                        <li className="text-sm text-[var(--wf-ink-muted)]">
                           Belum ada event aktivasi. Buat event di Jadwal Event, lalu tautkan di sini.
                         </li>
                       )}
                       {linkedActivations.map(item => (
-                        <li key={item.eventId} className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-control)] bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800">
-                          <span className="text-slate-800 dark:text-slate-100">
+                        <li key={item.eventId} className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-control)] bg-[var(--wf-board-2)] px-3 py-2 text-sm">
+                          <span className="text-[var(--wf-ink)]">
                             {item.title} · {formatDateRange(item.dateStart, item.dateEnd)}
                             {item.time && ` · ${item.time}`}
                           </span>
-                          {!readOnly && <button type="button" onClick={() => handleUnlink(item.eventId, item.title)} className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
+                          {!readOnly && <button type="button" onClick={() => handleUnlink(item.eventId, item.title)} className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 dark:text-red-300">
                             <Unlink className="h-3.5 w-3.5" aria-hidden="true" /> Lepas
                           </button>}
                         </li>
@@ -331,34 +331,34 @@ export function ExhibitionManager({
                   </div>
 
                   <div>
-                    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-[var(--wf-ink)]">
                       <Users className="h-4 w-4" aria-hidden="true" /> Pengajuan kolaborasi
                     </h3>
                     {selectedLeads.length === 0 && (
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Belum ada pengajuan brand atau EO.</p>
+                      <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">Belum ada pengajuan brand atau EO.</p>
                     )}
                     <ul className="mt-2 space-y-2">
                       {selectedLeads.map(lead => (
-                        <li key={lead.id} className="rounded-[var(--radius-control)] border border-slate-200 p-3 dark:border-slate-700">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {lead.organizationName} <span className="font-normal text-slate-600 dark:text-slate-300">· {lead.organizationType === 'eo' ? 'EO' : 'Brand'}</span>
+                        <li key={lead.id} className="rounded-[var(--radius-control)] border border-[var(--wf-rule)] p-3">
+                          <p className="text-sm font-semibold text-[var(--wf-ink)]">
+                            {lead.organizationName} <span className="font-normal text-[var(--wf-ink-muted)]">· {lead.organizationType === 'eo' ? 'EO' : 'Brand'}</span>
                           </p>
-                          <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-300">
+                          <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
                             {PARTICIPATION_LABELS[lead.participation]} · {lead.contactName} · {lead.phone}
                             {lead.email && ` · ${lead.email}`}
                           </p>
-                          {lead.proposal && <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{lead.proposal}</p>}
+                          {lead.proposal && <p className="mt-1 text-sm text-[var(--wf-ink)]">{lead.proposal}</p>}
                           <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{LEAD_STATUS_LABELS[lead.status]}</span>
+                            <span className="text-xs font-semibold text-[var(--wf-ink)]">{LEAD_STATUS_LABELS[lead.status]}</span>
                             {!readOnly && LEAD_STATUSES
                               .filter(status => status !== lead.status)
                               .map(status => (
-                                <button key={status} type="button" onClick={() => onReviewLead(lead.id, status)} className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200">
+                                <button key={status} type="button" onClick={() => onReviewLead(lead.id, status)} className="rounded-full border border-[var(--wf-rule)] px-2.5 py-1 text-xs font-medium text-[var(--wf-ink)]">
                                   {LEAD_STATUS_LABELS[status]}
                                 </button>
                               ))}
                           </div>
-                          <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+                          <p className="mt-2 text-[11px] text-[var(--wf-ink-muted)]">
                             Menyetujui pengajuan tidak membuat event. Buat event aktivasi lalu tautkan di atas.
                           </p>
                         </li>

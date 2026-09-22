@@ -29,13 +29,13 @@ const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Ju
 
 function getEventModelBadge(eventModel: EventItem['eventModel']) {
   if (eventModel === 'free') {
-    return { label: 'Free', className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-300' };
+    return { label: 'Free', className: 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' };
   }
   if (eventModel === 'bayar') {
-    return { label: 'Bayar', className: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300' };
+    return { label: 'Bayar', className: 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' };
   }
   if (eventModel === 'support') {
-    return { label: 'Support', className: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/50 dark:bg-sky-900/20 dark:text-sky-300' };
+    return { label: 'Support', className: 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' };
   }
   return null;
 }
@@ -146,7 +146,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
   if (events.length === 0) {
     return (
       <div 
-        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-500"
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-[var(--wf-ink-muted)]"
         aria-live="polite"
         role="status"
       >
@@ -159,20 +159,20 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
 
   return (
     <div className="ui-dashboard-surface overflow-hidden">
-      <div className="divide-y divide-slate-100 dark:divide-slate-700/50 md:hidden">
+      <div className="divide-y divide-[var(--wf-rule)] md:hidden">
         {groupedEvents.map((group, i) => {
           const prevGrp: TableGroup | null = i > 0 ? (groupedEvents[i - 1] as TableGroup | undefined) ?? null : null;
           const showAreaHeader = group.areaKey && group.areaKey !== prevGrp?.areaKey;
           return (
           <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
             {showAreaHeader && (
-              <div className="bg-brand-primary-100 px-4 py-2 text-[12px] font-bold text-brand-primary-800 dark:bg-brand-primary-950/50 dark:text-brand-primary-200">
+              <div className="bg-[var(--wf-accent-soft)] px-4 py-2 text-[12px] font-bold text-[var(--wf-accent)]">
                 <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
                 {group.areaName}
               </div>
             )}
           <div>
-<div className="ui-dashboard-muted border-y border-black/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
+<div className="ui-dashboard-muted border-y border-[var(--wf-rule)] px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
               {group.monthLabel}
             </div>
             {group.events.map(ev => (
@@ -190,12 +190,12 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     <div className="min-w-0">
                       <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-300">{ev.keterangan}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <StatusBadge status={ev.status} />
-                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">Reguler</span>}
                     </div>
                   </div>
 
@@ -212,17 +212,17 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     })()}
                   </div>
 
-                   <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
+                   <div className="mt-3 space-y-1.5 text-xs text-[var(--wf-ink-muted)]">
                      <div className="flex items-center gap-1.5">
-                       <Clock className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                       <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
                        <span>{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</span>
-                       {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-slate-500 dark:text-slate-300">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
+                       {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-[var(--wf-ink-muted)]">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
                      </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
                       <span className="line-clamp-2">{ev.lokasi || '-'}</span>
                     </div>
-                    {ev.eo && <p className="text-slate-600 dark:text-slate-300">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
+                    {ev.eo && <p className="text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
                   </div>
                    </div>
 
@@ -230,7 +230,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                   <button
                     type="button"
                     onClick={() => onDetail(ev)}
-                    className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
                   >
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Detail
                   </button>
@@ -238,7 +238,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                       <button
                         type="button"
                         onClick={() => onEdit(ev)}
-                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-blue-200 px-3 py-2 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-accent)] transition hover:bg-[var(--wf-accent-soft)]"
                       >
                         <Edit2 className="h-3.5 w-3.5" aria-hidden /> Ubah
                       </button>
@@ -247,7 +247,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                       <button
                         type="button"
                         onClick={() => onDelete(ev)}
-                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"
+                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-600/10 dark:border-red-900/50 dark:text-red-300"
                       >
                         <Trash2 className="h-3.5 w-3.5" aria-hidden /> Hapus
                       </button>
@@ -264,62 +264,62 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[750px] text-sm">
           <caption className="sr-only">Tabel jadwal event</caption>
-          <thead className="sticky top-0 z-10 bg-[var(--brand-card-light)] dark:bg-[#1a241e]">
-            <tr className="ui-dashboard-muted border-b border-black/[0.08] dark:border-slate-700">
+          <thead className="sticky top-0 z-10 bg-[var(--wf-board-2)]">
+            <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
               <th className="px-4 py-3 text-left">
-                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide ui-text-muted">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
                   <ArrowUpDown className="h-3 w-3" aria-hidden="true" /> Tanggal
                 </span>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Waktu</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Acara</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Lokasi</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Kategori</th>
-              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">Model</th>}
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ui-text-muted">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide ui-text-muted">Aksi</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</th>
+              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</th>}
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+          <tbody className="divide-y divide-[var(--wf-rule)]">
             {groupedEvents.map((group, i) => {
               const prevGrp: TableGroup | null = i > 0 ? (groupedEvents[i - 1] as TableGroup | undefined) ?? null : null;
               const showAreaHeader = group.areaKey && group.areaKey !== prevGrp?.areaKey;
               return (
               <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
                 {showAreaHeader && (
-                  <tr className="bg-brand-primary-100 dark:bg-brand-primary-950/50">
-                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-brand-primary-800 dark:text-brand-primary-200">
+                  <tr className="bg-[var(--wf-accent-soft)]">
+                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-[var(--wf-accent)]">
                       <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
                       {group.areaName}
                     </td>
                   </tr>
                 )}
-                <tr key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-black/[0.04] dark:border-slate-700">
-                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide ui-text-muted">
+                <tr key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-[var(--wf-rule)]">
+                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
                     {group.monthLabel}
                   </td>
                 </tr>
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30 ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                    className={`group transition-colors hover:bg-[var(--wf-board-2)] ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   >
                     {/* Date */}
                     <td className="whitespace-nowrap px-4 py-3">
                       {isMultiDayEvent(ev) ? (
-                        <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{formatDateRange(ev.dateStr, ev.dateEnd)}</div>
+                        <div className="text-xs font-semibold text-[var(--wf-ink)]">{formatDateRange(ev.dateStr, ev.dateEnd)}</div>
                       ) : (
                         <>
-                          <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{ev.day}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-300">{ev.tanggal}</div>
+                          <div className="text-xs font-semibold text-[var(--wf-ink)]">{ev.day}</div>
+                          <div className="text-xs text-[var(--wf-ink-muted)]">{ev.tanggal}</div>
                         </>
                       )}
                     </td>
                     {/* Time */}
                     <td className="whitespace-nowrap px-4 py-3">
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
-                        <Clock className="h-3 w-3 text-slate-500" />
+                      <span className="inline-flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
+                        <Clock className="h-3 w-3 text-[var(--wf-ink-muted)]" />
                         {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '-')}
                       </span>
                     </td>
@@ -327,7 +327,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     <td className="px-4 py-3">
                       <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-slate-500 dark:text-slate-300">{ev.keterangan}</p>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
                       )}
                       {isAdmin && (
                         <div className="mt-1">
@@ -337,8 +337,8 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     </td>
                     {/* Location */}
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
-                        <MapPin className="h-3 w-3 flex-shrink-0 text-slate-500" />
+                      <span className="inline-flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
+                        <MapPin className="h-3 w-3 flex-shrink-0 text-[var(--wf-ink-muted)]" />
                         <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '-'}</span>
                       </span>
                     </td>
@@ -346,7 +346,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={ev.status} />
-                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">Reguler</span>}
                       </div>
                     </td>
                     {/* Category */}
@@ -363,12 +363,12 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                             <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${modelBadge.className}`}>
                               {modelBadge.label}
                             </span>
-                          ) : <span className="text-xs text-slate-300 dark:text-slate-600">-</span>;
+                          ) : <span className="text-xs text-[var(--wf-ink-muted)]">-</span>;
                         })()}
                       </td>
                     )}
                     {/* EO */}
-                    <td className="whitespace-nowrap px-4 py-3 text-xs ui-text-muted">
+                    <td className="whitespace-nowrap px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
                       {ev.eo || '-'}
                     </td>
                     {/* Actions */}
@@ -378,7 +378,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                           type="button"
                           onClick={() => onDetail(ev)}
                           aria-label="Lihat detail"
-                          className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-500 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/30 dark:hover:text-brand-primary-400"
+                          className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
@@ -389,7 +389,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                               type="button"
                               onClick={() => onEdit(ev)}
                               aria-label='Ubah acara'
-                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
@@ -399,7 +399,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                               type="button"
                               onClick={() => onDelete(ev)}
                               aria-label="Hapus acara"
-                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
@@ -417,13 +417,13 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
         </table>
       </div>
       {/* Footer */}
-      <div className="ui-dashboard-muted flex items-center justify-between border-t border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-        <p className="text-xs text-slate-500 dark:text-slate-300">Menampilkan {events.length} acara</p>
+      <div className="ui-dashboard-muted flex items-center justify-between border-t border-[var(--wf-rule)] px-4 py-2.5">
+        <p className="text-xs text-[var(--wf-ink-muted)]">Menampilkan {events.length} acara</p>
         {isAdmin && (
           <button
             type="button"
             onClick={() => exportCSV(events)}
-className="ui-focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium ui-text-muted transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
+className="ui-focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
           >
             <Download className="h-3 w-3" aria-hidden /> Ekspor CSV
           </button>

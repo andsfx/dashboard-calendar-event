@@ -29,7 +29,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
 
   return (
     <div className="relative group">
-      <Search className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-brand-primary-500' : 'text-slate-500 group-focus-within:text-brand-primary-500'}`} />
+      <Search className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)] group-focus-within:text-[var(--wf-accent)]'}`} />
       <input
         ref={inputRef}
         type="search"
@@ -38,7 +38,7 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         placeholder={placeholder}
         maxLength={100}
         aria-label="Cari acara"
-        className="ui-dashboard-control h-10 w-full rounded-xl py-2 pl-9 pr-16 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:text-white dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
+        className="ui-dashboard-control h-10 w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] py-2 pl-9 pr-16 text-sm text-[var(--wf-ink)] outline-none transition placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent)]/20"
       />
 
       {/* Right side: clear button OR keyboard shortcut hint */}
@@ -46,13 +46,13 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         {value ? (
           <button
             onClick={() => { onChange(''); inputRef.current?.focus(); }}
-            className="-m-1 rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
+            className="-m-1 rounded-lg p-1 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
             aria-label="Hapus pencarian"
           >
             <X className="h-4 w-4" />
           </button>
         ) : (
-          <kbd className="hidden select-none rounded-md border border-[var(--border-subtle)] bg-[var(--brand-card)] px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 sm:inline-flex">
+          <kbd className="hidden select-none rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--wf-ink-muted)] sm:inline-flex">
             /
           </kbd>
         )}

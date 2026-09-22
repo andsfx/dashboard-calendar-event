@@ -53,15 +53,15 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
   return (
     <div className="ui-dashboard-surface p-5">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-slate-700 dark:text-white"><CalendarDays className="h-4 w-4 shrink-0 text-brand-primary-500" />Tema Tahunan {themeYear}</p>
+        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-[var(--wf-ink)]"><CalendarDays className="h-4 w-4 shrink-0 text-[var(--wf-accent)]" />Tema Tahunan {themeYear}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="shrink-0 self-start text-xs text-slate-500 dark:text-slate-300 sm:self-auto">
+          <span className="shrink-0 self-start text-xs text-[var(--wf-ink-muted)] sm:self-auto">
             {themes.filter(t => today >= t.dateStart && today <= t.dateEnd).length > 0
               ? 'Tema aktif'
               : 'Tidak ada tema aktif'}
           </span>
           {isAdmin && onAddTheme && (
-            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-brand-primary-200 px-2.5 py-1.5 text-xs font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-900/50 dark:text-brand-primary-300 dark:hover:bg-brand-primary-900/20">
+            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]">
               <Plus className="h-3.5 w-3.5" />Tambah Tema
             </button>
           )}
@@ -75,17 +75,17 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               <select
                 value={selectedTheme.id}
                 onChange={e => setSelectedThemeId(e.target.value)}
-                className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 shadow-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-brand-primary-500 dark:focus:ring-brand-primary-900/30"
+                className="h-11 w-full appearance-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 pr-10 text-sm font-medium text-[var(--wf-ink)] outline-none transition-colors focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
               >
                 {themes.map(theme => (
                   <option key={theme.id} value={theme.id}>{theme.name}</option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
             </div>
 
             <div
-              className="mt-3 rounded-xl p-4"
+              className="mt-3 rounded-[var(--wf-radius-board)] p-4"
               style={{
                 backgroundColor: `${selectedTheme.color}18`,
                 borderLeft: `3px solid ${selectedTheme.color}`,
@@ -96,18 +96,18 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
             >
               <div className="flex min-w-0 items-start gap-1.5">
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: selectedTheme.color }} />
-                <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-slate-800 dark:text-slate-100">{selectedTheme.name}</p>
+                <p className="min-w-0 line-clamp-2 text-sm font-bold leading-snug text-[var(--wf-ink)]">{selectedTheme.name}</p>
               </div>
               {isAdmin && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700/30"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-red-600/20 px-2.5 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
                 </div>
               )}
-              <p className="mt-1 text-xs ui-text-muted">
+              <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
                 {formatDate(selectedTheme.dateStart)} - {formatDate(selectedTheme.dateEnd)}
               </p>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--wf-rule-strong)]">
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{
@@ -130,9 +130,9 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
           return (
             <div
               key={theme.id}
-              className={`relative min-w-0 rounded-xl p-4 transition-all duration-200 ${
+              className={`relative min-w-0 rounded-[var(--wf-radius-board)] p-4 transition-all duration-200 ${
                 isActive
-                  ? 'ring-2 shadow-sm'
+                  ? 'ring-2 ring-[var(--wf-accent)]'
                   : isPast
                   ? 'opacity-60'
                   : 'opacity-85 hover:opacity-100'
@@ -152,21 +152,21 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               )}
               {isAdmin && (
                 <div className="absolute right-3 top-3 flex gap-1">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-slate-200 bg-white/90 p-1 text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"><Pencil className="h-3.5 w-3.5" /></button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-rose-200 bg-white/90 p-1 text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-900/50 dark:bg-slate-800/80 dark:text-rose-300 dark:hover:bg-rose-900/20"><Trash2 className="h-3.5 w-3.5" /></button>}
+                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" /></button>}
+                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-red-600/20 bg-[var(--wf-board)] p-1 text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" /></button>}
                 </div>
               )}
 
               <div className="flex min-w-0 items-start gap-1.5">
                 <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
-                <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-slate-800 dark:text-slate-100">{theme.name}</p>
+                <p className="min-w-0 line-clamp-2 text-xs font-bold leading-snug text-[var(--wf-ink)]">{theme.name}</p>
               </div>
-              <p className="mt-0.5 text-[10px] ui-text-muted">
+              <p className="mt-0.5 text-[10px] text-[var(--wf-ink-muted)]">
                 {formatDate(theme.dateStart)} - {formatDate(theme.dateEnd)}
               </p>
 
               {/* Progress bar */}
-              <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-[var(--wf-rule-strong)]">
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{ width: `${progress}%`, backgroundColor: theme.color }}
@@ -183,10 +183,10 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                   </span>
                 )}
                 {!isActive && !isPast && (
-                  <span className="text-[10px] text-slate-500">Mendatang</span>
+                  <span className="text-[10px] text-[var(--wf-ink-muted)]">Mendatang</span>
                 )}
                 {isPast && (
-                  <span className="text-[10px] text-slate-500">Selesai</span>
+                  <span className="text-[10px] text-[var(--wf-ink-muted)]">Selesai</span>
                 )}
                 <span className="ml-auto text-[10px] font-semibold" style={{ color: theme.color }}>
                   {progress}%

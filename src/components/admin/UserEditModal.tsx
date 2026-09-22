@@ -99,25 +99,25 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
   if (!user) return null;
 
   const inputClass =
-    'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
-  const labelClass = 'mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300';
+    'w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]';
+  const labelClass = 'mb-1 block text-xs font-medium text-[var(--wf-ink-muted)]';
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-md" ariaLabelledBy="user-edit-title">
-      <div className="overflow-hidden rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <div className="h-1.5 w-full bg-gradient-to-r from-brand-primary-500 to-brand-primary-700" />
+      <div className="overflow-hidden rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
+        <div className="h-1.5 w-full bg-[var(--wf-accent)]" />
 
         <div className="flex items-start justify-between p-5 pb-3">
           <div>
-            <h3 id="user-edit-title" className="text-base font-bold text-slate-900 dark:text-white">Edit Pengguna</h3>
-            <p className="mt-0.5 text-xs ui-text-muted">{user.display_name || user.email}</p>
+            <h3 id="user-edit-title" className="text-base font-bold text-[var(--wf-ink)]">Edit Pengguna</h3>
+            <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{user.display_name || user.email}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Tutup"
-            className="touch-target-hit relative flex items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-70 dark:hover:bg-slate-700"
+            className="touch-target-hit relative flex items-center justify-center rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-70"
           >
             <X className="h-4 w-4" />
           </button>
@@ -163,7 +163,7 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
               {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             {isSelf && (
-              <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
+              <p className="mt-1 text-[11px] text-[var(--wf-action)]">
                 Role akun sendiri tidak bisa diubah.
               </p>
             )}
@@ -185,7 +185,7 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
           </div>
 
           {error && (
-            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+            <p role="alert" className="rounded-lg border border-red-200 bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
               {error}
             </p>
           )}
@@ -195,14 +195,14 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-70"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:opacity-60"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:opacity-90 disabled:opacity-60"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               {isSubmitting ? 'Menyimpan…' : 'Simpan'}

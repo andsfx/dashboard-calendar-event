@@ -184,14 +184,14 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-primary-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--wf-accent)]" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+      <div className="rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
         {error}
         <button onClick={fetchStats} className="ml-2 underline">Coba lagi</button>
       </div>
@@ -202,13 +202,13 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
     return (
       <div className="space-y-4">
         <div className="ui-dashboard-surface p-6 text-center">
-          <ClipboardCheck className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="mt-3 text-sm font-medium ui-text-muted">
+          <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
+          <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">
             Belum ada response survey
           </p>
         </div>
         {actionError && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span className="flex-1">{actionError}</span>
             <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
@@ -234,12 +234,12 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">Survey Kepuasan</h2>
-          <p className="text-xs ui-text-muted">Feedback dari penyelenggara & peserta event</p>
+          <h2 className="text-base font-bold text-[var(--wf-ink)]">Survey Kepuasan</h2>
+          <p className="text-xs text-[var(--wf-ink-muted)]">Feedback dari penyelenggara & peserta event</p>
         </div>
         <button
           onClick={fetchStats}
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          className="rounded-lg p-2 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
           title="Refresh"
         >
           <RefreshCw className="h-4 w-4" />
@@ -247,7 +247,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       </div>
 
       {actionError && (
-        <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">{actionError}</span>
           <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
@@ -265,7 +265,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       {/* Mall average ratings */}
       {stats.mall_avg && (
         <div className="ui-dashboard-surface p-4">
-          <h3 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
+          <h3 className="mb-3 text-sm font-semibold text-[var(--wf-ink)]">
             Rata-rata Rating Pengelola Tempat
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -281,7 +281,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       {/* EO average ratings */}
       {stats.eo_avg && (
         <div className="ui-dashboard-surface p-4">
-          <h3 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
+          <h3 className="mb-3 text-sm font-semibold text-[var(--wf-ink)]">
             Rata-rata Rating Penyelenggara Event
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-6">
@@ -299,14 +299,14 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       {stats.nps_score !== null && (
         <div className="ui-dashboard-surface p-4">
           <div className="flex items-center gap-3">
-            <TrendingUp className={`h-5 w-5 ${stats.nps_score >= 50 ? 'text-emerald-500' : stats.nps_score >= 0 ? 'text-yellow-500' : 'text-red-500'}`} />
+            <TrendingUp className={`h-5 w-5 ${stats.nps_score >= 50 ? 'text-[var(--wf-live)]' : stats.nps_score >= 0 ? 'text-[var(--wf-action)]' : 'text-red-700 dark:text-red-300'}`} />
             <div>
-              <p className="text-xs ui-text-muted">Net Promoter Score (NPS)</p>
-              <p className={`text-xl font-bold ${stats.nps_score >= 50 ? 'text-emerald-600' : stats.nps_score >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+              <p className="text-xs text-[var(--wf-ink-muted)]">Net Promoter Score (NPS)</p>
+              <p className={`text-xl font-bold ${stats.nps_score >= 50 ? 'text-[var(--wf-live)]' : stats.nps_score >= 0 ? 'text-[var(--wf-action)]' : 'text-red-700 dark:text-red-300'}`}>
                 {stats.nps_score > 0 ? '+' : ''}{stats.nps_score}
               </p>
             </div>
-<span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium ui-text-muted dark:bg-slate-700 ">
+<span className="ml-auto rounded-full bg-[var(--wf-board-2)] px-2 py-0.5 text-[10px] font-medium text-[var(--wf-ink-muted)] ">
               {stats.nps_score >= 50 ? 'Sangat Baik' : stats.nps_score >= 0 ? 'Baik' : 'Perlu Perbaikan'}
             </span>
           </div>
@@ -316,36 +316,36 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
       {/* Recent responses with date filter + expandable detail */}
       {stats.recent.length > 0 && (
         <div className="ui-dashboard-surface">
-          <div className="flex flex-col gap-2 border-b border-black/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Response Terbaru</h3>
+          <div className="flex flex-col gap-2 border-b border-[var(--wf-rule)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Response Terbaru</h3>
             {/* Date filter */}
             <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-slate-500" />
+              <Calendar className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
                 placeholder="Dari"
               />
-              <span className="text-[10px] text-slate-500 dark:text-slate-300">-</span>
+              <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="rounded-md border border-slate-200 px-2 py-1 text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
                 placeholder="Sampai"
               />
               {(dateFrom || dateTo) && (
-                <button onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-[10px] text-brand-primary-600 hover:underline dark:text-brand-primary-400">
+                <button onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-[10px] text-[var(--wf-accent)] hover:underline">
                   Reset
                 </button>
               )}
             </div>
           </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+          <div className="divide-y divide-[var(--wf-rule)]">
             {filteredRecent.length === 0 && (
-              <p className="px-4 py-3 text-xs text-slate-500 dark:text-slate-300">Tidak ada response dalam rentang tanggal ini</p>
+              <p className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">Tidak ada response dalam rentang tanggal ini</p>
             )}
             {filteredRecent.map((r) => {
               const mallAvg = ((r.mall_cleanliness + r.mall_staff_service + r.mall_coordination + r.mall_security) / 4);
@@ -357,25 +357,25 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-[var(--wf-board-2)]"
                   >
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${mallAvg >= 8 ? 'bg-emerald-500' : mallAvg >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-[var(--wf-accent-ink)] ${mallAvg >= 8 ? 'bg-[var(--wf-live)]' : mallAvg >= 5 ? 'bg-[var(--wf-action)]' : 'bg-red-600'}`}>
                       {mallAvg.toFixed(0)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{eventName}</p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-300">
+                      <p className="truncate text-xs font-medium text-[var(--wf-ink)]">{eventName}</p>
+                      <p className="text-[10px] text-[var(--wf-ink-muted)]">
                         {r.respondent_name || 'Anonim'} · {r.survey_type === 'organizer' ? 'Penyelenggara' : 'Peserta'} · {new Date(r.created_at).toLocaleDateString('id-ID')}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      {hasComments && <MessageSquare className="h-3 w-3 text-slate-500" />}
-                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />}
+                      {hasComments && <MessageSquare className="h-3 w-3 text-[var(--wf-ink-muted)]" />}
+                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" /> : <ChevronDown className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />}
                     </div>
                   </button>
                   {/* Expanded detail */}
                   {isExpanded && (
-                    <div className="ui-dashboard-muted border-t border-black/[0.04] px-4 py-3 dark:border-slate-700/50">
+                    <div className="ui-dashboard-muted border-t border-[var(--wf-rule)] px-4 py-3">
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <MiniRating label="Kebersihan" value={r.mall_cleanliness} />
                         <MiniRating label="Pelayanan" value={r.mall_staff_service} />
@@ -395,24 +395,24 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                       {hasComments && (
                         <div className="mt-3 space-y-1.5">
                           {r.mall_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                            <p className="text-[11px] text-[var(--wf-ink)]">
                               <span className="font-semibold">Mall:</span> {r.mall_comment}
                             </p>
                           )}
                           {r.eo_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                            <p className="text-[11px] text-[var(--wf-ink)]">
                               <span className="font-semibold">EO:</span> {r.eo_comment}
                             </p>
                           )}
                           {r.general_comment && (
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                            <p className="text-[11px] text-[var(--wf-ink)]">
                               <span className="font-semibold">Umum:</span> {r.general_comment}
                             </p>
                           )}
                         </div>
                       )}
                       {r.respondent_email && (
-                        <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-300">Email: {r.respondent_email}</p>
+                        <p className="mt-2 text-[10px] text-[var(--wf-ink-muted)]">Email: {r.respondent_email}</p>
                       )}
                     </div>
                   )}
@@ -464,24 +464,24 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
 
   return (
     <div className="ui-dashboard-surface">
-      <div className="border-b border-black/[0.04] px-4 py-3 dark:border-slate-700">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelola Survey per Event</h3>
-        <p className="text-[10px] text-slate-500 dark:text-slate-300">Copy link, aktifkan/nonaktifkan, atau export data</p>
+      <div className="border-b border-[var(--wf-rule)] px-4 py-3">
+        <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Survey per Event</h3>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan, atau export data</p>
         <div className="relative mt-2">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari nama event…"
             aria-label="Cari event"
-            className="ui-dashboard-control w-full rounded-xl py-1.5 pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:text-slate-200"
+            className="ui-dashboard-control w-full rounded-xl py-1.5 pl-9 pr-3 text-xs text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
           />
         </div>
       </div>
-      <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
+      <div className="max-h-72 divide-y divide-[var(--wf-rule)] overflow-y-auto">
         {visibleEvents.length === 0 ? (
-          <p className="px-4 py-6 text-center text-xs ui-text-muted">
+          <p className="px-4 py-6 text-center text-xs text-[var(--wf-ink-muted)]">
             Tidak ada event cocok “{query}”
           </p>
         ) : visibleEvents.map((ev) => {
@@ -494,13 +494,13 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
           return (
             <div key={ev.id} className="flex items-center gap-2 px-4 py-2.5">
               {/* Event name */}
-              <p className="min-w-0 flex-1 truncate text-xs text-slate-700 dark:text-slate-300">{ev.acara}</p>
+              <p className="min-w-0 flex-1 truncate text-xs text-[var(--wf-ink)]">{ev.acara}</p>
 
               {/* Toggle active */}
               {!readOnly && <button
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
-                className={`shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-slate-400 dark:text-slate-500'}`}
+                className={`shrink-0 transition-colors ${isActive ? 'text-[var(--wf-live)]' : 'text-[var(--wf-ink-muted)]'}`}
                 aria-pressed={isActive}
                 aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
                 title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
@@ -517,18 +517,18 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               {/* Copy link */}
               <button
                 onClick={() => onCopyLink(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium ui-text-muted transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
                 title="Salin tautan survey"
                 aria-label={`Salin tautan survey ${ev.acara}`}
               >
-                {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Link2 className="h-3 w-3" />}
+                {isCopied ? <Check className="h-3 w-3 text-[var(--wf-live)]" /> : <Link2 className="h-3 w-3" />}
                 {isCopied ? 'Tersalin!' : 'Link'}
               </button>
 
               {/* Export */}
               <button
                 onClick={() => onExport(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/30"
+                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
                 aria-label={`Unduh CSV survey ${ev.acara}`}
               >
                 <Download className="h-3 w-3" />
@@ -547,30 +547,30 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
 
 function StatMini({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   const colors: Record<string, string> = {
-    primary: 'bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/40 dark:text-brand-primary-400',
-    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
-    emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
-    amber: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+    primary: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
+    blue: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
+    emerald: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
+    amber: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
   };
   return (
-    <div className="ui-dashboard-surface rounded-xl p-3">
+    <div className="ui-dashboard-surface p-3">
       <div className={`mb-2 inline-flex rounded-lg p-1.5 ${colors[color] || colors.primary}`}>{icon}</div>
-      <p className="text-lg font-bold text-slate-900 dark:text-white">{value}</p>
-      <p className="text-[10px] ui-text-muted">{label}</p>
+      <p className="text-lg font-bold text-[var(--wf-ink)]">{value}</p>
+      <p className="text-[10px] text-[var(--wf-ink-muted)]">{label}</p>
     </div>
   );
 }
 
 function RatingBar({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   const pct = (value / 10) * 100;
-  const color = value >= 8 ? 'bg-emerald-500' : value >= 5 ? 'bg-yellow-500' : 'bg-red-500';
+  const color = value >= 8 ? 'bg-[var(--wf-live)]' : value >= 5 ? 'bg-[var(--wf-action)]' : 'bg-red-600';
   return (
-    <div className={`space-y-1 ${highlight ? 'rounded-lg bg-brand-primary-50 p-2 dark:bg-brand-primary-900/20' : ''}`}>
+    <div className={`space-y-1 ${highlight ? 'rounded-lg bg-[var(--wf-accent-soft)] p-2' : ''}`}>
       <div className="flex items-center justify-between">
-        <span className={`text-[11px] ${highlight ? 'font-semibold text-brand-primary-700 dark:text-brand-primary-300' : 'text-slate-600 dark:text-slate-300'}`}>{label}</span>
-        <span className={`text-xs font-bold ${value >= 8 ? 'text-emerald-600' : value >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{value.toFixed(1)}</span>
+        <span className={`text-[11px] ${highlight ? 'font-semibold text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)]'}`}>{label}</span>
+        <span className={`text-xs font-bold ${value >= 8 ? 'text-[var(--wf-live)]' : value >= 5 ? 'text-[var(--wf-action)]' : 'text-red-700 dark:text-red-300'}`}>{value.toFixed(1)}</span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--wf-board-2)]">
         <div className={`h-full rounded-full transition-[width] duration-700 ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -580,9 +580,9 @@ function RatingBar({ label, value, highlight }: { label: string; value: number; 
 function MiniRating({ label, value }: { label: string; value: number | null }) {
   const v = value ?? 0;
   return (
-    <div className="flex items-center justify-between rounded-md bg-[var(--brand-card-light)] px-2 py-1 dark:bg-slate-800">
-      <span className="text-[10px] ui-text-muted">{label}</span>
-      <span className={`text-[11px] font-bold ${v >= 8 ? 'text-emerald-600' : v >= 5 ? 'text-yellow-600' : 'text-red-600'}`}>{v || '-'}</span>
+    <div className="flex items-center justify-between rounded-md bg-[var(--wf-board-2)] px-2 py-1">
+      <span className="text-[10px] text-[var(--wf-ink-muted)]">{label}</span>
+      <span className={`text-[11px] font-bold ${v >= 8 ? 'text-[var(--wf-live)]' : v >= 5 ? 'text-[var(--wf-action)]' : 'text-red-700 dark:text-red-300'}`}>{v || '-'}</span>
     </div>
   );
 }

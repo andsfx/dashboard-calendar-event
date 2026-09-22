@@ -263,12 +263,12 @@ export const AdminSidebar = memo(function AdminSidebar({
         ref={hamburgerRef}
         type="button"
         onClick={() => setIsMobileOpen(true)}
-        className="ui-focus-ring fixed left-3 top-2.5 z-50 flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
+        className="ui-focus-ring fixed left-3 top-2.5 z-50 flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] lg:hidden"
         aria-label="Buka menu"
         aria-expanded={isMobileOpen}
         aria-controls="admin-sidebar"
       >
-        <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" strokeWidth={1.5} aria-hidden />
+        <Menu className="h-5 w-5 text-[var(--wf-ink-muted)]" strokeWidth={1.5} aria-hidden />
       </button>
 
       {isMobileOpen && (

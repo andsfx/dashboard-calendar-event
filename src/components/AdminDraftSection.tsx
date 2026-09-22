@@ -37,18 +37,18 @@ export function AdminDraftSection({
     <section id="drafts" className="space-y-4 scroll-mt-32">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ui-dashboard-card-padded">
         <div className="flex items-start gap-3">
-          <div className="ui-icon-tile bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
+          <div className="ui-icon-tile bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
             <ClipboardList className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold ui-text-strong">Queue Aktif Draft Event</p>
-            <p className="text-xs ui-text-muted">Antrian event yang masih diproses</p>
+            <p className="text-sm font-bold text-[var(--wf-ink)]">Queue Aktif Draft Event</p>
+            <p className="text-xs text-[var(--wf-ink-muted)]">Antrian event yang masih diproses</p>
           </div>
         </div>
         {onAddDraft && (
           <button
             onClick={onAddDraft}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors dark:shadow-brand-primary-900/30"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors"
           >
             <Plus className="h-4 w-4" /> Tambah Draft Event
           </button>
@@ -56,7 +56,7 @@ export function AdminDraftSection({
       </div>
 
       {draftError && (
-        <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800/50 dark:bg-rose-900/20 dark:text-rose-300">
+        <div role="alert" className="rounded-2xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
           {draftError}
         </div>
       )}
@@ -64,7 +64,7 @@ export function AdminDraftSection({
       {isDraftLoading ? (
         <div className="space-y-3 animate-pulse">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div key={i} className="h-16 rounded-xl bg-[var(--wf-board-2)]" />
           ))}
         </div>
       ) : (
@@ -85,15 +85,15 @@ export function AdminDraftSection({
           aria-controls="draft-history-content"
         >
           <div className="flex items-start gap-3">
-            <div className="ui-icon-tile bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+            <div className="ui-icon-tile bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]">
               <Archive className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-bold ui-text-strong">Riwayat Draft Event</p>
-              <p className="text-xs ui-text-muted">Event yang dibatalkan atau sudah dipublikasikan</p>
+              <p className="text-sm font-bold text-[var(--wf-ink)]">Riwayat Draft Event</p>
+              <p className="text-xs text-[var(--wf-ink-muted)]">Event yang dibatalkan atau sudah dipublikasikan</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-semibold ui-text-muted">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--wf-ink-muted)]">
             <span>{draftHistory.length} item</span>
             {showDraftHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>

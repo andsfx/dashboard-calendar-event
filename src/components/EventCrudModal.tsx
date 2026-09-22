@@ -503,7 +503,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="event-crud-title">
       <div
-        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800"
+        className="max-h-[90vh] overflow-y-auto rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]"
         tabIndex={-1}
       >
         <ModalHeader
@@ -548,7 +548,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Tipe acara */}
           <div className="space-y-2">
-            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
+            <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</label>
             <div className="flex flex-wrap gap-2">
               {([
                 { value: 'single', label: 'Acara biasa', disabled: false },
@@ -557,10 +557,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               ] as const).map(opt => (
                 <label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
                   opt.disabled
-                    ? 'cursor-not-allowed border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500'
+                    ? 'cursor-not-allowed border-[var(--wf-rule)] text-[var(--wf-ink-muted)]'
                     : `cursor-pointer ${form.eventType === opt.value
-                      ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'}`
+                      ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                      : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'}`
                 }`}>
                   <input
                     type="radio"
@@ -576,7 +576,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               ))}
             </div>
             {isEdit && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-[var(--wf-ink-muted)]">
                 Event reguler hanya bisa dibuat saat menambah acara baru; untuk mengubah seluruh series, hapus series lalu buat ulang.
               </p>
             )}
@@ -584,20 +584,20 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Banner series reguler — info keanggotaan + opsi detach eksplisit */}
           {editingEvent?.isRecurring && (
-            <div className="flex flex-col gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3 dark:border-brand-primary-800 dark:bg-brand-primary-900/20">
-              <div className="flex items-center gap-2 text-xs text-brand-primary-700 dark:text-brand-primary-300">
+            <div className="flex flex-col gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3">
+              <div className="flex items-center gap-2 text-xs text-[var(--wf-accent)]">
                 <Repeat className="h-3.5 w-3.5 shrink-0" />
                 <span>
                   Acara ini bagian dari series reguler. Edit biasa tidak
                   mengubah keanggotaan series.
                 </span>
               </div>
-              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink)]">
                 <input
                   type="checkbox"
                   checked={detachSeries}
                   onChange={e => setDetachSeries(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-brand-primary-600 focus:ring-brand-primary-500 dark:border-slate-600 dark:bg-slate-800"
+                  className="h-4 w-4 rounded border-[var(--wf-rule)] text-[var(--wf-accent)] focus:ring-[var(--wf-accent)]"
                 />
                 Lepas dari series saat disimpan (badge &quot;Reguler&quot; hilang dari acara ini)
               </label>
@@ -664,37 +664,37 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Keterangan */}
           <div>
-            <label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
+            <label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</label>
             <textarea
               id="event-keterangan"
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Deskripsi singkat tentang acara…"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
             />
           </div>
 
           {/* Poster / Flyer */}
           <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-              <Image className="h-3.5 w-3.5 text-emerald-500" />
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+              <Image className="h-3.5 w-3.5 text-[var(--wf-live)]" />
               Poster / Flyer Event
             </label>
             {form.posterUrl ? (
-              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-[var(--brand-card)] dark:border-slate-700 dark:bg-slate-900">
+              <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)]">
                 <img
                   src={form.posterUrl}
                   alt="Poster acara"
                   className="max-h-48 w-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <div className="flex gap-2 border-t border-slate-200 bg-white/80 p-2 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
+                <div className="flex gap-2 border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-2 backdrop-blur-sm">
                   <button
                     type="button"
                     onClick={() => posterInputRef.current?.click()}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                    className="flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board)] disabled:opacity-50"
                   >
                     <Upload className="h-3.5 w-3.5" />
                     Ganti
@@ -703,7 +703,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     type="button"
                     onClick={handleRemovePoster}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+                    className="flex items-center gap-1.5 rounded-lg bg-red-600/10 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-600/20 disabled:opacity-50 dark:text-red-300"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     Hapus
@@ -715,11 +715,11 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 type="button"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] px-4 py-4 text-slate-500 transition-colors hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-600 dark:hover:text-emerald-400"
+                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-4 text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-live)] hover:text-[var(--wf-live)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {posterUploading ? (
                   <>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400/30 border-t-emerald-500" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-live)]" />
                     <span className="text-xs font-medium">Mengupload…</span>
                   </>
                 ) : (
@@ -738,7 +738,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               className="hidden"
               onChange={handlePosterChange}
             />
-            {posterError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{posterError}</p>}
+            {posterError && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{posterError}</p>}
           </div>
 
           {/* Actions */}
@@ -747,14 +747,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}

@@ -32,7 +32,7 @@ function TrendBar({
         >
           {v3 > 0 && (
             <div
-              className="w-full bg-brand-primary-400 transition-[height] duration-500"
+              className="w-full bg-[var(--wf-accent)] transition-[height] duration-500"
               style={{ height: `${v3H > 0 ? (v3H / (v2H + v3H)) * 100 : 0}%`, minHeight: v3H > 0 ? '2px' : '0' }}
             />
           )}
@@ -44,8 +44,8 @@ function TrendBar({
           )}
         </div>
       </div>
-      <span className="text-[10px] ui-text-muted">{shortLabel}</span>
-      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{total}</span>
+      <span className="text-[10px] text-[var(--wf-ink-muted)]">{shortLabel}</span>
+      <span className="text-[10px] font-bold text-[var(--wf-ink)]">{total}</span>
     </div>
   );
 }
@@ -99,7 +99,7 @@ export default function TenantSurveyTrendChart({
   if (isLoading) {
     return (
       <div className="ui-dashboard-surface p-4">
-        <div className="flex items-center gap-2 text-sm ui-text-muted">
+        <div className="flex items-center gap-2 text-sm text-[var(--wf-ink-muted)]">
           <BarChart3 className="h-4 w-4 animate-pulse" />
           Memuat tren…
         </div>
@@ -113,17 +113,17 @@ export default function TenantSurveyTrendChart({
     <div className="ui-dashboard-surface p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-brand-primary-500" />
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+          <BarChart3 className="h-4 w-4 text-[var(--wf-accent)]" />
+          <h3 className="text-sm font-bold text-[var(--wf-ink)]">
             Tren Bulanan
           </h3>
         </div>
         {stats && (
-          <div className="flex items-center gap-4 text-[10px] ui-text-muted">
+          <div className="flex items-center gap-4 text-[10px] text-[var(--wf-ink-muted)]">
             {stats.submissionsChange !== 0 && (
               <span>
                 Submisi: {stats.submissionsChange > 0 ? '+' : ''}{stats.submissionsChange}
-                <span className="text-slate-500"> vs bulan lalu</span>
+                <span className="text-[var(--wf-ink-muted)]"> vs bulan lalu</span>
               </span>
             )}
           </div>
@@ -172,13 +172,13 @@ export default function TenantSurveyTrendChart({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-500">
+      <div className="mt-3 flex items-center gap-4 text-[10px] text-[var(--wf-ink-muted)]">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2.5 w-2.5 rounded-sm bg-blue-400" />
           v2 (Rating)
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-brand-primary-400" />
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[var(--wf-accent)]" />
           v3 (Publik)
         </span>
       </div>
@@ -200,19 +200,19 @@ function TrendStat({
   changeLabel: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
-      <div className="flex items-center gap-1.5 text-brand-primary-500 dark:text-brand-primary-400">
+    <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2">
+      <div className="flex items-center gap-1.5 text-[var(--wf-accent)]">
         {icon}
-        <span className="text-[10px] ui-text-muted">{label}</span>
+        <span className="text-[10px] text-[var(--wf-ink-muted)]">{label}</span>
       </div>
-      <p className="mt-0.5 text-base font-bold text-slate-800 dark:text-slate-200">{value}</p>
+      <p className="mt-0.5 text-base font-bold text-[var(--wf-ink)]">{value}</p>
       {change !== 0 && (
-        <p className={`text-[10px] ${change > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+        <p className={`text-[10px] ${change > 0 ? 'text-[var(--wf-live)]' : 'text-red-700 dark:text-red-300'}`}>
           {change > 0 ? '+' : ''}{change} {changeLabel}
         </p>
       )}
       {change === 0 && (
-        <p className="text-[10px] text-slate-500">Sama {changeLabel}</p>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Sama {changeLabel}</p>
       )}
     </div>
   );

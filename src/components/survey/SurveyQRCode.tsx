@@ -111,7 +111,7 @@ export default function SurveyQRCode({
     return (
       <div className="flex flex-col items-center gap-2">
         <canvas ref={canvasRef} className="rounded-lg" />
-        <p className="text-[10px] text-slate-500">Scan untuk isi survey</p>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Scan untuk isi survey</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function SurveyQRCode({
     <div className="space-y-3">
       {/* Type tabs (only if no fixed type and showTypeTabs is true) */}
       {showTypeTabs && !surveyType && (
-        <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-700">
+        <div className="flex gap-1 rounded-lg bg-[var(--wf-board-2)] p-1">
           <TabBtn active={activeType === 'public'} onClick={() => setActiveType('public')}>
             Peserta
           </TabBtn>
@@ -131,30 +131,30 @@ export default function SurveyQRCode({
       )}
 
       {/* QR Code */}
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
         <canvas ref={canvasRef} className="rounded-lg" />
 
-        <p className="text-center text-xs ui-text-muted">
+        <p className="text-center text-xs text-[var(--wf-ink-muted)]">
           Scan QR code atau bagikan link di bawah
         </p>
 
         {/* URL + copy */}
-        <div className="flex w-full items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-700">
-          <QrCode className="h-4 w-4 shrink-0 text-slate-500" />
-          <span className="flex-1 truncate text-xs text-slate-600 dark:text-slate-300">{surveyUrl}</span>
+        <div className="flex w-full items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-3 py-2">
+          <QrCode className="h-4 w-4 shrink-0 text-[var(--wf-ink-muted)]" />
+          <span className="flex-1 truncate text-xs text-[var(--wf-ink-muted)]">{surveyUrl}</span>
           <button
             onClick={handleCopy}
-            className="shrink-0 rounded-md p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-600"
+            className="shrink-0 rounded-md p-1 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-rule-strong)] hover:text-[var(--wf-ink)]"
             title="Copy link"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3.5 w-3.5 text-[var(--wf-live)]" /> : <Copy className="h-3.5 w-3.5" />}
           </button>
         </div>
 
         {/* Download button */}
         <button
           onClick={handleDownload}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary-200 px-4 py-2 text-sm font-medium text-brand-primary-600 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-400 dark:hover:bg-brand-primary-900/20"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--wf-accent)] px-4 py-2 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
         >
           <Download className="h-4 w-4" />
           Download QR Code (PNG)
@@ -171,8 +171,8 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
       onClick={onClick}
       className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? 'bg-white text-brand-primary-700 shadow-sm dark:bg-slate-600 dark:text-brand-primary-300'
-: 'ui-text-muted hover:text-slate-700 '
+          ? 'bg-[var(--wf-board)] text-[var(--wf-accent)]'
+          : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
       }`}
     >
       {children}

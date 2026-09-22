@@ -2,14 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } from 'lucide-react';
 import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../utils/domainApi';
-import { ModalWrapper } from './ModalWrapper';
-import { ModalHeader } from './ui/ModalHeader';
 import { useConfirmDialog } from './ConfirmDialog';
 import { adminThumbUrl } from '../utils/imageOptim';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   pastEvents?: EventItem[];
   annualThemes?: AnnualTheme[];
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -19,7 +15,7 @@ interface Props {
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, readOnly = false }: Props) {
+export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }: Props) {
   const [view, setView] = useState<'list' | 'detail'>('list');
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<PhotoAlbum | null>(null);
@@ -46,7 +42,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
 
-  // Load albums when modal opens
+  // Load albums on mount
   const loadAlbums = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -61,16 +57,14 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      loadAlbums();
-      setView('list');
-      setSelectedAlbum(null);
-      setAlbumPhotos([]);
-      setShowCreateForm(false);
-      clearCreateForm();
-      clearUploadForm();
-    }
-  }, [isOpen, loadAlbums]);
+    loadAlbums();
+    setView('list');
+    setSelectedAlbum(null);
+    setAlbumPhotos([]);
+    setShowCreateForm(false);
+    clearCreateForm();
+    clearUploadForm();
+  }, [loadAlbums]);
 
   const clearCreateForm = () => {
     setNewName('');
@@ -330,36 +324,37 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
   const isMaxPhotos = albumPhotos.length + uploadFiles.length >= MAX_PHOTOS;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="album-manager-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <ModalHeader
-          titleId="album-manager-title"
-          title={view === 'list' ? 'Album Gallery' : selectedAlbum?.name || 'Detail Album'}
-          subtitle={
-            view === 'list'
-              ? 'Kelola album foto event'
-              : `${albumPhotos.length} / ${MAX_PHOTOS} foto`
-          }
-          icon={<ImageIcon />}
-          onClose={onClose}
-          closeAriaLabel="Tutup"
-          leading={
-            view === 'detail' ? (
-              <button
-                type="button"
-                onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-            ) : undefined
-          }
-        />
+    <div className="wf-page space-y-4">
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          {view === 'detail' && (
+            <button
+              type="button"
+              onClick={goBackToList}
+              aria-label="Kembali"
+              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          <div className="min-w-0">
+            {view === 'detail' && (
+              <h2 className="truncate text-base font-bold text-[var(--wf-ink)]">
+                {selectedAlbum?.name || 'Detail Album'}
+              </h2>
+            )}
+          </div>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
+          <ImageIcon className="h-4 w-4 text-[var(--wf-accent-ink)]" />
+        </div>
+      </header>
 
+      <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Error message */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-xl border border-red-200 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
               {error}
             </div>
           )}
@@ -367,8 +362,8 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
           {/* Loading */}
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-accent)] border-t-transparent" />
+              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}
 
@@ -380,7 +375,7 @@ export function AlbumManagerModal({ isOpen, onClose, pastEvents, annualThemes, r
                 <button
                   type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
-className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule-strong)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
@@ -389,12 +384,12 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
               {/* Create Album Form */}
               {showCreateForm && !readOnly && (
-                <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
-                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Album Baru</p>
+                <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+                  <p className="text-xs font-semibold text-[var(--wf-accent)]">Album Baru</p>
                   <div className="space-y-3">
                     {/* Event dropdown */}
                     <div>
-                      <label htmlFor="album-manager-event" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Pilih Event</label>
+                      <label htmlFor="album-manager-event" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Pilih Event</label>
                       <select
                         id="album-manager-event"
                         value={isCustomEvent ? '__custom__' : selectedEventId}
@@ -413,12 +408,12 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                     {/* Theme dropdown */}
                     <div>
-                      <label htmlFor="album-manager-theme" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tema Tahunan</label>
+                      <label htmlFor="album-manager-theme" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tema Tahunan</label>
                       <select
                         id="album-manager-theme"
                         value={selectedThemeId}
                         onChange={(e) => setSelectedThemeId(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2.5 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                       >
                         <option value="">Pilih tema (opsional)…</option>
                         {(annualThemes || []).map(t => (
@@ -426,38 +421,38 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         ))}
                       </select>
                       {selectedThemeId && !isCustomEvent && (
-                        <p className="mt-1 text-xs text-brand-primary-700 dark:text-brand-primary-300">Auto-matched berdasarkan tanggal event</p>
+                        <p className="mt-1 text-xs text-[var(--wf-accent)]">Auto-matched berdasarkan tanggal event</p>
                       )}
                     </div>
 
                     {/* Name */}
                     <div>
-                      <label htmlFor="album-manager-name" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Event *</label>
+                      <label htmlFor="album-manager-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Event *</label>
                       <input
                         id="album-manager-name"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="Nama event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                       />
                     </div>
 
                     <div>
                       {/* Description */}
-                      <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                      <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
                       <input
                         id="album-manager-desc"
                         value={newDesc}
                         onChange={(e) => setNewDesc(e.target.value)}
                         placeholder="Deskripsi event"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                       />
                     </div>
 
                     {/* Date + Location row */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tanggal</label>
+                        <label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal</label>
                         <input
                           id="album-manager-date"
                           type="date"
@@ -466,17 +461,17 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                             setNewDate(e.target.value);
                             if (!isCustomEvent) setSelectedThemeId(autoMatchTheme(e.target.value));
                           }}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:[color-scheme:dark]"
+                          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] dark:[color-scheme:dark]"
                         />
                       </div>
                       <div>
-                        <label htmlFor="album-manager-lokasi" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Lokasi</label>
+                        <label htmlFor="album-manager-lokasi" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Lokasi</label>
                         <input
                           id="album-manager-lokasi"
                           value={newLokasi}
                           onChange={(e) => setNewLokasi(e.target.value)}
                           placeholder="Lokasi event"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                         />
                       </div>
                     </div>
@@ -487,7 +482,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     <button
                       type="button"
                       onClick={() => { setShowCreateForm(false); clearCreateForm(); setError(''); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
                     >
                       Batal
                     </button>
@@ -495,7 +490,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       type="button"
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
@@ -506,10 +501,10 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
               {/* Album List */}
               {albums.length === 0 && !showCreateForm && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada album</p>
-                  <p className="mt-1 text-xs text-slate-500">Buat album pertama untuk mulai mengelola foto</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada album</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Buat album pertama untuk mulai mengelola foto</p>
                 </div>
               )}
 
@@ -518,11 +513,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   {albums.map((album) => (
                     <div
                       key={album.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
                     >
                       {/* Cover thumbnail */}
                       <div
-                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700"
+                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-[var(--wf-board-2)]"
                         onClick={() => openAlbumDetail(album)}
                       >
                         {album.coverPhotoUrl ? (
@@ -535,7 +530,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-slate-300 dark:text-slate-500" />
+                            <ImageIcon className="h-5 w-5 text-[var(--wf-ink-muted)]" />
                           </div>
                         )}
                       </div>
@@ -545,10 +540,10 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         className="min-w-0 flex-1 cursor-pointer"
                         onClick={() => openAlbumDetail(album)}
                       >
-                        <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                           {album.name}
                         </p>
-                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
+                        <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--wf-ink-muted)]">
                           {album.eventDate && <span>{album.eventDate}</span>}
                           <span>{album.photoCount ?? 0} foto</span>
                         </div>
@@ -558,7 +553,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>}
@@ -575,7 +570,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
               {/* Photo Grid */}
               {albumPhotos.length > 0 && (
                 <div>
-                  <p className="mb-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <p className="mb-3 text-xs font-semibold text-[var(--wf-ink-muted)]">
                     Foto ({albumPhotos.length}/{MAX_PHOTOS})
                   </p>
                   <div className="grid max-h-[40vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
@@ -584,11 +579,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       return (
                         <div
                           key={photo.id}
-                          className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-600"
+                          className="group relative overflow-hidden rounded-xl border border-[var(--wf-rule)]"
                         >
                           {/* Cover badge */}
                           {isCover && (
-                            <div className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-amber-400 text-white shadow-sm">
+                            <div className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--wf-action)] text-[var(--wf-accent-ink)]">
                               <Star className="h-3.5 w-3.5 fill-current" />
                             </div>
                           )}
@@ -599,7 +594,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
                               title="Jadikan Cover"
-                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-amber-500 group-hover:opacity-100"
+                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-[var(--wf-action)] group-hover:opacity-100"
                             >
                               <Star className="h-3.5 w-3.5" />
                             </button>
@@ -609,7 +604,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
-                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-600 group-hover:opacity-100"
+                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-600/90 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-700 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>}
@@ -626,8 +621,8 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           </div>
 
                           {/* Caption */}
-                          <div className="bg-[var(--brand-card)] px-2.5 py-2 dark:bg-slate-700/50">
-                            <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
+                          <div className="bg-[var(--wf-board-2)] px-2.5 py-2">
+                            <p className="truncate text-xs font-medium text-[var(--wf-ink)]">
                               {photo.caption}
                             </p>
                           </div>
@@ -640,19 +635,19 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
               {/* Empty state */}
               {albumPhotos.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <ImageIcon className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada foto</p>
-                  <p className="mt-1 text-xs text-slate-500">Upload foto pertama di bawah</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Upload foto pertama di bawah</p>
                 </div>
               )}
 
               {/* Upload Section */}
-              <div className="space-y-3 rounded-xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-600 dark:bg-slate-700/30">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Upload Foto Baru</p>
+              <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Upload Foto Baru</p>
 
                 {isMaxPhotos && uploadFiles.length === 0 && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                  <p className="text-xs text-[var(--wf-action)]">
                     Maksimal {MAX_PHOTOS} foto. Hapus foto yang ada untuk menambah yang baru.
                   </p>
                 )}
@@ -666,15 +661,15 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     onClick={() => fileInputRef.current?.click()}
                     className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
                       isDragOver
-                        ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-900/20'
-                        : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
+                        ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
+                        : 'border-[var(--wf-rule-strong)] hover:border-[var(--wf-accent)] hover:bg-[var(--wf-board-2)]'
                     }`}
                   >
-                    <Upload className="h-7 w-7 text-slate-500" />
-                    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    <Upload className="h-7 w-7 text-[var(--wf-ink-muted)]" />
+                    <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
                       Drag & drop foto di sini
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
                       atau klik untuk pilih · max {MAX_PHOTOS - albumPhotos.length} foto · 10MB/file
                     </p>
                   </div>
@@ -695,7 +690,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   <div className="space-y-3">
                     <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                       {uploadFiles.map((file, idx) => (
-                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
+                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
                           <img
                             src={URL.createObjectURL(file)}
                             alt={file.name}
@@ -714,18 +709,18 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       ))}
                     </div>
 
-                    <p className="text-xs ui-text-muted">{uploadFiles.length} foto dipilih</p>
+                    <p className="text-xs text-[var(--wf-ink-muted)]">{uploadFiles.length} foto dipilih</p>
 
                     {/* Progress bar */}
                     {uploading && uploadProgress.total > 0 && (
                       <div className="space-y-1">
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div className="h-2 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
                           <div
-                            className="h-full rounded-full bg-brand-primary-500 transition-all duration-300"
+                            className="h-full rounded-full bg-[var(--wf-accent)] transition-all duration-300"
                             style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
                           />
                         </div>
-                        <p className="text-xs ui-text-muted">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
+                        <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
                     )}
 
@@ -735,7 +730,7 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
@@ -749,17 +744,13 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end border-t border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-          >
-            Tutup
-          </button>
+        <div className="flex items-center justify-end border-t border-[var(--wf-rule)] px-4 py-4 text-xs text-[var(--wf-ink-muted)] sm:px-6">
+          {view === 'detail' && selectedAlbum
+            ? `${albumPhotos.length} / ${MAX_PHOTOS} foto`
+            : `${albums.length} album`}
         </div>
       </div>
       {confirmDialogEl}
-    </ModalWrapper>
+    </div>
   );
 }

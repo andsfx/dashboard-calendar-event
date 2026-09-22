@@ -398,8 +398,9 @@ button.wf-row:hover {
 /* ── Admin board: one system across every module ─────────────────────────── */
 
 /* The shared card surface is restyled into a ruled board so every admin module
- * reads as one system. Scoped to .wf-page (the admin shell) on purpose: the
- * public /tenant-survey form uses the same class and keeps its own look. */
+ * reads as one system. Scoped to .wf-page on purpose: the public /tenant-survey
+ * form uses the same card class and must keep its own look. Note the public
+ * /tenant-survey-results route DOES carry .wf-page — it is in scope by design. */
 .wf-page .ui-dashboard-surface,
 .wf-page .ui-dashboard-panel,
 .wf-page .ui-dashboard-card-padded {

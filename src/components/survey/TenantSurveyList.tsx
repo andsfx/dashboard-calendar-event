@@ -27,35 +27,35 @@ const STATUS_CONFIG = {
   draft: {
     label: 'Draft',
     icon: Clock,
-    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    dot: 'bg-amber-500',
+    color: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
+    dot: 'bg-[var(--wf-action)]',
   },
   submitted: {
     label: 'Terkirim',
     icon: CheckCircle,
-    color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-    dot: 'bg-emerald-500',
+    color: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
+    dot: 'bg-[var(--wf-accent)]',
   },
   reviewed: {
     label: 'Direview',
     icon: Eye,
-    color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300',
-    dot: 'bg-brand-primary-500',
+    color: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
+    dot: 'bg-[var(--wf-live)]',
   },
 } as const;
 
 const STATUS_TABS: Array<{ key: TenantSurveyStatus | 'all'; label: string; dot?: string }> = [
   { key: 'all', label: 'Semua' },
-  { key: 'draft', label: 'Draft', dot: 'bg-amber-500' },
-  { key: 'submitted', label: 'Terkirim', dot: 'bg-emerald-500' },
-  { key: 'reviewed', label: 'Direview', dot: 'bg-brand-primary-500' },
+  { key: 'draft', label: 'Draft', dot: 'bg-[var(--wf-action)]' },
+  { key: 'submitted', label: 'Terkirim', dot: 'bg-[var(--wf-accent)]' },
+  { key: 'reviewed', label: 'Direview', dot: 'bg-[var(--wf-live)]' },
 ];
 
 function ratingColor(n: number | null | undefined): string {
-  if (n == null) return 'text-slate-500';
-  if (n >= 4) return 'text-emerald-500';
-  if (n >= 3) return 'text-yellow-500';
-  return 'text-red-500';
+  if (n == null) return 'text-[var(--wf-ink-muted)]';
+  if (n >= 4) return 'text-[var(--wf-live)]';
+  if (n >= 3) return 'text-[var(--wf-action)]';
+  return 'text-red-700 dark:text-red-300';
 }
 
 function StatusBadge({ status }: { status: TenantSurveyStatus }) {
@@ -243,11 +243,11 @@ export default function TenantSurveyList({
       <div className="space-y-3 animate-pulse">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-2xl bg-slate-200 dark:bg-slate-700" />
+            <div key={i} className="h-20 rounded-2xl bg-[var(--wf-board-2)]" />
           ))}
         </div>
-        <div className="h-12 rounded-2xl bg-slate-200 dark:bg-slate-700" />
-        <div className="h-64 rounded-2xl bg-slate-200 dark:bg-slate-700" />
+        <div className="h-12 rounded-2xl bg-[var(--wf-board-2)]" />
+        <div className="h-64 rounded-2xl bg-[var(--wf-board-2)]" />
       </div>
     );
   }
@@ -282,13 +282,13 @@ export default function TenantSurveyList({
       <div className="ui-dashboard-surface p-3 sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari gerai, event, PIC, kategori…"
-              className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:text-slate-200"
+              className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
             />
           </div>
 
@@ -296,7 +296,7 @@ export default function TenantSurveyList({
             <button
               type="button"
               onClick={() => setShowEventPicker(!showEventPicker)}
-              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 sm:w-auto"
+              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] sm:w-auto"
             >
               <ClipboardCheck className="h-4 w-4" />
               Buat Self-Assessment
@@ -309,10 +309,10 @@ export default function TenantSurveyList({
                   value={eventQuery}
                   onChange={(e) => setEventQuery(e.target.value)}
                   placeholder="Cari event…"
-                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-200"
+                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
                 />
                 {availableEvents.length === 0 ? (
-                  <p className="px-3 py-2 text-xs ui-text-muted">
+                  <p className="px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
                     {eventQuery.trim()
                       ? `Tidak ada event cocok "${eventQuery}"`
                       : 'Tidak ada event tersedia untuk draft admin'}
@@ -328,10 +328,10 @@ export default function TenantSurveyList({
                           setShowEventPicker(false);
                           setEventQuery('');
                         }}
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
+                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--wf-board-2)]"
                       >
-                        <span className="flex-1 truncate text-slate-800 dark:text-slate-200">{ev.acara}</span>
-                        <span className="shrink-0 text-[10px] text-slate-500">
+                        <span className="flex-1 truncate text-[var(--wf-ink)]">{ev.acara}</span>
+                        <span className="shrink-0 text-[10px] text-[var(--wf-ink-muted)]">
                           {ev.status === 'past' ? 'past' : ev.status === 'ongoing' ? 'live' : ev.status}
                         </span>
                       </button>
@@ -362,21 +362,21 @@ export default function TenantSurveyList({
                 aria-pressed={statusFilter === tab.key}
                 className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                   statusFilter === tab.key
-                    ? 'bg-brand-primary-600 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                    : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
                 }`}
               >
                 {tab.dot && (
                   <span
-                    className={`h-2 w-2 rounded-full ${statusFilter === tab.key ? 'bg-white/80' : tab.dot}`}
+                    className={`h-2 w-2 rounded-full ${statusFilter === tab.key ? 'bg-[var(--wf-accent-ink)]/80' : tab.dot}`}
                   />
                 )}
                 {tab.label}
                 <span
                   className={`rounded-full px-1.5 text-[10px] tabular-nums ${
                     statusFilter === tab.key
-                      ? 'bg-white/20 text-white'
-: 'bg-[var(--brand-card-light)] ui-text-muted dark:bg-slate-800 '
+                      ? 'bg-[var(--wf-accent-ink)]/20 text-[var(--wf-accent-ink)]'
+                      : 'bg-[var(--wf-board)] text-[var(--wf-ink-muted)]'
                   }`}
                 >
                   {count}
@@ -388,11 +388,11 @@ export default function TenantSurveyList({
 
         {/* Secondary filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Filter className="h-3.5 w-3.5 text-slate-500" />
+          <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
           <select
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
-            className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
+            className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
           >
             <option value="all">Semua event</option>
             {eventsInData.map((ev) => (
@@ -406,7 +406,7 @@ export default function TenantSurveyList({
             <select
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
-              className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-primary-400 dark:text-slate-300"
+              className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
             >
               <option value="all">Semua kategori</option>
               {kategoriInData.map((k) => (
@@ -421,14 +421,14 @@ export default function TenantSurveyList({
             <button
               type="button"
               onClick={clearFilters}
-className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold ui-text-muted transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
             >
               <X className="h-3 w-3" />
               Reset filter
             </button>
           )}
 
-          <span className="ml-auto text-[11px] tabular-nums text-slate-500">
+          <span className="ml-auto text-[11px] tabular-nums text-[var(--wf-ink-muted)]">
             {filtered.length} dari {counts.total} response
           </span>
         </div>
@@ -442,25 +442,25 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
 
       {/* Empty */}
       {surveys.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
-          <ClipboardCheck className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm font-medium ui-text-muted">
+        <div className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8 text-center">
+          <ClipboardCheck className="mx-auto h-10 w-10 text-[var(--wf-ink-muted)]" />
+          <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
             Belum ada self-assessment
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+          <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
             Aktifkan form public per event, atau buat draft admin di atas
           </p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-600">
-          <Search className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
-          <p className="mt-2 text-sm font-medium ui-text-muted">
+        <div className="rounded-2xl border border-dashed border-[var(--wf-rule)] p-8 text-center">
+          <Search className="mx-auto h-8 w-8 text-[var(--wf-ink-muted)]" />
+          <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
             Tidak ada hasil filter
           </p>
           <button
             type="button"
             onClick={clearFilters}
-            className="mt-2 cursor-pointer text-xs font-semibold text-brand-primary-600 underline hover:no-underline dark:text-brand-primary-400"
+            className="mt-2 cursor-pointer text-xs font-semibold text-[var(--wf-accent)] underline hover:no-underline"
           >
             Reset filter
           </button>
@@ -479,24 +479,24 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-slate-800 dark:text-white">
+                      <p className="truncate text-sm font-bold text-[var(--wf-ink)]">
                         {tenantLabel(survey)}
                       </p>
-                      <p className="mt-0.5 truncate text-xs ui-text-muted">
+                      <p className="mt-0.5 truncate text-xs text-[var(--wf-ink-muted)]">
                         {ev?.acara || survey.event_id}
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1">
                       <StatusBadge status={survey.status} />
                       {v3 && (
-                        <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="rounded-full bg-[var(--wf-accent-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">
                           Publik
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ui-text-muted">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--wf-ink-muted)]">
                     {v3 ? (
                       <>
                         {survey.kategori && (
@@ -554,7 +554,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
-<tr className="ui-dashboard-muted border-b border-black/[0.04] text-[11px] font-semibold uppercase tracking-wide ui-text-muted dark:border-slate-700 ">
+<tr className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
                     <th className="px-4 py-3">Gerai / Tenant</th>
                     <th className="px-4 py-3">Event</th>
                     <th className="px-4 py-3">Impact</th>
@@ -563,21 +563,21 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     <th className="px-4 py-3 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                <tbody className="divide-y divide-[var(--wf-rule)]">
                   {pageItems.map((survey) => {
                     const ev = eventMap.get(survey.event_id);
                     const v3 = isV3Survey(survey);
                     return (
                       <tr
                         key={survey.id}
-                        className="group transition-colors hover:bg-brand-primary-50/40 dark:hover:bg-brand-primary-950/20"
+                        className="group transition-colors hover:bg-[var(--wf-board-2)]"
                       >
                         <td className="px-4 py-3">
                           <div className="min-w-0">
-                            <p className="truncate font-semibold text-slate-800 dark:text-slate-100">
+                            <p className="truncate font-semibold text-[var(--wf-ink)]">
                               {tenantLabel(survey)}
                             </p>
-                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] ui-text-muted">
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                               {v3 ? (
                                 <>
                                   {survey.lokasi_zona && (
@@ -616,20 +616,20 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="max-w-[14rem] truncate text-slate-700 dark:text-slate-300">
+                          <p className="max-w-[14rem] truncate text-[var(--wf-ink)]">
                             {ev?.acara || survey.event_id}
                           </p>
-                          <p className="text-[11px] text-slate-500">{ev?.dateStr || '-'}</p>
+                          <p className="text-[11px] text-[var(--wf-ink-muted)]">{ev?.dateStr || '-'}</p>
                         </td>
                         <td className="px-4 py-3">
                           {v3 ? (
                             <div className="space-y-0.5 text-[11px]">
-                              <p className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                                <TrendingUp className="h-3 w-3 text-slate-500" />
+                              <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
+                                <TrendingUp className="h-3 w-3 text-[var(--wf-ink-muted)]" />
                                 {survey.kenaikan_traffic || '-'}
                               </p>
-                              <p className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                                <DollarSign className="h-3 w-3 text-slate-500" />
+                              <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
+                                <DollarSign className="h-3 w-3 text-[var(--wf-ink-muted)]" />
                                 {survey.kenaikan_sales || '-'}
                               </p>
                             </div>
@@ -644,13 +644,13 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                           <div className="flex flex-col items-start gap-1">
                             <StatusBadge status={survey.status} />
                             {v3 && (
-                              <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                              <span className="rounded-full bg-[var(--wf-accent-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">
                                 Publik
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-xs tabular-nums ui-text-muted">
+                        <td className="px-4 py-3 text-xs tabular-nums text-[var(--wf-ink-muted)]">
                           {formatShortDate(survey.submitted_at || survey.created_at)}
                         </td>
                         <td className="px-4 py-3">
@@ -680,10 +680,10 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 dark:border-slate-700">
-                <p className="text-xs ui-text-muted">
+              <div className="flex items-center justify-between border-t border-[var(--wf-rule)] px-4 py-3">
+                <p className="text-xs text-[var(--wf-ink-muted)]">
                   Halaman {safePage} / {totalPages}
-                  <span className="ml-1 text-slate-500">
+                  <span className="ml-1 text-[var(--wf-ink-muted)]">
                     · {(safePage - 1) * PAGE_SIZE + 1}-{Math.min(safePage * PAGE_SIZE, filtered.length)} dari{' '}
                     {filtered.length}
                   </span>
@@ -693,7 +693,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     type="button"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                     Sebelum
@@ -702,7 +702,7 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                     type="button"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Berikut
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -719,19 +719,19 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                 type="button"
                 disabled={safePage <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-3 py-2 text-xs font-semibold text-[var(--wf-ink-muted)] disabled:opacity-40"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Sebelum
               </button>
-              <span className="text-xs tabular-nums ui-text-muted">
+              <span className="text-xs tabular-nums text-[var(--wf-ink-muted)]">
                 {safePage} / {totalPages}
               </span>
               <button
                 type="button"
                 disabled={safePage >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-3 py-2 text-xs font-semibold text-[var(--wf-ink-muted)] disabled:opacity-40"
               >
                 Berikut
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -756,19 +756,19 @@ function KpiCard({
   accent?: 'slate' | 'amber' | 'emerald' | 'brand';
 }) {
   const iconColor = {
-    slate: 'text-brand-primary-500 dark:text-brand-primary-400',
-    amber: 'text-amber-500',
-    emerald: 'text-emerald-500',
-    brand: 'text-brand-primary-500 dark:text-brand-primary-400',
+    slate: 'text-[var(--wf-accent)]',
+    amber: 'text-[var(--wf-action)]',
+    emerald: 'text-[var(--wf-live)]',
+    brand: 'text-[var(--wf-accent)]',
   }[accent];
 
   return (
     <div className="ui-dashboard-surface p-3.5">
       <div className={`flex items-center gap-2 ${iconColor}`}>
         {icon}
-        <span className="text-[11px] font-medium ui-text-muted">{label}</span>
+        <span className="text-[11px] font-medium text-[var(--wf-ink-muted)]">{label}</span>
       </div>
-      <p className="mt-1 text-2xl font-bold tabular-nums text-slate-800 dark:text-slate-100">{value}</p>
+      <p className="mt-1 text-2xl font-bold tabular-nums text-[var(--wf-ink)]">{value}</p>
     </div>
   );
 }
@@ -794,7 +794,7 @@ function ActionBtn({
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`inline-flex cursor-pointer items-center gap-1 rounded-lg bg-brand-primary-600 font-semibold text-white transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`inline-flex cursor-pointer items-center gap-1 rounded-lg bg-[var(--wf-accent)] font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50 ${
           compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
         }`}
       >
@@ -808,7 +808,7 @@ function ActionBtn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-300 font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 ${
+      className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-50 ${
         compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
       }`}
     >

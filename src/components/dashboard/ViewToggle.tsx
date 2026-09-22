@@ -41,7 +41,7 @@ export function ViewToggle({ tabs, viewMode, onSelect, panelId, className = '' }
     <div
       role="tablist"
       aria-label="Pilih tampilan jadwal"
-      className={`inline-flex max-w-full flex-wrap gap-0.5 rounded-[0.85rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-1 dark:border-slate-700 dark:bg-slate-800/60 ${className}`}
+      className={`inline-flex max-w-full flex-wrap gap-0.5 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-1 ${className}`}
     >
       {tabs.map(tab => {
         const active = viewMode === tab.key;
@@ -58,8 +58,8 @@ export function ViewToggle({ tabs, viewMode, onSelect, panelId, className = '' }
             onKeyDown={event => handleKeyDown(event, tabs.findIndex(item => item.key === tab.key))}
             className={`ui-focus-ring inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               active
-                ? 'bg-[var(--brand-card-light)] text-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:bg-slate-700 dark:text-slate-100 dark:shadow-none'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-100'
+                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
             }`}
           >
             {tab.icon}

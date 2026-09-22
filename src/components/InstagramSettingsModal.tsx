@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Save, Globe, Upload, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
+import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { uploadToR2 } from '../utils/api/albumsApi';
 import { apiPost } from '../lib/rest';
-import { ModalWrapper } from './ModalWrapper';
-import { ModalHeader } from './ui/ModalHeader';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   posts: string[];
   onSave: (posts: string[]) => Promise<boolean>;
   heroImageUrl?: string;
@@ -16,7 +12,7 @@ interface Props {
   readOnly?: boolean;
 }
 
-export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroImageUrl = '', onSaveHeroImage, readOnly = false }: Props) {
+export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSaveHeroImage, readOnly = false }: Props) {
   const [postUrls, setPostUrls] = useState<[string, string, string]>(['', '', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -26,20 +22,18 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
   const [syncResult, setSyncResult] = useState('');
   const heroFileRef = useRef<HTMLInputElement>(null);
 
-  // Reset form when modal opens
+  // Sinkronkan form dengan data tersimpan saat halaman dimuat / data berubah.
   useEffect(() => {
-    if (isOpen) {
-      setPostUrls([
-        posts[0] || '',
-        posts[1] || '',
-        posts[2] || '',
-      ]);
-      setHeroUrl(heroImageUrl);
-      setError('');
-      setIsSubmitting(false);
-      setHeroUploading(false);
-    }
-  }, [isOpen, posts, heroImageUrl]);
+    setPostUrls([
+      posts[0] || '',
+      posts[1] || '',
+      posts[2] || '',
+    ]);
+    setHeroUrl(heroImageUrl);
+    setError('');
+    setIsSubmitting(false);
+    setHeroUploading(false);
+  }, [posts, heroImageUrl]);
 
   const handleHeroUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) { setError('File harus berupa gambar'); return; }
@@ -88,170 +82,146 @@ export function InstagramSettingsModal({ isOpen, onClose, posts, onSave, heroIma
 
     setIsSubmitting(true);
     const trimmed = postUrls.map(u => u.trim());
-    const igSuccess = await onSave(trimmed);
-    const heroSuccess = onSaveHeroImage ? await onSaveHeroImage(heroUrl) : true;
-    if (igSuccess && heroSuccess) {
-      onClose();
-    }
+    await onSave(trimmed);
+    if (onSaveHeroImage) await onSaveHeroImage(heroUrl);
     setIsSubmitting(false);
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg" ariaLabelledBy="instagram-settings-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <ModalHeader
-          titleId="instagram-settings-title"
-          title="Landing Page Settings"
-          subtitle="Hero background & Instagram gallery"
-          icon={<Settings />}
-          onClose={onClose}
-          closeDisabled={isSubmitting}
-          closeAriaLabel="Tutup"
-        />
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
-          {/* Hero Background Image */}
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wide ui-text-muted">Hero Background</p>
-            {heroUrl ? (
-              <div className="relative overflow-hidden rounded-xl border border-[var(--border-subtle)] dark:border-slate-700">
-                <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                {!readOnly && <button
-                  type="button"
-                  onClick={handleRemoveHero}
-                  className="absolute right-2 top-2 rounded-lg bg-red-500/80 p-1.5 text-white transition-colors hover:bg-red-600"
-                  title="Hapus foto hero"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>}
-                <p className="absolute bottom-2 left-3 text-xs font-medium text-white/80">Hero background aktif</p>
-              </div>
-            ) : readOnly ? null : (
-              <button
+    <div className="space-y-4">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="ui-dashboard-surface space-y-3 p-4 sm:p-5">
+        {/* Hero Background Image */}
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Hero Background</p>
+          {heroUrl ? (
+            <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
+              <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
+              {!readOnly && <button
                 type="button"
-                onClick={() => heroFileRef.current?.click()}
-                disabled={heroUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-[var(--brand-card)] py-8 text-sm ui-text-muted transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-brand-primary-600"
+                onClick={handleRemoveHero}
+                className="absolute right-2 top-2 rounded-lg bg-red-600/10 p-1.5 text-red-700 transition-colors hover:bg-red-600/20 dark:text-red-300"
+                title="Hapus foto hero"
               >
-                {heroUploading ? (
-                  <span>Mengupload…</span>
-                ) : (
-                  <>
-                    <ImageIcon className="h-5 w-5" />
-                    <span>Upload foto hero background</span>
-                  </>
-                )}
-              </button>
-            )}
-            {!readOnly && <input
-              ref={heroFileRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f); e.target.value = ''; }}
-            />}
-            {heroUrl && !readOnly && (
-              <button
-                type="button"
-                onClick={() => heroFileRef.current?.click()}
-                disabled={heroUploading}
-                className="text-xs font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 disabled:opacity-60"
-              >
-                {heroUploading ? 'Mengupload…' : 'Ganti foto'}
-              </button>
-            )}
-          </div>
-
-          <div className="border-t border-slate-100 dark:border-slate-700" />
-
-          {/* Instagram Posts */}
-          <p className="text-xs font-bold uppercase tracking-wide ui-text-muted">Instagram Gallery</p>
-          {[0, 1, 2].map(i => (
-            <div key={i}>
-              <label htmlFor={`ig-post-${i}`} className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                <Globe className="h-3.5 w-3.5" />
-                Post {i + 1}:
-              </label>
-              <input
-                id={`ig-post-${i}`}
-                value={postUrls[i]}
-                onChange={e => setUrl(i, e.target.value)}
-                readOnly={readOnly}
-                placeholder="https://www.instagram.com/p/..."
-                className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 read-only:cursor-default read-only:opacity-70 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-              />
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>}
+              <p className="absolute bottom-2 left-3 rounded-md bg-black/50 px-1.5 py-0.5 text-xs font-medium text-white/90">Hero background aktif</p>
             </div>
-          ))}
-
-          <p className="text-xs text-slate-500 dark:text-slate-300">
-            Kosongkan field untuk sembunyikan post. URL harus dari instagram.com
-          </p>
-
-          {/* Sync Instagram Button */}
-          {!readOnly && <button
-            type="button"
-            disabled={isSyncing || postUrls.every(u => !u.trim())}
-            onClick={async () => {
-              const validUrls = postUrls.filter(u => u.trim() && u.includes('instagram.com'));
-              if (validUrls.length === 0) { setSyncResult('Tidak ada URL valid untuk di-sync'); return; }
-              setIsSyncing(true);
-              setSyncResult('');
-              try {
-                // POST /api/v1/instagram-sync → { success, data: { synced } } (staff).
-                const data = await apiPost<{ success: boolean; error?: string; data?: { synced: number } }>('/instagram-sync', {
-                  urls: validUrls,
-                });
-                if (data.success) {
-                  setSyncResult(`Berhasil sync ${data.data?.synced ?? validUrls.length} post! Image di-cache ke CDN.`);
-                } else {
-                  setSyncResult(`Gagal: ${data.error}`);
-                }
-              } catch (err) {
-                setSyncResult('Gagal terhubung ke server');
-              } finally {
-                setIsSyncing(false);
-              }
-            }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
-          >
-            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
-          </button>}
-          {syncResult && (
-            <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'}`}>
-              {syncResult}
-            </p>
-          )}
-
-          {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-900/20 dark:text-red-400">
-              {error}
-            </p>
-          )}
-
-          {/* Actions */}
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          ) : readOnly ? null : (
             <button
               type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              onClick={() => heroFileRef.current?.click()}
+              disabled={heroUploading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)] py-8 text-sm text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] disabled:opacity-60"
             >
-              {readOnly ? 'Tutup' : 'Batal'}
+              {heroUploading ? (
+                <span>Mengupload…</span>
+              ) : (
+                <>
+                  <ImageIcon className="h-5 w-5" />
+                  <span>Upload foto hero background</span>
+                </>
+              )}
             </button>
-            {!readOnly && <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+          )}
+          {!readOnly && <input
+            ref={heroFileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f); e.target.value = ''; }}
+          />}
+          {heroUrl && !readOnly && (
+            <button
+              type="button"
+              onClick={() => heroFileRef.current?.click()}
+              disabled={heroUploading}
+              className="text-xs font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)] disabled:opacity-60"
             >
-              <Save className="h-4 w-4" />
-              {isSubmitting ? 'Menyimpan…' : 'Simpan'}
-            </button>}
+              {heroUploading ? 'Mengupload…' : 'Ganti foto'}
+            </button>
+          )}
+        </div>
+
+        <div className="border-t border-[var(--wf-rule)]" />
+
+        {/* Instagram Posts */}
+        <p className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Instagram Gallery</p>
+        {[0, 1, 2].map(i => (
+          <div key={i}>
+            <label htmlFor={`ig-post-${i}`} className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+              <Globe className="h-3.5 w-3.5" />
+              Post {i + 1}:
+            </label>
+            <input
+              id={`ig-post-${i}`}
+              value={postUrls[i]}
+              onChange={e => setUrl(i, e.target.value)}
+              readOnly={readOnly}
+              placeholder="https://www.instagram.com/p/..."
+              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent)]/20 read-only:cursor-default read-only:opacity-70"
+            />
           </div>
-        </form>
-      </div>
-    </ModalWrapper>
+        ))}
+
+        <p className="text-xs text-[var(--wf-ink-muted)]">
+          Kosongkan field untuk sembunyikan post. URL harus dari instagram.com
+        </p>
+
+        {/* Sync Instagram Button */}
+        {!readOnly && <button
+          type="button"
+          disabled={isSyncing || postUrls.every(u => !u.trim())}
+          onClick={async () => {
+            const validUrls = postUrls.filter(u => u.trim() && u.includes('instagram.com'));
+            if (validUrls.length === 0) { setSyncResult('Tidak ada URL valid untuk di-sync'); return; }
+            setIsSyncing(true);
+            setSyncResult('');
+            try {
+              // POST /api/v1/instagram-sync → { success, data: { synced } } (staff).
+              const data = await apiPost<{ success: boolean; error?: string; data?: { synced: number } }>('/instagram-sync', {
+                urls: validUrls,
+              });
+              if (data.success) {
+                setSyncResult(`Berhasil sync ${data.data?.synced ?? validUrls.length} post! Image di-cache ke CDN.`);
+              } else {
+                setSyncResult(`Gagal: ${data.error}`);
+              }
+            } catch (err) {
+              setSyncResult('Gagal terhubung ke server');
+            } finally {
+              setIsSyncing(false);
+            }
+          }}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 py-2.5 text-sm font-medium text-[var(--wf-live)] transition-colors hover:bg-[var(--wf-live)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
+        </button>}
+        {syncResult && (
+          <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>
+            {syncResult}
+          </p>
+        )}
+
+        {error && (
+          <p className="rounded-lg bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+            {error}
+          </p>
+        )}
+
+        {/* Actions */}
+        {!readOnly && <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            <Save className="h-4 w-4" />
+            {isSubmitting ? 'Menyimpan…' : 'Simpan'}
+          </button>
+        </div>}
+      </form>
+    </div>
   );
 }

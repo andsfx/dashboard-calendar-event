@@ -62,11 +62,11 @@ const TYPE_SPECIFIC_LABELS: Record<string, string> = {
 
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 dark:bg-slate-700/40 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/60">
-      <div className="mt-0.5 shrink-0 text-slate-500">{icon}</div>
+    <div className="flex items-start gap-3 rounded-xl bg-[var(--wf-board-2)] p-3.5 transition-colors hover:bg-[var(--wf-board)]">
+      <div className="mt-0.5 shrink-0 text-[var(--wf-ink-muted)]">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
-        <p className="mt-0.5 text-sm font-medium text-slate-800 dark:text-white break-words">{value || '-'}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">{label}</p>
+        <p className="mt-0.5 text-sm font-medium text-[var(--wf-ink)] break-words">{value || '-'}</p>
       </div>
     </div>
   );
@@ -74,10 +74,10 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
 
 function StatusBadge({ status }: { status: RegistrationStatus }) {
   const map: Record<RegistrationStatus, { bg: string; text: string; label: string }> = {
-    pending: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', label: 'Menunggu' },
-    reviewed: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', label: 'Direview' },
-    approved: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Disetujui' },
-    rejected: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'Ditolak' },
+    pending: { bg: 'bg-[var(--wf-action)]/10', text: 'text-[var(--wf-action)]', label: 'Menunggu' },
+    reviewed: { bg: 'bg-[var(--wf-accent-soft)]', text: 'text-[var(--wf-accent)]', label: 'Direview' },
+    approved: { bg: 'bg-[var(--wf-live)]/10', text: 'text-[var(--wf-live)]', label: 'Disetujui' },
+    rejected: { bg: 'bg-red-600/10', text: 'text-red-700 dark:text-red-300', label: 'Ditolak' },
   };
   const s = map[status] ?? map.pending;
   return (
@@ -145,26 +145,26 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-2xl" ariaLabelledBy="reg-detail-title">
-      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="rounded-[var(--wf-radius-board)] bg-[var(--wf-board)] overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="relative shrink-0 border-b border-slate-100 bg-brand-primary-50 px-4 py-4 sm:px-6 dark:border-slate-700 dark:bg-brand-primary-950/30">
+        <div className="relative shrink-0 border-b border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] px-4 py-4 sm:px-6">
           <button
             onClick={onClose}
-            className="absolute right-4 top-3 rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/70 hover:text-slate-700 dark:hover:bg-slate-700"
+            className="absolute right-4 top-3 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
           </button>
 
           <div className="flex items-center gap-3 pr-8 sm:pr-10">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary-600 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]">
               <Users className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <h2 id="reg-detail-title" className="font-bold text-slate-800 dark:text-white">
+              <h2 id="reg-detail-title" className="font-bold text-[var(--wf-ink)]">
                 Detail Pendaftaran
               </h2>
-              <p className="truncate text-xs text-slate-500 dark:text-slate-300">{registration.organizationName || registration.communityName}</p>
+              <p className="truncate text-xs text-[var(--wf-ink-muted)]">{registration.organizationName || registration.communityName}</p>
             </div>
           </div>
         </div>
@@ -173,30 +173,30 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         <div className="overflow-y-auto flex-1 px-4 py-5 sm:px-6 space-y-4">
           {/* Info Grid */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <InfoItem icon={<Users className="h-4 w-4 text-brand-primary-500" />} label="Nama Organisasi" value={registration.organizationName || registration.communityName} />
-            <InfoItem icon={<FileText className="h-4 w-4 text-blue-500" />} label="Tipe Organisasi" value={ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType] || registration.communityType} />
-            <InfoItem icon={<Users className="h-4 w-4 text-amber-500" />} label="PIC" value={registration.pic} />
-            <InfoItem icon={<Phone className="h-4 w-4 text-emerald-500" />} label="Nomor WhatsApp" value={registration.phone} />
+            <InfoItem icon={<Users className="h-4 w-4 text-[var(--wf-accent)]" />} label="Nama Organisasi" value={registration.organizationName || registration.communityName} />
+            <InfoItem icon={<FileText className="h-4 w-4 text-[var(--wf-accent)]" />} label="Tipe Organisasi" value={ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType] || registration.communityType} />
+            <InfoItem icon={<Users className="h-4 w-4 text-[var(--wf-action)]" />} label="PIC" value={registration.pic} />
+            <InfoItem icon={<Phone className="h-4 w-4 text-[var(--wf-live)]" />} label="Nomor WhatsApp" value={registration.phone} />
             {registration.email && (
-              <InfoItem icon={<Mail className="h-4 w-4 text-red-500" />} label="Email" value={registration.email} />
+              <InfoItem icon={<Mail className="h-4 w-4 text-red-600 dark:text-red-400" />} label="Email" value={registration.email} />
             )}
             {registration.instagram && (
-              <InfoItem icon={<Globe className="h-4 w-4 text-pink-500" />} label="Instagram" value={registration.instagram} />
+              <InfoItem icon={<Globe className="h-4 w-4 text-[var(--wf-ink-muted)]" />} label="Instagram" value={registration.instagram} />
             )}
             {registration.preferredDate && (
-              <InfoItem icon={<Calendar className="h-4 w-4 text-cyan-500" />} label="Preferensi Tanggal" value={registration.preferredDate} />
+              <InfoItem icon={<Calendar className="h-4 w-4 text-[var(--wf-ink-muted)]" />} label="Preferensi Tanggal" value={registration.preferredDate} />
             )}
           </div>
           {registration.proposalFileUrl && (
-            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
                 <FileText className="h-3 w-3" /> Lampiran Proposal
               </p>
               <a
                 href={registration.proposalFileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex max-w-full items-center gap-2 text-sm font-semibold text-brand-primary-600 hover:underline dark:text-brand-primary-400"
+                className="inline-flex max-w-full items-center gap-2 text-sm font-semibold text-[var(--wf-accent)] hover:underline"
               >
                 <ExternalLink className="h-4 w-4 shrink-0" />
                 <span className="truncate">{registration.proposalFileName || 'Buka file proposal'}</span>
@@ -206,8 +206,8 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Type-Specific Data */}
           {registration.typeSpecificData && Object.keys(registration.typeSpecificData).length > 0 && (
-            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+              <p className="mb-2.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
                 <FileText className="h-3 w-3" /> Detail {ORG_TYPE_LABELS[(registration.organizationType || 'community') as OrganizationType]}
               </p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -215,9 +215,9 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                   if (!value && value !== 0) return null;
                   const label = TYPE_SPECIFIC_LABELS[key] || key;
                   return (
-                    <div key={key} className="rounded-lg bg-white p-2.5 dark:bg-slate-800">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
-                      <p className="mt-0.5 text-sm font-medium text-slate-700 dark:text-slate-200">{String(value)}</p>
+                    <div key={key} className="rounded-lg bg-[var(--wf-board)] p-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">{label}</p>
+                      <p className="mt-0.5 text-sm font-medium text-[var(--wf-ink)]">{String(value)}</p>
                     </div>
                   );
                 })}
@@ -227,25 +227,25 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Deskripsi */}
           {registration.description && (
-            <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+              <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
                 <FileText className="h-3 w-3" /> Deskripsi
               </p>
-              <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{registration.description}</p>
+              <p className="text-sm text-[var(--wf-ink)] leading-relaxed whitespace-pre-wrap">{registration.description}</p>
             </div>
           )}
 
           {/* Current Status */}
-          <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
               Status Saat Ini
             </p>
             <StatusBadge status={registration.status} />
           </div>
 
           {/* Admin Notes */}
-          <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <label htmlFor="reg-admin-note" className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+            <label htmlFor="reg-admin-note" className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
               <FileText className="h-3 w-3" /> Catatan Admin
             </label>
             <textarea
@@ -254,20 +254,20 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               onChange={e => setAdminNote(e.target.value)}
               rows={3}
               placeholder="Tambahkan catatan admin…"
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
+              className="w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--wf-accent)]/20"
             />
           </div>
 
           {/* WhatsApp Template */}
-          {!readOnly && <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          {!readOnly && <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
               <MessageCircle className="h-3 w-3" /> Template WhatsApp
             </p>
 
             <select
               value={waTemplate}
               onChange={e => setWaTemplate(e.target.value)}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+              className="mb-3 w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--wf-accent)]/20"
             >
               <option value="reviewed">Direview</option>
               <option value="approved">Disetujui</option>
@@ -279,12 +279,12 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               value={waMessage}
               onChange={e => { setWaMessage(e.target.value); if (waTemplate !== 'custom') setWaTemplate('custom'); }}
               rows={5}
-              className="mb-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-400/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500 dark:focus:border-brand-primary-500"
+              className="mb-3 w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--wf-accent)]/20"
             />
 
             <button
               onClick={handleSendWhatsApp}
-              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-emerald-600 active:scale-95"
+              className="flex items-center gap-2 rounded-xl bg-[var(--wf-live)] px-4 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:opacity-90 active:scale-95"
             >
               <Send className="h-4 w-4" /> Kirim via WhatsApp
             </button>
@@ -292,7 +292,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
         </div>
 
         {/* Footer actions */}
-        <div className="flex flex-col gap-2 border-t border-slate-100 px-4 py-4 dark:border-slate-700 sm:flex-row sm:items-center sm:px-6 shrink-0">
+        <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6 shrink-0">
           {!readOnly && onCreateEvent && registration?.status === 'approved' && (
             <button
               onClick={() => {
@@ -302,7 +302,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
                 }
               }}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-brand-primary-200 bg-brand-primary-50 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-100 active:scale-95 disabled:opacity-50 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:text-brand-primary-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:opacity-90 active:scale-95 disabled:opacity-50"
             >
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
             </button>
@@ -311,7 +311,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <button
               onClick={() => handleStatusChange('reviewed')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 py-2.5 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 active:scale-95 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:opacity-90 active:scale-95 disabled:opacity-50"
             >
               <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tandai Direview'}
             </button>
@@ -320,7 +320,7 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <button
               onClick={() => handleStatusChange('approved')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 active:scale-95 disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-live)]/10 py-2.5 text-sm font-semibold text-[var(--wf-live)] transition-colors hover:opacity-90 active:scale-95 disabled:opacity-50"
             >
               <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Setujui'}
             </button>
@@ -329,14 +329,14 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
             <button
               onClick={() => handleStatusChange('rejected')}
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 active:scale-95 disabled:opacity-50 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-600/10 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:opacity-90 active:scale-95 disabled:opacity-50 dark:border-red-800 dark:text-red-300"
             >
               <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tolak'}
             </button>
           )}
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
           >
             Tutup
           </button>

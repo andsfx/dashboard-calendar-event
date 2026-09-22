@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Download, Eye, EyeOff, Save, Share2, X } from 'lucide-react';
 import { LetterRequestItem, GeneratedLetter, EventItem, DraftEventItem } from '../types';
-import { ModalWrapper } from './ModalWrapper';
 import { EditableText, EditableArea } from './ui/Editable';
 import { downloadLetterPdf, openLetterPdfPreview, renderLetterPdfBase64 } from '../utils/letterPdfExport';
 import { fetchGeneratedLetters, createGeneratedLetter, updateGeneratedLetter } from '../utils/domainApi';
 import { useToast } from '../hooks/useToast';
 
 interface Props {
-  isOpen: boolean;
+  /** Warisan modal: kini opsional — komponen dirender sebagai isi halaman. */
+  isOpen?: boolean;
   onClose: () => void;
   event?: EventItem | null;
   draftEvent?: DraftEventItem | null;
@@ -30,7 +30,7 @@ const EMPTY_LETTER: LetterRequestItem = {
   waktuLoading: '',
 };
 
-export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
+export function LetterGenerator({ onClose, event, draftEvent }: Props) {
   const [letter, setLetter] = useState<LetterRequestItem>(EMPTY_LETTER);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
@@ -39,8 +39,6 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
 
   // Initialize letter data from event/draftEvent
   useEffect(() => {
-    if (!isOpen) return;
-
     const today = new Date().toISOString().split('T')[0] || '';
     
     // Start with empty letter
@@ -84,11 +82,9 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
     setLetter(initialLetter);
     setIsPreviewMode(false);
     setGeneratedLetter(null);
-  }, [isOpen, event, draftEvent]);
+  }, [event, draftEvent]);
 
   const handleSave = async () => {
-    if (!isOpen) return;
-    
     try {
       setIsLoading(true);
       
@@ -201,73 +197,65 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
     return JSON.stringify(letter) !== JSON.stringify(initialLetter);
   }, [letter, event, draftEvent]);
 
-  if (!isOpen) return null;
-
   return (
-    <ModalWrapper
-      isOpen={isOpen}
-      onClose={onClose}
-      maxWidth="max-w-4xl"
-      ariaLabel="Editor Surat Konfirmasi Event"
-    >
-      <div className="flex h-[90vh] flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Editor Surat Konfirmasi Event
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              {event ? `Event: ${event.acara}` : draftEvent ? `Draft: ${draftEvent.acara}` : 'Surat Baru'}
-            </p>
-          </div>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsPreviewMode(!isPreviewMode)}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isPreviewMode
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800/50'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-              }`}
-            >
-              {isPreviewMode ? <EyeOff size={16} /> : <Eye size={16} />}
-              {isPreviewMode ? 'Ubah' : 'Pratinjau'}
-            </button>
-            
-            <button
-              onClick={onClose}
-              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
-              aria-label="Tutup editor"
-            >
-              <X size={20} />
-            </button>
-          </div>
+    <div className="flex flex-col gap-4">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-[var(--wf-ink-muted)]">
+            {event ? `Event: ${event.acara}` : draftEvent ? `Draft: ${draftEvent.acara}` : 'Surat Baru'}
+          </p>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setIsPreviewMode(!isPreviewMode)}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              isPreviewMode
+                ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] hover:opacity-90'
+                : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
+            }`}
+          >
+            {isPreviewMode ? <EyeOff size={16} /> : <Eye size={16} />}
+            {isPreviewMode ? 'Ubah' : 'Pratinjau'}
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-3 py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
+            aria-label="Tutup editor"
+          >
+            <X size={18} />
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col">
 
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Editor/Preview Panel */}
           <div className="flex flex-1 flex-col overflow-auto p-6">
             {isPreviewMode ? (
-              <div className="flex h-full items-start justify-center overflow-auto bg-slate-100 dark:bg-slate-800 p-4 sm:p-8">
-                <div className="w-full max-w-[210mm] rounded-lg bg-white shadow-xl dark:bg-white">
+              <div className="flex h-full items-start justify-center overflow-auto bg-[var(--wf-board-2)] p-4 sm:p-8">
+                <div className="w-full max-w-[210mm] rounded-lg bg-[var(--wf-board)] shadow-xl">
                   {/* Halaman surat */}
                   <div className="mx-auto p-8 sm:p-12 md:p-16" style={{ fontFamily: 'Times New Roman, serif' }}>
                     {/* Kop Surat */}
-                    <div className="border-b-2 border-slate-900 pb-3 mb-6">
+                    <div className="border-b-2 border-[var(--wf-ink)] pb-3 mb-6">
                       <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded bg-slate-800 text-white text-xl font-bold shrink-0">
+                        <div className="flex h-14 w-14 items-center justify-center rounded bg-[var(--wf-ink)] text-[var(--wf-board)] text-xl font-bold shrink-0">
                           M
                         </div>
                         <div>
-                          <h1 className="text-base font-bold text-slate-900" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          <div className="text-base font-bold text-[var(--wf-ink)]" style={{ fontFamily: 'Times New Roman, serif' }}>
                             METROPOLITAN MALL BEKASI
-                          </h1>
-                          <p className="text-[10px] font-semibold text-slate-700">
+                          </div>
+                          <p className="text-[10px] font-semibold text-[var(--wf-ink)]">
                             Marketing &amp; Tenant Relations Division
                           </p>
-                          <p className="text-[9px] text-slate-500 leading-tight mt-0.5">
+                          <p className="text-[9px] text-[var(--wf-ink-muted)] leading-tight mt-0.5">
                             Jl. KH. Noer Ali No.1, Pekayon Jaya, Bekasi Selatan<br />
                             Telp. (021) 8243 7000
                           </p>
@@ -278,29 +266,29 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     {/* Meta surat */}
                     <div className="text-[11px] mb-4 space-y-1">
                       <div className="flex">
-                        <span className="w-16 text-slate-500">Nomor</span>
-                        <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.nomorSurat || <span className="italic text-slate-500">-</span>}</span>
+                        <span className="w-16 text-[var(--wf-ink-muted)]">Nomor</span>
+                        <span className="w-3 text-[var(--wf-ink-muted)]">:</span>
+                        <span className="font-semibold text-[var(--wf-ink)]">{letter.nomorSurat || <span className="italic text-[var(--wf-ink-muted)]">-</span>}</span>
                       </div>
                       <div className="flex">
-                        <span className="w-16 text-slate-500">Tanggal</span>
-                        <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">{letter.tanggalSurat || <span className="italic text-slate-500">-</span>}</span>
+                        <span className="w-16 text-[var(--wf-ink-muted)]">Tanggal</span>
+                        <span className="w-3 text-[var(--wf-ink-muted)]">:</span>
+                        <span className="font-semibold text-[var(--wf-ink)]">{letter.tanggalSurat || <span className="italic text-[var(--wf-ink-muted)]">-</span>}</span>
                       </div>
                       <div className="flex">
-                        <span className="w-16 text-slate-500">Perihal</span>
-                        <span className="w-3 text-slate-500">:</span>
-                        <span className="font-semibold text-slate-900">Konfirmasi Pelaksanaan Event</span>
+                        <span className="w-16 text-[var(--wf-ink-muted)]">Perihal</span>
+                        <span className="w-3 text-[var(--wf-ink-muted)]">:</span>
+                        <span className="font-semibold text-[var(--wf-ink)]">Konfirmasi Pelaksanaan Event</span>
                       </div>
                     </div>
 
                     {/* Kepada */}
                     <div className="text-[11px] mb-5">
                       <p className="font-semibold">Kepada Yth.</p>
-                      <p className="font-semibold">{letter.namaEO || <span className="italic text-slate-500">-</span>}</p>
-                      {letter.penanggungJawab && <p className="text-slate-600">u.p. {letter.penanggungJawab}</p>}
-                      {letter.alamatEO && <p className="text-slate-600">{letter.alamatEO}</p>}
-                      {letter.nomorTelepon && <p className="text-slate-600">Telp. {letter.nomorTelepon}</p>}
+                      <p className="font-semibold">{letter.namaEO || <span className="italic text-[var(--wf-ink-muted)]">-</span>}</p>
+                      {letter.penanggungJawab && <p className="text-[var(--wf-ink-muted)]">u.p. {letter.penanggungJawab}</p>}
+                      {letter.alamatEO && <p className="text-[var(--wf-ink-muted)]">{letter.alamatEO}</p>}
+                      {letter.nomorTelepon && <p className="text-[var(--wf-ink-muted)]">Telp. {letter.nomorTelepon}</p>}
                     </div>
 
                     {/* Body */}
@@ -313,19 +301,19 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                       </p>
 
                       {/* Data event box */}
-                      <div className="border-l-4 border-cyan-600 bg-cyan-50 py-2 pl-3 pr-2 space-y-1 text-[10px]">
-                        <p className="font-bold text-slate-800 text-[10px] uppercase tracking-wide">DATA EVENT</p>
-                        <div className="flex"><span className="w-36 text-slate-500">Nama Event</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.namaEvent}</span></div>
-                        <div className="flex"><span className="w-36 text-slate-500">Lokasi</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.lokasi}</span></div>
-                        <div className="flex"><span className="w-36 text-slate-500">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalPelaksanaan}</span></div>
-                        {letter.waktuPelaksanaan && <div className="flex"><span className="w-36 text-slate-500">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuPelaksanaan}</span></div>}
+                      <div className="border-l-4 border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] py-2 pl-3 pr-2 space-y-1 text-[10px]">
+                        <p className="font-bold text-[var(--wf-ink)] text-[10px] uppercase tracking-wide">DATA EVENT</p>
+                        <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Nama Event</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.namaEvent}</span></div>
+                        <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Lokasi</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.lokasi}</span></div>
+                        <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalPelaksanaan}</span></div>
+                        {letter.waktuPelaksanaan && <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuPelaksanaan}</span></div>}
 
                         {(letter.hariTanggalLoading || letter.waktuLoading) && (
                           <>
-                            <div className="border-t border-cyan-200 my-1.5" />
-                            <p className="font-bold text-slate-800 text-[10px] uppercase tracking-wide">JADWAL LOADING</p>
-                            {letter.hariTanggalLoading && <div className="flex"><span className="w-36 text-slate-500">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalLoading}</span></div>}
-                            {letter.waktuLoading && <div className="flex"><span className="w-36 text-slate-500">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuLoading}</span></div>}
+                            <div className="border-t border-[var(--wf-rule)] my-1.5" />
+                            <p className="font-bold text-[var(--wf-ink)] text-[10px] uppercase tracking-wide">JADWAL LOADING</p>
+                            {letter.hariTanggalLoading && <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Hari/Tanggal</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.hariTanggalLoading}</span></div>}
+                            {letter.waktuLoading && <div className="flex"><span className="w-36 text-[var(--wf-ink-muted)]">Waktu</span><span className="w-2">:</span><span className="font-semibold flex-1">{letter.waktuLoading}</span></div>}
                           </>
                         )}
                       </div>
@@ -340,12 +328,12 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     {/* Tanda tangan */}
                     <div className="flex justify-end mt-8">
                       <div className="text-center w-48">
-                        <p className="text-[10px] text-slate-500">Hormat kami,</p>
-                        <p className="text-[9px] text-slate-500 mt-1">Marketing Manager</p>
+                        <p className="text-[10px] text-[var(--wf-ink-muted)]">Hormat kami,</p>
+                        <p className="text-[9px] text-[var(--wf-ink-muted)] mt-1">Marketing Manager</p>
                         <div className="h-14" />
-                        <div className="border-t border-slate-800 pt-1">
-                          <p className="text-[11px] font-bold">{letter.penanggungJawab || <span className="italic text-slate-500">________________</span>}</p>
-                          <p className="text-[9px] text-slate-500">Metropolitan Mall Bekasi</p>
+                        <div className="border-t border-[var(--wf-ink)] pt-1">
+                          <p className="text-[11px] font-bold">{letter.penanggungJawab || <span className="italic text-[var(--wf-ink-muted)]">________________</span>}</p>
+                          <p className="text-[9px] text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
                         </div>
                       </div>
                     </div>
@@ -356,16 +344,17 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               <div className="space-y-6">
                 {/* Metadata Section */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                  <h3 className="text-lg font-semibold text-[var(--wf-ink)]">
                     Data Surat
                   </h3>
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="letter-tanggal-surat" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-surat" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Tanggal Surat *
                       </label>
-                      <EditableTextid="letter-tanggal-surat" 
+                      <EditableText
+id="letter-tanggal-surat" 
                         value={letter.tanggalSurat}
                         onChange={(value: string) => setLetter({ ...letter, tanggalSurat: value })}
                         placeholder="YYYY-MM-DD"
@@ -374,10 +363,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label htmlFor="letter-nomor-surat" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nomor-surat" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Nomor Surat *
                       </label>
-                      <EditableTextid="letter-nomor-surat" 
+                      <EditableText
+id="letter-nomor-surat" 
                         value={letter.nomorSurat}
                         onChange={(value: string) => setLetter({ ...letter, nomorSurat: value })}
                         placeholder="Nomor surat resmi"
@@ -389,16 +379,17 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
 
                 {/* EO & Event Section */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                  <h3 className="text-lg font-semibold text-[var(--wf-ink)]">
                     Data EO & Event
                   </h3>
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="letter-nama-eo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nama-eo" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Nama EO *
                       </label>
-                      <EditableTextid="letter-nama-eo" 
+                      <EditableText
+id="letter-nama-eo" 
                         value={letter.namaEO}
                         onChange={(value: string) => setLetter({ ...letter, namaEO: value })}
                         placeholder="Nama Event Organizer"
@@ -407,10 +398,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label htmlFor="letter-penanggung-jawab" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-penanggung-jawab" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Penanggung Jawab *
                       </label>
-                      <EditableTextid="letter-penanggung-jawab" 
+                      <EditableText
+id="letter-penanggung-jawab" 
                         value={letter.penanggungJawab}
                         onChange={(value: string) => setLetter({ ...letter, penanggungJawab: value })}
                         placeholder="Nama PIC/Contact Person"
@@ -420,10 +412,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   </div>
                   
                   <div>
-                    <label htmlFor="letter-alamat-eo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label htmlFor="letter-alamat-eo" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                       Alamat EO *
                     </label>
-                      <EditableAreaid="letter-alamat-eo" 
+                      <EditableArea
+id="letter-alamat-eo" 
                         value={letter.alamatEO}
                         onChange={(value: string) => setLetter({ ...letter, alamatEO: value })}
                         placeholder="Alamat lengkap Event Organizer"
@@ -434,10 +427,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="letter-nama-event" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-nama-event" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Nama Event *
                       </label>
-                      <EditableTextid="letter-nama-event" 
+                      <EditableText
+id="letter-nama-event" 
                         value={letter.namaEvent}
                         onChange={(value: string) => setLetter({ ...letter, namaEvent: value })}
                         placeholder="Nama acara/event"
@@ -446,10 +440,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label htmlFor="letter-lokasi" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-lokasi" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Lokasi *
                       </label>
-                      <EditableTextid="letter-lokasi" 
+                      <EditableText
+id="letter-lokasi" 
                         value={letter.lokasi}
                         onChange={(value: string) => setLetter({ ...letter, lokasi: value })}
                         placeholder="Lokasi pelaksanaan event"
@@ -460,10 +455,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="letter-tanggal-pelaksanaan" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-pelaksanaan" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Hari/Tanggal Pelaksanaan *
                       </label>
-                      <EditableTextid="letter-tanggal-pelaksanaan" 
+                      <EditableText
+id="letter-tanggal-pelaksanaan" 
                         value={letter.hariTanggalPelaksanaan}
                         onChange={(value: string) => setLetter({ ...letter, hariTanggalPelaksanaan: value })}
                         placeholder="Contoh: Sabtu, 15 Juni 2025"
@@ -472,10 +468,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label htmlFor="letter-waktu-pelaksanaan" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-waktu-pelaksanaan" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Waktu Pelaksanaan
                       </label>
-                      <EditableTextid="letter-waktu-pelaksanaan" 
+                      <EditableText
+id="letter-waktu-pelaksanaan" 
                         value={letter.waktuPelaksanaan}
                         onChange={(value: string) => setLetter({ ...letter, waktuPelaksanaan: value })}
                         placeholder="Contoh: 10:00 - 18:00"
@@ -485,10 +482,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                   </div>
                   
                   <div>
-                    <label htmlFor="letter-nomor-telepon" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label htmlFor="letter-nomor-telepon" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                       Nomor Telepon
                     </label>
-                    <EditableTextid="letter-nomor-telepon" 
+                    <EditableText
+id="letter-nomor-telepon" 
                       value={letter.nomorTelepon}
                         onChange={(value: string) => setLetter({ ...letter, nomorTelepon: value })}
                       placeholder="Nomor kontak EO"
@@ -499,16 +497,17 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
 
                 {/* Loading Section */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                  <h3 className="text-lg font-semibold text-[var(--wf-ink)]">
                     Jadwal Loading
                   </h3>
                   
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="letter-tanggal-bongkar" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-tanggal-bongkar" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Hari/Tanggal Bongkar Muat *
                       </label>
-                      <EditableTextid="letter-tanggal-bongkar" 
+                      <EditableText
+id="letter-tanggal-bongkar" 
                         value={letter.hariTanggalLoading}
                         onChange={(value: string) => setLetter({ ...letter, hariTanggalLoading: value })}
                         placeholder="Contoh: Jumat, 14 Juni 2025"
@@ -517,10 +516,11 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
                     </div>
                     
                     <div>
-                      <label htmlFor="letter-waktu-bongkar" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label htmlFor="letter-waktu-bongkar" className="block text-sm font-medium text-[var(--wf-ink-muted)] mb-1">
                         Waktu Bongkar Muat *
                       </label>
-                      <EditableTextid="letter-waktu-bongkar" 
+                      <EditableText
+id="letter-waktu-bongkar" 
                         value={letter.waktuLoading}
                         onChange={(value: string) => setLetter({ ...letter, waktuLoading: value })}
                         placeholder="Contoh: 08:00 - 10:00"
@@ -535,21 +535,21 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-slate-200 px-6 py-4 dark:border-slate-700">
+        <div className="border-t border-[var(--wf-rule)] px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm">
               {!hasRequiredFields && (
-                <span className="text-red-600 dark:text-red-400">
+                <span className="text-red-700 dark:text-red-300">
                   * Isi semua field yang wajib
                 </span>
               )}
               {isModified && !generatedLetter && (
-                <span className="text-amber-600 dark:text-amber-400">
+                <span className="text-[var(--wf-action)]">
                   Belum disimpan
                 </span>
               )}
               {generatedLetter && (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-[var(--wf-live)]">
                   Tersimpan ({new Date(generatedLetter.createdAt).toLocaleDateString('id-ID')})
                 </span>
               )}
@@ -559,7 +559,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               <button
                 onClick={handlePreview}
                 disabled={!hasRequiredFields}
-                className="flex items-center gap-2 rounded-lg bg-slate-600 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Eye size={16} />
                 Pratinjau
@@ -568,7 +568,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               <button
                 onClick={handleDownload}
                 disabled={!hasRequiredFields}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-[var(--wf-accent)] px-4 py-2 text-sm font-medium text-[var(--wf-accent-ink)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download size={16} />
                 Unduh PDF
@@ -577,7 +577,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               <button
                 onClick={handleSave}
                 disabled={!hasRequiredFields || !isModified}
-                className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-[var(--wf-live)] px-4 py-2 text-sm font-medium text-[var(--wf-accent-ink)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save size={16} />
                 Simpan
@@ -586,7 +586,7 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
               {generatedLetter && (
                 <button
                   onClick={handleShare}
-                  className="flex items-center gap-2 rounded-lg bg-brand-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary-700"
+                  className="flex items-center gap-2 rounded-lg bg-[var(--wf-accent)] px-4 py-2 text-sm font-medium text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)]"
                 >
                   <Share2 size={16} />
                   Bagikan
@@ -596,6 +596,6 @@ export function LetterGenerator({ isOpen, onClose, event, draftEvent }: Props) {
           </div>
         </div>
       </div>
-    </ModalWrapper>
+    </div>
   );
 }

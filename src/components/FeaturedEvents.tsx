@@ -3,18 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../types';
 import { CategoryBadges } from './CategoryBadges';
-import { CATEGORY_COLORS } from '../utils/eventUtils';
 
+/* Keyed by MEANING, not by colour name: "live" for what is running now,
+ * "action" for what is coming up. The callers previously passed
+ * accent="brand-primary", which was not a key here and silently fell back to
+ * amber -- so "Sedang Berlangsung" rendered the same amber as "Segera Dimulai".
+ */
 const ACCENT_STYLES = {
-  emerald: {
-    count: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-    link: 'text-emerald-600 dark:text-emerald-400',
-    border: 'border-emerald-200 dark:border-emerald-700/40',
+  live: {
+    count: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
+    link: 'text-[var(--wf-accent)]',
+    border: 'border-[var(--wf-rule)]',
   },
-  amber: {
-    count: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-    link: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-200 dark:border-amber-700/40',
+  action: {
+    count: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
+    link: 'text-[var(--wf-accent)]',
+    border: 'border-[var(--wf-rule)]',
   },
 } as const;
 
@@ -49,7 +53,7 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
   }, [dateStr]);
 
   return (
-    <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+    <span className="flex items-center gap-1 rounded-full bg-[var(--wf-action)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--wf-action)]">
       <Timer className="h-3 w-3" /> {diff}
     </span>
   );
@@ -60,7 +64,7 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
   if (events.length === 0) return null;
 
   const featured = events.slice(0, 3);
-  const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.amber;
+  const accentStyle = ACCENT_STYLES[accent as keyof typeof ACCENT_STYLES] ?? ACCENT_STYLES.action;
 
   // acara sering berisi akhiran "- {eo}" (nama + penyelenggara); tampilkan nama bersih di judul.
   const displayTitle = (ev: EventItem) => {
@@ -82,14 +86,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
     <div>
       <div className="mb-3 flex items-center gap-2">
         <span className="shrink-0">{icon}</span>
-        <h2 className="min-w-0 truncate font-display font-bold text-slate-800 dark:text-white">{title}</h2>
+        <h2 className="min-w-0 truncate font-display font-bold text-[var(--wf-ink)]">{title}</h2>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${accentStyle.count}`}>
           {events.length}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {featured.map(ev => {
-          const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
           const titleName = displayTitle(ev);
           return (
             <div
@@ -99,21 +102,15 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
               tabIndex={onDetail ? 0 : undefined}
               aria-label={onDetail ? `Lihat detail: ${titleName}` : undefined}
               onKeyDown={onDetail ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } } : undefined}
-              className={`relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 shadow-[var(--shadow-card-soft)] transition-shadow transition-transform hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-950' : ''} ${accentStyle.border}`}
+              className={`relative overflow-hidden rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 transition-colors hover:border-[var(--wf-rule-strong)] sm:p-5 ${onDetail ? 'cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] focus-visible:outline-none' : ''} ${accentStyle.border}`}
             >
-              {/* Glow bar */}
-              <div
-                className="absolute left-0 top-0 h-1 w-full"
-                style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
-              />
-
               <div className="mb-2.5 flex items-start justify-between gap-2">
                 <div className="flex flex-wrap gap-1.5">
                   <CategoryBadges categories={ev.categories} maxVisible={2} />
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-1.5">
                   {ev.status === 'ongoing' && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-[var(--wf-live)]">
                       <Zap className="h-3 w-3 animate-pulse" /> Live
                     </span>
                   )}
@@ -121,13 +118,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
                 </div>
               </div>
 
-              <h3 className="mb-3 font-bold text-slate-800 leading-snug dark:text-white line-clamp-2">{titleName}</h3>
+              <h3 className="mb-3 font-bold text-[var(--wf-ink)] leading-snug line-clamp-2">{titleName}</h3>
 
-              <div className="space-y-1.5 text-xs ui-text-muted">
+              <div className="space-y-1.5 text-xs text-[var(--wf-ink-muted)]">
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-3 w-3 shrink-0" />
                   <span className="line-clamp-1">{ev.tanggal}</span>
-                  {ev.jam && <span className="text-slate-500">- {ev.jam}</span>}
+                  {ev.jam && <span className="text-[var(--wf-ink-muted)]">- {ev.jam}</span>}
                 </div>
                 {ev.lokasi && (
                   <div className="flex items-center gap-1.5">
@@ -135,11 +132,11 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
                     <span className="line-clamp-1">{ev.lokasi}</span>
                   </div>
                 )}
-                {ev.eo && <p className="font-medium text-slate-600 dark:text-slate-300">Penyelenggara: {ev.eo}</p>}
+                {ev.eo && <p className="font-medium text-[var(--wf-ink-muted)]">Penyelenggara: {ev.eo}</p>}
               </div>
 
               {showKeterangan(ev) && (
-                <p className="mt-3 line-clamp-2 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700 pt-2">{ev.keterangan}</p>
+                <p className="mt-3 line-clamp-2 text-xs text-[var(--wf-ink-muted)] border-t border-[var(--wf-rule)] pt-2">{ev.keterangan}</p>
               )}
             </div>
           );

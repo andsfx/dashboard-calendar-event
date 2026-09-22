@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
@@ -12,6 +13,7 @@ import { DashboardStats } from './DashboardStats';
 import { CommandCenterSummary } from './CommandCenterSummary';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
+import { CONTENT_ROUTES } from './dashboardNavigation';
 
 const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: ReactNode }> = [
   { key: 'table',    label: 'Tabel',    icon: <List         className="h-3.5 w-3.5" strokeWidth={1.5} /> },
@@ -39,6 +41,14 @@ const TenantSurveyPage = lazy(() => import('../survey/TenantSurveyPage'));
 const UserManagement = lazy(() => import('../admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
+/* Modul konten — dulu modal, kini halaman pada rute /dashboard/content/*. */
+const InstagramSettingsModal = lazy(() => import('../InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
+const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
+const EventAreaManagerModal = lazy(() => import('../EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
+const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
+const SponsorManagerModal = lazy(() => import('../SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
+const EventLetterPickerModal = lazy(() => import('../EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
+const LetterGenerator = lazy(() => import('../LetterGenerator').then(m => ({ default: m.LetterGenerator })));
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] ${height}`} />;
@@ -110,7 +120,6 @@ export interface DashboardPageHandlers {
   handleEdit: (ev: EventItem) => void;
   handleAddDraft: () => void;
   handleEditDraft: (draft: DraftEventItem) => void;
-  handleOpenLetterPicker: () => void;
   handleAddTheme: () => void;
   handleEditTheme: (theme: AnnualTheme) => void;
   handleSaveTheme: (theme: AnnualTheme) => Promise<boolean>;
@@ -138,8 +147,6 @@ export interface DashboardPageModalState {
   showLoginModal: boolean;           setShowLoginModal: (v: boolean) => void;
   showCrudModal: boolean;            setShowCrudModal: (v: boolean) => void;
   showDraftModal: boolean;           setShowDraftModal: (v: boolean) => void;
-  showLetterPickerModal: boolean;    setShowLetterPickerModal: (v: boolean) => void;
-  showLetterModal: boolean;          setShowLetterModal: (v: boolean) => void;
   showDeleteModal: boolean;          setShowDeleteModal: (v: boolean) => void;
   showDetailModal: boolean;          setShowDetailModal: (v: boolean) => void;
   showDraftHistory: boolean;         setShowDraftHistory: React.Dispatch<React.SetStateAction<boolean>>;
@@ -169,11 +176,6 @@ export interface DashboardPageSiteSettings {
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
   eventAreas: EventArea[];
-  showInstagramSettings: boolean;  setShowInstagramSettings: (v: boolean) => void;
-  showAlbumManager: boolean;       setShowAlbumManager: (v: boolean) => void;
-  showNewsManager: boolean;        setShowNewsManager: (v: boolean) => void;
-  showSponsorManager: boolean;     setShowSponsorManager: (v: boolean) => void;
-  showEventAreaManager: boolean;   setShowEventAreaManager: (v: boolean) => void;
 }
 
 export interface DashboardPageProps {
@@ -185,7 +187,6 @@ export interface DashboardPageProps {
   onToggleDark: () => void;
   dashboardPath: string;
   publicSectionItems: SectionNavItem[];
-  onCloseContentPanel?: () => void;
   auth: DashboardPageAuth;
   events: DashboardPageEvents;
   drafts: DashboardPageDrafts;
@@ -204,10 +205,12 @@ export interface DashboardPageProps {
 export function DashboardPage({
   isAdmin, isLoading, permissions, canSeeInternalSchedule,
   isDark, onToggleDark, dashboardPath, publicSectionItems,
-  onCloseContentPanel,
   auth, events, drafts, exhibitions, filters, view,
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
+  const navigate = useNavigate();
+  /** Akun demo / tanpa izin kelola: halaman konten tampil tanpa aksi mutasi. */
+  const readOnly = !permissions.canManageSettings;
   const availableViewTabs = getAvailableViewTabs(permissions.canEditEvents);
   const organizationOptions = registrations.communityRegistrations
     .filter((r) => r.status === 'approved' && r.organizationName.trim())
@@ -222,12 +225,12 @@ export function DashboardPage({
       user={auth.user}
       isSuperadmin={auth.isSuperadmin}
       permissions={permissions}
-      onOpenInstagramSettings={() => siteSettings.setShowInstagramSettings(true)}
-      onOpenAlbumManager={() => siteSettings.setShowAlbumManager(true)}
-      onOpenNewsManager={() => siteSettings.setShowNewsManager(true)}
-      onOpenSponsorManager={() => siteSettings.setShowSponsorManager(true)}
-      onOpenEventAreaManager={() => siteSettings.setShowEventAreaManager(true)}
-      onOpenLetterPicker={handlers.handleOpenLetterPicker}
+      onOpenInstagramSettings={() => navigate(CONTENT_ROUTES['landing-page'])}
+      onOpenAlbumManager={() => navigate(CONTENT_ROUTES['album-gallery'])}
+      onOpenNewsManager={() => navigate(CONTENT_ROUTES['news'])}
+      onOpenSponsorManager={() => navigate(CONTENT_ROUTES['sponsorship'])}
+      onOpenEventAreaManager={() => navigate(CONTENT_ROUTES['event-areas'])}
+      onOpenLetterPicker={() => navigate(CONTENT_ROUTES['letter'])}
       onLoginClick={() => modalState.setShowLoginModal(true)}
       ongoingCount={events.visibleStats.ongoing}
       upcomingCount={events.visibleStats.upcoming}
@@ -250,13 +253,6 @@ export function DashboardPage({
           onSaveDraft={handlers.handleSaveDraft}
           editingDraft={modalData.editingDraft}
           draftEvents={drafts.draftEvents}
-          showLetterPickerModal={modalState.showLetterPickerModal}
-          onCloseLetterPickerModal={() => { modalState.setShowLetterPickerModal(false); onCloseContentPanel?.(); }}
-          publicEvents={events.publicEvents}
-          onSelectLetterEvent={handlers.handleSelectLetterEvent}
-          showLetterModal={modalState.showLetterModal}
-          onCloseLetterModal={() => { modalState.setShowLetterModal(false); modalData.setLetterEvent(null); }}
-          letterEvent={modalData.letterEvent}
           showThemeModal={modalState.showThemeModal}
           onCloseThemeModal={() => { modalState.setShowThemeModal(false); modalData.setEditingTheme(null); }}
           onSaveTheme={handlers.handleSaveTheme}
@@ -272,22 +268,6 @@ export function DashboardPage({
           onDelete={permissions.canDeleteEvents ? handlers.handleDeleteClick : undefined}
           onDeleteSeries={permissions.canDeleteEvents ? handlers.handleDeleteSeries : undefined}
           isAdmin={isAdmin}
-          showInstagramSettings={siteSettings.showInstagramSettings}
-          onCloseInstagramSettings={() => { siteSettings.setShowInstagramSettings(false); onCloseContentPanel?.(); }}
-          instagramPosts={siteSettings.instagramPosts}
-          onSaveInstagramPosts={handlers.handleSaveInstagramPosts}
-          heroImageUrl={siteSettings.heroImageUrl}
-          onSaveHeroImage={handlers.handleSaveHeroImage}
-          onCloseAlbumManager={() => { siteSettings.setShowAlbumManager(false); onCloseContentPanel?.(); }}
-          showAlbumManager={siteSettings.showAlbumManager}
-          showNewsManager={siteSettings.showNewsManager}
-          onCloseNewsManager={() => { siteSettings.setShowNewsManager(false); onCloseContentPanel?.(); }}
-          showSponsorManager={siteSettings.showSponsorManager}
-          onCloseSponsorManager={() => { siteSettings.setShowSponsorManager(false); onCloseContentPanel?.(); }}
-          showEventAreaManager={siteSettings.showEventAreaManager}
-          onCloseEventAreaManager={() => { siteSettings.setShowEventAreaManager(false); onCloseContentPanel?.(); }}
-          pastEvents={events.events.filter(e => e.status === 'past')}
-          annualThemes={events.annualThemes}
           showRegDetail={registrations.showRegDetail}
           onCloseRegDetail={() => { registrations.setShowRegDetail(false); registrations.setSelectedRegistration(null); }}
           selectedRegistration={registrations.selectedRegistration}
@@ -336,8 +316,8 @@ export function DashboardPage({
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             {dashboardPath !== '/events' && (
               <div>
-                <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Jadwal Event</h2>
-                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Kelola semua event dalam berbagai tampilan</p>
+                <h2 className="font-display text-xl font-bold text-[var(--wf-ink)]">Jadwal Event</h2>
+                <p className="mt-0.5 text-sm text-[var(--wf-ink-muted)]">Kelola semua event dalam berbagai tampilan</p>
               </div>
             )}
               <ViewToggle
@@ -449,12 +429,12 @@ export function DashboardPage({
         <section id="featured" className="space-y-4 scroll-mt-32 sm:space-y-5">
           {events.ongoingEvents.length > 0 && (
             <Suspense fallback={<SectionFallback height="h-40" />}>
-              <FeaturedEvents events={events.ongoingEvents} title="Sedang Berlangsung" accent="brand-primary" icon={<Radio className="h-4 w-4 animate-pulse text-brand-primary-500" />} onDetail={handlers.handleDetailClick} />
+              <FeaturedEvents events={events.ongoingEvents} title="Sedang Berlangsung" accent="live" icon={<Radio className="h-4 w-4 animate-pulse text-[var(--wf-live)]" />} onDetail={handlers.handleDetailClick} />
             </Suspense>
           )}
           {events.upcomingEvents.length > 0 && (
             <Suspense fallback={<SectionFallback height="h-40" />}>
-              <FeaturedEvents events={events.upcomingEvents.slice(0, 3)} title="Segera Dimulai" accent="amber" icon={<Clock3 className="h-4 w-4 text-amber-500" />} onDetail={handlers.handleDetailClick} />
+              <FeaturedEvents events={events.upcomingEvents.slice(0, 3)} title="Segera Dimulai" accent="action" icon={<Clock3 className="h-4 w-4 text-[var(--wf-action)]" />} onDetail={handlers.handleDetailClick} />
             </Suspense>
           )}
         </section>
@@ -471,8 +451,8 @@ export function DashboardPage({
       {!isAdmin && (
         <section id="calendar" className="space-y-3 scroll-mt-32">
           <div>
-            <h2 className="font-display text-base font-bold text-slate-900 dark:text-white">Kalender Event</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">Lihat semua event publik dalam tampilan kalender.</p>
+            <h2 className="font-display text-base font-bold text-[var(--wf-ink)]">Kalender Event</h2>
+            <p className="text-sm text-[var(--wf-ink-muted)]">Lihat semua event publik dalam tampilan kalender.</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
             <CalendarView events={events.publicEvents} holidays={events.holidays} onDetail={handlers.handleDetailClick} />
@@ -485,8 +465,8 @@ export function DashboardPage({
         <section id="views" className="scroll-mt-20">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">Daftar Acara</h2>
-              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">Jelajahi jadwal acara publik</p>
+              <h2 className="font-display text-xl font-bold text-[var(--wf-ink)]">Daftar Acara</h2>
+              <p className="mt-0.5 text-sm text-[var(--wf-ink-muted)]">Jelajahi jadwal acara publik</p>
             </div>
             <ViewToggle
               tabs={availableViewTabs}
@@ -567,6 +547,76 @@ export function DashboardPage({
         <section id="activity-log" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <ActivityLog />
+          </Suspense>
+        </section>
+      )}
+
+      {/* 11. Konten — satu rute per modul (dulu modal, kini halaman) */}
+      {permissions.canManageSettings && dashboardPath === '/content/landing' && (
+        <section id="content-landing" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <InstagramSettingsModal
+              posts={siteSettings.instagramPosts}
+              onSave={handlers.handleSaveInstagramPosts}
+              heroImageUrl={siteSettings.heroImageUrl}
+              onSaveHeroImage={handlers.handleSaveHeroImage}
+              readOnly={readOnly}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {permissions.canManageSettings && dashboardPath === '/content/galeri' && (
+        <section id="content-galeri" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <AlbumManagerModal
+              pastEvents={events.events.filter(e => e.status === 'past')}
+              annualThemes={events.annualThemes}
+              readOnly={readOnly}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {permissions.canManageSettings && dashboardPath === '/content/foto-area' && (
+        <section id="content-foto-area" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <EventAreaManagerModal readOnly={readOnly} />
+          </Suspense>
+        </section>
+      )}
+
+      {permissions.canManageSettings && dashboardPath === '/content/surat' && (
+        <section id="content-surat" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            {modalData.letterEvent ? (
+              <LetterGenerator
+                event={modalData.letterEvent}
+                onClose={() => modalData.setLetterEvent(null)}
+              />
+            ) : (
+              <EventLetterPickerModal
+                events={events.publicEvents}
+                onSelect={handlers.handleSelectLetterEvent}
+                onClose={() => navigate('/dashboard')}
+              />
+            )}
+          </Suspense>
+        </section>
+      )}
+
+      {permissions.canManageSettings && dashboardPath === '/content/berita' && (
+        <section id="content-berita" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <NewsManagerModal readOnly={readOnly} />
+          </Suspense>
+        </section>
+      )}
+
+      {permissions.canManageSettings && dashboardPath === '/content/sponsorship' && (
+        <section id="content-sponsorship" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <SponsorManagerModal readOnly={readOnly} />
           </Suspense>
         </section>
       )}

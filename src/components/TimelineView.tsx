@@ -25,17 +25,17 @@ function groupByMonth(events: EventItem[]): Array<{ month: string; events: Event
 }
 
 const DOT_COLOR: Record<string, string> = {
-  draft:    'bg-brand-primary-400 ring-brand-primary-200 dark:ring-brand-primary-800',
-  ongoing:  'bg-emerald-500 ring-emerald-200 dark:ring-emerald-800',
-  upcoming: 'bg-amber-500 ring-amber-200 dark:ring-amber-800',
-  past:     'bg-slate-400 ring-slate-200 dark:ring-slate-700',
+  draft:    'bg-[var(--wf-accent)] ring-[var(--wf-accent-soft)]',
+  ongoing:  'bg-[var(--wf-live)] ring-[var(--wf-live)]/20',
+  upcoming: 'bg-[var(--wf-action)] ring-[var(--wf-action)]/20',
+  past:     'bg-[var(--wf-rule-strong)] ring-[var(--wf-rule)]',
 };
 
 const CARD_ACCENT: Record<string, string> = {
-  draft:    'border-brand-primary-200 bg-brand-primary-50/50 dark:border-brand-primary-800/40 dark:bg-brand-primary-900/10',
-  ongoing:  'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-900/10',
-  upcoming: 'border-amber-200 bg-amber-50/50 dark:border-amber-800/40 dark:bg-amber-900/10',
-  past:     'border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/20',
+  draft:    'border-[var(--wf-rule)] bg-[var(--wf-accent-soft)]',
+  ongoing:  'border-[var(--wf-rule)] bg-[var(--wf-live)]/10',
+  upcoming: 'border-[var(--wf-rule)] bg-[var(--wf-action)]/10',
+  past:     'border-[var(--wf-rule)] bg-[var(--wf-board-2)]',
 };
 
 export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
@@ -44,7 +44,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
   if (events.length === 0) {
     return (
       <div 
-        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-slate-500"
+        className="ui-empty-panel flex flex-col items-center justify-center py-20 text-[var(--wf-ink-muted)]"
         aria-live="polite"
         role="status"
       >
@@ -61,15 +61,15 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
         <div key={month}>
           {/* Month header */}
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-8 items-center rounded-xl ui-btn-primary px-4">
-              <span className="text-xs font-bold text-white">{month}</span>
+            <div className="flex h-8 items-center rounded-[var(--wf-radius-board)] bg-[var(--wf-accent)] px-4">
+              <span className="text-xs font-bold text-[var(--wf-accent-ink)]">{month}</span>
             </div>
-            <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-700" />
-            <span className="text-xs text-slate-500">{monthEvs.length} acara</span>
+            <div className="h-px flex-1 bg-[var(--wf-rule)]" />
+            <span className="text-xs text-[var(--wf-ink-muted)]">{monthEvs.length} acara</span>
           </div>
 
           {/* Events for this month */}
-          <div className="relative ml-2 space-y-4 border-l-2 border-slate-200 pl-4 dark:border-slate-700 sm:ml-4 sm:pl-6">
+          <div className="relative ml-2 space-y-4 border-l-2 border-[var(--wf-rule)] pl-4 sm:ml-4 sm:pl-6">
             {monthEvs.map((ev, idx) => (
               <div key={ev.id} className="relative">
                 {/* Timeline dot */}
@@ -79,7 +79,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
 
                 {/* Card */}
                 <div
-                  className={`group cursor-pointer rounded-xl border p-4 shadow-[var(--shadow-card-soft)] transition hover:shadow-md ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                  className={`group cursor-pointer rounded-[var(--wf-radius-board)] border p-4 transition ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
                   onClick={() => onDetail(ev)}
                   role="button"
                   tabIndex={0}
@@ -91,20 +91,20 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                     <div className="flex-1">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={ev.status} size="sm" />
-                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                        {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-ink-muted)]">Reguler</span>}
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                         {isAdmin && <PriorityBadge priority={ev.priority} />}
                       </div>
-                      <p className="font-bold ui-text-strong">{ev.acara}</p>
+                      <p className="font-bold text-[var(--wf-ink)]">{ev.acara}</p>
                       {ev.keterangan && (
-                        <p className="mt-1 line-clamp-2 text-xs ui-text-muted">{ev.keterangan}</p>
+                        <p className="mt-1 line-clamp-2 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
                       )}
                     </div>
 
                     {/* Right: meta + actions */}
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      <div className="text-right text-xs ui-text-muted">
-                        <p className="font-semibold text-slate-700 dark:text-slate-200">{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</p>
+                      <div className="text-right text-xs text-[var(--wf-ink-muted)]">
+                        <p className="font-semibold text-[var(--wf-ink)]">{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</p>
                         {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && (
                           <p className="mt-0.5 flex items-center justify-end gap-1">
                             <Clock className="h-3 w-3" /> {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}
@@ -119,7 +119,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       >
                         <button
                           onClick={() => onDetail(ev)}
-                          className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-brand-primary-50 hover:text-brand-primary-600 dark:hover:bg-brand-primary-900/20 dark:hover:text-brand-primary-400"
+                          className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
                           aria-label="Lihat detail"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -129,7 +129,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                             {onEdit && (
                             <button
                               onClick={() => onEdit(ev)}
-                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400"
+                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
                               aria-label='Ubah acara'
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -138,7 +138,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                             {onDelete && (
                             <button
                               onClick={() => onDelete(ev)}
-                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
                               aria-label="Hapus acara"
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -151,7 +151,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                   </div>
 
                   {/* Bottom: location & EO */}
-<div className="mt-3 flex flex-wrap gap-3 border-t border-slate-100 pt-2 text-xs ui-text-muted dark:border-slate-700 ">
+<div className="mt-3 flex flex-wrap gap-3 border-t border-[var(--wf-rule)] pt-2 text-xs text-[var(--wf-ink-muted)] ">
                       {ev.lokasi && (
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" /> {ev.lokasi}

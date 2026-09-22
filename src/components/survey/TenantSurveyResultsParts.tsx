@@ -27,30 +27,30 @@ import {
 const SurveyQRCode = lazy(() => import('./SurveyQRCode'));
 
 export const FIELD =
-  'ui-focus-ring w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
+  'ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2 text-sm text-[var(--wf-ink)]';
 
 export const TRAFFIC_COLORS: Record<string, string> = {
-  Signifikan: 'bg-emerald-500',
+  Signifikan: 'bg-[var(--wf-live)]',
   'Sedikit Naik': 'bg-green-400',
-  'Tidak Ada': 'bg-amber-400',
+  'Tidak Ada': 'bg-[var(--wf-action)]',
   Menurun: 'bg-red-500',
 };
 
 export const SALES_COLORS: Record<string, string> = {
-  '> 50%': 'bg-emerald-500',
+  '> 50%': 'bg-[var(--wf-live)]',
   '30% - 50%': 'bg-green-400',
   '10% - 30%': 'bg-lime-400',
-  '< 10%': 'bg-amber-400',
+  '< 10%': 'bg-[var(--wf-action)]',
   'Tidak ada kenaikan / Sama saja': 'bg-orange-400',
 };
 
 export const DEFAULT_BAR = [
-  'bg-brand-primary-500',
-  'bg-brand-primary-400',
+  'bg-[var(--wf-accent)]',
+  'bg-[var(--wf-accent)]',
   'bg-sky-500',
   'bg-cyan-500',
   'bg-teal-500',
-  'bg-brand-secondary-400',
+  'bg-[var(--wf-accent)]',
 ];
 
 export function DistBars({
@@ -71,16 +71,16 @@ export function DistBars({
   const max = Math.max(1, ...dist.labels.map((l) => dist.counts[l] || 0));
   return (
     <div className="ui-dashboard-surface overflow-hidden">
-      <div className="ui-dashboard-muted flex items-center gap-2 border-b border-black/[0.04] px-4 py-2.5 dark:border-slate-700">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+      <div className="bg-[var(--wf-board-2)] flex items-center gap-2 border-b border-[var(--wf-rule)] px-4 py-2.5">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
           {icon}
         </span>
         <div className="min-w-0">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+          <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
             {title}
           </h3>
           {hint ? (
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-500 dark:text-slate-300">{hint}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-[var(--wf-ink-muted)]">{hint}</p>
           ) : null}
         </div>
       </div>
@@ -94,13 +94,13 @@ export function DistBars({
           return (
             <div key={label}>
               <div className="mb-0.5 flex items-center justify-between gap-2 text-[11px]">
-                <span className="truncate text-slate-600 dark:text-slate-300">{label}</span>
-                <span className="shrink-0 tabular-nums ui-text-muted">
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">{n}</span>
-                  <span className="text-slate-500"> · {pct}%</span>
+                <span className="truncate text-[var(--wf-ink-muted)]">{label}</span>
+                <span className="shrink-0 tabular-nums text-[var(--wf-ink-muted)]">
+                  <span className="font-semibold text-[var(--wf-ink)]">{n}</span>
+                  <span className="text-[var(--wf-ink-muted)]"> · {pct}%</span>
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
                 <div
                   className={`h-full rounded-full transition-[width] duration-500 ${bar}`}
                   style={{ width: `${w}%` }}
@@ -129,20 +129,20 @@ export function KpiCard({
 }) {
   const valueClass =
     tone === 'good'
-      ? 'text-emerald-600 dark:text-emerald-400'
+      ? 'text-[var(--wf-live)]'
       : tone === 'warn'
-        ? 'text-amber-600 dark:text-amber-400'
+        ? 'text-[var(--wf-action)]'
         : tone === 'bad'
-          ? 'text-red-600 dark:text-red-400'
-          : 'text-slate-900 dark:text-slate-50';
+          ? 'text-red-700 dark:text-red-300'
+          : 'text-[var(--wf-ink)]';
   const pill =
     tone === 'good'
-      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
+      ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]'
       : tone === 'warn'
-        ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
+        ? 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'
         : tone === 'bad'
-          ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'
-          : 'bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/40 dark:text-brand-primary-400';
+          ? 'bg-red-600/10 text-red-700 dark:text-red-300'
+          : 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]';
 
   // Tone lives in the icon pill and the value colour. It is deliberately not a
   // coloured left edge: a border-left on a card is a banned pattern, and the
@@ -154,14 +154,14 @@ export function KpiCard({
           {icon}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium uppercase leading-tight tracking-wide ui-text-muted sm:text-[11px]">
+          <p className="text-[10px] font-medium uppercase leading-tight tracking-wide text-[var(--wf-ink-muted)] sm:text-[11px]">
             {label}
           </p>
           <p className={`mt-0.5 text-xl font-bold tabular-nums tracking-tight sm:text-2xl ${valueClass}`}>
             {value}
           </p>
           {helper ? (
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-500 dark:text-slate-300">{helper}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-[var(--wf-ink-muted)]">{helper}</p>
           ) : null}
         </div>
       </div>
@@ -173,10 +173,10 @@ export function StatusBadge({ status }: { status: string }) {
   const s = status.toLowerCase();
   const cls =
     s === 'reviewed'
-      ? 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800'
+      ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)] ring-[var(--wf-live)]/25'
       : s === 'submitted'
-        ? 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:ring-sky-800'
-        : 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700';
+        ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] ring-[var(--wf-accent)]/25'
+        : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] ring-[var(--wf-rule)]';
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ring-1 ring-inset ${cls}`}
@@ -230,7 +230,7 @@ export function ResultsReadingGuide() {
 
   return (
     <section
-      className="rounded-xl border border-sky-200/80 bg-sky-50/70 dark:border-sky-900/50 dark:bg-sky-950/25"
+      className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)]"
       aria-labelledby="results-guide-heading"
     >
       <button
@@ -240,22 +240,22 @@ export function ResultsReadingGuide() {
         aria-expanded={open}
         aria-controls="results-guide-body"
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-300">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-board)] text-[var(--wf-accent)]">
           <BookOpen className="h-4 w-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <h2
             id="results-guide-heading"
-            className="text-sm font-semibold text-sky-900 dark:text-sky-100"
+            className="text-sm font-semibold text-[var(--wf-ink)]"
           >
             Panduan membaca hasil survey
           </h2>
-          <p className="text-[11px] text-sky-700/80 dark:text-sky-400">
+          <p className="text-[11px] text-[var(--wf-ink-muted)]">
             Ringkasan langkah dan arti angka di halaman ini
           </p>
         </div>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-sky-600 transition-colors dark:text-sky-400 ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-[var(--wf-accent)] transition-colors ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
@@ -263,7 +263,7 @@ export function ResultsReadingGuide() {
       {open ? (
         <div
           id="results-guide-body"
-          className="space-y-3 border-t border-sky-200/70 px-3 pb-3.5 pt-3 dark:border-sky-900/40 sm:px-4 sm:pb-4"
+          className="space-y-3 border-t border-[var(--wf-rule)] px-3 pb-3.5 pt-3 sm:px-4 sm:pb-4"
         >
           <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -290,15 +290,15 @@ export function ResultsReadingGuide() {
             ].map((s) => (
               <li
                 key={s.n}
-                className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40"
+                className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2"
               >
-                <p className="text-[11px] font-bold text-sky-800 dark:text-sky-200">
-                  <span className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-sky-200/80 text-[10px] tabular-nums text-sky-900 dark:bg-sky-800 dark:text-sky-100">
+                <p className="text-[11px] font-bold text-[var(--wf-ink)]">
+                  <span className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--wf-accent)]/15 text-[10px] tabular-nums text-[var(--wf-ink)]">
                     {s.n}
                   </span>
                   {s.t}
                 </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
+                <p className="mt-0.5 text-[11px] leading-snug text-[var(--wf-ink-muted)]">
                   {s.d}
                 </p>
               </li>
@@ -306,35 +306,35 @@ export function ResultsReadingGuide() {
           </ol>
 
           <div className="grid gap-2 sm:grid-cols-2">
-            <div className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40">
-              <p className="flex items-center gap-1 text-[11px] font-bold text-sky-800 dark:text-sky-200">
+            <div className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2">
+              <p className="flex items-center gap-1 text-[11px] font-bold text-[var(--wf-ink)]">
                 <CircleHelp className="h-3 w-3 shrink-0" aria-hidden />
                 Keterangan angka ringkasan
               </p>
-              <ul className="mt-1 space-y-1 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
+              <ul className="mt-1 space-y-1 text-[11px] leading-snug text-[var(--wf-ink-muted)]">
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Total submisi
                   </strong>
                   {': '}
                   jumlah formulir yang telah dikirim (bukan draf).
                 </li>
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Tenant yang sudah isi
                   </strong>
                   {': '}
                   dari daftar tenant mall, berapa yang telah mengisi sesuai filter. Pilih satu event agar angkanya lebih akurat.
                 </li>
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Traffic positif
                   </strong>
                   {': '}
                   persentase yang menyatakan pengunjung meningkat (Signifikan atau Sedikit Naik).
                 </li>
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Sales positif
                   </strong>
                   {': '}
@@ -342,24 +342,24 @@ export function ResultsReadingGuide() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-lg border border-sky-100/90 bg-white/70 px-2.5 py-2 dark:border-sky-900/40 dark:bg-slate-900/40">
-              <p className="flex items-center gap-1 text-[11px] font-bold text-sky-800 dark:text-sky-200">
+            <div className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2">
+              <p className="flex items-center gap-1 text-[11px] font-bold text-[var(--wf-ink)]">
                 <BarChart3 className="h-3 w-3 shrink-0" aria-hidden />
                 Catatan untuk analisis
               </p>
-              <ul className="mt-1 list-disc space-y-1 pl-3.5 text-[11px] leading-snug text-slate-600 dark:text-slate-300">
+              <ul className="mt-1 list-disc space-y-1 pl-3.5 text-[11px] leading-snug text-[var(--wf-ink-muted)]">
                 <li>
                   Jika pengunjung meningkat tetapi omzet tidak, periksa kategori atau zona yang lemah.
                 </li>
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Top Gerai
                   </strong>
                   {' '}
                   diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi.
                 </li>
                 <li>
-                  <strong className="font-semibold text-slate-700 dark:text-slate-300">
+                  <strong className="font-semibold text-[var(--wf-ink)]">
                     Kategori × Sales
                   </strong>
                   {' '}
@@ -467,19 +467,19 @@ export function EventFilterSearch({
         <span className="min-w-0 flex-1 truncate">
           {selected ? (
             <>
-              <span className="font-medium text-slate-800 dark:text-slate-100">{selected.label}</span>
+              <span className="font-medium text-[var(--wf-ink)]">{selected.label}</span>
               {selected.status === 'ongoing' && (
-                <span className="ml-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="ml-1 text-[10px] font-semibold text-[var(--wf-live)]">
                   live
                 </span>
               )}
             </>
           ) : (
-            <span className="ui-text-muted">Semua event</span>
+            <span className="text-[var(--wf-ink-muted)]">Semua event</span>
           )}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-500 transition-colors ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-[var(--wf-ink-muted)] transition-colors ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
@@ -489,10 +489,10 @@ export function EventFilterSearch({
           className="ui-dashboard-surface absolute left-0 right-0 z-[60] mt-1 flex max-h-[min(28rem,65dvh)] w-full flex-col overflow-hidden shadow-xl sm:left-0 sm:right-auto sm:min-w-[22rem] sm:max-w-[min(calc(100%-2rem),28rem)]"
           role="listbox"
         >
-          <div className="shrink-0 border-b border-slate-100 p-2 dark:border-slate-700">
+          <div className="shrink-0 border-b border-[var(--wf-rule)] p-2">
             <div className="relative">
               <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                 aria-hidden
               />
               <input
@@ -501,11 +501,11 @@ export function EventFilterSearch({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama event…"
-                className="ui-focus-ring w-full rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-2 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-2 pl-8 pr-2 text-xs text-[var(--wf-ink)]"
                 aria-label="Cari event"
               />
             </div>
-            <p className="mt-1.5 px-0.5 text-[10px] text-slate-500">
+            <p className="mt-1.5 px-0.5 text-[10px] text-[var(--wf-ink-muted)]">
               {filtered.length} event · terbaru dulu
             </p>
           </div>
@@ -515,17 +515,17 @@ export function EventFilterSearch({
               role="option"
               aria-selected={value === 'all'}
               onClick={() => pick('all')}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors hover:bg-[var(--wf-board-2)] ${
                 value === 'all'
-                  ? 'bg-brand-primary-50 font-semibold text-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-200'
-                  : 'text-slate-700 dark:text-slate-200'
+                  ? 'bg-[var(--wf-accent-soft)] font-semibold text-[var(--wf-accent)]'
+                  : 'text-[var(--wf-ink)]'
               }`}
             >
               Semua event
-              <span className="ml-auto text-[10px] font-normal text-slate-500">{options.length}</span>
+              <span className="ml-auto text-[10px] font-normal text-[var(--wf-ink-muted)]">{options.length}</span>
             </button>
             {filtered.length === 0 ? (
-              <p className="px-3 py-6 text-center text-[11px] ui-text-muted">
+              <p className="px-3 py-6 text-center text-[11px] text-[var(--wf-ink-muted)]">
                 Tidak ada event cocok “{query}”
               </p>
             ) : (
@@ -536,9 +536,9 @@ export function EventFilterSearch({
                   role="option"
                   aria-selected={value === o.id}
                   onClick={() => pick(o.id)}
-                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition-colors hover:bg-[var(--wf-board-2)] ${
                     value === o.id
-                      ? 'bg-brand-primary-50 dark:bg-brand-primary-950/40'
+                      ? 'bg-[var(--wf-accent-soft)]'
                       : ''
                   }`}
                 >
@@ -546,13 +546,13 @@ export function EventFilterSearch({
                     <span
                       className={`block truncate text-xs font-medium ${
                         value === o.id
-                          ? 'text-brand-primary-800 dark:text-brand-primary-200'
-                          : 'text-slate-800 dark:text-slate-100'
+                          ? 'text-[var(--wf-accent)]'
+                          : 'text-[var(--wf-ink)]'
                       }`}
                     >
                       {o.label}
                     </span>
-                    <span className="mt-0.5 block text-[10px] text-slate-500">
+                    <span className="mt-0.5 block text-[10px] text-[var(--wf-ink-muted)]">
                       {o.dateStr || '-'}
                       {o.status === 'ongoing'
                         ? ' · berlangsung'
@@ -564,7 +564,7 @@ export function EventFilterSearch({
                     </span>
                   </span>
                   {value === o.id && (
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-primary-600" aria-hidden />
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--wf-accent)]" aria-hidden />
                   )}
                 </button>
               ))
@@ -604,17 +604,17 @@ export function EventShareRow({
     event.status === 'ongoing' ? 'Berlangsung' : event.status === 'past' ? 'Selesai' : event.status;
 
   return (
-    <div className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
+    <div className="border-b border-[var(--wf-rule)] last:border-b-0">
       <div className="flex flex-col gap-2.5 px-3 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-4">
         <div className="flex min-w-0 flex-1 items-start gap-2.5">
-          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary-50 text-brand-primary-600 dark:bg-brand-primary-950/50 dark:text-brand-primary-400">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
             <CalendarDays className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-semibold leading-snug text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
+            <p className="text-sm font-semibold leading-snug text-[var(--wf-ink)] [overflow-wrap:anywhere]">
               {event.acara}
             </p>
-            <p className="mt-0.5 text-[11px] ui-text-muted">
+            <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
               {event.tanggal || event.dateStr || '-'}
               {' · '}
               {statusLabel}
@@ -626,11 +626,11 @@ export function EventShareRow({
           <button
             type="button"
             onClick={handleCopy}
-            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
             title="Salin link form survey"
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
+              <Check className="h-3.5 w-3.5 text-[var(--wf-live)]" aria-hidden />
             ) : (
               <Link2 className="h-3.5 w-3.5" aria-hidden />
             )}
@@ -641,8 +641,8 @@ export function EventShareRow({
             onClick={() => setShowQR((v) => !v)}
             className={`ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition-colors ${
               showQR
-                ? 'border-brand-primary-300 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-700 dark:bg-brand-primary-950/40 dark:text-brand-primary-300'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
             }`}
             title="Tampilkan QR form survey"
             aria-expanded={showQR}
@@ -653,17 +653,17 @@ export function EventShareRow({
         </div>
       </div>
       {showQR && (
-        <div className="border-t border-slate-100 bg-slate-50/60 px-3 py-4 dark:border-slate-800 dark:bg-slate-900/40 sm:px-4">
-          <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+        <div className="border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-4 sm:px-4">
+          <p className="mb-3 text-center text-xs font-medium text-[var(--wf-ink-muted)]">
             Form survey:{' '}
-            <span className="font-semibold text-slate-800 dark:text-slate-100 [overflow-wrap:anywhere]">
+            <span className="font-semibold text-[var(--wf-ink)] [overflow-wrap:anywhere]">
               {event.acara}
             </span>
           </p>
           <Suspense
             fallback={
               <div className="flex justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" aria-hidden />
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)]" aria-hidden />
               </div>
             }
           >

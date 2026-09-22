@@ -186,16 +186,16 @@ export default function TenantSurveyForm({
       noValidate
     >
       {/* Event context banner */}
-      <div className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/40">
+      <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
-            <Building2 className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)]">
+            <Building2 className="h-5 w-5 text-[var(--wf-accent)]" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="truncate text-sm font-bold text-brand-primary-900 dark:text-brand-primary-100">
+            <h2 className="truncate text-sm font-bold text-[var(--wf-ink)]">
               {event.acara}
             </h2>
-            <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
+            <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--wf-ink-muted)]">
               {event.tanggal && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -214,12 +214,12 @@ export default function TenantSurveyForm({
         {/* Progress */}
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-brand-primary-700 dark:text-brand-primary-300">Progress</span>
-            <span className="font-semibold text-brand-primary-900 dark:text-brand-primary-100">{progress}%</span>
+            <span className="text-[var(--wf-ink-muted)]">Progress</span>
+            <span className="font-semibold text-[var(--wf-ink)]">{progress}%</span>
           </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
             <div
-              className="h-full rounded-full bg-brand-primary-500 transition-[width] duration-300"
+              className="h-full rounded-full bg-[var(--wf-accent)] transition-[width] duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -230,12 +230,12 @@ export default function TenantSurveyForm({
       {errors.length > 0 && (
         <div
           role="alert"
-          className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30"
+          className="rounded-2xl border border-red-200 bg-red-600/10 p-4"
         >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 text-red-500" />
             <div>
-              <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+              <p className="text-sm font-semibold text-red-700 dark:text-red-300">
                 Mohon perbaiki {errors.length} kesalahan:
               </p>
               <ul className="mt-1 list-inside list-disc text-xs text-red-700 dark:text-red-300">
@@ -249,18 +249,18 @@ export default function TenantSurveyForm({
       )}
 
       {/* Section 1: Informasi Gerai */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-        <h3 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+      <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+        <h3 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
           Informasi Gerai
         </h3>
-        <p className="mb-4 text-xs ui-text-muted">
+        <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
           Isi data gerai Anda di Metropolitan Mall Bekasi.
         </p>
 
         <div className="space-y-4">
           {/* Tenant search */}
           <div>
-            <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
               <Building2 className="h-3.5 w-3.5" />
               Nama Gerai
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
@@ -275,17 +275,17 @@ export default function TenantSurveyForm({
               error={fieldLevelErrors.nama_gerai}
             />
             {selectedTenant && (
-              <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-950/30">
+              <div className="mt-2 flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-live)]/10 px-3 py-2">
                 {selectedTenant.logo ? (
-                  <img src={selectedTenant.logo} alt="" className="h-8 w-8 shrink-0 rounded-md border border-emerald-200 object-cover dark:border-emerald-700" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
+                  <img src={selectedTenant.logo} alt="" className="h-8 w-8 shrink-0 rounded-md border border-[var(--wf-rule)] object-cover" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
                 ) : (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-[10px] font-bold text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--wf-live)]/10 text-[10px] font-bold text-[var(--wf-live)]">
                     {selectedTenant.name.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-emerald-800 dark:text-emerald-200">{selectedTenant.name}</p>
-                  <p className="truncate text-[10px] text-emerald-600 dark:text-emerald-400">
+                  <p className="truncate text-xs font-semibold text-[var(--wf-live)]">{selectedTenant.name}</p>
+                  <p className="truncate text-[10px] text-[var(--wf-live)]">
                     {selectedTenant.category}{selectedTenant.floor ? ` • ${selectedTenant.floor}` : ''}{selectedTenant.lot ? ` • Lot ${selectedTenant.lot}` : ''}
                   </p>
                 </div>
@@ -295,7 +295,7 @@ export default function TenantSurveyForm({
 
           {/* Auto-detect warnings */}
           {selectedTenant && !formData.lokasi_zona && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+            <div className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>Lokasi tidak terdeteksi. Silakan pilih manual dari dropdown.</span>
@@ -303,7 +303,7 @@ export default function TenantSurveyForm({
             </div>
           )}
           {selectedTenant && !formData.kategori && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+            <div className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>Kategori tidak terdeteksi. Silakan pilih manual.</span>
@@ -313,12 +313,12 @@ export default function TenantSurveyForm({
 
           {/* Lokasi / Zona */}
           <div className="relative">
-            <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
               <MapPin className="h-3.5 w-3.5" />
               Lokasi / Zona
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               {autoFilled.lokasi_zona && (
-                <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto</span>
+                <span className="ml-1 rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto</span>
               )}
             </label>
             <select
@@ -328,16 +328,16 @@ export default function TenantSurveyForm({
               disabled={disabled}
               aria-required="true"
               aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
-              className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full appearance-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 pr-9 text-sm text-[var(--wf-ink)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
             >
               <option value="">Pilih lokasi / zona</option>
               {SURVEY_OPTIONS.lokasi_zona.map((z) => (
                 <option key={z} value={z}>{z}</option>
               ))}
             </select>
-            <ChevronLeft className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 rotate-90 text-slate-500" />
+            <ChevronLeft className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 rotate-90 text-[var(--wf-ink-muted)]" />
             {fieldLevelErrors.lokasi_zona && (
-              <p className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
+              <p className="mt-1 flex items-center gap-1 text-xs text-red-700 dark:text-red-300" role="alert">
                 <AlertTriangle className="h-3 w-3" />
                 {fieldLevelErrors.lokasi_zona}
               </p>
@@ -347,7 +347,7 @@ export default function TenantSurveyForm({
           {/* Kategori */}
           {autoFilled.kategori && (
             <div className="mb-1">
-              <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto - terdeteksi dari data tenant</span>
+              <span className="rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto - terdeteksi dari data tenant</span>
             </div>
           )}
           <RadioGroup
@@ -363,11 +363,11 @@ export default function TenantSurveyForm({
       </section>
 
       {/* Section 2: Evaluasi Traffic & Sales */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-        <h3 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+      <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+        <h3 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
           Evaluasi Traffic &amp; Sales
         </h3>
-        <p className="mb-4 text-xs ui-text-muted">
+        <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
           Bandingkan pengunjung dan penjualan selama event dengan hari biasa.
         </p>
 
@@ -398,13 +398,13 @@ export default function TenantSurveyForm({
       {/* Section 3: PIC & Feedback (opsional) */}
       <div className="space-y-4">
         {/* PIC */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
+        <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+          <h3 className="mb-3 text-sm font-bold text-[var(--wf-ink)]">
             Informasi PIC (opsional)
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama PIC
               </label>
@@ -417,11 +417,11 @@ export default function TenantSurveyForm({
                 maxLength={100}
                 disabled={disabled}
                 autoComplete="name"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
               />
             </div>
             <div>
-              <label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                 <Phone className="h-3.5 w-3.5" />
                 No. Telepon PIC
               </label>
@@ -435,15 +435,15 @@ export default function TenantSurveyForm({
                 maxLength={20}
                 disabled={disabled}
                 autoComplete="tel"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
               />
             </div>
           </div>
         </div>
 
         {/* Feedback */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="mb-3 text-sm font-bold text-slate-800 dark:text-slate-100">
+        <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+          <h3 className="mb-3 text-sm font-bold text-[var(--wf-ink)]">
             Umpan Balik (Opsional)
           </h3>
           <div>
@@ -455,9 +455,9 @@ export default function TenantSurveyForm({
               rows={5}
               maxLength={2000}
               disabled={disabled}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
             />
-            <p className="mt-1 text-right text-[10px] text-slate-500">
+            <p className="mt-1 text-right text-[10px] text-[var(--wf-ink-muted)]">
               {2000 - formData.feedback_teks.length} karakter tersisa
             </p>
           </div>
@@ -466,13 +466,13 @@ export default function TenantSurveyForm({
 
       {/* Progress indicator */}
       <div className="space-y-1.5">
-        <div className="overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
+        <div className="overflow-hidden rounded-full bg-[var(--wf-board-2)]">
           <div
-            className="h-2 rounded-full bg-brand-primary-500 transition-[width] duration-500"
+            className="h-2 rounded-full bg-[var(--wf-accent)] transition-[width] duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex items-center justify-between text-[10px] ui-text-muted">
+        <div className="flex items-center justify-between text-[10px] text-[var(--wf-ink-muted)]">
           <span role="status" aria-live="polite">{progress}% selesai</span>
           <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
         </div>
@@ -484,7 +484,7 @@ export default function TenantSurveyForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-50"
         >
           <ChevronLeft className="h-4 w-4" />
           Batal
@@ -493,7 +493,7 @@ export default function TenantSurveyForm({
           type="button"
           onClick={() => handleSubmit(true)}
           disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           Simpan Draft
@@ -501,7 +501,7 @@ export default function TenantSurveyForm({
         <button
           type="submit"
           disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2"
         >
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -525,24 +525,24 @@ export function TenantSurveySuccess({
   onBack: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-        <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-live)]/10 p-8 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-live)]/10">
+        <CheckCircle2 className="h-8 w-8 text-[var(--wf-live)]" />
       </div>
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+      <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Terkirim!</h2>
+      <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
         Terima kasih telah mengirimkan self-assessment untuk event
       </p>
-      <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+      <p className="mt-0.5 text-sm font-semibold text-[var(--wf-accent)]">
         "{eventName}"
       </p>
-      <p className="mt-4 max-w-md text-xs ui-text-muted">
+      <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
         Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
       </p>
       <button
         type="button"
         onClick={onBack}
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke Dashboard
@@ -561,16 +561,16 @@ export function TenantSurveyDuplicate({
   onViewExisting?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800 dark:bg-amber-950/30">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
-        <CheckCircle2 className="h-8 w-8 text-amber-500" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-action)]/10 p-8 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-action)]/10">
+        <CheckCircle2 className="h-8 w-8 text-[var(--wf-action)]" />
       </div>
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+      <h2 className="text-lg font-bold text-[var(--wf-ink)]">
         Anda Sudah Mengisi Survey
       </h2>
-      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
+      <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
         Anda sudah pernah mengirimkan self-assessment untuk event
-        <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+        <span className="mx-1 font-semibold text-[var(--wf-accent)]">
           "{eventName}"
         </span>
         Setiap tenant hanya dapat mengirimkan satu survey per event.
@@ -580,7 +580,7 @@ export function TenantSurveyDuplicate({
           <button
             type="button"
             onClick={onViewExisting}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-primary-300 px-5 py-2.5 text-sm font-semibold text-brand-primary-700 transition-colors hover:bg-brand-primary-50 dark:border-brand-primary-700 dark:text-brand-primary-300 dark:hover:bg-brand-primary-950/40"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
           >
             Lihat Survey
           </button>
@@ -588,7 +588,7 @@ export function TenantSurveyDuplicate({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
         >
           <ChevronLeft className="h-4 w-4" />
           Kembali
@@ -608,12 +608,12 @@ export function TenantSurveyError({
   onBack?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-600/10 p-8 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-600/10">
         <AlertTriangle className="h-8 w-8 text-red-500" />
       </div>
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
-      <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
+      <h2 className="text-lg font-bold text-[var(--wf-ink)]">Terjadi Kesalahan</h2>
+      <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
         {message}
       </p>
       <div className="mt-6 flex gap-3">
@@ -621,7 +621,7 @@ export function TenantSurveyError({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
           >
             <RefreshCw className="h-4 w-4" />
             Coba Lagi
@@ -631,7 +631,7 @@ export function TenantSurveyError({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
           >
             <ChevronLeft className="h-4 w-4" />
             Kembali
@@ -644,9 +644,9 @@ export function TenantSurveyError({
 
 export function TenantSurveyLoading({ message = 'Memuat survey…' }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
-      <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-      <p className="mt-3 text-sm ui-text-muted">{message}</p>
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-12">
+      <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />
+      <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">{message}</p>
     </div>
   );
 }

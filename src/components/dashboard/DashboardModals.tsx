@@ -1,20 +1,13 @@
 import { Suspense, lazy } from 'react';
 import { AdminLoginModal } from '../AdminLoginModal';
-import type { EventItem, DraftEventItem, LetterRequestItem, AnnualTheme, CommunityRegistration, RegistrationStatus, EventArea } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, CommunityRegistration, RegistrationStatus, EventArea } from '../../types';
 
 const EventCrudModal = lazy(() => import('../EventCrudModal').then(m => ({ default: m.EventCrudModal })));
 const DraftCrudModal = lazy(() => import('../DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
-const EventLetterPickerModal = lazy(() => import('../EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
-const LetterGenerator = lazy(() => import('../LetterGenerator').then(m => ({ default: m.LetterGenerator })));
 const AnnualThemeCrudModal = lazy(() => import('../AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
 const DeleteConfirmModal = lazy(() => import('../DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
 const EventDetailModal = lazy(() => import('../EventDetailModal').then(m => ({ default: m.EventDetailModal })));
-const InstagramSettingsModal = lazy(() => import('../InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
-const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
-const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
-const SponsorManagerModal = lazy(() => import('../SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
 const CommunityRegistrationDetailModal = lazy(() => import('../CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
-const EventAreaManagerModal = lazy(() => import('../EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
 import type { LoginResult } from '../../types/auth';
 
 interface DashboardModalsProps {
@@ -41,17 +34,6 @@ interface DashboardModalsProps {
   editingDraft: DraftEventItem | null;
   draftEvents: DraftEventItem[];
 
-  // Letter picker modal
-  showLetterPickerModal: boolean;
-  onCloseLetterPickerModal: () => void;
-  publicEvents: EventItem[];
-  onSelectLetterEvent: (event: EventItem) => void;
-
-  // Letter generator modal
-  showLetterModal: boolean;
-  onCloseLetterModal: () => void;
-  letterEvent: EventItem | null;
-
   // Theme modal
   showThemeModal: boolean;
   onCloseThemeModal: () => void;
@@ -72,26 +54,6 @@ interface DashboardModalsProps {
   onDelete?: (ev: EventItem) => void;
   onDeleteSeries?: (groupId: string) => Promise<boolean>;
   isAdmin: boolean;
-
-  // Instagram settings modal
-  showInstagramSettings: boolean;
-  onCloseInstagramSettings: () => void;
-  instagramPosts: string[];
-  onSaveInstagramPosts: (posts: string[]) => Promise<boolean>;
-  heroImageUrl: string;
-  onSaveHeroImage: (url: string) => Promise<boolean>;
-
-  // Album manager modal
-  showAlbumManager: boolean;
-  onCloseAlbumManager: () => void;
-  pastEvents: EventItem[];
-  annualThemes: AnnualTheme[];
-  showNewsManager: boolean;
-  onCloseNewsManager: () => void;
-  showSponsorManager: boolean;
-  onCloseSponsorManager: () => void;
-  showEventAreaManager: boolean;
-  onCloseEventAreaManager: () => void;
 
   // Registration detail modal
   showRegDetail: boolean;
@@ -121,13 +83,6 @@ export function DashboardModals({
   onSaveDraft,
   editingDraft,
   draftEvents,
-  showLetterPickerModal,
-  onCloseLetterPickerModal,
-  publicEvents,
-  onSelectLetterEvent,
-  showLetterModal,
-  onCloseLetterModal,
-  letterEvent,
   showThemeModal,
   onCloseThemeModal,
   onSaveTheme,
@@ -143,22 +98,6 @@ export function DashboardModals({
   onDelete,
   onDeleteSeries,
   isAdmin,
-  showInstagramSettings,
-  onCloseInstagramSettings,
-  instagramPosts,
-  onSaveInstagramPosts,
-  heroImageUrl,
-  onSaveHeroImage,
-  showAlbumManager,
-  onCloseAlbumManager,
-  pastEvents,
-  annualThemes,
-  showNewsManager,
-  onCloseNewsManager,
-  showSponsorManager,
-  onCloseSponsorManager,
-  showEventAreaManager,
-  onCloseEventAreaManager,
   showRegDetail,
   onCloseRegDetail,
   selectedRegistration,
@@ -198,21 +137,6 @@ export function DashboardModals({
             draftEvents={draftEvents}
           />
         )}
-        {showLetterPickerModal && (
-          <EventLetterPickerModal
-            isOpen={showLetterPickerModal}
-            onClose={onCloseLetterPickerModal}
-            events={publicEvents}
-            onSelect={onSelectLetterEvent}
-          />
-        )}
-        {showLetterModal && (
-          <LetterGenerator
-            isOpen={showLetterModal}
-            onClose={onCloseLetterModal}
-            event={letterEvent}
-          />
-        )}
         {showThemeModal && (
           <AnnualThemeCrudModal
             isOpen={showThemeModal}
@@ -239,47 +163,6 @@ export function DashboardModals({
             onDeleteSeries={onDeleteSeries}
             events={events}
             isAdmin={isAdmin}
-          />
-        )}
-        {showInstagramSettings && (
-          <InstagramSettingsModal
-            isOpen={showInstagramSettings}
-            onClose={onCloseInstagramSettings}
-            posts={instagramPosts}
-            onSave={onSaveInstagramPosts}
-            heroImageUrl={heroImageUrl}
-            onSaveHeroImage={onSaveHeroImage}
-            readOnly={readOnly}
-          />
-        )}
-        {showAlbumManager && (
-          <AlbumManagerModal
-            isOpen={showAlbumManager}
-            onClose={onCloseAlbumManager}
-            pastEvents={pastEvents}
-            annualThemes={annualThemes}
-            readOnly={readOnly}
-          />
-        )}
-        {showNewsManager && (
-          <NewsManagerModal
-            isOpen={showNewsManager}
-            onClose={onCloseNewsManager}
-            readOnly={readOnly}
-          />
-        )}
-        {showSponsorManager && (
-          <SponsorManagerModal
-            isOpen={showSponsorManager}
-            onClose={onCloseSponsorManager}
-            readOnly={readOnly}
-          />
-        )}
-        {showEventAreaManager && (
-          <EventAreaManagerModal
-            isOpen={showEventAreaManager}
-            onClose={onCloseEventAreaManager}
-            readOnly={readOnly}
           />
         )}
         {showRegDetail && (

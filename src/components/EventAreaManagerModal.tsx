@@ -31,14 +31,10 @@ import {
   type LocationMappingRow,
 } from '../utils/domainApi';
 import { suggestAreaId } from '../utils/areaGrouping';
-import { ModalWrapper } from './ModalWrapper';
-import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
 import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
 }
@@ -46,7 +42,7 @@ interface Props {
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Props) {
+export function EventAreaManagerModal({ readOnly = false }: Props) {
   const [view, setView] = useState<'list' | 'detail' | 'mapping'>('list');
   const [areas, setAreas] = useState<EventArea[]>([]);
   const [selectedArea, setSelectedArea] = useState<EventArea | null>(null);
@@ -145,16 +141,14 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      loadAreas();
-      setView('list');
-      setSelectedArea(null);
-      setAreaPhotos([]);
-      setEditing(null);
-      resetForm();
-      clearUpload();
-    }
-  }, [isOpen, loadAreas]);
+    loadAreas();
+    setView('list');
+    setSelectedArea(null);
+    setAreaPhotos([]);
+    setEditing(null);
+    resetForm();
+    clearUpload();
+  }, [loadAreas]);
 
   const resetForm = () => {
     setFormName('');
@@ -400,45 +394,44 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
   const isMaxPhotos = areaPhotos.length + uploadFiles.length >= MAX_PHOTOS;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="event-area-manager-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <ModalHeader
-          titleId="event-area-manager-title"
-          title={view === 'list' ? 'Area & Lokasi Event' : view === 'mapping' ? 'Pemetaan Lokasi' : selectedArea?.name || 'Detail Area'}
-          subtitle={
-            view === 'list'
-              ? 'Kelola area event di Metropolitan Mall Bekasi'
-              : view === 'mapping'
-                ? 'Petakan teks lokasi lama ke area kanonis'
-                : `${areaPhotos.length} / ${MAX_PHOTOS} foto`
-          }
-          icon={<MapPin />}
-          onClose={onClose}
-          closeAriaLabel="Tutup"
-          leading={
-            view !== 'list' ? (
-              <button
-                type="button"
-                onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-            ) : undefined
-          }
-        />
+    <div className="wf-page space-y-4">
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          {view !== 'list' && (
+            <button
+              type="button"
+              onClick={goBackToList}
+              aria-label="Kembali"
+              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          <div className="min-w-0">
+            {view !== 'list' && (
+              <h2 className="truncate text-base font-bold text-[var(--wf-ink)]">
+                {view === 'mapping' ? 'Pemetaan Lokasi' : selectedArea?.name || 'Detail Area'}
+              </h2>
+            )}
+          </div>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
+          <MapPin className="h-4 w-4 text-[var(--wf-accent-ink)]" />
+        </div>
+      </header>
 
+      <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-xl border border-red-200 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
               {error}
             </div>
           )}
 
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-accent)] border-t-transparent" />
+              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}
 
@@ -449,7 +442,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                 <button
                   type="button"
                   onClick={startCreate}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule-strong)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
                 >
                   <Plus className="h-4 w-4" />
                   Tambah Area Baru
@@ -460,7 +453,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                 <button
                   type="button"
                   onClick={() => { setView('mapping'); loadMapping(); }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] py-3 text-sm font-semibold text-slate-600 transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-brand-primary-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] py-3 text-sm font-semibold text-[var(--wf-ink)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
                 >
                   <Layers className="h-4 w-4" />
                   Pemetaan Lokasi
@@ -469,35 +462,35 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
 
               {/* Create/Edit form */}
               {(editing || areas.length === 0) && (
-                <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
-                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+                  <p className="text-xs font-semibold text-[var(--wf-accent)]">
                     {editing ? 'Ubah Area' : 'Area Baru'}
                   </p>
                   <div>
-                    <label htmlFor="area-name" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
+                    <label htmlFor="area-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</label>
                     <input
                       id="area-name"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="Atrium, Main Lobby, dsb."
-                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                     />
                   </div>
                   <div>
-                    <label htmlFor="area-desc" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                    <label htmlFor="area-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
                     <input
                       id="area-desc"
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
                       placeholder="Deskripsi singkat area (opsional)"
-                      className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => { setEditing(null); resetForm(); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
                     >
                       Batal
                     </button>
@@ -505,7 +498,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       {editing ? 'Simpan' : 'Buat Area'}
@@ -515,10 +508,10 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
               )}
 
               {areas.length === 0 && !editing && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <MapPin className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada area</p>
-                  <p className="mt-1 text-xs text-slate-500">Tambah area pertama untuk mulai mengelola foto</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <MapPin className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada area</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Tambah area pertama untuk mulai mengelola foto</p>
                 </div>
               )}
 
@@ -527,10 +520,10 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                   {areas.map((area, idx) => (
                     <div
                       key={area.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
                     >
                       <div
-                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700"
+                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-[var(--wf-board-2)]"
                         onClick={() => openAreaDetail(area)}
                       >
                         {area.coverPhotoUrl ? (
@@ -543,24 +536,24 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <Camera className="h-5 w-5 text-slate-300 dark:text-slate-500" />
+                            <Camera className="h-5 w-5 text-[var(--wf-ink-muted)]" />
                           </div>
                         )}
                       </div>
 
                       <div className="min-w-0 flex-1 cursor-pointer" onClick={() => openAreaDetail(area)}>
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">
+                          <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                             {area.name}
                           </p>
                           {!area.isActive && (
-                            <span className="flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+                            <span className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-ink-muted)]">
                               <EyeOff className="h-3 w-3" aria-hidden="true" />
                               Disembunyikan
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
+                        <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--wf-ink-muted)]">
                           <span>{area.photoCount ?? 0} foto</span>
                           {editing?.id === area.id && <span>• sedang diubah</span>}
                         </div>
@@ -574,7 +567,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           disabled={idx === 0}
                           title="Naik"
                           aria-label="Naik"
-                          className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="-m-1 rounded p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-30"
                         >
                           <ChevronLeft className="h-4 w-4 rotate-90" />
                         </button>
@@ -584,7 +577,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           disabled={idx === areas.length - 1}
                           title="Turun"
                           aria-label="Turun"
-                          className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          className="-m-1 rounded p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-30"
                         >
                           <ChevronLeft className="h-4 w-4 -rotate-90" />
                         </button>
@@ -595,7 +588,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                         type="button"
                         onClick={() => handleToggleActive(area)}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-amber-50 hover:text-amber-700 group-hover:opacity-100 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-[var(--wf-action)]/10 hover:text-[var(--wf-action)] group-hover:opacity-100"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                       </button>}
@@ -604,7 +597,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       {!readOnly && <button
                         type="button"
                         onClick={() => startEdit(area)}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] group-hover:opacity-100"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>}
@@ -613,7 +606,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       {!readOnly && <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDeleteArea(area); }}
-                        className="rounded-lg p-2 text-slate-500 opacity-0 transition-[background-color,color,opacity] hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>}
@@ -627,7 +620,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
           {/* ===== VIEW 3: Location Mapping (backfill) ===== */}
           {view === 'mapping' && !isLoading && (
             <>
-              <p className="rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] px-4 py-3 text-xs leading-6 text-slate-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <p className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-xs leading-6 text-[var(--wf-ink-muted)]">
                 Teks lokasi lama dipetakan ke area kanonis. Hanya event yang <strong>belum</strong> punya area
                 yang akan diisi. Pemetaan manual sebelumnya tidak ditimpa. Centang
                 <strong> Seragamkan teks lokasi</strong> bila ejaan lama juga ingin diganti (berlaku untuk semua
@@ -635,18 +628,18 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
               </p>
 
               {mappingResult && (
-                <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-400">
+                <p className="rounded-xl border border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 px-4 py-2.5 text-xs font-semibold text-[var(--wf-live)]">
                   {mappingResult}
                 </p>
               )}
 
               {isMappingLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500 motion-reduce:animate-none" />
-                  <span className="ml-3 text-sm ui-text-muted">Memuat lokasi…</span>
+                  <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)] motion-reduce:animate-none" />
+                  <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat lokasi…</span>
                 </div>
               ) : mappingRows.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm ui-text-muted dark:border-slate-600">
+                <div className="rounded-xl border border-dashed border-[var(--wf-rule)] px-4 py-8 text-center text-sm text-[var(--wf-ink-muted)]">
                   Tidak ada teks lokasi yang perlu dipetakan.
                 </div>
               ) : (
@@ -658,13 +651,13 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       return (
                         <div
                           key={row.lokasi}
-                          className="flex flex-col gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-card)] p-3 dark:border-slate-600 dark:bg-slate-800 sm:flex-row sm:items-center"
+                          className="flex flex-col gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3 sm:flex-row sm:items-center"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                            <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                               {row.lokasi}
                             </p>
-                            <p className="mt-0.5 text-[11px] ui-text-muted">
+                            <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                               {row.eventCount} event{row.draftCount > 0 ? ` · ${row.draftCount} draft` : ''}
                               {row.currentAreaId ? ' · sudah dipetakan' : ''}
                             </p>
@@ -679,8 +672,8 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                               setMappingTarget(prev => ({ ...prev, [row.lokasi]: areaName }));
                             }}
                             aria-label={`Area untuk ${row.lokasi}`}
-                            className={`w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 dark:bg-slate-700 dark:text-white sm:w-52 ${
-                              chosen ? 'border-brand-primary-400 dark:border-brand-primary-600' : 'border-slate-200 dark:border-slate-600'
+                            className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] sm:w-52 ${
+                              chosen ? 'border-[var(--wf-accent)]' : 'border-[var(--wf-rule)]'
                             }`}
                           >
                             <option value="">- Abaikan -</option>
@@ -692,15 +685,15 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           </select>
 
                           {chosen && (
-                            <label className="flex w-full cursor-pointer flex-col gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-slate-50/60 px-3 py-2 dark:border-slate-600 dark:bg-slate-700/40 sm:w-64">
-                              <span className="flex items-center gap-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                            <label className="flex w-full cursor-pointer flex-col gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 sm:w-64">
+                              <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--wf-ink-muted)]">
                                 <input
                                   type="checkbox"
                                   checked={Boolean(mappingRename[row.lokasi])}
                                   onChange={e =>
                                     setMappingRename(prev => ({ ...prev, [row.lokasi]: e.target.checked }))
                                   }
-                                  className="h-3.5 w-3.5 accent-[var(--brand-tosca-600)]"
+                                  className="h-3.5 w-3.5 accent-[var(--wf-accent)]"
                                 />
                                 Seragamkan teks lokasi
                               </span>
@@ -713,7 +706,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={!mappingRename[row.lokasi]}
                                 placeholder="Nama lokasi baru"
                                 aria-label={`Teks lokasi baru untuk ${row.lokasi}`}
-                                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                                className="w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1.5 text-xs text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] disabled:cursor-not-allowed disabled:opacity-50"
                               />
                             </label>
                           )}
@@ -726,7 +719,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                     type="button"
                     onClick={handleApplyMapping}
                     disabled={isApplying}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-tosca-600)] py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-60 ui-focus-ring"
                   >
                     {isApplying ? (
                       <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />
@@ -749,8 +742,8 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                 onClick={() => handleToggleActive(selectedArea)}
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                   selectedArea.isActive
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-400'
-                    : 'border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                    ? 'border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 text-[var(--wf-live)]'
+                    : 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]'
                 }`}
               >
                 {selectedArea.isActive ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
@@ -759,7 +752,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
 
               {areaPhotos.length > 0 && (
                 <div>
-                  <p className="mb-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <p className="mb-3 text-xs font-semibold text-[var(--wf-ink-muted)]">
                     Foto ({areaPhotos.length}/{MAX_PHOTOS})
                   </p>
                   <div className="grid max-h-[40vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
@@ -768,10 +761,10 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       return (
                         <div
                           key={photo.id}
-                          className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-600"
+                          className="group relative overflow-hidden rounded-xl border border-[var(--wf-rule)]"
                         >
                           {isCover && (
-                            <div className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-amber-400 text-white shadow-sm">
+                            <div className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--wf-action)] text-[var(--wf-accent-ink)]">
                               <Star className="h-3.5 w-3.5 fill-current" />
                             </div>
                           )}
@@ -780,7 +773,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                               type="button"
                               onClick={() => handleSetCover(photo.url)}
                               title="Jadikan Cover"
-                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-amber-500 group-hover:opacity-100"
+                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-[var(--wf-action)] group-hover:opacity-100"
                             >
                               <Star className="h-3.5 w-3.5" />
                             </button>
@@ -788,7 +781,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                           {!readOnly && <button
                             type="button"
                             onClick={() => handleDeletePhoto(photo)}
-                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-500/80 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-600 group-hover:opacity-100"
+                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-600/90 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-700 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>}
@@ -803,13 +796,13 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                             />
                           </div>
 
-                          <div className="flex items-center gap-1 bg-[var(--brand-card)] px-2.5 py-2 dark:bg-slate-700/50">
-                            <GripVertical className="h-3.5 w-3.5 shrink-0 text-slate-300 dark:text-slate-500" aria-hidden="true" />
+                          <div className="flex items-center gap-1 bg-[var(--wf-board-2)] px-2.5 py-2">
+                            <GripVertical className="h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)]" aria-hidden="true" />
                             <div className="flex flex-1 flex-col">
-                              <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
+                              <p className="truncate text-xs font-medium text-[var(--wf-ink)]">
                                 {photo.caption}
                               </p>
-                              <p className="text-[10px] text-slate-500">
+                              <p className="text-[10px] text-[var(--wf-ink-muted)]">
                                 Posisi {idx + 1} dari {areaPhotos.length}
                               </p>
                             </div>
@@ -820,7 +813,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={idx === 0}
                                 title="Naik"
                                 aria-label="Naik"
-                                className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="-m-1 rounded p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-30"
                               >
                                 <ChevronLeft className="h-4 w-4 rotate-90" />
                               </button>
@@ -830,7 +823,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                                 disabled={idx === areaPhotos.length - 1}
                                 title="Turun"
                                 aria-label="Turun"
-                                className="-m-1 rounded p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                                className="-m-1 rounded p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-30"
                               >
                                 <ChevronLeft className="h-4 w-4 -rotate-90" />
                               </button>
@@ -844,18 +837,18 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
               )}
 
               {areaPhotos.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <Camera className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada foto</p>
-                  <p className="mt-1 text-xs text-slate-500">Upload foto pertama di bawah</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <Camera className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Upload foto pertama di bawah</p>
                 </div>
               )}
 
               {/* Upload Section */}
-              {!readOnly && <div className="space-y-3 rounded-xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-600 dark:bg-slate-700/30">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Upload Foto Baru</p>
+              {!readOnly && <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Upload Foto Baru</p>
                 {isMaxPhotos && uploadFiles.length === 0 && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                  <p className="text-xs text-[var(--wf-action)]">
                     Maksimal {MAX_PHOTOS} foto. Hapus foto yang ada untuk menambah yang baru.
                   </p>
                 )}
@@ -867,15 +860,15 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                     onClick={() => fileInputRef.current?.click()}
                     className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
                       isDragOver
-                        ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-900/20'
-                        : 'border-slate-300 hover:border-brand-primary-400 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:bg-slate-800'
+                        ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
+                        : 'border-[var(--wf-rule-strong)] hover:border-[var(--wf-accent)] hover:bg-[var(--wf-board-2)]'
                     }`}
                   >
-                    <Upload className="h-7 w-7 text-slate-500" />
-                    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    <Upload className="h-7 w-7 text-[var(--wf-ink-muted)]" />
+                    <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
                       Drag & drop foto di sini
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
                       atau klik untuk pilih · max {MAX_PHOTOS - areaPhotos.length} foto · 10MB/file
                     </p>
                   </div>
@@ -893,7 +886,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                   <div className="space-y-3">
                     <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                       {uploadFiles.map((file, idx) => (
-                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700">
+                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
                           <img
                             src={URL.createObjectURL(file)}
                             alt={file.name}
@@ -911,16 +904,16 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs ui-text-muted">{uploadFiles.length} foto dipilih</p>
+                    <p className="text-xs text-[var(--wf-ink-muted)]">{uploadFiles.length} foto dipilih</p>
                     {uploading && uploadProgress.total > 0 && (
                       <div className="space-y-1">
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div className="h-2 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
                           <div
-                            className="h-full rounded-full bg-brand-primary-500 transition-all duration-300"
+                            className="h-full rounded-full bg-[var(--wf-accent)] transition-all duration-300"
                             style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
                           />
                         </div>
-                        <p className="text-xs ui-text-muted">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
+                        <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
                     )}
                     {!uploading && (
@@ -928,7 +921,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                         type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
@@ -940,31 +933,31 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
 
               {/* Edit area info */}
               {(editing?.id === selectedArea.id) && (
-                <div className="space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-900/50 dark:bg-brand-primary-900/10">
-                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">Ubah Area</p>
+                <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+                  <p className="text-xs font-semibold text-[var(--wf-accent)]">Ubah Area</p>
                   <div>
-                    <label htmlFor="area-name-edit" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Nama Area *</label>
+                    <label htmlFor="area-name-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</label>
                     <input
                       id="area-name-edit"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                     />
                   </div>
                   <div>
-                    <label htmlFor="area-desc-edit" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Deskripsi</label>
+                    <label htmlFor="area-desc-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
                     <input
                       id="area-desc-edit"
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => { setEditing(null); resetForm(); }}
-                      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
                     >
                       Batal
                     </button>
@@ -972,7 +965,7 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
                       type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
-                      className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                      className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       Simpan
@@ -985,17 +978,13 @@ export function EventAreaManagerModal({ isOpen, onClose, readOnly = false }: Pro
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end border-t border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-          >
-            Tutup
-          </button>
+        <div className="flex items-center justify-end border-t border-[var(--wf-rule)] px-4 py-4 text-xs text-[var(--wf-ink-muted)] sm:px-6">
+          {view === 'detail' && selectedArea
+            ? `${areaPhotos.length} / ${MAX_PHOTOS} foto`
+            : `${areas.length} area`}
         </div>
       </div>
       {confirmDialogEl}
-    </ModalWrapper>
+    </div>
   );
 }

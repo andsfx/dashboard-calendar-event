@@ -4,18 +4,18 @@ import { DraftProgress } from '../types';
 const CONFIG: Record<DraftProgress, { label: string; className: string; dot: string }> = {
   draft: {
     label: 'Draft',
-    className: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 ring-1 ring-brand-primary-300 dark:ring-brand-primary-700',
-    dot: 'bg-brand-primary-400',
+    className: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)] ring-1 ring-[var(--wf-action)]/30',
+    dot: 'bg-[var(--wf-action)]',
   },
   confirm: {
     label: 'Konfirmasi',
-    className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 ring-1 ring-emerald-300 dark:ring-emerald-700',
-    dot: 'bg-emerald-500',
+    className: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)] ring-1 ring-[var(--wf-live)]/30',
+    dot: 'bg-[var(--wf-live)]',
   },
   cancel: {
     label: 'Batal',
-    className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 ring-1 ring-rose-300 dark:ring-rose-700',
-    dot: 'bg-rose-400',
+    className: 'bg-red-600/10 text-red-700 ring-1 ring-red-600/30 dark:text-red-300',
+    dot: 'bg-red-600',
   },
 };
 

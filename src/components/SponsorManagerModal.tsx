@@ -9,13 +9,9 @@ import {
   setEventProposal,
   deleteEventProposal,
 } from '../utils/domainApi';
-import { ModalWrapper } from './ModalWrapper';
-import { ModalHeader } from './ui/ModalHeader';
 import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
 }
@@ -30,12 +26,12 @@ const STATUS_LABELS: Record<SponsorLeadStatus, string> = {
 };
 
 const STATUS_CLASSES: Record<SponsorLeadStatus, string> = {
-  pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-  contacted: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  agreed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  declined: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  pending: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
+  contacted: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
+  agreed: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
+  declined: 'bg-red-600/10 text-red-700 dark:text-red-300',
 };
-export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props) {
+export function SponsorManagerModal({ readOnly = false }: Props) {
   const [tab, setTab] = useState<'proposals' | 'leads'>('proposals');
   const [events, setEvents] = useState<EventProposalEvent[]>([]);
   const [leads, setLeads] = useState<SponsorLead[]>([]);
@@ -63,13 +59,11 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      setTab('proposals');
-      setError('');
-      setSuccess('');
-      loadData();
-    }
-  }, [isOpen, loadData]);
+    setTab('proposals');
+    setError('');
+    setSuccess('');
+    loadData();
+  }, [loadData]);
 
   const handleProposalSelect = async (eventId: string, file?: File) => {
     if (!file) return;
@@ -160,26 +154,18 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
   const statusOptions: SponsorLeadStatus[] = ['pending', 'contacted', 'agreed', 'declined'];
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="sponsor-manager-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <ModalHeader
-          titleId="sponsor-manager-title"
-          title="Sponsorship"
-          subtitle="Proposal Event & Minat Support"
-          icon={<Handshake />}
-          onClose={onClose}
-          closeAriaLabel="Tutup"
-        />
+    <div className="wf-page space-y-4">
+      <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
 
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Tabs */}
-          <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-700/50">
+          <div className="flex gap-1 rounded-xl bg-[var(--wf-board-2)] p-1">
             <button
               type="button"
               onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'proposals'
-                ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white'}`}
+                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
             >
               Proposal Event
             </button>
@@ -187,8 +173,8 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
               type="button"
               onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'leads'
-                ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white'}`}
+                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
             >
               Minat Support ({leads.length})
             </button>
@@ -196,14 +182,14 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
 
           {/* Error message */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
 
           {/* Success message */}
           {success && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400">
+            <div className="rounded-xl border border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 px-4 py-3 text-sm text-[var(--wf-live)]">
               {success}
             </div>
           )}
@@ -211,36 +197,36 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
           {/* Loading */}
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" />
+              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}
 
           {/* ===== TAB 1: Proposal Event ===== */}
           {tab === 'proposals' && !isLoading && (
             <div className="space-y-2">
-              <p className="text-xs ui-text-muted">
+              <p className="text-xs text-[var(--wf-ink-muted)]">
                 Lampirkan satu berkas proposal (PDF / gambar / DOCX) per event. Proposal tampil di halaman publik /sponsor.
               </p>
               {events.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <Handshake className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada event upcoming</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <Handshake className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada event upcoming</p>
                 </div>
               )}
               {events.map((item) => (
                 <div
                   key={item.event.id}
-                  className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                  className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
                 >
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
-                    <FileText className="m-auto mt-3 h-6 w-6 text-slate-500 dark:text-slate-300" />
+                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
+                    <FileText className="m-auto mt-3 h-6 w-6 text-[var(--wf-ink-muted)]" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                    <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                       {item.event.acara}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">
+                    <p className="text-xs text-[var(--wf-ink-muted)]">
                       {formatDate(item.event.dateStr)}{item.event.lokasi ? ` · ${item.event.lokasi}` : ''}
                     </p>
                     {item.proposal.fileUrl ? (
@@ -249,23 +235,23 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                           href={item.proposal.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-medium text-brand-primary-600 hover:underline dark:text-brand-primary-400"
+                          className="inline-flex items-center gap-1 font-medium text-[var(--wf-accent)] hover:underline"
                         >
                           <ExternalLink className="h-3 w-3" /> {item.proposal.fileName || 'Lihat proposal'}
                         </a>
                         {!readOnly && (<>
-                        <span className="text-slate-500">·</span>
+                        <span className="text-[var(--wf-ink-muted)]">·</span>
                         <button
                           type="button"
                           onClick={() => handleDeleteProposal(item)}
-                          className="font-medium text-rose-500 hover:underline"
+                          className="font-medium text-red-700 hover:underline dark:text-red-300"
                         >
                           Hapus
                         </button>
                         </>)}
                       </div>
                     ) : (
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Belum ada proposal</p>
+                      <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Belum ada proposal</p>
                     )}
                   </div>
                   <div className="flex-shrink-0">
@@ -281,7 +267,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                       type="button"
                       onClick={() => document.getElementById(`proposal-file-${item.event.id}`)?.click()}
                       disabled={isUploading}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-tosca-600)] px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--wf-accent)] px-3.5 py-1.5 text-xs font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50"
                     >
                       {isUploading && uploadingEventId === item.event.id ? (
                         <>
@@ -304,51 +290,51 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
           {/* ===== TAB 2: Lead Sponsor ===== */}
           {tab === 'leads' && !isLoading && (
             <div className="space-y-2">
-              <p className="text-xs ui-text-muted">
+              <p className="text-xs text-[var(--wf-ink-muted)]">
                 Minat support dari pengunjung halaman /sponsor. Perbarui status saat tim menindaklanjuti.
               </p>
               {leads.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <Handshake className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada lead</p>
-                  <p className="mt-1 text-xs text-slate-500">Lead muncul saat pengunjung mengirim Minat Support</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <Handshake className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada lead</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Lead muncul saat pengunjung mengirim Minat Support</p>
                 </div>
               )}
               {leads.map((lead) => (
                 <div
                   key={lead.id}
-                  className="rounded-xl border border-slate-200 p-3 dark:border-slate-600"
+                  className="rounded-xl border border-[var(--wf-rule)] p-3"
                 >
                   <div className="flex flex-wrap items-start gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                           {lead.companyName}
                         </p>
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_CLASSES[lead.status]}`}>
                           {STATUS_LABELS[lead.status]}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-300">
+                      <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
                         {lead.eventAcara || '-'}{lead.eventDate ? ` · ${formatDate(lead.eventDate)}` : ''}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+                      <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
                         PIC: {lead.contactName || '-'}
                         {lead.phone ? ` · WA: ${lead.phone}` : ''}
                         {lead.email ? ` · ${lead.email}` : ''}
                       </p>
                       {lead.message && (
-                        <p className="mt-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs text-slate-600 dark:bg-slate-700/60 dark:text-slate-300">
+                        <p className="mt-1.5 rounded-lg bg-[var(--wf-board-2)] px-2.5 py-1.5 text-xs text-[var(--wf-ink-muted)]">
                           "{lead.message}"
                         </p>
                       )}
-                      <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-300">
+                      <p className="mt-1 text-[10px] text-[var(--wf-ink-muted)]">
                         Diterima {formatLeadDate(lead.createdAt)}
                       </p>
                     </div>
                     <div className="flex flex-shrink-0 flex-col items-end gap-1.5">
                       {readOnly ? (
-                        <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+                        <span className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-xs font-medium text-[var(--wf-ink)]">
                           {STATUS_LABELS[lead.status]}
                         </span>
                       ) : (
@@ -356,7 +342,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                           <select
                             value={lead.status}
                             onChange={(e) => handleStatusChange(lead, e.target.value as SponsorLeadStatus)}
-                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                            className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-xs font-medium text-[var(--wf-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
                           >
                             {statusOptions.map((s) => (
                               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
@@ -365,7 +351,7 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
                           <button
                             type="button"
                             onClick={() => handleDeleteLead(lead)}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-red-700 hover:underline dark:text-red-300"
                           >
                             <Trash2 className="h-3 w-3" /> Hapus
                           </button>
@@ -380,6 +366,6 @@ export function SponsorManagerModal({ isOpen, onClose, readOnly = false }: Props
         </div>
       </div>
       {confirmDialogEl}
-    </ModalWrapper>
+    </div>
   );
 }

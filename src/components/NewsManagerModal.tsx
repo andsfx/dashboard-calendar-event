@@ -2,14 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLeft, Pencil } from 'lucide-react';
 import { NewsArticle } from '../types';
 import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsArticle, uploadToR2 } from '../utils/domainApi';
-import { ModalWrapper } from './ModalWrapper';
-import { ModalHeader } from './ui/ModalHeader';
 import { adminThumbUrl } from '../utils/imageOptim';
 import { useConfirmDialog } from './ConfirmDialog';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
 }
@@ -17,11 +13,11 @@ interface Props {
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white';
+  'w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]';
 
-const labelClass = 'mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300';
+const labelClass = 'mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]';
 
-export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
+export function NewsManagerModal({ readOnly = false }: Props) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -52,13 +48,11 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      loadArticles();
-      setView('list');
-      setEditing(null);
-      setError('');
-    }
-  }, [isOpen, loadArticles]);
+    loadArticles();
+    setView('list');
+    setEditing(null);
+    setError('');
+  }, [loadArticles]);
 
   const clearForm = () => {
     setTitle('');
@@ -188,32 +182,38 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="news-manager-title">
-      <div className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-        <ModalHeader
-          titleId="news-manager-title"
-          title={view === 'list' ? 'Berita & Artikel' : editing ? 'Edit Artikel' : 'Artikel Baru'}
-          subtitle={view === 'list' ? 'Kelola artikel berita' : `${articles.length} artikel terdaftar`}
-          icon={<Newspaper />}
-          onClose={onClose}
-          closeAriaLabel="Tutup"
-          leading={
-            view === 'edit' ? (
-              <button
-                type="button"
-                onClick={goBackToList}
-                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-            ) : undefined
-          }
-        />
+    <div className="wf-page space-y-4">
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          {view === 'edit' && (
+            <button
+              type="button"
+              onClick={goBackToList}
+              aria-label="Kembali"
+              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          <div className="min-w-0">
+            {view === 'edit' && (
+              <h2 className="truncate text-base font-bold text-[var(--wf-ink)]">
+                {editing ? 'Edit Artikel' : 'Artikel Baru'}
+              </h2>
+            )}
+          </div>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
+          <Newspaper className="h-4 w-4 text-[var(--wf-accent-ink)]" />
+        </div>
+      </header>
+
+      <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
 
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Error message */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
@@ -221,8 +221,8 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
           {/* Loading */}
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-primary-500 border-t-transparent" />
-              <span className="ml-3 text-sm ui-text-muted">Memuat…</span>
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" />
+              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}
 
@@ -233,7 +233,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                 <button
                   type="button"
                   onClick={startCreate}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Artikel Baru
@@ -241,10 +241,10 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
               )}
 
               {articles.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 dark:border-slate-600">
-                  <Newspaper className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" />
-                  <p className="text-sm font-medium ui-text-muted">Belum ada artikel</p>
-                  <p className="mt-1 text-xs text-slate-500">Buat artikel pertama untuk mulai mengelola berita</p>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <Newspaper className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada artikel</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Buat artikel pertama untuk mulai mengelola berita</p>
                 </div>
               )}
 
@@ -253,10 +253,10 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                   {articles.map((article) => (
                     <div
                       key={article.id}
-                      className="group flex items-center gap-3 rounded-xl border border-slate-200 p-3 transition-colors hover:border-brand-primary-300 hover:bg-brand-primary-50/30 dark:border-slate-600 dark:hover:border-brand-primary-500/50 dark:hover:bg-brand-primary-900/10"
+                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
                     >
                       {/* Cover thumbnail */}
-                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
+                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
                         {article.coverImageUrl ? (
                           <img
                             src={adminThumbUrl(article.coverImageUrl)}
@@ -267,22 +267,22 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <Newspaper className="h-5 w-5 text-slate-300 dark:text-slate-500" />
+                            <Newspaper className="h-5 w-5 text-[var(--wf-ink-muted)]" />
                           </div>
                         )}
                       </div>
 
                       {/* Info */}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                           {article.title}
                         </p>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--wf-ink-muted)]">
                           <span
                             className={
                               article.status === 'published'
-                                ? 'rounded-full bg-[var(--brand-tosca-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-tosca-dark)] dark:bg-brand-primary-900/40 dark:text-brand-primary-300'
-                                : 'rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-300'
+                                ? 'rounded-full bg-[var(--wf-live)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-live)]'
+                                : 'rounded-full bg-[var(--wf-action)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-action)]'
                             }
                           >
                             {article.status === 'published' ? 'Terbit' : 'Draft'}
@@ -297,7 +297,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                         <button
                           type="button"
                           onClick={() => startEdit(article)}
-                          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700 dark:hover:text-brand-primary-400"
+                          className="rounded-lg p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-accent)]"
                           aria-label={`Edit ${article.title}`}
                         >
                           <Pencil className="h-4 w-4" />
@@ -307,8 +307,8 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                           onClick={() => handleTogglePublish(article)}
                           className={
                             article.status === 'published'
-                              ? 'rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
-                              : 'rounded-lg bg-brand-primary-600 px-2 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary-700'
+                              ? 'rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]'
+                              : 'rounded-lg bg-[var(--wf-accent)] px-2 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]'
                           }
                         >
                           {article.status === 'published' ? 'Tarik Terbit' : 'Terbitkan'}
@@ -316,7 +316,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                         <button
                           type="button"
                           onClick={() => handleDelete(article)}
-                          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                          className="rounded-lg p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
                           aria-label={`Hapus ${article.title}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -381,7 +381,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
               <div>
                 <label className={labelClass}>Cover</label>
                 {coverImageUrl ? (
-                  <div className="relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-600">
+                  <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
                     <img src={coverImageUrl} alt="Cover artikel" className="aspect-[16/9] w-full object-cover" />
                     <button
                       type="button"
@@ -393,7 +393,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-6 text-sm font-medium ui-text-muted transition-colors hover:border-brand-primary-400 hover:text-brand-primary-600 dark:border-slate-600 dark:hover:border-brand-primary-400 dark:hover:text-brand-primary-400">
+                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]">
                     <Upload className="h-5 w-5" />
                     {isUploading ? 'Mengunggah…' : 'Pilih gambar cover'}
                     <input
@@ -413,7 +413,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                 <button
                   type="button"
                   onClick={goBackToList}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                  className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
                 >
                   Batal
                 </button>
@@ -421,7 +421,7 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
                   type="button"
                   onClick={handleSave}
                   disabled={!title.trim() || isUploading}
-                  className="flex items-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-brand-primary-900/30"
+                  className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-3.5 w-3.5" />
                   Simpan Artikel
@@ -432,6 +432,6 @@ export function NewsManagerModal({ isOpen, onClose, readOnly = false }: Props) {
         </div>
       </div>
       {confirmDialogEl}
-    </ModalWrapper>
+    </div>
   );
 }

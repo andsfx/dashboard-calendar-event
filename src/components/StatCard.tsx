@@ -14,10 +14,10 @@ interface StatCardProps {
 }
 
 const CHIP_CLASSES: Record<StatCardVariant, string> = {
-  primary: 'bg-brand-primary-50 text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300',
-  slate: 'bg-slate-200 text-slate-700 dark:bg-slate-700/70 dark:text-slate-200',
-  emerald: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
-  amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+  primary: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
+  slate: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]',
+  emerald: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
+  amber: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
 };
 
 function useCountUp(target: number, duration = 800, delay = 0) {
@@ -58,20 +58,20 @@ export const StatCard = memo(function StatCard({ icon, label, value, subtitle, v
 
   return (
     <div
-      className="fade-up rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-3.5 shadow-[var(--shadow-card-soft)] transition duration-200 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 sm:p-5"
+      className="fade-up rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3.5 transition duration-200 sm:p-5"
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300 sm:text-xs">{label}</p>
-          <p className="font-display mt-1 text-3xl font-extrabold leading-none tracking-tight tabular-nums text-slate-900 dark:text-white sm:mt-1.5 sm:text-4xl">{displayed}</p>
-          {subtitle && <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-300 sm:text-xs">{subtitle}</p>}
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--wf-ink-muted)] sm:text-xs">{label}</p>
+          <p className="font-display mt-1 text-3xl font-extrabold leading-none tracking-tight tabular-nums text-[var(--wf-ink)] sm:mt-1.5 sm:text-4xl">{displayed}</p>
+          {subtitle && <p className="mt-1 text-[11px] text-[var(--wf-ink-muted)] sm:text-xs">{subtitle}</p>}
           {trend && (
             <div className="mt-2 flex items-center gap-1">
-              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-[var(--wf-live)]' : 'text-red-700 dark:text-red-300'}`}>
                 {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-300">{trend.label}</span>
+              <span className="text-[10px] text-[var(--wf-ink-muted)]">{trend.label}</span>
             </div>
           )}
         </div>

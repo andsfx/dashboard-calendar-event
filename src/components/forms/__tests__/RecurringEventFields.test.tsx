@@ -32,7 +32,7 @@ describe('RecurringEventFields', () => {
   it('highlights selected days', () => {
     render(<RecurringEventFields {...mockProps} />)
     const senButton = screen.getByText('Sen')
-    expect(senButton).toHaveClass('bg-brand-primary-600')
+    expect(senButton).toHaveClass('bg-[var(--wf-accent)]')
   })
 
   it('calls onToggleDayOfWeek when day clicked', () => {

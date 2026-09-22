@@ -6,10 +6,10 @@ const focusRing = 'ui-focus-ring';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
-  { key: 'draft',    label: 'Internal',     dot: 'bg-brand-primary-400' },
-  { key: 'ongoing',  label: 'Berlangsung',  dot: 'bg-emerald-500' },
-  { key: 'upcoming', label: 'Mendatang',    dot: 'bg-amber-500' },
-  { key: 'past',     label: 'Selesai',      dot: 'bg-slate-400' },
+  { key: 'draft',    label: 'Internal',     dot: 'bg-[var(--wf-accent)]' },
+  { key: 'ongoing',  label: 'Berlangsung',  dot: 'bg-[var(--wf-live)]' },
+  { key: 'upcoming', label: 'Mendatang',    dot: 'bg-[var(--wf-action)]' },
+  { key: 'past',     label: 'Selesai',      dot: 'bg-[var(--wf-ink-muted)]' },
 ];
 
 

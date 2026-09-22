@@ -21,12 +21,12 @@ interface UserRecord {
 }
 
 const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  superadmin: { label: 'Superadmin', color: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300', icon: <Crown className="h-3 w-3" /> },
-  admin: { label: 'Admin', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', icon: <Shield className="h-3 w-3" /> },
-  viewer: { label: 'Viewer', color: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300', icon: <Eye className="h-3 w-3" /> },
-  demo: { label: 'Demo', color: 'bg-brand-secondary-100 text-brand-secondary-700 dark:bg-brand-secondary-900/40 dark:text-brand-secondary-300', icon: <Eye className="h-3 w-3" /> },
-  eo_tenant: { label: 'EO/Tenant', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', icon: <Building2 className="h-3 w-3" /> },
-  tenant_relation: { label: 'Tenant Relation', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', icon: <BarChart3 className="h-3 w-3" /> },
+  superadmin: { label: 'Superadmin', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Crown className="h-3 w-3" /> },
+  admin: { label: 'Admin', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Shield className="h-3 w-3" /> },
+  viewer: { label: 'Viewer', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
+  demo: { label: 'Demo', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
+  eo_tenant: { label: 'EO/Tenant', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Building2 className="h-3 w-3" /> },
+  tenant_relation: { label: 'Tenant Relation', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <BarChart3 className="h-3 w-3" /> },
 };
 
 interface UserManagementProps {
@@ -125,7 +125,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
   }, [showForm, formData, fetchUsers]);
 
   if (loading) {
-    return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-brand-primary-500" /></div>;
+    return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-[var(--wf-accent)]" /></div>;
   }
 
   return (
@@ -133,14 +133,14 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-slate-600 dark:text-slate-300">{users.length} user terdaftar</p>
+          <p className="text-xs text-[var(--wf-ink-muted)]">{users.length} user terdaftar</p>
         </div>
         <div className="flex gap-2">
           {!readOnly && (<>
-          <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-primary-700">
+          <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)]">
             <Mail className="h-3.5 w-3.5" /> Invite
           </button>
-          <button onClick={() => setShowForm('create')} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+          <button onClick={() => setShowForm('create')} className="flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
             <UserPlus className="h-3.5 w-3.5" /> Buat Manual
           </button>
           </>)}
@@ -152,31 +152,31 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
 
       {/* Create/Invite Form */}
       {showForm && !readOnly && (
-        <div className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50/50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/20">
+        <div className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <h3 className="text-sm font-semibold text-[var(--wf-ink)]">
               {showForm === 'invite' ? 'Undang User Baru' : 'Buat User Manual'}
             </h3>
             <button
               type="button"
               onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }}
               aria-label="Tutup form"
-              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700"
+              className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input type="email" aria-label="Alamat email" placeholder="Alamat email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
+              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
             {showForm === 'create' && (
               <input type="password" aria-label="Password (minimal 6 karakter)" placeholder="Password (minimal 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
+                className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
             )}
             <input type="text" aria-label="Nama tampilan" placeholder="Nama Tampilan" value={formData.display_name} onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white" />
+              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
             <select aria-label="Peran pengguna" value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white">
+              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]">
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
               <option value="demo">Demo (hanya lihat)</option>
@@ -185,13 +185,13 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
             </select>
             {formData.role === 'eo_tenant' && (
               <input type="text" aria-label="Nama organisasi EO" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={e => setFormData(p => ({ ...p, eo_organization: e.target.value }))}
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white sm:col-span-2" />
+                className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] sm:col-span-2" />
             )}
           </div>
           {formError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{formError}</p>}
-          {formSuccess && <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">{formSuccess}</p>}
+          {formSuccess && <p className="mt-2 text-xs text-[var(--wf-live)]">{formSuccess}</p>}
           <button onClick={handleSubmitForm} disabled={formLoading || !formData.email || !formData.role}
-            className="mt-3 flex items-center gap-2 rounded-lg bg-brand-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-primary-700 disabled:opacity-50">
+            className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)] disabled:opacity-50">
             {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {showForm === 'invite' ? 'Kirim Undangan' : 'Buat User'}
           </button>
@@ -200,22 +200,22 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
 
       {/* Users table */}
       <div className="ui-dashboard-surface">
-        <div className="divide-y divide-slate-100 dark:divide-slate-700">
+        <div className="divide-y divide-[var(--wf-rule)]">
           {users.map((u) => {
-            const roleInfo = ROLE_LABELS[u.role] || { label: u.role, color: 'bg-slate-100 text-slate-700', icon: <Shield className="h-3 w-3" /> };
+            const roleInfo = ROLE_LABELS[u.role] || { label: u.role, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Shield className="h-3 w-3" /> };
             // Label aksesibel harus unik: display_name boleh sama (dua user
             // bernama "demo"), email tidak — jadi email disertakan.
             const userLabel = u.display_name ? `${u.display_name} (${u.email})` : u.email;
             return (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3">
                 {/* Avatar */}
-<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 ui-text-muted dark:bg-slate-700 ">
+<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] ">
                   <Users className="h-4 w-4" />
                 </div>
                 {/* Info */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">{u.display_name}</p>
+                    <p className="truncate text-sm font-medium text-[var(--wf-ink)]">{u.display_name}</p>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${roleInfo.color}`}>
                       {roleInfo.icon} {roleInfo.label}
                     </span>
@@ -223,7 +223,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
                     )}
                   </div>
-                  <p className="truncate text-xs ui-text-muted">{u.email}</p>
+                  <p className="truncate text-xs text-[var(--wf-ink-muted)]">{u.email}</p>
                 </div>
                 {!readOnly && (
                   <div className="flex shrink-0 items-center gap-1">
@@ -231,7 +231,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                         bisa mengganti email/password miliknya sendiri. */}
                     <button
                       onClick={() => setEditingUser(u)}
-                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary-600 dark:hover:bg-slate-700"
+                      className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-accent)]"
                       title="Edit user"
                       aria-label={`Edit ${userLabel}`}
                     >
@@ -242,7 +242,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                     {u.role !== 'superadmin' && (<>
                     <button
                       onClick={() => handleToggleActive(u.id, u.is_active)}
-                      className={`rounded-lg p-1.5 transition-colors ${u.is_active ? 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                      className={`rounded-lg p-1.5 transition-colors ${u.is_active ? 'text-[var(--wf-live)] hover:bg-[var(--wf-live)]/10' : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                       aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${userLabel}`}
                       aria-pressed={u.is_active}
@@ -251,7 +251,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                     </button>
                     <button
                       onClick={() => handleDelete(u.id)}
-                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+                      className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
                       title="Nonaktifkan user"
                       aria-label={`Nonaktifkan ${userLabel}`}
                     >

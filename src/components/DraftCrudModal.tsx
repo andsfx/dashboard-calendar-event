@@ -347,7 +347,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-3xl" ariaLabelledBy="draft-crud-title">
       <div
-        className="max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800"
+        className="max-h-[90vh] overflow-y-auto rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]"
         tabIndex={-1}
       >
         <ModalHeader
@@ -391,7 +391,7 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
 
           {/* Tipe acara */}
           <div className="space-y-2">
-            <label className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Tipe Acara</label>
+            <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</label>
             <div className="flex flex-wrap gap-2">
               {([
                 { value: 'single', label: 'Acara biasa' },
@@ -400,8 +400,8 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               ] as const).map(opt => (
                 <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
                   form.eventType === opt.value
-                    ? 'border-brand-primary-400 bg-brand-primary-50 text-brand-primary-700 ring-1 ring-brand-primary-200 dark:border-brand-primary-600 dark:bg-brand-primary-900/20 dark:text-brand-primary-300'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                    ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
+                    : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
                 }`}>
                   <input
                     type="radio"
@@ -467,12 +467,12 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
           />
 
           <div>
-            <label htmlFor="draft-progress" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Progress</label>
+            <label htmlFor="draft-progress" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Progress</label>
             <select
               id="draft-progress"
               value={form.progress}
               onChange={e => set('progress', e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
             >
               <option value="draft">Draft</option>
               <option value="confirm">Konfirmasi</option>
@@ -480,25 +480,25 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
             </select>
           </div>
           <div>
-            <label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Keterangan</label>
+            <label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</label>
             <textarea
               id="draft-keterangan"
               value={form.keterangan}
               onChange={e => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Tulis status progres atau catatan follow-up event"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
             />
           </div>
           <div>
-            <label htmlFor="draft-internal-note" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">Catatan Internal</label>
+            <label htmlFor="draft-internal-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Internal</label>
             <textarea
               id="draft-internal-note"
               value={form.internalNote}
               onChange={e => set('internalNote', e.target.value)}
               rows={2}
               placeholder="Catatan admin internal, tidak ikut diterbitkan ke event utama"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-[var(--brand-card)] px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
             />
           </div>
 
@@ -507,14 +507,14 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-slate-200 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
