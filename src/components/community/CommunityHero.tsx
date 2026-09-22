@@ -124,8 +124,13 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
               )}
             </div>
 
-            {/* M10: desktop scale lowered to 60px (was lg:text-[5rem] = 80px) so the
-                headline is 2 lines at 1280px instead of 3. Mobile scale unchanged. */}
+            {/* M10: skala desktop diturunkan ke 60px (dulu lg:text-[5rem] = 80px).
+                Catatan: klaim lama "2 baris di 1280px" tidak lagi berlaku sejak
+                hero jadi dua kolom — kolom narasi menyempit, jadi headline
+                terbaca 3 baris di 1440px (terukur 60px/63px lh, lebar 617px).
+                Jangan naikkan lagi ke 80px: gate `hero copy stays above the 87%
+                line` mengukur tinggi konten hero, dan headline 4 baris akan
+                mendorongnya ke pita transisi gradient. */}
             <h1 className="community-hero-in community-hero-in-d1 mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl">
               Panggung <strong className="text-brand-primary-300">Gratis</strong> untuk Komunitas Bekasi
             </h1>
@@ -155,7 +160,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
           {/* Papan data realtime — mengisi ruang kanan hero, bukan tumpukan bawah */}
           <aside
             aria-label="Data komunitas terkini"
-            className="community-hero-in community-hero-in-d2 w-full rounded-[1.75rem] border border-white/15 bg-white/10 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-6"
+            className="community-hero-in community-hero-in-d2 w-full rounded-[var(--radius-campaign-card)] border border-white/15 bg-white/10 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-6"
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">

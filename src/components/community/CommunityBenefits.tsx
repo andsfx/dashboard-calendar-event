@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { HandCoins, Megaphone, PackageCheck, Sprout } from 'lucide-react';
-import { RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 import { Link } from 'react-router-dom';
 
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
@@ -33,7 +33,8 @@ export function CommunityBenefits() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-8">
           <div>
-            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <CommunityEyebrow>Keuntungan</CommunityEyebrow>
+            <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Bukan cuma dikasih tempat.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
@@ -48,7 +49,7 @@ export function CommunityBenefits() {
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Sponsor & Support</p>
+                <CommunityEyebrow>Sponsor &amp; Support</CommunityEyebrow>
                 <h3 className="mt-1.5 text-xl font-bold leading-tight text-slate-950 dark:text-white">Dukungan Sponsorship</h3>
                 <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
                 <Link

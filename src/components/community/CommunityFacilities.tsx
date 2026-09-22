@@ -1,6 +1,6 @@
 import { Fragment, ReactNode } from 'react';
 import { Armchair, Gavel, Lightbulb, MapPin, Mic2, Speaker } from 'lucide-react';
-import { RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 
 const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
   { icon: <Mic2 className="h-5 w-5" aria-hidden="true" />, title: 'Panggung & Backdrop', detail: 'Panggung siap pakai dengan backdrop yang bisa diganti materinya sesuai tema event kamu.' },
@@ -25,7 +25,8 @@ export function CommunityFacilities() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5">
           <div className="max-w-2xl">
-            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <CommunityEyebrow>Fasilitas</CommunityEyebrow>
+            <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Semua udah disiapin.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">

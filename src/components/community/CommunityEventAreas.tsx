@@ -16,7 +16,7 @@ function SkeletonAreas() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
       {[0, 1, 2].map(i => (
-        <div key={i} className="h-56 animate-pulse rounded-[2rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+        <div key={i} className="h-56 animate-pulse rounded-[var(--radius-campaign-card)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
       ))}
     </div>
   );
@@ -122,7 +122,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <CommunityEyebrow>Foto Area Event</CommunityEyebrow>
-          <h2 className="font-display mt-2 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="font-display mt-3 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             Area di Metropolitan Mall Bekasi
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
@@ -138,7 +138,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
               return (
               <figure
                 key={area.id}
-                className="ui-campaign-card group overflow-hidden rounded-[2rem] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900"
+                className="ui-campaign-card group overflow-hidden rounded-[var(--radius-campaign-card)] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900"
               >
                 {/* Interaksi ada di elemen nyata (<button> di dalam AreaMedia),
                     bukan role="button" di atas <figure> — ARIA melarang role itu
@@ -164,7 +164,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             })}
           </div>
         ) : (
-          <div className="mt-10 flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 py-14 text-center dark:border-slate-700">
+          <div className="mt-10 flex flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border-2 border-dashed border-slate-200 py-14 text-center dark:border-slate-700">
             <MapPin className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" aria-hidden="true" />
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Belum ada foto area</p>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Foto area akan tampil di sini saat admin menambahkannya.</p>

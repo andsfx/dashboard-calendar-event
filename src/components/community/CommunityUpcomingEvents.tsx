@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { parseTimeRange } from '../../utils/eventDateTime';
-import { RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 
 function EmptyEvents() {
   return (
@@ -73,10 +73,11 @@ function UpcomingEventsSkeleton() {
   return (
     <RevealSection id="upcoming-events" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+        <CommunityEyebrow>Agenda</CommunityEyebrow>
+        <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
           Agenda event
         </h2>
-        <div className="mt-8 overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 dark:border-slate-700 dark:bg-slate-800" aria-hidden="true">
+        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100 dark:border-slate-700 dark:bg-slate-800" aria-hidden="true">
           <div className="p-6 sm:p-10 lg:p-12">
             <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
             <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
@@ -113,7 +114,8 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
     return (
       <RevealSection id="upcoming-events" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <CommunityEyebrow>Agenda</CommunityEyebrow>
+          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Agenda event
           </h2>
           <EmptyEvents />
@@ -138,12 +140,13 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   return (
     <RevealSection id="upcoming-events" intensity="strong" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
+        <CommunityEyebrow>Agenda</CommunityEyebrow>
+        <div className={`mt-4 grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}
           <button
             type="button"
             onClick={() => onDetail?.(mainEvent)}
-            className="group text-left rounded-[2rem] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+            className="group text-left rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
@@ -155,7 +158,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 )}
                 {showOngoing ? 'Sedang Berlangsung' : 'Event Berikutnya'}
               </span>
-              <h2 className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+              <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-5xl">
                 {mainEvent.acara}
               </h2>
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -180,7 +183,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
               )}
             </div>
 
-            <div className="border-t border-black/5 bg-white/50 p-6 sm:p-10 dark:border-slate-700 dark:bg-slate-800/50 lg:rounded-b-[2rem]">
+            <div className="border-t border-black/5 bg-white/50 p-6 sm:p-10 dark:border-slate-700 dark:bg-slate-800/50 lg:rounded-b-[var(--radius-campaign-card)]">
               {showCountdown && countdown ? (
                 <>
                   <p className="mb-3 text-xs font-bold tracking-wide text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Countdown menuju event</p>
@@ -206,7 +209,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           {/* Right: promo poster — hidden when no poster/flyer */}
           {promoImageUrl && (
             <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-              <div className="w-full max-w-[280px] overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
+              <div className="w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-slate-100 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-800">
                 <img
                   src={promoImageUrl}
                   alt={`Promo ${mainEvent.acara}`}
@@ -228,7 +231,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-3xl border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start gap-4 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200" style={{ backgroundColor: `${color}15` }}>

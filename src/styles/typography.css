@@ -59,8 +59,12 @@
 .ui-caption {
   @apply text-xs leading-normal text-neutral-500 dark:text-neutral-400;
 }
+/* DESIGN.md requires eyebrow text to clear AA. `text-brand-primary` resolves to
+ * tosca-500 #00918e — only 3.59:1 on paper (#f8f7f0), so this class failed the
+ * rule it was meant to express. primary-700 #006260 measures 6.71:1 on paper and
+ * 7.01:1 on the warm card. Dark mode keeps primary-400 (8.95:1 on slate-950). */
 .ui-eyebrow {
-  @apply text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary dark:text-brand-primary-400;
+  @apply text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-400;
 }
 .ui-eyebrow-light {
   @apply text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80;

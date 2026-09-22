@@ -169,8 +169,8 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:text-white dark:border-slate-700 sm:h-9 sm:w-9'
     : 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm sm:h-9 sm:w-9';
   const mobilePanelClass = isHeaderPinned
-    ? 'mt-3 rounded-3xl border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
-    : 'mt-3 rounded-3xl border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
+    ? 'mt-3 rounded-[var(--radius-card-lg)] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
+    : 'mt-3 rounded-[var(--radius-card-lg)] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
     <div className="community-landing min-h-screen overflow-x-clip bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
@@ -331,15 +331,22 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
           <CommunityEventAreas areas={areas} isLoading={isLoading} />
         </div>
         <CommunitySteps />
+        {/* FAQ sengaja tetap di sini. Ia sudah berada persis sebelum jalur
+            konversi (galeri → berita → form), jadi pola "jawab keraguan tepat
+            sebelum CTA" sudah terpenuhi; menaikkannya ke atas #benefits justru
+            akan menggeser proposi nilai (apa yang didapat) ke bawah. */}
         <CommunityFAQ />
         <CommunityGallery albums={albums} instagramPosts={instagramPosts} cachedIgPosts={cachedIgPosts} isLoading={isLoading} />
         <CommunityNews />
         {/* Ajukan event — pipeline EO formal (pola Orchard Road / Scentre) */}
         <section className="px-4 pt-16 pb-4 sm:px-6 sm:pt-24 lg:pt-32">
           <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col items-start justify-between gap-3 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white px-6 py-5 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex flex-col items-start justify-between gap-3 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white px-6 py-5 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900">
               <div>
-                <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white">Punya ide event?</h2>
+                {/* Banner ajakan, bukan judul section: DESIGN.md membatasi heading
+                    section ke `text-4xl`–`sm:text-5xl`, dan sebagai heading level 3
+                    ia sejajar dengan sub-judul kartu lain di halaman. */}
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">Punya ide event?</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
                   Ajukan acara komunitas atau bisnismu untuk diselenggarakan di Metmal Bekasi.
                 </p>

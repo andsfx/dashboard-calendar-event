@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Camera, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PhotoAlbum } from '../../types';
-import { RevealSection } from './CommunityRevealPrimitives';
+import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
@@ -183,7 +183,8 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
     <RevealSection id="gallery" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <CommunityEyebrow>Galeri</CommunityEyebrow>
+          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
