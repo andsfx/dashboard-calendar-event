@@ -1,7 +1,6 @@
 import { Suspense, lazy } from 'react';
-import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, Kanban, Clock4, CalendarDays, Radio, Clock3 } from 'lucide-react';
+import { Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../../types';
@@ -14,20 +13,7 @@ import { CommandCenterSummary } from './CommandCenterSummary';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
 import { CONTENT_ROUTES } from './dashboardNavigation';
-
-const VIEW_TABS: Array<{ key: ViewMode; label: string; icon: ReactNode }> = [
-  { key: 'table',    label: 'Tabel',    icon: <List         className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { key: 'calendar', label: 'Kalender', icon: <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { key: 'kanban',   label: 'Kanban',   icon: <Kanban       className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { key: 'timeline', label: 'Timeline', icon: <Clock4       className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-];
-
-/** Gate calendar + kanban tabs to editors — mirrors the HTML prototype view-toggle roles. */
-export function getAvailableViewTabs(canEditEvents: boolean): Array<{ key: ViewMode; label: string; icon: ReactNode }> {
-  return canEditEvents
-    ? VIEW_TABS
-    : VIEW_TABS.filter(tab => tab.key !== 'calendar' && tab.key !== 'kanban');
-}
+import { getAvailableViewTabs } from './viewTabs';
 
 const FeaturedEvents = lazy(() => import('../FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
 const QuarterTimeline = lazy(() => import('../QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));

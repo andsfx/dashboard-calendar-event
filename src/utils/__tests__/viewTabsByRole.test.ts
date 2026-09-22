@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getAvailableViewTabs } from '../../components/dashboard/DashboardPage';
+import { getAvailableViewTabs } from '../../components/dashboard/viewTabs';
 
 describe('dashboard view tabs by canEditEvents', () => {
   it('admin/superadmin get calendar + kanban', () => {
