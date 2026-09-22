@@ -117,12 +117,14 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/dashboard',
             audience: 'Admin',
             summary:
-              'Halaman pendarat setelah masuk: statistik hari ini, pita "Menunggu keputusan", dan register semua modul.',
+              'Halaman pendarat setelah masuk, disusun seperti Corporate Overview: kartu metrik, grafik kategori/utilisasi area, tren bulanan, tabel area tersibuk, bilah peringatan antrian, lalu register semua modul.',
             steps: [
               'Buka Pusat Komando dari grup Ringkasan.',
-              'Baca metrik: berlangsung, akan datang, total, dan selesai.',
-              'Baca pita "Menunggu keputusan" — jumlah draft dan pendaftaran yang menunggu tindakan.',
-              'Klik baris modul pada register untuk langsung menuju halamannya.',
+              'Baca kartu metrik: total, berlangsung, akan datang, selesai, menunggu publikasi, pendaftaran, serta kelengkapan poster dan PIC.',
+              'Lihat grafik "Event per kategori", "Tren event per bulan", dan "Event per area".',
+              'Telusuri tabel "Area paling sering dipakai" untuk melihat area tersibuk dan mana yang dipakai sekarang.',
+              'Bila ada antrian, bilah peringatan di bawah menautkan langsung ke pendaftaran.',
+              'Klik baris modul pada register "Semua Modul" untuk menuju halamannya.',
             ],
             notes: ['Bila draft gagal dimuat, angkanya ditampilkan sebagai "—" dengan pesan galat.'],
           },

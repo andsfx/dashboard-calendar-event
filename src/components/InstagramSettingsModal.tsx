@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { uploadToR2 } from '../utils/api/albumsApi';
-import { apiPost } from '../lib/rest';
+import { apiPost, ApiError } from '../lib/rest';
 
 interface Props {
   posts: string[];
@@ -188,7 +188,13 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
                 setSyncResult(`Gagal: ${data.error}`);
               }
             } catch (err) {
-              setSyncResult('Gagal terhubung ke server');
+              // Jangan telan pesan asli server: 500 "APIFY_API_TOKEN belum
+              // dikonfigurasi", 502 Apify, atau 401 sesi kedaluwarsa semuanya
+              // harus terbaca. Hanya kegagalan jaringan (fetch tak sampai)
+              // yang pakai kalimat ramah, karena pesan mentahnya ("Failed to
+              // fetch") tidak berarti apa-apa bagi pengguna.
+              const networkFailure = !(err instanceof ApiError) || err.code === 'NETWORK';
+              setSyncResult(`Gagal: ${networkFailure ? 'Gagal terhubung ke server' : err.message}`);
             } finally {
               setIsSyncing(false);
             }

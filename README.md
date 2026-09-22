@@ -73,8 +73,13 @@ Aplikasi dashboard untuk mengelola dan memantau jadwal event di Metropolitan Mal
 # Install dependencies
 npm install
 
-# Development
+# Development — SPA (Vite). Tanpa backend, panggilan /api/v1/* akan 404.
 npm run dev
+
+# Development — backend REST (Express + Postgres). Wajib dijalankan
+# berdampingan untuk fitur yang menyentuh server (login, sync Instagram,
+# simpan konten, dsb.), karena `npm run dev` hanyalah Vite.
+npm run dev:api
 
 # Build untuk production
 npm run build
@@ -111,8 +116,8 @@ Env var **client** (Vite, prefix `VITE_`) — buat file `.env` di root:
 
 ```env
 # Base API backend. Lokal: biarkan kosong bila SPA dan backend satu host.
-# Produksi (SPA di Vercel → api domain lain):
-VITE_API_URL=https://api.metmalcommunityspace.web.id
+# Produksi (SPA di Vercel → api domain lain). Host kanonik:
+VITE_API_URL=https://metmal.metmalcommunityspace.web.id
 VITE_R2_PUBLIC_URL=YOUR_R2_PUBLIC_URL
 # Opsional — auto-login saat dev:
 # VITE_DEV_AUTO_LOGIN=true

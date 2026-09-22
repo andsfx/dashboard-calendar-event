@@ -9,6 +9,7 @@ import type { SectionNavItem } from '../SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardStats } from './DashboardStats';
+import { CommandCenterOverview } from './CommandCenterOverview';
 import { CommandCenterSummary } from './CommandCenterSummary';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
@@ -273,16 +274,17 @@ export function DashboardPage({
         dashboardPath={dashboardPath}
       />
 
-      {/* 1. Overview */}
+      {/* 1. Overview — susunan Corporate Overview + register modul */}
       {isAdmin && dashboardPath === '/' && (
         <section id="overview" className="scroll-mt-20 space-y-6">
-          <DashboardStats
+          <CommandCenterOverview
             stats={events.visibleStats}
-            attention={{
-              draftCount: drafts.activeDrafts.length,
-              pendingRegistrations: registrations.communityRegistrations.filter(r => r.status === 'pending').length,
-              draftsError: drafts.draftError,
-            }}
+            events={events.events}
+            areas={siteSettings.eventAreas}
+            activeDrafts={drafts.activeDrafts}
+            communityRegistrations={registrations.communityRegistrations}
+            draftsError={drafts.draftError}
+            permissions={permissions}
           />
           <CommandCenterSummary
             totalEvents={events.visibleStats.total}

@@ -49,7 +49,10 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
   }, [canViewRegistrations, showToast]);
 
   useEffect(() => {
-    if (canViewRegistrations && dashboardPath === '/registrations') {
+    // Pusat Komando ('/') juga menampilkan antrian pendaftaran (kartu metrik +
+    // bilah peringatan), jadi data ini harus dimuat di sana juga — bukan hanya
+    // di halaman /registrations. Tanpa ini angkanya selalu 0 di landing.
+    if (canViewRegistrations && (dashboardPath === '/registrations' || dashboardPath === '/')) {
       refreshRegistrations();
     }
   }, [dashboardPath, canViewRegistrations, refreshRegistrations]);
