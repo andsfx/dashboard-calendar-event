@@ -7,10 +7,8 @@ import {
   ClipboardList,
   Clock3,
   FileEdit,
-  ImageOff,
   MapPin,
   Send,
-  UserX,
 } from 'lucide-react';
 import type { CommunityRegistration, DraftEventItem, EventArea, EventItem } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
@@ -21,7 +19,6 @@ import {
   computeAreaUsage,
   computeAreaUtilisation,
   computeCategoryCounts,
-  computeEventGaps,
   computeMonthlyCounts,
 } from '../../utils/dashboardOverview';
 
@@ -54,7 +51,6 @@ export function CommandCenterOverview({
   permissions,
 }: CommandCenterOverviewProps) {
   const year = new Date().getFullYear();
-  const gaps = useMemo(() => computeEventGaps(events), [events]);
   const categories = useMemo(() => computeCategoryCounts(events), [events]);
   const monthly = useMemo(() => computeMonthlyCounts(events, year), [events, year]);
   const areaUsage = useMemo(() => computeAreaUsage(events, areas), [events, areas]);
@@ -109,20 +105,6 @@ export function CommandCenterOverview({
           tone="text-[var(--wf-action)]"
           emphasis={pendingRegistrations > 0}
           hint={pendingRegistrations > 0 ? `${pendingRegistrations} menunggu review` : 'Semua sudah direview'}
-        />
-        <MetricCard
-          label="Belum ada poster"
-          value={gaps.missingPoster}
-          icon={<ImageOff className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-action)]"
-          hint="Lengkapi agar portal publik menarik"
-        />
-        <MetricCard
-          label="Belum ada PIC"
-          value={gaps.missingPic}
-          icon={<UserX className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-action)]"
-          hint="Tugaskan penanggung jawab event"
         />
       </section>
 

@@ -120,7 +120,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Halaman pendarat setelah masuk, disusun seperti Corporate Overview: kartu metrik, grafik kategori/utilisasi area, tren bulanan, tabel area tersibuk, bilah peringatan antrian, lalu register semua modul.',
             steps: [
               'Buka Pusat Komando dari grup Ringkasan.',
-              'Baca kartu metrik: total, berlangsung, akan datang, selesai, menunggu publikasi, pendaftaran, serta kelengkapan poster dan PIC.',
+              'Baca kartu metrik: total, berlangsung, akan datang, selesai, menunggu publikasi, dan pendaftaran komunitas.',
               'Lihat grafik "Event per kategori", "Tren event per bulan", dan "Event per area".',
               'Telusuri tabel "Area paling sering dipakai" untuk melihat area tersibuk dan mana yang dipakai sekarang.',
               'Bila ada antrian, bilah peringatan di bawah menautkan langsung ke pendaftaran.',

@@ -3,7 +3,6 @@ import {
   computeAreaUsage,
   computeAreaUtilisation,
   computeCategoryCounts,
-  computeEventGaps,
   computeMonthlyCounts,
 } from '../dashboardOverview';
 import type { EventArea, EventItem } from '../../types';
@@ -47,17 +46,6 @@ function area(overrides: Partial<EventArea>): EventArea {
     ...overrides,
   };
 }
-
-describe('computeEventGaps', () => {
-  it('menghitung event tanpa poster dan tanpa PIC', () => {
-    const gaps = computeEventGaps([
-      event({ posterUrl: '', pic: '' }),
-      event({ posterUrl: 'x', pic: 'Budi' }),
-      event({ posterUrl: '  ', pic: '' }),
-    ]);
-    expect(gaps).toEqual({ missingPoster: 2, missingPic: 2 });
-  });
-});
 
 describe('computeCategoryCounts', () => {
   it('menghitung multi-kategori di tiap kategorinya dan mengurut menurun', () => {

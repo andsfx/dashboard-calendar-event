@@ -22,24 +22,7 @@ export interface AreaUsageRow {
   inUseNow: boolean;
 }
 
-/** Kelengkapan data yang perlu ditindaklanjuti. */
-export interface EventGaps {
-  missingPoster: number;
-  missingPic: number;
-}
-
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-/** Event yang belum punya poster atau PIC — dua kelengkapan yang diminta dashboard. */
-export function computeEventGaps(events: EventItem[]): EventGaps {
-  let missingPoster = 0;
-  let missingPic = 0;
-  for (const event of events) {
-    if (!event.posterUrl?.trim()) missingPoster += 1;
-    if (!event.pic?.trim()) missingPic += 1;
-  }
-  return { missingPoster, missingPic };
-}
 
 /** Jumlah event per kategori, urut menurun. Event multi-kategori dihitung di tiap kategorinya. */
 export function computeCategoryCounts(events: EventItem[]): OverviewBarItem[] {
