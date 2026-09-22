@@ -442,7 +442,6 @@ export default function App() {
             onToggleDark={toggleDark}
             onLogout={handleLogout}
             user={auth.user}
-            isSuperadmin={auth.isSuperadmin}
             permissions={permissions}
             onOpenInstagramSettings={() => navigate(CONTENT_ROUTES['landing-page'])}
             onOpenAlbumManager={() => navigate(CONTENT_ROUTES['album-gallery'])}

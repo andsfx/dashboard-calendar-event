@@ -212,7 +212,6 @@ export function DashboardPage({
       onToggleDark={onToggleDark}
       onLogout={handlers.handleLogout}
       user={auth.user}
-      isSuperadmin={auth.isSuperadmin}
       permissions={permissions}
       onOpenInstagramSettings={() => navigate(CONTENT_ROUTES['landing-page'])}
       onOpenAlbumManager={() => navigate(CONTENT_ROUTES['album-gallery'])}
@@ -541,8 +540,15 @@ export function DashboardPage({
         </section>
       )}
 
-      {/* 11. Konten — satu rute per modul (dulu modal, kini halaman) */}
-      {permissions.canManageSettings && dashboardPath === '/content/landing' && (
+      {/* 11. Konten — satu rute per modul (dulu modal, kini halaman).
+          Gate di sini memakai flag *View* yang sama dengan rail
+          (`dashboardNavigation.tsx`), bukan `canManageSettings`. Sebelumnya
+          rail memakai `canViewSettings` sementara badan memakai
+          `canManageSettings`, sehingga akun demo — yang melihat semua menu
+          tapi tidak boleh mengubah — mendarat di halaman kosong. Modul
+          menerima `readOnly` dan menyembunyikan aksi mutasi; backend tetap
+          menolak tulis dari demo (allowlist `DEMO_READ_ACTIONS`). */}
+      {permissions.canViewSettings && dashboardPath === '/content/landing' && (
         <section id="content-landing" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <InstagramSettingsModal
@@ -556,7 +562,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {permissions.canManageSettings && dashboardPath === '/content/galeri' && (
+      {permissions.canViewSettings && dashboardPath === '/content/galeri' && (
         <section id="content-galeri" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <AlbumManagerModal
@@ -568,7 +574,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {permissions.canManageSettings && dashboardPath === '/content/foto-area' && (
+      {permissions.canViewSettings && dashboardPath === '/content/foto-area' && (
         <section id="content-foto-area" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <EventAreaManagerModal readOnly={readOnly} />
@@ -576,7 +582,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {permissions.canManageSettings && dashboardPath === '/content/surat' && (
+      {permissions.canViewSettings && dashboardPath === '/content/surat' && (
         <section id="content-surat" className="scroll-mt-20">
           <UnderMaintenance
             title="Buat Surat"
@@ -586,7 +592,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {permissions.canManageSettings && dashboardPath === '/content/berita' && (
+      {permissions.canViewSettings && dashboardPath === '/content/berita' && (
         <section id="content-berita" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <NewsManagerModal readOnly={readOnly} />
@@ -594,7 +600,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {permissions.canManageSettings && dashboardPath === '/content/sponsorship' && (
+      {permissions.canViewSponsorship && dashboardPath === '/content/sponsorship' && (
         <section id="content-sponsorship" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
             <SponsorManagerModal readOnly={readOnly} />

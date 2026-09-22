@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
+import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
 import { getDashboardNavGroups, getWayfindingMap } from './dashboardNavigation';
 import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
 import type { DashboardNavItem } from './dashboardNavigation';
@@ -21,7 +22,6 @@ interface AdminSidebarProps {
   onToggleDark: () => void;
   onLogout: () => void;
   user?: AuthUser | null;
-  isSuperadmin?: boolean;
   permissions: Permissions;
   onOpenInstagramSettings: () => void;
   onOpenAlbumManager: () => void;
@@ -43,7 +43,6 @@ export const AdminSidebar = memo(function AdminSidebar({
   onToggleDark,
   onLogout,
   user,
-  isSuperadmin,
   permissions,
   onOpenInstagramSettings,
   onOpenAlbumManager,
@@ -241,19 +240,23 @@ export const AdminSidebar = memo(function AdminSidebar({
         </button>
 
         {/* Role plate. Role identity is not a status, so it takes no colour from
-            the legend — the label carries it and the icon stays rail ink. */}
+            the legend — the label carries it and the icon stays rail ink.
+            The label reads the REAL role: the rail is rendered for every
+            authenticated role (App.tsx `isAdmin = canViewDashboard`), so
+            hardcoding a generic admin label told viewers, demo accounts, and
+            tenants they were admins. */}
         <div className="flex items-center gap-2.5 rounded-lg border border-[var(--wf-rail-rule)] px-2.5 py-2.5">
-          {isSuperadmin ? (
+          {user?.role === 'superadmin' ? (
             <Crown className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
           ) : (
             <Shield className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-semibold text-[var(--wf-rail-ink)]">
-              {user?.display_name || 'Admin'}
+              {user?.display_name || 'Pengguna'}
             </p>
             <p className="text-[11px] text-[var(--wf-rail-ink-muted)]">
-              {isSuperadmin ? 'Superadmin' : 'Administrator'}
+              {user ? ROLE_DISPLAY_NAMES[user.role] : 'Pengguna'}
             </p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useConfirmDialog } from '../ConfirmDialog';
 import { apiGet, apiPost } from '../../lib/rest';
+import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
 import { UserEditModal } from './UserEditModal';
 
 interface UserRecord {
@@ -21,12 +22,12 @@ interface UserRecord {
 }
 
 const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  superadmin: { label: 'Superadmin', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Crown className="h-3 w-3" /> },
-  admin: { label: 'Admin', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Shield className="h-3 w-3" /> },
-  viewer: { label: 'Viewer', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
-  demo: { label: 'Demo', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
-  eo_tenant: { label: 'EO/Tenant', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Building2 className="h-3 w-3" /> },
-  tenant_relation: { label: 'Tenant Relation', color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <BarChart3 className="h-3 w-3" /> },
+  superadmin: { label: ROLE_DISPLAY_NAMES.superadmin, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Crown className="h-3 w-3" /> },
+  admin: { label: ROLE_DISPLAY_NAMES.admin, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Shield className="h-3 w-3" /> },
+  viewer: { label: ROLE_DISPLAY_NAMES.viewer, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
+  demo: { label: ROLE_DISPLAY_NAMES.demo, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Eye className="h-3 w-3" /> },
+  eo_tenant: { label: ROLE_DISPLAY_NAMES.eo_tenant, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <Building2 className="h-3 w-3" /> },
+  tenant_relation: { label: ROLE_DISPLAY_NAMES.tenant_relation, color: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] border border-[var(--wf-rule)]', icon: <BarChart3 className="h-3 w-3" /> },
 };
 
 interface UserManagementProps {
