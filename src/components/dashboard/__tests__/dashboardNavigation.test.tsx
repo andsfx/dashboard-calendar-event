@@ -62,3 +62,23 @@ describe('getCommandCenterCards — kartu Antrian Draft', () => {
     expect(draftsCard!.subtitle).toBe('Antrian kosong');
   });
 });
+
+describe('getCommandCenterCards — modul Pameran & Aktivasi', () => {
+  it('muncul di register agar modul ber-antrian bisa dijangkau dari Pusat Komando', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const card = cards.find(item => item.id === 'exhibitions');
+
+    expect(card).toBeDefined();
+    expect(card!.title).toBe('Pameran & Aktivasi');
+    expect(card!.route).toBe('/dashboard/exhibitions');
+  });
+
+  it('disembunyikan bila tidak punya izin melihat pameran', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      permissions: { ...adminPermissions, canViewExhibitions: false },
+    });
+
+    expect(cards.find(item => item.id === 'exhibitions')).toBeUndefined();
+  });
+});

@@ -276,6 +276,13 @@ export function getCommandCenterCards({
       icon: <Palette className={CARD} strokeWidth={sw} />,
       route: '/dashboard/themes',
     }] : []),
+    ...(permissions.canViewExhibitions ? [{
+      id: 'exhibitions',
+      title: 'Pameran & Aktivasi',
+      subtitle: 'Pameran, aktivasi & pengajuan brand/EO',
+      icon: <Store className={CARD} strokeWidth={sw} />,
+      route: '/dashboard/exhibitions',
+    }] : []),
     ...(permissions.canViewRegistrations ? [{
       id: 'registrations',
       title: 'Pendaftaran',

@@ -62,7 +62,7 @@ export function CommandCenterOverview({
   return (
     <div className="space-y-6">
       {/* 1. Kartu metrik */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Metrik utama">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Metrik utama">
         <MetricCard
           label="Total event"
           value={stats.total}
