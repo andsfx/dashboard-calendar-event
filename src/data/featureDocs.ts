@@ -7,7 +7,14 @@
  * dinonaktifkan, tandai `status: 'maintenance'` agar halaman jujur.
  */
 
-export type DocAudience = 'Publik' | 'Semua pengguna' | 'Admin' | 'Superadmin' | 'Tenant';
+export type DocAudience =
+  | 'Publik'
+  | 'Semua pengguna'
+  | 'Tenant'
+  | 'Viewer'
+  | 'Admin'
+  | 'Superadmin'
+  | 'Demo';
 
 export type DocStatus = 'aktif' | 'maintenance';
 
@@ -44,12 +51,13 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     id: 'mulai',
     label: 'Mulai dari Sini',
-    intro: 'Cara masuk ke dashboard, peran akun, dan hal yang berlaku di semua halaman.',
+    intro:
+      'Cara masuk ke dashboard, peran akun, dan hal yang berlaku di semua halaman. Bila Anda hanya ingin mengikuti acara atau mengisi form sebagai pengunjung, langsung saja ke bagian "Panduan Pengunjung" di bawah.',
     groups: [
       {
         id: 'akses',
         label: 'Akses & Peran',
-        description: 'Siapa yang bisa membuka apa.',
+        description: 'Siapa yang bisa membuka apa, dari pengunjung sampai superadmin.',
         features: [
           {
             id: 'login-admin',
@@ -72,18 +80,77 @@ export const DOC_SECTIONS: DocSection[] = [
           {
             id: 'peran',
             name: 'Peran Akun',
-            audience: 'Superadmin',
+            audience: 'Semua pengguna',
             summary:
-              'Enam peran menentukan apa yang terlihat dan boleh diubah. Rail hanya menampilkan menu yang izinnya menyala.',
+              'Enam peran menentukan apa yang terlihat dan boleh diubah. Rail kiri hanya menampilkan menu yang izinnya menyala, dan setiap halaman memeriksa izin sebelum merender tombol aksi.',
             steps: [
-              'Superadmin — seluruh dashboard termasuk Manajemen Pengguna.',
+              'Superadmin — seluruh dashboard termasuk Manajemen Pengguna; satu-satunya peran yang bisa mengelola akun.',
               'Admin — seluruh dashboard kecuali Manajemen Pengguna.',
-              'Viewer — melihat dashboard (pendaftaran, survey, analitik) tanpa mengubah data.',
-              'Demo — melihat seluruh permukaan dashboard, semua aksi mutasi disembunyikan.',
-              'EO Tenant — terbatas pada Evaluasi Tenant.',
-              'Tenant Relation — diarahkan ke Hasil Evaluasi Tenant.',
+              'Viewer — mode hanya-lihat: membuka Pusat Komando, Analitik, Jadwal Event, Pendaftaran, dan Survey Kepuasan tanpa tombol tambah/ubah/hapus.',
+              'Demo — melihat seluruh permukaan dashboard (semua menu tampil) dengan semua aksi mutasi disembunyikan.',
+              'EO Tenant — hanya modul Evaluasi Tenant, dan hanya data miliknya sendiri.',
+              'Tenant Relation — diarahkan langsung ke Hasil Evaluasi Tenant, di luar dashboard.',
             ],
-            notes: ['Peran diatur lewat Manajemen Pengguna oleh superadmin.'],
+            notes: [
+              'Hierarki peran: superadmin > admin > viewer > EO Tenant / Tenant Relation.',
+              'Peran diatur lewat Manajemen Pengguna oleh superadmin.',
+              'Setelah masuk, Anda diarahkan ke halaman pertama yang boleh Anda buka sesuai peran.',
+            ],
+          },
+          {
+            id: 'peran-viewer',
+            name: 'Mode Viewer (Hanya Lihat)',
+            audience: 'Viewer',
+            summary:
+              'Peran Viewer untuk staf yang perlu memantau tanpa mengubah apa pun. Tombol mutasi disembunyikan sepenuhnya, bukan sekadar dinonaktifkan.',
+            steps: [
+              'Masuk dengan akun berperan Viewer; Anda diarahkan ke Pusat Komando.',
+              'Rail kiri hanya menampilkan: Pusat Komando, Analitik, Jadwal Event, Pendaftaran, dan Survey Kepuasan.',
+              'Jadwal Event tampil dalam mode Tabel saja — tab Kalender dan Kanban disembunyikan karena keduanya khusus pengubah event.',
+              'Klik baris atau kartu untuk membaca detail; tombol Tambah, Ubah, dan Hapus tidak dirender.',
+              'Di Pendaftaran, detail pendaftar bisa dibuka, tetapi tombol Setujui, Tolak, dan Buat Draft tidak ada.',
+              'Di Survey Kepuasan, angka dan respons bisa dibaca, tetapi toggle aktif/nonaktif survey tidak tersedia.',
+              'Ekspor jadwal ke PDF tetap bisa dilakukan.',
+            ],
+            notes: [
+              'Event berstatus draft tidak ikut tampil di Jadwal Event karena Viewer tidak punya izin jadwal internal.',
+              'Menu Antrian Draft, Tema Tahunan, Pameran & Aktivasi, Manajemen Pengguna, Log Aktivitas, dan seluruh grup Konten disembunyikan.',
+            ],
+          },
+          {
+            id: 'peran-demo',
+            name: 'Mode Demo',
+            audience: 'Demo',
+            summary:
+              'Peran Demo memperlihatkan seluruh dashboard tanpa bisa mengubah apa pun — cocok untuk presentasi atau uji coba.',
+            steps: [
+              'Masuk dengan akun Demo; seluruh menu rail tampil, termasuk Konten dan Manajemen Pengguna.',
+              'Telusuri semua halaman; setiap tombol aksi (Tambah, Ubah, Hapus, Terbitkan, Setujui) tidak dirender.',
+              'Buka Antrian Draft, Tema Tahunan, Pameran, Manajemen Pengguna, dan Konten untuk melihat tampilannya.',
+              'Ekspor PDF dan CSV tetap tersedia.',
+            ],
+            notes: [
+              'Server ikut menolak aksi tulis akun demo (respons 403 "Akun demo hanya dapat melihat data (read-only)"), jadi bukan hanya tampilan yang disembunyikan.',
+              'Email pengguna ditampilkan dalam bentuk tersamarkan.',
+            ],
+          },
+          {
+            id: 'peran-tenant',
+            name: 'Akun Tenant (EO & Tenant Relation)',
+            audience: 'Tenant',
+            summary:
+              'Dua peran untuk tenant: EO Tenant mengisi self-assessment, Tenant Relation membaca agregat hasil evaluasi.',
+            steps: [
+              'EO Tenant — setelah masuk diarahkan ke Evaluasi Tenant; hanya bisa melihat dan mengisi data gerainya sendiri.',
+              'EO Tenant tidak melihat tombol Review/Hapus atau pengaturan survey milik admin.',
+              'Tenant Relation — diarahkan langsung ke Hasil Evaluasi Tenant di /tenant-survey-results, di luar dashboard.',
+              'Tenant Relation hanya melihat respons berstatus terkirim/direview, dengan data pribadi disamarkan.',
+              'Tenant Relation dapat mengekspor hasil ke PDF.',
+            ],
+            notes: [
+              'Seluruh alamat /dashboard/* otomatis dialihkan keluar untuk Tenant Relation.',
+              'Data tiap tenant dibatasi di sisi server, bukan hanya di tampilan.',
+            ],
           },
           {
             id: 'tema',
@@ -94,6 +161,53 @@ export const DOC_SECTIONS: DocSection[] = [
               'Cari tombol bulan/matahari di kanan atas (navbar) atau di dasar rail (dashboard).',
               'Klik untuk berganti antara mode terang dan gelap.',
               'Preferensi tersimpan otomatis dan dipakai lagi pada kunjungan berikutnya.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'orientasi-pengunjung',
+        label: 'Untuk Pengunjung & Tenant',
+        description: 'Panduan singkat bila Anda datang sebagai pengunjung, komunitas, brand, atau tenant.',
+        features: [
+          {
+            id: 'panduan-pengunjung',
+            name: 'Panduan Cepat Pengunjung',
+            audience: 'Publik',
+            summary:
+              'Halaman publik tidak memerlukan akun. Semua yang di bawah ini bisa dibuka langsung dari beranda tanpa login.',
+            steps: [
+              'Lihat acara yang sedang dan akan berlangsung di /events — bisa disaring per waktu atau kategori.',
+              'Buka kartu acara untuk detail lengkap, lalu tambahkan ke kalender atau bagikan lewat WhatsApp.',
+              'Telusuri dokumentasi acara di /gallery dan kabar terbaru di /news.',
+              'Cari gerai di /tenants atau organisasi yang pernah tampil di /community.',
+              'Ingin menggelar acara? Isi pendaftaran di /daftar atau ajukan langsung di /ajukan-event.',
+              'Punya brand atau komunitas? Tawarkan dukungan di /sponsor atau ikut kolaborasi di /pameran.',
+              'Untuk acara yang sudah lewat, bagikan penilaian lewat survey kepuasan.',
+            ],
+            notes: [
+              'Tidak ada satu pun halaman di panduan ini yang meminta login.',
+              'Isi form Anda hanya dipakai tim Marcomm untuk menindaklanjuti, sesuai catatan di tiap form.',
+            ],
+          },
+          {
+            id: 'panduan-tenant',
+            name: 'Panduan Cepat Tenant',
+            audience: 'Tenant',
+            summary:
+              'Sebagai tenant, Anda mengisi self-assessment dampak event terhadap gerai. Bisa dibuka lewat tautan atau QR tanpa login.',
+            steps: [
+              'Buka /tenant-survey, lalu cari event yang Anda ikuti berdasarkan nama, lokasi, atau penyelenggara.',
+              'Klik baris event untuk mulai mengisi.',
+              'Bagian 1 — pilih gerai Anda dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
+              'Bagian 2 — pilih kenaikan traffic dan penjualan gerai Anda.',
+              'Bagian 3 — tulis umpan balik, lalu kirim.',
+              'Bila Anda juga menerima tautan hasil, buka /tenant-survey-results untuk membaca agregatnya.',
+            ],
+            notes: [
+              'Nama gerai harus dipilih dari daftar, bukan diketik bebas.',
+              'Satu perangkat hanya bisa mengisi sekali per event.',
+              'Survey hanya terbuka untuk event yang sudah diaktifkan admin; bila daftar kosong, hubungi tim mall.',
             ],
           },
         ],
@@ -458,12 +572,12 @@ export const DOC_SECTIONS: DocSection[] = [
     id: 'publik',
     label: 'Halaman Publik',
     intro:
-      'Permukaan tanpa login untuk pengunjung, tenant, dan mitra. Semua halaman di bawah ini dapat dibuka siapa saja.',
+      'Permukaan tanpa login untuk pengunjung, komunitas, brand, dan tenant. Tidak ada satu pun halaman di bagian ini yang meminta akun — semuanya bisa dibuka langsung dari beranda, tautan WhatsApp, atau kode QR.',
     groups: [
       {
         id: 'jelajah',
         label: 'Jelajahi & Jadwal',
-        description: 'Halaman untuk melihat acara dan venue.',
+        description: 'Halaman untuk melihat acara dan dokumentasinya.',
         features: [
           {
             id: 'beranda',
@@ -471,13 +585,19 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/',
             audience: 'Publik',
             summary:
-              'Halaman kampanye utama: menawarkan venue dan fasilitas untuk komunitas, membuktikan lewat event serta galeri, dan mengarahkan ke pendaftaran.',
+              'Halaman kampanye utama: menawarkan venue dan fasilitas gratis untuk komunitas, membuktikan lewat event serta galeri, dan mengarahkan ke pendaftaran.',
             steps: [
               'Buka /.',
-              'Telusuri navigasi: Event, Program (Keuntungan, Area & Fasilitas, Cara Daftar, FAQ), Jelajahi (Galeri, Berita, Tenant, Pameran, Sponsor), dan Kontak.',
-              'Lihat Agenda event, lalu klik kartu untuk membuka detail.',
-              'Gulir ke bagian pendaftaran dan isi formnya.',
-              'Atau klik "Ajukan Event" untuk mengajukan event lewat halaman khusus.',
+              'Gunakan navigasi utama: Event, Program (Keuntungan, Area & Fasilitas, Cara Daftar, FAQ), Jelajahi (Galeri, Berita, Tenant, Pameran, Sponsor, Dokumentasi), dan Kontak.',
+              'Baca bagian agenda untuk event bulan ini, lalu klik kartu untuk membuka detailnya.',
+              'Lihat daftar fasilitas yang disediakan (panggung, sound system 10K watt, lighting, 50 kursi, area lantai 3, meja juri).',
+              'Klik kartu area pada bagian "Area di Metropolitan Mall Bekasi" untuk melihat fotonya.',
+              'Baca 4 langkah kerja sama dan 6 pertanyaan yang sering diajukan.',
+              'Gulir ke bagian pendaftaran dan isi formnya, atau klik "Ajukan Event" untuk mengajukan lewat halaman khusus.',
+            ],
+            notes: [
+              'Agenda di beranda menampilkan maksimal 3 event pada bulan berjalan; event yang sedang berlangsung selalu ikut tampil.',
+              'Tombol "Daftar Event" dan "Cek Event" mengarah ke pendaftaran dan jadwal lengkap.',
             ],
           },
           {
@@ -486,16 +606,19 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/events',
             audience: 'Publik',
             summary:
-              'Event yang sedang berlangsung dan akan datang dalam sorotan, rail per area, dan kalender bulanan. Filter bisa dibagikan lewat URL.',
+              'Event yang sedang berlangsung dan akan datang dalam kartu sorotan, rail per area, dan kalender bulanan. Filter bisa dibagikan lewat URL.',
             steps: [
               'Buka /events.',
-              'Lihat kartu sorotan beserta hitungan waktu.',
-              'Klik chip waktu (Hari Ini, Besok, Akhir Pekan Ini) atau chip kategori untuk menyaring.',
-              'Klik kartu event untuk membuka detailnya.',
-              'Klik "Unduh PDF" untuk jadwal, atau "Kalender" untuk tampilan bulanan.',
+              'Lihat kartu sorotan beserta hitungan waktu (hari, jam, menit) menuju acara.',
+              'Klik chip waktu — "Hari Ini", "Besok", atau "Akhir Pekan Ini" — untuk menyaring.',
+              'Klik chip kategori untuk menyaring per jenis acara (maksimal 10 kategori ditampilkan).',
+              'Klik kartu event untuk membuka detailnya, atau lihat "Jadwal Lengkap" di kalender bulanan.',
+              'Klik "Unduh PDF" untuk mengunduh jadwal, atau "Ajukan Event" untuk mengajukan acara Anda sendiri.',
             ],
             notes: [
-              'Filter tersimpan di alamat halaman (mis. ?waktu=hari-ini atau ?kategori=…), jadi bisa disalin dan dibagikan.',
+              'Filter tersimpan di alamat halaman (mis. ?waktu=hari-ini atau ?kategori=Festival), jadi bisa disalin dan dibagikan. Mengubah filter tidak menambah riwayat tombol Back.',
+              'Filter hanya menyaring daftar sorotan; kalender di bawahnya selalu menampilkan semua event.',
+              'Event berstatus draft tidak pernah ikut tampil.',
             ],
           },
           {
@@ -508,24 +631,32 @@ export const DOC_SECTIONS: DocSection[] = [
             steps: [
               'Buka tautan /events/:id.',
               'Baca informasi: tanggal, waktu, lokasi, penyelenggara, dan keterangan.',
-              'Bagikan lewat WhatsApp atau klik "Salin link".',
-              'Tambahkan ke Google Calendar atau unduh berkas .ics.',
-              'Untuk event yang sudah lewat, klik "Isi Survey Kepuasan".',
+              'Klik "Bagikan via WhatsApp" untuk mengirim ke orang lain, atau "Salin link" (tombol berubah menjadi "Link tersalin").',
+              'Untuk acara yang belum lewat, klik "Google Calendar" atau "Unduh .ics" untuk menyimpan tanggalnya.',
+              'Lihat galeri foto acara bila ada.',
+              'Untuk event yang sudah lewat, klik "Isi Survey Kepuasan" untuk memberi penilaian.',
             ],
-            notes: ['Event berstatus draft tidak pernah tampil di halaman publik.'],
+            notes: [
+              'Tombol kalender disembunyikan untuk event yang sudah lewat; sebaliknya, ajakan survey hanya muncul untuk event yang sudah lewat.',
+              'Event berstatus draft tidak pernah tampil di halaman publik.',
+            ],
           },
           {
             id: 'galeri-publik',
-            name: 'Galeri Album',
+            name: 'Galeri Event',
             path: '/gallery',
             audience: 'Publik',
             summary:
               'Album foto event yang dikelompokkan per Tema Tahunan, dengan opsi mengekspor album ke PDF.',
             steps: [
               'Buka /gallery.',
-              'Telusuri album berdasarkan tema tahunan.',
+              'Telusuri album berdasarkan tema tahunan; album di luar tema masuk ke grup "Lainnya".',
               'Klik album untuk membuka detailnya.',
-              'Klik "Export PDF" → pilih mode (tanggal atau tema) → "Preview PDF" → "Download PDF".',
+              'Klik "Export PDF" → pilih mode "Berdasarkan Tanggal" atau "Berdasarkan Tema" → "Preview PDF" → "Download PDF".',
+            ],
+            notes: [
+              'Ekspor selalu dua langkah: lihat pratinjau dulu, baru unduh.',
+              'Tombol "Export PDF" hanya muncul bila sudah ada album.',
             ],
           },
           {
@@ -533,12 +664,17 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Detail Album',
             path: '/gallery/:slug',
             audience: 'Publik',
-            summary: 'Grid foto satu album dengan penampil besar (lightbox) yang bisa dinavigasi keyboard.',
+            summary:
+              'Grid foto satu album dengan penampil besar (lightbox) yang bisa dinavigasi dengan keyboard.',
             steps: [
               'Buka album dari /gallery.',
               'Klik sebuah foto untuk membukanya di lightbox.',
-              'Gunakan tombol sebelumnya/berikutnya atau tombol panah.',
-              'Tekan Escape untuk menutup.',
+              'Gunakan tombol sebelumnya/berikutnya atau tombol panah kiri/kanan pada keyboard.',
+              'Tekan Escape untuk menutup; klik area gelap juga menutup.',
+            ],
+            notes: [
+              'Lightbox menahan fokus keyboard di dalamnya selama terbuka, dan mengunci gulir halaman.',
+              'Tombol sebelumnya/berikutnya muncul bila album berisi lebih dari satu foto.',
             ],
           },
           {
@@ -551,6 +687,10 @@ export const DOC_SECTIONS: DocSection[] = [
               'Buka /news.',
               'Klik kartu artikel untuk membaca.',
               'Klik "Kembali ke Berita" untuk kembali ke daftar.',
+            ],
+            notes: [
+              'Hanya artikel berstatus terbit yang tampil.',
+              'Isi artikel ditampilkan apa adanya, jadi perpindahan baris dari penulis tetap terjaga.',
             ],
           },
         ],
@@ -569,12 +709,17 @@ export const DOC_SECTIONS: DocSection[] = [
               'Menampilkan event yang punya proposal sponsor dan menerima pernyataan minat support dari brand atau tenant.',
             steps: [
               'Buka /sponsor.',
-              'Lihat kartu event, lalu klik "Lihat Proposal" untuk membuka berkasnya.',
-              'Klik "Saya Tertarik Support" — event akan terisi otomatis.',
-              'Lengkapi form: event (wajib), nama brand/perusahaan, nama PIC, dan nomor WhatsApp (wajib); email dan pesan opsional.',
-              'Kirim, lalu lihat konfirmasi; Anda bisa mengirim minat untuk event lain.',
+              'Lihat kartu event, lalu klik "Lihat Proposal" untuk membuka berkasnya di tab baru.',
+              'Klik "Saya Tertarik Support" — form di bawah akan terisi otomatis dengan event tersebut.',
+              'Lengkapi form: Pilih Event, Nama Brand/Perusahaan, Nama PIC, dan Nomor WhatsApp (wajib); Email dan Pesan opsional.',
+              'Klik "Kirim Minat Support", lalu lihat konfirmasi "Minat Support Terkirim!".',
+              'Untuk event lain, klik "Kirim Minat Support Lain" untuk mengosongkan form.',
             ],
-            notes: ['Email dan nomor telepon divalidasi sebelum dikirim.'],
+            notes: [
+              'Form hanya muncul bila ada event dengan proposal sponsor; bila belum ada, halaman hanya menampilkan keterangan kosong.',
+              'Nama brand/perusahaan dibatasi 200 karakter; nomor WhatsApp dan email divalidasi sebelum dikirim.',
+              'Tim akan menghubungi Anda dalam 5 hari kerja.',
+            ],
           },
           {
             id: 'pameran-publik',
@@ -585,12 +730,14 @@ export const DOC_SECTIONS: DocSection[] = [
               'Daftar pameran yang sedang dibuka beserta detailnya — tema, periode, lokasi, brief, dan agenda aktivasi — dengan form pengajuan kolaborasi.',
             steps: [
               'Buka /pameran.',
-              'Klik "Ajukan Kolaborasi" atau "Lihat Detail".',
-              'Baca bagian "Yang Kami Cari" dan "Agenda Aktivasi".',
-              'Isi form Ajukan Kolaborasi: nama brand/EO, PIC, WhatsApp, dan konsep kontribusi.',
-              'Kirim — muncul konfirmasi bahwa pengajuan diterima untuk ditinjau.',
+              'Klik "Ajukan Kolaborasi" (bila pameran menerima pengajuan) atau "Lihat Detail".',
+              'Di halaman detail, baca bagian "Yang Kami Cari" dan "Agenda Aktivasi".',
+              'Isi form "Ajukan Kolaborasi": Nama brand/EO, Jenis organisasi, Bentuk kontribusi, Nama PIC, Nomor WhatsApp, Email, dan Konsep kontribusi.',
+              'Klik "Kirim Pengajuan" dan lihat konfirmasi bahwa pengajuan diterima untuk ditinjau.',
             ],
             notes: [
+              'Yang wajib: nama brand/EO (minimal 3 karakter), nama PIC (minimal 3 karakter), dan nomor WhatsApp.',
+              'Konsep kontribusi wajib minimal 10 karakter bila bentuk kontribusinya bukan sekadar booth.',
               'Bila pameran tidak menerima pengajuan, form diganti pesan penutupan.',
               'Pengajuan belum berarti dikonfirmasi; tim akan menghubungi Anda.',
             ],
@@ -600,12 +747,17 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Direktori Tenant',
             path: '/tenants',
             audience: 'Publik',
-            summary: 'Daftar gerai dengan pencarian dan filter kategori, beserta statistik jumlah tenant.',
+            summary:
+              'Daftar gerai dengan pencarian dan filter kategori, beserta statistik jumlah tenant dan kategori.',
             steps: [
               'Buka /tenants.',
-              'Ketik di kotak cari untuk menyaring nama, kategori, atau lantai.',
-              'Klik pill kategori untuk memfilter.',
+              'Ketik di kotak cari untuk menyaring berdasarkan nama, kategori, atau lantai.',
+              'Klik pill kategori untuk memfilter (tombol "Semua" mengembalikan seluruh daftar).',
               'Lihat kartu tenant: logo, kategori, dan lantai/lot.',
+            ],
+            notes: [
+              'Pencarian dan filter di halaman ini tidak tersimpan di alamat halaman, jadi tidak bisa dibagikan lewat URL.',
+              'Logo gerai yang gagal dimuat otomatis diganti ikon.',
             ],
           },
           {
@@ -617,10 +769,14 @@ export const DOC_SECTIONS: DocSection[] = [
               'Organisasi dan komunitas yang pernah menggelar acara, dikelompokkan per tipe dengan statistik acara.',
             steps: [
               'Buka /community.',
-              'Baca statistik: jumlah organisasi, total acara, dan acara mendatang.',
-              'Cari nama komunitas atau EO.',
-              'Filter lewat pill kategori.',
-              'Klik tautan organisasi bila tersedia.',
+              'Baca statistik: jumlah Organisasi, Total Acara, dan Acara Mendatang.',
+              'Cari nama komunitas atau EO di kotak pencarian.',
+              'Filter lewat pill tipe organisasi, yang menampilkan jumlah per tipe.',
+              'Klik tautan "Profil Instagram" pada kartu bila tersedia.',
+            ],
+            notes: [
+              'Pencarian mencocokkan nama organisasi dan tipe, bukan deskripsi.',
+              'Organisasi diurutkan berdasarkan jumlah acara, lalu nama, dan dikelompokkan per tipe.',
             ],
           },
         ],
@@ -639,14 +795,17 @@ export const DOC_SECTIONS: DocSection[] = [
               'Halaman pendaftaran mandiri untuk EO, sekolah, kampus, perusahaan, komunitas, atau instansi. Cocok dibagikan lewat bio, WhatsApp, atau QR.',
             steps: [
               'Buka /daftar.',
-              'Pilih tipe organisasi.',
-              'Isi nama organisasi, PIC, dan nomor WhatsApp (wajib); email, Instagram, deskripsi, dan tanggal preferensi opsional.',
+              'Langkah 1 — pilih tipe organisasi dari 8 pilihan: Komunitas, Sekolah/Universitas, Perusahaan, Event Organizer, Organisasi Kampus, Instansi Pemerintah, NGO/Yayasan, atau Lainnya.',
+              'Setelah tipe dipilih, form lengkap muncul; isi bidang khusus sesuai tipe (mis. Tipe Komunitas untuk komunitas, Jenjang Pendidikan untuk sekolah).',
+              'Isi Nama Komunitas/Organisasi (minimal 3 karakter), Nama PIC, dan Nomor WhatsApp (wajib); Email, Instagram, Preferensi Tanggal, dan Deskripsi opsional.',
               'Lampirkan proposal atau company profile (PDF/Word, maksimal 20MB) bila ada.',
-              'Klik "Kirim Pendaftaran" dan lihat konfirmasi.',
+              'Klik "Kirim Pendaftaran" dan lihat konfirmasi "Pendaftaran Terkirim!".',
             ],
             notes: [
-              'Minimal yang wajib: tipe organisasi, nama organisasi, PIC, dan nomor WhatsApp.',
-              'Pendaftaran masuk ke antrian Pendaftaran di dashboard admin.',
+              'Yang wajib: tipe organisasi, nama organisasi, nama PIC, dan nomor WhatsApp.',
+              'Lampiran harus berformat PDF atau Word (doc/docx) dan tidak melebihi 20MB; berkas diunggah sebelum pendaftaran dikirim.',
+              'Preferensi tanggal tidak bisa diisi dengan tanggal yang sudah lewat.',
+              'Pendaftaran masuk ke antrian Pendaftaran di dashboard admin, dan tidak otomatis menjadi event.',
             ],
           },
           {
@@ -658,13 +817,14 @@ export const DOC_SECTIONS: DocSection[] = [
               'Form pengajuan event untuk EO dan komunitas. Kiriman masuk ke antrian Draft dashboard tanpa perlu login.',
             steps: [
               'Buka /ajukan-event.',
-              'Isi Nama Acara dan Tanggal Mulai (wajib).',
+              'Isi Nama Acara (maksimal 120 karakter) dan Tanggal Mulai (wajib).',
               'Lengkapi Tanggal Selesai, Jam, Lokasi, Kategori, dan Keterangan bila perlu.',
               'Isi Nama Organisasi/EO, Nama PIC, dan No. HP/WhatsApp (wajib).',
-              'Klik "Kirim Pengajuan" dan lihat konfirmasi.',
+              'Klik "Kirim Pengajuan" dan lihat konfirmasi "Pengajuan Terkirim!".',
             ],
             notes: [
-              'Form dilengkapi penyaring anti-spam otomatis, jadi tidak perlu diisi manual.',
+              'Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai.',
+              'Form dilengkapi penyaring anti-spam otomatis (honeypot), jadi tidak perlu diisi manual.',
               'Pengajuan tidak langsung menjadi event — admin meninjaunya dulu di Antrian Draft.',
             ],
           },
@@ -676,14 +836,18 @@ export const DOC_SECTIONS: DocSection[] = [
             summary:
               'Form kepuasan pengunjung dan organizer: penilaian pengelola mall dan penyelenggara event, dengan pencegahan pengisian ganda.',
             steps: [
-              'Buka tautan survey yang dibagikan.',
-              'Pilih peran: "Penyelenggara Event" atau "Peserta/Pengunjung".',
-              'Beri penilaian untuk setiap aspek pengelolaan tempat.',
-              'Bila peserta, beri juga penilaian untuk penyelenggara event.',
-              'Isi komentar dan data diri bila berkenan.',
+              'Buka tautan survey yang dibagikan (tautan bisa memuat ?type=organizer atau ?type=public untuk memilih peran lebih dulu).',
+              'Pilih peran: "Penyelenggara Event" (saya EO/panitia) atau "Peserta / Pengunjung".',
+              'Beri penilaian 1–10 untuk 4 aspek pengelola tempat: Kebersihan & Fasilitas, Pelayanan Staff, Koordinasi & Komunikasi, dan Keamanan.',
+              'Bila mengisi sebagai peserta, beri juga penilaian untuk 5 aspek penyelenggara: Kualitas Acara, Organisasi & Kelancaran, Pelayanan Panitia, Kesesuaian Promosi, dan Rekomendasi.',
+              'Isi komentar dan data diri bila berkenan (keduanya opsional).',
               'Klik "Kirim Survey" dan lihat halaman terima kasih.',
             ],
-            notes: ['Satu perangkat hanya dapat mengisi sekali untuk setiap event.'],
+            notes: [
+              'Semua aspek penilaian wajib diisi sebelum tombol kirim aktif.',
+              'Satu perangkat hanya dapat mengisi sekali untuk setiap event.',
+              'Data diri bersifat opsional; identitas boleh dikosongkan.',
+            ],
           },
           {
             id: 'evaluasi-tenant-publik',
@@ -694,14 +858,15 @@ export const DOC_SECTIONS: DocSection[] = [
               'Tenant memilih event yang diikuti, lalu mengisi self-assessment anonim tentang traffic, penjualan, dan umpan balik.',
             steps: [
               'Buka /tenant-survey.',
-              'Cari event berdasarkan nama, lokasi, atau penyelenggara.',
-              'Klik baris event untuk mulai mengisi.',
-              'Bagian 1 — pilih gerai Anda dari daftar (lokasi dan kategori terisi otomatis), lengkapi bila perlu.',
-              'Bagian 2 — pilih kenaikan traffic dan penjualan.',
-              'Bagian 3 — tulis umpan balik, lalu klik "Kirim Survey".',
+              'Cari event berdasarkan nama, lokasi, atau penyelenggara (minimal 2 huruf), lalu klik baris event.',
+              'Bagian 1: Informasi Gerai — pilih Nama Gerai dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
+              'Bagian 2: Evaluasi Traffic & Sales — pilih kenaikan traffic pengunjung dan kenaikan penjualan.',
+              'Bagian 3: Umpan Balik — tulis kesan atau saran Anda (opsional).',
+              'Klik "Kirim Survey" dan lihat konfirmasi "Survey Terkirim!".',
             ],
             notes: [
-              'Gerai harus dipilih dari daftar, bukan diketik bebas.',
+              'Nama gerai harus dipilih dari daftar, bukan diketik bebas.',
+              'Lima field wajib: nama gerai, lokasi/zona, kategori, kenaikan traffic, dan kenaikan sales.',
               'Satu perangkat hanya dapat mengisi sekali untuk setiap event.',
               'Bila daftar kosong, berarti admin belum menyalakan survey untuk event mana pun.',
             ],
@@ -718,20 +883,24 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Viewer Surat',
             path: '/letter/:id',
             audience: 'Publik',
-            summary: 'Menampilkan surat konfirmasi event secara langsung di peramban, dengan tombol unduh.',
+            summary:
+              'Menampilkan surat konfirmasi event secara langsung di peramban, dengan tombol unduh.',
             steps: [
               'Buka tautan surat yang dibagikan.',
-              'Lihat dokumen surat secara langsung.',
-              'Klik "Unduh PDF" untuk menyimpannya.',
+              'Lihat dokumen surat secara langsung di dalam halaman.',
+              'Klik "Unduh PDF" untuk menyimpannya ke perangkat.',
             ],
-            notes: ['Hanya surat berstatus aktif yang bisa dibuka lewat tautan ini.'],
+            notes: [
+              'Hanya surat berstatus aktif yang bisa dibuka lewat tautan ini.',
+              'Unduhan membuat ulang berkas PDF dari data surat, jadi selalu sesuai isi terbaru.',
+            ],
           },
           {
             id: 'halaman-404',
             name: 'Halaman Tidak Ditemukan',
             audience: 'Publik',
             summary: 'Muncul untuk alamat yang tidak dikenal, agar tidak ada halaman kosong.',
-            steps: ['Buka alamat yang tidak dikenal.', 'Klik "Kembali ke Beranda".'],
+            steps: ['Buka alamat yang tidak dikenal.', 'Klik "Kembali ke Beranda" untuk lanjut menjelajah.'],
           },
         ],
       },
@@ -740,25 +909,74 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     id: 'lintas',
     label: 'Fitur Lintas Halaman',
-    intro: 'Kemampuan yang muncul di banyak halaman sekaligus, bukan satu rute tersendiri.',
+    intro:
+      'Kemampuan yang muncul di banyak halaman sekaligus, bukan satu rute tersendiri — dari tombol tema sampai berbagi tautan.',
     groups: [
       {
-        id: 'lintas-halaman',
-        label: 'Kemampuan Bersama',
-        description: 'Ekspor, QR, dan hal yang dipakai berulang.',
+        id: 'lintas-publik',
+        label: 'Untuk Semua Pengunjung',
+        description: 'Hal yang bisa dipakai siapa saja di hampir setiap halaman publik.',
         features: [
           {
-            id: 'export-pdf',
+            id: 'mode-tema-publik',
+            name: 'Mode Terang & Gelap',
+            audience: 'Publik',
+            summary:
+              'Hampir setiap halaman publik punya tombol tema di kanan atas (ikon bulan/matahari).',
+            steps: [
+              'Cari tombol bulan atau matahari di sudut kanan atas halaman.',
+              'Klik untuk berganti antara mode terang dan gelap.',
+              'Preferensi tersimpan di perangkat dan dipakai lagi pada kunjungan berikutnya.',
+            ],
+          },
+          {
+            id: 'bagikan-tautan',
+            name: 'Berbagi Tautan',
+            audience: 'Publik',
+            summary:
+              'Detail event bisa dibagikan lewat WhatsApp atau disalin tautannya; sebagian filter juga bisa dibagikan lewat URL.',
+            steps: [
+              'Di halaman detail event, klik "Bagikan via WhatsApp" untuk membuka WhatsApp dengan pesan terisi.',
+              'Atau klik "Salin link" — tombol berubah menjadi "Link tersalin" sebagai tanda berhasil.',
+              'Di /events, filter yang sedang aktif ikut tersimpan di alamat halaman, jadi tautannya bisa disalin dan dibagikan.',
+            ],
+          },
+          {
+            id: 'ekspor-pdf-publik',
             name: 'Ekspor PDF',
             audience: 'Publik',
             summary:
               'Tiga permukaan bisa menghasilkan PDF: jadwal event, album galeri, dan hasil evaluasi tenant.',
             steps: [
-              'Jadwal event — klik "Unduh PDF" di /events atau /dashboard/events untuk mengekspor daftar yang sedang tampil.',
-              'Album galeri — klik "Export PDF" di /gallery, pilih mode tanggal atau tema, lalu unduh.',
+              'Jadwal event — klik "Unduh PDF" di /events untuk mengekspor daftar yang sedang tampil.',
+              'Album galeri — klik "Export PDF" di /gallery, pilih mode tanggal atau tema, lihat "Preview PDF", lalu "Download PDF".',
               'Hasil evaluasi tenant — klik "Export PDF" di /tenant-survey-results bila akun Anda berwenang.',
             ],
+            notes: ['Ekspor album galeri selalu dua langkah: pratinjau dulu, baru unduh.'],
           },
+          {
+            id: 'pengisian-ganda',
+            name: 'Pencegahan Pengisian Ganda',
+            audience: 'Publik',
+            summary:
+              'Survey kepuasan dan evaluasi tenant membatasi satu pengisian per perangkat untuk setiap event.',
+            steps: [
+              'Isi survey seperti biasa dan kirim.',
+              'Bila mencoba mengisi lagi di perangkat yang sama, muncul pesan "Anda Sudah Mengisi Survey".',
+              'Hubungi tim mall bila Anda perlu memperbaiki data yang sudah dikirim.',
+            ],
+            notes: [
+              'Pembatasan memakai penanda perangkat, jadi mengisi dari perangkat berbeda tetap dimungkinkan.',
+              'Survey tenant hanya terbuka untuk event yang sudah diaktifkan admin.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'lintas-halaman',
+        label: 'Kemampuan Admin',
+        description: 'Ekspor, QR, dan hal yang dipakai berulang oleh pengelola.',
+        features: [
           {
             id: 'export-csv',
             name: 'Ekspor CSV',

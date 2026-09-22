@@ -23,17 +23,59 @@ const AUDIENCE_STYLE: Record<DocFeature['audience'], string> = {
   'Publik': 'border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200',
   'Semua pengguna': 'border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200',
   'Tenant': 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-300',
+  'Viewer': 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-300',
   'Admin': 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-300',
   'Superadmin': 'border-brand-secondary-200 bg-brand-secondary-50 text-brand-secondary-700 dark:border-brand-secondary-800 dark:bg-brand-secondary-950/40 dark:text-brand-secondary-300',
+  'Demo': 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
 };
 
-function matches(feature: DocFeature, query: string): boolean {
+function matches(
+  feature: DocFeature,
+  query: string,
+  audienceMatch: (audience: DocFeature['audience']) => boolean,
+): boolean {
+  if (!audienceMatch(feature.audience)) return false;
   if (!query) return true;
-  const haystack = [feature.name, feature.summary, feature.path ?? '', feature.audience, ...feature.steps]
+  const haystack = [
+    feature.name,
+    feature.summary,
+    feature.path ?? '',
+    feature.audience,
+    ...feature.steps,
+    ...(feature.notes ?? []),
+  ]
     .join(' ')
     .toLowerCase();
   return haystack.includes(query.toLowerCase());
 }
+
+/**
+ * Saringan audiens di halaman /docs. "Pengunjung" menggabungkan halaman publik
+ * dan hal yang berlaku untuk semua; "Pengelola" menggabungkan admin, superadmin,
+ * dan demo supaya tidak memaksa pengunjung memilih istilah internal.
+ */
+const AUDIENCE_FILTERS: Array<{
+  id: string;
+  label: string;
+  hint: string;
+  match: (audience: DocFeature['audience']) => boolean;
+}> = [
+  { id: 'semua', label: 'Semua', hint: 'Seluruh dokumentasi', match: () => true },
+  {
+    id: 'pengunjung',
+    label: 'Pengunjung',
+    hint: 'Untuk pengunjung, komunitas, dan brand',
+    match: audience => audience === 'Publik' || audience === 'Semua pengguna',
+  },
+  { id: 'tenant', label: 'Tenant', hint: 'Untuk tenant mall', match: audience => audience === 'Tenant' },
+  { id: 'viewer', label: 'Viewer', hint: 'Akun hanya-lihat', match: audience => audience === 'Viewer' },
+  {
+    id: 'pengelola',
+    label: 'Pengelola',
+    hint: 'Admin, superadmin, dan demo',
+    match: audience => audience === 'Admin' || audience === 'Superadmin' || audience === 'Demo',
+  },
+];
 
 /**
  * /docs — dokumentasi fitur + tutorial singkat.
@@ -52,22 +94,30 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
 
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [audience, setAudience] = useState('semua');
+
+  const activeAudience = AUDIENCE_FILTERS.find(item => item.id === audience) ?? AUDIENCE_FILTERS[0]!;
 
   const filtered = useMemo(
     () =>
       DOC_SECTIONS.map(section => ({
         ...section,
         groups: section.groups
-          .map(group => ({ ...group, features: group.features.filter(feature => matches(feature, query)) }))
+          .map(group => ({
+            ...group,
+            features: group.features.filter(feature => matches(feature, query, activeAudience.match)),
+          }))
           .filter(group => group.features.length > 0),
       })).filter(section => section.groups.length > 0),
-    [query],
+    [query, activeAudience],
   );
 
   const resultCount = filtered.reduce(
     (total, section) => total + section.groups.reduce((sum, group) => sum + group.features.length, 0),
     0,
   );
+
+  const isFiltering = Boolean(query) || audience !== 'semua';
 
   return (
     <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
@@ -114,9 +164,9 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
-            Penjelasan dan tutorial singkat untuk setiap fitur dashboard event Metropolitan Mall Bekasi —
-            dari mengelola jadwal event sampai mengisi survey. Pilih bagian di samping, atau cari langsung
-            nama fiturnya.
+            Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi — dari mencari jadwal event
+            dan mendaftar sebagai komunitas, sampai mengelola dashboard sebagai admin. Pilih "Saya melihat sebagai"
+            untuk menyaring sesuai peran Anda, atau cari langsung nama fiturnya.
           </p>
         </div>
 
@@ -157,6 +207,32 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
           </aside>
 
           <div className="min-w-0">
+            {/* Saringan audiens */}
+            <div className="mb-5">
+              <p className="text-xs font-bold uppercase tracking-wider ui-text-muted">Saya melihat sebagai</p>
+              <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Saring dokumentasi menurut pengguna">
+                {AUDIENCE_FILTERS.map(item => {
+                  const active = item.id === audience;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setAudience(item.id)}
+                      aria-pressed={active}
+                      title={item.hint}
+                      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                        active
+                          ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-brand-primary-300 hover:text-brand-primary-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-brand-primary-700 dark:hover:text-brand-primary-300'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Pencarian */}
             <div className="mb-6">
               <label htmlFor="docs-search" className="sr-only">
@@ -174,16 +250,18 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                 />
               </div>
               <p className="mt-2 text-xs ui-text-muted" role="status" aria-live="polite">
-                {query
-                  ? `${resultCount} fitur cocok dengan "${query}".`
-                  : `${resultCount} fitur terdokumentasi.`}
+                {resultCount} fitur {isFiltering ? 'cocok dengan saringan' : 'terdokumentasi'}
+                {query ? ` untuk "${query}"` : ''}
+                {audience !== 'semua' ? ` · ${activeAudience.hint}` : ''}.
               </p>
             </div>
 
             {resultCount === 0 && (
               <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-16 text-center dark:border-slate-700">
                 <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada fitur yang cocok</p>
-                <p className="mt-1 text-sm ui-text-muted">Coba kata kunci lain, atau pilih bagian dari daftar isi.</p>
+                <p className="mt-1 text-sm ui-text-muted">
+                  Coba kata kunci lain, ganti saringan pengguna, atau pilih bagian dari daftar isi.
+                </p>
               </div>
             )}
 
