@@ -162,7 +162,7 @@ export function ExhibitionManager({
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className={labelClass} htmlFor="exh-title">
-              Nama pameran <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+              Nama pameran <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <input id="exh-title" className={inputClass} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Beauty Fair" />
           </div>
@@ -176,13 +176,13 @@ export function ExhibitionManager({
           </div>
           <div>
             <label className={labelClass} htmlFor="exh-start">
-              Mulai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+              Mulai <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <input id="exh-start" type="date" className={inputClass} value={form.dateStart} onChange={e => setForm({ ...form, dateStart: e.target.value })} />
           </div>
           <div>
             <label className={labelClass} htmlFor="exh-end">
-              Selesai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+              Selesai <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <input id="exh-end" type="date" className={inputClass} value={form.dateEnd} onChange={e => setForm({ ...form, dateEnd: e.target.value })} />
           </div>

@@ -1,9 +1,9 @@
 /* ============================================================================
  * Mall Wayfinding — dashboard admin (/dashboard/*, /tenant-survey-results)
  * ----------------------------------------------------------------------------
- * Direction: papan direktori mall. Tiang penunjuk (pylon) + plat zona + papan
- * berkas. Pemilahan lewat garis rambut dan latar berlapis, bukan kartu
- * mengambang berbayang lebar.
+ * Direction: papan direktori mall. Rel navigasi terang (permukaan papan) + plat
+ * zona + papan berkas. Pemilahan lewat garis rambut dan latar berlapis, bukan
+ * kartu mengambang berbayang lebar.
  *
  * Makna warna (terdokumentasi, bukan dekorasi) — selalu dipasangkan dengan
  * BENTUK (titik penuh vs titik kosong) supaya tidak bergantung warna saja:

@@ -331,20 +331,20 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         <div
           role="tablist"
           aria-label="Tenant self-assessment"
-          className="ui-dashboard-surface flex gap-1 p-1"
+          className="ui-dashboard-surface flex gap-1 overflow-x-auto p-1"
         >
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === 'list'}
             onClick={() => setActiveTab('list')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
               activeTab === 'list'
                 ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                 : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
             }`}
           >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4 shrink-0" />
               Self-Assessment
             </button>
           <button
@@ -352,13 +352,13 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             role="tab"
             aria-selected={activeTab === 'analytics'}
             onClick={() => setActiveTab('analytics')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
               activeTab === 'analytics'
                 ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                 : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
             }`}
           >
-            <BarChart3 className="h-4 w-4" />
+            <BarChart3 className="h-4 w-4 shrink-0" />
             Analytics
           </button>
         </div>

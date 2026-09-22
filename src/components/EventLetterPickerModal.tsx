@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CalendarDays, MapPin, Search, X } from 'lucide-react';
+import { ArrowLeft, CalendarDays, MapPin, Search } from 'lucide-react';
 import { EventItem } from '../types';
 
 interface Props {
@@ -28,21 +28,16 @@ export function EventLetterPickerModal({ events, onClose, onSelect }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-extrabold tracking-tight text-[var(--wf-ink)] sm:text-2xl">
-            Buat Surat
-          </h2>
-          <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event untuk membuat surat.</p>
-        </div>
+        <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event untuk membuat surat.</p>
 
         <button
           type="button"
           onClick={onClose}
           className="flex items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-3 py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-          aria-label="Tutup pemilih event"
+          aria-label="Kembali ke Pusat Komando"
         >
-          <X size={18} />
-          Tutup
+          <ArrowLeft size={18} />
+          Kembali
         </button>
       </div>
 

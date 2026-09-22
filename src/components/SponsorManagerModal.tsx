@@ -159,11 +159,11 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
 
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Tabs */}
-          <div className="flex gap-1 rounded-xl bg-[var(--wf-board-2)] p-1">
+          <div className="flex gap-1 overflow-x-auto rounded-xl bg-[var(--wf-board-2)] p-1">
             <button
               type="button"
               onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'proposals'
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'proposals'
                 ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                 : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
             >
@@ -172,7 +172,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
             <button
               type="button"
               onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'leads'
+              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'leads'
                 ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                 : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
             >

@@ -85,12 +85,11 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
             </div>
 
             <div
-              className="mt-3 rounded-[var(--wf-radius-board)] p-4"
+              className="mt-3 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] p-4"
               style={{
                 backgroundColor: `${selectedTheme.color}18`,
-                borderLeft: `3px solid ${selectedTheme.color}`,
                 ...(today >= selectedTheme.dateStart && today <= selectedTheme.dateEnd
-                  ? { boxShadow: `0 0 0 2px ${selectedTheme.color}33` }
+                  ? { borderColor: 'var(--wf-live)', boxShadow: `0 0 0 2px ${selectedTheme.color}33` }
                   : {}),
               }}
             >
@@ -130,16 +129,15 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
           return (
             <div
               key={theme.id}
-              className={`relative min-w-0 rounded-[var(--wf-radius-board)] p-4 transition-all duration-200 ${
+              className={`relative min-w-0 rounded-[var(--wf-radius-board)] border p-4 transition-colors duration-200 ${
                 isActive
-                  ? 'ring-2 ring-[var(--wf-accent)]'
+                  ? 'border-[var(--wf-live)]'
                   : isPast
-                  ? 'opacity-60'
-                  : 'opacity-85 hover:opacity-100'
+                  ? 'border-[var(--wf-rule)] opacity-60'
+                  : 'border-[var(--wf-rule)] opacity-85 hover:opacity-100'
               }`}
               style={{
                 backgroundColor: `${theme.color}18`,
-                borderLeft: `3px solid ${theme.color}`,
                 ...(isActive ? { boxShadow: `0 0 0 2px ${theme.color}55` } : {}),
               }}
             >
@@ -175,10 +173,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {isActive && (
-                  <span
-                    className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
-                    style={{ backgroundColor: theme.color }}
-                  >
+                  <span className="wf-key wf-key--live wf-key--plain">
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                     Aktif
                   </span>
                 )}
@@ -188,7 +184,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                 {isPast && (
                   <span className="text-[10px] text-[var(--wf-ink-muted)]">Selesai</span>
                 )}
-                <span className="ml-auto text-[10px] font-semibold" style={{ color: theme.color }}>
+                <span className="ml-auto text-[10px] font-semibold text-[var(--wf-ink-muted)]">
                   {progress}%
                 </span>
               </div>

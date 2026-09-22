@@ -4,7 +4,8 @@ import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ToastContainer } from './components/ToastContainer';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
-import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath } from './components/dashboard/dashboardNavigation';
+import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath, CONTENT_ROUTES } from './components/dashboard/dashboardNavigation';
+import { DashboardShell } from './components/dashboard/DashboardShell';
 import { deriveCommunityStats } from './components/community/communityStats';
 import { useEvents } from './hooks/useEvents';
 import { useDraftEvents } from './hooks/useDraftEvents';
@@ -423,36 +424,33 @@ export default function App() {
         </Suspense>
       } />
 
-      {/* Tenant survey results — public */}
+      {/* Tenant survey results — memakai shell rail yang sama dengan /dashboard/*
+          agar chrome-nya konsisten (sebelumnya punya top bar sendiri). */}
       <Route path="/tenant-survey-results" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="ui-dashboard-page wf-page min-h-screen">
-            <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-              <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-                  <div className="hidden h-7 w-px shrink-0 bg-[var(--wf-rule)] sm:block" />
-                  <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest text-[var(--wf-ink-muted)] sm:inline">Tenant Relation</span>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  {auth.isAuthenticated && (
-                    <>
-                      {auth.user?.display_name && (
-                        <div className="hidden items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1 sm:flex">
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--wf-accent-soft)] text-[10px] font-bold text-[var(--wf-accent)]">{(auth.user?.display_name || 'A').charAt(0).toUpperCase()}</span>
-                          <span className="max-w-[120px] truncate text-[11px] font-semibold text-[var(--wf-ink)]">{auth.user?.display_name || 'Admin'}</span>
-                        </div>
-                      )}
-                      <button type="button" onClick={handleLogout} className="ui-focus-ring rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]">Keluar</button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </header>
-            <div className="mx-auto max-w-7xl px-3 py-3 pb-16 sm:px-4 sm:py-6 sm:pb-12">
-              <TenantSurveyResultsPage events={events} canExport={permissions.canExportTenantSurveyAnalytics} publicMode />
-            </div>
-          </div>
+          <DashboardShell
+            isAdmin={isAdmin}
+            isLoading={isLoading}
+            isDark={isDark}
+            onToggleDark={toggleDark}
+            onLogout={handleLogout}
+            user={auth.user}
+            isSuperadmin={auth.isSuperadmin}
+            permissions={permissions}
+            onOpenInstagramSettings={() => navigate(CONTENT_ROUTES['landing-page'])}
+            onOpenAlbumManager={() => navigate(CONTENT_ROUTES['album-gallery'])}
+            onOpenLetterPicker={() => navigate(CONTENT_ROUTES['letter'])}
+            onOpenNewsManager={() => navigate(CONTENT_ROUTES['news'])}
+            onOpenSponsorManager={() => navigate(CONTENT_ROUTES['sponsorship'])}
+            onOpenEventAreaManager={() => navigate(CONTENT_ROUTES['event-areas'])}
+            onLoginClick={() => setShowLoginModal(true)}
+            ongoingCount={visibleStats.ongoing}
+            upcomingCount={visibleStats.upcoming}
+            publicSectionItems={publicSectionItems}
+            modals={null}
+          >
+            <TenantSurveyResultsPage events={events} canExport={permissions.canExportTenantSurveyAnalytics} publicMode />
+          </DashboardShell>
         </Suspense>
       } />
 

@@ -114,7 +114,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
       {/* 5. Heatmap Lokasi & Waktu */}
       <div className="ui-dashboard-surface p-4">
         <div className="mb-3 flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-red-700 dark:text-red-300" />
+          <MapPin className="h-4 w-4 text-[var(--wf-accent)]" />
           <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Top Lokasi</h3>
         </div>
         <div className="space-y-2">
@@ -122,7 +122,7 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
             <div key={name} className="flex items-center gap-3">
               <span className="w-28 truncate text-[11px] text-[var(--wf-ink-muted)]">{name}</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
-                <div className="h-full rounded-full bg-red-400 transition-[width] duration-700" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-[var(--wf-accent)] transition-[width] duration-700" style={{ width: `${pct}%` }} />
               </div>
               <span className="w-8 text-right text-[11px] font-semibold text-[var(--wf-ink)]">{count}</span>
             </div>

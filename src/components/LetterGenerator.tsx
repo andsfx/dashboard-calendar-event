@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Download, Eye, EyeOff, Save, Share2, X } from 'lucide-react';
+import { ArrowLeft, Download, Eye, EyeOff, Save, Share2 } from 'lucide-react';
 import { LetterRequestItem, GeneratedLetter, EventItem, DraftEventItem } from '../types';
 import { EditableText, EditableArea } from './ui/Editable';
 import { downloadLetterPdf, openLetterPdfPreview, renderLetterPdfBase64 } from '../utils/letterPdfExport';
@@ -223,10 +223,10 @@ export function LetterGenerator({ onClose, event, draftEvent }: Props) {
           <button
             onClick={onClose}
             className="flex items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-3 py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-            aria-label="Tutup editor"
+            aria-label="Kembali ke pemilihan event"
           >
-            <X size={18} />
-            Tutup
+            <ArrowLeft size={18} />
+            Kembali
           </button>
         </div>
       </div>
