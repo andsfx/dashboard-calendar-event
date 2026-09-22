@@ -113,6 +113,10 @@ function pushTextLimitErrors(body, errors) {
     improvement_suggestion: 'Saran perbaikan',
     pic_name: 'Nama penanggung jawab',
     pic_phone: 'Nomor telepon penanggung jawab',
+    lokasi_zona: 'Lokasi/zona',
+    kategori: 'Kategori',
+    kenaikan_traffic: 'Kenaikan traffic',
+    kenaikan_sales: 'Kenaikan sales',
   };
   for (const [field, max] of limits) {
     const raw = body[field];
@@ -146,6 +150,37 @@ function validatePublicSubmission(body) {
   }
   if (!body.kenaikan_sales || !SURVEY_OPTIONS.kenaikan_sales.includes(body.kenaikan_sales)) {
     errors.push('Kenaikan sales wajib dipilih dari daftar yang tersedia.');
+  }
+
+  pushTextLimitErrors(body, errors);
+  return errors;
+}
+
+/**
+ * Validator untuk DRAFT (`POST /create`, yang selalu menyisipkan status
+ * 'draft'). Berbeda dari `validatePublicSubmission` yang menuntut semua pilihan
+ * enum terisi: draft sengaja boleh setengah jadi. Yang tetap ditegakkan adalah
+ * ID event dan batas panjang teks; field enum hanya divalidasi BILA terisi,
+ * supaya draft yang dikirim bertahap tidak pernah ditolak karena belum lengkap.
+ */
+function validateDraftSubmission(body) {
+  const errors = [];
+
+  if (!body.event_id || typeof body.event_id !== 'string' || !body.event_id.trim()) {
+    errors.push('ID event wajib diisi.');
+  }
+
+  const enumFields = ['lokasi_zona', 'kategori', 'kenaikan_traffic', 'kenaikan_sales'];
+  for (const field of enumFields) {
+    const value = body[field];
+    if (value == null || value === '') continue; // draft: boleh belum diisi
+    if (!SURVEY_OPTIONS[field].includes(value)) {
+      errors.push(`${LABELS[field] ?? field} tidak dikenal.`);
+    }
+  }
+
+  if (body.nama_gerai != null && sanitize(body.nama_gerai).length > 100) {
+    errors.push('Nama gerai maksimal 100 karakter.');
   }
 
   pushTextLimitErrors(body, errors);
@@ -600,7 +635,8 @@ router.get('/directory', async (req, res, next) => {
 // ─── GET /list ─────────────────────────────────────────────────────
 router.get('/list', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
-  const { role, user } = req.auth;
+  const { user } = req.auth;
+  const role = user?.role;
 
   try {
     const where = [];
@@ -633,7 +669,8 @@ router.get('/get', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next
   const id = String(req.query?.id || '').trim();
   if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
-  const { role, user } = req.auth;
+  const { user } = req.auth;
+  const role = user?.role;
   try {
     const { rows } = await db.query('SELECT * FROM tenant_event_surveys WHERE id = $1 LIMIT 1', [id]);
     const row = rows[0] || null;
@@ -657,7 +694,7 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   const body = req.body || {};
   const { user } = req.auth;
 
-  const errors = validatePublicSubmission(body);
+  const errors = validateDraftSubmission(body);
   if (errors.length > 0) return res.status(400).json({ success: false, errors });
 
   try {
@@ -707,7 +744,8 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   const id = sanitize(body.id || '', 100);
   if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
 
-  const { role, user } = req.auth;
+  const { user } = req.auth;
+  const role = user?.role;
   try {
     const { rows } = await db.query(
       'SELECT id, tenant_user_id, status FROM tenant_event_surveys WHERE id = $1 LIMIT 1',
@@ -837,7 +875,7 @@ router.get('/analytics', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req
   const allowedGroups = new Set(['tenant', 'event', 'month']);
   const groupBy = allowedGroups.has(group) ? group : 'tenant';
 
-  const isAdminScope = ANALYTICS_READ_ROLES_WITH_DEMO.includes(req.auth.role);
+  const isAdminScope = ANALYTICS_READ_ROLES_WITH_DEMO.includes(req.auth.user?.role);
   const tenantUserId = isAdminScope ? null : req.auth.user?.id || null;
 
   try {

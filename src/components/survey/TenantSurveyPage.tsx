@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search, Edit, Send, Trash2, Eye, AlertTriangle } from 'lucide-react';
 import type {
   EventItem,
@@ -49,6 +49,12 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   // Default false until config-get hydrates (no row = inactive)
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>({});
   const [configLoading, setConfigLoading] = useState<string | null>(null);
+  /**
+   * Salinan `configLoading` yang bisa dibaca di dalam efek hidrasi tanpa
+   * menambahnya ke daftar dependensi (menambahkannya akan mengulang seluruh
+   * GET config setiap kali satu toggle mulai/selesai).
+   */
+  const configLoadingRef = useRef<string | null>(null);
   const [copiedId, setCopiedId] = useState('');
   const [analyticsEventFilter, setAnalyticsEventFilter] = useState<string>('all');
 
@@ -71,7 +77,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     review,
     remove,
   } = useTenantSurveys();
-  const { analytics, isLoading: analyticsLoading } = useTenantSurveyAnalytics(
+  const { analytics, isLoading: analyticsLoading, error: analyticsError, refreshAnalytics } = useTenantSurveyAnalytics(
     analyticsEventFilter !== 'all' ? analyticsEventFilter : null,
   );
   const {
@@ -98,17 +104,30 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
   // ─── Hydrate is_active per event (config-get) ──────────────────
   // past + ongoing: survey self-assessment biasanya pasca/saat event selesai
+  //
+  // Kunci efek memakai DAFTAR ID yang stabil, bukan identitas array `events`:
+  // useEvents melakukan polling 30s yang mengganti referensi array walau isinya
+  // sama, dan efek yang bergantung pada `events` akan mengulang seluruh GET
+  // config tiap 30s. Nilai hasil hidrasi juga DIGABUNG (bukan menimpa), supaya
+  // toggle optimistis yang sedang berjalan tidak berbalik ke nilai lama.
+  const surveyableIdsKey = useMemo(
+    () =>
+      events
+        .filter((e) => e.status === 'past' || e.status === 'ongoing')
+        .map((e) => e.id)
+        .join(','),
+    [events],
+  );
+
   useEffect(() => {
-    const surveyableIds = events
-      .filter((e) => e.status === 'past' || e.status === 'ongoing')
-      .map((e) => e.id);
-    if (surveyableIds.length === 0) return;
+    if (!surveyableIdsKey) return;
+    const ids = surveyableIdsKey.split(',');
 
     let cancelled = false;
     (async () => {
       // GET /api/v1/tenant/config — cookie auth via apiGet (credentials include).
       const entries = await Promise.all(
-        surveyableIds.map(async (id) => {
+        ids.map(async (id) => {
           try {
             const cfg = await apiGet<{ is_active?: boolean }>(
               `/tenant/config?event_id=${encodeURIComponent(id)}`,
@@ -120,11 +139,19 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         }),
       );
       if (cancelled) return;
-      setActiveConfigs(Object.fromEntries(entries));
+      setActiveConfigs(prev => {
+        const next = { ...prev };
+        for (const [id, isActive] of entries) {
+          // Jangan menimpa event yang sedang di-toggle (POST belum tentu commit).
+          if (configLoadingRef.current === id) continue;
+          next[id] = isActive;
+        }
+        return next;
+      });
     })();
 
     return () => { cancelled = true; };
-  }, [events]);
+  }, [surveyableIdsKey]);
 
   // ─── Handlers ──────────────────────────────────────────────────
   const handleNewSurvey = useCallback((eventId: string) => {
@@ -223,7 +250,18 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         // Create new + submit if needed
         const created = await createSurvey(data);
         if (!isDraft) {
-          await submit(created.id);
+          try {
+            await submit(created.id);
+          } catch (submitErr) {
+            // Server /create selalu menyisipkan draft lebih dulu; bila submit
+            // gagal (mis. duplikat), draft itu akan tertinggal sebagai orphan
+            // dan pengguna yang mengulang akan membuat draft ganda. Bersihkan
+            // best-effort, lalu teruskan error aslinya ke pemanggil.
+            try {
+              await remove(created.id);
+            } catch { /* pembersihan best-effort — jangan tutupi error utama */ }
+            throw submitErr;
+          }
         }
       }
 
@@ -242,14 +280,18 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         setFormError(msg);
       }
     }
-  }, [editingSurvey, createSurvey, editSurvey, submit, refreshSurveys, recheckDuplicate]);
+  }, [editingSurvey, createSurvey, editSurvey, submit, remove, refreshSurveys, recheckDuplicate]);
 
   const handleSubmitDraft = useCallback(async (id: string) => {
     try {
       await submit(id);
       await refreshSurveys();
     } catch (err) {
+      // Rethrow supaya TenantSurveyList bisa menampilkan alasannya. Sebelumnya
+      // error ditelan di sini, jadi tombol "Kirim" pada baris draft tampak
+      // diam saja saat server menolak.
       console.error('Submit draft failed:', err);
+      throw err;
     }
   }, [submit, refreshSurveys]);
 
@@ -265,6 +307,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   // ─── Event Management Handlers ──────────────────────────────────
   const handleToggleConfig = useCallback(async (eventId: string, currentActive: boolean) => {
     setConfigLoading(eventId);
+    configLoadingRef.current = eventId;
     setActionError(null);
     try {
       // POST /api/v1/tenant/config-set — cookie auth via apiPost.
@@ -280,7 +323,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Gagal mengubah status survey.');
     }
-    finally { setConfigLoading(null); }
+    finally { setConfigLoading(null); configLoadingRef.current = null; }
   }, []);
 
   const handleCopyLink = useCallback(async (eventId: string) => {
@@ -327,6 +370,21 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   if (viewMode === 'list') {
     return (
       <div className="space-y-4">
+        {/*
+         * Error aksi (toggle survey, salin tautan, export CSV) muncul di sini.
+         * Sebelumnya `actionError` hanya dirender di tampilan detail, padahal
+         * tiga aksi itu dijalankan dari tampilan daftar — kegagalannya jadi
+         * senyap: tombol terlihat "tidak bereaksi" tanpa penjelasan.
+         */}
+        {actionError && (
+          <div
+            role="alert"
+            className="rounded-[var(--wf-radius-board)] border border-red-200 bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:text-red-300"
+          >
+            {actionError}
+          </div>
+        )}
+
         {/* Tabs */}
         <div
           role="tablist"
@@ -406,6 +464,8 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                   : surveys.filter(s => s.event_id === analyticsEventFilter)
               }
               isLoading={analyticsLoading}
+              error={analyticsError}
+              onRetry={() => { void refreshAnalytics(); }}
               eventFilter={analyticsEventFilter !== 'all' ? analyticsEventFilter : null}
             />
           </div>
@@ -837,6 +897,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         event={selectedEvent}
         initialData={editingSurvey ? {
           event_id: editingSurvey.event_id,
+          tenant_id: editingSurvey.tenant_id ?? '',
           nama_gerai: editingSurvey.nama_gerai,
           lokasi_zona: editingSurvey.lokasi_zona,
           kategori: editingSurvey.kategori,

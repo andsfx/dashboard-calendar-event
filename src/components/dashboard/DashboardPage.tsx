@@ -14,10 +14,11 @@ import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
 import { CONTENT_ROUTES } from './dashboardNavigation';
 import { getAvailableViewTabs } from './viewTabs';
+import { UnderMaintenance } from '../ui/UnderMaintenance';
 
 const FeaturedEvents = lazy(() => import('../FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
 const QuarterTimeline = lazy(() => import('../QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
-const CalendarView = lazy(() => import('../CalendarView').then(m => ({ default: m.CalendarView })));
+const DashboardCalendarView = lazy(() => import('./DashboardCalendarView').then(m => ({ default: m.DashboardCalendarView })));
 const AdminDraftSection = lazy(() => import('../AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
 const CommunityRegistrationSection = lazy(() => import('../CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
 const DashboardViewsSection = lazy(() => import('../DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
@@ -33,8 +34,9 @@ const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({
 const EventAreaManagerModal = lazy(() => import('../EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
 const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
 const SponsorManagerModal = lazy(() => import('../SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
-const EventLetterPickerModal = lazy(() => import('../EventLetterPickerModal').then(m => ({ default: m.EventLetterPickerModal })));
-const LetterGenerator = lazy(() => import('../LetterGenerator').then(m => ({ default: m.LetterGenerator })));
+/* LetterGenerator + EventLetterPickerModal sengaja tidak diimpor: fitur "Buat
+   Surat" ditutup sementara (under maintenance) sehingga rutenya menampilkan
+   penanda, bukan generator. Komponennya tetap ada untuk diaktifkan kembali. */
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
   return <div className={`animate-pulse rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] ${height}`} />;
@@ -441,7 +443,7 @@ export function DashboardPage({
             <p className="text-sm text-[var(--wf-ink-muted)]">Lihat semua event publik dalam tampilan kalender.</p>
           </div>
           <Suspense fallback={<SectionFallback height="h-[28rem]" />}>
-            <CalendarView events={events.publicEvents} holidays={events.holidays} onDetail={handlers.handleDetailClick} />
+            <DashboardCalendarView events={events.publicEvents} holidays={events.holidays} onDetail={handlers.handleDetailClick} />
           </Suspense>
         </section>
       )}
@@ -574,20 +576,11 @@ export function DashboardPage({
 
       {permissions.canManageSettings && dashboardPath === '/content/surat' && (
         <section id="content-surat" className="scroll-mt-20">
-          <Suspense fallback={<SectionFallback height="h-48" />}>
-            {modalData.letterEvent ? (
-              <LetterGenerator
-                event={modalData.letterEvent}
-                onClose={() => modalData.setLetterEvent(null)}
-              />
-            ) : (
-              <EventLetterPickerModal
-                events={events.publicEvents}
-                onSelect={handlers.handleSelectLetterEvent}
-                onClose={() => navigate('/dashboard')}
-              />
-            )}
-          </Suspense>
+          <UnderMaintenance
+            title="Buat Surat"
+            reason="Generator surat belum menghasilkan dokumen yang konsisten untuk semua jenis event, jadi kami tutup sementara agar tidak ada surat keluar yang cacat."
+            next="Untuk kebutuhan surat yang mendesak, hubungi tim administrasi mall secara langsung."
+          />
         </section>
       )}
 

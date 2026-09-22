@@ -32,6 +32,7 @@ const GalleryAlbumPage = lazy(() => import('./components/GalleryAlbumPage').then
 const NewsIndexPage = lazy(() => import('./components/NewsIndexPage').then(m => ({ default: m.NewsIndexPage })));
 const NewsArticlePage = lazy(() => import('./components/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const SponsorLandingPage = lazy(() => import('./components/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
+const DocsPage = lazy(() => import('./components/DocsPage').then(m => ({ default: m.DocsPage })));
 const TenantDirectoryPage = lazy(() => import('./components/TenantDirectoryPage').then(m => ({ default: m.TenantDirectoryPage })));
 const CommunityDirectoryPage = lazy(() => import('./components/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
 const ExhibitionsLandingPage = lazy(() => import('./components/ExhibitionsLandingPage').then(m => ({ default: m.ExhibitionsLandingPage })));
@@ -341,6 +342,12 @@ export default function App() {
       <Route path="/sponsor" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <SponsorLandingPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
+      {/* Dokumentasi fitur — publik */}
+      <Route path="/docs" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <DocsPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
       {/* Pameran & kolaborasi — publik */}

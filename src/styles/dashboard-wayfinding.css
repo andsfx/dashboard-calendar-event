@@ -122,6 +122,17 @@
   color: var(--wf-accent-ink);
 }
 
+/* Feature flag on a rail row: a module that is deliberately offline. Amber is
+ * the board's "attention, not danger" reading, so it cannot be mistaken for an
+ * error state. The row stays a normal link — the module page carries the
+ * explanation; this is only the marker. */
+.wf-rail-flag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--wf-action);
+}
+
 /* ── Topbar (admin) ─────────────────────────────────────────────────────── */
 
 /* A board band with a hairline under it. Not the rail material: the rail is a

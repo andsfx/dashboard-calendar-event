@@ -51,27 +51,21 @@ interface Props {
   events: EventItem[];
   holidays: HolidayItem[];
   onDetail: (ev: EventItem) => void;
-  /** public = campaign landing skin; dashboard = admin surface (default) */
-  variant?: 'dashboard' | 'public';
+  /**
+   * Komponen ini kini hanya untuk permukaan publik (`/events`). Versi dashboard
+   * dipindah ke `dashboard/DashboardCalendarView` (lima tampilan), jadi cabang
+   * skin dashboard-nya dihapus agar tidak ada dua kalender yang berbeda
+   * diam-diam. Prop `variant` dipertahankan demi pemanggil lama.
+   */
+  variant?: 'public';
 }
 
-export function CalendarView({ events, holidays, onDetail, variant = 'dashboard' }: Props) {
-  const isPublic = variant === 'public';
-  const surfaceClass = isPublic
-    ? 'overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900'
-    : 'ui-dashboard-surface overflow-hidden';
-  const headerClass = isPublic
-    ? 'flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80'
-    : 'flex items-center justify-between ui-btn-primary px-5 py-4';
-  const headerBtnClass = isPublic
-    ? 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700'
-    : 'rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/20 hover:text-white';
-  const headerTitleClass = isPublic
-    ? 'text-lg font-bold text-slate-900 dark:text-white'
-    : 'text-lg font-bold text-white';
-  const headerSubClass = isPublic
-    ? 'text-xs ui-text-muted'
-    : 'text-xs text-white/70';
+export function CalendarView({ events, holidays, onDetail }: Props) {
+  const surfaceClass = 'overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900';
+  const headerClass = 'flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80';
+  const headerBtnClass = 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700';
+  const headerTitleClass = 'text-lg font-bold text-slate-900 dark:text-white';
+  const headerSubClass = 'text-xs ui-text-muted';
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());

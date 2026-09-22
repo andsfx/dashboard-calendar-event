@@ -32,6 +32,8 @@ export interface DashboardNavItem {
   action: 'route' | 'callback';
   route?: string;
   callback?: () => void;
+  /** Fitur sengaja ditutup sementara — rail menandainya agar tidak dikira rusak. */
+  maintenance?: boolean;
 }
 
 export interface DashboardNavGroup {
@@ -132,7 +134,7 @@ export function getDashboardNavGroups(
           { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['landing-page'] },
           { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['album-gallery'] },
           { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['event-areas'] },
-          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['letter'] },
+          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['letter'], maintenance: true },
           { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['news'] },
         ] : []),
         ...(permissions.canViewSponsorship ? [
@@ -187,7 +189,7 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/content/landing', label: 'Halaman Landing', description: 'Gambar hero dan feed Instagram halaman landing' },
   { path: '/content/galeri', label: 'Galeri Album', description: 'Album foto yang tampil di halaman galeri publik' },
   { path: '/content/foto-area', label: 'Foto Area Event', description: 'Area event dan foto representatifnya' },
-  { path: '/content/surat', label: 'Buat Surat', description: 'Susun dan unduh surat untuk event terpilih' },
+  { path: '/content/surat', label: 'Buat Surat', description: 'Sedang diperbaiki — generator surat ditutup sementara' },
   { path: '/content/berita', label: 'Berita', description: 'Artikel berita yang tampil di situs publik' },
   { path: '/content/sponsorship', label: 'Sponsorship', description: 'Sponsor, status penawaran, dan kerja sama' },
 ];

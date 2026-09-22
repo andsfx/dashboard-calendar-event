@@ -49,7 +49,28 @@ export default function TenantSurveyForm({
     pic_phone: initialData?.pic_phone ?? '',
   });
 
-  const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
+  /**
+   * Saat mengubah survey yang sudah ada, identitas gerai harus direkonstruksi
+   * dari data yang tersimpan. Tanpa ini `selectedTenant` tetap null, sehingga
+   * `buildFormData` menulis `tenant_id: ''` (tautan ke master tenant hilang)
+   * dan guard "pilih dari daftar" memblokir submit ulang walau nama gerai
+   * sudah terisi.
+   */
+  const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(() => {
+    if (!initialData?.tenant_id) return null;
+    return {
+      id: initialData.tenant_id,
+      name: initialData.nama_gerai ?? '',
+      floor: '',
+      lot: '',
+      category: '',
+      pic: initialData.pic_name ?? '',
+      picTelp: initialData.pic_phone ?? '',
+      logo: '',
+      status: '',
+      participantEvoucher: '',
+    };
+  });
   const [autoFilled, setAutoFilled] = useState<{ lokasi_zona: boolean; kategori: boolean }>({
     lokasi_zona: false,
     kategori: false,

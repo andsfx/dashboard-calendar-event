@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart3, TrendingUp, DollarSign } from 'lucide-react';
 import { useTenantSurveyMonthlyTrend } from '../../hooks/useTenantSurveys';
+import { POSITIVE_SALES_BUCKETS, POSITIVE_TRAFFIC_BUCKETS, positiveSharePct } from '../../utils/surveyUtils';
 
 function TrendBar({
   label,
@@ -65,19 +66,12 @@ export default function TenantSurveyTrendChart({
     const latest = trend[0]!;
     const previous = trend[1]!;
 
-    const latestTrafficPos = latest.total_submissions > 0
-      ? Math.round(((latest.traffic_signifikan + latest.traffic_sedikit_naik) / latest.total_submissions) * 100)
-      : 0;
-    const prevTrafficPos = previous.total_submissions > 0
-      ? Math.round(((previous.traffic_signifikan + previous.traffic_sedikit_naik) / previous.total_submissions) * 100)
-      : 0;
-
-    const latestSalesPos = latest.total_submissions > 0
-      ? Math.round(((latest.sales_lt_10 + latest.sales_10_30 + latest.sales_30_50 + latest.sales_gt_50) / latest.total_submissions) * 100)
-      : 0;
-    const prevSalesPos = previous.total_submissions > 0
-      ? Math.round(((previous.sales_lt_10 + previous.sales_10_30 + previous.sales_30_50 + previous.sales_gt_50) / previous.total_submissions) * 100)
-      : 0;
+    // Definisi positif dipusatkan di surveyUtils — panel Analytics memakai
+    // label opsi, TrendChart memakai kolom agregat; keduanya harus sepakat.
+    const latestTrafficPos = positiveSharePct(latest, POSITIVE_TRAFFIC_BUCKETS, latest.total_submissions);
+    const prevTrafficPos = positiveSharePct(previous, POSITIVE_TRAFFIC_BUCKETS, previous.total_submissions);
+    const latestSalesPos = positiveSharePct(latest, POSITIVE_SALES_BUCKETS, latest.total_submissions);
+    const prevSalesPos = positiveSharePct(previous, POSITIVE_SALES_BUCKETS, previous.total_submissions);
 
     return {
       latestTrafficPos,

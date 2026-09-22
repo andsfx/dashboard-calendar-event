@@ -4,7 +4,7 @@ import {
   Building2, Store, Tag, DollarSign,
 } from 'lucide-react';
 import type { TenantSurveyAnalytics, TenantEventSurvey } from '../../types';
-import { isV3Survey } from '../../utils/surveyUtils';
+import { isV3Survey, salesPositivePct, trafficPositivePct } from '../../utils/surveyUtils';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
 import TenantSurveyTrendChart from './TenantSurveyTrendChart';
 
@@ -13,6 +13,9 @@ interface TenantSurveyAnalyticsProps {
   surveys: TenantEventSurvey[];
   isLoading: boolean;
   eventFilter?: string | null;
+  /** Pesan kegagalan muat. Bila ada, tampilkan galat — bukan empty state. */
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 function ratingColor(n: number | null | undefined): string {
@@ -81,6 +84,25 @@ function LoadingState() {
   );
 }
 
+function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div role="alert" className="rounded-[var(--wf-radius-board)] border border-red-200 bg-red-600/10 p-6 text-center dark:border-red-800">
+      <BarChart3 className="mx-auto h-8 w-8 text-red-700 dark:text-red-300" />
+      <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">Gagal memuat analytics</p>
+      <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">{message}</p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700"
+        >
+          Coba lagi
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════
@@ -90,6 +112,8 @@ export default function TenantSurveyAnalyticsPanel({
   surveys,
   isLoading,
   eventFilter,
+  error,
+  onRetry,
 }: TenantSurveyAnalyticsProps) {
 
   // ─── V3 aggregate (from raw surveys — supports event filtering) ─
@@ -107,10 +131,10 @@ export default function TenantSurveyAnalyticsPanel({
 
     const total = v3Surveys.length;
     const trafficPos = (trafficDist['Signifikan'] || 0) + (trafficDist['Sedikit Naik'] || 0);
-    const salesPos =
-      (salesDist['> 50%'] || 0) +
-      (salesDist['30% - 50%'] || 0) +
-      (salesDist['10% - 30%'] || 0);
+    // Definisi "sales positif" dipusatkan di surveyUtils supaya panel ini dan
+    // TrendChart tidak lagi menghasilkan dua angka berbeda untuk dataset sama.
+    const salesPosPct = salesPositivePct(v3Surveys);
+    const trafficPosPct = trafficPositivePct(v3Surveys);
 
     return {
       v3Surveys,
@@ -119,8 +143,8 @@ export default function TenantSurveyAnalyticsPanel({
       kategoriDist,
       total,
       uniqueGerai,
-      trafficPosPct: total > 0 ? Math.round((trafficPos / total) * 100) : 0,
-      salesPosPct: total > 0 ? Math.round((salesPos / total) * 100) : 0,
+      trafficPosPct,
+      salesPosPct,
     };
   }, [surveys]);
 
@@ -176,6 +200,7 @@ export default function TenantSurveyAnalyticsPanel({
 
   // ─── Render ─────────────────────────────────────────────────────
   if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState message={error} onRetry={onRetry} />;
   if (!hasV3 && !hasV2) return <EmptyState />;
 
   return (

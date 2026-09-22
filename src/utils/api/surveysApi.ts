@@ -11,6 +11,21 @@ import type {
 
 // ─── Community Registrations ────────────────────────────────────
 
+/**
+ * Server memakai dua bentuk error: string `error` untuk kegagalan umum, dan
+ * array `errors` untuk kegagalan validasi (mis. field wajib kosong). Tanpa ini,
+ * array validasi jatuh ke fallback generik "Permintaan gagal (HTTP 400)" dan
+ * pengguna tidak tahu field mana yang salah.
+ */
+function apiErrorMessage(err: unknown, fallback: string): string {
+  if (!(err instanceof ApiError)) return err instanceof Error ? err.message : fallback;
+  const errors = err.payload?.errors;
+  if (Array.isArray(errors) && errors.length > 0) {
+    return errors.filter((e): e is string => typeof e === 'string').join(' · ') || fallback;
+  }
+  return err.message || fallback;
+}
+
 export async function fetchCommunityRegistrations(): Promise<CommunityRegistration[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>('readRegistrations', {});
   if (!result.success) throw new ApiError(result.error || 'Gagal memuat pendaftaran');
@@ -289,7 +304,7 @@ export async function createTenantSurvey(formData: TenantSurveyFormData): Promis
   } catch (err) {
     if (err instanceof ApiError) {
       if (err.code === '409') throw new ApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
-      throw new ApiError(err.message || 'Gagal membuat survey');
+      throw new ApiError(apiErrorMessage(err, 'Gagal membuat survey'));
     }
     throw err;
   }
@@ -315,7 +330,7 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
     if (err instanceof ApiError) {
       // 23505 (unique event+user) — server kirim 409 dengan pesan ramah.
       if (err.code === '409') throw new ApiError('Survey sudah pernah dikirim untuk event ini.');
-      throw new ApiError(err.message || 'Gagal memperbarui survey');
+      throw new ApiError(apiErrorMessage(err, 'Gagal memperbarui survey'));
     }
     throw err;
   }

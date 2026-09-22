@@ -184,6 +184,7 @@ export const PUBLIC_ROUTES = [
   { path: '/gallery', name: 'gallery' },
   { path: '/community', name: 'community' },
   { path: '/daftar', name: 'daftar' },
+  { path: '/docs', name: 'docs' },
 ] as const;
 
 // ─── Mock data (representative, non-empty) ───────────────────────

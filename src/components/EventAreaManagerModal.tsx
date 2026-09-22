@@ -49,6 +49,13 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
   const [areaPhotos, setAreaPhotos] = useState<AreaPhoto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState<{ id: string } | null>(null);
+  /**
+   * Mode "buat area baru" dipisah dari `editing`. Sebelumnya tombol "Tambah
+   * Area Baru" hanya mengosongkan `editing`, padahal form buat dirender saat
+   * `editing || areas.length === 0` — jadi begitu sudah ada area, tombol itu
+   * tidak memunculkan form apa pun (tidak ada yang bisa dibuat).
+   */
+  const [isCreating, setIsCreating] = useState(false);
 
   // Create/Edit form
   const [formName, setFormName] = useState('');
@@ -146,6 +153,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
     setSelectedArea(null);
     setAreaPhotos([]);
     setEditing(null);
+    setIsCreating(false);
     resetForm();
     clearUpload();
   }, [loadAreas]);
@@ -164,11 +172,20 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
 
   const startCreate = () => {
     setEditing(null);
+    setIsCreating(true);
+    resetForm();
+    setError('');
+  };
+
+  const cancelForm = () => {
+    setEditing(null);
+    setIsCreating(false);
     resetForm();
     setError('');
   };
 
   const startEdit = (area: EventArea) => {
+    setIsCreating(false);
     setEditing({ id: area.id });
     setFormName(area.name);
     setFormDesc(area.description);
@@ -191,6 +208,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
         await createEventArea(formName.trim(), formDesc.trim());
       }
       setEditing(null);
+      setIsCreating(false);
       resetForm();
       setIsLoading(true);
       await loadAreas();
@@ -438,7 +456,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
           {/* ===== VIEW 1: Area List ===== */}
           {view === 'list' && !isLoading && (
             <>
-              {!readOnly && !editing && areas.length > 0 && (
+              {!readOnly && !editing && !isCreating && areas.length > 0 && (
                 <button
                   type="button"
                   onClick={startCreate}
@@ -449,7 +467,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
                 </button>
               )}
 
-              {!editing && areas.length > 0 && (
+              {!editing && !isCreating && areas.length > 0 && (
                 <button
                   type="button"
                   onClick={() => { setView('mapping'); loadMapping(); }}
@@ -461,7 +479,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
               )}
 
               {/* Create/Edit form */}
-              {(editing || areas.length === 0) && (
+              {(editing || isCreating || (areas.length === 0 && !readOnly)) && (
                 <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
                   <p className="text-xs font-semibold text-[var(--wf-accent)]">
                     {editing ? 'Ubah Area' : 'Area Baru'}
@@ -487,13 +505,15 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => { setEditing(null); resetForm(); }}
-                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
-                    >
-                      Batal
-                    </button>
+                    {(editing || isCreating) && (
+                      <button
+                        type="button"
+                        onClick={cancelForm}
+                        className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
+                      >
+                        Batal
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={handleSaveArea}
@@ -507,7 +527,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
                 </div>
               )}
 
-              {areas.length === 0 && !editing && (
+              {areas.length === 0 && !editing && !isCreating && (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
                   <MapPin className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
                   <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada area</p>

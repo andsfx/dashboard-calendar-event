@@ -7,6 +7,7 @@ import {
   Shield,
   Crown,
   Menu,
+  Wrench,
   X,
 } from 'lucide-react';
 import type { AuthUser } from '../../types/auth';
@@ -189,6 +190,12 @@ export const AdminSidebar = memo(function AdminSidebar({
                   >
                     {item.icon}
                     <span className="truncate">{item.label}</span>
+                    {item.maintenance ? (
+                      <span className="wf-rail-flag ml-auto" title="Sedang diperbaiki">
+                        <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
+                        <span className="sr-only">Sedang diperbaiki</span>
+                      </span>
+                    ) : null}
                   </Link>
                 ) : (
                   <button
@@ -199,6 +206,12 @@ export const AdminSidebar = memo(function AdminSidebar({
                   >
                     {item.icon}
                     <span className="truncate">{item.label}</span>
+                    {item.maintenance ? (
+                      <span className="wf-rail-flag ml-auto" title="Sedang diperbaiki">
+                        <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
+                        <span className="sr-only">Sedang diperbaiki</span>
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}

@@ -4,7 +4,7 @@ import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../typ
 import { SearchBar } from './SearchBar';
 import { FilterBar } from './FilterBar';
 import { EventTable } from './EventTable';
-import { CalendarView } from './CalendarView';
+import { DashboardCalendarView } from './dashboard/DashboardCalendarView';
 import { KanbanView } from './KanbanView';
 import { TimelineView } from './TimelineView';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
@@ -198,7 +198,7 @@ export function DashboardViewsSection(props: Props) {
                 />
               )}
               {canUseCalendarKanban && viewMode === 'calendar' && (
-                <CalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
+                <DashboardCalendarView events={visibleEvents} holidays={holidays} onDetail={onDetail} />
               )}
               {canUseCalendarKanban && viewMode === 'kanban' && (
                 <KanbanView

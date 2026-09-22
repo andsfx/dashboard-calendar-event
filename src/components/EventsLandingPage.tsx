@@ -496,6 +496,9 @@ export function EventsLandingPage({
             <Link to="/ajukan-event" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Ajukan Event
             </Link>
+            <Link to="/sponsor" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
+              Sponsor
+            </Link>
             <Link to="/daftar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
               Daftar
             </Link>
@@ -867,6 +870,12 @@ export function EventsLandingPage({
             </Link>
             <Link to="/gallery" className="transition hover:text-white ui-focus-ring rounded-sm">
               Galeri
+            </Link>
+            <Link to="/sponsor" className="transition hover:text-white ui-focus-ring rounded-sm">
+              Sponsor
+            </Link>
+            <Link to="/docs" className="transition hover:text-white ui-focus-ring rounded-sm">
+              Dokumentasi
             </Link>
             <a href="#calendar" className="transition hover:text-white ui-focus-ring rounded-sm">
               Kalender

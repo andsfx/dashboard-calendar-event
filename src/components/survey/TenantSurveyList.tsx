@@ -292,7 +292,10 @@ export default function TenantSurveyList({
             />
           </div>
 
-          <div className="relative shrink-0">
+          {/* Tombol buat hanya untuk yang boleh menulis. Sebelumnya tombol ini
+              tampil juga untuk role read-only (mis. demo) dan selalu gagal 403
+              setelah form diisi — lebih baik disembunyikan sejak awal. */}
+          {isAdmin && <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setShowEventPicker(!showEventPicker)}
@@ -340,7 +343,7 @@ export default function TenantSurveyList({
                 )}
               </div>
             )}
-          </div>
+          </div>}
         </div>
 
         {/* Status chips */}
