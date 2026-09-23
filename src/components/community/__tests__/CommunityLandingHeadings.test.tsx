@@ -14,7 +14,7 @@ vi.mock('../../../utils/domainApi', () => ({
   fetchPublicCommunityDirectory: vi.fn(() => Promise.resolve([])),
 }));
 
-import { CommunityLandingPage } from '../../CommunityLandingPage';
+import { CommunityLandingPage } from '../../../pages/CommunityLandingPage';
 
 /**
  * M3 — urutan heading `/` pernah melompat `h1 → h3 → h4 → h2` (axe:

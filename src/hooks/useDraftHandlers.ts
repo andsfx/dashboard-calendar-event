@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { DraftEventItem, ToastMessage } from '../types';
 import { createId } from '../utils/eventUtils';
 import { canPublishDraft } from '../utils/draftUtils';
-import type { ConfirmOptions } from '../components/ConfirmDialog';
+import type { ConfirmOptions } from '../components/modals/ConfirmDialog';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 

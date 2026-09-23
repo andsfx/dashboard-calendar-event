@@ -383,7 +383,7 @@ test.describe('audit claims — direct measurement', () => {
  * The route sweep above never clicks anything, so it cannot see any state that
  * exists only after interaction (see the NO-INTERACTIVE-STATE caveat in
  * e2e/a11y.config.ts). This test covers the one such surface that had a real
- * defect: `src/components/PhotoLightbox.tsx`, shared by the album grid
+ * defect: `src/components/media/PhotoLightbox.tsx`, shared by the album grid
  * (`/gallery/<slug>`) and the event-area cards (`/`). Its counter shipped as
  * `text-xs text-white/40` — 3.33:1 over the `bg-slate-950/85` overlay, below AA
  * — and the sweep stayed green because it never opened the dialog.

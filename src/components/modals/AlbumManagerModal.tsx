@@ -1,0 +1,756 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } from 'lucide-react';
+import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../../types';
+import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../../utils/domainApi';
+import { useConfirmDialog } from './ConfirmDialog';
+import { adminThumbUrl } from '../../utils/imageOptim';
+
+interface Props {
+  pastEvents?: EventItem[];
+  annualThemes?: AnnualTheme[];
+  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  readOnly?: boolean;
+}
+
+const MAX_PHOTOS = 20;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }: Props) {
+  const [view, setView] = useState<'list' | 'detail'>('list');
+  const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
+  const [selectedAlbum, setSelectedAlbum] = useState<PhotoAlbum | null>(null);
+  const [albumPhotos, setAlbumPhotos] = useState<EventPhoto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  // Create form
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [newDate, setNewDate] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState('');
+  const [selectedThemeId, setSelectedThemeId] = useState('');
+  const [newLokasi, setNewLokasi] = useState('');
+  const [isCustomEvent, setIsCustomEvent] = useState(false);
+
+  // Upload
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
+
+  // Load albums on mount
+  const loadAlbums = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const data = await fetchAlbums();
+      setAlbums(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat album');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAlbums();
+    setView('list');
+    setSelectedAlbum(null);
+    setAlbumPhotos([]);
+    setShowCreateForm(false);
+    clearCreateForm();
+    clearUploadForm();
+  }, [loadAlbums]);
+
+  const clearCreateForm = () => {
+    setNewName('');
+    setNewDesc('');
+    setNewDate('');
+    setNewLokasi('');
+    setSelectedEventId('');
+    setSelectedThemeId('');
+    setIsCustomEvent(false);
+  };
+
+  const clearUploadForm = () => {
+    setUploadFiles([]);
+    setUploadProgress({ current: 0, total: 0 });
+    setIsDragOver(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // --- Helpers ---
+
+  const autoMatchTheme = (dateStr: string): string => {
+    if (!dateStr || !annualThemes) return '';
+    const theme = annualThemes.find(t => dateStr >= t.dateStart && dateStr <= t.dateEnd);
+    return theme?.id || '';
+  };
+
+  const handleEventSelect = (eventId: string) => {
+    if (eventId === '__custom__') {
+      setIsCustomEvent(true);
+      setSelectedEventId('');
+      setNewName('');
+      setNewDesc('');
+      setNewDate('');
+      setNewLokasi('');
+      setSelectedThemeId('');
+      return;
+    }
+    setIsCustomEvent(false);
+    setSelectedEventId(eventId);
+    const event = pastEvents?.find(e => e.id === eventId);
+    if (event) {
+      setNewName(event.acara);
+      setNewDesc(event.keterangan || '');
+      setNewDate(event.dateStr);
+      setNewLokasi(event.lokasi || '');
+      setSelectedThemeId(autoMatchTheme(event.dateStr));
+    }
+  };
+
+  // --- Album CRUD ---
+
+  const handleCreateAlbum = async () => {
+    if (!newName.trim()) {
+      setError('Nama event wajib diisi');
+      return;
+    }
+    setIsLoading(true);
+    setError('');
+    try {
+      await createAlbum(
+        newName.trim(),
+        newDesc.trim(),
+        newDate,
+        selectedEventId || undefined,
+        newLokasi.trim() || undefined,
+        selectedThemeId || undefined
+      );
+      setShowCreateForm(false);
+      clearCreateForm();
+      await loadAlbums();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal membuat album');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAlbum = async (album: PhotoAlbum) => {
+    const ok = await confirm({
+      title: 'Hapus album?',
+      message: 'Semua foto di dalamnya juga akan dihapus.',
+      subject: album.name,
+    });
+    if (!ok) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      await deleteAlbum(album.id);
+      await loadAlbums();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menghapus album');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // --- Album Detail ---
+
+  const openAlbumDetail = async (album: PhotoAlbum) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const result = await fetchAlbumBySlug(album.slug);
+      if (result) {
+        setSelectedAlbum(result.album);
+        setAlbumPhotos(result.photos);
+        setView('detail');
+      } else {
+        setError('Album tidak ditemukan');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat detail album');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshAlbumDetail = async () => {
+    if (!selectedAlbum) return;
+    try {
+      const result = await fetchAlbumBySlug(selectedAlbum.slug);
+      if (result) {
+        setSelectedAlbum(result.album);
+        setAlbumPhotos(result.photos);
+      }
+    } catch {
+      // silent refresh failure
+    }
+  };
+
+  const goBackToList = () => {
+    setView('list');
+    setSelectedAlbum(null);
+    setAlbumPhotos([]);
+    clearUploadForm();
+    setError('');
+    loadAlbums();
+  };
+
+  // --- Photo operations ---
+
+  const handleFilesSelect = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const remaining = MAX_PHOTOS - albumPhotos.length - uploadFiles.length;
+
+    const valid = fileArray.filter(f => {
+      if (!f.type.startsWith('image/')) return false;
+      if (f.size > MAX_FILE_SIZE) return false;
+      return true;
+    });
+
+    const limited = valid.slice(0, Math.max(0, remaining));
+
+    if (valid.length > remaining) {
+      setError(`Hanya ${remaining} slot tersisa. ${valid.length - remaining} foto dilewati.`);
+    } else if (valid.length < fileArray.length) {
+      setError(`${fileArray.length - valid.length} file dilewati (bukan gambar atau terlalu besar).`);
+    }
+
+    if (limited.length > 0) {
+      setUploadFiles(prev => [...prev, ...limited]);
+    }
+  };
+
+  const removeUploadFile = (index: number) => {
+    setUploadFiles(prev => prev.filter((_, i) => i !== index));
+    setError('');
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files.length > 0) {
+      handleFilesSelect(e.dataTransfer.files);
+    }
+  };
+
+  const handleBatchUpload = async () => {
+    if (!selectedAlbum || uploadFiles.length === 0) return;
+
+    setUploading(true);
+    setError('');
+    setUploadProgress({ current: 0, total: uploadFiles.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < uploadFiles.length; i++) {
+      try {
+        const file = uploadFiles[i];
+        if (!file) continue;
+        await uploadAlbumPhoto(selectedAlbum.id, file);
+        successCount++;
+      } catch {
+        failCount++;
+      }
+      setUploadProgress({ current: i + 1, total: uploadFiles.length });
+    }
+
+    clearUploadForm();
+    await refreshAlbumDetail();
+
+    // Auto-set cover if album doesn't have one yet
+    if (selectedAlbum && !selectedAlbum.coverPhotoUrl && successCount > 0) {
+      try {
+        const updated = await fetchAlbumBySlug(selectedAlbum.slug);
+        if (updated && updated.photos.length > 0) {
+          const firstPhoto = updated.photos[0];
+          if (firstPhoto) {
+            await setAlbumCover(selectedAlbum.id, firstPhoto.url);
+            await refreshAlbumDetail();
+          }
+        }
+      } catch { /* silently fail */ }
+    }
+
+    if (failCount > 0) {
+      setError(`${successCount} foto berhasil, ${failCount} gagal diupload.`);
+    }
+
+    setUploading(false);
+  };
+
+  const handleSetCover = async (photoUrl: string) => {
+    if (!selectedAlbum) return;
+    setError('');
+    try {
+      await setAlbumCover(selectedAlbum.id, photoUrl);
+      await refreshAlbumDetail();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal mengatur cover');
+    }
+  };
+
+  const handleDeletePhoto = async (id: string, url: string) => {
+    const ok = await confirm({ title: 'Hapus foto ini?', message: 'Foto akan dihapus permanen dari album.' });
+    if (!ok) return;
+    setError('');
+    try {
+      await deleteAlbumPhoto(id, url);
+      await refreshAlbumDetail();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menghapus foto');
+    }
+  };
+
+  const isMaxPhotos = albumPhotos.length + uploadFiles.length >= MAX_PHOTOS;
+
+  return (
+    <div className="wf-page space-y-4">
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2">
+          {view === 'detail' && (
+            <button
+              type="button"
+              onClick={goBackToList}
+              aria-label="Kembali"
+              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          <div className="min-w-0">
+            {view === 'detail' && (
+              <h2 className="truncate text-base font-bold text-[var(--wf-ink)]">
+                {selectedAlbum?.name || 'Detail Album'}
+              </h2>
+            )}
+          </div>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent)]">
+          <ImageIcon className="h-4 w-4 text-[var(--wf-accent-ink)]" />
+        </div>
+      </header>
+
+      <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
+        <div className="space-y-3 px-4 py-4 sm:px-6">
+          {/* Error message */}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
+              {error}
+            </div>
+          )}
+
+          {/* Loading */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-accent)] border-t-transparent" />
+              <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
+            </div>
+          )}
+
+          {/* ===== VIEW 1: Album List ===== */}
+          {view === 'list' && !isLoading && (
+            <>
+              {/* Create Album Button */}
+              {!readOnly && !showCreateForm && (
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateForm(true); setError(''); }}
+className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule-strong)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
+                >
+                  <Plus className="h-4 w-4" />
+                  Buat Album Baru
+                </button>
+              )}
+
+              {/* Create Album Form */}
+              {showCreateForm && !readOnly && (
+                <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
+                  <p className="text-xs font-semibold text-[var(--wf-accent)]">Album Baru</p>
+                  <div className="space-y-3">
+                    {/* Event dropdown */}
+                    <div>
+                      <label htmlFor="album-manager-event" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Pilih Event</label>
+                      <select
+                        id="album-manager-event"
+                        value={isCustomEvent ? '__custom__' : selectedEventId}
+                      >
+                        <option value="">Pilih event yang sudah berlangsung…</option>
+                        {(pastEvents || [])
+                          .filter(e => !albums.some(a => a.eventId === e.id))
+                          .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
+                          .map(e => (
+                            <option key={e.id} value={e.id}>{e.acara} - {e.tanggal}</option>
+                          ))
+                        }
+                        <option value="__custom__">✏ Custom (ketik manual)</option>
+                      </select>
+                    </div>
+
+                    {/* Theme dropdown */}
+                    <div>
+                      <label htmlFor="album-manager-theme" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tema Tahunan</label>
+                      <select
+                        id="album-manager-theme"
+                        value={selectedThemeId}
+                        onChange={(e) => setSelectedThemeId(e.target.value)}
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2.5 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                      >
+                        <option value="">Pilih tema (opsional)…</option>
+                        {(annualThemes || []).map(t => (
+                          <option key={t.id} value={t.id}>{t.name} ({t.dateStart} - {t.dateEnd})</option>
+                        ))}
+                      </select>
+                      {selectedThemeId && !isCustomEvent && (
+                        <p className="mt-1 text-xs text-[var(--wf-accent)]">Auto-matched berdasarkan tanggal event</p>
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label htmlFor="album-manager-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Event *</label>
+                      <input
+                        id="album-manager-name"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="Nama event"
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                      />
+                    </div>
+
+                    <div>
+                      {/* Description */}
+                      <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
+                      <input
+                        id="album-manager-desc"
+                        value={newDesc}
+                        onChange={(e) => setNewDesc(e.target.value)}
+                        placeholder="Deskripsi event"
+                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                      />
+                    </div>
+
+                    {/* Date + Location row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal</label>
+                        <input
+                          id="album-manager-date"
+                          type="date"
+                          value={newDate}
+                          onChange={(e) => {
+                            setNewDate(e.target.value);
+                            if (!isCustomEvent) setSelectedThemeId(autoMatchTheme(e.target.value));
+                          }}
+                          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] dark:[color-scheme:dark]"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="album-manager-lokasi" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Lokasi</label>
+                        <input
+                          id="album-manager-lokasi"
+                          value={newLokasi}
+                          onChange={(e) => setNewLokasi(e.target.value)}
+                          placeholder="Lokasi event"
+                          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setShowCreateForm(false); clearCreateForm(); setError(''); }}
+                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCreateAlbum}
+                      disabled={!newName.trim() || isLoading}
+                      className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                      Buat Album
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Album List */}
+              {albums.length === 0 && !showCreateForm && (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada album</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Buat album pertama untuk mulai mengelola foto</p>
+                </div>
+              )}
+
+              {albums.length > 0 && (
+                <div className="space-y-2">
+                  {albums.map((album) => (
+                    <div
+                      key={album.id}
+                      className="group flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] p-3 transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]"
+                    >
+                      {/* Cover thumbnail */}
+                      <div
+                        className="h-14 w-14 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-[var(--wf-board-2)]"
+                        onClick={() => openAlbumDetail(album)}
+                      >
+                        {album.coverPhotoUrl ? (
+                          <img
+                            src={adminThumbUrl(album.coverPhotoUrl)}
+                            alt={album.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            onError={(e) => { (e.target as HTMLImageElement).src = album.coverPhotoUrl; }}
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-[var(--wf-ink-muted)]" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div
+                        className="min-w-0 flex-1 cursor-pointer"
+                        onClick={() => openAlbumDetail(album)}
+                      >
+                        <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
+                          {album.name}
+                        </p>
+                        <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--wf-ink-muted)]">
+                          {album.eventDate && <span>{album.eventDate}</span>}
+                          <span>{album.photoCount ?? 0} foto</span>
+                        </div>
+                      </div>
+
+                      {/* Delete */}
+                      {!readOnly && <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
+                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 group-hover:opacity-100"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ===== VIEW 2: Album Detail (Photos) ===== */}
+          {view === 'detail' && !isLoading && selectedAlbum && (
+            <>
+              {/* Photo Grid */}
+              {albumPhotos.length > 0 && (
+                <div>
+                  <p className="mb-3 text-xs font-semibold text-[var(--wf-ink-muted)]">
+                    Foto ({albumPhotos.length}/{MAX_PHOTOS})
+                  </p>
+                  <div className="grid max-h-[40vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
+                    {albumPhotos.map((photo) => {
+                      const isCover = selectedAlbum.coverPhotoUrl === photo.url;
+                      return (
+                        <div
+                          key={photo.id}
+                          className="group relative overflow-hidden rounded-xl border border-[var(--wf-rule)]"
+                        >
+                          {/* Cover badge */}
+                          {isCover && (
+                            <div className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--wf-action)] text-[var(--wf-accent-ink)]">
+                              <Star className="h-3.5 w-3.5 fill-current" />
+                            </div>
+                          )}
+
+                          {/* Set cover button */}
+                          {!readOnly && !isCover && (
+                            <button
+                              type="button"
+                              onClick={() => handleSetCover(photo.url)}
+                              title="Jadikan Cover"
+                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-[var(--wf-action)] group-hover:opacity-100"
+                            >
+                              <Star className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+
+                          {/* Delete button */}
+                          {!readOnly && <button
+                            type="button"
+                            onClick={() => handleDeletePhoto(photo.id, photo.url)}
+                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-600/90 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-700 group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>}
+
+                          {/* Thumbnail */}
+                          <div className="aspect-[4/3] w-full">
+                            <img
+                              src={adminThumbUrl(photo.url)}
+                              alt={photo.caption}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                              onError={(e) => { (e.target as HTMLImageElement).src = photo.url; }}
+                            />
+                          </div>
+
+                          {/* Caption */}
+                          <div className="bg-[var(--wf-board-2)] px-2.5 py-2">
+                            <p className="truncate text-xs font-medium text-[var(--wf-ink)]">
+                              {photo.caption}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty state */}
+              {albumPhotos.length === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-10">
+                  <ImageIcon className="mb-3 h-10 w-10 text-[var(--wf-ink-muted)]" />
+                  <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto</p>
+                  <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Upload foto pertama di bawah</p>
+                </div>
+              )}
+
+              {/* Upload Section */}
+              <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Upload Foto Baru</p>
+
+                {isMaxPhotos && uploadFiles.length === 0 && (
+                  <p className="text-xs text-[var(--wf-action)]">
+                    Maksimal {MAX_PHOTOS} foto. Hapus foto yang ada untuk menambah yang baru.
+                  </p>
+                )}
+
+                {/* Drag & drop upload zone */}
+                {!readOnly && !isMaxPhotos && !uploading && (
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-6 text-center transition-colors ${
+                      isDragOver
+                        ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
+                        : 'border-[var(--wf-rule-strong)] hover:border-[var(--wf-accent)] hover:bg-[var(--wf-board-2)]'
+                    }`}
+                  >
+                    <Upload className="h-7 w-7 text-[var(--wf-ink-muted)]" />
+                    <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
+                      Drag & drop foto di sini
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
+                      atau klik untuk pilih · max {MAX_PHOTOS - albumPhotos.length} foto · 10MB/file
+                    </p>
+                  </div>
+                )}
+
+                {!readOnly && (<input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={(e) => { if (e.target.files) handleFilesSelect(e.target.files); e.target.value = ''; }}
+                  className="hidden"
+                  disabled={isMaxPhotos}
+                />)}
+
+                {/* Preview grid */}
+                {uploadFiles.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                      {uploadFiles.map((file, idx) => (
+                        <div key={`${file.name}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg bg-[var(--wf-board-2)]">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="h-full w-full object-cover"
+                          />
+                          {!uploading && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
+                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-[opacity] group-hover:opacity-100"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-xs text-[var(--wf-ink-muted)]">{uploadFiles.length} foto dipilih</p>
+
+                    {/* Progress bar */}
+                    {uploading && uploadProgress.total > 0 && (
+                      <div className="space-y-1">
+                        <div className="h-2 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
+                          <div
+                            className="h-full rounded-full bg-[var(--wf-accent)] transition-all duration-300"
+                            style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
+                      </div>
+                    )}
+
+                    {/* Upload button */}
+                    {!uploading && (
+                      <button
+                        type="button"
+                        onClick={handleBatchUpload}
+                        disabled={uploadFiles.length === 0}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Upload {uploadFiles.length} Foto
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end border-t border-[var(--wf-rule)] px-4 py-4 text-xs text-[var(--wf-ink-muted)] sm:px-6">
+          {view === 'detail' && selectedAlbum
+            ? `${albumPhotos.length} / ${MAX_PHOTOS} foto`
+            : `${albums.length} album`}
+        </div>
+      </div>
+      {confirmDialogEl}
+    </div>
+  );
+}

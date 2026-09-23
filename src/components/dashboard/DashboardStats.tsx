@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { CalendarDays, Radio, Clock3, CheckCircle2, ArrowUp } from 'lucide-react';
-import { StatCard } from '../StatCard';
+import { StatCard } from '../ui/StatCard';
 
 interface DashboardStatsProps {
   stats: {

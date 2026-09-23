@@ -8,7 +8,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     exclude: [
       'e2e/**',
-      '__tests__/api/**',
+      'docs/archive/**',
       'node_modules/**',
       '.opencode/**',
       '.sisyphus/**',

@@ -32,7 +32,7 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 | Fingerprint public | `src/utils/fingerprint.ts` |
 | API client | `src/utils/api/surveysApi.ts` (tenant survey block) + `src/utils/domainApi.ts` barrel — REST `/api/v1` |
 | Hooks | `src/hooks/useTenantSurveys.ts` |
-| Types | `src/types.ts` (`TenantSurvey*`, `TenantEventSurvey`, …), `src/types/auth.ts` (`tenant_relation`) |
+| Types | `src/types/index.ts` (`TenantSurvey*`, `TenantEventSurvey`, …), `src/types/auth.ts` (`tenant_relation`) |
 | Backend | `server/src/routes/tenant.js` (legacy `api/tenant-survey.js` = MATI) |
 | Auth helper | `server/src/auth.js` (`authenticate`, `requireRole`) |
 | DB | `server/schema.sql` (DDL satu file; legacy `migrate/*.sql` = MATI) |

@@ -10,8 +10,8 @@ import {
   parseDateStrLocal,
   STATUS_ORDER,
 } from '../../utils/eventUtils';
-import { StatusBadge } from '../StatusBadge';
-import { CategoryBadges } from '../CategoryBadges';
+import { StatusBadge } from '../ui/StatusBadge';
+import { CategoryBadges } from '../ui/CategoryBadges';
 
 /** Lima tampilan, senada dengan kalender internal tim (Bulan/Minggu/Hari/Agenda/Linimasa). */
 type CalendarMode = 'month' | 'week' | 'day' | 'agenda' | 'timeline';

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { AnnualTheme, ToastMessage } from '../types';
-import type { ConfirmOptions } from '../components/ConfirmDialog';
+import type { ConfirmOptions } from '../components/modals/ConfirmDialog';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ResultsAggregate, ResultsFilter } from '../../utils/tenantSurveyResultsAggregate';
+import type { ResultsAggregate, ResultsFilter } from '../tenantSurveyResultsAggregate';
 import { buildSurveyResultsPdf } from '../../components/pdf/buildSurveyResultsPdf';
 
 const FILTER: ResultsFilter = {

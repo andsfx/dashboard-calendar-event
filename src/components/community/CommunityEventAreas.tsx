@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Camera, Loader2, MapPin } from 'lucide-react';
 import type { AreaPhoto, EventArea } from '../../types';
 import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
-import { PhotoLightbox } from '../PhotoLightbox';
+import { PhotoLightbox } from '../media/PhotoLightbox';
 import { thumbUrl } from '../../utils/imageOptim';
 import { fetchAreaPhotos } from '../../utils/domainApi';
 

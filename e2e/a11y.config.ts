@@ -86,7 +86,7 @@ import { setupApiMocks } from './helpers';
  * `playwright.a11y.config.ts` sets no `colorScheme`, so every route is measured
  * in the app's default LIGHT theme only. Every `dark:` variant is therefore
  * UNTESTED by this gate — e.g. `dark:text-slate-400` in
- * `src/components/EventsLandingPage.tsx` (line 695) is never evaluated. A
+ * `src/pages/EventsLandingPage.tsx` (line 695) is never evaluated. A
  * `dark:`-only contrast regression would leave this gate green. Treat a green
  * run as "light mode passes", not "both themes pass".
  *
@@ -100,7 +100,7 @@ import { setupApiMocks } from './helpers';
  * hover overlay, no focus ring and no `details`/`summary` disclosure is ever
  * opened or evaluated by the route sweep.
  *
- * Concrete example: `src/components/PhotoLightbox.tsx` — the shared photo
+ * Concrete example: `src/components/media/PhotoLightbox.tsx` — the shared photo
  * lightbox behind the album grid (`/gallery/<slug>`) and the event-area cards
  * (`/`) — renders only AFTER a click. Its counter (`text-xs text-white/40`,
  * 12px) sat at 3.33:1 composited over the `bg-slate-950/85` overlay: a real
@@ -331,8 +331,8 @@ const DB_AREA_PHOTOS = [
   { id: 'aph_a11y_1', area_id: 'area_a11y_1', url: IMG, caption: 'Atrium', sort_order: 0 },
 ];
 
-// All 8 OrganizationType values (src/types.ts) appear here so every entry in the
-// `TYPE_ACCENT` table in src/components/CommunityDirectoryPage.tsx is actually
+// All 8 OrganizationType values (src/types/index.ts) appear here so every entry in the
+// `TYPE_ACCENT` table in src/pages/CommunityDirectoryPage.tsx is actually
 // rendered. With only two types the gate could not detect a contrast regression
 // in the other six — notably `eo` (brand-secondary badge), the type the audit
 // found failing on production. At least one org has a `link` and at least one
@@ -409,7 +409,7 @@ export async function setupPublicApiMocks(page: Page): Promise<void> {
   await page.route('**/api/v1/directory', (route) =>
     json(route, {
       organizations: DB_ORGANIZATIONS,
-      // Mirrors the 8 org types present in DB_ORGANIZATIONS (src/types.ts
+      // Mirrors the 8 org types present in DB_ORGANIZATIONS (src/types/index.ts
       // OrganizationType union), so the filter pills stay consistent with the
       // organizations actually rendered.
       categories: [

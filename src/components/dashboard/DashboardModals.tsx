@@ -1,13 +1,13 @@
 import { Suspense, lazy } from 'react';
-import { AdminLoginModal } from '../AdminLoginModal';
+import { AdminLoginModal } from '../modals/AdminLoginModal';
 import type { EventItem, DraftEventItem, AnnualTheme, CommunityRegistration, RegistrationStatus, EventArea } from '../../types';
 
-const EventCrudModal = lazy(() => import('../EventCrudModal').then(m => ({ default: m.EventCrudModal })));
-const DraftCrudModal = lazy(() => import('../DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
-const AnnualThemeCrudModal = lazy(() => import('../AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
-const DeleteConfirmModal = lazy(() => import('../DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
-const EventDetailModal = lazy(() => import('../EventDetailModal').then(m => ({ default: m.EventDetailModal })));
-const CommunityRegistrationDetailModal = lazy(() => import('../CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
+const EventCrudModal = lazy(() => import('../modals/EventCrudModal').then(m => ({ default: m.EventCrudModal })));
+const DraftCrudModal = lazy(() => import('../modals/DraftCrudModal').then(m => ({ default: m.DraftCrudModal })));
+const AnnualThemeCrudModal = lazy(() => import('../modals/AnnualThemeCrudModal').then(m => ({ default: m.AnnualThemeCrudModal })));
+const DeleteConfirmModal = lazy(() => import('../modals/DeleteConfirmModal').then(m => ({ default: m.DeleteConfirmModal })));
+const EventDetailModal = lazy(() => import('../modals/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
+const CommunityRegistrationDetailModal = lazy(() => import('../modals/CommunityRegistrationDetailModal').then(m => ({ default: m.CommunityRegistrationDetailModal })));
 import type { LoginResult } from '../../types/auth';
 
 interface DashboardModalsProps {

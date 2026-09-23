@@ -139,17 +139,38 @@ Stack produksi — SPA deploy ke Vercel (project `metmal-community-hub`); backen
 
 ```
 src/
-├── components/     # React components
-│   ├── admin/      # Superadmin components
-│   ├── community/  # Community hub components
-│   ├── dashboard/  # Dashboard components
-│   └── survey/     # Survey components
+├── pages/          # Komponen level-route (publik + login), 1 file = 1 rute lazy
+├── components/     # Komponen — semua berkelompok, tanpa file flat di akar
+│   ├── admin/      # Superadmin (user, activity log, analytics, pameran)
+│   ├── community/  # Community hub + registrasi
+│   ├── dashboard/  # Shell, sidebar, navigasi, modul dashboard
+│   ├── survey/     # Survey kepuasan + evaluasi tenant
+│   ├── modals/     # Dialog/overlay (CRUD, konfirmasi, lightbox modal)
+│   ├── views/      # Mode tampilan: kalender, kanban, timeline
+│   ├── events/     # Widget domain event (tabel, galeri foto, letter)
+│   ├── drafts/     # Antrian pra-jadwal (queue, history, progress)
+│   ├── media/      # Header galeri + lightbox foto
+│   ├── ui/         # Primitif bersama (badge, search, filter) + index.ts barrel
+│   ├── forms/      # Field form event (recurring, multi-day, model)
+│   ├── nav/        # Navigasi dropdown
+│   └── pdf/        # Dokumen PDF (jadwal, surat)
 ├── hooks/          # Custom hooks (useEvents, useToast, dll)
-├── utils/          # Utility functions
-├── types.ts        # TypeScript types
+├── utils/          # Utility functions + utils/api/ (modul REST per domain)
+├── styles/         # Tailwind v4 tokens & utilities
+├── types.ts        # TypeScript types (domain)
 ├── App.tsx         # Main app component
 └── main.tsx        # Entry point
+
+docs/
+├── features/       # Brief fitur (update-fitur-*.md, draft-voucher-tenant.md)
+├── research/       # Riset platform/venue
+├── reports/        # Laporan audit (lokal, tidak di-commit)
+├── adr/            # Keputusan arsitektur
+├── tickets/        # Board T-* / H-*
+└── agents/         # Panduan alur agent (triage, issue tracker)
 ```
+
+Test colocated di `__tests__/` milik folder masing-masing (`src/components/ui/__tests__/`, dst.).
 
 ## Demo
 

@@ -1,9 +1,9 @@
 import { type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Navbar } from '../Navbar';
-import { DashboardSkeleton } from '../DashboardSkeleton';
-import { SectionNav } from '../SectionNav';
-import type { SectionNavItem } from '../SectionNav';
+import { Navbar } from '../ui/Navbar';
+import { DashboardSkeleton } from '../ui/DashboardSkeleton';
+import { SectionNav } from '../ui/SectionNav';
+import type { SectionNavItem } from '../ui/SectionNav';
 import { AdminSidebar } from './AdminSidebar';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';

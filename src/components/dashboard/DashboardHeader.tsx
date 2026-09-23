@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { SearchBar } from '../SearchBar';
+import { SearchBar } from '../ui/SearchBar';
 import { getWayfindingMap } from './dashboardNavigation';
 
 interface DashboardHeaderProps {

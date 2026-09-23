@@ -19,6 +19,9 @@ dist/
 .playwright-cli/
 .claude/
 .od-skills/
+.codegraph/
+.clone-ui/
+.slim/
 # Local pnpm workspace experiments — app is npm + package-lock (SPEC-hygiene)
 pnpm-workspace.yaml
 
@@ -31,8 +34,9 @@ e2e/__*
 __pycache__/
 *.py[cod]
 
-# Generated reports
-reports/
+# Generated reports (anchor ke root: docs/reports/ tetap bisa di-track)
+/reports/
+output/
 FINAL_VERIFICATION_REPORT.md
 DESIGN_AUDIT_REPORT.md
 

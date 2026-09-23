@@ -5,7 +5,7 @@ import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../../types';
 import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
-import type { SectionNavItem } from '../SectionNav';
+import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardStats } from './DashboardStats';
@@ -17,12 +17,12 @@ import { CONTENT_ROUTES } from './dashboardNavigation';
 import { getAvailableViewTabs } from './viewTabs';
 import { UnderMaintenance } from '../ui/UnderMaintenance';
 
-const FeaturedEvents = lazy(() => import('../FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
-const QuarterTimeline = lazy(() => import('../QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
+const FeaturedEvents = lazy(() => import('../events/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
+const QuarterTimeline = lazy(() => import('../views/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
 const DashboardCalendarView = lazy(() => import('./DashboardCalendarView').then(m => ({ default: m.DashboardCalendarView })));
-const AdminDraftSection = lazy(() => import('../AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
-const CommunityRegistrationSection = lazy(() => import('../CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
-const DashboardViewsSection = lazy(() => import('../DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
+const AdminDraftSection = lazy(() => import('../drafts/AdminDraftSection').then(m => ({ default: m.AdminDraftSection })));
+const CommunityRegistrationSection = lazy(() => import('../community/CommunityRegistrationSection').then(m => ({ default: m.CommunityRegistrationSection })));
+const DashboardViewsSection = lazy(() => import('../views/DashboardViewsSection').then(m => ({ default: m.DashboardViewsSection })));
 const AnalyticsDashboard = lazy(() => import('../admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const SurveyDashboard = lazy(() => import('../survey/SurveyDashboard').then(m => ({ default: m.SurveyDashboard })));
 const TenantSurveyPage = lazy(() => import('../survey/TenantSurveyPage'));
@@ -30,11 +30,11 @@ const UserManagement = lazy(() => import('../admin/UserManagement').then(m => ({
 const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
 /* Modul konten — dulu modal, kini halaman pada rute /dashboard/content/*. */
-const InstagramSettingsModal = lazy(() => import('../InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
-const AlbumManagerModal = lazy(() => import('../AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
-const EventAreaManagerModal = lazy(() => import('../EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
-const NewsManagerModal = lazy(() => import('../NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
-const SponsorManagerModal = lazy(() => import('../SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
+const InstagramSettingsModal = lazy(() => import('../modals/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
+const AlbumManagerModal = lazy(() => import('../modals/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
+const EventAreaManagerModal = lazy(() => import('../modals/EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
+const NewsManagerModal = lazy(() => import('../modals/NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
+const SponsorManagerModal = lazy(() => import('../modals/SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
 /* LetterGenerator + EventLetterPickerModal sengaja tidak diimpor: fitur "Buat
    Surat" ditutup sementara (under maintenance) sehingga rutenya menampilkan
    penanda, bukan generator. Komponennya tetap ada untuk diaktifkan kembali. */
@@ -140,7 +140,7 @@ export interface DashboardPageModalState {
   showDetailModal: boolean;          setShowDetailModal: (v: boolean) => void;
   showDraftHistory: boolean;         setShowDraftHistory: React.Dispatch<React.SetStateAction<boolean>>;
   showThemeModal: boolean;           setShowThemeModal: (v: boolean) => void;
-  openConfirm: (options: import('../ConfirmDialog').ConfirmOptions) => Promise<boolean>;
+  openConfirm: (options: import('../modals/ConfirmDialog').ConfirmOptions) => Promise<boolean>;
 }
 
 export interface DashboardPageModalData {

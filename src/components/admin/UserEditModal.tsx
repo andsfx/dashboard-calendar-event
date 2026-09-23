@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X, Check, Loader2, KeyRound, Mail, Shield } from 'lucide-react';
-import { ModalWrapper } from '../ModalWrapper';
+import { ModalWrapper } from '../modals/ModalWrapper';
 import { apiPost, ApiError } from '../../lib/rest';
 
 export interface EditableUser {

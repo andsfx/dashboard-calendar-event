@@ -7,7 +7,7 @@ import { useLetterHandlers } from './useLetterHandlers';
 import { useRegistrationHandlers, type RegistrationHandlersResult } from './useRegistrationHandlers';
 import { useSiteSettingsHandlers, type SiteSettingsHandlersResult } from './useSiteSettingsHandlers';
 
-import { useConfirmDialog, type ConfirmOptions } from '../components/ConfirmDialog';
+import { useConfirmDialog, type ConfirmOptions } from '../components/modals/ConfirmDialog';
 
 type ShowToast = (type: ToastMessage['type'], title: string, message: string) => void;
 

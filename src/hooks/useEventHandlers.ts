@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { ConfirmOptions } from '../components/ConfirmDialog';
+import type { ConfirmOptions } from '../components/modals/ConfirmDialog';
 import { EventItem, ToastMessage } from '../types';
 import { createId } from '../utils/eventUtils';
 

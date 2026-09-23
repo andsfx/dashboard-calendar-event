@@ -4,7 +4,7 @@ import {
   ToggleLeft, ToggleRight, Pencil, Trash2, Mail, Check, X,
   Crown, BarChart3,
 } from 'lucide-react';
-import { useConfirmDialog } from '../ConfirmDialog';
+import { useConfirmDialog } from '../modals/ConfirmDialog';
 import { apiGet, apiPost } from '../../lib/rest';
 import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
 import { UserEditModal } from './UserEditModal';
