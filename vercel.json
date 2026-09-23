@@ -4,11 +4,11 @@
       "source": "/events/:id+",
       "destination": "https://metmal.metmalcommunityspace.web.id/events/:id"
     },
-                     {
-                         "source":  "/((?!api|_vercel).*)",
-                         "destination":  "/index.html"
-                     }
-                 ],
+    {
+      "source": "/((?!api|_vercel|assets).*)",
+      "destination": "/index.html"
+    }
+  ],
     "headers":  [
                     {
                          "source":  "/",
