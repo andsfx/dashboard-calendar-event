@@ -19,7 +19,7 @@ import { CommunitySocialProof } from '../CommunitySocialProof';
  *  3. Hero memakai label `completed`, /events memakai label `total`.
  */
 
-function event(id: string, status: EventItem['status'], pic = 'Andy'): EventItem {
+function event(id: string, status: EventItem['status'], eo = 'EO', pic = ''): EventItem {
   return {
     id,
     rowIndex: 1,
@@ -29,7 +29,7 @@ function event(id: string, status: EventItem['status'], pic = 'Andy'): EventItem
     jam: '10:00 - 12:00',
     acara: `Acara ${id}`,
     lokasi: 'Lantai 3',
-    eo: 'EO',
+    eo,
     pic,
     phone: '0800',
     keterangan: '',
@@ -59,14 +59,30 @@ describe('deriveCommunityStats (C2)', () => {
     expect(stats.completed).not.toBe(stats.total);
   });
 
-  it('menghitung penyelenggara unik dan mengabaikan PIC kosong', () => {
+  it('menghitung penyelenggara unik dari `eo` dan mengabaikan yang kosong', () => {
     const stats = deriveCommunityStats([
-      event('a', 'past', 'Andy'),
-      event('b', 'past', 'Andy'),
-      event('c', 'past', '  '),
-      event('d', 'past', 'Uca'),
+      event('a', 'past', 'Sanggar Tari Andini'),
+      event('b', 'past', 'Sanggar Tari Andini'),
+      event('c', 'past', '   '),
+      event('d', 'past', 'Kencono Wungu'),
     ]);
     expect(stats.organizers).toBe(2);
+  });
+
+  it('menghitung `eo` walau `pic` kosong — bentuk data produksi', () => {
+    // Regresi: produksi mengirim `pic: null` untuk SEMUA event. Saat angka ini
+    // dihitung dari `pic`, band kepercayaan menampilkan "- Penyelenggara" —
+    // satu-satunya angka kosong, tepat di label yang paling menjual.
+    const stats = deriveCommunityStats([
+      event('a', 'past', 'Sanggar Tari Andini', ''),
+      event('b', 'past', 'Kencono Wungu', ''),
+    ]);
+    expect(stats.organizers).toBe(2);
+  });
+
+  it('jatuh ke `pic` bila `eo` kosong', () => {
+    const stats = deriveCommunityStats([event('a', 'past', '', 'Rina Kusuma')]);
+    expect(stats.organizers).toBe(1);
   });
 
   it('mengembalikan nol untuk daftar kosong', () => {

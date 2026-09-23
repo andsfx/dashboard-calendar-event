@@ -238,41 +238,48 @@ function HighlightEventCard({
       </div>
 
       <div className="border-t border-black/5 bg-[var(--brand-card-light)] p-6 sm:p-8 dark:border-slate-700 dark:bg-slate-800/60">
-        {!isLive && (
-          <>
-            <p
-              className="mb-3 text-xs font-bold tracking-wide"
-              data-chip-tone=""
-              style={
-                {
-                  color: darkenChipText(catColor),
-                  '--chip-tone-dark': lightenChipText(catColor),
-                } as React.CSSProperties
-              }
-            >
-              Countdown
+        {/* Status dan tombol sengaja ditumpuk, bukan sebaris: keduanya
+            `inline-flex` dan tanpa pembungkus mereka mengalir satu baris
+            dengan jarak 0px — teks "Sedang berlangsung" menempel persis di
+            tepi tombol (terukur gap 0px di 768–1440px). `items-start` menjaga
+            tombol tetap selebar kontennya, tidak melar penuh. */}
+        <div className="flex flex-col items-start gap-4">
+          {!isLive && (
+            <>
+              <p
+                className="text-xs font-bold tracking-wide"
+                data-chip-tone=""
+                style={
+                  {
+                    color: darkenChipText(catColor),
+                    '--chip-tone-dark': lightenChipText(catColor),
+                  } as React.CSSProperties
+                }
+              >
+                Countdown
+              </p>
+              <div className="grid w-full max-w-sm grid-cols-3 gap-2.5">
+                <CountdownCell label="Hari" value={countdown.days} />
+                <CountdownCell label="Jam" value={countdown.hours} />
+                <CountdownCell label="Menit" value={countdown.minutes} />
+              </div>
+            </>
+          )}
+          {isLive && (
+            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              <Zap className="h-4 w-4 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+              Sedang berlangsung
             </p>
-            <div className="mb-5 grid max-w-sm grid-cols-3 gap-2.5">
-              <CountdownCell label="Hari" value={countdown.days} />
-              <CountdownCell label="Jam" value={countdown.hours} />
-              <CountdownCell label="Menit" value={countdown.minutes} />
-            </div>
-          </>
-        )}
-        {isLive && (
-          <p className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-            <Zap className="h-4 w-4 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
-            Sedang berlangsung
-          </p>
-        )}
-        <button
-          type="button"
-          onClick={() => onDetail(event)}
-          className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
-        >
-          Lihat Detail Event
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
-        </button>
+          )}
+          <button
+            type="button"
+            onClick={() => onDetail(event)}
+            className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+          >
+            Lihat Detail Event
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </article>
   );

@@ -218,7 +218,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                         <p className="truncate text-sm font-semibold text-white">{event.acara}</p>
                         <p className="mt-0.5 truncate text-xs text-white/70">
                           {formatDateRange(event.dateStr, event.dateEnd)}
-                          {event.pic ? ` · ${event.pic}` : ''}
+                          {(event.eo || event.pic) ? ` · ${event.eo || event.pic}` : ''}
                         </p>
                       </div>
                     </li>

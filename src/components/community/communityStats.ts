@@ -16,7 +16,17 @@ export interface CommunityStats {
   completed: number;
   /** Semua event publik (past + ongoing + upcoming). */
   total: number;
-  /** Penyelenggara unik (PIC, di-trim, kosong dibuang). */
+  /**
+   * Penyelenggara unik — dibaca dari `eo`, nama penyelenggara yang dipakai
+   * SELURUH permukaan lain (CalendarView, EventTable, FeaturedEvents, dan
+   * detail event publik, semuanya "Penyelenggara: {eo}"). `pic` hanya
+   * cadangan bila `eo` kosong.
+   *
+   * Sebelumnya angka ini dihitung dari `pic` (nama PIC/kontak). Di produksi
+   * `pic` NULL untuk SEMUA event, jadi band kepercayaan menampilkan
+   * "- Penyelenggara" di bawah 234+ dan 254+ — satu-satunya angka yang
+   * kosong, tepat di label yang paling menjual.
+   */
   organizers: number;
 }
 
@@ -33,6 +43,8 @@ export const COMMUNITY_STAT_LABELS = {
 export function deriveCommunityStats(events: EventItem[]): CommunityStats {
   const completed = events.filter(e => e.status === 'past').length;
   const total = events.length;
-  const organizers = new Set(events.map(e => e.pic.trim()).filter(Boolean)).size;
+  const organizers = new Set(
+    events.map(e => (e.eo || e.pic || '').trim()).filter(Boolean),
+  ).size;
   return { completed, total, organizers };
 }
