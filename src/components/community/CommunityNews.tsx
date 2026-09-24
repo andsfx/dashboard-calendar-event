@@ -3,10 +3,10 @@ import { ArrowRight, Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NewsArticle } from '../../types';
 import { fetchNewsArticles } from '../../utils/domainApi';
-import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 function formatNewsDate(value?: string): string {
   if (!value) return '';
@@ -60,8 +60,7 @@ export function CommunityNews() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <CommunityEyebrow>Berita</CommunityEyebrow>
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Kabar terbaru dari Metmal.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">

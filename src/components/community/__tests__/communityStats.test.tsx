@@ -101,10 +101,12 @@ describe('label statistik komunitas (C2)', () => {
 
   it('hero memakai label `completed`, bukan label `total`', () => {
     render(<CommunityHero stats={{ completed: 232 }} />);
-    // Scoped to the live badge: the hero also renders a "Daftar Event" CTA, which
-    // matches a bare /Event/ query and made it ambiguous. Selector only — the
-    // three assertions below (232+, `completed` label, not `total`) are unchanged.
-    const badge = screen.getByText(/Event/, { selector: '[aria-live="polite"]' });
+    // Scoped to the hero stat badge by its own class: the hero also renders a
+    // "Daftar Event" CTA (matches a bare /Event/ query) and the badge no longer
+    // carries `aria-live` (the live region lives on CommunitySocialProof, which
+    // duplicates this exact metric — see CommunityHero). The three assertions
+    // below (232+, `completed` label, not `total`) are unchanged.
+    const badge = screen.getByText(/Event/, { selector: '.community-hero-in' });
     expect(badge).toHaveTextContent('232+');
     expect(badge).toHaveTextContent(COMMUNITY_STAT_LABELS.completed);
     expect(badge).not.toHaveTextContent(COMMUNITY_STAT_LABELS.total);

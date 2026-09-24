@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Camera, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PhotoAlbum } from '../../types';
-import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { thumbUrl } from '../../utils/imageOptim';
+import { createIntersectionObserver } from '../../utils/intersectionObserver';
 
-const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950';
 
 interface CachedInstagramPost {
   shortCode?: string;
@@ -54,10 +55,15 @@ function LazyInstagramEmbed({ url }: { url: string }) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => { const entry = entries[0]; if (entry?.isIntersecting) { setIsVisible(true); observer.disconnect(); } },
+    const observer = createIntersectionObserver(
+      (entries) => { const entry = entries[0]; if (entry?.isIntersecting) { setIsVisible(true); observer?.disconnect(); } },
       { rootMargin: '200px' }
     );
+    // No IntersectionObserver: load the embed immediately rather than never.
+    if (!observer) {
+      setIsVisible(true);
+      return;
+    }
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -160,7 +166,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(22,33,27,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
@@ -183,8 +189,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
     <RevealSection id="gallery" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <CommunityEyebrow>Galeri</CommunityEyebrow>
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">

@@ -9,6 +9,14 @@ export type RegistrationHandlersDeps = {
   showToast: ShowToast;
   canViewRegistrations: boolean;
   dashboardPath: string;
+  /**
+   * True hanya di route `/dashboard/*`. Data pendaftaran adalah urusan admin
+   * (Command Center `/dashboard` + `/dashboard/registrations`); halaman publik
+   * `/` memakai `dashboardPath === '/'` yang sama sehingga tanpa pembeda ini
+   * kegagalan fetch (mis. API mati) memunculkan toast internal
+   * "Data pendaftaran belum berhasil dimuat" di landing page pengunjung.
+   */
+  isDashboardRoute: boolean;
   setEditingDraft: (v: DraftEventItem | null) => void;
   setShowDraftModal: (v: boolean) => void;
 };
@@ -27,7 +35,7 @@ export interface RegistrationHandlersResult {
 }
 
 export function useRegistrationHandlers(deps: RegistrationHandlersDeps): RegistrationHandlersResult {
-  const { showToast, canViewRegistrations, dashboardPath, setEditingDraft, setShowDraftModal } = deps;
+  const { showToast, canViewRegistrations, dashboardPath, isDashboardRoute, setEditingDraft, setShowDraftModal } = deps;
 
   const [communityRegistrations, setCommunityRegistrations] = useState<CommunityRegistration[]>([]);
   const [isRegLoading, setIsRegLoading] = useState(false);
@@ -42,20 +50,27 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
       setCommunityRegistrations(regs);
       setSelectedRegistration(prev => (prev ? (regs.find((r: CommunityRegistration) => r.id === prev.id) ?? prev) : null));
     } catch {
-      if (showError) showToast('error', 'Gagal memuat', 'Data pendaftaran belum berhasil dimuat. Coba refresh halaman.');
+      // Admin-only path (dijaga `isDashboardRoute`). Sebut masalahnya dan
+      // langkah pemulihannya; jangan menyuruh "refresh" tanpa menyebut apa
+      // yang gagal.
+      if (showError) showToast('error', 'Gagal memuat pendaftaran', 'Antrian pendaftaran belum bisa dimuat. Periksa koneksi, lalu buka ulang halaman ini.');
     } finally {
       setIsRegLoading(false);
     }
   }, [canViewRegistrations, showToast]);
 
   useEffect(() => {
-    // Pusat Komando ('/') juga menampilkan antrian pendaftaran (kartu metrik +
-    // bilah peringatan), jadi data ini harus dimuat di sana juga — bukan hanya
-    // di halaman /registrations. Tanpa ini angkanya selalu 0 di landing.
-    if (canViewRegistrations && (dashboardPath === '/registrations' || dashboardPath === '/')) {
+    // Pusat Komando (`/dashboard`) juga menampilkan antrian pendaftaran (kartu
+    // metrik + bilah peringatan), jadi data ini harus dimuat di sana juga —
+    // bukan hanya di `/dashboard/registrations`. Tanpa ini angkanya selalu 0.
+    //
+    // `isDashboardRoute` wajib: dashboardPath untuk halaman publik `/` juga
+    // bernilai `/`, sehingga tanpa pembeda ini fetch ikut jalan di landing page
+    // pengunjung dan kegagalannya memunculkan toast admin di halaman publik.
+    if (isDashboardRoute && canViewRegistrations && (dashboardPath === '/registrations' || dashboardPath === '/')) {
       refreshRegistrations();
     }
-  }, [dashboardPath, canViewRegistrations, refreshRegistrations]);
+  }, [isDashboardRoute, dashboardPath, canViewRegistrations, refreshRegistrations]);
 
   const handleRegDetail = useCallback((reg: CommunityRegistration) => {
     setSelectedRegistration(reg);

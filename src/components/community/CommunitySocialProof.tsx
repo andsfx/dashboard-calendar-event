@@ -1,6 +1,6 @@
 import { type RefObject } from 'react';
 import { RevealSection } from './CommunityRevealPrimitives';
-import { formatCount } from './countFormat';
+import { formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { useCountUp } from './useCountUp';
@@ -17,8 +17,8 @@ function AnimatedStatBadge({ value, label }: { value: number; label: string }) {
   const counted = useCountUp(value, isVisible);
   return (
     <div ref={ref as RefObject<HTMLDivElement>} className="flex items-center gap-3">
-      <span className="text-2xl font-extrabold tabular-nums text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">
-        {value > 0 ? formatCount(counted) + '+' : '-'}
+      <span className="text-2xl font-extrabold tabular-nums text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] sm:text-3xl">
+        {formatStat(counted)}
       </span>
       <span className="text-left text-xs font-medium leading-tight text-slate-600 dark:text-slate-300">{label}</span>
     </div>

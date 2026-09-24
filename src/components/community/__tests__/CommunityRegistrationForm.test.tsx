@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommunityRegistrationForm } from '../CommunityRegistrationForm'
 import * as domainApi from '../../../utils/domainApi'
+import { ApiError } from '../../../lib/rest'
 
 vi.mock('../../../utils/domainApi', () => ({
   submitCommunityRegistration: vi.fn(),
@@ -20,6 +21,11 @@ describe('CommunityRegistrationForm', () => {
     fireEvent.click(screen.getByText('Komunitas'))
   }
 
+  /** Fills the required type-specific field ("Tipe Komunitas") for the community type. */
+  async function fillCommunityType() {
+    fireEvent.change(await screen.findByLabelText(/Tipe Komunitas/), { target: { value: 'Musik' } })
+  }
+
   it('renders all required form fields after type selection', () => {
     render(<CommunityRegistrationForm />)
     clickCommunityType()
@@ -34,6 +40,25 @@ describe('CommunityRegistrationForm', () => {
     expect(screen.getByText('Kirim Pendaftaran')).toBeInTheDocument()
   })
 
+  it('does not submit when a required type-specific field is empty', async () => {
+    // Regression: `noValidate` on the form plus a validator that never read
+    // typeSpecificData let the request go out with community_type:"" while
+    // "Tipe Komunitas *" sat empty in the UI.
+    render(<CommunityRegistrationForm />)
+    clickCommunityType()
+
+    fireEvent.change(await screen.findByLabelText(/Nama Komunitas/), { target: { value: 'Test Community' } })
+    fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John Doe' } })
+    fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
+    // "Tipe Komunitas" intentionally left empty.
+
+    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+
+    expect(await screen.findByText('Tipe Komunitas wajib diisi.')).toBeInTheDocument()
+    expect(domainApi.submitCommunityRegistration).not.toHaveBeenCalled()
+    expect(screen.queryByText('Pendaftaran Terkirim!')).not.toBeInTheDocument()
+  })
+
   it('submits form successfully', async () => {
     vi.mocked(domainApi.submitCommunityRegistration).mockResolvedValue({ id: '1' })
     render(<CommunityRegistrationForm />)
@@ -42,6 +67,7 @@ describe('CommunityRegistrationForm', () => {
     // Wait for form fields to render
     const nameInput = await screen.findByLabelText(/Nama Komunitas/)
     fireEvent.change(nameInput, { target: { value: 'Test Community' } })
+    await fillCommunityType()
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John Doe' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
 
@@ -52,20 +78,43 @@ describe('CommunityRegistrationForm', () => {
     })
   })
 
-  it('shows error on submission failure', async () => {
+  it('shows a recovery message naming the problem on network failure', async () => {
     vi.mocked(domainApi.submitCommunityRegistration).mockRejectedValue(new Error('Network error'))
     render(<CommunityRegistrationForm />)
     clickCommunityType()
 
     const nameInput = await screen.findByLabelText(/Nama Komunitas/)
     fireEvent.change(nameInput, { target: { value: 'Test' } })
+    await fillCommunityType()
     fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John' } })
     fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
 
     fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
 
     await waitFor(() => {
-      expect(screen.getByText(/Gagal mengirim pendaftaran/)).toBeInTheDocument()
+      expect(screen.getByRole('alert')).toHaveTextContent(/Koneksi terputus/)
+    })
+    // Retry affordance: the submit button stays usable and data is preserved.
+    expect(screen.getByText('Kirim Pendaftaran')).toBeEnabled()
+    expect(screen.getByLabelText(/Nama Komunitas/)).toHaveValue('Test')
+  })
+
+  it('names an already-submitted conflict instead of a generic failure', async () => {
+    vi.mocked(domainApi.submitCommunityRegistration).mockRejectedValue(
+      new ApiError('conflict', '409'),
+    )
+    render(<CommunityRegistrationForm />)
+    clickCommunityType()
+
+    fireEvent.change(await screen.findByLabelText(/Nama Komunitas/), { target: { value: 'Test' } })
+    await fillCommunityType()
+    fireEvent.change(screen.getByLabelText(/Nama PIC/), { target: { value: 'John' } })
+    fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/), { target: { value: '08123456789' } })
+
+    fireEvent.submit(screen.getByText('Kirim Pendaftaran').closest('form')!)
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/sudah terkirim/)
     })
   })
 })

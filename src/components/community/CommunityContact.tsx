@@ -1,5 +1,5 @@
 import { Mail, Phone } from 'lucide-react';
-import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 
 const focusRing = 'ui-focus-ring';
 
@@ -32,7 +32,6 @@ export function CommunityContact() {
     <RevealSection id="contact" variant="dark-tosca" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4">
-          <CommunityEyebrow light>Kontak</CommunityEyebrow>
           <h2 className="max-w-xl text-4xl font-bold leading-tight text-white sm:text-5xl">
             Ada pertanyaan? Hubungi kami!
           </h2>
@@ -50,7 +49,7 @@ export function CommunityContact() {
                 key={c.href}
                 href={c.href}
                 {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={`group flex min-w-0 items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-white p-5 shadow-[0_8px_20px_rgba(15,23,42,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
+                className={`group flex min-w-0 items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-white p-5 shadow-[0_8px_20px_rgba(22,33,27,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(22,33,27,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />

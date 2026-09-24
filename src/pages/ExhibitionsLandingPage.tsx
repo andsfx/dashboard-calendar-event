@@ -24,7 +24,7 @@ const INITIAL_FORM: ExhibitionLeadInput = {
   contactName: '', phone: '', email: '', proposal: '',
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] dark:border-slate-600 dark:bg-slate-800 dark:text-white';
+const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:border-slate-600 dark:bg-slate-800 dark:text-white';
 const labelClass = 'mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300';
 
 export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {

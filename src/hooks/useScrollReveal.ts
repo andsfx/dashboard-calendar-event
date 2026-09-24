@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createIntersectionObserver } from '../utils/intersectionObserver';
 
 export function useScrollReveal() {
   const ref = useRef<HTMLElement | null>(null);
@@ -16,18 +17,12 @@ export function useScrollReveal() {
     const target = ref.current;
     if (!target) return;
 
-    // No IntersectionObserver (very old browsers): never leave content hidden.
-    if (typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
+    const observer = createIntersectionObserver(
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             setIsVisible(true);
-            observer.unobserve(entry.target);
+            observer?.unobserve(entry.target);
           }
         });
       },
@@ -40,6 +35,12 @@ export function useScrollReveal() {
         rootMargin: '0px 0px -16% 0px',
       }
     );
+
+    // No IntersectionObserver (very old browsers): never leave content hidden.
+    if (!observer) {
+      setIsVisible(true);
+      return;
+    }
 
     observer.observe(target);
 

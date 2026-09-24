@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createIntersectionObserver } from '../../utils/intersectionObserver';
 
 export interface SectionNavItem {
   id: string;
@@ -27,7 +28,7 @@ export function SectionNav({ items }: Props) {
 
     if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
+    const observer = createIntersectionObserver(
       entries => {
         const visible = entries
           .filter(entry => entry.isIntersecting)
@@ -42,6 +43,9 @@ export function SectionNav({ items }: Props) {
         threshold: [0.15, 0.3, 0.5, 0.75],
       }
     );
+
+    // No IntersectionObserver: keep the first section active (already set above).
+    if (!observer) return;
 
     sections.forEach(section => observer.observe(section));
     return () => observer.disconnect();

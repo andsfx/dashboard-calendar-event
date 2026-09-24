@@ -60,7 +60,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
   return (
     <div className="space-y-3">
       <p id="organization-type-label" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-        Tipe Organisasi <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+        Tipe Organisasi <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
       </p>
       <div
         className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
@@ -103,7 +103,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                 }`}>
                   {opt.label}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-tight text-slate-600 dark:text-slate-300">
+                <p className="mt-1 text-xs leading-snug text-slate-600 dark:text-slate-300">
                   {opt.description}
                 </p>
               </div>
@@ -117,7 +117,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
         })}
       </div>
       {error && (
-        <p id="organization-type-error" className="text-sm text-rose-600" role="alert">
+        <p id="organization-type-error" className="text-sm text-rose-700" role="alert">
           {error}
         </p>
       )}

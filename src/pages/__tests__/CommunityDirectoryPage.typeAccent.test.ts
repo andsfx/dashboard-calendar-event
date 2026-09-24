@@ -20,11 +20,28 @@ import type { OrganizationType } from '../../types';
  */
 
 const THEME_CSS = readFileSync(resolve(__dirname, '../../styles/theme.css'), 'utf8');
+const TOKENS_CSS = readFileSync(resolve(__dirname, '../../styles/tokens.css'), 'utf8');
 
 /** Ambil `--color-<name>: <hex>` dari theme.css (token brand & slate yang di-override). */
 function tokenHex(name: string): string | undefined {
   const m = THEME_CSS.match(new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`));
   return m?.[1]?.toLowerCase();
+}
+
+/**
+ * Resolve `var(--other-token)` references. theme.css aliases some tokens to
+ * tokens.css (e.g. `--color-brand-secondary-600: var(--brand-pink-600)`), so the
+ * reader follows the alias instead of assuming every value is a literal hex.
+ */
+function varRef(name: string): string | undefined {
+  const m = THEME_CSS.match(new RegExp(`--color-${name}:\\s*var\\((--[a-z0-9-]+)\\)\\s*;`));
+  if (!m) return undefined;
+  const token = m[1]!;
+  const literal = TOKENS_CSS.match(new RegExp(`${token}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`));
+  if (!literal) {
+    throw new Error(`Token "${token}" (dirujuk oleh --color-${name}) tidak punya nilai hex di tokens.css.`);
+  }
+  return literal[1]!.toLowerCase();
 }
 
 /**
@@ -48,7 +65,7 @@ const TAILWIND_DEFAULTS: Record<string, string> = {
 
 /** Resolve nama warna Tailwind (tanpa prefix) ke hex: token repo dulu, lalu default. */
 function colorHex(name: string): string {
-  const fromTheme = tokenHex(name);
+  const fromTheme = tokenHex(name) ?? varRef(name);
   if (fromTheme) return fromTheme;
   const fromDefaults = TAILWIND_DEFAULTS[name];
   if (fromDefaults) return fromDefaults;
@@ -121,12 +138,15 @@ describe('TYPE_ACCENT — kontras badge direktori', () => {
     ).toEqual([]);
   });
 
-  it('"eo" memakai secondary-700, bukan 600 yang hanya 4.42:1', () => {
+  it('"eo" memakai secondary-700, bukan shade 500 yang 3.36:1', () => {
     // Bug asli: text-brand-secondary-600 (#c92d62) di atas secondary-100 = 4.42:1.
+    // Setelah 600 diselaraskan ke #c2185b, ia lolos — jadi ambang ini kini
+    // dibuktikan mengikat lewat shade 500 (#e24378, 3.36:1), yang tetap di
+    // bawah 4.5:1. `eo` harus tetap memakai 700.
     const { ratio } = accentContrast(TYPE_ACCENT.eo);
     expect(ratio).toBeGreaterThanOrEqual(REQUIRED_RATIO);
 
-    const regressed = contrast(colorHex('brand-secondary-600'), colorHex('brand-secondary-100'));
+    const regressed = contrast(colorHex('brand-secondary-500'), colorHex('brand-secondary-100'));
     expect(regressed).toBeLessThan(REQUIRED_RATIO); // membuktikan ambang ini memang mengikat
   });
 

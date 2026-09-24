@@ -1,7 +1,7 @@
 # DESIGN
 
 > **Source of truth:** `src/styles/tokens.css` + `src/styles/theme.css`  
-> **Last updated:** 2026-07-16
+> **Last updated:** 2026-09-24
 
 ## Design Direction
 
@@ -58,7 +58,7 @@ Cap: at most **one** pink signal per viewport region. If tosca already carries t
 | `brand-primary-700` | `#006260` | Teks kecil terang / pressed |
 | `brand-primary-800`–`950` | deeper | Rare; dense dark UI only |
 
-Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500).
+Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500, `#c2185b` = 600). `--color-brand-secondary-600` aliases `--brand-pink-600` (`#c2185b`, 4.90:1 on the 14% pink wash) — do not reintroduce a separate literal here; the two used to diverge (`#c92d62` at 4.34:1 failed AA). For badge/avatar text on pink washes, `brand-secondary-700` (`#a82150`) is the safe shade.
 
 **Aturan mutlak kontras — `brand-primary-500` vs `brand-primary-600`:**
 
@@ -87,7 +87,7 @@ Use established Tailwind semantic colors:
 - Info: blue (or tosca for brand-linked info)
 
 Do not create new semantic colors unless existing meaning is insufficient.
-Error/required markers use rose — never brand-primary.
+Error/required markers use rose — never brand-primary. On light campaign surfaces use `text-rose-700` (`#be123c`, 6.12:1 on `--brand-card`); `rose-600` (`#ec003f`) is only 4.40:1 there and fails AA for small text. Dark mode pairs `rose-700` with `dark:text-rose-400`.
 
 **Data-viz exception:** charts/category series may use amber, emerald, blue, etc. outside brand accents. Those colors are for encoding data only — not brand CTAs or large UI washes.
 
@@ -104,7 +104,24 @@ Mirror of semantic tokens in `tokens.css`. Prefer CSS vars (or utilities that wr
 | `--radius-card-lg` | `1.5rem` | Admin panels / larger product cards |
 | `--radius-campaign-card` | `2rem` | Landing / campaign cards only |
 
-Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounded-3xl`). Product controls: `var(--radius-control)` — never campaign radius in admin forms.
+Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounded-3xl`). Product controls: `var(--radius-control)` — never campaign radius in admin forms. Landing form inputs, textareas, and upload tiles also use `var(--radius-control)` (12px) — `rounded-2xl` (24px) was an undocumented outlier there.
+
+### Motion
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--ease-out-expo` | `cubic-bezier(0.22, 1, 0.36, 1)` (`tokens.css`) | Reveals, hero entrance, modal panel, toast, nav dropdown, FAQ accordion |
+| `--transition-timing-function-ease-out-expo` | same value (`theme.css` `@theme`) | Tailwind-side alias |
+
+Both names must stay in sync. `motion.css` consumes `--ease-out-expo` 19 times; when it was undefined, every `var()` fallback collapsed to `transition-duration: 0s` / `animation-name: none` and the entire motion layer silently died. `e2e/a11y.spec.ts` asserts the token resolves and `.reveal-stage` has a non-zero duration.
+
+**Keyframes live in `motion.css`.** Every `animate-[<name>_…]` reference must resolve to a `@keyframes` there, or the class is a silent no-op. Current set: `community-hero-in`, `modal-panel-in/out`, `toast-in/out/progress`, `count-up`, `fade-up`, `fade-in`, `fade-in-up`, `shake`, `scale-in`, `slide-up`, `mobile-nav-in`, `nav-dropdown-in`, `card-hover-lift`, `shimmer`, `live-pulse`, `vt-fade-in`. Named utilities without a Tailwind `--animate-*` theme entry (`.animate-fade-in-up`) are declared in `motion.css` directly.
+
+`animations.css`, `mobile.css`, and `performance.css` were removed — they were never imported by `src/index.css` and every class they defined was dead (`.touch-target` is owned by `accessibility.css`). `useAnimation.ts` was removed with them: it was the only consumer of those classes and had zero importers.
+
+### Reduced motion
+
+`motion.css` ends with a global `@media (prefers-reduced-motion: reduce)` block that forces `animation-duration: 0.01ms` and `transition-duration: 0.01ms`. New animations inherit that for free; do not add a second reset.
 
 ### Shadow & border
 
@@ -113,13 +130,15 @@ Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounde
 | `--shadow-card-soft` | `0 1px 3px rgba(22, 33, 27, 0.06)` (`tokens.css`) | Default card rest |
 | `--shadow-card-raised` | `0 18px 45px rgba(22, 33, 27, 0.08)` (`tokens.css`) | Hover / elevated interactive |
 | `--border-subtle` | `rgba(22, 33, 27, 0.06)` (`tokens.css`) | Default card/panel border |
-| `--ease-out-expo` | `cubic-bezier(0.22, 1, 0.36, 1)` | Reveals, modal panel, toast |
+
+Shadow ink is warm (`rgba(22, 33, 27, …)`), matching `--brand-ink`. Do not use cool slate (`rgba(15, 23, 42, …)`) on campaign surfaces — the landing page carried 10 such literals against 1 token use before this was reconciled.
 
 ### Focus
 
-- `--focus-ring-color`: tosca
-- Light offset: `--focus-ring-offset-light` (card light)
-- Dark offset: `--focus-ring-offset-dark` (`#16211b`)
+- `--focus-ring-color`: tosca (consumed by `base.css` and `utilities.css`)
+- Use the `ui-focus-ring` utility, or `--tw-ring-color: var(--brand-tosca)`.
+
+The former `--focus-ring-offset-light` / `--focus-ring-offset-dark` tokens were removed (zero references; `ui-focus-ring` uses Tailwind `ring-offset` with explicit slate/white values). `--accent-soft` was removed for the same reason.
 
 ## Typography
 
@@ -128,10 +147,11 @@ Display: Bricolage Grotesque via `--font-display`. Body: Geist via `--font-body`
 ### Landing Page
 
 - Hero H1: extra-bold, tight leading, large mobile-aware scale.
+- Hero layout: two columns at `lg` — copy on the left, a realtime community data board (metrics from `communityStats`) on the right; stacks to one column below `lg`. Hero copy must stay above `HERO_CONTENT_MAX_FRACTION` (0.87) of the hero box so it never sits on the gradient's light band.
 - Section H2: bold, `text-4xl` to `sm:text-5xl`.
-- Eyebrow: uppercase, `text-[11px]`, `tracking-[0.3em]`, tosca/brand-primary.
+- No eyebrow above a section heading. The H2 carries its own weight. Eyebrows were removed from every landing `/` section on 2026-09-24 (Agenda, Keuntungan, Fasilitas, Cara Daftar, FAQ, Galeri, Berita, Kontak, Foto Area Event, Sponsor & Support); this replaces the earlier rule that mandated them. Where a section genuinely needs a category label, fold it into the heading.
 - Body: `text-base`, relaxed `leading-7` or `leading-8`.
-- Metadata/chips: small but readable, usually `text-sm`.
+- Metadata/chips: small but readable, usually `text-sm`. Descriptive or sentence-case text a reader must parse stays ≥`text-xs` (12px) — the org-type descriptors under `OrganizationTypeSelector` were `text-[10px]` and are now `text-xs`. Compact labels that sit adjacent to a larger value (category pills, status tags, countdown unit labels) may stay at `text-[10px]`/`text-[11px]`: tracking and context carry them, and they are labels, not reading text.
 
 ### Product/Admin UI
 
@@ -166,12 +186,14 @@ Shared landing reveal primitive. It should:
 
 ### CommunityEyebrow
 
-Shared section eyebrow for community landing surfaces:
+Section eyebrow, still used outside the landing page (`/events`, `/sponsor`):
 
 - uppercase
-- tosca / brand-primary text
-- high letter spacing
+- `brand-primary-700` (light) / `brand-primary-400` (dark) — 6.71:1 on paper, 8.95:1 on slate-950. This single tone is shared with the `.ui-eyebrow` utility and `eyebrow()` in `PublicShared.tsx`; the three were previously three different colours for one role.
+- `text-[11px]`, `tracking-[0.3em]`
 - concise label only
+
+Do not place one above a landing section H2 — see Typography → Landing Page.
 
 ### CTA Buttons
 
@@ -236,11 +258,31 @@ Rules:
 - Avoid large continuous animation on mobile.
 - Heavy blur/glow decoration should be hidden or reduced on small screens.
 
+## Conversion Flow
+
+The landing page has **one** conversion intent with one label and one destination: every `Daftar Event` CTA (hero, header, mobile panel, sticky mobile bar, footer) targets the `/daftar` route — 5 places, one label, one target. This is the M6 fix in `docs/AUDIT-design-taste-2026-09-20.md` and a user decision (2026-09-21); do not retarget these to the in-page `#register` anchor.
+
+`/daftar` renders the **same** `RegistrationForm` as the embedded `#register` section (see `docs/SPEC.md` §7.2), and stays a shareable URL for IG bio / WhatsApp / QR. The hero's secondary CTA is `Cek Event` → `#upcoming-events` (a different intent, so not a duplicate). `/events` also points its registration CTAs at `/daftar` because that page has no embedded form.
+
+`Ajukan Event` (`/ajukan-event`) remains the separate formal EO/business pipeline.
+
+Sticky bottom CTAs on mobile must clear overlays: the toast stack is lifted above the CTA on the landing route (`bottom-24`), and the mobile nav panel is height-bounded with `overflow-y: auto` so every item stays reachable on short phones.
+
+### Community stats — one vocabulary, one display rule
+
+`communityStats.ts` owns the label vocabulary (`COMMUNITY_STAT_LABELS`); `countFormat.ts` owns the display rule (`formatStat`). Hero, the trust band, and `/events` all read from them.
+
+A zero metric renders as `—`, never `0+`. "0+" reads as zero social proof; the hero badge previously showed `0+ Event Terlaksana` while the band below showed `-` for the same metric — two representations of one state.
+
+### Feature detection
+
+`src/utils/intersectionObserver.ts` exports `createIntersectionObserver`, the single guarded factory. Never call `new IntersectionObserver` directly: in an environment without the API the constructor throws inside an effect and takes the whole page to the error boundary. Callers must treat `null` as "not available" and render the final state (visible / pinned), never leave content hidden.
+
 ## Accessibility
 
 Baseline requirements:
 
-- Visible focus rings on all interactive elements.
+- Visible focus rings on all interactive elements. Use the `ui-focus-ring` utility (or `--tw-ring-color: var(--brand-tosca)`); do **not** hand-roll `ring-[var(--brand-tosca-soft)]` — `#33a8a5` is 2.88:1 against white and fails WCAG 1.4.11 (non-text 3:1). `brand-tosca-500` is 3.86:1 and is the minimum.
 - Keyboard support for nav, forms, accordions, and option groups.
 - Correct ARIA for expanded/collapsed states.
 - Labels for all form fields.

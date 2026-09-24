@@ -144,9 +144,45 @@
   to { opacity: 1; }
 }
 
+/* Referenced by `animate-[fade-in-up_…]` (FeaturedEventCard, AnnualTimeline).
+   Previously only defined in the unimported `animations.css`, so the class did
+   nothing and those cards simply appeared. */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Referenced by `animate-[shake_…]` (AdminLoginPage, AdminLoginModal) — the
+   invalid-credentials nudge. Was never defined, so failed logins gave no
+   movement feedback. */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Referenced by `animate-[scale-in_…]` (SurveySuccess) — success check-in. */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Referenced by `animate-[slide-up_…]` (SurveyPopup) — sheet entrance. */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .fade-up { animation: fade-up 0.4s ease forwards; }
 .fade-in { animation: fade-in 0.3s ease forwards; }
 .dashboard-fade { animation: fade-in 150ms ease-out; }
+
+/* Named utility used by FeaturedEventCard / AnnualTimeline. No Tailwind
+   `--animate-*` theme entry exists for it, so it must be declared here or the
+   class is a no-op. */
+.animate-fade-in-up { animation: fade-in-up 0.4s ease forwards; }
 
 @keyframes mobile-nav-in {
   from { opacity: 0; transform: translateY(-8px); }

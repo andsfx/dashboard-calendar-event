@@ -1,9 +1,10 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { CheckCircle2, Send, ArrowLeft, Paperclip, FileText, X } from 'lucide-react';
 import { submitCommunityRegistration, uploadRegistrationAttachment, type RegistrationProposalUpload } from '../../utils/domainApi';
+import { ApiError } from '../../lib/rest';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
-import { TypeSpecificFields } from './TypeSpecificFields';
+import { TypeSpecificFields, TYPE_SPECIFIC_REQUIRED } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
 import { validateEmail, validatePhone, validateInstagram } from '../../utils/validation';
 
@@ -111,10 +112,29 @@ export function RegistrationForm() {
     }));
     setError('');
     setFieldErrors(prev => {
-      if (!prev.organizationType) return prev;
       const updated = { ...prev };
-      delete updated.organizationType;
+      for (const key of Object.keys(updated)) {
+        if (key.startsWith('typeSpecificData.') || key === 'organizationType') delete updated[key];
+      }
       return updated;
+    });
+  };
+
+  const handleTypeSpecificChange = (data: Record<string, string | number>) => {
+    setForm(prev => ({ ...prev, typeSpecificData: data }));
+    setError('');
+    setFieldErrors(prev => {
+      let changed = false;
+      const updated = { ...prev };
+      for (const key of Object.keys(updated)) {
+        if (!key.startsWith('typeSpecificData.')) continue;
+        const value = data[key.slice('typeSpecificData.'.length)];
+        if (value !== undefined && String(value).trim() !== '') {
+          delete updated[key];
+          changed = true;
+        }
+      }
+      return changed ? updated : prev;
     });
   };
 
@@ -166,6 +186,17 @@ export function RegistrationForm() {
       }
     }
 
+    // Validate type-specific required fields. The `*` markers, the `required`
+    // attributes, and this check all read TYPE_SPECIFIC_REQUIRED, so a field
+    // shown as required can no longer slip through to the API empty.
+    const requiredTypeFields = form.organizationType ? TYPE_SPECIFIC_REQUIRED[form.organizationType] : [];
+    for (const field of requiredTypeFields) {
+      const value = form.typeSpecificData[field.key];
+      if (value === undefined || String(value).trim() === '') {
+        errors[`typeSpecificData.${field.key}`] = `${field.label} wajib diisi.`;
+      }
+    }
+
     // If there are validation errors, set them and return early
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -210,8 +241,20 @@ export function RegistrationForm() {
         proposalFileSize: proposal?.fileSize,
       });
       setSubmitted(true);
-    } catch {
-      setError('Gagal mengirim pendaftaran. Coba lagi nanti.');
+    } catch (err) {
+      // Name the problem, not just "coba lagi nanti": a rate-limit or an
+      // already-submitted conflict needs a different user action than a
+      // dropped connection.
+      const code = err instanceof ApiError ? err.code : undefined;
+      if (code === '409') {
+        setError('Pendaftaran ini sepertinya sudah terkirim. Cek WhatsApp kamu, atau hubungi tim kami.');
+      } else if (code === '429') {
+        setError('Terlalu banyak percobaan. Tunggu sebentar, lalu tekan Kirim Pendaftaran lagi.');
+      } else if (code === '400' || code === '422') {
+        setError('Ada data yang belum sesuai. Periksa kembali kolom yang ditandai, lalu kirim ulang.');
+      } else {
+        setError('Koneksi terputus saat mengirim. Periksa jaringan kamu, lalu tekan Kirim Pendaftaran lagi — datamu masih ada di form ini.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -241,7 +284,7 @@ export function RegistrationForm() {
     );
   }
 
-  const inputClass = 'w-full rounded-2xl border border-slate-200/80 bg-slate-100 px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-slate-500';
+  const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200/80 bg-slate-100 px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-slate-500';
   const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 
   const showForm = !!form.organizationType;
@@ -261,7 +304,7 @@ export function RegistrationForm() {
 
       {/* Step 2: Form Fields (shown after type selection) */}
       {showForm && (
-        <div className="mt-6 animate-[fadeIn_0.3s_ease] space-y-4">
+        <div className="mt-6 animate-[fade-in_0.3s_ease] space-y-4">
           {/* Divider with selected type */}
           <div className="flex items-center gap-3">
             <button
@@ -281,7 +324,7 @@ export function RegistrationForm() {
             {/* Organization Name */}
             <div className="sm:col-span-2">
               <label htmlFor="reg-org-name" className={labelClass}>
-                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               </label>
               <input
                 id="reg-org-name"
@@ -294,7 +337,7 @@ export function RegistrationForm() {
                 aria-describedby={fieldErrors.organizationName ? 'organization-name-error' : undefined}
               />
               {fieldErrors.organizationName && (
-                <p id="organization-name-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
+                <p id="organization-name-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.organizationName}
                 </p>
               )}
@@ -304,23 +347,28 @@ export function RegistrationForm() {
             <TypeSpecificFields
               orgType={form.organizationType as OrganizationType}
               typeSpecificData={form.typeSpecificData}
-              onChange={data => setField('typeSpecificData', data)}
+              onChange={handleTypeSpecificChange}
               inputClass={inputClass}
               labelClass={labelClass}
+              typeErrors={Object.fromEntries(
+                Object.entries(fieldErrors)
+                  .filter(([key]) => key.startsWith('typeSpecificData.'))
+                  .map(([key, message]) => [key.slice('typeSpecificData.'.length), message]),
+              )}
             />
 
             {/* Common Fields */}
             <div>
-              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
+              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
               <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
               {fieldErrors.pic && (
-                <p id="pic-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
+                <p id="pic-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.pic}
                 </p>
               )}
             </div>
             <div>
-              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
+              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
               <input 
                 id="reg-phone" 
                 value={form.phone} 
@@ -334,7 +382,7 @@ export function RegistrationForm() {
                 aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
               />
               {fieldErrors.phone && (
-                <p id="phone-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
+                <p id="phone-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.phone}
                 </p>
               )}
@@ -353,7 +401,7 @@ export function RegistrationForm() {
                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               />
               {fieldErrors.email && (
-                <p id="email-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
+                <p id="email-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.email}
                 </p>
               )}
@@ -370,7 +418,7 @@ export function RegistrationForm() {
                 aria-describedby={fieldErrors.instagram ? 'instagram-error' : undefined}
               />
               {fieldErrors.instagram && (
-                <p id="instagram-error" className="mt-1 text-sm text-rose-600 dark:text-rose-400" role="alert">
+                <p id="instagram-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.instagram}
                 </p>
               )}
@@ -394,7 +442,7 @@ export function RegistrationForm() {
                 onChange={handleProposalChange}
               />
               {proposalFile ? (
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-100 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
+                <div className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-slate-200/80 bg-slate-100 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
                   <div className="flex min-w-0 items-center gap-2">
                     <FileText className="h-4 w-4 shrink-0 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
                     <span className="truncate text-sm text-slate-800 dark:text-white">{proposalFile.name}</span>
@@ -413,7 +461,7 @@ export function RegistrationForm() {
                 <button
                   type="button"
                   onClick={() => document.getElementById('reg-proposal')?.click()}
-                  className={`flex w-full items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-slate-100/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-500 dark:bg-slate-700/60 dark:text-slate-300 dark:hover:border-[var(--brand-tosca-soft)] dark:hover:text-white ${focusRing}`}
+                  className={`flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-slate-300 bg-slate-100/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-500 dark:bg-slate-700/60 dark:text-slate-300 dark:hover:border-[var(--brand-tosca-soft)] dark:hover:text-white ${focusRing}`}
                 >
                   <Paperclip className="h-4 w-4" />
                   Pilih file
@@ -425,7 +473,7 @@ export function RegistrationForm() {
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-rose-600 dark:text-rose-400" role="alert">{error}</p>}
+      {error && <p className="mt-4 text-sm text-rose-700 dark:text-rose-400" role="alert">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-300">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
@@ -455,7 +503,7 @@ export function CommunityRegistrationForm() {
           </p>
           <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
             Mau bertanya dulu?{' '}
-            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
+            <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="-my-1 inline-block py-1 font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Chat via WhatsApp
             </a>
           </p>

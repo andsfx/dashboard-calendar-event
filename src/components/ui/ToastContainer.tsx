@@ -51,10 +51,10 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 
       <button
         onClick={dismiss}
-        className="relative shrink-0 rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
+        className="relative -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:hover:bg-slate-700 dark:hover:text-white"
         aria-label="Tutup notifikasi"
       >
-        <X className="h-3.5 w-3.5" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
@@ -63,12 +63,18 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
 interface Props {
   toasts: ToastMessage[];
   onRemove: (id: string) => void;
+  /**
+   * Mobile bottom offset. Routes with a sticky bottom CTA (the landing page)
+   * pass a larger value so the toast stack clears the CTA instead of covering it
+   * — the two used to overlap by 91% of the CTA height at 390x844.
+   */
+  bottomOffsetClass?: string;
 }
 
-export function ToastContainer({ toasts, onRemove }: Props) {
+export function ToastContainer({ toasts, onRemove, bottomOffsetClass = 'bottom-4' }: Props) {
   if (!toasts.length) return null;
   return (
-    <div className="fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 sm:inset-x-auto sm:bottom-6 sm:right-6" role="region" aria-live="polite" aria-label="Notifikasi">
+    <div className={`fixed inset-x-4 ${bottomOffsetClass} z-[100] flex flex-col gap-2 sm:inset-x-auto sm:bottom-6 sm:right-6`} role="region" aria-live="polite" aria-label="Notifikasi">
       {toasts.map(t => (
         <ToastItem key={t.id} t={t} onRemove={onRemove} />
       ))}

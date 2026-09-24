@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createIntersectionObserver } from '../utils/intersectionObserver';
 import { CalendarDays, Menu, Moon, SunMedium, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { apiGet } from '../lib/rest';
@@ -129,7 +130,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
     const target = sentinelRef.current;
     if (!target) return;
 
-    const observer = new IntersectionObserver(
+    const observer = createIntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           setIsHeaderPinned(!entry.isIntersecting);
@@ -137,6 +138,14 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
       },
       { threshold: 0.1 }
     );
+
+    // No IntersectionObserver: treat the header as pinned so the sticky CTA and
+    // nav affordances stay reachable rather than silently disappearing.
+    if (!observer) {
+      setIsHeaderPinned(true);
+      return;
+    }
+
     observer.observe(target);
     return () => observer.disconnect();
   }, []);
@@ -160,17 +169,21 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
   const featuredUpcomingEvents = filterUpcomingForMonth(events, activeMonthKey);
 
   const headerClassName = isHeaderPinned
-    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-neutral-150/96 text-slate-900 shadow-[0_8px_22px_rgba(15,23,42,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
+    ? 'fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-neutral-150/96 text-slate-900 shadow-[0_8px_22px_rgba(22,33,27,0.045)] backdrop-blur-md dark:bg-slate-950/96 dark:text-white dark:border-slate-800'
     : 'absolute inset-x-0 top-0 z-50 text-white';
   const navClassName = isHeaderPinned
     ? 'hidden items-center gap-7 text-[13px] font-medium text-slate-700 dark:text-slate-300 lg:flex'
     : 'hidden items-center gap-7 text-[13px] font-medium text-white/90 lg:flex';
   const utilityButtonClass = isHeaderPinned
-    ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(15,23,42,0.05)] dark:bg-slate-800 dark:text-white dark:border-slate-700 sm:h-9 sm:w-9'
-    : 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm sm:h-9 sm:w-9';
+    ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-[0_6px_14px_rgba(22,33,27,0.05)] dark:bg-slate-800 dark:text-white dark:border-slate-700 sm:h-9 sm:w-9'
+    : 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-black/10 text-white shadow-[0_8px_18px_rgba(22,33,27,0.14)] backdrop-blur-sm sm:h-9 sm:w-9';
+  // The panel used to be `overflow-y: visible` inside a `fixed` header, so on
+  // short phones (360x640: panel 789px, bottom at 865px) the last ~225px —
+  // including "Daftar Event" — was clipped and unreachable. Bound it to the
+  // viewport below the header and let it scroll on its own.
   const mobilePanelClass = isHeaderPinned
-    ? 'mt-3 rounded-[var(--radius-card-lg)] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(15,23,42,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
-    : 'mt-3 rounded-[var(--radius-card-lg)] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
+    ? 'mt-3 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain rounded-[var(--radius-card-lg)] border border-black/6 bg-white/98 p-3 shadow-[0_14px_28px_rgba(22,33,27,0.06)] lg:hidden dark:bg-slate-900 dark:border-slate-700'
+    : 'mt-3 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain rounded-[var(--radius-card-lg)] border border-white/18 bg-black/15 p-3 shadow-xl backdrop-blur-md lg:hidden';
 
   return (
     <div className="community-landing min-h-screen overflow-x-clip bg-neutral-150 selection:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,white)] selection:text-[var(--brand-tosca-dark)] dark:bg-slate-950 dark:selection:bg-[color-mix(in_srgb,var(--brand-tosca)_35%,black)] dark:selection:text-white">
@@ -353,7 +366,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
               </div>
               <Link
                 to="/ajukan-event"
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
               >
                 Ajukan Event
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -381,7 +394,7 @@ export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPo
         <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <LogoMark className="h-auto w-[102px] opacity-90" />
           <div className="flex flex-col gap-2 sm:items-end">
-            <a href="/daftar" className="text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
+            <a href="/daftar" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">
               Daftar Event
             </a>
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">

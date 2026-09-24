@@ -31,7 +31,8 @@ const AREAS: EventArea[] = [
 describe('CommunityEventAreas', () => {
   it('renders heading and visible cards', () => {
     render(<CommunityEventAreas areas={AREAS} />);
-    expect(screen.getByText('Foto Area Event')).toBeInTheDocument();
+    // No eyebrow above the H2: removed 2026-09-24 (kicker-above-heading is a
+    // craft-floor ban). The section heading itself is asserted below.
     expect(screen.getByText('Area di Metropolitan Mall Bekasi')).toBeInTheDocument();
     expect(screen.getByText('Panggung Lt. 3')).toBeInTheDocument();
     expect(screen.getByText('Atrium 2')).toBeInTheDocument();

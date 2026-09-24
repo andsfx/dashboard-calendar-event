@@ -179,6 +179,7 @@ export default function App() {
     restoreDraft,
     canViewRegistrations: permissions.canViewRegistrations,
     dashboardPath,
+    isDashboardRoute: location.pathname.startsWith('/dashboard'),
     confirm: confirmDialog.confirm,
     draftError,
   });
@@ -507,7 +508,12 @@ export default function App() {
         </Suspense>
       } />
     </Routes>
-    <ToastContainer toasts={toasts} onRemove={removeToast} />
+    <ToastContainer
+      toasts={toasts}
+      onRemove={removeToast}
+      // Landing has a sticky bottom CTA on mobile; lift toasts clear of it.
+      bottomOffsetClass={location.pathname === '/' ? 'bottom-24' : 'bottom-4'}
+    />
     </>
   );
 }

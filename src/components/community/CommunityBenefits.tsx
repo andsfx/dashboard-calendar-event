@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { HandCoins, Megaphone, PackageCheck, Sprout } from 'lucide-react';
-import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { Link } from 'react-router-dom';
 
 const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
@@ -33,8 +33,7 @@ export function CommunityBenefits() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-8">
           <div>
-            <CommunityEyebrow>Keuntungan</CommunityEyebrow>
-            <h2 className="mt-3 text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
               Bukan cuma dikasih tempat.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
@@ -49,12 +48,11 @@ export function CommunityBenefits() {
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <CommunityEyebrow>Sponsor &amp; Support</CommunityEyebrow>
-                <h3 className="mt-1.5 text-xl font-bold leading-tight text-slate-950 dark:text-white">Dukungan Sponsorship</h3>
+                <h3 className="text-xl font-bold leading-tight text-slate-950 dark:text-white">Dukungan Sponsorship</h3>
                 <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
                 <Link
                   to="/sponsor"
-                  className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                  className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
                 >
                   Lihat Peluang Sponsor
                 </Link>

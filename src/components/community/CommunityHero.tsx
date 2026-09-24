@@ -4,7 +4,7 @@ import heroFallbackImageSm from '../../assets/landing/hero-fallback-800.webp';
 import { imgUrl } from '../../utils/imageOptim';
 import { formatDateRange } from '../../utils/eventUtils';
 import type { EventItem } from '../../types';
-import { formatCount } from './countFormat';
+import { formatCount, formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
 
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3
@@ -116,11 +116,14 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             dan gate a11y mengukur fraksi itu secara langsung. */}
         <div className="relative z-10 mx-auto grid w-full max-w-7xl items-start gap-8 px-4 pt-20 pb-16 sm:px-6 sm:pt-24 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
           <div className="mx-auto max-w-2xl text-center lg:mx-0">
-            <div className="community-hero-in inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85" aria-live="polite" aria-busy={loading}>
+            {/* Badge ini duplikat metrik yang sama dengan CommunitySocialProof
+                tepat di bawahnya. Hanya band yang jadi live region; kalau dua-duanya
+                `aria-live`, satu pembaruan diumumkan dua kali. */}
+            <div className="community-hero-in inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-5 py-2.5 text-[12px] font-bold tracking-wider text-white/85" aria-busy={loading}>
               {loading ? (
                 <span className="inline-block h-4 w-32 animate-pulse rounded-full bg-white/25 motion-reduce:animate-none" aria-hidden="true" />
               ) : (
-                `${formatCount(completed)}+ ${COMMUNITY_STAT_LABELS.completed}`
+                `${formatStat(completed)} ${COMMUNITY_STAT_LABELS.completed}`
               )}
             </div>
 

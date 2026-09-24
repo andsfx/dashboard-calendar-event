@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Camera, Loader2, MapPin } from 'lucide-react';
 import type { AreaPhoto, EventArea } from '../../types';
-import { RevealSection, CommunityEyebrow } from './CommunityRevealPrimitives';
+import { RevealSection } from './CommunityRevealPrimitives';
 import { PhotoLightbox } from '../media/PhotoLightbox';
 import { thumbUrl } from '../../utils/imageOptim';
 import { fetchAreaPhotos } from '../../utils/domainApi';
@@ -121,8 +121,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
     <RevealSection className="border-b border-black/5 bg-white/60 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/20 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <CommunityEyebrow>Foto Area Event</CommunityEyebrow>
-          <h2 className="font-display mt-3 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             Area di Metropolitan Mall Bekasi
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
@@ -138,7 +137,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
               return (
               <figure
                 key={area.id}
-                className="ui-campaign-card group overflow-hidden rounded-[var(--radius-campaign-card)] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)] dark:bg-slate-900"
+                className="ui-campaign-card group overflow-hidden rounded-[var(--radius-campaign-card)] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] dark:bg-slate-900"
               >
                 {/* Interaksi ada di elemen nyata (<button> di dalam AreaMedia),
                     bukan role="button" di atas <figure> — ARIA melarang role itu

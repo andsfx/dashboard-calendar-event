@@ -42,4 +42,11 @@ describe('CommunityHero', () => {
     expect(screen.queryByText(/0 Event/)).not.toBeInTheDocument()
     expect(screen.queryByText(/100\+ Event/)).not.toBeInTheDocument()
   })
+
+  it('renders an em-dash, not "0+", when completed is zero', () => {
+    // Konsisten dengan CommunitySocialProof: satu keadaan, satu representasi.
+    render(<CommunityHero stats={{ completed: 0 }} />)
+    expect(screen.getByText(`— ${COMMUNITY_STAT_LABELS.completed}`)).toBeInTheDocument()
+    expect(screen.queryByText(/0\+/)).not.toBeInTheDocument()
+  })
 })

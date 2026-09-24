@@ -53,15 +53,25 @@ type CommunityEyebrowProps = {
   light?: boolean;
 };
 
-/* DESIGN.md: eyebrow = `text-[11px]`, `tracking-[0.3em]`, tosca. Sebelumnya kelas
- * ini memakai 0.2em sehingga berbeda dari `.ui-eyebrow` dan dari 13 eyebrow lain
- * di repo — diseragamkan ke 0.3em. `light` menggantikan override kelas ad-hoc
- * (dua kelas warna arbitrer saling berebut urutan di stylesheet, bukan urutan
- * atribut) agar permukaan gelap punya tone yang pasti. */
+/* Eyebrow tunggal untuk repo: `text-[11px]`, `tracking-[0.3em]`, tosca-700.
+ *
+ * Sebelumnya komponen ini memakai `--brand-tosca-dark` sementara `.ui-eyebrow`
+ * (typography.css) dan `eyebrow()` (PublicShared.tsx) memakai
+ * `brand-primary-700`. Satu peran, tiga nada. Sekarang semuanya ke
+ * `brand-primary-700` (6.71:1 di kertas, 7.01:1 di kartu hangat — lolos AA) dan
+ * `brand-primary-400` di gelap (8.95:1 di slate-950).
+ *
+ * `light` untuk permukaan gelap: menggantikan override ad-hoc yang saling
+ * berebut urutan di stylesheet, bukan urutan atribut.
+ *
+ * CATATAN DESAIN: eyebrow di atas heading sudah dihapus dari seluruh section
+ * landing `/` pada 2026-09-24 (craft floor: kicker-above-heading adalah larangan,
+ * bukan default). Komponen ini tetap dipakai di luar landing — `/events`,
+ * `/sponsor` — sehingga belum bisa dihapus. */
 export function CommunityEyebrow({ children, className = 'text-[11px]', light = false }: CommunityEyebrowProps) {
   const tone = light
     ? 'text-white/80'
-    : 'text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]';
+    : 'text-brand-primary-700 dark:text-brand-primary-400';
   return (
     <p className={`${className} font-semibold uppercase tracking-[0.3em] ${tone}`}>
       {children}

@@ -375,6 +375,71 @@ test.describe('audit claims — direct measurement', () => {
 
     expect(failures.length > 0 ? `${failures.join('\n')}\n` : '', summary).toBe('');
   });
+
+  /**
+   * Guards the motion token, not the motion.
+   *
+   * `--ease-out-expo` is consumed 19x in `src/styles/motion.css` but was never
+   * defined, so every `var()` fell back to an invalid value and the whole motion
+   * layer silently resolved to `transition-duration: 0s` / `animation-name: none`.
+   * The axe sweep above cannot see this: it asserts content is not hidden, and a
+   * page with no animation passes that trivially. This asserts the token resolves
+   * and the reveal actually has a duration, so the regression fails loudly.
+   */
+  test('motion token resolves — reveal-stage has a non-zero transition', async ({ page }, testInfo) => {
+    test.setTimeout(180_000);
+
+    const report: Record<string, unknown> = {};
+    const failures: string[] = [];
+    const routesWithReveal = new Set<string>();
+
+    for (const route of PUBLIC_ROUTES) {
+      await setupPublicApiMocks(page);
+      await page.setViewportSize({ width: 1280, height: VIEWPORT_HEIGHT });
+      await page.goto(route.path);
+      await settle(page);
+
+      const measured = await page.evaluate(() => {
+        const root = getComputedStyle(document.documentElement);
+        const token = root.getPropertyValue('--ease-out-expo').trim();
+        const stage = document.querySelector('.reveal-stage');
+        if (!stage) return { token, tokenDefined: token.length > 0, hasReveal: false, duration: null, timing: null };
+        const cs = getComputedStyle(stage);
+        return {
+          token,
+          tokenDefined: token.length > 0,
+          hasReveal: true,
+          duration: cs.transitionDuration,
+          timing: cs.transitionTimingFunction,
+        };
+      });
+
+      report[route.path] = measured;
+
+      if (measured.hasReveal) {
+        routesWithReveal.add(route.path);
+        // A defined token that still resolves to 0s means the consumer is broken.
+        const allZero = String(measured.duration)
+          .split(',')
+          .every((d) => parseFloat(d.trim()) === 0);
+        if (!measured.tokenDefined) {
+          failures.push(`${route.path}: --ease-out-expo is empty (token undefined)`);
+        }
+        if (allZero) {
+          failures.push(`${route.path}: .reveal-stage transitionDuration is ${measured.duration} (expected > 0s)`);
+        }
+      }
+    }
+
+    await attachReport(testInfo, report, 'motion-token.json');
+
+    // If no route renders a reveal, the assertion below proves nothing.
+    expect(
+      routesWithReveal.size,
+      'no route rendered a .reveal-stage — the motion check never ran (selector drift?)',
+    ).toBeGreaterThan(0);
+    expect(failures.join('\n')).toBe('');
+  });
 });
 
 /**

@@ -31,7 +31,7 @@
   --color-brand-secondary-300: #f49ab8;
   --color-brand-secondary-400: #ee95a9;
   --color-brand-secondary-500: #e24378;
-  --color-brand-secondary-600: #c92d62;
+  --color-brand-secondary-600: var(--brand-pink-600); /* #c2185b — same value as tokens.css; was #c92d62 (4.34:1, failed AA) */
   --color-brand-secondary-700: #a82150;
   --color-brand-secondary-800: #8a1c43;
   --color-brand-secondary-900: #721a3a;

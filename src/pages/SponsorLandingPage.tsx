@@ -30,7 +30,7 @@ interface LeadForm {
 const INITIAL_FORM: LeadForm = { eventId: '', companyName: '', contactName: '', phone: '', email: '', message: '' };
 
 const inputClass =
-  'w-full rounded-2xl border border-slate-200/80 bg-slate-100 px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca-soft)] dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500';
+  'w-full rounded-2xl border border-slate-200/80 bg-slate-100 px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500';
 
 const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 

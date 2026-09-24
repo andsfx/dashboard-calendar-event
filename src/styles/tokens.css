@@ -47,8 +47,6 @@
 
   /* Focus ring — tosca */
   --focus-ring-color: var(--brand-green);
-  --focus-ring-offset-light: var(--brand-card-light);
-  --focus-ring-offset-dark: #16211b;
 
   --radius-card: 1rem;
   --radius-card-lg: 1.5rem;
@@ -57,9 +55,15 @@
 
   --shadow-card-soft: 0 1px 3px rgba(22, 33, 27, 0.06);
   --shadow-card-raised: 0 18px 45px rgba(22, 33, 27, 0.08);
-  /* Alternating section bg + accent soft */
+
+  /* Motion — exponential ease-out (DESIGN.md §Motion / §Token Reference).
+   * Consumed 19x in motion.css (reveals, hero entrance, modal, toast, nav,
+   * FAQ accordion). Kept in sync with --transition-timing-function-ease-out-expo
+   * in theme.css; defined here so motion.css resolves without the @theme layer. */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Alternating section bg */
   --section-alt: rgba(237, 238, 226, 0.4);
-  --accent-soft: #66cfab;
   --border-subtle: rgba(22, 33, 27, 0.06);
 }
 

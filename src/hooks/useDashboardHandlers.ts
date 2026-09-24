@@ -32,6 +32,8 @@ export type DashboardHandlersDeps = {
   restoreDraft: (id: string) => Promise<boolean>;
   canViewRegistrations: boolean;
   dashboardPath: string;
+  /** True hanya di `/dashboard/*`; lihat useRegistrationHandlers untuk alasannya. */
+  isDashboardRoute: boolean;
   confirm: (options: ConfirmOptions) => Promise<boolean>;
   draftError: string | null;
 };
@@ -46,7 +48,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     draftEvents, addDraft, updateDraft, deleteDraft,
     publishDraft, restoreDraft,
     confirm,
-    canViewRegistrations, dashboardPath, draftError,
+    canViewRegistrations, dashboardPath, isDashboardRoute, draftError,
   } = deps;
 
   const event: EventHandlersResult = useEventHandlers({
@@ -76,7 +78,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
 
   const reg: RegistrationHandlersResult = useRegistrationHandlers({
     showToast,
-    canViewRegistrations, dashboardPath,
+    canViewRegistrations, dashboardPath, isDashboardRoute,
     setEditingDraft: draft.setEditingDraft,
     setShowDraftModal: draft.setShowDraftModal,
   });
