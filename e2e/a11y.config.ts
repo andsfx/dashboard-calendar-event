@@ -29,7 +29,7 @@ import { setupApiMocks } from './helpers';
  *   ONLY durable evidence — there is no attached `axe-report.json` to rely on,
  *   because Playwright prunes attachments for PASSING tests. The file exists
  *   after a run whether the run passes or fails, so the evidence is reproducible
- *   rather than ephemeral. `reports/` is gitignored (.gitignore:31), so it is
+ *   rather than ephemeral. `reports/` is gitignored (`/reports/` in `.gitignore`), so it is
  *   never committed. For the CURRENT per-route/viewport counts, run
  *   `npm run test:a11y` and read `reports/a11y/axe-report-*.json` — do not copy
  *   counts from this comment, they drift silently. (One observed snapshot,
@@ -748,7 +748,7 @@ export async function measureHeroContentFraction(page: Page): Promise<HeroConten
  *
  * Playwright PRUNES attachments for passing tests, so `testInfo.attach` alone
  * leaves no reproducible evidence. These files always land on disk — pass or
- * fail — and `reports/` is gitignored (.gitignore:31), so they are never
+ * fail — and `reports/` is gitignored (`/reports/` in `.gitignore`), so they are never
  * committed. One file per route (each route is one test) avoids write races
  * under `test.describe.configure({ mode: 'parallel' })`.
  */
