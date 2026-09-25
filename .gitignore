@@ -10,6 +10,10 @@ dist/
 .vercel
 .env*.local
 
+# Template env (placeholder saja, tanpa secret) WAJIB terlacak — jangan ikut
+# tertelan pola `.env*` di atas. Dirujuk README.md + deploy/vps/README-DEPLOY.md.
+!.env.example
+
 # AI agent working files
 .sisyphus/
 .omo/
@@ -22,6 +26,10 @@ dist/
 .codegraph/
 .clone-ui/
 .slim/
+
+# Handoff doc sesi agent untuk deliverable lain (static Metmal hub) — berkas
+# lokal, tidak dirujuk skrip/dokumen mana pun di repo ini.
+HANDOFF-oh-my-pi.md
 # Local pnpm workspace experiments — app is npm + package-lock (SPEC-hygiene)
 pnpm-workspace.yaml
 
