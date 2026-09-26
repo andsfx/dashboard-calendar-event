@@ -445,6 +445,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
               <select
                 value={analyticsEventFilter}
                 onChange={(e) => setAnalyticsEventFilter(e.target.value)}
+                aria-label="Filter event"
                 className="ui-dashboard-control cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 focus:ring-[var(--wf-accent)]"
               >
                 <option value="all">Semua Event</option>

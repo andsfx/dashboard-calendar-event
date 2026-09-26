@@ -59,6 +59,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                         <select
                           value={draft.progress}
                           onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
+                          aria-label={`Progress ${draft.acara}`}
                           className="ui-dashboard-control w-full rounded-lg px-2.5 py-1.5 text-xs text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)]"
                         >
                           <option value="draft">Draft</option>

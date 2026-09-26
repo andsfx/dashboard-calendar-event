@@ -128,9 +128,11 @@ export function ActivityLog() {
           <option value="survey_config">Konfigurasi Survey</option>
         </select>
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+          aria-label="Dari tanggal"
           className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
         <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
         <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
+          aria-label="Sampai tanggal"
           className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
         {(filterAction || filterResource || dateFrom || dateTo) && (
           <button onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}

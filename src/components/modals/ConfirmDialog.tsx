@@ -44,8 +44,9 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="confirm-dialog-title">
       <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl overflow-hidden dark:bg-slate-800">
-        {/* Red accent top bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-500" />
+        {/* Red accent top bar — flat fill, no gradient (board language bans
+            multi-stop gradients on admin chrome). */}
+        <div className="h-1.5 w-full bg-red-600" />
 
         <div className="p-6">
           <div className="mb-5 flex items-start justify-between">
@@ -84,7 +85,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
           <button
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:from-red-700 hover:to-rose-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-red-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : confirmLabel}
           </button>

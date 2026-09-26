@@ -233,6 +233,12 @@
     border-style: solid;
     background: var(--wf-board);
   }
+  /* The rail is a touch drawer below lg. At `padding: 0.5rem` a row measured
+   * 36px — under the ≥44px admin floor in DESIGN.md's QA checklist. Only the
+   * mobile breakpoint is raised, so the desktop rail keeps its denser rhythm. */
+  .wf-rail-row {
+    min-height: 2.75rem;
+  }
 }
 
 @media (max-width: 34rem) {

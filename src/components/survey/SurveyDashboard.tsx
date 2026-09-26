@@ -325,6 +325,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
+                aria-label="Dari tanggal"
                 className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
                 placeholder="Dari"
               />
@@ -333,6 +334,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
+                aria-label="Sampai tanggal"
                 className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
                 placeholder="Sampai"
               />

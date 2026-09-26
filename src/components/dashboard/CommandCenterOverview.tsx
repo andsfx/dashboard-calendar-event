@@ -1,18 +1,8 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  AlertTriangle,
-  CalendarClock,
-  CheckCircle2,
-  ClipboardList,
-  Clock3,
-  FileEdit,
-  MapPin,
-  Send,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, MapPin } from 'lucide-react';
 import type { CommunityRegistration, DraftEventItem, EventArea, EventItem } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
-import { MetricCard } from './MetricCard';
 import { BarList } from './BarList';
 import { Card } from './Card';
 import {
@@ -23,31 +13,31 @@ import {
 } from '../../utils/dashboardOverview';
 
 interface CommandCenterOverviewProps {
-  stats: { total: number; ongoing: number; upcoming: number; past: number };
   /** Himpunan penuh event internal untuk grafik & tabel (bukan hasil filter tabel). */
   events: EventItem[];
   areas: EventArea[];
   activeDrafts: DraftEventItem[];
   communityRegistrations: CommunityRegistration[];
-  draftsError?: string | null;
   permissions: Permissions;
 }
 
 /**
- * Isi Pusat Komando mengikuti susunan Corporate Overview: deretan kartu metrik,
- * lalu grafik kategori/utilisasi, tren bulanan & beban per area, tabel area
- * paling sering dipakai, dan bilah peringatan antrian.
+ * Analitik Pusat Komando: grafik kategori/utilisasi, tren bulanan & beban per
+ * area, tabel area paling sering dipakai, dan bilah peringatan antrian.
+ *
+ * Ia sengaja TIDAK lagi memimpin halaman. Deretan enam kartu metrik berukuran
+ * sama yang dulu ada di sini menduplikasi strip status dan register modul, dan
+ * pola itu justru yang ditolak kontrak arah (modul kritis dan pasif terbaca
+ * setara). Strip status + register kini dirender lebih dulu oleh DashboardPage.
  *
  * Warna memakai token `--wf-*` (bukan `--brand-*` referensi) supaya terang
  * identik dan tema gelap admin tetap benar.
  */
 export function CommandCenterOverview({
-  stats,
   events,
   areas,
   activeDrafts,
   communityRegistrations,
-  draftsError,
   permissions,
 }: CommandCenterOverviewProps) {
   const year = new Date().getFullYear();
@@ -61,54 +51,7 @@ export function CommandCenterOverview({
 
   return (
     <div className="space-y-6">
-      {/* 1. Kartu metrik */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Metrik utama">
-        <MetricCard
-          label="Total event"
-          value={stats.total}
-          icon={<ClipboardList className="h-5 w-5" aria-hidden />}
-          hint={`${stats.past} selesai · ${stats.upcoming} akan datang`}
-        />
-        <MetricCard
-          label="Berlangsung sekarang"
-          value={stats.ongoing}
-          icon={<CalendarClock className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-live)]"
-          hint="Sedang berjalan hari ini"
-        />
-        <MetricCard
-          label="Akan datang"
-          value={stats.upcoming}
-          icon={<Clock3 className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-accent)]"
-          hint="Terjadwal setelah hari ini"
-        />
-        <MetricCard
-          label="Selesai"
-          value={stats.past}
-          icon={<CheckCircle2 className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-ink-muted)]"
-          hint="Waktu berakhir sudah terlewat"
-        />
-        <MetricCard
-          label="Menunggu publikasi"
-          value={draftsError ? '—' : activeDrafts.length}
-          icon={<Send className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-action)]"
-          emphasis={!draftsError && activeDrafts.length > 0}
-          hint={draftsError ? 'Antrian draft gagal dimuat' : 'Draft belum diajukan'}
-        />
-        <MetricCard
-          label="Pendaftaran komunitas"
-          value={communityRegistrations.length}
-          icon={<FileEdit className="h-5 w-5" aria-hidden />}
-          tone="text-[var(--wf-action)]"
-          emphasis={pendingRegistrations > 0}
-          hint={pendingRegistrations > 0 ? `${pendingRegistrations} menunggu review` : 'Semua sudah direview'}
-        />
-      </section>
-
-      {/* 2. Utilisasi area + event per kategori */}
+      {/* 1. Utilisasi area + event per kategori */}
       <section className="grid gap-4 lg:grid-cols-3">
         <Card title="Utilisasi area">
           <div className="flex items-baseline gap-2">

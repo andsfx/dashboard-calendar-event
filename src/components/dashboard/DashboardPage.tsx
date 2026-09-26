@@ -269,21 +269,33 @@ export function DashboardPage({
         isAdmin={isAdmin}
         searchQuery={filters.searchQuery}
         onSearchChange={filters.setSearchQuery}
-        onAddNew={permissions.canEditEvents ? handlers.handleAddNew : undefined}
+        /* Only the routes that actually render the event list get the plate
+           search and the event-create action. Every other module owns its own
+           create control in the body (drafts: "Tambah Draft Event", themes:
+           "Tambah Tema", users: "Invite"/"Buat Manual"), so offering the event
+           creator here gave those pages a second, wrong primary action. */
+        searchable={dashboardPath === '/' || dashboardPath === '/events'}
+        primaryAction={
+          permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
+            ? { label: 'Tambah', onClick: handlers.handleAddNew }
+            : undefined
+        }
         dashboardPath={dashboardPath}
       />
 
-      {/* 1. Overview — susunan Corporate Overview + register modul */}
+      {/* 1. Overview — antrian lebih dulu, grafik menyusul.
+          Susunannya mengikuti kontrak arah: strip status yang dipimpin antrian,
+          lalu register modul, baru analitik. Sebelumnya halaman dibuka enam
+          kartu metrik berukuran sama — pola yang justru ditolak kontrak. */}
       {isAdmin && dashboardPath === '/' && (
         <section id="overview" className="scroll-mt-20 space-y-6">
-          <CommandCenterOverview
+          <DashboardStats
             stats={events.visibleStats}
-            events={events.events}
-            areas={siteSettings.eventAreas}
-            activeDrafts={drafts.activeDrafts}
-            communityRegistrations={registrations.communityRegistrations}
-            draftsError={drafts.draftError}
-            permissions={permissions}
+            attention={{
+              draftCount: drafts.activeDrafts.length,
+              pendingRegistrations: registrations.communityRegistrations.filter(r => r.status === 'pending').length,
+              draftsError: drafts.draftError,
+            }}
           />
           <CommandCenterSummary
             totalEvents={events.visibleStats.total}
@@ -295,6 +307,13 @@ export function DashboardPage({
             draftsError={drafts.draftError}
             permissions={permissions}
             isSuperadmin={auth.isSuperadmin}
+          />
+          <CommandCenterOverview
+            events={events.events}
+            areas={siteSettings.eventAreas}
+            activeDrafts={drafts.activeDrafts}
+            communityRegistrations={registrations.communityRegistrations}
+            permissions={permissions}
           />
         </section>
       )}

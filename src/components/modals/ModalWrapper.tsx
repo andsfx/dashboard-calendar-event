@@ -59,21 +59,49 @@ export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg',
     return () => clearTimeout(timer);
   }, [onClose, isClosing]);
 
-  // Return focus to opener after close
-  useEffect(() => {
-    if (shouldRender || !triggerRef.current) return;
-    const target = triggerRef.current;
-    triggerRef.current = null;
-    // Defer focus restoration so it runs after the DOM settles post-animation.
-    // Skip restoration when another dialog took focus in the meantime (modal chain:
-    // detail → edit/delete opens a new modal; its auto-focus already owns the user).
+  // Return focus to opener after close.
+  //
+  // Two mount styles have to be covered:
+  //  1. Persistent modals that stay mounted and flip `shouldRender` — handled by
+  //     the effect below. Guarded against the mount race where the modal mounts
+  //     with isOpen already true and this effect would "restore" focus mid-open.
+  //  2. Conditionally mounted modals (e.g. `{showDetailModal && <EventDetailModal/>}`
+  //     in DashboardModals) — closing unmounts the component, so no render ever
+  //     happens for the effect to observe. Those are handled by the unmount
+  //     cleanup, which is the only hook React guarantees on that path.
+  const hasOpenedRef = useRef(false);
+  const restoreFocus = useCallback((target: HTMLElement) => {
+    // Defer so it runs after the DOM settles post-animation, and skip when
+    // another dialog already took focus (modal chain: detail → edit/delete).
     requestAnimationFrame(() => {
       const current = document.activeElement;
       const focusTaken = current instanceof HTMLElement && current.closest('[role="dialog"]');
       if (focusTaken) return;
       if (document.contains(target)) target.focus();
     });
-  }, [shouldRender]);
+  }, []);
+
+  useEffect(() => {
+    if (shouldRender) {
+      hasOpenedRef.current = true;
+      return;
+    }
+    if (!hasOpenedRef.current) return;
+    hasOpenedRef.current = false;
+    const target = triggerRef.current;
+    triggerRef.current = null;
+    if (target) restoreFocus(target);
+  }, [shouldRender, restoreFocus]);
+
+  // Unmount path: conditionally mounted modals never reach the effect above.
+  useEffect(() => {
+    return () => {
+      if (!hasOpenedRef.current) return;
+      const target = triggerRef.current;
+      triggerRef.current = null;
+      if (target) restoreFocus(target);
+    };
+  }, [restoreFocus]);
 
   // Scroll lock + pendaftaran stack modal teratas
   useEffect(() => {

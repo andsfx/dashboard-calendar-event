@@ -210,7 +210,9 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Telepon</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Status</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">Tanggal</th>
-                  <th className="px-4 py-3" />
+                  <th className="px-4 py-3">
+                    <span className="sr-only">Aksi</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--wf-rule)]">
@@ -231,7 +233,17 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
                     <td className="px-4 py-3"><StatusBadgeReg status={reg.status} /></td>
                     <td className="px-4 py-3 text-[var(--wf-ink-muted)]">{formatDate(reg.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <Eye className="h-4 w-4 text-[var(--wf-ink-muted)]" />
+                      {/* Baris tetap klik-untuk-mouse, tapi jalur keyboard ada di
+                          tombol nyata ini: `role="button"` pada <tr> akan
+                          menghapus semantik tabel untuk pembaca layar. */}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onDetail(reg); }}
+                        aria-label={`Lihat detail pendaftaran ${reg.organizationName || reg.communityName}`}
+                        className="ui-focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
+                      >
+                        <Eye className="h-4 w-4" aria-hidden />
+                      </button>
                     </td>
                   </tr>
                 ))}

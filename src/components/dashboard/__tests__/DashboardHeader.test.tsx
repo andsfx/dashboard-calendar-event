@@ -8,7 +8,8 @@ describe('DashboardHeader', () => {
     isAdmin: true,
     searchQuery: '',
     onSearchChange: vi.fn(),
-    onAddNew: vi.fn(),
+    primaryAction: { label: 'Tambah', onClick: vi.fn() },
+    searchable: true,
     dashboardPath: '/events',
   }
 
@@ -36,9 +37,15 @@ describe('DashboardHeader', () => {
     expect(screen.getByText(/Jadwal acara publik/)).toBeInTheDocument()
   })
 
-  it('shows admin controls when isAdmin is true', () => {
+  it('shows the primary action when the route supplies one', () => {
     render(<DashboardHeader {...mockProps} />)
     expect(screen.getByText('Tambah')).toBeInTheDocument()
+  })
+
+  it('calls the primary action when clicked', () => {
+    render(<DashboardHeader {...mockProps} />)
+    fireEvent.click(screen.getByText('Tambah'))
+    expect(mockProps.primaryAction.onClick).toHaveBeenCalled()
   })
 
   it('hides admin controls when isAdmin is false', () => {
@@ -46,9 +53,23 @@ describe('DashboardHeader', () => {
     expect(screen.queryByText('Tambah')).not.toBeInTheDocument()
   })
 
-  it('calls onAddNew when Tambah button clicked', () => {
+  // Regression: the plate action was passed unconditionally, so on
+  // /dashboard/users, /analytics, /activity-log, /registrations and /drafts the
+  // button labelled "Tambah" opened the *event* creation form.
+  it('renders no primary action when the route supplies none', () => {
+    render(<DashboardHeader {...mockProps} primaryAction={undefined} dashboardPath="/users" />)
+    expect(screen.queryByText('Tambah')).not.toBeInTheDocument()
+  })
+
+  // Regression: the plate search wrote to the shared event filter, so on
+  // non-event routes it was a visible control that changed nothing.
+  it('renders the search field only on routes it can actually filter', () => {
     render(<DashboardHeader {...mockProps} />)
-    fireEvent.click(screen.getByText('Tambah'))
-    expect(mockProps.onAddNew).toHaveBeenCalled()
+    expect(screen.getByRole('searchbox')).toBeInTheDocument()
+  })
+
+  it('omits the search field on routes without an event list', () => {
+    render(<DashboardHeader {...mockProps} searchable={false} dashboardPath="/users" />)
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
   })
 })

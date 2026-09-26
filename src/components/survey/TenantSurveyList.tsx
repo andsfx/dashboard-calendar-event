@@ -395,6 +395,7 @@ export default function TenantSurveyList({
           <select
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
+            aria-label="Filter event"
             className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
           >
             <option value="all">Semua event</option>
@@ -409,6 +410,7 @@ export default function TenantSurveyList({
             <select
               value={kategoriFilter}
               onChange={(e) => setKategoriFilter(e.target.value)}
+              aria-label="Filter kategori"
               className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
             >
               <option value="all">Semua kategori</option>

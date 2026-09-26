@@ -143,7 +143,11 @@ export function AnalyticsDashboard({ events }: AnalyticsDashboardProps) {
               className="flex flex-col items-center rounded-lg p-1.5"
               style={{ backgroundColor: `color-mix(in oklab, var(--wf-accent) ${Math.round(intensity * 30)}%, transparent)` }}
             >
-              <span className="text-[10px] font-medium text-[var(--wf-ink-muted)]">{hour}:00</span>
+              {/* Tint ini meng-encode intensitas (data), jadi teksnya yang harus
+                  aman di atas tint terkuat. `--wf-ink-muted` hanya mencapai
+                  3.83–4.00:1 di atas wash 27–30% (gagal AA untuk teks kecil);
+                  `--wf-ink` member ~10:1 pada wash yang sama. */}
+              <span className="text-[10px] font-medium text-[var(--wf-ink)]">{hour}:00</span>
               <span className="text-[11px] font-bold text-[var(--wf-ink)]">{count}</span>
             </div>
           ))}

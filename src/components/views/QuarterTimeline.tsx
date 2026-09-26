@@ -75,6 +75,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               <select
                 value={selectedTheme.id}
                 onChange={e => setSelectedThemeId(e.target.value)}
+                aria-label="Pilih tema"
                 className="h-11 w-full appearance-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 pr-10 text-sm font-medium text-[var(--wf-ink)] outline-none transition-colors focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
               >
                 {themes.map(theme => (

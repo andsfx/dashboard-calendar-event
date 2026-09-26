@@ -6,22 +6,36 @@ interface DashboardHeaderProps {
   isAdmin: boolean;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onAddNew?: () => void;
+  /**
+   * The route's own primary action. Only supplied by routes that do not
+   * already own a create control in the page body — otherwise the plate would
+   * offer a second path to a different mutation. Previously every admin route
+   * passed the event creator here, so the button labelled "Tambah" opened
+   * "Tambah Acara Baru" on users, analytics, activity-log, registrations and
+   * drafts alike.
+   */
+  primaryAction?: { label: string; onClick: () => void };
+  /**
+   * Whether this route has an event list the plate search actually filters.
+   * The plate search writes to the shared event filter, so on every other
+   * route it was a visible control that changed nothing.
+   */
+  searchable?: boolean;
   /** Admin route path relative to /dashboard ('/', '/events', …) */
   dashboardPath?: string;
 }
 
 /**
- * The location plate: the route's own `h1`, its description, and its actions,
- * under a breadcrumb that states where the reader is. There is deliberately no
- * kicker line above the heading — the heading carries its own weight — and no
- * sibling index, which would only duplicate the pylon.
+ * The location plate: the route's own `h1`, its description, and its actions.
+ * There is deliberately no kicker line above the heading — the heading carries
+ * its own weight — and no sibling index, which would only duplicate the pylon.
  */
 export function DashboardHeader({
   isAdmin,
   searchQuery,
   onSearchChange,
-  onAddNew,
+  primaryAction,
+  searchable = false,
   dashboardPath = '/',
 }: DashboardHeaderProps) {
   if (!isAdmin) {
@@ -52,12 +66,14 @@ export function DashboardHeader({
         </div>
 
         <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-          <div className="w-full sm:w-[260px]">
-            <SearchBar value={searchQuery} onChange={onSearchChange} placeholder="Cari acara…" />
-          </div>
-          {onAddNew && (
-            <button onClick={onAddNew} className="wf-btn wf-btn--primary shrink-0">
-              <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>Tambah</span>
+          {searchable && (
+            <div className="w-full sm:w-[260px]">
+              <SearchBar value={searchQuery} onChange={onSearchChange} placeholder="Cari acara…" />
+            </div>
+          )}
+          {primaryAction && (
+            <button onClick={primaryAction.onClick} className="wf-btn wf-btn--primary shrink-0">
+              <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
             </button>
           )}
         </div>
