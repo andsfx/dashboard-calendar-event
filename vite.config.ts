@@ -31,8 +31,21 @@ function assertLazyEntryChunks() {
     closeBundle() {
       const assetsDir = path.join(outDir, "assets");
       if (!fs.existsSync(assetsDir)) return;
-      const entry = fs.readdirSync(assetsDir).find(f => /^index-.*\.js$/.test(f));
-      if (!entry) return;
+      const htmlPath = path.join(outDir, "index.html");
+      if (!fs.existsSync(htmlPath)) {
+        throw new Error(
+          "[assert-lazy-entry-chunks] dist/index.html tidak ada. Penjaga entry tidak boleh dilewati.",
+        );
+      }
+      const html = fs.readFileSync(htmlPath, "utf8");
+      const entryMatch = html.match(/<script type="module"[^>]*src="\/assets\/(index-[^"]+\.js)"/);
+      const entry = entryMatch?.[1];
+      if (!entry) {
+        throw new Error(
+          "[assert-lazy-entry-chunks] script entry tidak ditemukan di dist/index.html. " +
+          "Penjaga ini harus gagal, bukan diam — kalau tidak, impor statis di luar vendor lolos tanpa terdeteksi.",
+        );
+      }
       const src = fs.readFileSync(path.join(assetsDir, entry), "utf8");
       const staticImports = [...src.matchAll(/from"\.\/([A-Za-z0-9_.-]+\.js)"/g)]
         .map(m => m[1])
@@ -86,7 +99,7 @@ export default defineConfig({
           // Dengan dibiarkan, Rollup menempelkan engine ke chunk pengimpor
           // dinamisnya (buildLetterPdf/buildSchedulePdf/…), dan entry hanya
           // memuat `vendor`.
-          if (id.includes("jspdf") || id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime")) return;
+          if (id.includes("jspdf") || id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime") || id.includes("gsap")) return;
           return "vendor";
         },
       },

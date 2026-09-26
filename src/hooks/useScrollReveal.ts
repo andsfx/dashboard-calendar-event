@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { createIntersectionObserver } from '../utils/intersectionObserver';
 
+/**
+ * Reveal saat section masuk viewport. ScrollTrigger (chunk GSAP yang sama
+ * dengan entrance hero) menggerakkan `.reveal-stage > *`; class
+ * `reveal-visible` tetap dipasang supaya fallback CSS di motion.css dan
+ * pemilih tes tidak berubah. `once` — tidak diulang saat scroll balik.
+ */
 export function useScrollReveal() {
   const ref = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const target = ref.current;
+    if (!target) return;
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) {
@@ -14,37 +21,51 @@ export function useScrollReveal() {
       return;
     }
 
-    const target = ref.current;
-    if (!target) return;
+    let cancelled = false;
+    let kill: (() => void) | undefined;
 
-    const observer = createIntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer?.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        // threshold 0 fires on any intersection. A higher threshold (e.g. 0.24)
-        // can never be met when the target is taller than ~4x the viewport —
-        // which happens on mobile stacked layouts (e.g. the community events
-        // section), leaving the section stuck at opacity 0.
-        threshold: 0,
-        rootMargin: '0px 0px -16% 0px',
-      }
-    );
+    // Import dinamis: GSAP + ScrollTrigger hanya boleh ikut chunk halaman yang
+    // memakai reveal, bukan bundle boot. Lihat manualChunks di vite.config.ts.
+    void import('gsap')
+      .then(async ({ default: gsap }) => {
+        if (cancelled) return;
+        const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+        if (cancelled) return;
+        gsap.registerPlugin(ScrollTrigger);
 
-    // No IntersectionObserver (very old browsers): never leave content hidden.
-    if (!observer) {
-      setIsVisible(true);
-      return;
-    }
+        const items = target.querySelectorAll<HTMLElement>('.reveal-stage > *');
+        const tweened = items.length > 0 ? items : [target];
+        gsap.set(tweened, { animation: 'none', transition: 'none' });
 
-    observer.observe(target);
+        const tween = gsap.fromTo(
+          tweened,
+          { autoAlpha: 0, y: 16 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            ease: 'power3.out',
+            stagger: 0.06,
+            overwrite: 'auto',
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: target,
+              start: 'top 84%',
+              once: true,
+              onEnter: () => setIsVisible(true),
+            },
+          },
+        );
+        kill = () => tween.kill();
+      })
+      .catch(() => {
+        if (!cancelled) setIsVisible(true);
+      });
 
-    return () => observer.disconnect();
+    return () => {
+      cancelled = true;
+      kill?.();
+    };
   }, []);
 
   return { ref, isVisible };

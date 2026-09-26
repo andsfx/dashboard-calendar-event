@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { ArrowRight, CalendarDays, CheckCircle2, Music, Users } from 'lucide-react';
 import heroFallbackImage from '../../assets/landing/hero-fallback.webp';
 import heroFallbackImageSm from '../../assets/landing/hero-fallback-800.webp';
@@ -6,6 +7,7 @@ import { formatDateRange } from '../../utils/eventUtils';
 import type { EventItem } from '../../types';
 import { formatCount, formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
+import { useCommunityHeroMotion } from './useCommunityHeroMotion';
 
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3
  * redesign: solid brand CTA, honest badge, LCP static hero — no invented metrics
@@ -35,6 +37,8 @@ interface CommunityHeroProps {
 }
 
 export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = false }: CommunityHeroProps) {
+  const heroRef = useRef<HTMLElement>(null);
+  useCommunityHeroMotion(heroRef);
   const completed = stats?.completed ?? 0;
   const loading = isLoading || stats === undefined;
   // M7 (skill 4.8): the `hero_image` site setting defaults to ''
@@ -85,6 +89,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
   return (
     <>
       <section
+        ref={heroRef}
         id="hero"
         className="relative isolate flex min-h-[100svh] items-center overflow-hidden"
       >

@@ -27,6 +27,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
+    "gsap": "^3.15.0",
     "jose": "^5.10.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
