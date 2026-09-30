@@ -105,6 +105,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     heroImageUrl: site.heroImageUrl,
     landingAlbums: site.landingAlbums,
     eventAreas: site.eventAreas,
+    refreshEventAreas: site.refreshEventAreas,
     showNewsManager: site.showNewsManager,
     setShowNewsManager: site.setShowNewsManager,
     showSponsorManager: site.showSponsorManager,

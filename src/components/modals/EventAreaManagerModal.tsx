@@ -21,7 +21,7 @@ import {
   createEventArea,
   deleteEventArea,
   deleteAreaPhoto,
-  fetchEventAreas,
+  fetchAllEventAreas,
   fetchAreaPhotos,
   fetchLocationMapping,
   applyLocationMapping,
@@ -37,12 +37,20 @@ import { useConfirmDialog } from './ConfirmDialog';
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
+  /**
+   * Dipanggil setelah daftar area berubah (tambah/ubah/hapus/aktif-sembunyi/urut).
+   * Modal ini memakai daftar admin (termasuk area tersembunyi) yang tidak
+   * disegarkan oleh state `eventAreas` di App, sedangkan dropdown area pada form
+   * event membaca state itu — tanpa callback ini, area yang baru diaktifkan
+   * belum muncul di form sampai halaman dimuat ulang.
+   */
+  onAreasChanged?: () => void | Promise<void>;
 }
 
 const MAX_PHOTOS = 20;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export function EventAreaManagerModal({ readOnly = false }: Props) {
+export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Props) {
   const [view, setView] = useState<'list' | 'detail' | 'mapping'>('list');
   const [areas, setAreas] = useState<EventArea[]>([]);
   const [selectedArea, setSelectedArea] = useState<EventArea | null>(null);
@@ -139,7 +147,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
     setIsLoading(true);
     setError('');
     try {
-      setAreas(await fetchEventAreas());
+      setAreas(await fetchAllEventAreas());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat area');
     } finally {
@@ -212,6 +220,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
       resetForm();
       setIsLoading(true);
       await loadAreas();
+      await onAreasChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menyimpan area');
     } finally {
@@ -236,6 +245,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
         setView('list');
       }
       await loadAreas();
+      await onAreasChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menghapus area');
     } finally {
@@ -251,6 +261,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
       if (selectedArea?.id === area.id) {
         setSelectedArea({ ...selectedArea, isActive: !area.isActive });
       }
+      await onAreasChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal mengubah status area');
     }
@@ -279,7 +290,7 @@ export function EventAreaManagerModal({ readOnly = false }: Props) {
     setIsLoading(true);
     setError('');
     try {
-      const latest = await fetchEventAreas();
+      const latest = await fetchAllEventAreas();
       const fresh = latest.find(a => a.id === area.id) ?? area;
       setSelectedArea(fresh);
       setAreas(latest);

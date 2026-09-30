@@ -19,6 +19,7 @@ interface DbAreaPhotoRow {
 interface DbAlbumsResponse { albums: DbAlbumRow[]; photos: DbEventPhotoRow[]; }
 interface DbAlbumDetailResponse { album: DbAlbumRow; photos: DbEventPhotoRow[]; }
 interface DbAreasResponse { areas: DbEventAreaRow[]; photos: DbAreaPhotoRow[]; }
+interface DbAdminAreasResponse { success: boolean; error?: string; areas: DbEventAreaRow[]; photos: DbAreaPhotoRow[]; }
 
 // ─── Event Photos ───────────────────────────────────────────────
 
@@ -181,14 +182,36 @@ interface DbEventAreaRow {
   is_active: boolean;
 }
 
-export async function fetchEventAreas(): Promise<EventArea[]> {
-  const { areas, photos } = await apiGet<DbAreasResponse>('/areas');
-  // Server sudah filter is_active = true; hitung foto per area dari payload.
+/** Hitung foto per area dari payload `photos` (dipakai kedua fetcher area). */
+function countPhotosByArea(photos: DbAreaPhotoRow[] | undefined): Map<string, number> {
   const countMap = new Map<string, number>();
   for (const p of photos || []) {
     if (p.area_id) countMap.set(p.area_id, (countMap.get(p.area_id) || 0) + 1);
   }
+  return countMap;
+}
+
+/**
+ * Daftar area untuk **publik** (landing): hanya area aktif — `GET /areas`
+ * memang memfilter `is_active = true` di server.
+ */
+export async function fetchEventAreas(): Promise<EventArea[]> {
+  const { areas, photos } = await apiGet<DbAreasResponse>('/areas');
+  const countMap = countPhotosByArea(photos);
   return (areas || []).map(row => dbEventAreaToEventArea(row as DbEventAreaRow, countMap.get((row as DbEventAreaRow).id) || 0));
+}
+
+/**
+ * Daftar area untuk **admin**: termasuk yang disembunyikan (`is_active = false`).
+ * Wajib terpisah dari `fetchEventAreas` — kalau modal pengelola memakai daftar
+ * publik, area yang dinonaktifkan hilang dari daftar dan tidak bisa
+ * diaktifkan kembali lagi dari UI.
+ */
+export async function fetchAllEventAreas(): Promise<EventArea[]> {
+  const result = await adminAction<DbAdminAreasResponse>('listEventAreas', {});
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat area event');
+  const countMap = countPhotosByArea(result.photos);
+  return (result.areas || []).map(row => dbEventAreaToEventArea(row, countMap.get(row.id) || 0));
 }
 
 /** DB → app mapper (boundary: snake_case → camelCase, pola dbAlbum → PhotoAlbum). */

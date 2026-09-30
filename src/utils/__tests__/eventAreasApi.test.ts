@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { dbEventAreaToEventArea, fetchEventAreas, updateAreaPhotoOrder } from '../api/albumsApi';
+import { dbEventAreaToEventArea, fetchAllEventAreas, fetchEventAreas, updateAreaPhotoOrder } from '../api/albumsApi';
 
 /**
  * Mock global fetch routing per REST URL (VITE_API_URL kosong di test →
@@ -118,6 +118,50 @@ describe('Foto Area Event — albumsApi', () => {
         '/api/v1/areas': { status: 503, body: { success: false, error: 'Database tidak tersedia' } },
       });
       await expect(fetchEventAreas()).rejects.toThrow(/Database tidak tersedia/);
+    });
+  });
+
+  // -------------------------------------------------------
+  // fetchAllEventAreas — POST /admin/listEventAreas
+  // Regresi: modal admin dulu memakai GET /areas yang memfilter is_active,
+  // sehingga area yang disembunyikan hilang dari daftar pengelolanya sendiri
+  // dan tidak bisa diaktifkan kembali dari UI.
+  // -------------------------------------------------------
+  describe('fetchAllEventAreas', () => {
+    it('keeps hidden areas so they can be re-activated from the admin list', async () => {
+      mockFetchRoutes({
+        '/api/v1/admin/listEventAreas': {
+          body: {
+            success: true,
+            areas: [
+              { id: 'era_1', name: 'Musholla Lt. 3', description: '', cover_photo_url: '', sort_order: 2, is_active: false },
+              { id: 'era_2', name: 'Parkir Timur', description: '', cover_photo_url: '', sort_order: 5, is_active: true },
+            ],
+            photos: [
+              { id: 'aph_1', area_id: 'era_1', url: '', caption: '', sort_order: 0 },
+            ],
+          },
+        },
+      });
+
+      const areas = await fetchAllEventAreas();
+
+      expect(areas).toHaveLength(2);
+      const hidden = areas.find(a => a.id === 'era_1');
+      expect(hidden?.isActive).toBe(false);
+      expect(hidden?.name).toBe('Musholla Lt. 3');
+      expect(hidden?.photoCount).toBe(1);
+    });
+
+    it('sends the action name and throws on server error', async () => {
+      mockFetchRoutes({
+        '/api/v1/admin/listEventAreas': { status: 500, body: { success: false, error: 'Gagal memuat area event' } },
+      });
+
+      await expect(fetchAllEventAreas()).rejects.toThrow(/Gagal memuat area event/);
+      const [url, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('/api/v1/admin/listEventAreas');
+      expect(JSON.parse(String(init.body)).action).toBe('listEventAreas');
     });
   });
 

@@ -95,6 +95,7 @@ const ACTION_SCHEMAS = {
     data: z.array(z.object({ id: z.string(), sortOrder: z.number() })),
   }),
   getLocationMapping: z.object({ action: z.literal('getLocationMapping') }),
+  listEventAreas: z.object({ action: z.literal('listEventAreas') }),
   applyLocationMapping: z.object({
     action: z.literal('applyLocationMapping'),
     mappings: z.array(z.object({

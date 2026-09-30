@@ -46,6 +46,7 @@ export {
 
 export {
   fetchEventAreas,
+  fetchAllEventAreas,
   createEventArea,
   updateEventArea,
   deleteEventArea,

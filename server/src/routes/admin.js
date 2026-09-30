@@ -511,6 +511,18 @@ async function switchAction(action, req) {
     }
 
     // ══════════ EVENT AREAS + FOTO AREA ══════════
+    // Daftar area untuk admin: TANPA filter is_active. `GET /areas` publik
+    // hanya mengirim area aktif (memang seharusnya), tapi modal admin memakai
+    // endpoint itu juga — sehingga area yang disembunyikan lenyap dari daftar
+    // pengelolanya sendiri dan tidak bisa diaktifkan kembali dari UI.
+    case 'listEventAreas': {
+      const [areas, photos] = await Promise.all([
+        db.query('SELECT * FROM event_areas ORDER BY sort_order ASC, name ASC'),
+        db.query('SELECT * FROM area_photos ORDER BY sort_order ASC'),
+      ]);
+      return { success: true, areas: areas.rows, photos: photos.rows };
+    }
+
     case 'createEventArea': {
       const data = body.data || {};
       const columns = [];

@@ -165,6 +165,8 @@ export interface DashboardPageSiteSettings {
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
   eventAreas: EventArea[];
+  /** Muat ulang daftar area (hanya yang aktif) — dipanggil setelah pengelolaan area berubah. */
+  refreshEventAreas: () => Promise<void>;
 }
 
 export interface DashboardPageProps {
@@ -596,7 +598,7 @@ export function DashboardPage({
       {permissions.canViewSettings && dashboardPath === '/content/foto-area' && (
         <section id="content-foto-area" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <EventAreaManagerModal readOnly={readOnly} />
+            <EventAreaManagerModal readOnly={readOnly} onAreasChanged={siteSettings.refreshEventAreas} />
           </Suspense>
         </section>
       )}

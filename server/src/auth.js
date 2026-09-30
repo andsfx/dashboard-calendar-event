@@ -59,6 +59,7 @@ export const DEMO_READ_ACTIONS = new Set([
   'listNewsArticles',
   'listSponsorLeads',
   'getLocationMapping',
+  'listEventAreas',
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',

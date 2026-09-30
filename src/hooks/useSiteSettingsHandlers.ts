@@ -26,6 +26,8 @@ export interface SiteSettingsHandlersResult {
   heroImageUrl: string;
   landingAlbums: PhotoAlbum[];
   eventAreas: EventArea[];
+  /** Muat ulang daftar area (publik, hanya yang aktif) setelah pengelolaan area berubah. */
+  refreshEventAreas: () => Promise<void>;
   handleSaveInstagramPosts: (posts: string[]) => Promise<boolean>;
   handleSaveHeroImage: (url: string) => Promise<boolean>;
   handleLogout: () => void;
@@ -45,6 +47,14 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
   const [landingAlbums, setLandingAlbums] = useState<PhotoAlbum[]>([]);
   const [eventAreas, setEventAreas] = useState<EventArea[]>([]);
 
+  const refreshEventAreas = useCallback(async () => {
+    try {
+      setEventAreas(await fetchEventAreas());
+    } catch {
+      // Best-effort: dropdown area tetap memakai daftar terakhir yang valid.
+    }
+  }, []);
+
   useEffect(() => {
     fetchSiteSettings<string[]>('instagram_posts').then(posts => {
       if (posts && Array.isArray(posts)) setInstagramPosts(posts);
@@ -53,8 +63,8 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
       if (url && typeof url === 'string') setHeroImageUrl(url);
     }).catch(() => {});
     fetchAlbums().then(setLandingAlbums).catch(() => {});
-    fetchEventAreas().then(setEventAreas).catch(() => {});
-  }, []);
+    refreshEventAreas();
+  }, [refreshEventAreas]);
 
   const handleSaveInstagramPosts = useCallback(async (posts: string[]) => {
     try {
@@ -92,7 +102,7 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
     showNewsManager, setShowNewsManager,
     showSponsorManager, setShowSponsorManager,
     showEventAreaManager, setShowEventAreaManager,
-    heroImageUrl, landingAlbums, eventAreas,
+    heroImageUrl, landingAlbums, eventAreas, refreshEventAreas,
     handleSaveInstagramPosts, handleSaveHeroImage,
     handleLogout,
   };
