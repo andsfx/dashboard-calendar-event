@@ -7,7 +7,7 @@ import { EventTable } from '../events/EventTable';
 import { DashboardCalendarView } from '../dashboard/DashboardCalendarView';
 import { KanbanView } from './KanbanView';
 import { TimelineView } from './TimelineView';
-import { downloadEventsSchedulePdf, filterScheduleEventsForPdf } from '../../utils/eventsSchedulePdf';
+import { renderEventsSchedulePdfResult, filterScheduleEventsForPdf } from '../../utils/eventsSchedulePdf';
 import { formatIsoId } from '../../utils/exportDateRange';
 import type { SchedulePdfSection } from '../pdf/buildSchedulePdf';
 import { SCHEDULE_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
@@ -98,7 +98,7 @@ export function DashboardViewsSection(props: Props) {
 
   const handleExportSchedulePdf = async (sections: string[]) => {
     if (!canExportSchedulePdf || exportScope.selected.length === 0) return;
-    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
+    return renderEventsSchedulePdfResult(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
   const activeFilterCount = [

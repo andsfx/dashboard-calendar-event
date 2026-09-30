@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Download, Loader2, X, FileText, CalendarDays, Palette, ArrowLeft, Eye } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Loader2, X, FileText, CalendarDays, Palette, Eye } from 'lucide-react';
 import type { AnnualTheme, EventPhoto, PhotoAlbum } from '../../types';
 import { apiGet } from '../../lib/rest';
-import { downloadBlob, safeFileName } from '../../lib/download';
+import { safeFileName } from '../../lib/download';
 import { generateAlbumPdf, type AlbumPdfSection, type AlbumWithPhotos } from '../../utils/pdfExport';
 import { describeRange, formatIsoId } from '../../utils/exportDateRange';
-import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
+import { PdfExportOptionsModal, type PdfExportResult } from '../pdf/PdfExportOptionsModal';
+import { PdfPreviewStage } from '../pdf/PdfPreviewStage';
 import { ExportScopePicker } from '../pdf/ExportScopePicker';
 import { useExportScope } from '../pdf/useExportScope';
 import { ALBUM_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
@@ -63,16 +64,8 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [progressText, setProgressText] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [preview, setPreview] = useState<PdfExportResult | null>(null);
   const [isSectionPickerOpen, setIsSectionPickerOpen] = useState(false);
-
-  // Cleanup preview URL on unmount
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   const selectedTheme = useMemo(
     () => themes.find(theme => theme.id === themeId) || null,
@@ -137,41 +130,40 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       );
       setProgressText('Membuat PDF…');
 
-      // Show preview instead of direct download
-      const url = URL.createObjectURL(blob);
-      setPreviewUrl(url);
-      setPreviewBlob(blob);
+      // Hasil ditahan sebagai pratinjau; unduhan baru terjadi setelah
+      // pengguna memastikan dokumennya sudah benar.
+      const rangeSuffix = scope.period === 'all' ? '' : describeRange(scope.range).toLowerCase();
+      const suffix = selectedTheme?.name || rangeSuffix || 'all';
+      setPreview({
+        blob,
+        fileName: `${safeFileName(`dokumentasi-event-${suffix}`.toLowerCase(), 'album-export')}.pdf`,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal membuat PDF.';
       setErrorMessage(message);
+      throw error;
     } finally {
       setIsGenerating(false);
       setProgressText('');
     }
   };
 
-  const handleDownload = () => {
-    if (!previewBlob) return;
-    const rangeSuffix = scope.period === 'all' ? '' : describeRange(scope.range).toLowerCase();
-    const suffix = selectedTheme?.name || rangeSuffix || 'all';
-    downloadBlob(previewBlob, `${safeFileName(`dokumentasi-event-${suffix}`.toLowerCase(), 'album-export')}.pdf`);
-  };
-
   const handleBackToFilter = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(null);
-    setPreviewBlob(null);
+    setPreview(null);
     setErrorMessage('');
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={previewUrl ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={preview ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
+      {preview ? (
+        <PdfPreviewStage result={preview} onBack={handleBackToFilter} onClose={onClose} />
+      ) : (
       <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight">{previewUrl ? 'Preview PDF' : 'Export Album Foto'}</h2>
-            <p className="mt-1 text-sm ui-text-muted">{previewUrl ? 'Cek dulu hasilnya sebelum download.' : 'Generate report landscape berdasarkan tanggal atau tema event.'}</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight">Export Album Foto</h2>
+            <p className="mt-1 text-sm ui-text-muted">Generate report landscape berdasarkan tanggal atau tema event.</p>
           </div>
           <button
             onClick={onClose}
@@ -182,16 +174,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
           </button>
         </div>
 
-        {previewUrl ? (
-          <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
-            <iframe
-              src={previewUrl}
-              title="Preview PDF"
-              className="h-[70vh] w-full rounded-2xl border border-slate-200 bg-white shadow-inner dark:border-slate-800"
-            />
-          </div>
-        ) : (
-          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
@@ -259,50 +242,27 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             {errorMessage ? <p className="mt-3 text-sm text-red-600 dark:text-red-400">{errorMessage}</p> : null}
           </div>
         </div>
-        )}
 
         <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-          {previewUrl ? (
-            <>
-              <button
-                type="button"
-                onClick={handleBackToFilter}
-                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Kembali
-              </button>
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
-              >
-                <Download className="h-4 w-4" />
-                Download PDF
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsSectionPickerOpen(true)}
-                disabled={!canGenerate}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
-              >
-                {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-                {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSectionPickerOpen(true)}
+            disabled={!canGenerate}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
+          >
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+            {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
+          </button>
         </div>
       </div>
+      )}
 
       <PdfExportOptionsModal
         isOpen={isSectionPickerOpen}

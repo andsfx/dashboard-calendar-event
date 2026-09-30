@@ -6,9 +6,12 @@ import TenantSurveyResultsPage from '../TenantSurveyResultsPage';
 
 // Jalur ekspor hasil evaluasi: tombol membuka pemilih bagian, lalu bagian
 // terpilih diteruskan ke generator PDF.
-const downloadMock = vi.hoisted(() => vi.fn(async () => {}));
+const resultMock = vi.hoisted(() => vi.fn(async () => ({
+  blob: new Blob(['%PDF-1.4']),
+  fileName: 'hasil-evaluasi-tenant-semua-event-2026-09-30.pdf',
+})));
 vi.mock('../../../utils/tenantSurveyResultsPdf', () => ({
-  downloadTenantSurveyResultsPdf: downloadMock,
+  renderTenantSurveyResultsPdfResult: resultMock,
 }));
 
 const SURVEYS = [
@@ -58,10 +61,10 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
     expect(labels).toContain('Top Gerai');
     expect(labels).toContain('Cross-tab');
     expect(labels).toContain('Cuplikan Feedback');
-    expect(downloadMock).not.toHaveBeenCalled();
+    expect(resultMock).not.toHaveBeenCalled();
   });
 
-  it('meneruskan bagian terpilih ke generator', async () => {
+  it('meneruskan bagian terpilih lalu menahan hasilnya di pratinjau', async () => {
     surveyHook.surveys = SURVEYS;
     render(<TenantSurveyResultsPage events={EVENTS} canExport />);
     fireEvent.click(screen.getByRole('button', { name: /Export PDF/i }));
@@ -70,10 +73,14 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: /Kosongkan/ }));
     fireEvent.click(within(dialog).getByRole('checkbox', { name: /Ringkasan KPI/ }));
-    fireEvent.click(within(dialog).getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [, options] = downloadMock.mock.calls[0] as unknown as [unknown, { sections: string[] }];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [, options] = resultMock.mock.calls[0] as unknown as [unknown, { sections: string[] }];
     expect(options).toEqual({ sections: ['kpi'] });
+
+    // Dokumen ditahan sebagai pratinjau; unduhan baru setelah dikonfirmasi.
+    expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeInTheDocument();
   });
 });

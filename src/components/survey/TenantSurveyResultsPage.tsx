@@ -30,7 +30,7 @@ import {
   filterSurveys,
   type ResultsFilter,
 } from '../../utils/tenantSurveyResultsAggregate';
-import { downloadTenantSurveyResultsPdf } from '../../utils/tenantSurveyResultsPdf';
+import { renderTenantSurveyResultsPdfResult } from '../../utils/tenantSurveyResultsPdf';
 import type { SurveyPdfSection } from '../pdf/buildSurveyResultsPdf';
 import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
 import { SURVEY_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
@@ -312,7 +312,7 @@ export default function TenantSurveyResultsPage({
     if (!canExport) return;
     setExportError('');
     try {
-      await downloadTenantSurveyResultsPdf(
+      return await renderTenantSurveyResultsPdfResult(
         {
           aggregate: agg,
           filter,

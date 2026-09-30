@@ -1,5 +1,5 @@
 import type { EventItem } from '../types';
-import { downloadBlob, safeFileName } from '../lib/download';
+import { safeFileName } from '../lib/download';
 import type { SchedulePdfSection } from '../components/pdf/buildSchedulePdf';
 
 // Dynamic import (pengecualian ts-no-dynamic-import): boundary code-splitting
@@ -44,10 +44,16 @@ export async function renderEventsSchedulePdfBlob(
   }).output('blob');
 }
 
-export async function downloadEventsSchedulePdf(
+/** Blob + nama berkas unduhan — dipakai tahap pratinjau sebelum mengunduh. */
+export interface SchedulePdfResult {
+  blob: Blob;
+  fileName: string;
+}
+
+export async function renderEventsSchedulePdfResult(
   events: EventItem[],
   options: SchedulePdfOptions = {},
-): Promise<void> {
+): Promise<SchedulePdfResult> {
   const blob = await renderEventsSchedulePdfBlob(events, options);
-  downloadBlob(blob, safeFileName(scheduleFileName().replace(/\.pdf$/, '')) + '.pdf');
+  return { blob, fileName: safeFileName(scheduleFileName().replace(/\.pdf$/, '')) + '.pdf' };
 }

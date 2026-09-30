@@ -94,6 +94,19 @@ describe('ExportPdfModal — cakupan album', () => {
     expect(payload.map((entry) => entry.album.id)).toEqual(['a1', 'a3']);
   });
 
+  it('menampilkan pratinjau album setelah generate, bukan langsung mengunduh', async () => {
+    renderModal();
+
+    const dialog = await openSectionPicker();
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+
+    await waitFor(() => expect(generateMock).toHaveBeenCalledTimes(1));
+    // Pemilih bagian menutup; modal album yang menampilkan pratinjau.
+    expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
+    expect(screen.getByText(/Cek dulu hasilnya/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeInTheDocument();
+  });
+
   it('tidak bisa membuka pemilih bagian saat tidak ada album terpilih', () => {
     renderModal();
 

@@ -40,10 +40,31 @@ describe('PdfExportOptionsModal', () => {
   it('mengirim bagian yang dipilih saat generate', async () => {
     const { onGenerate, onClose } = renderModal();
     fireEvent.click(screen.getByRole('checkbox', { name: /Agenda per Area/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
 
     await vi.waitFor(() => expect(onGenerate).toHaveBeenCalledWith(['summary', 'table', 'areas']));
+    // Generator tanpa hasil (menangani unduhannya sendiri) → dialog langsung tutup.
     await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
+  });
+
+  it('menahan hasil di pratinjau bila generator mengembalikan blob', async () => {
+    const result = { blob: new Blob(['%PDF-1.4']), fileName: 'jadwal-event.pdf' };
+    const generate = vi.fn(async () => result);
+    const { onClose } = renderModal({ onGenerate: generate });
+
+    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
+
+    await vi.waitFor(() => expect(generate).toHaveBeenCalledTimes(1));
+    expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
+    expect(screen.getByText(/jadwal-event\.pdf/)).toBeInTheDocument();
+    // Belum ditutup dan belum diunduh: dokumen menunggu dikonfirmasi.
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeInTheDocument();
+
+    // "Kembali" mengembalikan ke pemilihan bagian, bukan menutup dialog.
+    fireEvent.click(screen.getByRole('button', { name: /Kembali/ }));
+    expect(screen.getByText('Tabel Jadwal')).toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('bagian wajib tidak bisa dimatikan', () => {
@@ -56,7 +77,7 @@ describe('PdfExportOptionsModal', () => {
 
   it('menonaktifkan tombol saat tidak ada bagian dipilih', () => {
     renderModal({ defaultSelected: [] });
-    expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Preview PDF/ })).toBeDisabled();
   });
 
   it('Pilih semua / Kosongkan bekerja pada bagian yang bisa diubah', () => {
@@ -76,7 +97,7 @@ describe('PdfExportOptionsModal', () => {
       throw new Error('Gagal membuat PDF.');
     });
     renderModal({ onGenerate });
-    fireEvent.click(screen.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
     expect(await screen.findByText('Gagal membuat PDF.')).toBeInTheDocument();
   });
 

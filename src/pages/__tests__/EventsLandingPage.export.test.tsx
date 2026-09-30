@@ -8,9 +8,12 @@ import { EventsLandingPage } from '../EventsLandingPage';
 // Jalur ekspor PDF di halaman publik: tombol membuka pemilih bagian, lalu
 // generate memakai bagian yang dipilih. Rest API-nya di-mock (halaman ini
 // membaca lewat props, jadi tidak perlu server).
-const downloadMock = vi.hoisted(() => vi.fn(async () => {}));
+const resultMock = vi.hoisted(() => vi.fn(async () => ({
+  blob: new Blob(['%PDF-1.4']),
+  fileName: 'jadwal-event-metmal-2026-09-30.pdf',
+})));
 vi.mock('../../utils/eventsSchedulePdf', () => ({
-  downloadEventsSchedulePdf: downloadMock,
+  renderEventsSchedulePdfResult: resultMock,
 }));
 
 function ev(partial: Partial<EventItem> & Pick<EventItem, 'id' | 'status' | 'acara'>): EventItem {
@@ -52,7 +55,7 @@ async function openExportDialog() {
 }
 
 beforeEach(() => {
-  downloadMock.mockClear();
+  resultMock.mockClear();
 });
 
 describe('EventsLandingPage — ekspor PDF', () => {
@@ -64,7 +67,7 @@ describe('EventsLandingPage — ekspor PDF', () => {
     expect(screen.getByText('Tabel Jadwal')).toBeInTheDocument();
     expect(screen.getByText('Agenda per Area')).toBeInTheDocument();
     expect(screen.getByText('Kontak Penyelenggara')).toBeInTheDocument();
-    expect(downloadMock).not.toHaveBeenCalled();
+    expect(resultMock).not.toHaveBeenCalled();
   });
 
   it('mengirim bagian yang dipilih ke generator', async () => {
@@ -72,13 +75,26 @@ describe('EventsLandingPage — ekspor PDF', () => {
     const dialog = await openExportDialog();
 
     fireEvent.click(dialog.getByRole('checkbox', { name: /Kontak Penyelenggara/ }));
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents, options] = downloadMock.mock.calls[0] as unknown as [EventItem[], { sections: string[] }];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents, options] = resultMock.mock.calls[0] as unknown as [EventItem[], { sections: string[] }];
     // Tanpa filter periode, seluruh event ikut.
     expect(sentEvents).toHaveLength(4);
     expect(options).toEqual({ sections: ['summary', 'table', 'contacts'] });
+  });
+
+  it('menahan dokumen di pratinjau sebelum diunduh', async () => {
+    renderPage();
+    const dialog = await openExportDialog();
+
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+
+    expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
+    expect(screen.getByText(/Cek dulu hasilnya/)).toBeInTheDocument();
+    // Kembali ke pemilihan, bukan menutup dialog.
+    fireEvent.click(screen.getByRole('button', { name: /Kembali/ }));
+    expect(screen.getByText('Tabel Jadwal')).toBeInTheDocument();
   });
 
   it('tidak bisa mematikan bagian tabel jadwal', async () => {
@@ -112,22 +128,22 @@ describe('EventsLandingPage — cakupan event', () => {
     const dialog = await openExportDialog();
 
     fireEvent.click(dialog.getByRole('checkbox', { name: /Grand Sale Metropolitan/ }));
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = resultMock.mock.calls[0] as unknown as [EventItem[], unknown];
     expect(sentEvents.map((event) => event.id).sort()).toEqual(['e1', 'e3', 'e4']);
   });
 
-  it('mematikan unduh saat tidak ada event terpilih', async () => {
+  it('mematikan tombol pratinjau saat tidak ada event terpilih', async () => {
     renderPage();
     const dialog = await openExportDialog();
 
     fireEvent.click(dialog.getByRole('button', { name: 'Kosongkan pilihan event' }));
 
     expect(dialog.getByText(/Pilih minimal satu event/)).toBeInTheDocument();
-    expect(dialog.getByRole('button', { name: /Unduh PDF/ })).toBeDisabled();
-    expect(downloadMock).not.toHaveBeenCalled();
+    expect(dialog.getByRole('button', { name: /Preview PDF/ })).toBeDisabled();
+    expect(resultMock).not.toHaveBeenCalled();
   });
 
   it('menerapkan rentang khusus yang diisi pengguna', async () => {
@@ -140,9 +156,9 @@ describe('EventsLandingPage — cakupan event', () => {
 
     expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
 
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = resultMock.mock.calls[0] as unknown as [EventItem[], unknown];
     expect(sentEvents.map((event) => event.id)).toEqual(['e3']);
   });
 
@@ -204,10 +220,10 @@ describe('EventsLandingPage — preset Tema', () => {
     const dialog = await openExportDialog();
 
     fireEvent.click(dialog.getByRole('button', { name: 'Tema' }));
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = resultMock.mock.calls[0] as unknown as [EventItem[], unknown];
     expect(sentEvents.map((event) => event.id)).toEqual(['e3']);
   });
 });
@@ -246,10 +262,10 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
     renderWith('/events?kategori=Seni');
     const dialog = await openExportDialog();
 
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = resultMock.mock.calls[0] as unknown as [EventItem[], unknown];
     expect(sentEvents.map((event) => event.id)).toEqual(['f2']);
   });
 
@@ -317,9 +333,9 @@ describe('EventsLandingPage — abaikan filter halaman', () => {
     fireEvent.click(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ }));
     expect(dialog.getByText('2 event pada periode ini')).toBeInTheDocument();
 
-    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    fireEvent.click(dialog.getByRole('button', { name: /Preview PDF/ }));
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = resultMock.mock.calls[0] as unknown as [EventItem[], unknown];
     expect(sentEvents.map((event) => event.id).sort()).toEqual(['m2', 'm3']);
   });
 

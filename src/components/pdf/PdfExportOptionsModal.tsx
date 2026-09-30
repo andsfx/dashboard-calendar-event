@@ -1,13 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Check, Download, Loader2, X } from 'lucide-react';
+import { ArrowLeft, Check, Download, Loader2, X } from 'lucide-react';
+import { downloadBlob } from '../../lib/download';
 import { ModalWrapper } from '../modals/ModalWrapper';
 
 // ============================================================
-// Pemilih bagian dokumen PDF.
+// Pemilih bagian dokumen PDF + pratinjau sebelum unduh.
 //
 // Dipakai bersama oleh ekspor Jadwal Event, Album Foto, dan Hasil
 // Evaluasi Tenant supaya perilaku "pilih bagian" konsisten di seluruh
 // aplikasi (satu komponen, satu gaya, satu aturan minimum).
+//
+// Dua tahap: **pilih** lalu **pratinjau**. `onGenerate` yang mengembalikan
+// blob menahan hasilnya sebagai pratinjau; dokumen baru benar-benar
+// terunduh setelah pengguna menekan "Unduh PDF". Sebelumnya tiap permukaan
+// mengunduh langsung, jadi salah setelan berarti unduhan terbuang dan harus
+// diulang dari awal.
 // ============================================================
 
 export interface PdfSectionOption {
@@ -15,6 +22,12 @@ export interface PdfSectionOption {
   id: string;
   label: string;
   hint?: string;
+}
+
+/** Hasil generate yang siap dipratinjau: blob + nama berkas unduhannya. */
+export interface PdfExportResult {
+  blob: Blob;
+  fileName: string;
 }
 
 interface Props {
@@ -27,7 +40,12 @@ interface Props {
   defaultSelected: string[];
   /** Bagian yang wajib ada; tidak bisa dimatikan. */
   requiredSections?: string[];
-  onGenerate: (selected: string[]) => void | Promise<void>;
+  /**
+   * Membuat dokumen. Mengembalikan blob untuk menampilkan tahap pratinjau;
+   * mengembalikan `undefined` (atau tidak mengembalikan apa pun) berarti
+   * dokumen sudah ditangani sendiri oleh pemanggil dan modal langsung tutup.
+   */
+  onGenerate: (selected: string[]) => void | Promise<void | PdfExportResult>;
   /** Kontrol tambahan di bawah daftar bagian (mis. filter album). */
   children?: React.ReactNode;
   generateLabel?: string;
@@ -45,12 +63,14 @@ export function PdfExportOptionsModal({
   requiredSections = [],
   onGenerate,
   children,
-  generateLabel = 'Unduh PDF',
+  generateLabel = 'Preview PDF',
   canGenerate: canGenerateProp,
 }: Props) {
   const [selected, setSelected] = useState<string[]>(defaultSelected);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [preview, setPreview] = useState<PdfExportResult | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const wasOpen = useRef(false);
 
   // Reset pilihan setiap kali modal dibuka, bukan saat ditutup — supaya
@@ -60,9 +80,22 @@ export function PdfExportOptionsModal({
       setSelected(defaultSelected);
       setErrorMessage('');
       setIsGenerating(false);
+      setPreview(null);
     }
     wasOpen.current = isOpen;
   }, [isOpen, defaultSelected]);
+
+  // Object URL dilepas saat pratinjau berganti maupun saat modal ditutup.
+  // Tanpa ini setiap pratinjau menahan satu PDF penuh di memori.
+  useEffect(() => {
+    if (!preview) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(preview.blob);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [preview]);
 
   const toggle = useCallback((id: string) => {
     setSelected((previous) =>
@@ -79,8 +112,9 @@ export function PdfExportOptionsModal({
     setIsGenerating(true);
     setErrorMessage('');
     try {
-      await onGenerate(selected);
-      onClose();
+      const result = await onGenerate(selected);
+      if (result) setPreview(result);
+      else onClose();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gagal membuat PDF.');
     } finally {
@@ -88,20 +122,36 @@ export function PdfExportOptionsModal({
     }
   };
 
+  const handleDownload = () => {
+    if (!preview) return;
+    downloadBlob(preview.blob, preview.fileName);
+  };
+
   if (!isOpen) return null;
 
+  const isPreviewStage = preview !== null;
+
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-xl" ariaLabelledBy="pdf-export-options-title">
+    <ModalWrapper
+      isOpen={isOpen}
+      onClose={onClose}
+      maxWidth={isPreviewStage ? 'max-w-6xl' : 'max-w-xl'}
+      ariaLabelledBy="pdf-export-options-title"
+    >
       <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">
               Laporan PDF
             </p>
             <h2 id="pdf-export-options-title" className="mt-1 text-xl font-bold tracking-tight">
-              {title}
+              {isPreviewStage ? 'Pratinjau PDF' : title}
             </h2>
-            {description && <p className="mt-1 text-sm ui-text-muted">{description}</p>}
+            <p className="mt-1 text-sm ui-text-muted">
+              {isPreviewStage
+                ? `Cek dulu hasilnya sebelum diunduh — ${preview.fileName}`
+                : description}
+            </p>
           </div>
           <button
             type="button"
@@ -115,101 +165,134 @@ export function PdfExportOptionsModal({
         </div>
 
         {/* Body yang menggulir, bukan seluruh panel: footer tetap terlihat
-            sehingga "Unduh PDF" selalu terjangkau tanpa menggulir dulu. */}
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
-          {children}
+            sehingga tombol aksi selalu terjangkau tanpa menggulir dulu. */}
+        {isPreviewStage ? (
+          <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
+            <iframe
+              src={previewUrl ?? undefined}
+              title="Pratinjau PDF"
+              className="h-[70vh] w-full rounded-2xl border border-slate-200 bg-white shadow-inner dark:border-slate-800"
+            />
+          </div>
+        ) : (
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            {children}
 
-          <fieldset disabled={isGenerating} className="min-w-0 space-y-2">
-            <legend className="sr-only">Bagian yang diekspor</legend>
-            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-1">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                Bagian yang diekspor
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelected(allSelected ? [...requiredSections] : sections.map((section) => section.id))}
-                className="text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
-              >
-                {allSelected ? 'Kosongkan' : 'Pilih semua'}
-              </button>
-            </div>
+            <fieldset disabled={isGenerating} className="min-w-0 space-y-2">
+              <legend className="sr-only">Bagian yang diekspor</legend>
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-1">
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                  Bagian yang diekspor
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelected(allSelected ? [...requiredSections] : sections.map((section) => section.id))}
+                  className="text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
+                >
+                  {allSelected ? 'Kosongkan' : 'Pilih semua'}
+                </button>
+              </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              {sections.map((section) => {
-                const isRequired = requiredSections.includes(section.id);
-                const isChecked = selected.includes(section.id);
-                return (
-                  <label
-                    key={section.id}
-                    className={`flex items-start gap-3 rounded-2xl border p-3 transition ${
-                      isRequired
-                        ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-70 dark:border-slate-800 dark:bg-slate-950'
-                        : 'cursor-pointer'
-                    } ${
-                      isChecked && !isRequired
-                        ? 'border-brand-primary-500 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-500/15'
-                        : !isRequired
-                          ? 'border-slate-200 bg-[var(--brand-card)] hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950'
-                          : ''
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      name={`pdf-section-${section.id}`}
-                      checked={isChecked}
-                      disabled={isRequired}
-                      onChange={() => toggle(section.id)}
-                    />
-                    <span
-                      aria-hidden="true"
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
-                        isChecked
-                          ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                          : 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900'
+              <div className="grid gap-2 sm:grid-cols-2">
+                {sections.map((section) => {
+                  const isRequired = requiredSections.includes(section.id);
+                  const isChecked = selected.includes(section.id);
+                  return (
+                    <label
+                      key={section.id}
+                      className={`flex items-start gap-3 rounded-2xl border p-3 transition ${
+                        isRequired
+                          ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-70 dark:border-slate-800 dark:bg-slate-950'
+                          : 'cursor-pointer'
+                      } ${
+                        isChecked && !isRequired
+                          ? 'border-brand-primary-500 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-500/15'
+                          : !isRequired
+                            ? 'border-slate-200 bg-[var(--brand-card)] hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950'
+                            : ''
                       }`}
                     >
-                      {isChecked && <Check className="h-3.5 w-3.5" />}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-slate-900 dark:text-white">
-                        {section.label}
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        name={`pdf-section-${section.id}`}
+                        checked={isChecked}
+                        disabled={isRequired}
+                        onChange={() => toggle(section.id)}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
+                          isChecked
+                            ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
+                            : 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900'
+                        }`}
+                      >
+                        {isChecked && <Check className="h-3.5 w-3.5" />}
                       </span>
-                      <span className="mt-0.5 block text-xs ui-text-muted">
-                        {isRequired ? 'Selalu disertakan' : section.hint}
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-slate-900 dark:text-white">
+                          {section.label}
+                        </span>
+                        <span className="mt-0.5 block text-xs ui-text-muted">
+                          {isRequired ? 'Selalu disertakan' : section.hint}
+                        </span>
                       </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
 
-          {errorMessage && (
-            <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-              {errorMessage}
-            </p>
-          )}
-        </div>
+            {errorMessage && (
+              <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
+                {errorMessage}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isGenerating}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            Batal
-          </button>
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={!canGenerate}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            {isGenerating ? 'Menyiapkan…' : generateLabel}
-          </button>
+          {isPreviewStage ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setPreview(null)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Kembali
+              </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
+              >
+                <Download className="h-4 w-4" />
+                Unduh PDF
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isGenerating}
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={!canGenerate}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
+              >
+                {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                {isGenerating ? 'Menyiapkan…' : generateLabel}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </ModalWrapper>

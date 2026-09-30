@@ -25,3 +25,8 @@ global.IntersectionObserver = class IntersectionObserver {
   }
   unobserve() {}
 } as any
+
+// jsdom tidak mengimplementasikan object URL. Tanpa stub ini, komponen yang
+// menampilkan pratinjau PDF (iframe blob:) melempar TypeError di lingkungan tes.
+URL.createObjectURL = () => 'blob:test'
+URL.revokeObjectURL = () => {}

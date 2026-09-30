@@ -1,18 +1,21 @@
 import '@testing-library/jest-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { EventItem } from '../../../types';
 import { DashboardViewsSection } from '../DashboardViewsSection';
 
-const downloadMock = vi.hoisted(() => vi.fn(async () => {}));
-// Hanya unduhannya yang di-stub; penyaring draft tetap memakai implementasi
-// asli supaya pemilih diuji terhadap perilaku produksi.
+const resultMock = vi.hoisted(() => vi.fn(async () => ({
+  blob: new Blob(['%PDF-1.4']),
+  fileName: 'jadwal-event-metmal-2026-09-30.pdf',
+})));
+// Hanya render hasilnya yang di-stub; penyaring draft tetap memakai
+// implementasi asli supaya pemilih diuji terhadap perilaku produksi.
 vi.mock('../../../utils/eventsSchedulePdf', async () => {
   const actual = await vi.importActual<typeof import('../../../utils/eventsSchedulePdf')>(
     '../../../utils/eventsSchedulePdf',
   );
-  return { ...actual, downloadEventsSchedulePdf: downloadMock };
+  return { ...actual, renderEventsSchedulePdfResult: resultMock };
 });
 
 function ev(partial: Partial<EventItem> & Pick<EventItem, 'id' | 'status' | 'acara'>): EventItem {
@@ -59,6 +62,10 @@ function renderSection(canExport: boolean) {
 }
 
 describe('DashboardViewsSection — ekspor PDF', () => {
+  beforeEach(() => {
+    resultMock.mockClear();
+  });
+
   it('menyembunyikan tombol ekspor tanpa izin', () => {
     renderSection(false);
     expect(screen.queryByRole('button', { name: /Unduh jadwal event sebagai PDF/i })).not.toBeInTheDocument();
@@ -70,19 +77,24 @@ describe('DashboardViewsSection — ekspor PDF', () => {
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText(/2 event sesuai filter aktif/)).toBeInTheDocument();
-    expect(downloadMock).not.toHaveBeenCalled();
+    expect(resultMock).not.toHaveBeenCalled();
   });
 
-  it('meneruskan bagian terpilih ke generator', async () => {
+  it('menahan dokumen di pratinjau sebelum diunduh', async () => {
     renderSection(true);
     fireEvent.click(screen.getByRole('button', { name: /Unduh jadwal event sebagai PDF/i }));
     await screen.findByRole('dialog');
 
     fireEvent.click(screen.getByRole('checkbox', { name: /Agenda per Area/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Unduh PDF/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Preview PDF/ }));
 
-    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
-    const [, options] = downloadMock.mock.calls[0] as unknown as [EventItem[], { sections: string[] }];
+    await waitFor(() => expect(resultMock).toHaveBeenCalledTimes(1));
+    const [, options] = resultMock.mock.calls[0] as unknown as [EventItem[], { sections: string[] }];
     expect(options).toEqual({ sections: ['summary', 'table', 'areas'] });
+
+    // Dokumen yang dihasilkan dipratinjau, belum diunduh.
+    expect(await screen.findByTitle('Pratinjau PDF')).toBeInTheDocument();
+    expect(screen.getByText(/Cek dulu hasilnya/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeInTheDocument();
   });
 });

@@ -25,7 +25,7 @@ import { thumbUrl } from '../utils/imageOptim';
 import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
-import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
+import { renderEventsSchedulePdfResult } from '../utils/eventsSchedulePdf';
 import { formatIsoId } from '../utils/exportDateRange';
 import type { SchedulePdfSection } from '../components/pdf/buildSchedulePdf';
 import { PdfExportOptionsModal } from '../components/pdf/PdfExportOptionsModal';
@@ -487,7 +487,7 @@ export function EventsLandingPage({
 
   const handleDownloadSchedulePdf = async (sections: string[]) => {
     if (exportScope.selected.length === 0) return;
-    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
+    return renderEventsSchedulePdfResult(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
   const setParam = (key: 'waktu' | 'kategori', value: string | null) => {
