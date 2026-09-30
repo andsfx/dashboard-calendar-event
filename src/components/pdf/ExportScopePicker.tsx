@@ -54,7 +54,7 @@ export function ExportScopePicker<T>({
 
   return (
     <div className="space-y-4">
-      <fieldset disabled={disabled} className="space-y-2">
+      <fieldset disabled={disabled} className="min-w-0 space-y-2">
         <legend className="sr-only">Periode yang diekspor</legend>
         <div className="flex flex-wrap gap-1.5">
           {EXPORT_PERIODS.map((option) => {
@@ -140,9 +140,11 @@ export function ExportScopePicker<T>({
         </p>
       </fieldset>
 
-      <fieldset disabled={disabled} className="space-y-2">
+      <fieldset disabled={disabled} className="min-w-0 space-y-2">
         <legend className="sr-only">Item yang diekspor</legend>
-        <div className="flex items-center justify-between gap-2">
+        {/* flex-wrap: label tombol memuat kata benda ("Kosongkan pilihan event"),
+            yang pada panel sempit lebih dulu menembus batas daripada turun baris. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
             {scope.inRange.length} {itemNoun} pada periode ini
           </span>

@@ -91,10 +91,10 @@ export function PdfExportOptionsModal({
   if (!isOpen) return null;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-lg" ariaLabelledBy="pdf-export-options-title">
-      <div className="max-h-[92vh] overflow-y-auto rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-          <div>
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-xl" ariaLabelledBy="pdf-export-options-title">
+      <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">
               Laporan PDF
             </p>
@@ -107,19 +107,21 @@ export function PdfExportOptionsModal({
             type="button"
             onClick={onClose}
             disabled={isGenerating}
-            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Tutup"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="space-y-5 px-6 py-5">
+        {/* Body yang menggulir, bukan seluruh panel: footer tetap terlihat
+            sehingga "Unduh PDF" selalu terjangkau tanpa menggulir dulu. */}
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
           {children}
 
-          <fieldset disabled={isGenerating} className="space-y-2">
+          <fieldset disabled={isGenerating} className="min-w-0 space-y-2">
             <legend className="sr-only">Bagian yang diekspor</legend>
-            <div className="flex items-center justify-between px-1">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-1">
               <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
                 Bagian yang diekspor
               </span>
@@ -190,7 +192,7 @@ export function PdfExportOptionsModal({
           )}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
           <button
             type="button"
             onClick={onClose}

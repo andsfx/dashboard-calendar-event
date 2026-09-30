@@ -166,16 +166,16 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={previewUrl ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
-      <div className="max-h-[90vh] overflow-y-auto rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-          <div>
+      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
             <h2 className="mt-1 text-2xl font-bold tracking-tight">{previewUrl ? 'Preview PDF' : 'Export Album Foto'}</h2>
             <p className="mt-1 text-sm ui-text-muted">{previewUrl ? 'Cek dulu hasilnya sebelum download.' : 'Generate report landscape berdasarkan tanggal atau tema event.'}</p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Tutup modal"
           >
             <X className="h-5 w-5" />
@@ -183,7 +183,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         </div>
 
         {previewUrl ? (
-          <div className="bg-slate-100 p-3 dark:bg-slate-950">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
             <iframe
               src={previewUrl}
               title="Preview PDF"
@@ -191,7 +191,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             />
           </div>
         ) : (
-          <div className="space-y-6 px-6 py-5">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
@@ -261,7 +261,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         </div>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
           {previewUrl ? (
             <>
               <button
