@@ -950,6 +950,7 @@ export const DOC_SECTIONS: DocSection[] = [
             steps: [
               'Jadwal event — klik "Unduh PDF" di /events, pilih periode (Semua / Hari ini / Minggu ini / Bulan / Tahun / Tema / Rentang khusus) lalu centang event yang ingin diekspor.',
               'Filter yang sedang aktif di /events (?waktu= atau ?kategori=) ikut menyaring ekspor, jadi yang masuk dokumen hanya acara yang tampil di daftar.',
+              'Bila halaman sedang difilter, dialog menampilkan sakelar "Abaikan filter halaman". Nyalakan untuk menawarkan seluruh acara — mis. saat halaman difilter "Hari ini" tetapi Anda ingin rekap satu tema penuh.',
               'Jadwal event (dashboard) — tombol "Unduh PDF" yang sama ada di tampilan Jadwal Event; daftar draft tidak pernah ikut karena draft selalu dibuang dari dokumen.',
               'Album galeri — klik "Export PDF" di /gallery, pilih periode dan album (mode "Berdasarkan Tema" menyaring album per tema lebih dulu), lalu "Preview PDF" dan "Download PDF".',
               'Hasil evaluasi tenant — klik "Export PDF" di /tenant-survey-results bila akun Anda berwenang; halaman ini sudah punya filter per event sendiri.',

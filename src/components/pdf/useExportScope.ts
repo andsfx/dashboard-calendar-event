@@ -41,6 +41,13 @@ export interface ExportScopeTheme {
 
 export interface UseExportScopeOptions<T> {
   items: T[];
+  /**
+   * Kumpulan lengkap **sebelum** filter halaman diterapkan. Diisi hanya oleh
+   * permukaan yang memang punya filter sendiri (mis. `/events` dengan
+   * `?waktu=`/`?kategori=`); kosong berarti tidak ada yang bisa diabaikan,
+   * sehingga sakelarnya tidak pernah ditawarkan.
+   */
+  allItems?: T[];
   getId: (item: T) => string;
   getRange: (item: T) => ExportScopeItemRange;
   defaultPeriod?: ExportPeriod;
@@ -68,6 +75,15 @@ export interface ExportScope<T> {
   setThemeId: (value: string) => void;
   /** Tema yang tersedia; kosong berarti preset Tema tidak relevan. */
   themes: ExportScopeTheme[];
+  /**
+   * Sakelar "abaikan filter halaman". Selalu `true` bila permukaan tidak
+   * punya filter halaman (`allItems` kosong) supaya pemanggil bisa
+   * memeriksanya tanpa cabang tambahan.
+   */
+  ignorePageFilter: boolean;
+  setIgnorePageFilter: (value: boolean) => void;
+  /** Apakah sakelar itu memang bisa ditawarkan (permukaan punya filter). */
+  canIgnorePageFilter: boolean;
   range: ExportDateRange;
   /** Item yang lolos rentang, sebelum dicentang/di-uncheck. */
   inRange: T[];
@@ -85,6 +101,7 @@ export interface ExportScope<T> {
 
 export function useExportScope<T>({
   items,
+  allItems,
   getId,
   getRange,
   defaultPeriod = 'all',
@@ -94,9 +111,30 @@ export function useExportScope<T>({
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
+  // Sakelar "abaikan filter halaman".
+  //
+  // Default `false` = hormati filter halaman. Itu pilihan yang aman: apa yang
+  // terlihat di layar sama dengan apa yang masuk dokumen. Sakelar ini ada
+  // karena ada kebutuhan nyata untuk sebaliknya — mis. halaman sedang
+  // difilter "Hari ini" (1 acara) tetapi pengguna ingin rekap satu tema
+  // penuh. Sebelumnya pilihan seperti itu mustahil: keduanya bertumpuk
+  // sebagai irisan, jadi tema apa pun terpotong habis oleh filter halaman.
+  //
+  // `canIgnorePageFilter` bernilai false bila pemanggil tidak mengirim
+  // `allItems` — permukaan tanpa filter halaman tidak perlu sakelar ini.
+  const canIgnorePageFilter = allItems !== undefined;
+  const [ignorePageFilterRaw, setIgnorePageFilter] = useState(false);
+  const ignorePageFilter = canIgnorePageFilter && ignorePageFilterRaw;
+
+  // Sumber item: daftar penuh bila filter halaman diabaikan, daftar tersaring
+  // bila tidak. Dipakai juga oleh `availablePeriods` supaya daftar
+  // Bulan/Tahun ikut melebar — kalau tidak, memilih "Tahun" saat mengabaikan
+  // filter hanya menawarkan bulan yang kebetulan lolos filter halaman.
+  const sourceItems = ignorePageFilter ? allItems : items;
+
   // Pilihan bulan/tahun hanya berisi periode yang benar-benar ada isinya,
   // supaya preset Bulan/Tahun tidak terbuka pada periode kosong.
-  const periods = availablePeriods(items.map((item) => getRange(item).start));
+  const periods = availablePeriods(sourceItems.map((item) => getRange(item).start));
 
   // Nilai kosong berarti "pakai periode terbaru yang ada datanya".
   const [pickedMonth, setMonthKey] = useState('');
@@ -131,7 +169,7 @@ export function useExportScope<T>({
     return periodRange(period);
   })();
 
-  const inRange = filterByExportRange(items, range, getRange);
+  const inRange = filterByExportRange(sourceItems, range, getRange);
   const inRangeIds = inRange.map(getId);
   const inRangeKey = inRangeIds.join('\u0000');
 
@@ -175,6 +213,9 @@ export function useExportScope<T>({
     themeId,
     setThemeId,
     themes,
+    ignorePageFilter,
+    setIgnorePageFilter,
+    canIgnorePageFilter,
     range,
     inRange,
     selected,

@@ -160,6 +160,31 @@ export function ExportScopePicker<T>({
           {scope.period === 'theme' ? 'Rentang tema' : 'Periode'}:
           <span className="font-semibold">{describeRange(scope.range)}</span>
         </p>
+
+        {/* Sakelar ini hanya muncul di permukaan yang memang punya filter
+            halaman sendiri (mis. /events dengan ?waktu=/?kategori=).
+            Tanpanya, filter halaman dan periode ekspor bertumpuk sebagai
+            irisan, sehingga rekap satu tema penuh mustahil dibuat saat
+            halaman sedang difilter. */}
+        {scope.canIgnorePageFilter && (
+          <label className="mt-2 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 px-3 py-2 dark:border-slate-700">
+            <input
+              type="checkbox"
+              name="export-scope-ignore-page-filter"
+              checked={scope.ignorePageFilter}
+              onChange={(event) => scope.setIgnorePageFilter(event.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
+            />
+            <span className="text-xs leading-snug text-slate-600 dark:text-slate-300">
+              Abaikan filter halaman
+              <span className="block ui-text-muted">
+                {scope.ignorePageFilter
+                  ? 'Seluruh acara ditawarkan, bukan hanya yang lolos filter di halaman ini.'
+                  : 'Hanya acara yang lolos filter halaman yang ditawarkan.'}
+              </span>
+            </span>
+          </label>
+        )}
       </fieldset>
 
       <fieldset disabled={disabled} className="min-w-0 space-y-2">

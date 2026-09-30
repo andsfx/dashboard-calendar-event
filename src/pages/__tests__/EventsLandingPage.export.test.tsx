@@ -260,3 +260,92 @@ describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
     expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
   });
 });
+
+describe('EventsLandingPage — abaikan filter halaman', () => {
+  // Dua kategori, masing-masing punya acara di bulan berbeda. Dipakai untuk
+  // membuktikan bahwa tema yang rentangnya jatuh di luar filter halaman tetap
+  // bisa diekspor utuh — inilah yang sebelumnya mustahil karena filter
+  // halaman dan periode ekspor bertumpuk sebagai irisan.
+  const MIXED = [
+    ev({ id: 'm1', status: 'upcoming', acara: 'Konser Anak', categories: ['Anak'], dateStr: '2026-09-05' }),
+    ev({ id: 'm2', status: 'upcoming', acara: 'Bazar Ramadan', categories: ['Seni'], dateStr: '2026-03-12', month: 'Maret' }),
+    ev({ id: 'm3', status: 'upcoming', acara: 'Pameran Seni', categories: ['Seni'], dateStr: '2026-03-20', month: 'Maret' }),
+  ];
+  const THEME = {
+    id: 't1', name: 'Tema Ramadan', dateStart: '2026-03-01', dateEnd: '2026-03-31', color: '#000',
+  };
+
+  function renderWith(entry: string) {
+    render(
+      <MemoryRouter initialEntries={[entry]}>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={MIXED}
+          holidays={[]}
+          themes={[THEME]}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  it('menawarkan sakelar hanya saat halaman memang punya filter', async () => {
+    renderWith('/events');
+    const dialog = await openExportDialog();
+
+    expect(dialog.queryByRole('checkbox', { name: /Abaikan filter halaman/ })).not.toBeInTheDocument();
+  });
+
+  it('default menghormati filter halaman', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ })).not.toBeChecked();
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+  });
+
+  it('melepas filter halaman sehingga tema diekspor utuh', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    // Tanpa sakelar: tema Ramadan tidak menghasilkan apa pun karena kedua
+    // acaranya berkategori "Seni", sedangkan halaman difilter "Anak".
+    fireEvent.click(dialog.getByRole('button', { name: 'Tema' }));
+    expect(dialog.getByText('0 event pada periode ini')).toBeInTheDocument();
+
+    fireEvent.click(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ }));
+    expect(dialog.getByText('2 event pada periode ini')).toBeInTheDocument();
+
+    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    expect(sentEvents.map((event) => event.id).sort()).toEqual(['m2', 'm3']);
+  });
+
+  it('mengembalikan event yang tersembunyi ke pilihan saat sakelar dibalik', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+
+    fireEvent.click(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ }));
+    expect(dialog.getByText('3 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.getByText('Bazar Ramadan')).toBeInTheDocument();
+
+    // Dibalik lagi: kembali menghormati filter halaman.
+    fireEvent.click(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ }));
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.queryByText('Bazar Ramadan')).not.toBeInTheDocument();
+  });
+
+  it('memperbarui deskripsi dialog saat filter halaman diabaikan', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
+
+    fireEvent.click(dialog.getByRole('checkbox', { name: /Abaikan filter halaman/ }));
+    expect(dialog.getByText(/Filter halaman diabaikan/)).toBeInTheDocument();
+  });
+});

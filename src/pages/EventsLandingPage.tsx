@@ -468,11 +468,18 @@ export function EventsLandingPage({
   //  1. Filter halaman (`?waktu=` / `?kategori=`) ikut menyaring ekspor, jadi
   //     angka di dialog cocok dengan "N acara ditemukan" di badan halaman.
   //     Dashboard sudah berperilaku begitu (mengekspor `visibleEvents`).
+  //     `allItems` dikirim hanya saat filter halaman benar-benar aktif: itulah
+  //     satu-satunya keadaan ketika "melepas filter" punya arti. Tanpa filter,
+  //     daftar tersaring sama dengan daftar penuh, jadi sakelarnya hanya akan
+  //     jadi kontrol tanpa efek. Tanpa itu pula, memfilter halaman "Hari ini"
+  //     membuat rekap satu tema penuh mustahil karena keduanya bertumpuk
+  //     sebagai irisan.
   //  2. Event tidak punya kolom tema di database, jadi preset Tema memakai
   //     rentang tanggal tema — cara yang sama dipakai `/gallery` untuk
   //     memasangkan album ke tema.
   const exportScope = useExportScope<EventItem>({
     items: filteredEvents,
+    allItems: isFilterActive ? events : undefined,
     getId: (event) => event.id,
     getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
     themes,
@@ -917,7 +924,9 @@ export function EventsLandingPage({
         title="Unduh Jadwal Event"
         description={
           isFilterActive
-            ? `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
+            ? exportScope.ignorePageFilter
+              ? `${exportScope.selected.length} dari ${events.length} event akan disertakan. Filter halaman diabaikan, jadi seluruh acara ditawarkan.`
+              : `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
             : `${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
         }
         sections={SCHEDULE_SECTION_OPTIONS}
