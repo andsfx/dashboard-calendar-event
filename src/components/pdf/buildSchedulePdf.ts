@@ -252,23 +252,29 @@ function drawAreaAgenda(doc: jsPDF, rows: ScheduleRow[], startY: number): number
  *
  * Kolom PIC & Telepon hanya muncul bila datanya ada: API publik sudah
  * menghapus PII (`pic`/`phone`) sebelum sampai ke klien, jadi ekspor dari
- * halaman publik tidak boleh menampilkan dua kolom kosong.
+ * halaman publik tidak boleh menampilkan dua kolom kosong. Bila tidak ada
+ * EO maupun PIC/telepon sama sekali, lembar ini tidak digambar (lihat
+ * `hasContacts`).
  */
-function drawEoContacts(doc: jsPDF, rows: ScheduleRow[], startY: number): void {
-  const contacts = rows.filter((row) => row.eo || row.event.pic || row.event.phone);
-  if (contacts.length === 0) {
-    doc.setFont(FONT, 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(PDF_BRAND.muted);
-    doc.text('Belum ada data penyelenggara pada event terpilih.', PDF_MARGIN, startY);
-    return;
-  }
+const EO_CONTACT_FIXED_COL = 0.34;
 
+/**
+ * Header + baris + lebar kolom lembar kontak.
+ *
+ * Kolom PIC/Telepon hanya ikut bila datanya ada — API publik sudah menghapus
+ * PII sebelum sampai klien, sehingga tanpa keduanya tabel hanya punya tiga
+ * kolom. Diekspor agar jumlah kolom flex bisa diuji tanpa merender PDF.
+ */
+export function buildContactTable(contacts: ScheduleRow[]): {
+  head: string[];
+  body: string[][];
+  columnStyles: Record<number, { cellWidth: number; textColor?: string }>;
+} {
   const hasPic = contacts.some((row) => row.event.pic);
   const hasPhone = contacts.some((row) => row.event.phone);
 
   const head = ['Acara', 'Tanggal', 'Penyelenggara'];
-  const body = contacts.map((row) => [row.acara, row.dateLine, row.eo || '-']);
+  const body: string[][] = contacts.map((row) => [row.acara, row.dateLine, row.eo || '-']);
   if (hasPic) {
     head.push('PIC');
     contacts.forEach((row, index) => body[index]?.push(row.event.pic || '-'));
@@ -278,16 +284,31 @@ function drawEoContacts(doc: jsPDF, rows: ScheduleRow[], startY: number): void {
     contacts.forEach((row, index) => body[index]?.push(row.event.phone || '-'));
   }
 
-  const flexCount = hasPic && hasPhone ? 4 : 3;
-  const fixed = 0.34;
-  const perFlex = (1 - fixed) / flexCount;
+  // Jumlah kolom flex = semua kolom selain "Acara". Dulu dipatok
+  // `hasPic && hasPhone ? 4 : 3`, jadi saat hanya ada kolom EO (kasus normal
+  // untuk ekspor publik — PII sudah dihapus server) sisa lebar dibagi 3 padahal
+  // hanya 2 kolom yang ada: tabel tergambar 402 pt dari 515 pt (78%), dan
+  // jspdf-autotable memperingatkan 113 pt tidak muat.
+  const flexCount = head.length - 1;
+  const perFlex = (1 - EO_CONTACT_FIXED_COL) / flexCount;
   const columnStyles: Record<number, { cellWidth: number; textColor?: string }> = {
-    0: { cellWidth: PDF_CONTENT_W * fixed },
-    1: { cellWidth: PDF_CONTENT_W * perFlex, textColor: PDF_BRAND.muted },
-    2: { cellWidth: PDF_CONTENT_W * perFlex },
+    0: { cellWidth: PDF_CONTENT_W * EO_CONTACT_FIXED_COL },
   };
-  if (hasPic) columnStyles[3] = { cellWidth: PDF_CONTENT_W * perFlex };
-  if (hasPhone) columnStyles[hasPic ? 4 : 3] = { cellWidth: PDF_CONTENT_W * perFlex, textColor: PDF_BRAND.muted };
+  for (let index = 1; index < head.length; index += 1) {
+    columnStyles[index] = {
+      cellWidth: PDF_CONTENT_W * perFlex,
+      ...(index === 1 ? { textColor: PDF_BRAND.muted } : {}),
+      ...(index === head.length - 1 && head[index] === 'Telepon' ? { textColor: PDF_BRAND.muted } : {}),
+    };
+  }
+  return { head, body, columnStyles };
+}
+
+function drawEoContacts(doc: jsPDF, rows: ScheduleRow[], startY: number): void {
+  // Pemanggil hanya memanggil ini bila ada EO/PIC/telepon sama sekali — lihat
+  // pemeriksaan `hasContacts` di `buildSchedulePdf`.
+  const contacts = rows.filter((row) => row.eo || row.event.pic || row.event.phone);
+  const { head, body, columnStyles } = buildContactTable(contacts);
 
   autoTable(doc, {
     startY,
@@ -400,17 +421,24 @@ export function buildSchedulePdf({
   }
 
   if (enabled.has('contacts')) {
-    // Lembar kontak selalu mulai di halaman baru: dipakai berdiri sendiri
-    // oleh tim operasional, bukan dibaca menyambung dari tabel.
-    doc.addPage();
-    doc.outline.add(null, 'Kontak Penyelenggara', { pageNumber: doc.getNumberOfPages() });
-    const contactsY = drawSectionHeading(
-      doc,
-      'Kontak Penyelenggara',
-      'untuk koordinasi teknis',
-      PDF_MARGIN,
-    );
-    drawEoContacts(doc, rows, contactsY);
+    // Tidak ada EO/PIC/telepon → jangan buka lembar kosong. Pemicunya nyata:
+    // ekspor dari halaman publik (`/events`) sudah kehilangan PII sebelum
+    // sampai klien, jadi bila sekaligus tidak ada EO, satu halaman penuh hanya
+    // berisi "Belum ada data penyelenggara".
+    const hasContacts = rows.some((row) => row.eo || row.event.pic || row.event.phone);
+    if (hasContacts) {
+      // Lembar kontak selalu mulai di halaman baru: dipakai berdiri sendiri
+      // oleh tim operasional, bukan dibaca menyambung dari tabel.
+      doc.addPage();
+      doc.outline.add(null, 'Kontak Penyelenggara', { pageNumber: doc.getNumberOfPages() });
+      const contactsY = drawSectionHeading(
+        doc,
+        'Kontak Penyelenggara',
+        'untuk koordinasi teknis',
+        PDF_MARGIN,
+      );
+      drawEoContacts(doc, rows, contactsY);
+    }
   }
 
   drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal Event' });

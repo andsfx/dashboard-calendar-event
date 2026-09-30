@@ -107,6 +107,14 @@ export default defineConfig({
     minify: 'terser',
     modulePreload: { polyfill: false },
     terserOptions: {
+      // Vite menyalakan satu worker terser per CPU dan tidak memberi batas
+      // memori per worker; pada mesin banyak-core (di sini 20) jumlah itu
+      // menembus commit limit Windows sehingga build gagal dengan
+      // "Worker terminated due to reaching memory limit" / "Zone Allocation
+      // failed" — terukur 3 dari 8 worker gagal saat diuji terpisah. Vite
+      // mengeluarkan `maxWorkers` dari opsi sebelum meneruskannya ke terser,
+      // jadi nilai ini murni pengaturan jumlah worker.
+      maxWorkers: 4,
       ecma: 2022,
       compress: { pure_new: true, passes: 3, booleans_as_integers: false, pure_getters: true, keep_fargs: false, unsafe: true, unsafe_methods: true, unsafe_comps: true, unsafe_Function: true, unsafe_math: true, unsafe_symbols: true, unsafe_proto: true },
       format: { comments: false, semicolons: false },

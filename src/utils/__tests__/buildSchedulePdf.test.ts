@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { EventItem } from '../../types';
-import { buildSchedulePdf } from '../../components/pdf/buildSchedulePdf';
+import { buildContactTable, buildSchedulePdf } from '../../components/pdf/buildSchedulePdf';
 import { renderEventsSchedulePdfBlob } from '../eventsSchedulePdf';
 import { extractPdfStrings } from '../../test/pdfText';
+
+const CONTENT_W = 595.28 - 40 * 2;
 
 function ev(partial: Partial<EventItem> & Pick<EventItem, 'id' | 'status' | 'acara'>): EventItem {
   return {
@@ -110,5 +112,53 @@ describe('buildSchedulePdf', () => {
     expect(text).toContain('PIC');
     expect(text).toContain('Telepon');
     expect(text).toContain('Andi');
+  });
+
+  it('tanpa EO/PIC/telepon, lembar kontak tidak dibuat sama sekali', () => {
+    // Ekspor dari /events: PII sudah dihapus server. Sebelumnya bagian ini
+    // tetap membuka halaman baru yang seluruhnya berisi pesan kosong, jadi
+    // dokumen 3 event menjadi 2 halaman.
+    const events = [
+      ev({ id: '1', status: 'ongoing', acara: 'A', eo: '' }),
+      ev({ id: '2', status: 'upcoming', acara: 'B', eo: '' }),
+      ev({ id: '3', status: 'past', acara: 'C', eo: '' }),
+    ];
+    const doc = buildSchedulePdf({ events, generatedAt: 'x' });
+    expect(doc.getNumberOfPages()).toBe(1);
+    const text = extractPdfStrings(doc);
+    expect(text).not.toContain('Kontak Penyelenggara');
+    expect(text).not.toContain('Belum ada data penyelenggara');
+  });
+
+  it('satu event ber-EO tetap membuka lembar kontak', () => {
+    const doc = buildSchedulePdf({
+      events: [ev({ id: '1', status: 'upcoming', acara: 'A', eo: '' }), ev({ id: '2', status: 'past', acara: 'B', eo: 'EO Kreatif' })],
+      generatedAt: 'x',
+    });
+    const text = extractPdfStrings(doc);
+    expect(text).toContain('Kontak Penyelenggara');
+    expect(text).toContain('EO Kreatif');
+  });
+
+  it('kolom lembar kontak selalu mengisi lebar konten', () => {
+    // Kasus normal ekspor publik: hanya EO, tanpa PIC/telepon. Dulu kolom
+    // dibagi 3 padahal hanya 2 kolom flex, jadi tabel hanya 402 dari 515 pt.
+    const rows = [
+      { acara: 'A', dateLine: '1 Januari 2026', eo: 'EO X', event: { pic: '', phone: '' } },
+    ] as never;
+    const { head, columnStyles } = buildContactTable(rows);
+    expect(head).toEqual(['Acara', 'Tanggal', 'Penyelenggara']);
+    const total = Object.values(columnStyles).reduce((sum, style) => sum + style.cellWidth, 0);
+    expect(total).toBeCloseTo(CONTENT_W, 5);
+  });
+
+  it('kolom lembar kontak tetap penuh saat PIC dan telepon tersedia', () => {
+    const rows = [
+      { acara: 'A', dateLine: '1 Januari 2026', eo: 'EO X', event: { pic: 'Andi', phone: '0811' } },
+    ] as never;
+    const { head, columnStyles } = buildContactTable(rows);
+    expect(head).toEqual(['Acara', 'Tanggal', 'Penyelenggara', 'PIC', 'Telepon']);
+    const total = Object.values(columnStyles).reduce((sum, style) => sum + style.cellWidth, 0);
+    expect(total).toBeCloseTo(CONTENT_W, 5);
   });
 });
