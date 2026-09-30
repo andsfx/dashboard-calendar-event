@@ -155,3 +155,108 @@ describe('EventsLandingPage — cakupan event', () => {
     expect(dialog.queryByText('Pameran Foto Kota')).not.toBeInTheDocument();
   });
 });
+
+describe('EventsLandingPage — preset Tema', () => {
+  const THEME = {
+    id: 't1', name: 'Tema Ramadan', dateStart: '2026-03-01', dateEnd: '2026-03-31', color: '#000',
+  };
+
+  function renderWithThemes() {
+    render(
+      <MemoryRouter>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={EVENTS}
+          holidays={[]}
+          themes={[THEME]}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  it('menyaring event menurut rentang tanggal tema', async () => {
+    renderWithThemes();
+    const dialog = await openExportDialog();
+
+    fireEvent.click(dialog.getByRole('button', { name: 'Tema' }));
+
+    // Event tidak punya kolom tema di database; yang dipakai adalah rentang
+    // tanggal tema — sama seperti cara /gallery memasangkan album ke tema.
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.getByText('Bazar Ramadan')).toBeInTheDocument();
+    expect(dialog.queryByText('Pameran Foto Kota')).not.toBeInTheDocument();
+    // Keterangan periode jujur menyebut sumbernya (teks satu baris bersama
+    // rentangnya, jadi dicocokkan sebagai regex).
+    expect(dialog.getByText(/Rentang tema/)).toBeInTheDocument();
+    expect(dialog.getByText('1 – 31 Maret 2026')).toBeInTheDocument();
+  });
+
+  it('menyembunyikan preset Tema saat tidak ada tema', async () => {
+    renderPage();
+    const dialog = await openExportDialog();
+    expect(dialog.queryByRole('button', { name: 'Tema' })).not.toBeInTheDocument();
+  });
+
+  it('mengirim hanya event dalam rentang tema', async () => {
+    renderWithThemes();
+    const dialog = await openExportDialog();
+
+    fireEvent.click(dialog.getByRole('button', { name: 'Tema' }));
+    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+
+    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    expect(sentEvents.map((event) => event.id)).toEqual(['e3']);
+  });
+});
+
+describe('EventsLandingPage — filter halaman ikut menyaring ekspor', () => {
+  // Kategori berbeda supaya filter URL punya efek yang bisa diamati.
+  const FILTERED = [
+    ev({ id: 'f1', status: 'upcoming', acara: 'Konser Anak', categories: ['Anak'] }),
+    ev({ id: 'f2', status: 'upcoming', acara: 'Pameran Seni', categories: ['Seni'] }),
+  ];
+
+  function renderWith(entry: string) {
+    render(
+      <MemoryRouter initialEntries={[entry]}>
+        <EventsLandingPage
+          isDark={false}
+          onToggleDark={() => {}}
+          events={FILTERED}
+          holidays={[]}
+          onDetail={() => {}}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  it('hanya menawarkan event yang lolos filter halaman', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText('1 event pada periode ini')).toBeInTheDocument();
+    expect(dialog.getByText('Konser Anak')).toBeInTheDocument();
+    expect(dialog.queryByText('Pameran Seni')).not.toBeInTheDocument();
+  });
+
+  it('mengirim hanya event yang lolos filter halaman', async () => {
+    renderWith('/events?kategori=Seni');
+    const dialog = await openExportDialog();
+
+    fireEvent.click(dialog.getByRole('button', { name: /Unduh PDF/ }));
+
+    await waitFor(() => expect(downloadMock).toHaveBeenCalledTimes(1));
+    const [sentEvents] = downloadMock.mock.calls[0] as unknown as [EventItem[], unknown];
+    expect(sentEvents.map((event) => event.id)).toEqual(['f2']);
+  });
+
+  it('menjelaskan bahwa filter halaman sedang aktif', async () => {
+    renderWith('/events?kategori=Anak');
+    const dialog = await openExportDialog();
+
+    expect(dialog.getByText(/Filter halaman aktif/)).toBeInTheDocument();
+  });
+});

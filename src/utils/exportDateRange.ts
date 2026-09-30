@@ -9,7 +9,7 @@ import { eventOverlapsWindow, getTodayIsoLocal } from './eventDateTime';
 // "Hari Ini"/"Akhir Pekan" di /events.
 // ============================================================
 
-export type ExportPeriod = 'all' | 'today' | 'week' | 'month' | 'year' | 'custom';
+export type ExportPeriod = 'all' | 'today' | 'week' | 'month' | 'year' | 'theme' | 'custom';
 
 export const EXPORT_PERIODS: Array<{ id: ExportPeriod; label: string }> = [
   { id: 'all', label: 'Semua' },
@@ -17,6 +17,7 @@ export const EXPORT_PERIODS: Array<{ id: ExportPeriod; label: string }> = [
   { id: 'week', label: 'Minggu ini' },
   { id: 'month', label: 'Bulan' },
   { id: 'year', label: 'Tahun' },
+  { id: 'theme', label: 'Tema' },
   { id: 'custom', label: 'Rentang khusus' },
 ];
 
@@ -55,6 +56,23 @@ export function yearRange(year: number): ExportDateRange {
   return { start: `${year}-01-01`, end: `${year}-12-31` };
 }
 
+/**
+ * Rentang tanggal sebuah tema tahunan, atau `null` bila tidak bisa dipakai.
+ *
+ * Tabel `events` tidak punya kolom tema, jadi tema tidak bisa dijadikan
+ * filter langsung pada event. Yang tersedia hanya `date_start`/`date_end`
+ * milik tema — dan itu memang cara `/gallery` memasangkan album ke tema
+ * (lihat `GalleryIndexPage`: cocokkan `themeId`, kalau tidak ada jatuh ke
+ * rentang tanggal). Dipakai sama di sini supaya dua permukaan tidak
+ * memberi arti berbeda untuk "tema" yang sama.
+ */
+export function themeRangeFor(theme: { dateStart: string; dateEnd: string } | undefined): ExportDateRange | null {
+  if (!theme) return null;
+  const { dateStart, dateEnd } = theme;
+  if (!dateStart || !dateEnd) return null;
+  return { start: dateStart, end: dateEnd };
+}
+
 /** Senin–Minggu pekan yang memuat `now` (minggu kerja, bukan weekend). */
 export function weekRange(now = new Date()): ExportDateRange {
   const day = now.getDay(); // 0 = Minggu
@@ -84,6 +102,9 @@ export function periodRange(
     case 'year':
       return yearRange(year);
     case 'all':
+    // 'theme' tidak dihitung di sini: rentangnya datang dari data tema
+    // (`themeRangeFor`) dan di-resolve oleh pemanggil `useExportScope`.
+    case 'theme':
     case 'custom':
     default:
       return UNBOUNDED_RANGE;

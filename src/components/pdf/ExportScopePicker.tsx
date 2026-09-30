@@ -52,12 +52,18 @@ export function ExportScopePicker<T>({
   const hiddenCount = visibleItems.length - rendered.length;
   const selectedCount = scope.selectedIds.length;
 
+  // Preset Tema hanya ditampilkan bila ada temanya — jangan tawarkan opsi
+  // yang tidak bisa dipakai.
+  const periods = EXPORT_PERIODS.filter(
+    (option) => option.id !== 'theme' || scope.themes.length > 0,
+  );
+
   return (
     <div className="space-y-4">
       <fieldset disabled={disabled} className="min-w-0 space-y-2">
         <legend className="sr-only">Periode yang diekspor</legend>
         <div className="flex flex-wrap gap-1.5">
-          {EXPORT_PERIODS.map((option) => {
+          {periods.map((option) => {
             const isActive = scope.period === option.id;
             return (
               <button
@@ -109,6 +115,21 @@ export function ExportScopePicker<T>({
           </label>
         )}
 
+        {scope.period === 'theme' && (
+          <label className="block pt-1">
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Tema</span>
+            <select
+              value={scope.themeId}
+              onChange={(event) => scope.setThemeId(event.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+            >
+              {scope.themes.map((theme) => (
+                <option key={theme.id} value={theme.id}>{theme.name}</option>
+              ))}
+            </select>
+          </label>
+        )}
+
         {scope.period === 'custom' && (
           <div className="grid gap-3 pt-1 sm:grid-cols-2">
             <label className="block">
@@ -136,7 +157,8 @@ export function ExportScopePicker<T>({
 
         <p className="flex items-center gap-1.5 pt-1 text-xs ui-text-muted">
           <CalendarRange className="h-3.5 w-3.5" aria-hidden="true" />
-          Periode: <span className="font-semibold">{describeRange(scope.range)}</span>
+          {scope.period === 'theme' ? 'Rentang tema' : 'Periode'}:
+          <span className="font-semibold">{describeRange(scope.range)}</span>
         </p>
       </fieldset>
 

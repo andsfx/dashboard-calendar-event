@@ -297,6 +297,7 @@ export default function App() {
             holidays={holidays}
             albums={landingAlbums}
             areas={eventAreas}
+            themes={annualThemes}
             isLoading={isLoading}
             onDetail={handleDetailClick}
           />

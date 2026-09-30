@@ -24,7 +24,7 @@ import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { thumbUrl } from '../utils/imageOptim';
 import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
-import { EventItem, HolidayItem, PhotoAlbum, EventArea } from '../types';
+import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
 import { formatIsoId } from '../utils/exportDateRange';
 import type { SchedulePdfSection } from '../components/pdf/buildSchedulePdf';
@@ -43,6 +43,8 @@ interface Props {
   holidays: HolidayItem[];
   albums?: PhotoAlbum[];
   areas?: EventArea[];
+  /** Tema tahunan untuk preset "Tema" di ekspor PDF. */
+  themes?: AnnualTheme[];
   isLoading?: boolean;
   onDetail: (ev: EventItem) => void;
 }
@@ -383,6 +385,7 @@ export function EventsLandingPage({
   holidays,
   albums = [],
   areas = [],
+  themes = [],
   isLoading = false,
   onDetail,
 }: Props) {
@@ -430,18 +433,6 @@ export function EventsLandingPage({
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
 
-  // Cakupan ekspor: periode (hari/minggu/bulan/tahun/kustom) lalu pilih per event.
-  const exportScope = useExportScope<EventItem>({
-    items: events,
-    getId: (event) => event.id,
-    getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
-  });
-
-  const handleDownloadSchedulePdf = async (sections: string[]) => {
-    if (exportScope.selected.length === 0) return;
-    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
-  };
-
   // ─── Filter URL (?waktu= & ?kategori=) — deep-linkable, riset Skedda/Eventbrite pattern ───
   const [searchParams, setSearchParams] = useSearchParams();
   const waktu = searchParams.get('waktu'); // 'hari-ini' | 'besok' | 'akhir-pekan' | null
@@ -469,6 +460,28 @@ export function EventsLandingPage({
   }, [events, waktu, kategori]);
 
   const isFilterActive = Boolean(waktu || kategori);
+
+  // Cakupan ekspor: periode (hari/minggu/bulan/tahun/tema/kustom) lalu pilih
+  // per event.
+  //
+  // Dua hal yang sengaja dibuat sama dengan tampilan halaman:
+  //  1. Filter halaman (`?waktu=` / `?kategori=`) ikut menyaring ekspor, jadi
+  //     angka di dialog cocok dengan "N acara ditemukan" di badan halaman.
+  //     Dashboard sudah berperilaku begitu (mengekspor `visibleEvents`).
+  //  2. Event tidak punya kolom tema di database, jadi preset Tema memakai
+  //     rentang tanggal tema — cara yang sama dipakai `/gallery` untuk
+  //     memasangkan album ke tema.
+  const exportScope = useExportScope<EventItem>({
+    items: filteredEvents,
+    getId: (event) => event.id,
+    getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
+    themes,
+  });
+
+  const handleDownloadSchedulePdf = async (sections: string[]) => {
+    if (exportScope.selected.length === 0) return;
+    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
+  };
 
   const setParam = (key: 'waktu' | 'kategori', value: string | null) => {
     const next = new URLSearchParams(searchParams);
@@ -902,7 +915,11 @@ export function EventsLandingPage({
         isOpen={isExportOptionsOpen}
         onClose={() => setIsExportOptionsOpen(false)}
         title="Unduh Jadwal Event"
-        description={`${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`}
+        description={
+          isFilterActive
+            ? `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
+            : `${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
+        }
         sections={SCHEDULE_SECTION_OPTIONS}
         defaultSelected={['summary', 'table']}
         requiredSections={['table']}

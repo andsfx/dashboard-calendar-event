@@ -3,6 +3,8 @@ import {
   availablePeriods,
   filterByExportRange,
   periodRange,
+  themeRangeFor,
+  UNBOUNDED_RANGE,
   type ExportDateRange,
   type ExportPeriod,
 } from '../../utils/exportDateRange';
@@ -29,11 +31,24 @@ export interface ExportScopeItemRange {
   end?: string;
 }
 
+/** Tema tahunan untuk preset "Tema". Hanya butuh rentang tanggalnya. */
+export interface ExportScopeTheme {
+  id: string;
+  name: string;
+  dateStart: string;
+  dateEnd: string;
+}
+
 export interface UseExportScopeOptions<T> {
   items: T[];
   getId: (item: T) => string;
   getRange: (item: T) => ExportScopeItemRange;
   defaultPeriod?: ExportPeriod;
+  /**
+   * Daftar tema untuk preset "Tema". Kosong = preset tidak ditampilkan,
+   * sehingga permukaan yang tidak punya konsep tema tidak melihat opsi mati.
+   */
+  themes?: ExportScopeTheme[];
 }
 
 export interface ExportScope<T> {
@@ -48,6 +63,11 @@ export interface ExportScope<T> {
   setCustomStart: (value: string) => void;
   customEnd: string;
   setCustomEnd: (value: string) => void;
+  /** Tema terpilih untuk preset Tema; '' bila belum ada. */
+  themeId: string;
+  setThemeId: (value: string) => void;
+  /** Tema yang tersedia; kosong berarti preset Tema tidak relevan. */
+  themes: ExportScopeTheme[];
   range: ExportDateRange;
   /** Item yang lolos rentang, sebelum dicentang/di-uncheck. */
   inRange: T[];
@@ -68,6 +88,7 @@ export function useExportScope<T>({
   getId,
   getRange,
   defaultPeriod = 'all',
+  themes = [],
 }: UseExportScopeOptions<T>): ExportScope<T> {
   const [period, setPeriod] = useState<ExportPeriod>(defaultPeriod);
   const [customStart, setCustomStart] = useState('');
@@ -83,6 +104,11 @@ export function useExportScope<T>({
   const monthKey = pickedMonth || periods.months[0]?.value || '';
   const year = pickedYear || periods.years[0]?.value || '';
 
+  // Tema default = yang terbaru (daftar sudah terurut menurun dari API).
+  const [pickedThemeId, setThemeId] = useState('');
+  const themeId = pickedThemeId || themes[0]?.id || '';
+  const activeTheme = themes.find((theme) => theme.id === themeId);
+
   const range: ExportDateRange = (() => {
     if (period === 'custom') {
       // Rentang khusus boleh setengah terisi: hanya awal, atau hanya akhir.
@@ -96,6 +122,11 @@ export function useExportScope<T>({
     if (period === 'year') {
       if (!year) return { start: '', end: '' };
       return periodRange('year', { year: Number(year) });
+    }
+    if (period === 'theme') {
+      // Rentang dari data tema; tema tanpa tanggal → tanpa batas, bukan
+      // rentang kosong yang diam-diam menyaring semua item keluar.
+      return themeRangeFor(activeTheme) ?? UNBOUNDED_RANGE;
     }
     return periodRange(period);
   })();
@@ -141,6 +172,9 @@ export function useExportScope<T>({
     setCustomStart,
     customEnd,
     setCustomEnd,
+    themeId,
+    setThemeId,
+    themes,
     range,
     inRange,
     selected,
