@@ -1,6 +1,7 @@
 import { Fragment, useMemo } from 'react';
 import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays, Layers } from 'lucide-react';
 import { EventItem, EventArea } from '../../types';
+import { downloadBlob } from '../../lib/download';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
@@ -54,12 +55,7 @@ function exportCSV(events: EventItem[]) {
   ].map(v => `"${(v ?? '').replace(/"/g, '""')}"`));
   const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `events-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `events-${new Date().toISOString().split('T')[0]}.csv`);
 }
 
 export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail }: Props) {

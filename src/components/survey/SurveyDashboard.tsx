@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { downloadBlob } from '../../lib/download';
 import {
   ClipboardCheck, Download, Star, Users, Building2,
   TrendingUp, Loader2, RefreshCw, Link2, Check,
@@ -129,12 +130,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
         return;
       }
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, `survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
       setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
     }

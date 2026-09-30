@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { downloadBlob } from '../lib/download';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap, SunMedium, Moon } from 'lucide-react';
 import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
@@ -85,14 +86,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
     if (!event) return;
     const blob = buildIcsBlob(event);
     if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = icsFileName(event);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, icsFileName(event));
   };
 
   const isMultiDay = event ? isMultiDayEvent(event) : false;

@@ -1,31 +1,19 @@
 // Dynamic import (pengecualian ts-no-dynamic-import): boundary code-splitting
 // sengaja dijaga — engine PDF (jspdf) hanya dimuat saat hasil diekspor.
-import type { TenantSurveyResultsPdfPayload } from '../components/pdf/buildSurveyResultsPdf';
+import type { TenantSurveyResultsPdfPayload, SurveyPdfSection } from '../components/pdf/buildSurveyResultsPdf';
+import { downloadBlob, safeFileName } from '../lib/download';
 
-function downloadBlob(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.style.display = 'none';
-  document.body.appendChild(anchor);
-  anchor.click();
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(anchor);
-  }, 100);
-}
-
-function safeFileName(raw: string): string {
-  return raw.replace(/[^\w.-]+/g, '_').slice(0, 80);
+export interface SurveyPdfOptions {
+  sections?: SurveyPdfSection[];
 }
 
 export async function downloadTenantSurveyResultsPdf(
   payload: TenantSurveyResultsPdfPayload,
+  options: SurveyPdfOptions = {},
 ): Promise<void> {
   const { buildSurveyResultsPdf } = await import('../components/pdf/buildSurveyResultsPdf');
 
-  const blob = buildSurveyResultsPdf(payload).output('blob');
+  const blob = buildSurveyResultsPdf({ ...payload, sections: options.sections }).output('blob');
   const suffix =
     payload.filter.eventId === 'all'
       ? 'semua-event'

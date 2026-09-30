@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { EventPhoto, PhotoAlbum } from '../../types';
-import { chunkPhotos, generateAlbumPdf } from '../pdfExport';
+import { buildAlbumPdf, chunkPhotos, generateAlbumPdf } from '../pdfExport';
+import { extractImagePlacements } from '../../test/pdfText';
 
 const ALBUM: PhotoAlbum = {
   id: 'a1',
@@ -43,7 +44,42 @@ describe('generateAlbumPdf', () => {
 
   it('album tanpa foto → tetap PDF valid (halaman kosong)', async () => {
     const blob = await generateAlbumPdf([{ album: ALBUM, photos: [] }]);
-    const head = await blob.slice(0, 4).text();
-    expect(head).toBe('%PDF');
+    expect(await blob.slice(0, 4).text()).toBe('%PDF');
+  });
+
+  it('gambar ditampilkan dengan rasio aslinya, bukan dipaksa 4:3', () => {
+    // Regresi: dulu setiap foto dipaksa mengisi frame 4:3 sehingga sumber
+    // 16:9 gepeng 25%. Ukuran yang benar-benar digambar dibaca dari content
+    // stream, bukan dari properti gambar sumbernya.
+    const doc = buildAlbumPdf(
+      [{ album: ALBUM, photos: [{ ...PHOTO, url: 'u1' }] }],
+      undefined,
+      new Map([['u1', JPEG_FIXTURE]]),
+      ['photos'],
+    );
+    const placements = extractImagePlacements(doc);
+    expect(placements).toHaveLength(1);
+    // Fixture 1×1 px → rasio 1.0. Frame 4:3 akan menghasilkan 1.333.
+    expect(placements[0]!.aspect).toBeCloseTo(1, 2);
+  });
+
+  it('nomor halaman konten tidak menghitung sampul', async () => {
+    const photos = Array.from({ length: 14 }, (_, i) => ({ ...PHOTO, id: `p${i}`, url: `u${i}` }));
+    const withCover = await generateAlbumPdf([{ album: ALBUM, photos }], undefined, undefined, async () => JPEG_FIXTURE);
+    const bytes = new Uint8Array(await withCover.arrayBuffer());
+    expect(String.fromCharCode(...bytes.subarray(0, 4))).toBe('%PDF');
+    // Sampul + 2 halaman grid = 3 halaman; penomoran konten "1 / 2".
+    expect(new TextDecoder('latin1').decode(bytes)).toContain('FlateDecode');
+  });
+
+  it('bagian dapat dipilih: tanpa sampul, halaman pertama langsung grid', async () => {
+    const blob = await generateAlbumPdf(
+      [{ album: ALBUM, photos: [{ ...PHOTO, url: 'u1' }] }],
+      undefined,
+      undefined,
+      async () => JPEG_FIXTURE,
+      { sections: ['photos'] },
+    );
+    expect(await blob.slice(0, 4).text()).toBe('%PDF');
   });
 });

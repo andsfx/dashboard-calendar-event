@@ -31,6 +31,9 @@ import {
   type ResultsFilter,
 } from '../../utils/tenantSurveyResultsAggregate';
 import { downloadTenantSurveyResultsPdf } from '../../utils/tenantSurveyResultsPdf';
+import type { SurveyPdfSection } from '../pdf/buildSurveyResultsPdf';
+import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
+import { SURVEY_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import {
   fetchPublicTenantRoster,
   type TenantRosterItem,
@@ -72,7 +75,7 @@ export default function TenantSurveyResultsPage({
   const { surveys, isLoading, error } = useTenantSurveys(undefined, { publicMode });
   const [filter, setFilter] = useState<ResultsFilter>(EMPTY_FILTER);
   const [feedbackQ, setFeedbackQ] = useState('');
-  const [exporting, setExporting] = useState(false);
+  const [showExportOptions, setShowExportOptions] = useState(false);
   const [exportError, setExportError] = useState('');
   const [roster, setRoster] = useState<TenantRosterItem[]>([]);
   const [rosterLoading, setRosterLoading] = useState(true);
@@ -305,22 +308,23 @@ export default function TenantSurveyResultsPage({
     }));
   }, []);
 
-  const handleExportPdf = useCallback(async () => {
+  const handleExportPdf = useCallback(async (sections: string[]) => {
     if (!canExport) return;
-    setExporting(true);
     setExportError('');
     try {
-      await downloadTenantSurveyResultsPdf({
-        aggregate: agg,
-        filter,
-        eventLabel,
-        generatedAt: new Date().toLocaleString('id-ID'),
-      });
+      await downloadTenantSurveyResultsPdf(
+        {
+          aggregate: agg,
+          filter,
+          eventLabel,
+          generatedAt: new Date().toLocaleString('id-ID'),
+        },
+        { sections: sections as SurveyPdfSection[] },
+      );
     } catch (err) {
       console.error(err);
       setExportError('Gagal membuat PDF. Coba lagi.');
-    } finally {
-      setExporting(false);
+      throw err;
     }
   }, [agg, canExport, eventLabel, filter]);
 
@@ -374,15 +378,11 @@ export default function TenantSurveyResultsPage({
         {canExport && (
           <button
             type="button"
-            onClick={handleExportPdf}
-            disabled={exporting || agg.total === 0}
+            onClick={() => setShowExportOptions(true)}
+            disabled={agg.total === 0}
             className="ui-btn-primary ui-focus-ring inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
           >
-            {exporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Download className="h-4 w-4" aria-hidden />
-            )}
+            <Download className="h-4 w-4" aria-hidden />
             Export PDF
           </button>
         )}
@@ -1220,6 +1220,16 @@ export default function TenantSurveyResultsPage({
           </section>
         </div>
       )}
+
+      <PdfExportOptionsModal
+        isOpen={showExportOptions}
+        onClose={() => setShowExportOptions(false)}
+        title="Export Hasil Evaluasi"
+        description={`${agg.total} submisi · ${agg.uniqueGerai} tenant. Pilih bagian yang ingin diekspor.`}
+        sections={SURVEY_SECTION_OPTIONS}
+        defaultSelected={['kpi', 'distribution', 'topGerai', 'crossTab', 'feedback']}
+        onGenerate={handleExportPdf}
+      />
     </div>
   );
 }

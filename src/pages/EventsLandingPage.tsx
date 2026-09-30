@@ -10,7 +10,6 @@ import {
   Clock,
   Clock3,
   Download,
-  Loader2,
   MapPin,
   Moon,
   Radio,
@@ -27,6 +26,12 @@ import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea } from '../types';
 import { downloadEventsSchedulePdf } from '../utils/eventsSchedulePdf';
+import { formatIsoId } from '../utils/exportDateRange';
+import type { SchedulePdfSection } from '../components/pdf/buildSchedulePdf';
+import { PdfExportOptionsModal } from '../components/pdf/PdfExportOptionsModal';
+import { ExportScopePicker } from '../components/pdf/ExportScopePicker';
+import { useExportScope } from '../components/pdf/useExportScope';
+import { SCHEDULE_SECTION_OPTIONS } from '../components/pdf/pdfSectionOptions';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { CalendarView } from '../components/views/CalendarView';
 import { CommunityEyebrow } from '../components/community/CommunityRevealPrimitives';
@@ -423,18 +428,18 @@ export function EventsLandingPage({
   /** Section per lokasi hanya bila ada area yang benar-benar terpetakan. */
   const hasMappedAreas = useMemo(() => areaGroups.some(g => g.area !== null), [areaGroups]);
 
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
 
-  const handleDownloadSchedulePdf = async () => {
-    if (isExportingPdf || events.length === 0) return;
-    setIsExportingPdf(true);
-    try {
-      await downloadEventsSchedulePdf(events);
-    } catch (err) {
-      console.error('Schedule PDF export failed:', err);
-    } finally {
-      setIsExportingPdf(false);
-    }
+  // Cakupan ekspor: periode (hari/minggu/bulan/tahun/kustom) lalu pilih per event.
+  const exportScope = useExportScope<EventItem>({
+    items: events,
+    getId: (event) => event.id,
+    getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
+  });
+
+  const handleDownloadSchedulePdf = async (sections: string[]) => {
+    if (exportScope.selected.length === 0) return;
+    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
   // ─── Filter URL (?waktu= & ?kategori=) — deep-linkable, riset Skedda/Eventbrite pattern ───
@@ -578,17 +583,13 @@ export function EventsLandingPage({
                 </Link>
                 <button
                   type="button"
-                  onClick={handleDownloadSchedulePdf}
-                  disabled={isExportingPdf || isLoading || events.length === 0}
+                  onClick={() => setIsExportOptionsOpen(true)}
+                  disabled={isLoading || events.length === 0}
                   className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
                   aria-label="Unduh jadwal event sebagai PDF"
                 >
-                  {isExportingPdf ? (
-                    <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                  ) : (
-                    <Download className="h-4 w-4" aria-hidden="true" />
-                  )}
-                  {isExportingPdf ? 'Menyiapkan PDF…' : 'Unduh PDF'}
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                  Unduh PDF
                 </button>
               </div>
 
@@ -896,6 +897,27 @@ export function EventsLandingPage({
           </div>
         </div>
       </footer>
+
+      <PdfExportOptionsModal
+        isOpen={isExportOptionsOpen}
+        onClose={() => setIsExportOptionsOpen(false)}
+        title="Unduh Jadwal Event"
+        description={`${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`}
+        sections={SCHEDULE_SECTION_OPTIONS}
+        defaultSelected={['summary', 'table']}
+        requiredSections={['table']}
+        onGenerate={handleDownloadSchedulePdf}
+        canGenerate={exportScope.selected.length > 0}
+      >
+        <ExportScopePicker
+          scope={exportScope}
+          getId={(event) => event.id}
+          primary={(event) => event.acara || '(tanpa nama)'}
+          secondary={(event) => [formatIsoId(event.dateStr), event.lokasi, event.eo].filter(Boolean).join(' · ')}
+          itemNoun="event"
+          searchPlaceholder="Cari acara, lokasi, penyelenggara…"
+        />
+      </PdfExportOptionsModal>
     </div>
   );
 }

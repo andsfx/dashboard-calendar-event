@@ -1,4 +1,5 @@
 import type { LetterRequestItem } from '../types';
+import { downloadBlob, safeFileName } from '../lib/download';
 
 // ============================================================
 // Letter PDF Generation & Download
@@ -7,27 +8,9 @@ import type { LetterRequestItem } from '../types';
 // ============================================================
 
 function letterFileName(letter: LetterRequestItem): string {
-  const nomor = (letter.nomorSurat || 'surat').replace(/[^\w.-]+/g, '_');
-  const event = letter.namaEvent
-    ? `_${letter.namaEvent.slice(0, 30).replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}`
-    : '';
+  const nomor = safeFileName(letter.nomorSurat, 'surat');
+  const event = letter.namaEvent ? `-${safeFileName(letter.namaEvent.slice(0, 30), 'event')}` : '';
   return `${nomor}${event}.pdf`;
-}
-
-/** Trigger a browser file download from a Blob without needing file-saver. */
-function downloadBlob(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.style.display = 'none';
-  document.body.appendChild(anchor);
-  anchor.click();
-  // Cleanup after a tick to ensure download starts
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(anchor);
-  }, 100);
 }
 
 /** Render the letter to a PDF Blob (engine loaded lazily). */

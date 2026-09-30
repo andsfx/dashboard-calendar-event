@@ -946,13 +946,21 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Ekspor PDF',
             audience: 'Publik',
             summary:
-              'Tiga permukaan bisa menghasilkan PDF: jadwal event, album galeri, dan hasil evaluasi tenant.',
+              'Tiga permukaan bisa menghasilkan PDF: jadwal event, album galeri, dan hasil evaluasi tenant. Sebelum berkas dibuat, Anda memilih dulu bagian dokumen dan cakupan itemnya.',
             steps: [
-              'Jadwal event — klik "Unduh PDF" di /events untuk mengekspor daftar yang sedang tampil.',
-              'Album galeri — klik "Export PDF" di /gallery, pilih mode tanggal atau tema, lihat "Preview PDF", lalu "Download PDF".',
-              'Hasil evaluasi tenant — klik "Export PDF" di /tenant-survey-results bila akun Anda berwenang.',
+              'Jadwal event — klik "Unduh PDF" di /events, pilih periode (Semua / Hari ini / Minggu ini / Bulan / Tahun / Rentang khusus) lalu centang event yang ingin diekspor.',
+              'Jadwal event (dashboard) — tombol "Unduh PDF" yang sama ada di tampilan Jadwal Event; daftar draft tidak pernah ikut karena draft selalu dibuang dari dokumen.',
+              'Album galeri — klik "Export PDF" di /gallery, pilih periode dan album (mode "Berdasarkan Tema" menyaring album per tema lebih dulu), lalu "Preview PDF" dan "Download PDF".',
+              'Hasil evaluasi tenant — klik "Export PDF" di /tenant-survey-results bila akun Anda berwenang; halaman ini sudah punya filter per event sendiri.',
+              'Pada tiap dialog, tentukan bagian dokumen yang disertakan (mis. Ringkasan, Tabel Jadwal). Bagian bertanda "Selalu disertakan" tidak bisa dimatikan.',
             ],
-            notes: ['Ekspor album galeri selalu dua langkah: pratinjau dulu, baru unduh.'],
+            notes: [
+              'Ekspor album galeri selalu dua langkah: pratinjau dulu, baru unduh.',
+              'Pilihan event disimpan per periode: ganti periode berarti semua event pada periode itu terpilih, dan kembali ke periode sebelumnya memulihkan centang Anda.',
+              'Daftar Bulan dan Tahun hanya memuat periode yang ada datanya.',
+              'Event multi-hari disaring lewat rentang, bukan tanggal mulai — event 31 Agustus sampai 2 September tetap ikut ekspor bulan September.',
+              'Tombol unduh mati bila tidak ada item atau bagian yang dipilih.',
+            ],
           },
           {
             id: 'pengisian-ganda',

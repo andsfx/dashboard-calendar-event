@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { EventItem } from '../../types';
 import { buildSchedulePdf } from '../../components/pdf/buildSchedulePdf';
 import { renderEventsSchedulePdfBlob } from '../eventsSchedulePdf';
+import { extractPdfStrings } from '../../test/pdfText';
 
 function ev(partial: Partial<EventItem> & Pick<EventItem, 'id' | 'status' | 'acara'>): EventItem {
   return {
@@ -36,20 +37,78 @@ describe('buildSchedulePdf', () => {
   it('menghasilkan PDF valid dengan header %PDF', async () => {
     const blob = await renderEventsSchedulePdfBlob(FIXTURE);
     expect(blob.size).toBeGreaterThan(1024);
-    const head = await blob.slice(0, 4).text();
-    expect(head).toBe('%PDF');
+    expect(await blob.slice(0, 4).text()).toBe('%PDF');
   });
 
-  it('memetakan seluruh event ke tabel (lastAutoTable body)', () => {
-    const doc = buildSchedulePdf({ events: FIXTURE, generatedAt: '3 September 2026' });
-    const table = doc.lastAutoTable;
-    expect(table.body).toHaveLength(3);
+  it('memetakan seluruh event ke tabel jadwal', () => {
+    const doc = buildSchedulePdf({ events: FIXTURE, generatedAt: '3 September 2026', sections: ['table'] });
+    const text = extractPdfStrings(doc);
+    for (const item of FIXTURE) {
+      expect(text).toContain(item.acara);
+    }
   });
 
-  it('kosong → tidak ada tabel, tetap PDF valid', async () => {
+  it('kosong → pesan kosong, tanpa tabel', async () => {
     const doc = buildSchedulePdf({ events: [], generatedAt: 'x' });
-    const head = (await doc.output('blob')).slice(0, 4);
-    expect(await head.text()).toBe('%PDF');
-    expect(doc.lastAutoTable).toBeUndefined();
+    expect(await doc.output('blob').slice(0, 4).text()).toBe('%PDF');
+    expect(extractPdfStrings(doc)).toContain('Belum ada event untuk diekspor');
+  });
+
+  it('hanya menggambar bagian yang dipilih', () => {
+    const tableOnly = extractPdfStrings(
+      buildSchedulePdf({ events: FIXTURE, generatedAt: 'x', sections: ['table'] }),
+    );
+    expect(tableOnly).toContain('Tabel Jadwal');
+    expect(tableOnly).not.toContain('Agenda per Area');
+    expect(tableOnly).not.toContain('Kontak Penyelenggara');
+    expect(tableOnly).not.toContain('TOTAL EVENT');
+
+    const summaryOnly = extractPdfStrings(
+      buildSchedulePdf({ events: FIXTURE, generatedAt: 'x', sections: ['summary'] }),
+    );
+    expect(summaryOnly).toContain('TOTAL EVENT');
+    expect(summaryOnly).not.toContain('Tabel Jadwal');
+  });
+
+  it('membungkus nama acara panjang di dalam kolomnya', () => {
+    // Regresi: dulu `willDrawCell` menggambar manual tanpa wrap sehingga
+    // teks 278 pt menembus kolom 157 pt (terukur 35 kata melintasi batas).
+    const doc = buildSchedulePdf({
+      events: [ev({
+        id: '1',
+        status: 'upcoming',
+        acara: 'Bazar UMKM Ramadan dengan Nama Sangat Panjang Sekali Sampai Over',
+        eo: 'Yayasan Peduli Kreatif Bekasi Raya',
+      })],
+      generatedAt: 'x',
+      sections: ['table'],
+    });
+    const text = extractPdfStrings(doc);
+    // Nama dibungkus menjadi beberapa baris: potongan akhirnya ikut tercetak
+    // sebagai baris terpisah, bukan hilang di luar kolom.
+    expect(text).toContain('Bazar UMKM Ramadan dengan Nama');
+    expect(text).toContain('Sangat Panjang Sekali Sampai Over');
+    expect(text).toContain('Yayasan Peduli Kreatif Bekasi Raya');
+  });
+
+  it('lembar kontak menyembunyikan kolom PIC/telepon bila datanya kosong', () => {
+    // Ekspor dari halaman publik: API sudah menghapus PII pic/phone.
+    const doc = buildSchedulePdf({ events: FIXTURE, generatedAt: 'x', sections: ['contacts'] });
+    const text = extractPdfStrings(doc);
+    expect(text).toContain('Penyelenggara');
+    expect(text).not.toContain('PIC');
+    expect(text).not.toContain('Telepon');
+  });
+
+  it('lembar kontak menampilkan PIC/telepon bila tersedia', () => {
+    const doc = buildSchedulePdf({
+      events: [ev({ id: '1', status: 'upcoming', acara: 'A', pic: 'Andi', phone: '0811' })],
+      generatedAt: 'x',
+      sections: ['contacts'],
+    });
+    const text = extractPdfStrings(doc);
+    expect(text).toContain('PIC');
+    expect(text).toContain('Telepon');
+    expect(text).toContain('Andi');
   });
 });

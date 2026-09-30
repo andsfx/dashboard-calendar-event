@@ -1,221 +1,418 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { EventItem } from '../../types';
+import {
+  A4,
+  EVENT_STATUS_LABEL,
+  PDF_BRAND,
+  PDF_CONTENT_W,
+  PDF_LOGO_DATA_URL,
+  PDF_MARGIN,
+  drawPdfFooter,
+  drawPdfHeader,
+  ensureSpace,
+  eventStatusColor,
+  formatDateId,
+} from './pdfTheme';
 
 // ============================================================
-// Jadwal Event PDF — jsPDF port of the old react-pdf document.
-// A4 portrait, helvetica base-14, unit pt.
+// Jadwal Event — A4 portrait, helvetica base-14, unit pt.
+//
+// Bagian dokumen dapat dipilih lewat `sections` supaya pemakai bisa
+// mengekspor ringkasan saja, tabel saja, atau lembar kontak EO saja.
 // ============================================================
 
-const COLORS = {
-  primary: '#00918e',
-  primaryDark: '#007a78',
-  text: '#0f172a',
-  muted: '#64748b',
-  border: '#e2e8f0',
-  paper: '#ffffff',
-  rowAlt: '#f8fafc',
-  live: '#047857',
-  soon: '#b45309',
-  past: '#64748b',
-};
+export type SchedulePdfSection = 'summary' | 'table' | 'areas' | 'contacts';
 
-const STATUS_LABEL: Record<string, string> = {
-  ongoing: 'Berlangsung',
-  upcoming: 'Akan Datang',
-  past: 'Selesai',
-  draft: 'Internal',
-};
+export const SCHEDULE_PDF_SECTIONS: SchedulePdfSection[] = ['summary', 'table', 'areas', 'contacts'];
 
-const MARGIN = 40;
-const PAGE_W = 595.28;
-const PAGE_H = 841.89;
-const CONTENT_W = PAGE_W - MARGIN * 2;
+const CARD_GAP = 8;
+const FONT = 'helvetica';
 
-function statusColor(status: string): string {
-  if (status === 'ongoing') return COLORS.live;
-  if (status === 'upcoming') return COLORS.soon;
-  return COLORS.past;
+interface ScheduleRow {
+  event: EventItem;
+  dateLine: string;
+  timeLine: string;
+  acara: string;
+  eo: string;
+  lokasi: string;
+  kategori: string;
+  statusLabel: string;
 }
 
-function formatDateLine(ev: EventItem): string {
-  if (ev.isMultiDay && ev.dateEnd) {
-    return `${ev.tanggal || ev.dateStr} - ${ev.dateEnd}`;
-  }
-  return ev.tanggal || ev.dateStr || '-';
+function toRow(ev: EventItem): ScheduleRow {
+  const start = ev.tanggal || formatDateId(ev.dateStr);
+  const dateLine = ev.isMultiDay && ev.dateEnd
+    ? `${start} – ${formatDateId(ev.dateEnd)}`
+    : start || '-';
+  return {
+    event: ev,
+    dateLine: dateLine || '-',
+    timeLine: ev.jam || '-',
+    acara: ev.acara || '-',
+    eo: ev.eo || '',
+    lokasi: ev.lokasi || '-',
+    kategori: ev.categories?.length ? ev.categories.join(', ') : ev.category || '-',
+    statusLabel: EVENT_STATUS_LABEL[ev.status] ?? ev.status,
+  };
 }
 
-function categoriesLine(ev: EventItem): string {
-  if (ev.categories?.length) return ev.categories.join(', ');
-  return ev.category || '-';
+function sortEvents(events: EventItem[]): EventItem[] {
+  return [...events].sort(
+    (a, b) => (a.dateStr || '').localeCompare(b.dateStr || '') || (a.acara || '').localeCompare(b.acara || ''),
+  );
 }
 
-function drawStatCard(doc: jsPDF, x: number, y: number, label: string, value: string, valueColor: string): void {
-  const w = 90;
-  const h = 36;
-  doc.setDrawColor(COLORS.border);
-  doc.setFillColor(COLORS.paper);
-  doc.roundedRect(x, y, w, h, 2, 2, 'FD');
-  doc.setFont('helvetica', 'normal');
+/**
+ * Ukur tinggi sel "Acara" (nama bold + EO baris kedua).
+ *
+ * autoTable hanya mengukur teks yang diberikan lewat `body`; karena sel ini
+ * digambar manual (dua gaya font dalam satu sel), tingginya dihitung di sini
+ * dan diteruskan lewat `minCellHeight`. Bug sebelumnya: tinggi sel tetap 22pt
+ * sementara teks digambar tanpa wrap sehingga menembus kolom sebelah.
+ */
+function measureAcaraCell(
+  doc: jsPDF,
+  acara: string,
+  eo: string,
+  innerWidth: number,
+): { nameLines: string[]; eoLines: string[]; height: number; padding: number } {
+  const padding = 5;
+  const nameSize = 8;
+  const eoSize = 7.5;
+  doc.setFont(FONT, 'bold');
+  doc.setFontSize(nameSize);
+  const nameLines = doc.splitTextToSize(acara, innerWidth);
+  doc.setFont(FONT, 'normal');
+  doc.setFontSize(eoSize);
+  const eoLines = eo ? doc.splitTextToSize(eo, innerWidth) : [];
+  const height =
+    padding * 2 +
+    nameLines.length * nameSize * 1.25 +
+    (eoLines.length ? eoLines.length * eoSize * 1.25 + 1.5 : 0);
+  return { nameLines, eoLines, height: Math.max(height, 20), padding };
+}
+
+function drawStatCard(
+  doc: jsPDF,
+  x: number,
+  y: number,
+  width: number,
+  label: string,
+  value: string,
+  valueColor: string,
+): void {
+  const height = 44;
+  doc.setDrawColor(PDF_BRAND.border);
+  doc.setFillColor(PDF_BRAND.paper);
+  doc.roundedRect(x, y, width, height, 3, 3, 'FD');
+  doc.setFillColor(valueColor);
+  doc.roundedRect(x, y, 3, height, 1.5, 1.5, 'F');
+
+  doc.setFont(FONT, 'normal');
   doc.setFontSize(7);
-  doc.setTextColor(COLORS.muted);
-  doc.text(label.toUpperCase(), x + 8, y + 12);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
+  doc.setTextColor(PDF_BRAND.muted);
+  doc.text(label.toUpperCase(), x + 10, y + 15, { charSpace: 0.4 });
+
+  doc.setFont(FONT, 'bold');
+  doc.setFontSize(16);
   doc.setTextColor(valueColor);
-  doc.text(value, x + 8, y + 28);
+  doc.text(value, x + 10, y + 34);
 }
 
-function drawFooter(doc: jsPDF): void {
-  const total = doc.getNumberOfPages();
-  for (let page = 1; page <= total; page++) {
-    doc.setPage(page);
-    const y = PAGE_H - 24;
-    doc.setDrawColor(COLORS.border);
-    doc.setLineWidth(0.5);
-    doc.line(MARGIN, y - 8, PAGE_W - MARGIN, y - 8);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(COLORS.muted);
-    doc.text('Metropolitan Mall Bekasi · Event Schedule', MARGIN, y);
-    doc.text(`${page} / ${total}`, PAGE_W - MARGIN, y, { align: 'right' });
+/** Baris tabel utama jadwal. */
+function drawScheduleTable(doc: jsPDF, rows: ScheduleRow[], startY: number): void {
+  const innerAcara = PDF_CONTENT_W * 0.3 - 8;
+  const widths = [0.15, 0.11, 0.3, 0.17, 0.14, 0.13];
+
+  autoTable(doc, {
+    startY,
+    margin: { left: PDF_MARGIN, right: PDF_MARGIN, top: PDF_MARGIN + 40, bottom: 56 },
+    // Baris yang terbelah dua halaman meninggalkan fragmen tanpa konteks.
+    rowPageBreak: 'avoid',
+    head: [['Tanggal', 'Jam', 'Acara', 'Lokasi', 'Kategori', 'Status']],
+    body: rows.map((row) => [
+      row.dateLine,
+      row.timeLine,
+      row.eo ? `${row.acara}\n${row.eo}` : row.acara,
+      row.lokasi,
+      row.kategori,
+      row.statusLabel,
+    ]),
+    styles: {
+      font: FONT,
+      fontSize: 8,
+      textColor: PDF_BRAND.text,
+      lineColor: PDF_BRAND.border,
+      lineWidth: 0,
+      cellPadding: { top: 5, bottom: 5, left: 4, right: 4 },
+      valign: 'top',
+    },
+    headStyles: {
+      fillColor: PDF_BRAND.primaryDark,
+      textColor: '#ffffff',
+      fontStyle: 'bold',
+      fontSize: 7.5,
+      valign: 'middle',
+    },
+    alternateRowStyles: { fillColor: PDF_BRAND.rowAlt },
+    columnStyles: {
+      0: { cellWidth: PDF_CONTENT_W * widths[0]!, fontStyle: 'bold' },
+      1: { cellWidth: PDF_CONTENT_W * widths[1]!, textColor: PDF_BRAND.muted },
+      2: { cellWidth: PDF_CONTENT_W * widths[2]! },
+      3: { cellWidth: PDF_CONTENT_W * widths[3]!, textColor: PDF_BRAND.muted },
+      4: { cellWidth: PDF_CONTENT_W * widths[4]!, textColor: PDF_BRAND.muted },
+      5: { cellWidth: PDF_CONTENT_W * widths[5]!, fontStyle: 'bold', fontSize: 7.5 },
+    },
+    didParseCell(data) {
+      if (data.section !== 'body') return;
+      const row = rows[data.row.index];
+      if (!row) return;
+      if (data.column.index === 5) {
+        data.cell.styles.textColor = eventStatusColor(row.event.status);
+      }
+      if (data.column.index === 2 && row.eo) {
+        const measured = measureAcaraCell(doc, row.acara, row.eo, innerAcara);
+        data.cell.styles.minCellHeight = measured.height;
+      }
+    },
+    willDrawCell(data) {
+      if (data.section !== 'body' || data.column.index !== 2) return true;
+      const row = rows[data.row.index];
+      if (!row?.eo) return true;
+
+      const measured = measureAcaraCell(doc, row.acara, row.eo, innerAcara);
+      const x = data.cell.x + 4;
+      let y = data.cell.y + measured.padding + 8;
+
+      doc.setFont(FONT, 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(PDF_BRAND.text);
+      for (const line of measured.nameLines) {
+        doc.text(line, x, y);
+        y += 8 * 1.25;
+      }
+      doc.setFont(FONT, 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(PDF_BRAND.muted);
+      for (const line of measured.eoLines) {
+        doc.text(line, x, y);
+        y += 7.5 * 1.25;
+      }
+      return false;
+    },
+  });
+}
+
+/** Agenda dikelompokkan per lokasi/area — tiap PIC area membaca bagiannya sendiri. */
+function drawAreaAgenda(doc: jsPDF, rows: ScheduleRow[], startY: number): number {
+  const groups = new Map<string, ScheduleRow[]>();
+  for (const row of rows) {
+    const key = row.lokasi || 'Tanpa lokasi';
+    groups.set(key, [...(groups.get(key) ?? []), row]);
   }
+  const sortedGroups = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0], 'id'));
+
+  let y = startY;
+  for (const [area, items] of sortedGroups) {
+    y = ensureSpace(doc, y, 44, {});
+    doc.setFont(FONT, 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(PDF_BRAND.ink);
+    doc.text(area, PDF_MARGIN, y);
+    doc.setFont(FONT, 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(PDF_BRAND.muted);
+    doc.text(`${items.length} event`, PDF_MARGIN + PDF_CONTENT_W, y, { align: 'right' });
+    doc.setDrawColor(PDF_BRAND.primary);
+    doc.setLineWidth(1);
+    doc.line(PDF_MARGIN, y + 4, PDF_MARGIN + PDF_CONTENT_W, y + 4);
+    y += 18;
+
+    for (const item of items) {
+      y = ensureSpace(doc, y, 26, {});
+      doc.setFont(FONT, 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(PDF_BRAND.text);
+      const titleLines = doc.splitTextToSize(item.acara, PDF_CONTENT_W - 170);
+      doc.text(titleLines, PDF_MARGIN, y);
+      doc.setFont(FONT, 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(PDF_BRAND.muted);
+      doc.text(`${item.dateLine} · ${item.timeLine}`, PDF_MARGIN + PDF_CONTENT_W, y, { align: 'right' });
+      y += titleLines.length * 10 + 6;
+    }
+    y += 8;
+  }
+  return y;
+}
+
+/**
+ * Lembar kontak EO — daftar penyelenggara untuk koordinasi teknis.
+ *
+ * Kolom PIC & Telepon hanya muncul bila datanya ada: API publik sudah
+ * menghapus PII (`pic`/`phone`) sebelum sampai ke klien, jadi ekspor dari
+ * halaman publik tidak boleh menampilkan dua kolom kosong.
+ */
+function drawEoContacts(doc: jsPDF, rows: ScheduleRow[], startY: number): void {
+  const contacts = rows.filter((row) => row.eo || row.event.pic || row.event.phone);
+  if (contacts.length === 0) {
+    doc.setFont(FONT, 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(PDF_BRAND.muted);
+    doc.text('Belum ada data penyelenggara pada event terpilih.', PDF_MARGIN, startY);
+    return;
+  }
+
+  const hasPic = contacts.some((row) => row.event.pic);
+  const hasPhone = contacts.some((row) => row.event.phone);
+
+  const head = ['Acara', 'Tanggal', 'Penyelenggara'];
+  const body = contacts.map((row) => [row.acara, row.dateLine, row.eo || '-']);
+  if (hasPic) {
+    head.push('PIC');
+    contacts.forEach((row, index) => body[index]?.push(row.event.pic || '-'));
+  }
+  if (hasPhone) {
+    head.push('Telepon');
+    contacts.forEach((row, index) => body[index]?.push(row.event.phone || '-'));
+  }
+
+  const flexCount = hasPic && hasPhone ? 4 : 3;
+  const fixed = 0.34;
+  const perFlex = (1 - fixed) / flexCount;
+  const columnStyles: Record<number, { cellWidth: number; textColor?: string }> = {
+    0: { cellWidth: PDF_CONTENT_W * fixed },
+    1: { cellWidth: PDF_CONTENT_W * perFlex, textColor: PDF_BRAND.muted },
+    2: { cellWidth: PDF_CONTENT_W * perFlex },
+  };
+  if (hasPic) columnStyles[3] = { cellWidth: PDF_CONTENT_W * perFlex };
+  if (hasPhone) columnStyles[hasPic ? 4 : 3] = { cellWidth: PDF_CONTENT_W * perFlex, textColor: PDF_BRAND.muted };
+
+  autoTable(doc, {
+    startY,
+    margin: { left: PDF_MARGIN, right: PDF_MARGIN, top: PDF_MARGIN + 40, bottom: 56 },
+    rowPageBreak: 'avoid',
+    head: [head],
+    body,
+    styles: {
+      font: FONT,
+      fontSize: 8,
+      textColor: PDF_BRAND.text,
+      lineWidth: 0,
+      cellPadding: { top: 5, bottom: 5, left: 4, right: 4 },
+    },
+    headStyles: {
+      fillColor: PDF_BRAND.primaryWash,
+      textColor: PDF_BRAND.primaryDeep,
+      fontStyle: 'bold',
+      fontSize: 7.5,
+    },
+    alternateRowStyles: { fillColor: PDF_BRAND.rowAlt },
+    columnStyles,
+  });
+}
+
+function drawSectionHeading(doc: jsPDF, title: string, subtitle: string, y: number): number {
+  doc.setFont(FONT, 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(PDF_BRAND.ink);
+  doc.text(title, PDF_MARGIN, y);
+  doc.setFont(FONT, 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(PDF_BRAND.muted);
+  doc.text(subtitle, PDF_MARGIN + PDF_CONTENT_W, y, { align: 'right' });
+  doc.setDrawColor(PDF_BRAND.border);
+  doc.setLineWidth(0.5);
+  doc.line(PDF_MARGIN, y + 5, PDF_MARGIN + PDF_CONTENT_W, y + 5);
+  return y + 20;
 }
 
 export interface SchedulePdfPayload {
   events: EventItem[];
   generatedAt: string;
+  /** Bagian yang digambar; default seluruh bagian. */
+  sections?: SchedulePdfSection[];
+  /** Logo data URL; kosong → kop berbasis teks. */
+  logoDataUrl?: string;
 }
 
-export function buildSchedulePdf({ events, generatedAt }: SchedulePdfPayload): jsPDF {
-  const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: false });
+export function buildSchedulePdf({
+  events,
+  generatedAt,
+  sections = SCHEDULE_PDF_SECTIONS,
+  logoDataUrl = PDF_LOGO_DATA_URL,
+}: SchedulePdfPayload): jsPDF {
+  const enabled = new Set(sections);
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   doc.setProperties({
     title: 'Jadwal Event - Metropolitan Mall Bekasi',
     author: 'Metropolitan Mall Bekasi',
-    subject: 'Event Schedule',
+    subject: 'Jadwal Event',
+    keywords: 'jadwal, event, Metropolitan Mall Bekasi',
+    creator: 'Dashboard Event System',
   });
 
-  const live = events.filter(e => e.status === 'ongoing').length;
-  const soon = events.filter(e => e.status === 'upcoming').length;
-  const sorted = [...events].sort(
-    (a, b) => a.dateStr.localeCompare(b.dateStr) || a.acara.localeCompare(b.acara),
-  );
+  const sorted = sortEvents(events);
+  const rows = sorted.map(toRow);
+  const live = sorted.filter((event) => event.status === 'ongoing').length;
+  const soon = sorted.filter((event) => event.status === 'upcoming').length;
+  const past = sorted.filter((event) => event.status === 'past').length;
 
-  // Header
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(COLORS.primary);
-  doc.text('METROPOLITAN MALL BEKASI', MARGIN, MARGIN + 4, { charSpace: 1.2 });
+  let y = drawPdfHeader(doc, {
+    title: 'Jadwal Event',
+    subtitle: 'Metropolitan Mall Bekasi',
+    meta: `Diekspor ${generatedAt} · ${sorted.length} event`,
+    logoDataUrl,
+  });
 
-  doc.setFontSize(18);
-  doc.setTextColor(COLORS.text);
-  doc.text('Jadwal Event', MARGIN, MARGIN + 26);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(COLORS.muted);
-  doc.text(`Diekspor ${generatedAt} · ${sorted.length} event`, MARGIN, MARGIN + 38);
-
-  doc.setDrawColor(COLORS.primary);
-  doc.setLineWidth(2);
-  doc.line(MARGIN, MARGIN + 44, PAGE_W - MARGIN, MARGIN + 44);
-
-  // Stat cards: Total / Live / Akan Datang
-  const cardsY = MARGIN + 60;
-  drawStatCard(doc, MARGIN, cardsY, 'Total', String(sorted.length), COLORS.text);
-  drawStatCard(doc, MARGIN + 98, cardsY, 'Live', String(live), COLORS.live);
-  drawStatCard(doc, MARGIN + 196, cardsY, 'Akan Datang', String(soon), COLORS.soon);
+  if (enabled.has('summary')) {
+    doc.outline.add(null, 'Ringkasan', { pageNumber: doc.getNumberOfPages() });
+    const cardW = (PDF_CONTENT_W - CARD_GAP * 3) / 4;
+    drawStatCard(doc, PDF_MARGIN, y, cardW, 'Total Event', String(sorted.length), PDF_BRAND.ink);
+    drawStatCard(doc, PDF_MARGIN + (cardW + CARD_GAP), y, cardW, 'Berlangsung', String(live), PDF_BRAND.live);
+    drawStatCard(doc, PDF_MARGIN + (cardW + CARD_GAP) * 2, y, cardW, 'Akan Datang', String(soon), PDF_BRAND.soon);
+    drawStatCard(doc, PDF_MARGIN + (cardW + CARD_GAP) * 3, y, cardW, 'Selesai', String(past), PDF_BRAND.past);
+    y += 64;
+  }
 
   if (sorted.length === 0) {
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(FONT, 'normal');
     doc.setFontSize(10);
-    doc.setTextColor(COLORS.muted);
-    doc.text('Belum ada event untuk diekspor.', PAGE_W / 2, cardsY + 60, { align: 'center' });
-    drawFooter(doc);
+    doc.setTextColor(PDF_BRAND.muted);
+    doc.text('Belum ada event untuk diekspor.', A4.w / 2, y + 24, { align: 'center' });
+    drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal Event' });
     return doc;
   }
 
-  autoTable(doc, {
-    startY: cardsY + 48,
-    margin: { left: MARGIN, right: MARGIN, top: MARGIN + 56, bottom: 48 },
-    head: [['Tanggal', 'Jam', 'Acara', 'Lokasi', 'Kategori', 'Status']],
-    body: sorted.map(ev => [
-      formatDateLine(ev),
-      ev.jam || '-',
-      ev.eo ? `${ev.acara || '-'}\n${ev.eo}` : ev.acara || '-',
-      ev.lokasi || '-',
-      categoriesLine(ev),
-      STATUS_LABEL[ev.status] ?? ev.status,
-    ]),
-    styles: {
-      font: 'helvetica',
-      fontSize: 8,
-      textColor: COLORS.text,
-      lineColor: COLORS.border,
-      lineWidth: 0,
-      cellPadding: { top: 5, bottom: 5, left: 4, right: 4 },
-    },
-    headStyles: {
-      fillColor: COLORS.primary,
-      textColor: '#ffffff',
-      fontStyle: 'bold',
-      fontSize: 7,
-    },
-    alternateRowStyles: { fillColor: COLORS.rowAlt },
-    columnStyles: {
-      0: { cellWidth: CONTENT_W * 0.16 },
-      1: { cellWidth: CONTENT_W * 0.12, textColor: COLORS.muted },
-      2: { cellWidth: CONTENT_W * 0.32 },
-      3: { cellWidth: CONTENT_W * 0.18, textColor: COLORS.muted },
-      4: { cellWidth: CONTENT_W * 0.12, textColor: COLORS.muted },
-      5: { cellWidth: CONTENT_W * 0.10, fontStyle: 'bold', fontSize: 7 },
-    },
-    didParseCell(data) {
-      if (data.section === 'body' && data.column.index === 5) {
-        const status = sorted[data.row.index]?.status ?? '';
-        data.cell.styles.textColor = statusColor(status);
-      }
-      // Kolom Acara: nama bold + EO baris kedua normal → gambar manual.
-      if (data.section === 'body' && data.column.index === 2) {
-        const ev = sorted[data.row.index];
-        if (ev?.eo) {
-          data.cell.styles.minCellHeight = 22;
-        }
-      }
-    },
-    didDrawCell(data) {
-      // Border-bottom per baris (setara borderBottomWidth di dokumen lama).
-      if (data.section === 'body' && data.column.index === 0) {
-        doc.setDrawColor(COLORS.border);
-        doc.setLineWidth(0.5);
-        doc.line(
-          MARGIN,
-          data.cell.y + data.cell.height,
-          PAGE_W - MARGIN,
-          data.cell.y + data.cell.height,
-        );
-      }
-    },
-    willDrawCell(data) {
-      if (data.section === 'body' && data.column.index === 2) {
-        const ev = sorted[data.row.index];
-        if (ev?.eo) {
-          // Nama acara bold; EO baris kedua normal (default draw = semua bold).
-          const { x, y } = data.cell;
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(8);
-          doc.setTextColor(COLORS.text);
-          doc.text(ev.acara || '-', x + 4, y + 12);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(COLORS.muted);
-          doc.text(ev.eo, x + 4, y + 23);
-          return false; // suppress default draw
-        }
-      }
-      return true;
-    },
-  });
+  if (enabled.has('table')) {
+    y = drawSectionHeading(doc, 'Tabel Jadwal', `${sorted.length} event`, y);
+    doc.outline.add(null, 'Tabel Jadwal', { pageNumber: doc.getNumberOfPages() });
+    drawScheduleTable(doc, rows, y);
+    y = doc.lastAutoTable.finalY + 24;
+  }
 
-  drawFooter(doc);
+  if (enabled.has('areas')) {
+    y = ensureSpace(doc, y, 60, {});
+    y = drawSectionHeading(doc, 'Agenda per Area', 'dikelompokkan menurut lokasi', y);
+    doc.outline.add(null, 'Agenda per Area', { pageNumber: doc.getNumberOfPages() });
+    y = drawAreaAgenda(doc, rows, y);
+  }
+
+  if (enabled.has('contacts')) {
+    // Lembar kontak selalu mulai di halaman baru: dipakai berdiri sendiri
+    // oleh tim operasional, bukan dibaca menyambung dari tabel.
+    doc.addPage();
+    doc.outline.add(null, 'Kontak Penyelenggara', { pageNumber: doc.getNumberOfPages() });
+    const contactsY = drawSectionHeading(
+      doc,
+      'Kontak Penyelenggara',
+      'untuk koordinasi teknis',
+      PDF_MARGIN,
+    );
+    drawEoContacts(doc, rows, contactsY);
+  }
+
+  drawPdfFooter(doc, { label: 'Metropolitan Mall Bekasi · Jadwal Event' });
   return doc;
 }

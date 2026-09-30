@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Loader2, RefreshCw, SearchX } from 'lucide-react';
+import { Download, RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../../types';
 import { SearchBar } from '../ui/SearchBar';
 import { FilterBar } from '../ui/FilterBar';
@@ -7,7 +7,13 @@ import { EventTable } from '../events/EventTable';
 import { DashboardCalendarView } from '../dashboard/DashboardCalendarView';
 import { KanbanView } from './KanbanView';
 import { TimelineView } from './TimelineView';
-import { downloadEventsSchedulePdf } from '../../utils/eventsSchedulePdf';
+import { downloadEventsSchedulePdf, filterScheduleEventsForPdf } from '../../utils/eventsSchedulePdf';
+import { formatIsoId } from '../../utils/exportDateRange';
+import type { SchedulePdfSection } from '../pdf/buildSchedulePdf';
+import { SCHEDULE_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
+import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
+import { ExportScopePicker } from '../pdf/ExportScopePicker';
+import { useExportScope } from '../pdf/useExportScope';
 
 interface Props {
   viewMode: ViewMode;
@@ -70,7 +76,17 @@ export function DashboardViewsSection(props: Props) {
     onDetail,
   } = props;
 
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
+
+  // PDF jadwal tidak pernah memuat draft (lihat renderEventsSchedulePdfBlob),
+  // jadi pemilih pun hanya menawarkan event yang benar-benar akan tercetak.
+  const exportableEvents = filterScheduleEventsForPdf(visibleEvents);
+
+  const exportScope = useExportScope<EventItem>({
+    items: exportableEvents,
+    getId: (event) => event.id,
+    getRange: (event) => ({ start: event.dateStr, end: event.dateEnd }),
+  });
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -80,16 +96,9 @@ export function DashboardViewsSection(props: Props) {
     setActiveMonth('Semua');
   };
 
-  const handleExportSchedulePdf = async () => {
-    if (!canExportSchedulePdf || isExportingPdf || visibleEvents.length === 0) return;
-    setIsExportingPdf(true);
-    try {
-      await downloadEventsSchedulePdf(visibleEvents);
-    } catch (err) {
-      console.error('Schedule PDF export failed:', err);
-    } finally {
-      setIsExportingPdf(false);
-    }
+  const handleExportSchedulePdf = async (sections: string[]) => {
+    if (!canExportSchedulePdf || exportScope.selected.length === 0) return;
+    await downloadEventsSchedulePdf(exportScope.selected, { sections: sections as SchedulePdfSection[] });
   };
 
   const activeFilterCount = [
@@ -144,17 +153,13 @@ export function DashboardViewsSection(props: Props) {
             {canExportSchedulePdf && (
               <button
                 type="button"
-                onClick={handleExportSchedulePdf}
-                disabled={isExportingPdf || visibleEvents.length === 0}
+                onClick={() => setIsExportOptionsOpen(true)}
+                disabled={visibleEvents.length === 0}
                 className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-strong)] hover:text-[var(--wf-ink)] disabled:opacity-50"
                 aria-label="Unduh jadwal event sebagai PDF"
               >
-                {isExportingPdf ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden />
-                ) : (
-                  <Download className="h-3.5 w-3.5" aria-hidden />
-                )}
-                {isExportingPdf ? 'PDF…' : 'Unduh PDF'}
+                <Download className="h-3.5 w-3.5" aria-hidden />
+                Unduh PDF
               </button>
             )}
           </div>
@@ -217,6 +222,27 @@ export function DashboardViewsSection(props: Props) {
           )}
         </section>
       )}
+
+      <PdfExportOptionsModal
+        isOpen={isExportOptionsOpen}
+        onClose={() => setIsExportOptionsOpen(false)}
+        title="Export Jadwal Event"
+        description={`${exportScope.selected.length} dari ${exportableEvents.length} event sesuai filter aktif. Atur periode dan event, lalu pilih bagian dokumen.`}
+        sections={SCHEDULE_SECTION_OPTIONS}
+        defaultSelected={['summary', 'table']}
+        requiredSections={['table']}
+        onGenerate={handleExportSchedulePdf}
+        canGenerate={exportScope.selected.length > 0}
+      >
+        <ExportScopePicker
+          scope={exportScope}
+          getId={(event) => event.id}
+          primary={(event) => event.acara || '(tanpa nama)'}
+          secondary={(event) => [formatIsoId(event.dateStr), event.lokasi, event.eo].filter(Boolean).join(' · ')}
+          itemNoun="event"
+          searchPlaceholder="Cari acara, lokasi, penyelenggara…"
+        />
+      </PdfExportOptionsModal>
     </div>
   );
 }

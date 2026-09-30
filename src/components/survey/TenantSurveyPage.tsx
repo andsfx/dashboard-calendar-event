@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
+import { downloadBlob } from '../../lib/download';
 import { ClipboardCheck, BarChart3, List, ChevronLeft, ChevronDown, ChevronUp, Store, MapPin, Tag, TrendingUp, DollarSign, Download, Link2, Check, ToggleLeft, ToggleRight, Loader2, QrCode, User, Phone, Calendar, Search, Edit, Send, Trash2, Eye, AlertTriangle } from 'lucide-react';
 import type {
   EventItem,
@@ -350,12 +351,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
         return;
       }
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, `tenant-survey-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`);
     } catch {
       setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
     }

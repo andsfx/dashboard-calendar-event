@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Download, Loader2, X, FileText, CalendarDays, Palette, ArrowLeft, Eye } from 'lucide-react';
 import type { AnnualTheme, EventPhoto, PhotoAlbum } from '../../types';
 import { apiGet } from '../../lib/rest';
-import { generateAlbumPdf, type AlbumWithPhotos } from '../../utils/pdfExport';
+import { downloadBlob, safeFileName } from '../../lib/download';
+import { generateAlbumPdf, type AlbumPdfSection, type AlbumWithPhotos } from '../../utils/pdfExport';
+import { describeRange, formatIsoId } from '../../utils/exportDateRange';
+import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
+import { ExportScopePicker } from '../pdf/ExportScopePicker';
+import { useExportScope } from '../pdf/useExportScope';
+import { ALBUM_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -47,36 +53,19 @@ function dbPhotoToEventPhoto(row: DbPhotoRow): EventPhoto {
   };
 }
 
-function safeFileName(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'album-export';
-}
 
-function downloadBlob(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = fileName;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
-}
+
+
 
 export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
   const [mode, setMode] = useState<FilterMode>('date');
-  const [dateStart, setDateStart] = useState('');
-  const [dateEnd, setDateEnd] = useState('');
   const [themeId, setThemeId] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [progressText, setProgressText] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [isSectionPickerOpen, setIsSectionPickerOpen] = useState(false);
 
   // Cleanup preview URL on unmount
   useEffect(() => {
@@ -90,29 +79,29 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
     [themeId, themes],
   );
 
-  const filteredAlbums = useMemo(() => {
-    if (mode === 'theme') {
-      if (!themeId) return [];
-      return albums.filter(album => {
-        if (album.themeId === themeId) return true;
-        if (!selectedTheme || album.themeId) return false;
-        if (!album.eventDate) return false;
-        return album.eventDate >= selectedTheme.dateStart && album.eventDate <= selectedTheme.dateEnd;
-      });
-    }
-
+  /** Album yang lolos saringan mode (tema atau seluruh album). */
+  const themeAlbums = useMemo(() => {
+    if (mode !== 'theme') return albums;
+    if (!themeId) return [];
     return albums.filter(album => {
+      if (album.themeId === themeId) return true;
+      if (!selectedTheme || album.themeId) return false;
       if (!album.eventDate) return false;
-      if (dateStart && album.eventDate < dateStart) return false;
-      if (dateEnd && album.eventDate > dateEnd) return false;
-      return true;
+      return album.eventDate >= selectedTheme.dateStart && album.eventDate <= selectedTheme.dateEnd;
     });
-  }, [albums, dateEnd, dateStart, mode, selectedTheme, themeId]);
+  }, [albums, mode, selectedTheme, themeId]);
 
+  // Cakupan ekspor: periode (hari/minggu/bulan/tahun/kustom) + pilih per album.
+  const scope = useExportScope<PhotoAlbum>({
+    items: themeAlbums,
+    getId: (album) => album.id,
+    getRange: (album) => ({ start: album.eventDate }),
+  });
+
+  const filteredAlbums = scope.selected;
   const canGenerate = filteredAlbums.length > 0 && !isGenerating;
 
-  const handleGenerate = async () => {
-    if (!canGenerate) return;
+  const handleGenerate = async (sections: string[]) => {
     setIsGenerating(true);
     setErrorMessage('');
     setProgressText('Menyiapkan foto…');
@@ -137,11 +126,17 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         photos: photosByAlbum.get(album.id) || [],
       }));
 
-      const blob = await generateAlbumPdf(payload, selectedTheme?.name, (current, total) => {
-        setProgressText(`Mengompres foto ${current}/${total}…`);
-      });
+      const blob = await generateAlbumPdf(
+        payload,
+        selectedTheme?.name,
+        (current, total) => {
+          setProgressText(`Mengompres foto ${current}/${total}…`);
+        },
+        undefined,
+        { sections: sections as AlbumPdfSection[] },
+      );
       setProgressText('Membuat PDF…');
-      
+
       // Show preview instead of direct download
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
@@ -157,8 +152,9 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
 
   const handleDownload = () => {
     if (!previewBlob) return;
-    const suffix = selectedTheme?.name || [dateStart, dateEnd].filter(Boolean).join('-to-') || 'all';
-    downloadBlob(previewBlob, `${safeFileName(`dokumentasi-event-${suffix}`)}.pdf`);
+    const rangeSuffix = scope.period === 'all' ? '' : describeRange(scope.range).toLowerCase();
+    const suffix = selectedTheme?.name || rangeSuffix || 'all';
+    downloadBlob(previewBlob, `${safeFileName(`dokumentasi-event-${suffix}`.toLowerCase(), 'album-export')}.pdf`);
   };
 
   const handleBackToFilter = () => {
@@ -217,28 +213,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             </button>
           </div>
 
-          {mode === 'date' ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Tanggal mulai</span>
-                <input
-                  type="date"
-                  value={dateStart}
-                  onChange={(event) => setDateStart(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-                />
-              </label>
-              <label className="block">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Tanggal akhir</span>
-                <input
-                  type="date"
-                  value={dateEnd}
-                  onChange={(event) => setDateEnd(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-                />
-              </label>
-            </div>
-          ) : (
+          {mode === 'theme' && (
             <label className="block">
               <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Tema event</span>
               <select
@@ -252,6 +227,23 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
                 ))}
               </select>
             </label>
+          )}
+
+          {mode === 'theme' && !themeId ? (
+            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
+              Pilih tema dulu untuk melihat album yang tersedia.
+            </p>
+          ) : (
+            <ExportScopePicker
+              scope={scope}
+              getId={(album) => album.id}
+              primary={(album) => album.name || '(tanpa nama)'}
+              secondary={(album) => [album.eventDate ? formatIsoId(album.eventDate) : '', album.lokasi]
+                .filter(Boolean)
+                .join(' · ')}
+              itemNoun="album"
+              searchPlaceholder="Cari album atau lokasi…"
+            />
           )}
 
           <div className="rounded-2xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-800 dark:bg-slate-950">
@@ -300,7 +292,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
               </button>
               <button
                 type="button"
-                onClick={handleGenerate}
+                onClick={() => setIsSectionPickerOpen(true)}
                 disabled={!canGenerate}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
               >
@@ -311,6 +303,18 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
           )}
         </div>
       </div>
+
+      <PdfExportOptionsModal
+        isOpen={isSectionPickerOpen}
+        onClose={() => setIsSectionPickerOpen(false)}
+        title="Preview Album Foto"
+        description={`${filteredAlbums.length} album siap diekspor. Pilih bagian yang ingin disertakan.`}
+        sections={ALBUM_SECTION_OPTIONS}
+        defaultSelected={['cover', 'header', 'photos', 'captions']}
+        requiredSections={['photos']}
+        onGenerate={handleGenerate}
+        generateLabel="Preview PDF"
+      />
     </ModalWrapper>
   );
 }
