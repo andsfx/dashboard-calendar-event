@@ -1,0 +1,41 @@
+# Normalisasi line ending — satu sumber kebenaran untuk seluruh repo.
+#
+# Sebelum ini repo mencampur EOL: 341 berkas ter-commit CRLF dan 6 berkas
+# "mixed", sehingga `git show --check` melaporkan CR sebagai trailing
+# whitespace pada setiap baris yang ditambahkan ke berkas-berkas itu, dan
+# penulis di Windows menghasilkan diff seluruh-berkas. Berkas yang di-`scp` ke
+# VPS juga rawan terbawa `\r` yang merusak direktif nginx / shebang.
+#
+# Kebijakan: LF untuk seluruh berkas teks; biner tidak pernah dinormalisasi.
+
+* text=auto eol=lf
+
+# Dieksekusi/dibaca di Linux — LF wajib
+*.sh       text eol=lf
+*.conf     text eol=lf
+*.service  text eol=lf
+Dockerfile text eol=lf
+
+# Biner — jangan pernah dinormalisasi
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.mp4   binary
+*.webm  binary
+*.mp3   binary
+*.zip   binary
+*.gz    binary
+*.tgz   binary
+*.7z    binary
+*.xlsx  binary
+*.docx  binary
