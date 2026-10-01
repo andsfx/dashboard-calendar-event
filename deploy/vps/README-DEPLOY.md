@@ -87,13 +87,21 @@ npm run build   # menghasilkan dist/ yang di-mount nginx
 > hash milik VPS tidak ada di Vercel → **halaman detail blank** (404 aset).
 > Insiden 2026-10-01: `index-DxquOWQF.js` (lokal) vs `index-VPVS5j21.js` (Vercel).
 >
-> Isi `dist/` VPS dari **artifact deployment Vercel yang sebenarnya**: ambil
-> `https://www.metmalcommunityspace.web.id/index.html`, lalu unduh seluruh
-> asset graph-nya secara rekursif (`/assets/*`, `/fonts/*`) dan verifikasi semua
-> URL 200 sebelum menyalin ke `/opt/metmal/dist` (**tulis ke dalam** direktori
-> yang di-mount; jangan ganti inode direktori — nginx masih menahan mount lama).
-> Cara tercepat yang aman: biarkan Git auto-deploy Vercel selesai lebih dulu,
-> baru sinkronkan VPS dari `www` yang sudah live.
+> Isi `dist/` VPS dari **artifact deployment Vercel yang sebenarnya**, bukan dari
+> build lokal. Pakai skrip yang sudah ada (idempoten, memverifikasi seluruh
+> asset graph sebelum menulis, dan mem-backup `dist/` lama lebih dulu):
+>
+> ```bash
+> # unduh + verifikasi ke .deploy/dist-sync (dry run; exit != 0 bila ada aset hilang)
+> node deploy/vps/sync-dist-from-live.mjs
+> # kirim & tulis in-place di VPS (jangan ganti inode direktori — nginx menahan mount lama)
+> node deploy/vps/sync-dist-from-live.mjs --apply --ssh root@100.69.24.32 --remote-dist /opt/metmal/dist
+> ```
+>
+> Cara paling aman: biarkan Git auto-deploy Vercel selesai lebih dulu, baru
+> sinkronkan VPS dari `www` yang sudah live. (Commit yang hanya menyentuh
+> komentar/dokumen tidak mengubah hash — terser membuang komentar — jadi jangan
+> heran bila hash tetap sama; verifikasi lewat output skrip, bukan asumsi.)
 
 ### 5. Jalankan stack
 ```bash
