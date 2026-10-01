@@ -78,6 +78,23 @@ npm run build   # menghasilkan dist/ yang di-mount nginx
 > 404 dan seluruh app rusak. Verifikasi: grep bundle live harus memuat
 > `metmal.metmalcommunityspace.web.id".replace(/\/+$/,"")+"/api/v1"`.
 
+> 🚨 **JANGAN `scp` hasil `npm run build` lokal ke `dist/` VPS bila SPA juga
+> dilayani Vercel.** `vercel.json` me-rewrite `www/events/:id` ke VPS, dan shell
+> yang dikembalikan VPS (`readShellHtml()` membaca `dist/index.html`)
+> mereferensikan `/assets/*` **relatif** → browser memuatnya dari **www
+> (Vercel)**, bukan dari VPS. Hash build lokal dan hash build Vercel **tidak
+> selalu sama** untuk sumber yang sama (beda environment/minifier), sehingga
+> hash milik VPS tidak ada di Vercel → **halaman detail blank** (404 aset).
+> Insiden 2026-10-01: `index-DxquOWQF.js` (lokal) vs `index-VPVS5j21.js` (Vercel).
+>
+> Isi `dist/` VPS dari **artifact deployment Vercel yang sebenarnya**: ambil
+> `https://www.metmalcommunityspace.web.id/index.html`, lalu unduh seluruh
+> asset graph-nya secara rekursif (`/assets/*`, `/fonts/*`) dan verifikasi semua
+> URL 200 sebelum menyalin ke `/opt/metmal/dist` (**tulis ke dalam** direktori
+> yang di-mount; jangan ganti inode direktori — nginx masih menahan mount lama).
+> Cara tercepat yang aman: biarkan Git auto-deploy Vercel selesai lebih dulu,
+> baru sinkronkan VPS dari `www` yang sudah live.
+
 ### 5. Jalankan stack
 ```bash
 cd deploy/vps

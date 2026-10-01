@@ -59,13 +59,14 @@ export function thumbUrl(url: string): string {
 }
 
 /**
- * Poster/flyer event (4:3, 768px).
+ * Poster/flyer event (4:3, 768×576).
  *
  * Mayoritas poster & cover album yang diunggah admin adalah 4:3 (terukur:
- * 5328×4000 = 1.333). Sebelumnya banner meminta crop 16:10 lewat `thumbUrl`,
- * jadi gambar sudah dipotong di CDN sebelum masuk ke kotak yang juga 16:10 —
- * potongan dobel. Kotak banner kini 4:3, dan helper ini meminta 4:3 juga
- * sehingga poster 4:3 tampil utuh (0% terpotong).
+ * 5328×4000 = 1.333). Sebelumnya banner memakai `thumbUrl()` (hanya `w=480`,
+ * tanpa `h`) sehingga CDN mengembalikan 480×360 dan pemotongan 16:10
+ * sepenuhnya terjadi di CSS — plus hero meng-upscale 480 px ke >1000 px CSS.
+ * Helper ini meminta 4:3 eksplisit pada 768 px agar poster 4:3 tampil utuh
+ * di kotak banner yang juga 4:3, dan cukup tajam untuk hero.
  */
 export function posterThumbUrl(url: string): string {
   return imgUrl(url, { w: 768, h: 576, q: 75, fit: 'cover' });
