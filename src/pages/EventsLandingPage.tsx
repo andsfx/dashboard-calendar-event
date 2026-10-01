@@ -162,7 +162,6 @@ function HighlightEventCard({
             src={promoImageUrl}
             alt={event.acara}
             eager
-            className="sm:aspect-[5/3]"
           />
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 to-transparent"
