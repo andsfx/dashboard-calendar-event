@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { EventItem } from '../../types';
 import { StatusBadge } from '../ui/StatusBadge';
 import { EventDetailContent } from '../events/EventDetailContent';
+import { EventPosterBanner } from '../events/EventPosterBanner';
 
 const SurveyQRCode = lazy(() => import('../survey/SurveyQRCode'));
 import { EventPhotoGallery } from '../events/EventPhotoGallery';
@@ -46,9 +47,17 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
           <div className="absolute inset-0 rounded-t-2xl opacity-10 dark:opacity-5" style={{ background: color }} />
           <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: `${color}44` }} />
 
+          {event.posterUrl && (
+            <div className="relative -mx-4 -mt-6 mb-5 sm:-mx-6">
+              <EventPosterBanner src={event.posterUrl} alt={event.acara} className="rounded-t-2xl" />
+            </div>
+          )}
+
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
+            className={`absolute right-4 top-4 rounded-xl p-2 transition-colors ${event.posterUrl
+              ? 'bg-black/45 text-white backdrop-blur-sm hover:bg-black/65'
+              : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'}`}
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />

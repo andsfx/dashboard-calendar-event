@@ -425,6 +425,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         eventModelNotes: formData.eventModelNotes,
         organizationId: formData.organizationId || undefined,
         areaId: areaId || null,
+        posterUrl: formData.posterUrl || '',
       };
 
       const recurringEvents = createRecurringEvents(template, formData.dateStr, rule);

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { EventItem, PhotoAlbum } from '../../types';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { parseTimeRange } from '../../utils/eventDateTime';
+import { resolveEventPoster } from '../../utils/eventPoster';
+import { EventPosterBanner } from '../events/EventPosterBanner';
 import { RevealSection } from './CommunityRevealPrimitives';
 
 function EmptyEvents() {
@@ -132,8 +134,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   const showCountdown = countdownDiff > 0 && mainEvent.status !== 'ongoing';
   const showOngoing = mainEvent.status === 'ongoing';
   const countdown = showCountdown ? getCountdownFromDiff(countdownDiff) : null;
-  const mainAlbum = albums.find(album => album.eventId === mainEvent.id);
-  const promoImageUrl = mainEvent.posterUrl || mainAlbum?.coverPhotoUrl || '';
+  const promoImageUrl = resolveEventPoster(mainEvent, albums);
 
   return (
     <RevealSection id="upcoming-events" intensity="strong" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
@@ -223,13 +224,16 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
           {otherEvents.map(ev => {
             const evCat = (ev.categories?.length ? ev.categories[0] : ev.category) || 'Umum';
             const color = CATEGORY_COLORS[evCat] ?? CATEGORY_COLORS.Umum;
+            const evPoster = resolveEventPoster(ev, albums);
             return (
               <button
                 key={ev.id}
                 type="button"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start gap-4 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex flex-col items-start overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white text-left shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
               >
+                {evPoster && <EventPosterBanner src={evPoster} alt={ev.acara} />}
+                <div className="flex flex-col items-start gap-4 p-5">
                 <div className="flex w-full items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200" style={{ backgroundColor: `${color}15` }}>
                     <CalendarDays className="h-3 w-3" />
@@ -247,6 +251,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                       {ev.lokasi && <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> <span className="line-clamp-1">{ev.lokasi}</span></span>}
                     </div>
                   )}
+                </div>
                 </div>
               </button>
             );

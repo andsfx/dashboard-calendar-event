@@ -23,6 +23,7 @@
  * client pemilik konversi camelCase.
  */
 import { Router } from 'express';
+import { readFileSync } from 'node:fs';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -986,6 +987,18 @@ function buildMetaBlock({ title, description, pageUrl, ogImage, origin, event })
   ].join('\n');
 }
 
+/**
+ * Buang meta/title bawaan shell (index.html statis) sebelum blok meta per-event
+ * disuntikkan. Tanpa ini, `<title>`/`og:*`/`twitter:*` generik tetap berada
+ * lebih dulu di <head> dan menang atas nilai per-event pada crawler
+ * (WhatsApp/Facebook memakai tag pertama yang ditemukan).
+ */
+function stripDefaultMeta(html) {
+  return html
+    .replace(/<title>[\s\S]*?<\/title>\s*/gi, '')
+    .replace(/<meta\s+(?:property|name)="(?:og:[^"]*|twitter:[^"]*|description)"[^>]*>\s*/gi, '');
+}
+
 function sendHtml(res, html, { noIndex = false, notFound = false, noStore = false } = {}) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   if (noStore) {
@@ -999,9 +1012,22 @@ function sendHtml(res, html, { noIndex = false, notFound = false, noStore = fals
   return res.status(notFound ? 404 : 200).send(html);
 }
 
-/** Shell SPA — fallback dari lokal; jangan fetch self (VPS bukan origin SPA). */
+/**
+ * Shell SPA — index.html hasil build Vite (dist/index.html) di repo root.
+ * WAJIB: nginx me-rewrite `/events/:id` ke route ini, jadi respons harus
+ * memuat `<script type="module" src="/assets/index-*.js">` agar React
+ * benar-benar boot. Shell minimal hardcoded (tanpa script) membuat halaman
+ * detail kosong total — bug ini pernah terkirim ke produksi.
+ *
+ * path relatif terhadap `process.cwd()` (container api: /srv/app).
+ */
 function readShellHtml() {
-  return '<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Metropolitan Mall Bekasi — Jadwal Event</title></head><body><div id="root"></div></body></html>';
+  try {
+    return readFileSync('./dist/index.html', 'utf8');
+  } catch (err) {
+    console.error('[event-og] dist/index.html tidak terbaca:', err?.message);
+    return '<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Metropolitan Mall Bekasi — Jadwal Event</title></head><body><div id="root"></div></body></html>';
+  }
 }
 
 router.get('/event-og', async (req, res) => {
@@ -1047,7 +1073,10 @@ router.get('/event-og', async (req, res) => {
     ? (String(event.poster_url).startsWith('http') ? event.poster_url : `${origin}${event.poster_url}`)
     : `${origin}${DEFAULT_OG_IMAGE_PATH}`;
 
-  const html = readShellHtml();
+  // Shell membawa referensi aset relatif-root (`/assets/...`) — JANGAN
+  // diabsolutkan: respons yang sama disajikan ke host publik (www) lewat proxy,
+  // dan URL absolut ke host API akan membuat module script cross-origin.
+  const html = stripDefaultMeta(readShellHtml());
   const injected = buildMetaBlock({ title, description, pageUrl, ogImage, origin, event });
   const finalHtml = html.replace('</head>', `${injected}\n</head>`);
 

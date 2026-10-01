@@ -18,8 +18,10 @@ import type { EventItem } from '../../types';
 // (Mock shim legacy dihapus 2026-09-09; komponen via fetchEventById REST.)
 
 const fetchEventByIdMock = vi.hoisted(() => vi.fn());
+const fetchAlbumsMock = vi.hoisted(() => vi.fn(async () => []));
 vi.mock('../../utils/domainApi', () => ({
   fetchEventById: fetchEventByIdMock,
+  fetchAlbums: fetchAlbumsMock,
 }));
 
 function makeEvent(partial: Partial<EventItem> = {}): EventItem {
@@ -118,6 +120,22 @@ describe('EventPublicDetailPage', () => {
     fetchEventByIdMock.mockResolvedValueOnce(makeEvent());
     renderAt('/events/evt_1');
     await waitFor(() => expect(document.title).toBe('Festival Minang 2026 - Jadwal Event Metropolitan Mall Bekasi'));
+  });
+
+  it('poster event dirender sebagai banner di halaman detail', async () => {
+    fetchEventByIdMock.mockResolvedValueOnce(makeEvent({ posterUrl: 'https://cdn.example.com/poster.jpg' }));
+    const { container } = renderAt('/events/evt_1');
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Festival Minang 2026' })).toBeInTheDocument());
+    const banner = container.querySelector('[data-event-poster] img');
+    expect(banner).not.toBeNull();
+    expect(banner).toHaveAttribute('src', 'https://cdn.example.com/poster.jpg');
+  });
+
+  it('tanpa poster, banner tidak dirender', async () => {
+    fetchEventByIdMock.mockResolvedValueOnce(makeEvent());
+    const { container } = renderAt('/events/evt_1');
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Festival Minang 2026' })).toBeInTheDocument());
+    expect(container.querySelector('[data-event-poster]')).toBeNull();
   });
 
   it('salin link → clipboard berisi permalink', async () => {

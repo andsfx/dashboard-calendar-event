@@ -21,7 +21,8 @@ import {
 import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
-import { thumbUrl } from '../utils/imageOptim';
+import { resolveEventPoster } from '../utils/eventPoster';
+import { EventPosterBanner } from '../components/events/EventPosterBanner';
 import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
 import { usePageMeta } from '../utils/pageMeta';
 import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../types';
@@ -156,21 +157,12 @@ function HighlightEventCard({
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
       {promoImageUrl && (
-        <div
-          data-promo-banner
-          className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 sm:aspect-[5/3]"
-        >
-          <img
-            src={thumbUrl(promoImageUrl)}
+        <div className="relative">
+          <EventPosterBanner
+            src={promoImageUrl}
             alt={event.acara}
-            className="h-full w-full object-cover"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            onError={(e) => {
-              const wrap = e.currentTarget.closest('[data-promo-banner]');
-              if (wrap instanceof HTMLElement) wrap.hidden = true;
-            }}
+            eager
+            className="sm:aspect-[5/3]"
           />
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 to-transparent"
@@ -295,10 +287,12 @@ function HighlightEventCard({
 function EventRailCard({
   event,
   areas,
+  albums,
   onDetail,
 }: {
   event: EventItem;
   areas: EventArea[];
+  albums: PhotoAlbum[];
   onDetail: (ev: EventItem) => void;
 }) {
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
@@ -306,13 +300,16 @@ function EventRailCard({
   const isLive = event.status === 'ongoing';
   const relLabel = event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
   const cdLabel = event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
+  const posterUrl = resolveEventPoster(event, albums);
 
   return (
     <button
       type="button"
       onClick={() => onDetail(event)}
-      className="group flex min-w-0 flex-col items-start gap-4 rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-5 text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
+      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-white text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
+      {posterUrl && <EventPosterBanner src={posterUrl} alt={event.acara} />}
+      <div className="flex w-full min-w-0 flex-col items-start gap-4 p-5">
       <div className="flex w-full items-center justify-between gap-3">
         <span
           className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider"
@@ -374,6 +371,7 @@ function EventRailCard({
           )}
         </div>
       </div>
+      </div>
     </button>
   );
 }
@@ -409,13 +407,17 @@ export function EventsLandingPage({
     [events],
   );
 
-  const highlight = ongoing[0] ?? upcoming[0] ?? null;
-  const highlightPromoUrl = useMemo(() => {
-    if (!highlight) return '';
-    if (highlight.posterUrl) return highlight.posterUrl;
-    const album = albums.find(a => a.eventId === highlight.id);
-    return album?.coverPhotoUrl || '';
-  }, [highlight, albums]);
+  const highlight = useMemo(() => {
+    // Hero diutamakan punya poster supaya banner tidak kosong: cari kandidat
+    // ber-poster di seluruh kandidat (ongoing lebih dulu, lalu upcoming) —
+    // kalau tidak ada satu pun, jatuh ke urutan prioritas/tanggal biasa.
+    const withPoster = [...ongoing, ...upcoming].find(e => resolveEventPoster(e, albums));
+    return withPoster ?? ongoing[0] ?? upcoming[0] ?? null;
+  }, [ongoing, upcoming, albums]);
+  const highlightPromoUrl = useMemo(
+    () => resolveEventPoster(highlight, albums),
+    [highlight, albums],
+  );
 
   const railRest = useMemo(() => {
     return [...ongoing, ...upcoming].filter(e => e.id !== highlight?.id);
@@ -742,7 +744,7 @@ export function EventsLandingPage({
                 {filteredEvents.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredEvents.map(ev => (
-                      <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
+                      <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
                     ))}
                   </div>
                 ) : (
@@ -793,7 +795,7 @@ export function EventsLandingPage({
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {g.events.map(ev => (
-                        <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
+                        <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
                       ))}
                     </div>
                   </div>
@@ -813,7 +815,7 @@ export function EventsLandingPage({
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {railEvents.map(ev => (
-                    <EventRailCard key={ev.id} event={ev} areas={areas} onDetail={onDetail} />
+                    <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
                   ))}
                 </div>
                 {railOverflow > 0 && (

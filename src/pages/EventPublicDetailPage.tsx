@@ -5,10 +5,12 @@ import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, 
 import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
 import { EventPhotoGallery } from '../components/events/EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from '../components/events/EventDetailContent';
+import { EventPosterBanner } from '../components/events/EventPosterBanner';
+import { resolveEventPoster } from '../utils/eventPoster';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { StatusBadge } from '../components/ui/StatusBadge';
-import type { EventItem } from '../types';
-import { fetchEventById } from '../utils/domainApi';
+import type { EventItem, PhotoAlbum } from '../types';
+import { fetchEventById, fetchAlbums } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 
@@ -25,6 +27,8 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const [fetchError, setFetchError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [copied, setCopied] = useState(false);
+  // Album foto dipakai sebagai fallback poster bila event belum punya poster unggahan.
+  const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -44,6 +48,14 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
       });
     return () => { cancelled = true; };
   }, [id, retryCount]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchAlbums()
+      .then((rows) => { if (!cancelled) setAlbums(rows); })
+      .catch(() => { /* fallback opsional — abaikan bila gagal */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // ─── Meta client-side (tab title; OG server-side via api/event-og.js) ───
   const metaDescription = useMemo(() => {
@@ -92,6 +104,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const isMultiDay = event ? isMultiDayEvent(event) : false;
   const isRecurring = event ? isRecurringEvent(event) : false;
   const accent = event ? getEventAccentColor(event) : '#00918e';
+  const posterUrl = resolveEventPoster(event, albums);
 
   return (
     <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
@@ -183,6 +196,12 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             >
               <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${accent}, ${accent}44)` }} />
               <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.04]" style={{ background: accent }} />
+
+              {posterUrl && (
+                <div className="relative -mx-5 -mt-7 mb-5 sm:-mx-8">
+                  <EventPosterBanner src={posterUrl} alt={event.acara} eager className="rounded-t-[2rem]" />
+                </div>
+              )}
 
               <div className="relative mb-3 flex flex-wrap items-center gap-2">
                 <StatusBadge status={event.status} />
