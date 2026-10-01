@@ -132,9 +132,13 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
     setMappingResult('');
     try {
       const { updated, renamed } = await applyLocationMapping(mappings);
-      const parts = [`${updated} event dipetakan ke area`];
-      if (renamed > 0) parts.push(`${renamed} teks lokasi diseragamkan`);
-      setMappingResult(`${parts.join(' · ')}.`);
+      if (updated === 0 && renamed === 0) {
+        setMappingResult('Tidak ada baris yang berubah — semua sudah sesuai.');
+      } else {
+        const parts = [`${updated} event dipetakan ke area`];
+        if (renamed > 0) parts.push(`${renamed} teks lokasi diseragamkan`);
+        setMappingResult(`${parts.join(' · ')}.`);
+      }
       await loadMapping();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menerapkan pemetaan');
@@ -652,10 +656,11 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
           {view === 'mapping' && !isLoading && (
             <>
               <p className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-xs leading-6 text-[var(--wf-ink-muted)]">
-                Teks lokasi lama dipetakan ke area kanonis. Hanya event yang <strong>belum</strong> punya area
-                yang akan diisi. Pemetaan manual sebelumnya tidak ditimpa. Centang
-                <strong> Seragamkan teks lokasi</strong> bila ejaan lama juga ingin diganti (berlaku untuk semua
-                event dengan teks itu, termasuk yang sudah punya area).
+                Teks lokasi lama dipetakan ke area kanonis. Memilih area akan menetapkan area itu ke
+                <strong> semua</strong> event dan draft berteks lokasi tersebut — termasuk yang sudah punya area,
+                jadi memilih area lain benar-benar memindahkannya. Untuk memindahkan satu event saja, edit event
+                itu lewat formulir event. Centang <strong>Seragamkan teks lokasi</strong> bila ejaan lama juga
+                ingin diganti (berlaku untuk semua event dengan teks itu).
               </p>
 
               {mappingResult && (
@@ -690,7 +695,9 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                             </p>
                             <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                               {row.eventCount} event{row.draftCount > 0 ? ` · ${row.draftCount} draft` : ''}
-                              {row.currentAreaId ? ' · sudah dipetakan' : ''}
+                              {row.currentAreaId
+                                ? ` · kini: ${areas.find(a => a.id === row.currentAreaId)?.name ?? 'area tak dikenal'}`
+                                : ''}
                             </p>
                           </div>
                           <select

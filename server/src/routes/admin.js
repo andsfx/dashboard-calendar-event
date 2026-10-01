@@ -660,14 +660,20 @@ async function switchAction(action, req) {
       let renamed = 0;
       for (const m of mappings) {
         if (!m.lokasi) continue;
-        // 1) Isi area_id (hanya yang belum punya — pemetaan manual tidak ditimpa)
+        // 1) Set area_id untuk SEMUA baris berteks lokasi itu.
+        //    Panel Pemetaan adalah tempat mengedit lokasi→area: baris yang sudah
+        //    dipetakan pun ikut ditulis, agar memilih area lain benar-benar
+        //    memindahkannya. Sebelumnya ada guard `area_id IS NULL` sehingga
+        //    memilih area lain mengembalikan updated:0 (diam-diam tidak tersimpan) —
+        //    persis keluhan "edit lokasi tidak bisa disave". Memindahkan satu event
+        //    saja tetap lewat form edit event.
         if (m.areaId) {
           const { rowCount: eCount } = await db.query(
-            'UPDATE events SET area_id = $1, updated_at = NOW() WHERE trim(lokasi) = $2 AND area_id IS NULL',
+            'UPDATE events SET area_id = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
             [m.areaId, m.lokasi],
           );
           const { rowCount: dCount } = await db.query(
-            'UPDATE draft_events SET area_id = $1 WHERE trim(lokasi) = $2 AND area_id IS NULL',
+            'UPDATE draft_events SET area_id = $1 WHERE trim(lokasi) = $2',
             [m.areaId, m.lokasi],
           );
           updated += (eCount || 0) + (dCount || 0);

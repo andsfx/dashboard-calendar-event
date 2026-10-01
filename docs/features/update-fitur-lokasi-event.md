@@ -48,7 +48,7 @@ Area kanonis hasil seed (dari data produksi): `Panggung Funworld Lt. 3`, `Panggu
 
 - `getLocationMapping` → `{ success, data: [{ lokasi, eventCount, draftCount, currentAreaId }] }`. Distinct `lokasi` dari `events` **dan** `draft_events` (gabungan, draft-only ikut disertakan), diurut count desc.
 - `applyLocationMapping` → body `{ mappings: [{ lokasi, areaId?, targetLokasi? }] }`. Per mapping, dua efek independen:
-  - `areaId` ada → `UPDATE events SET area_id=$1 WHERE trim(lokasi)=$2 AND area_id IS NULL` + idem `draft_events` (**tidak** menimpa pemetaan manual).
+  - `areaId` ada → `UPDATE events SET area_id=$1 WHERE trim(lokasi)=$2` + idem `draft_events` — berlaku ke **semua** baris berteks lokasi itu, termasuk yang sudah punya `area_id` (sejak 2026-10-01; sebelumnya diguard `area_id IS NULL` sehingga memilih area lain tidak tersimpan — lihat §9).
   - `targetLokasi` ada → `UPDATE events SET lokasi=$1 WHERE trim(lokasi)=$3` + idem `draft_events` — berlaku ke **semua** baris berteks sama, termasuk yang sudah punya `area_id`.
   - Return `{ success, updated, renamed }`.
 
@@ -181,3 +181,27 @@ Distribusi akhir per area: Panggung Funworld Lt. 3 (142), Panggung Lt. Dasar (53
 | `POST /drafts` publik | 201, baca-balik array |
 | Sisa data uji | 0 (250 event / 45 draft utuh) |
 | Error `malformed` setelah perbaikan | 0 |
+
+## 9. Perbaikan bug: "edit lokasi tidak bisa disave" pada Pemetaan Lokasi (2026-10-01)
+
+**Gejala** (dilaporkan Andy): di panel **Pemetaan Lokasi** (`Foto Area Event` → `Pemetaan Lokasi`), memilih area untuk baris seperti `Musholla Lt. 3` lalu menekan "Terapkan Pemetaan" tidak menyimpan apa pun — toast mengatakan berhasil tapi lokasi tidak berubah.
+
+**Akar masalah**: guard `AND area_id IS NULL` pada `applyLocationMapping` (keputusan D4 — niatnya "jangan timpa pemetaan manual"). Karena backfill §7.2 sudah memetakan **semua** lokasi produksi, tidak ada lagi baris `area_id IS NULL`; memilih area lain untuk baris yang sudah terpetakan menghasilkan `UPDATE 0` → `{"updated":0,"renamed":0}`. UI lama selalu menampilkan "{n} event dipetakan…" apa pun hasilnya, jadi user melihat "sukses" padahal nol baris berubah. Guard itu benar saat pemetaan awal, tapi salah begitu panel dipakai sebagai **editor** pemetaan — panel adalah satu-satunya tempat mengedit `lokasi → area`, sehingga tanpa jalur ini pemetaan lama menjadi permanen.
+
+**Bukti** (produksi, `docker exec metmal-postgres psql`, dibungkus `BEGIN…ROLLBACK`):
+| SQL | Hasil |
+|---|---|
+| `UPDATE events SET area_id=… WHERE trim(lokasi)='Musholla Lt. 3' AND area_id IS NULL` | `UPDATE 0` (baris lama) |
+| `UPDATE events SET area_id=… WHERE trim(lokasi)='Musholla Lt. 3'` | `UPDATE 20` (baris baru) |
+
+Log `activity_logs` mengonfirmasi pola yang sama di ulangan nyata: `apply_location_mapping` 2026-10-01 01:12 → `{"updated":0,"renamed":0}` untuk 11 mapping.
+
+**Perbaikan**:
+- `server/src/routes/admin.js` → `applyLocationMapping`: buang guard `area_id IS NULL` pada langkah isi area (events + draft_events). Panel kini benar-benar menulis area untuk **semua** baris berteks lokasi itu. Memindahkan satu event saja tetap lewat form edit event (yang memang menulis `events.area_id`).
+- `src/components/modals/EventAreaManagerModal.tsx`: teks panel diperjelas (memilih area menetapkan ke semua event/draft berteks itu, termasuk yang sudah punya area) + hasil 0 baris kini dijelaskan ("Tidak ada baris yang berubah — semua sudah sesuai.") + kolom meta baris menampilkan area saat ini (`kini: <nama area>`).
+
+**Verifikasi**:
+- Bukti SQL (produksi, `BEGIN…ROLLBACK`): query baru `UPDATE … WHERE trim(lokasi)='Musholla Lt. 3'` → `UPDATE 20` vs query lama `… AND area_id IS NULL` → `UPDATE 0`.
+- Probe HTTP nyata ke endpoint **versi lama** (token `signAccess` di container) mengonfirmasi bug: 200 `{"success":true,"updated":0,"renamed":0}`.
+- `npm run build` hijau; `NODE_ENV=test npx vitest run --maxWorkers=2` → 87 file / 651 test hijau.
+- Belum di-deploy: mount repo di container `metmal-api` read-only, jadi probe HTTP dengan kode baru menunggu deploy (pull + restart `api`).
