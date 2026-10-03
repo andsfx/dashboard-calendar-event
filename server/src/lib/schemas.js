@@ -160,6 +160,16 @@ const ACTION_SCHEMAS = {
       .refine((u) => Object.keys(u).length > 0, { message: 'updates kosong' }),
   }),
   deleteLetter: z.object({ action: z.literal('deleteLetter'), id: z.string().min(1) }),
+  // Narasi AI: hanya fakta insight yang sudah dihitung klien (tanpa PII mentah).
+  getInsightNarrative: z.object({
+    action: z.literal('getInsightNarrative'),
+    insights: z.array(z.object({
+      severity: z.enum(['peringatan', 'saran', 'info']),
+      title: z.string().min(1).max(200),
+      body: z.string().max(600),
+      metric: z.string().max(40).optional(),
+    })).min(1).max(30),
+  }),
   ...EXHIBITION_ACTION_SCHEMAS,
 };
 

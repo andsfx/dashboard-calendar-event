@@ -20,6 +20,7 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { requireRole, logActivity, DEMO_READ_ROLES, canPerformAdminAction } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
+import { isAiEnabled, generateInsightNarrative } from '../lib/ai.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 import {
@@ -1109,6 +1110,22 @@ async function switchAction(action, req) {
       if (!rowCount) return { success: false, error: 'Aktivasi tidak ditemukan' };
       logActivity(auth.user, 'unlink_exhibition_activation', 'event', body.eventId, null, req);
       return { success: true };
+    }
+
+    // ══════════ INSIGHT CERDAS — narasi AI (opsional) ══════════
+    case 'getInsightNarrative': {
+      if (!isAiEnabled()) {
+        // Tidak dikonfigurasi = bukan error; klien menyembunyikan blok ringkasan.
+        return { success: true, enabled: false, summary: null };
+      }
+      // Batas lebih ketat dari gate umum (120/menit): narasi berbiaya per-panggilan.
+      if (!enforceRateLimit(req, res, 'insight-narrative', 10, 60 * 1000)) return undefined;
+
+      const result = await generateInsightNarrative(body.insights);
+      if (result.ok) {
+        logActivity(auth.user, 'insight_narrative', 'ai', null, { count: body.insights.length }, req);
+      }
+      return { success: true, enabled: true, summary: result.ok ? result.summary : null };
     }
 
     default:

@@ -11,6 +11,7 @@ import type {
   TenantEventSurvey,
 } from '../../types';
 import { Card } from './Card';
+import { InsightAiSummary } from './InsightAiSummary';
 import { buildEventInsights } from '../../utils/eventInsights';
 
 /** Kunci localStorage untuk insight yang disembunyikan pengguna. */
@@ -184,6 +185,7 @@ export function EventInsightsPanel({
         </div>
       ) : (
         <div className="space-y-3">
+          <InsightAiSummary insights={visible} />
           <div className="flex flex-wrap items-center gap-2">
             <div role="group" aria-label="Saring insight menurut tingkat kepentingan" className="flex flex-wrap gap-1.5">
               {SEVERITY_FILTERS.map((option) => {

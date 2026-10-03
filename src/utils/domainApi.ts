@@ -136,3 +136,5 @@ export type {
   TenantRosterItem,
   PublicTenantSurveySubmission,
 } from './api/surveysApi';
+
+export { fetchInsightNarrative, type InsightNarrativeResult } from './api/insightsApi';

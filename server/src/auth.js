@@ -60,6 +60,7 @@ export const DEMO_READ_ACTIONS = new Set([
   'listSponsorLeads',
   'getLocationMapping',
   'listEventAreas',
+  'getInsightNarrative',
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',
