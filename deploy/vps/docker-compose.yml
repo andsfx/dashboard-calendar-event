@@ -80,6 +80,13 @@ services:
       # Proxy roster tenant MID (apiloyalty). Kosong = endpoint /tenant/roster
       # fail-closed 500 dengan pesan 'Konfigurasi server tidak lengkap'.
       MID_API_KEY: ${MID_API_KEY:-}
+      # Narasi AI panel Insight Cerdas (opsional). Ketiganya harus terisi agar
+      # aktif; kosong = panel tetap deterministik tanpa blok "Ringkasan AI".
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-}
+      AI_CACHE_TTL_MS: ${AI_CACHE_TTL_MS:-}
     volumes:
       # Repo root (server/ + file JS bersama yang di-import, mis. api/_lib) — ro.
       - ../../:/srv/app:ro
