@@ -57,6 +57,15 @@ nano .env        # isi DATABASE_URL, JWT_SECRET, R2_* (lihat komentar di file)
 > perlu lintas-subdomain. `JWT_SECRET` + `POSTGRES_PASSWORD` dari
 > `openssl rand -hex 32`.
 
+> **Opsional — narasi AI panel Insight Cerdas** (`AI_BASE_URL`, `AI_API_KEY`,
+> `AI_MODEL`; lihat komentar di `.env.example`). Bila ketiganya kosong, panel
+> tetap jalan dari insight deterministik dan blok "Ringkasan AI" tidak tampil —
+> tidak ada yang rusak. Endpoint harus OpenAI-compatible
+> (`POST {base}/chat/completions`). `AI_MODEL` **wajib** diisi id model yang
+> benar-benar ada di gateway Anda — tanpa default, karena model yang salah akan
+> mematikan fitur diam-diam. Ketiga var harus ikut didaftarkan di
+> `docker-compose.yml` (`environment:` api) supaya diteruskan ke container.
+
 ### 4. Build frontend (dist/)
 ```bash
 cd ../..

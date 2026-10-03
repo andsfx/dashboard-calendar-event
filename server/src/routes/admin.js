@@ -50,6 +50,10 @@ router.post('/:action', requireRole(DEMO_READ_ROLES), async (req, res, next) => 
   // 120 req / menit per IP utk seluruh aksi admin (anti-burst; longgar).
   if (!enforceRateLimit(req, res, 'admin', 120, 60 * 1000)) return;
 
+  // Narasi AI berbiaya per-panggilan → batas jauh lebih ketat, di scope router
+  // karena helper ini menulis langsung ke `res` (switchAction tidak punya res).
+  if (action === 'getInsightNarrative' && !enforceRateLimit(req, res, 'insight-narrative', 10, 60 * 1000)) return;
+
   // Boundary: unknown → trusted (zod schema per action).
   const validated = validateAction(req.body);
   if (!validated.ok) {
@@ -1118,8 +1122,6 @@ async function switchAction(action, req) {
         // Tidak dikonfigurasi = bukan error; klien menyembunyikan blok ringkasan.
         return { success: true, enabled: false, summary: null };
       }
-      // Batas lebih ketat dari gate umum (120/menit): narasi berbiaya per-panggilan.
-      if (!enforceRateLimit(req, res, 'insight-narrative', 10, 60 * 1000)) return undefined;
 
       const result = await generateInsightNarrative(body.insights);
       if (result.ok) {

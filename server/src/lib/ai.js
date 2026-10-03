@@ -15,7 +15,7 @@
  *   AI_API_KEY    kunci rahasia (server-only; tidak pernah dikirim ke browser)
  *   AI_MODEL      id model yang tersedia di gateway Anda (WAJIB — tidak ada
  *                 default, karena default yang salah lebih buruk daripada mati)
- *   AI_TIMEOUT_MS default 15000
+ *   AI_TIMEOUT_MS default 30000 (model reasoning di gateway bisa 10–15 s)
  *   AI_CACHE_TTL_MS default 600000 (10 menit)
  */
 import { createHash } from 'node:crypto';
@@ -23,8 +23,17 @@ import { createHash } from 'node:crypto';
 const AI_BASE_URL = (process.env.AI_BASE_URL || '').replace(/\/+$/, '');
 const AI_API_KEY = process.env.AI_API_KEY || '';
 const AI_MODEL = process.env.AI_MODEL || '';
-const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 15_000);
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30_000);
 const AI_CACHE_TTL_MS = Number(process.env.AI_CACHE_TTL_MS || 10 * 60 * 1000);
+
+/**
+ * Anggaran keluaran. Terukur di produksi: banyak model di gateway ini adalah
+ * **reasoning** dan menghabiskan token untuk berpikir — dengan 320 token
+ * `choices[0].message.content` kembali **kosong** meski `finish_reason: stop`,
+ * sehingga ringkasan hilang tanpa error. 1500 memberi ruang cukup (terukur
+ * ~480 karakter keluaran).
+ */
+const MAX_OUTPUT_TOKENS = 1500;
 
 /** Batas aman payload ke model — zod sudah membatasi bentuk, ini sabuk kedua. */
 const MAX_INSIGHTS = 30;
@@ -80,7 +89,7 @@ export async function requestNarrative(messages, { fetchImpl = fetch, timeoutMs 
         'Content-Type': 'application/json',
         Authorization: `Bearer ${AI_API_KEY}`,
       },
-      body: JSON.stringify({ model: AI_MODEL, messages, temperature: 0.3, max_tokens: 320 }),
+      body: JSON.stringify({ model: AI_MODEL, messages, temperature: 0.3, max_tokens: MAX_OUTPUT_TOKENS }),
       signal: controller.signal,
     });
     if (!response.ok) {

@@ -68,6 +68,10 @@ describe('generateInsightNarrative', () => {
     const first = await generateInsightNarrative([INSIGHT], { fetchImpl });
     expect(first).toEqual({ ok: true, summary: 'Ringkas.' });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+    // Regresi nyata: anggaran token terlalu kecil → content kosong dari model
+    // reasoning. Jaga agar tidak diturunkan lagi.
+    const requestBody = JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body));
+    expect(requestBody.max_tokens).toBeGreaterThanOrEqual(1024);
 
     const second = await generateInsightNarrative([INSIGHT], { fetchImpl });
     expect(second).toEqual({ ok: true, summary: 'Ringkas.' });
