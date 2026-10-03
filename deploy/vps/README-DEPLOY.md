@@ -111,6 +111,17 @@ npm run build   # menghasilkan dist/ yang di-mount nginx
 > sinkronkan VPS dari `www` yang sudah live. (Commit yang hanya menyentuh
 > komentar/dokumen tidak mengubah hash — terser membuang komentar — jadi jangan
 > heran bila hash tetap sama; verifikasi lewat output skrip, bukan asumsi.)
+>
+> **Perangkap cache (terbukti 2026-10-03).** Skrip mengambil `${BASE}/index.html`,
+> sedangkan `vercel.json` memberi header cache pada HTML (`s-maxage` +
+> `stale-while-revalidate`) dan itu cache key yang **berbeda** dari `/`. Beberapa
+> saat setelah deploy, `/index.html` masih bisa menyajikan HTML **build
+> sebelumnya** — skrip tetap melaporkan "semua referensi terunduh (200) dan
+> konsisten" (aset lama memang masih ada di Vercel) lalu menulis dist **lama** ke
+> VPS tanpa error. Jadi: poll sampai hash berubah sebelum menyinkronkan —
+> `curl -s https://www.metmalcommunityspace.web.id/index.html | grep -o 'assets/index-[A-Za-z0-9_-]*\.js'`
+> — dan selalu cek baris `entry bundle :` di keluaran skrip cocok dengan hash
+> build Vercel terbaru.
 
 ### 5. Jalankan stack
 ```bash
