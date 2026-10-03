@@ -1,9 +1,9 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, InsightAction } from '../../types';
 import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
 import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
@@ -12,9 +12,10 @@ import { DashboardStats } from './DashboardStats';
 import { CommandCenterOverview } from './CommandCenterOverview';
 import { CommandCenterSummary } from './CommandCenterSummary';
 import { EventInsightsPanel } from './EventInsightsPanel';
+import { useInsightContext } from '../../hooks/useInsightContext';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
-import { CONTENT_ROUTES } from './dashboardNavigation';
+import { CONTENT_ROUTES, getAllowedDashboardPaths } from './dashboardNavigation';
 import { getAvailableViewTabs } from './viewTabs';
 import { UnderMaintenance } from '../ui/UnderMaintenance';
 
@@ -207,6 +208,25 @@ export function DashboardPage({
   const organizationOptions = registrations.communityRegistrations
     .filter((r) => r.status === 'approved' && r.organizationName.trim())
     .map((r) => ({ id: r.id, name: r.organizationName.trim() }));
+
+  // Insight Cerdas: data lintas-modul dimuat sekali & gagal senyap; izin tetap
+  // ditentukan di sini (hook hanya tahu "muat atau tidak").
+  const insightContext = useInsightContext({
+    surveys: permissions.canViewTenantSurveys && !permissions.isTenantRelation,
+    exhibitionLeads: permissions.canViewExhibitions,
+  });
+  const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
+
+  /** Terapkan filter insight ke halaman, lalu navigasi. Relatif ke /dashboard. */
+  const handleInsightAction = useCallback((action: InsightAction) => {
+    const { status, category, month, priority, search } = action.filter ?? {};
+    filters.setActiveFilter(status ?? 'Semua');
+    filters.setActiveCategory(category ?? 'Semua');
+    filters.setActivePriority(priority ?? 'Semua');
+    filters.setActiveMonth(month ?? 'Semua');
+    filters.setSearchQuery(search ?? '');
+    navigate(`/dashboard${action.path}`);
+  }, [filters, navigate]);
   return (
     <DashboardShell
       isAdmin={isAdmin}
@@ -316,6 +336,10 @@ export function DashboardPage({
             activeDrafts={drafts.activeDrafts}
             communityRegistrations={registrations.communityRegistrations}
             areas={siteSettings.eventAreas}
+            surveys={insightContext.surveys}
+            exhibitionLeads={insightContext.exhibitionLeads}
+            allowedPaths={allowedInsightPaths}
+            onAction={handleInsightAction}
           />
           <CommandCenterOverview
             events={events.events}

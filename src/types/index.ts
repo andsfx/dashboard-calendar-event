@@ -596,6 +596,25 @@ export interface TenantSurveyConfig {
 /** Tingkat kepentingan satu insight; menentukan urutan dan warna chip. */
 export type InsightSeverity = 'peringatan' | 'saran' | 'info';
 
+/**
+ * Tindak lanjut yang bisa diklik dari satu insight. `path` sengaja **relatif
+ * terhadap dashboard** (`/events`, `/drafts`, …) supaya mesin insight tetap
+ * murni: ia tidak tahu apa pun soal izin/role. Pemanggil (DashboardPage)
+ * menyaring lewat `getAllowedDashboardPaths` sebelum merender.
+ */
+export interface InsightAction {
+  label: string;
+  path: string;
+  /** Filter halaman yang diterapkan setelah navigasi (opsional). */
+  filter?: {
+    status?: EventStatus | 'Semua';
+    category?: string;
+    month?: string;
+    priority?: string;
+    search?: string;
+  };
+}
+
 export interface EventInsight {
   id: string;
   severity: InsightSeverity;
@@ -605,4 +624,8 @@ export interface EventInsight {
   metric?: string;
   /** Konteks tindak lanjut, mis. nama area atau tanggal (opsional). */
   scope?: string;
+  /** Tautan tindak lanjut (opsional) — lihat catatan `InsightAction`. */
+  actions?: InsightAction[];
+  /** True bila dihasilkan dari data lintas-modul (survey/pameran), bukan event. */
+  crossModule?: boolean;
 }

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { EventInsightsPanel } from '../EventInsightsPanel';
 import type {
@@ -102,7 +102,19 @@ function area(overrides: Partial<EventArea>): EventArea {
 
 const emptyProps = { events: [], activeDrafts: [], communityRegistrations: [], areas: [] };
 
+/** Tanggal lokal N hari dari sekarang (bukan UTC — hindari geser hari). */
+function inDays(offset: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
 describe('EventInsightsPanel', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
   it('menampilkan judul panel dan label analisis otomatis', () => {
     render(<EventInsightsPanel {...emptyProps} />);
     expect(screen.getByRole('heading', { name: /Insight Cerdas/ })).toBeInTheDocument();
@@ -142,5 +154,87 @@ describe('EventInsightsPanel', () => {
     );
     expect(screen.getByText('Potensi bentrok jadwal area')).toBeInTheDocument();
     expect(screen.getByText(/Pameran A ↔ Pameran B/)).toBeInTheDocument();
+  });
+
+  it('merender tombol aksi dan meneruskan objek aksi ke onAction', () => {
+    const onAction = vi.fn();
+    render(
+      <EventInsightsPanel
+        events={[]}
+        activeDrafts={[draft({ id: 'd1' })]}
+        communityRegistrations={[]}
+        areas={[]}
+        allowedPaths={['/drafts', '/registrations']}
+        onAction={onAction}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Antrian Draft' }));
+    expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ path: '/drafts' }));
+  });
+
+  it('menyembunyikan aksi yang jalurnya tidak diizinkan role', () => {
+    render(
+      <EventInsightsPanel
+        events={[]}
+        activeDrafts={[draft({ id: 'd1' })]}
+        communityRegistrations={[registration({ id: 'r1', status: 'pending' })]}
+        areas={[]}
+        allowedPaths={['/drafts']}
+        onAction={() => undefined}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Antrian Draft' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Pendaftaran' })).not.toBeInTheDocument();
+  });
+
+  it('menyaring insight menurut tingkat kepentingan', () => {
+    render(
+      <EventInsightsPanel
+        events={[event({ id: 'e1', dateStr: inDays(3), acara: 'Acara Dekat' })]}
+        activeDrafts={[draft({ id: 'd1' })]}
+        communityRegistrations={[]}
+        areas={[]}
+      />,
+    );
+    // Ada insight peringatan (antrian) dan info (event dekat).
+    expect(screen.getByText('Antrian menunggu tindakan')).toBeInTheDocument();
+    expect(screen.getByText('Event dalam 7 hari ke depan')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /^Perlu perhatian/ }));
+    expect(screen.getByText('Antrian menunggu tindakan')).toBeInTheDocument();
+    expect(screen.queryByText('Event dalam 7 hari ke depan')).not.toBeInTheDocument();
+  });
+
+  it('menyembunyikan insight lalu memulihkannya, tersimpan di localStorage', () => {
+    render(
+      <EventInsightsPanel
+        events={[]}
+        activeDrafts={[draft({ id: 'd1' })]}
+        communityRegistrations={[]}
+        areas={[]}
+      />,
+    );
+    expect(screen.getByText('Antrian menunggu tindakan')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Sembunyikan/ }));
+    expect(screen.queryByText('Antrian menunggu tindakan')).not.toBeInTheDocument();
+    expect(localStorage.getItem('metmal.insight.dismissed')).toContain('antrian');
+
+    fireEvent.click(screen.getByRole('button', { name: /Tampilkan 1 yang disembunyikan/ }));
+    expect(screen.getByText('Antrian menunggu tindakan')).toBeInTheDocument();
+  });
+
+  it('menyalin ringkasan insight ke clipboard', () => {
+    const writeText = vi.fn();
+    Object.assign(navigator, { clipboard: { writeText } });
+    render(
+      <EventInsightsPanel
+        events={[]}
+        activeDrafts={[draft({ id: 'd1' })]}
+        communityRegistrations={[]}
+        areas={[]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Salin ringkasan/ }));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Antrian menunggu tindakan'));
   });
 });

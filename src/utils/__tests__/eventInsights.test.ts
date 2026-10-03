@@ -5,7 +5,9 @@ import type {
   DraftEventItem,
   EventArea,
   EventItem,
+  ExhibitionLead,
   InsightSeverity,
+  TenantEventSurvey,
 } from '../../types';
 
 /** Titik acuan tetap supaya setiap kasus deterministik. */
@@ -283,5 +285,171 @@ describe('buildEventInsights', () => {
     const ranks = result.insights.map((insight) => order[insight.severity]);
     expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
     expect(result.insights[0]?.severity).toBe('peringatan');
+  });
+
+  describe('aksi deep-link', () => {
+    it('menyertakan aksi Antrian Draft + Pendaftaran pada insight antrian', () => {
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [draft({ id: 'd1' })],
+        registrations: [registration({ id: 'r1', status: 'pending' })],
+        areas: [],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'antrian');
+      expect(insight?.actions?.map((action) => action.path)).toEqual(['/drafts', '/registrations']);
+    });
+
+    it('mengarahkan bentrok area ke Jadwal Event dengan filter pencarian area', () => {
+      const result = buildEventInsights({
+        events: [
+          event({ id: 'e1', areaId: 'a1', dateStr: '2026-06-10', dateEnd: '2026-06-12' }),
+          event({ id: 'e2', areaId: 'a1', dateStr: '2026-06-11', dateEnd: '2026-06-13' }),
+        ],
+        activeDrafts: [],
+        registrations: [],
+        areas: [area({ id: 'a1', name: 'Atrium' })],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'konflik-area-id:a1');
+      expect(insight?.actions?.[0]).toMatchObject({ path: '/events', filter: { search: 'Atrium' } });
+    });
+  });
+
+  describe('kelengkapan event', () => {
+    it('melaporkan event terdekat tanpa poster/EO/PIC', () => {
+      const result = buildEventInsights({
+        events: [
+          event({ id: 'e1', dateStr: '2026-06-10', posterUrl: undefined, eo: '', pic: '' }),
+          event({ id: 'e2', dateStr: '2026-06-12', posterUrl: 'https://cdn/p.jpg', eo: '', pic: '' }),
+        ],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'kelengkapan-event');
+      expect(insight?.metric).toBe('2');
+      expect(insight?.actions?.[0]?.path).toBe('/events');
+    });
+
+    it('diam bila event terdekat sudah lengkap', () => {
+      const result = buildEventInsights({
+        events: [
+          event({ id: 'e1', dateStr: '2026-06-10', posterUrl: 'https://cdn/p.jpg', eo: 'EO', pic: 'PIC' }),
+          event({ id: 'e2', dateStr: '2026-06-12', posterUrl: 'https://cdn/p.jpg', eo: 'EO', pic: 'PIC' }),
+        ],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        now: NOW,
+      });
+      expect(ids(result)).not.toContain('kelengkapan-event');
+    });
+  });
+
+  describe('jeda kosong', () => {
+    it('melaporkan rentang tanpa event di antara dua event terjadwal', () => {
+      const result = buildEventInsights({
+        events: [
+          event({ id: 'e1', dateStr: '2026-06-03' }),
+          event({ id: 'e2', dateStr: '2026-06-20' }),
+        ],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'jeda-kosong');
+      expect(insight?.severity).toBe('info');
+      expect(insight?.metric).toMatch(/hari$/);
+    });
+
+    it('tidak melaporkan jeda saat kalender benar-benar kosong', () => {
+      const result = buildEventInsights({ events: [], activeDrafts: [], registrations: [], areas: [], now: NOW });
+      expect(ids(result)).not.toContain('jeda-kosong');
+    });
+  });
+
+  describe('lonjakan pendaftaran', () => {
+    it('melaporkan lonjakan bila pekan ini minimal dua kali pekan sebelumnya', () => {
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [],
+        registrations: [
+          registration({ id: 'a', createdAt: '2026-05-27T09:00:00Z' }),
+          registration({ id: 'b', createdAt: '2026-05-30T09:00:00Z' }),
+          registration({ id: 'c', createdAt: '2026-05-31T09:00:00Z' }),
+          registration({ id: 'd', createdAt: '2026-05-31T10:00:00Z' }),
+          registration({ id: 'e', createdAt: '2026-05-31T11:00:00Z' }),
+        ],
+        areas: [],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'lonjakan-pendaftaran');
+      expect(insight).toBeDefined();
+      expect(insight?.actions?.[0]?.path).toBe('/registrations');
+    });
+
+    it('diam bila volume pendaftaran rendah', () => {
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [],
+        registrations: [registration({ id: 'a', createdAt: '2026-05-31T09:00:00Z' })],
+        areas: [],
+        now: NOW,
+      });
+      expect(ids(result)).not.toContain('lonjakan-pendaftaran');
+    });
+  });
+
+  describe('data lintas-modul', () => {
+    it('melaporkan tren rating tenant dari survey', () => {
+      const survey = (id: string, rating: number, createdAt: string) => ({
+        id,
+        overall_rating: rating,
+        created_at: createdAt,
+      } as unknown as TenantEventSurvey);
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        surveys: [
+          survey('s1', 3.0, '2026-01-10T00:00:00Z'),
+          survey('s2', 3.2, '2026-02-10T00:00:00Z'),
+          survey('s3', 4.5, '2026-05-10T00:00:00Z'),
+          survey('s4', 4.7, '2026-05-20T00:00:00Z'),
+        ],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'tren-rating-tenant');
+      expect(insight?.crossModule).toBe(true);
+      expect(insight?.severity).toBe('info');
+      expect(insight?.actions?.[0]?.path).toBe('/tenant-surveys');
+    });
+
+    it('melaporkan pengajuan pameran yang menunggu tinjauan', () => {
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        exhibitionLeads: [
+          { id: 'l1', status: 'pending' },
+          { id: 'l2', status: 'pending' },
+          { id: 'l3', status: 'approved' },
+        ] as unknown as ExhibitionLead[],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'pengajuan-pameran');
+      expect(insight?.metric).toBe('2');
+      expect(insight?.crossModule).toBe(true);
+    });
+
+    it('tidak menghasilkan insight lintas-modul bila data tidak diberikan', () => {
+      const result = buildEventInsights({ events: [], activeDrafts: [], registrations: [], areas: [], now: NOW });
+      expect(ids(result).some((id) => id.startsWith('tren-rating') || id.startsWith('pengajuan'))).toBe(false);
+    });
   });
 });
