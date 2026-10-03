@@ -37,7 +37,7 @@ export interface EventInsightsPanelProps {
 }
 
 /**
- * Panel "Insight Cerdas" Pusat Komando. Insight dihitung di klien dari data yang
+ * Panel "Insight Cerdas" halaman `/dashboard/insights`. Insight dihitung di klien dari data yang
  * sudah dimuat halaman (lihat `src/utils/eventInsights.ts`) — tanpa panggilan
  * jaringan tambahan, jadi otomatis ikut segar saat event/draft diperbarui.
  *

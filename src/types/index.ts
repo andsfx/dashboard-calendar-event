@@ -589,7 +589,7 @@ export interface TenantSurveyConfig {
   deactivated_at?: string | null;
 }
 
-// ─── Pusat Komando: Insight Cerdas ───────────────────────────────
+// ─── Insight Cerdas (/dashboard/insights) ────────────────────────
 // Hasil mesin deterministik src/utils/eventInsights.ts. Bukan keluaran model
 // bahasa — lihat catatan seam di modul tersebut.
 

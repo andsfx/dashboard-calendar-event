@@ -27,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Referensi aset dibiarkan relatif-root (tidak diabsolutkan): respons yang sama juga disajikan ke host publik `www` lewat proxy, dan URL absolut ke host API akan membuat module script cross-origin.
   - Bukti produksi sebelum perbaikan: `curl https://www.metmalcommunityspace.web.id/events/<id>` → 3.195 byte, nol `<script src="/assets/...">`; browser `#root` berisi 0 anak. Diperbaiki di source; menunggu deploy (nginx api me-mount repo read-only).
 
+### Changed
+- **"Insight Cerdas" pindah dari Pusat Komando ke halaman sendiri `/dashboard/insights` (2026-10-03).** Panelnya kini tinggi — ringkasan AI + saringan tingkat kepentingan + daftar insight bertombol aksi — sehingga menempelkannya di halaman yang dibuka harian hanya menambah gulir tanpa menambah keputusan. Pemindahan ini juga menurunkan biaya: narasi AI (satu panggilan model berbayar) kini hanya dipicu saat halaman insight dibuka, bukan tiap kali Pusat Komando dimuat.
+  - Rute `insights` jadi warga penuh sistem navigasi: entri rail di grup "Ringkasan", plate wayfinding sendiri ("Analisis otomatis dan rekomendasi tindakan dari data event & modul lain"), dan kartu pintu masuk di register modul Pusat Komando. Ia ikut `getAllowedDashboardPaths`, jadi gerbang rute di `App.tsx` mengizinkannya — akun tenant-relation murni tetap tanpa akses.
+  - Tidak ada perubahan pada mesin insight, aksi deep-link, maupun izin: `DashboardPage` tetap yang menyaring `allowedPaths` dan menerapkan filter sebelum `navigate`.
+  - Verifikasi: `tsc` hijau, suite penuh **94 file / 711 tes hijau** (3 tes navigasi baru), build hijau; smoke Chromium membuktikan Pusat Komando tidak lagi memuat panel (kartu register + tautan rail tetap ada) dan `/dashboard/insights` merender plate `h1`, panel, serta 5 insight dari data tiruan tanpa overflow horizontal.
+
 ### Added
 - **Ringkasan AI pada panel Insight Cerdas — lapisan opsional di atas mesin deterministik (2026-10-03).** Satu paragraf naratif dari fakta insight yang sudah dihitung klien (`POST /api/v1/admin/getInsightNarrative`), memakai gateway LLM yang OpenAI-compatible.
   - **Opsional sepenuhnya, gagal senyap.** Bila `AI_BASE_URL`/`AI_API_KEY`/`AI_MODEL` kosong, atau panggilan model error/timeout, blok "Ringkasan AI" hilang tanpa jejak — panel tetap utuh dengan insight deterministik. Tidak ada error yang bocor ke pengguna, dan klien menghentikan percobaan setelah nonaktif/gagal dalam satu sesi (menghindari spam ke endpoint berbiaya).

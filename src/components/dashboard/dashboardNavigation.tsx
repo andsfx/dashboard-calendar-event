@@ -12,6 +12,7 @@ import {
   MapPin,
   Newspaper,
   Palette,
+  Sparkles,
   Store,
   TrendingUp,
   UserCog,
@@ -99,6 +100,7 @@ export function getDashboardNavGroups(
       label: 'Ringkasan',
       items: [
         ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard' }] : []),
+        ...(!isTrOnly ? [{ id: 'insights', label: 'Insight Cerdas', icon: <Sparkles className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/insights' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
         ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
@@ -176,6 +178,7 @@ export interface WayfindingEntry {
 
 const WAYFINDING: WayfindingEntry[] = [
   { path: '/', label: 'Pusat Komando', description: 'Keadaan hari ini dan antrian yang perlu tindakan' },
+  { path: '/insights', label: 'Insight Cerdas', description: 'Analisis otomatis dan rekomendasi tindakan dari data event & modul lain' },
   { path: '/events', label: 'Jadwal Event', description: 'Kelola semua event dalam berbagai tampilan' },
   { path: '/drafts', label: 'Antrian Draft', description: 'Kelola draft event sebelum dipublikasikan' },
   { path: '/themes', label: 'Tema Tahunan', description: 'Kelola tema dan perencanaan tahunan' },
@@ -242,6 +245,7 @@ export function getCommandCenterCards({
   isSuperadmin,
 }: CommandCenterCardParams): CommandCenterCard[] {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
+  const isTrOnly = permissions.isTenantRelation && !permissions.canEditEvents;
   const currentTheme = annualThemes.find(theme => {
     const now = new Date();
     const start = new Date(theme.dateStart);
@@ -319,6 +323,13 @@ export function getCommandCenterCards({
       subtitle: 'Tren & insight',
       icon: <BarChart3 className={CARD} strokeWidth={sw} />,
       route: '/dashboard/analytics',
+    }] : []),
+    ...(!isTrOnly ? [{
+      id: 'insights',
+      title: 'Insight Cerdas',
+      subtitle: 'Analisis otomatis & rekomendasi tindakan',
+      icon: <Sparkles className={CARD} strokeWidth={sw} />,
+      route: '/dashboard/insights',
     }] : []),
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',

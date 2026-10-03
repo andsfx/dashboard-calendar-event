@@ -331,6 +331,23 @@ export function DashboardPage({
             permissions={permissions}
             isSuperadmin={auth.isSuperadmin}
           />
+          <CommandCenterOverview
+            events={events.events}
+            areas={siteSettings.eventAreas}
+            activeDrafts={drafts.activeDrafts}
+            communityRegistrations={registrations.communityRegistrations}
+            permissions={permissions}
+          />
+        </section>
+      )}
+
+      {/* 1b. Insight Cerdas — kini halaman tersendiri, bukan menyatu di Pusat
+          Komando. Panelnya tinggi (ringkasan AI + saringan + daftar aksi
+          bertombol), jadi menempelkannya di halaman yang dibuka harian hanya
+          menambah gulir tanpa menambah keputusan. Pintu masuknya rail
+          "Ringkasan" dan register modul di Pusat Komando. */}
+      {isAdmin && dashboardPath === '/insights' && (
+        <section id="insights" className="scroll-mt-20">
           <EventInsightsPanel
             events={events.events}
             activeDrafts={drafts.activeDrafts}
@@ -340,13 +357,6 @@ export function DashboardPage({
             exhibitionLeads={insightContext.exhibitionLeads}
             allowedPaths={allowedInsightPaths}
             onAction={handleInsightAction}
-          />
-          <CommandCenterOverview
-            events={events.events}
-            areas={siteSettings.eventAreas}
-            activeDrafts={drafts.activeDrafts}
-            communityRegistrations={registrations.communityRegistrations}
-            permissions={permissions}
           />
         </section>
       )}

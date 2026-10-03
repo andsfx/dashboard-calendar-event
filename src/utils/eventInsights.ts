@@ -12,7 +12,7 @@ import { MONTH_NAMES, getDateRange, getStatus, parseDateStrLocal } from './event
 import { computeAreaUsage, computeAreaUtilisation, computeCategoryCounts } from './dashboardOverview';
 
 /**
- * Mesin "Insight Cerdas" Pusat Komando — derivasi DETERMINISTIK dari data yang
+ * Mesin "Insight Cerdas" (`/dashboard/insights`) — derivasi DETERMINISTIK dari data yang
  * sudah dimuat halaman (event, draft, pendaftaran komunitas, area) plus data
  * lintas-modul opsional (survey kepuasan tenant, pengajuan pameran).
  *

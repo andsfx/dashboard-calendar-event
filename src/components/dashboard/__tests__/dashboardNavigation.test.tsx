@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getCommandCenterCards } from '../dashboardNavigation';
+import { getCommandCenterCards, getAllowedDashboardPaths, getWayfindingMap } from '../dashboardNavigation';
 import type { Permissions } from '../../../hooks/usePermission';
 
 const adminPermissions: Permissions = {
@@ -42,6 +42,36 @@ const baseParams = {
   permissions: adminPermissions,
   isSuperadmin: true,
 };
+
+describe('rute /insights — Insight Cerdas pindah ke halaman sendiri', () => {
+  it('diizinkan dan punya plate wayfinding sendiri, bukan menumpang Pusat Komando', () => {
+    expect(getAllowedDashboardPaths(adminPermissions)).toContain('/insights');
+    expect(getWayfindingMap('/insights').current).toMatchObject({
+      label: 'Insight Cerdas',
+      path: '/insights',
+    });
+  });
+
+  it('tetap dijangkau dari register Pusat Komando', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const card = cards.find(item => item.id === 'insights');
+
+    expect(card).toBeDefined();
+    expect(card!.route).toBe('/dashboard/insights');
+  });
+
+  it('tidak diberikan ke akun tenant-relation murni', () => {
+    const trPermissions: Permissions = {
+      ...adminPermissions,
+      canEditEvents: false,
+      isTenantRelation: true,
+      role: 'tenant_relation',
+    };
+
+    expect(getAllowedDashboardPaths(trPermissions)).not.toContain('/insights');
+    expect(getCommandCenterCards({ ...baseParams, permissions: trPermissions }).find(item => item.id === 'insights')).toBeUndefined();
+  });
+});
 
 describe('getCommandCenterCards — kartu Antrian Draft', () => {
   it('menampilkan status gagal saat fetch draft error', () => {
