@@ -588,3 +588,21 @@ export interface TenantSurveyConfig {
   activated_at?: string | null;
   deactivated_at?: string | null;
 }
+
+// ─── Pusat Komando: Insight Cerdas ───────────────────────────────
+// Hasil mesin deterministik src/utils/eventInsights.ts. Bukan keluaran model
+// bahasa — lihat catatan seam di modul tersebut.
+
+/** Tingkat kepentingan satu insight; menentukan urutan dan warna chip. */
+export type InsightSeverity = 'peringatan' | 'saran' | 'info';
+
+export interface EventInsight {
+  id: string;
+  severity: InsightSeverity;
+  title: string;
+  body: string;
+  /** Angka ringkas untuk dibaca sekilas (opsional). */
+  metric?: string;
+  /** Konteks tindak lanjut, mis. nama area atau tanggal (opsional). */
+  scope?: string;
+}

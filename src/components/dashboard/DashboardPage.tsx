@@ -11,6 +11,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { DashboardStats } from './DashboardStats';
 import { CommandCenterOverview } from './CommandCenterOverview';
 import { CommandCenterSummary } from './CommandCenterSummary';
+import { EventInsightsPanel } from './EventInsightsPanel';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
 import { CONTENT_ROUTES } from './dashboardNavigation';
@@ -309,6 +310,12 @@ export function DashboardPage({
             draftsError={drafts.draftError}
             permissions={permissions}
             isSuperadmin={auth.isSuperadmin}
+          />
+          <EventInsightsPanel
+            events={events.events}
+            activeDrafts={drafts.activeDrafts}
+            communityRegistrations={registrations.communityRegistrations}
+            areas={siteSettings.eventAreas}
           />
           <CommandCenterOverview
             events={events.events}
