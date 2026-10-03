@@ -63,6 +63,10 @@ There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification 
 Env vars — client: `VITE_API_URL` (**required di produksi**, tidak dipakai lokal bila SPA+backend satu host), `VITE_R2_PUBLIC_URL`, `VITE_DEV_AUTO_LOGIN`. Server-only (di `deploy/vps/.env` di VPS, jangan commit): `DATABASE_URL`, `JWT_SECRET`, `POSTGRES_PASSWORD`, `COOKIE_DOMAIN` (opsi), **`COOKIE_SAMESITE=none`** (wajib cross-site Vercel→VPS), `CORS_ORIGIN` (whitelist), `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL`, `MID_API_KEY` (proxy tenant). **Never expose these values in code, docs, or output**; remote git URL may contain a credential — never copy it.
 
 **Operasional VPS (host `vm-2-245-ubuntu` Tailscale, IP publik `43.134.72.148`, repo `/opt/metmal`)**:
+- Akses SSH — dua jalur, keduanya `User root` dengan kunci `~/.ssh/evonic_local` (tanpa passphrase, untuk otomasi) via alias di `~/.ssh/config`:
+  - `ssh medprom` — lewat **IP publik** `43.134.72.148`; dipakai lebih dulu agar tidak bergantung pemeriksaan Tailscale berkala.
+  - `ssh medprom-ts` — lewat **Tailscale** `100.69.24.32` (tailnet `andotherstori@`); Tailscale SSH bisa meminta satu kali auth browser saat pertama. Berguna bila IP publik diblokir/berubah.
+  - **JANGAN** `ssh vm-2-245-ubuntu` tanpa alias: policy tailnet menolak user `malme` ("tailnet policy does not permit you to SSH as user"), jadi sambung sebagai `root` lewat alias di atas. Kunci & nilai rahasia tidak pernah dicopy ke kode/docs/output.
 - Update stack: edit repo lokal → `scp` file → `docker compose -f /opt/metmal/deploy/vps/docker-compose.yml up -d --force-recreate <service>`.
 - Backup DB: `deploy/vps/backup.sh` (cron host 03:00 → `/opt/metmal/backups`, rotasi 14 file, `gunzip -t` validasi). Restore: `gunzip -c <file> | docker compose exec -T postgres psql -U metmal -d metmal`.
 - Reset password user (bcrypt, via env — JANGAN via argv): `ADMIN_PASSWORD='...' docker compose exec -e ADMIN_PASSWORD api node server/scripts/create-admin.mjs <email> "" --reset`.
