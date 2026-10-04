@@ -231,14 +231,15 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/dashboard',
             audience: 'Admin',
             summary:
-              'Halaman pendarat setelah masuk, disusun seperti Corporate Overview: kartu metrik, grafik kategori/utilisasi area, tren bulanan, tabel area tersibuk, bilah peringatan antrian, lalu register semua modul.',
+              'Halaman pendarat setelah masuk, disusun seperti Corporate Overview: strip status antrian, Grid Kartu Modul per grup, grafik kategori/utilisasi area, tren bulanan, tabel area tersibuk, dan bilah peringatan antrian.',
             steps: [
               'Buka Pusat Komando dari grup Ringkasan.',
-              'Baca kartu metrik: total, berlangsung, akan datang, selesai, menunggu publikasi, dan pendaftaran komunitas.',
+              'Baca strip status: berlangsung, akan datang, total, dan selesai — dipimpin antrian yang menunggu tindakan.',
+              'Telusuri Grid Kartu Modul: setiap kartu adalah satu modul, dikelompokkan per grup (Ringkasan, Kelola Event, Interaksi, Sistem, Konten). Kartu bertanda "Perlu tindakan" naik ke depan grupnya.',
               'Lihat grafik "Event per kategori", "Tren event per bulan", dan "Event per area".',
               'Telusuri tabel "Area paling sering dipakai" untuk melihat area tersibuk dan mana yang dipakai sekarang.',
               'Bila ada antrian, bilah peringatan di bawah menautkan langsung ke pendaftaran.',
-              'Klik baris modul pada register "Semua Modul" untuk menuju halamannya.',
+              'Klik salah satu Kartu Modul untuk menuju halamannya.',
             ],
             notes: ['Bila draft gagal dimuat, angkanya ditampilkan sebagai "—" dengan pesan galat.'],
           },

@@ -61,6 +61,19 @@ export const CONTENT_ROUTES = {
   sponsorship: '/dashboard/content/sponsorship',
 } as const satisfies Record<string, string>;
 
+/** Canonical Dashboard Group labels, in display order, used by the Grid Kartu
+ *  Modul to group its cards. The rail lists the same five groups, but with its
+ *  own literal labels — this constant does not drive the rail. */
+export type DashboardGroupLabel = 'Ringkasan' | 'Kelola Event' | 'Interaksi' | 'Sistem' | 'Konten';
+
+export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
+  'Ringkasan',
+  'Kelola Event',
+  'Interaksi',
+  'Sistem',
+  'Konten',
+];
+
 interface CommandCenterCard {
   id: string;
   title: string;
@@ -73,6 +86,10 @@ interface CommandCenterCard {
   route: string;
   /** Optional attention hint for ops (e.g. pending count) */
   attention?: boolean;
+  /** Dashboard Group this module belongs to — the grid's grouping key. */
+  group: DashboardGroupLabel;
+  /** Fitur sengaja ditutup sementara — kartu menandainya agar tidak dikira rusak. */
+  maintenance?: boolean;
 }
 
 interface CommandCenterCardParams {
@@ -262,6 +279,7 @@ export function getCommandCenterCards({
       icon: <CalendarDays className={CARD} strokeWidth={sw} />,
       route: '/dashboard/events',
       attention: ongoingEvents > 0,
+      group: 'Kelola Event',
     },
     ...(permissions.canViewDrafts ? [{
       id: 'drafts',
@@ -271,6 +289,7 @@ export function getCommandCenterCards({
       icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',
       attention: activeDrafts.length > 0,
+      group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewThemes ? [{
       id: 'themes',
@@ -279,6 +298,7 @@ export function getCommandCenterCards({
       subtitle: currentTheme ? `Aktif: ${currentTheme.name}` : 'Belum ada tema aktif',
       icon: <Palette className={CARD} strokeWidth={sw} />,
       route: '/dashboard/themes',
+      group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewExhibitions ? [{
       id: 'exhibitions',
@@ -286,6 +306,7 @@ export function getCommandCenterCards({
       subtitle: 'Pameran, aktivasi & pengajuan brand/EO',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/exhibitions',
+      group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewRegistrations ? [{
       id: 'registrations',
@@ -295,6 +316,7 @@ export function getCommandCenterCards({
       icon: <Users className={CARD} strokeWidth={sw} />,
       route: '/dashboard/registrations',
       attention: pendingRegistrations > 0,
+      group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'survey',
@@ -302,6 +324,7 @@ export function getCommandCenterCards({
       subtitle: 'Lihat respons survey',
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
+      group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
@@ -309,6 +332,7 @@ export function getCommandCenterCards({
       subtitle: 'Evaluasi EO/tenant',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
+      group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewTenantSurveyResults ? [{
       id: 'tenant-survey-results',
@@ -316,6 +340,7 @@ export function getCommandCenterCards({
       subtitle: 'Hasil evaluasi tenant',
       icon: <TrendingUp className={CARD} strokeWidth={sw} />,
       route: '/tenant-survey-results',
+      group: 'Ringkasan' as const,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',
@@ -323,6 +348,7 @@ export function getCommandCenterCards({
       subtitle: 'Tren & insight',
       icon: <BarChart3 className={CARD} strokeWidth={sw} />,
       route: '/dashboard/analytics',
+      group: 'Ringkasan' as const,
     }] : []),
     ...(!isTrOnly ? [{
       id: 'insights',
@@ -330,6 +356,7 @@ export function getCommandCenterCards({
       subtitle: 'Analisis otomatis & rekomendasi tindakan',
       icon: <Sparkles className={CARD} strokeWidth={sw} />,
       route: '/dashboard/insights',
+      group: 'Ringkasan' as const,
     }] : []),
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',
@@ -337,6 +364,7 @@ export function getCommandCenterCards({
       subtitle: 'Aktivitas terbaru',
       icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
+      group: 'Sistem' as const,
     }] : []),
     ...(permissions.canViewUsers ? [{
       id: 'users',
@@ -344,6 +372,61 @@ export function getCommandCenterCards({
       subtitle: 'Kelola admin',
       icon: <UserCog className={CARD} strokeWidth={sw} />,
       route: '/dashboard/users',
+      group: 'Sistem' as const,
+    }] : []),
+    /* Modul Konten — dulu tidak ada di register, kini warga penuh grid.
+       Gate izin identik dengan rail (canViewSettings / canViewSponsorship),
+       jadi kartu ini tidak pernah bocor ke role yang tidak berhak. */
+    ...(permissions.canViewSettings ? [
+      {
+        id: 'content-landing',
+        title: 'Halaman Landing',
+        subtitle: 'Hero & feed Instagram',
+        icon: <Globe className={CARD} strokeWidth={sw} />,
+        route: CONTENT_ROUTES['landing-page'],
+        group: 'Konten' as const,
+      },
+      {
+        id: 'content-galeri',
+        title: 'Galeri Album',
+        subtitle: 'Album foto publik',
+        icon: <Images className={CARD} strokeWidth={sw} />,
+        route: CONTENT_ROUTES['album-gallery'],
+        group: 'Konten' as const,
+      },
+      {
+        id: 'content-foto-area',
+        title: 'Foto Area Event',
+        subtitle: 'Area & foto representatif',
+        icon: <MapPin className={CARD} strokeWidth={sw} />,
+        route: CONTENT_ROUTES['event-areas'],
+        group: 'Konten' as const,
+      },
+      {
+        id: 'content-surat',
+        title: 'Buat Surat',
+        subtitle: 'Generator ditutup sementara',
+        icon: <FileText className={CARD} strokeWidth={sw} />,
+        route: CONTENT_ROUTES.letter,
+        group: 'Konten' as const,
+        maintenance: true,
+      },
+      {
+        id: 'content-berita',
+        title: 'Berita',
+        subtitle: 'Artikel berita publik',
+        icon: <Newspaper className={CARD} strokeWidth={sw} />,
+        route: CONTENT_ROUTES.news,
+        group: 'Konten' as const,
+      },
+    ] : []),
+    ...(permissions.canViewSponsorship ? [{
+      id: 'content-sponsorship',
+      title: 'Sponsorship',
+      subtitle: 'Sponsor & kerja sama',
+      icon: <Handshake className={CARD} strokeWidth={sw} />,
+      route: CONTENT_ROUTES.sponsorship,
+      group: 'Konten' as const,
     }] : []),
   ];
 

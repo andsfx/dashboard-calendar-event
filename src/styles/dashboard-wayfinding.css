@@ -330,6 +330,111 @@ button.wf-row:hover {
   color: var(--wf-ink-muted);
 }
 
+/* ── Grid Kartu Modul (Pusat Komando directory) ─────────────────────────── */
+
+/* Replaces the flat "Semua Modul" register. Cards are grouped per Dashboard
+ * Group, and the grid reads as a board of panels rather than a menu list.
+ * Same geometry contract as every other admin panel: 12px board radius,
+ * hairline border, no shadow. */
+.wf-card-grid-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.wf-card-grid-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wf-ink-muted);
+}
+
+.wf-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wf-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid var(--wf-rule);
+  border-radius: var(--wf-radius-board);
+  background: var(--wf-board);
+  padding: 0.875rem 1rem;
+  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+a.wf-card:hover {
+  background: var(--wf-board-2);
+}
+
+.wf-card:focus-visible {
+  outline: 2px solid var(--wf-accent);
+  outline-offset: -2px;
+}
+
+/* Attention: the card that needs a decision takes the accent border and names
+ * the state in words — colour alone never carries the meaning. */
+.wf-card--attention {
+  border-color: var(--wf-action);
+}
+
+.wf-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.wf-card__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--wf-ink);
+}
+
+.wf-card__icon {
+  flex-shrink: 0;
+  color: var(--wf-ink-muted);
+}
+
+.wf-card__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--wf-ink);
+}
+
+.wf-card__value--attention {
+  color: var(--wf-action);
+}
+
+.wf-card__hint {
+  font-size: 0.75rem;
+  color: var(--wf-ink-muted);
+}
+
+@media (max-width: 64rem) {
+  .wf-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 34rem) {
+  .wf-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* ── Status key: shape + colour, redundant by design ────────────────────── */
 
 .wf-key {
@@ -476,6 +581,7 @@ button.wf-row:hover {
 @media (prefers-reduced-motion: reduce) {
   .wf-rail-row,
   .wf-row,
+  .wf-card,
   .wf-btn {
     transition: none;
   }

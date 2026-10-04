@@ -308,8 +308,9 @@ export function DashboardPage({
 
       {/* 1. Overview — antrian lebih dulu, grafik menyusul.
           Susunannya mengikuti kontrak arah: strip status yang dipimpin antrian,
-          lalu register modul, baru analitik. Sebelumnya halaman dibuka enam
-          kartu metrik berukuran sama — pola yang justru ditolak kontrak. */}
+          lalu Grid Kartu Modul, baru analitik. Grid menggantikan register datar
+          "Semua Modul" (ADR-007) supaya halaman terbaca sebagai panel dashboard,
+          bukan daftar menu — tanpa membuang hierarki antrian di atasnya. */}
       {isAdmin && dashboardPath === '/' && (
         <section id="overview" className="scroll-mt-20 space-y-6">
           <DashboardStats
@@ -345,7 +346,7 @@ export function DashboardPage({
           Komando. Panelnya tinggi (ringkasan AI + saringan + daftar aksi
           bertombol), jadi menempelkannya di halaman yang dibuka harian hanya
           menambah gulir tanpa menambah keputusan. Pintu masuknya rail
-          "Ringkasan" dan register modul di Pusat Komando. */}
+          "Ringkasan" dan Grid Kartu Modul di Pusat Komando. */}
       {isAdmin && dashboardPath === '/insights' && (
         <section id="insights" className="scroll-mt-20">
           <EventInsightsPanel

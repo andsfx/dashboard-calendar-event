@@ -112,3 +112,66 @@ describe('getCommandCenterCards — modul Pameran & Aktivasi', () => {
     expect(cards.find(item => item.id === 'exhibitions')).toBeUndefined();
   });
 });
+
+describe('getCommandCenterCards — Grid Kartu Modul (ADR-007)', () => {
+  it('setiap kartu punya Dashboard Group kanonik', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const allowed = new Set(['Ringkasan', 'Kelola Event', 'Interaksi', 'Sistem', 'Konten']);
+
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) {
+      expect(allowed.has(card.group)).toBe(true);
+    }
+  });
+
+  it('tidak lagi menyertakan kartu Pusat Komando (hindari self-link)', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+
+    expect(cards.find(card => card.route === '/dashboard')).toBeUndefined();
+    expect(cards.find(card => card.id === 'overview')).toBeUndefined();
+  });
+
+  it('memuat modul Konten yang sebelumnya tidak ada di register', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const contentIds = cards.filter(card => card.group === 'Konten').map(card => card.id);
+
+    expect(contentIds).toEqual(
+      expect.arrayContaining(['content-landing', 'content-galeri', 'content-foto-area', 'content-surat', 'content-berita', 'content-sponsorship']),
+    );
+  });
+
+  it('menandai Buat Surat sebagai maintenance', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const surat = cards.find(card => card.id === 'content-surat');
+
+    expect(surat).toBeDefined();
+    expect(surat!.maintenance).toBe(true);
+  });
+
+  it('menyembunyikan seluruh grup Konten untuk role tanpa izin settings/sponsorship', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      permissions: { ...adminPermissions, canViewSettings: false, canViewSponsorship: false },
+    });
+
+    expect(cards.filter(card => card.group === 'Konten')).toHaveLength(0);
+  });
+
+  it('gate Sponsorship terpisah dari canViewSettings', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      permissions: { ...adminPermissions, canViewSettings: false, canViewSponsorship: true },
+    });
+    const konten = cards.filter(card => card.group === 'Konten').map(card => card.id);
+
+    expect(konten).toEqual(['content-sponsorship']);
+  });
+
+  it('grup Ringkasan tidak menyertakan Pusat Komando', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const ringkasan = cards.filter(card => card.group === 'Ringkasan').map(card => card.id);
+
+    expect(ringkasan).toEqual(expect.arrayContaining(['insights', 'analytics']));
+    expect(ringkasan).not.toContain('overview');
+  });
+});

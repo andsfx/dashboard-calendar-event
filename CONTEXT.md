@@ -40,11 +40,18 @@
 | Istilah | Arti kanonik |
 |---------|--------------|
 | **Dashboard Group** | Kelompok navigasi admin: Ringkasan · Kelola Event · Interaksi · Sistem · Konten. |
-| **Ringkasan** | Pusat Komando, Analitik, Hasil Evaluasi Tenant. |
-| **Kelola Event** | Jadwal Event, Antrian Draft, Tema Tahunan — tampilan Event Tabel/Kalender/Kanban/Timeline. |
+| **Ringkasan** | Pusat Komando, Insight Cerdas, Analitik, Hasil Evaluasi Tenant. |
+| **Kelola Event** | Jadwal Event, Antrian Draft, Tema Tahunan, Pameran & Aktivasi — tampilan Event Tabel/Kalender/Kanban/Timeline. |
 | **Interaksi** | Pendaftaran, Survey Kepuasan, Evaluasi Tenant. |
 | **Sistem** | Manajemen Pengguna, Log Aktivitas. |
-| **Konten** | Halaman Landing, Galeri Album, Buat Surat. |
+| **Konten** | Halaman Landing, Galeri Album, Foto Area Event, Buat Surat, Berita, Sponsorship. |
 | **Publik** | Landing event, Galeri album, Surat, Survey, Pendaftaran Sponsor/Community. |
 | **Alur Draft** | Siklus draft: buat → review → publish → pulihkan. |
 | **Role Akses** | Hierarki superadmin → admin → viewer → eo_tenant/tenant_relation. |
+
+### Navigasi Dashboard
+
+| Istilah | Arti kanonik | Bukan |
+|---------|--------------|-------|
+| **Kartu Modul** | Ringkasan satu modul admin di Pusat Komando; pintu masuk ke modul itu. | Panel; baris menu rail; tombol aksi |
+| **Grid Kartu Modul** | Susunan Kartu Modul di Pusat Komando, dikelompokkan per Dashboard Group. Hanya memuat modul yang diizinkan Role Akses. | Navigasi rail; halaman modul; daftar menu |

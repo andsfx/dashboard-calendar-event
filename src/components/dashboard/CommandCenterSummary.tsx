@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Wrench } from 'lucide-react';
 import type { DraftEventItem, AnnualTheme, CommunityRegistration } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
-import { getCommandCenterCards } from './dashboardNavigation';
+import { DASHBOARD_GROUP_ORDER, getCommandCenterCards } from './dashboardNavigation';
 
 interface CommandCenterSummaryProps {
   totalEvents: number;
@@ -18,10 +18,19 @@ interface CommandCenterSummaryProps {
 }
 
 /**
- * The module register. Two bands, not one flat grid: modules that are waiting on
- * a person are listed first and named, everything else follows as the directory.
- * The order is the hierarchy — a passive module (activity log) must not read as
- * urgent as a queue that is actually waiting.
+ * Grid Kartu Modul — the Pusat Komando directory.
+ *
+ * Replaces the flat "Semua Modul" register: the modules that this role may see,
+ * arranged as panels grouped by Dashboard Group so the landing reads as a
+ * dashboard rather than a menu list. Cards come from `getCommandCenterCards`,
+ * which applies the **same permission predicates** as the rail (so a module the
+ * role cannot open never appears here), but it is a separate list — it is not
+ * built from the rail's own nav items. A card that is waiting on a person takes
+ * the accent border and names the state in words ("Perlu tindakan") — colour
+ * alone never carries the meaning — and is sorted first inside its group.
+ *
+ * The queue total already leads the page (DashboardStats), so the grid does not
+ * repeat it; the dot-and-label marks the waiting modules in place instead.
  */
 export const CommandCenterSummary = memo(function CommandCenterSummary({
   totalEvents,
@@ -46,59 +55,74 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     isSuperadmin,
   });
 
-  const attention = cards.filter(card => card.attention);
+  // Group per Dashboard Group, preserving the canonical order and dropping
+  // groups that have no visible module for this role (e.g. Konten for a viewer).
+  const groups = DASHBOARD_GROUP_ORDER.map(label => ({
+    label,
+    cards: cards
+      .filter(card => card.group === label)
+      .sort((a, b) => Number(Boolean(b.attention)) - Number(Boolean(a.attention))),
+  })).filter(group => group.cards.length > 0);
 
-  const renderRow = (card: (typeof cards)[number]) => (
-    <Link key={card.id} to={card.route} className="wf-row group">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]">
-        {card.icon}
-      </span>
-
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2 text-sm font-semibold text-[var(--wf-ink)]">
-          {/* A dot only where a module is actually waiting on a person. Marking
-              every row would make the mark a legend instead of a signal. */}
-          {card.attention && <span className="wf-dot wf-dot--action" aria-hidden="true" />}
-          <span className="truncate">{card.title}</span>
-        </span>
-        <span className="block truncate text-xs text-[var(--wf-ink-muted)]">{card.subtitle}</span>
-      </span>
-
-      {card.attention && (
-        <span className="sr-only">Perlu tindakan</span>
-      )}
-
-      {card.value !== undefined && (
-        <span className={`wf-code shrink-0 text-base font-semibold ${card.attention ? 'text-[var(--wf-action)]' : 'text-[var(--wf-ink)]'}`}>{card.value}</span>
-      )}
-
-      <ArrowRight
-        className="h-4 w-4 shrink-0 text-[var(--wf-ink-muted)] transition-transform group-hover:translate-x-0.5"
-        strokeWidth={1.5}
-        aria-hidden
-      />
-    </Link>
-  );
+  const hasAttention = cards.some(card => card.attention);
 
   return (
-    <section aria-label="Pusat Komando" className="space-y-3">
-      {/* One register. The queue's total already leads the page, so listing the
-          waiting modules a second time would just repeat it — the dot marks
-          them in place instead. */}
-      {attention.length === 0 && (
+    <section aria-label="Pusat Komando" className="space-y-4">
+      {!hasAttention && (
         <p className="flex items-center gap-2 text-sm text-[var(--wf-ink-muted)]">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--wf-live)]" strokeWidth={1.5} aria-hidden />
           Tidak ada modul yang menunggu tindakan. Antrian kosong.
         </p>
       )}
 
-      <div className="wf-register">
-        <h2 className="wf-row-head">
-          <span>Semua Modul</span>
-          <span className="wf-code ml-auto">{cards.length}</span>
-        </h2>
-        <div>{cards.map(renderRow)}</div>
-      </div>
+      {groups.map(group => (
+        <div key={group.label} className="wf-card-grid-group">
+          <h2 className="wf-card-grid-group__title">
+            <span>{group.label}</span>
+            <span className="wf-code">{group.cards.length}</span>
+          </h2>
+          <div className="wf-card-grid">
+            {group.cards.map(card => (
+              <Link
+                key={card.id}
+                to={card.route}
+                className={`wf-card${card.attention ? ' wf-card--attention' : ''}`}
+              >
+                <span className="wf-card__top">
+                  <span className="wf-card__title">{card.title}</span>
+                  <span className="wf-card__icon" aria-hidden>
+                    {card.icon}
+                  </span>
+                </span>
+
+                {card.value !== undefined && (
+                  <span className={`wf-code wf-card__value${card.attention ? ' wf-card__value--attention' : ''}`}>
+                    {card.value}
+                  </span>
+                )}
+
+                <span className="wf-card__hint">{card.subtitle}</span>
+
+                {/* State is named in words as well as shown by colour, so the
+                    reading survives without hue. */}
+                {card.attention && (
+                  <span className="wf-key wf-key--action">
+                    <span className="wf-dot wf-dot--action" aria-hidden="true" />
+                    Perlu tindakan
+                  </span>
+                )}
+
+                {card.maintenance && (
+                  <span className="wf-key wf-key--action" title="Sedang diperbaiki">
+                    <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
+                    Sedang diperbaiki
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </section>
   );
 });
