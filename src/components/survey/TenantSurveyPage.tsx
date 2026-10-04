@@ -1073,9 +1073,9 @@ function TenantSurveyManagementSection({
         className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--wf-board-2)]"
       >
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">
+          <h2 className="text-sm font-semibold text-[var(--wf-ink)]">
             Kelola Self-Assessment per Event
-          </h3>
+          </h2>
           <p className="text-[10px] text-[var(--wf-ink-muted)]">
             {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR, export
           </p>

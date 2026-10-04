@@ -134,8 +134,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
                 isActive
                   ? 'border-[var(--wf-live)]'
                   : isPast
-                  ? 'border-[var(--wf-rule)] opacity-60'
-                  : 'border-[var(--wf-rule)] opacity-85 hover:opacity-100'
+                  ? 'border-[var(--wf-rule)]'
+                  : 'border-[var(--wf-rule)]'
               }`}
               style={{
                 backgroundColor: `${theme.color}18`,
@@ -151,8 +151,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               )}
               {isAdmin && (
                 <div className="absolute right-3 top-3 flex gap-1">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(theme)} className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" /></button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-red-600/20 bg-[var(--wf-board)] p-1 text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" /></button>}
+                  {onEditTheme && <button type="button" aria-label={`Ubah tema ${theme.name}`} onClick={() => onEditTheme(theme)} className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" aria-hidden /></button>}
+                  {onDeleteTheme && <button type="button" aria-label={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-red-600/20 bg-[var(--wf-board)] p-1 text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" aria-hidden /></button>}
                 </div>
               )}
 

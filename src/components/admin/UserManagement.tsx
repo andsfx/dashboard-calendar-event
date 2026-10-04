@@ -221,7 +221,7 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                       {roleInfo.icon} {roleInfo.label}
                     </span>
                     {!u.is_active && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">Nonaktif</span>
                     )}
                   </div>
                   <p className="truncate text-xs text-[var(--wf-ink-muted)]">{u.email}</p>

@@ -552,10 +552,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       {/* Delete */}
                       {!readOnly && <button
                         type="button"
+                        aria-label={`Hapus album ${album.name}`}
                         onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
                         className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 group-hover:opacity-100"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden />
                       </button>}
                     </div>
                   ))}
@@ -603,10 +604,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           {/* Delete button */}
                           {!readOnly && <button
                             type="button"
+                            aria-label="Hapus foto"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
                             className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-600/90 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-700 group-hover:opacity-100"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3.5 w-3.5" aria-hidden />
                           </button>}
 
                           {/* Thumbnail */}
@@ -699,10 +701,11 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                           {!uploading && (
                             <button
                               type="button"
+                              aria-label="Hapus berkas"
                               onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
                               className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-[opacity] group-hover:opacity-100"
                             >
-                              <X className="h-3.5 w-3.5" />
+                              <X className="h-3.5 w-3.5" aria-hidden />
                             </button>
                           )}
                         </div>
