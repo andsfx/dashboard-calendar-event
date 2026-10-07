@@ -12,15 +12,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { eventItemToDbRow } from '../_shared';
-import { setEventVisibility, updateEvent } from '../eventsApi';
+import { setEventVisibility, updateEvent, fetchAdminEvents } from '../eventsApi';
 import type { EventItem } from '../../../types';
 
-function mockOkFetch(): Mock {
+function mockOkFetch(payload: unknown = { success: true }): Mock {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
     status: 200,
-    text: () => Promise.resolve(JSON.stringify({ success: true })),
-    json: () => Promise.resolve({ success: true }),
+    text: () => Promise.resolve(JSON.stringify(payload)),
+    json: () => Promise.resolve(payload),
   });
   vi.stubGlobal('fetch', fetchMock);
   return fetchMock;
@@ -89,6 +89,34 @@ describe('updateEvent — lifecycle eksplisit digabung ke satu request', () => {
     await updateEvent({ id: 'evt_1', acara: 'Acara' } as Partial<EventItem> & { id: string }, 'published');
 
     expect((sentBody(fetchMock).data as Record<string, unknown>).status).toBe('published');
+  });
+});
+
+describe('fetchAdminEvents — API lama tanpa aksi listEvents', () => {
+  it('HTTP 200 + {success:false} HARUS melempar (bukan mengembalikan [])', async () => {
+    // Server lama membalas 200 dengan "Aksi tidak dikenal". `apiPost` tidak
+    // melempar untuk kasus ini, jadi pemeriksaan success ada di sini — kalau
+    // hilang, dashboard tampil kosong dan fallback kanal publik tak pernah jalan.
+    mockOkFetch({ success: false, error: 'Aksi tidak dikenal: listEvents' });
+    await expect(fetchAdminEvents()).rejects.toThrow(/Aksi tidak dikenal/);
+  });
+
+  it('success:true mengembalikan baris yang dipetakan', async () => {
+    mockOkFetch({
+      success: true,
+      data: [{
+        id: 'evt_1', date_str: '2026-09-10', date_end: null, day: 'Kamis',
+        tanggal: '10 September 2026', jam: '10:00', acara: 'Acara', lokasi: 'Atrium',
+        area_id: null, eo: '', pic: '', phone: '', keterangan: '', month: 'September',
+        status: 'draft', category: 'Umum', categories: ['Umum'], priority: 'medium',
+        event_model: '', event_nominal: '', event_model_notes: '', source_draft_id: '',
+        is_multi_day: false, day_time_slots: null, event_type: 'single',
+        recurrence_group_id: '', is_recurring: false, poster_url: null,
+      }],
+    });
+    const events = await fetchAdminEvents();
+    expect(events).toHaveLength(1);
+    expect(events[0]!.status).toBe('draft');
   });
 });
 

@@ -59,7 +59,12 @@ export async function fetchThemesAndHolidays(): Promise<{ themes: AnnualTheme[];
  * kembali; channel publik tetap `fetchEvents()` (tanpa draft).
  */
 export async function fetchAdminEvents(): Promise<EventItem[]> {
-  const result = await adminAction<{ success: boolean; data?: DbEvent[] }>('listEvents', {});
+  const result = await adminAction<{ success: boolean; error?: string; data?: DbEvent[] }>('listEvents', {});
+  // WAJIB: `apiPost` mengembalikan body flat apa adanya dan TIDAK melempar saat
+  // HTTP 200 + `{success:false}` (server lama menjawab "Aksi tidak dikenal").
+  // Tanpa cek ini, pemanggil menerima [] dan menyangka berhasil — fallback ke
+  // kanal publik tidak pernah jalan dan dashboard tampil kosong.
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat daftar event admin');
   return (result.data || []).map((row, idx) => dbEventToEventItem(row, idx));
 }
 

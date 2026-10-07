@@ -69,6 +69,16 @@ export default defineConfig({
     watch: {
       ignored: ['**/.vite-log.txt', '**/.vite-out.txt', '**/.vite-err.txt'],
     },
+    // Dev saja: SPA dan API satu host (model Opsi B / AGENTS.md). `npm run dev`
+    // + `npm run dev:api` cukup — request /api diteruskan ke API lokal, sama
+    // seperti nginx mem-proxy di produksi. Tanpa ini, /api mengarah ke dev
+    // server Vite sendiri dan gagal. Produksi tidak terpengaruh (VITE_API_URL).
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {
