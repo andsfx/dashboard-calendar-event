@@ -18,7 +18,7 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity, DEMO_READ_ROLES, canPerformAdminAction } from '../auth.js';
+import { requireRole, logActivity, DEMO_ROLE, DEMO_READ_ROLES, canPerformAdminAction, maskEmail, maskName, maskPhone } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
 import { isAiEnabled, generateInsightNarrative } from '../lib/ai.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
@@ -101,19 +101,46 @@ async function switchAction(action, req) {
 
   switch (action) {
     // ══════════ EVENTS ══════════
+    // Baca SEMUA event termasuk yang disembunyikan (`status = 'draft'`).
+    // Halaman publik memakai GET /events yang memfilter draft; dashboard butuh
+    // daftar lengkap supaya event tersembunyi tetap bisa dipilih dan
+    // ditampilkan kembali. Dua channel tetap terpisah: route ini butuh sesi
+    // staff (atau demo, read-only).
+    case 'listEvents': {
+      const { rows } = await db.query(
+        `SELECT id, date_str, date_end, day, tanggal, jam, acara, lokasi, area_id, eo,
+                pic, phone, keterangan, month, status, category, categories, priority,
+                event_model, event_nominal, event_model_notes, source_draft_id, is_multi_day,
+                day_time_slots, event_type, recurrence_group_id, is_recurring,
+                poster_url, organization_id
+         FROM events
+         ORDER BY date_str ASC, jam ASC`,
+      );
+      // Demo = read-only, tapi PII tetap disamarkan (pola readRegistrations).
+      const isDemo = auth.user?.role === DEMO_ROLE;
+      const data = isDemo
+        ? rows.map(r => ({ ...r, pic: maskName(r.pic), phone: maskPhone(r.phone) }))
+        : rows;
+      return { success: true, data };
+    }
+
     case 'createEvent': {
       const data = body.data || {};
       const { rows } = await db.query(
+        // `status` di-INSERT sebagai 'published', bukan nilai dari client: event
+        // yang dibuat lewat form admin sudah live, dan status temporal dihitung
+        // dari tanggal (ADR 002). Flag 'draft' (disembunyikan dari halaman
+        // publik) ditangani lewat updateEvent.
         `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
                              keterangan, month, status, category, categories, priority, event_model, event_nominal,
                              event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
                              recurrence_group_id, is_recurring, poster_url, organization_id)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
          RETURNING id`,
         [
           data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
           data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
-          data.phone ?? '', data.keterangan ?? '', data.month ?? '', data.status ?? 'upcoming',
+          data.phone ?? '', data.keterangan ?? '', data.month ?? '',
           data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
           data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
           data.source_draft_id ?? '', data.is_multi_day ?? false,
@@ -134,16 +161,36 @@ async function switchAction(action, req) {
       if (keys.length === 0) return { success: false, error: 'Tidak ada perubahan' };
 
       // Whitelist kolom yang boleh di-update (hindari overwrite PK/timestamp).
+      // `status` SENGAJA TIDAK ada di sini: nilai temporal (upcoming/ongoing/past)
+      // berasal dari tanggal (ADR 002), bukan dari client. Yang boleh ditulis
+      // hanya flag lifecycle 'draft' — dilayani lewat `setDraftFlag` di bawah.
       const ALLOWED = new Set([
         'date_str', 'date_end', 'day', 'tanggal', 'jam', 'lokasi', 'area_id', 'acara', 'eo',
-        'pic', 'phone', 'keterangan', 'month', 'status', 'category', 'categories', 'priority',
+        'pic', 'phone', 'keterangan', 'month', 'category', 'categories', 'priority',
         'event_model', 'event_nominal', 'event_model_notes', 'source_draft_id', 'is_multi_day',
         'day_time_slots', 'event_type', 'recurrence_group_id', 'is_recurring', 'poster_url',
         'organization_id',
       ]);
+      // Flag lifecycle event tetap bisa lewat updateEvent, tapi HANYA dua nilai
+      // literal: 'draft' dan 'published'. Nilai temporal dari client
+      // ('upcoming'/'ongoing'/'past') diabaikan — bukan dipetakan ke
+      // 'published', karena menulis status temporal kembali menghidupkan
+      // akar bug ini: filter SQL sempat salah membaca nilai basi tersebut.
+      // Sumber kebenaran waktu tetap tanggal (ADR 002); status temporal di DB
+      // dinormalisasi ke 'published' oleh migrasi.
+      //
+      // Dibandingkan `=== true` (bukan truthy) supaya key bawaan Object
+      // ('constructor', 'toString') tidak pernah lolos sebagai nilai sah.
+      const LIFECYCLE_STATES = { draft: true, published: true };
       const sets = [];
       const values = [];
       for (const key of keys) {
+        if (key === 'status') {
+          if (LIFECYCLE_STATES[data.status] !== true) continue;
+          values.push(data.status);
+          sets.push(`status = $${values.length}`);
+          continue;
+        }
         if (!ALLOWED.has(key)) continue;
         const value = (key === 'categories')
           ? toTextArray(data[key])
@@ -178,12 +225,12 @@ async function switchAction(action, req) {
                                keterangan, month, status, category, categories, priority, event_model, event_nominal,
                                event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
                                recurrence_group_id, is_recurring, poster_url, organization_id)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
            RETURNING id`,
           [
             data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
             data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
-            data.phone ?? '', data.keterangan ?? '', data.month ?? '', data.status ?? 'upcoming',
+            data.phone ?? '', data.keterangan ?? '', data.month ?? '',
             data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
             data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
             data.source_draft_id ?? '', data.is_multi_day ?? false,
@@ -268,10 +315,13 @@ async function switchAction(action, req) {
       if (!existing[0]) {
         await db.query(
           `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
-                               keterangan, month, category, categories, priority, event_model, event_nominal,
+                               keterangan, month, status, category, categories, priority, event_model, event_nominal,
                                event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
                                recurrence_group_id, is_recurring)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+           -- 'published' eksplisit: event hasil terbit adalah live (bukan draft).
+           -- Kolom status sebelumnya diisi DEFAULT 'upcoming', yang karena tidak
+           -- pernah diperbarui membuat semua 258 event produksi terkunci di sana.
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
           [
             draft.date_str, draft.date_end, draft.day, draft.tanggal, draft.jam, draft.lokasi,
             draft.area_id, draft.acara, draft.eo, draft.pic, draft.phone, draft.keterangan,
@@ -895,14 +945,27 @@ async function switchAction(action, req) {
          LEFT JOIN events e ON e.id = sl.event_id
          ORDER BY sl.created_at DESC`,
       );
-      return { success: true, data: rows };
+      // Role demo hanya boleh melihat struktur, bukan identitas. Tanpa ini,
+      // `sl.*` mengirim contact_name/phone/email mentah ke akun demo —
+      // bandingkan extra.js:518 yang sudah menyamarkan email untuk /users.
+      const isDemo = req.auth?.user?.role === DEMO_ROLE;
+      const data = isDemo
+        ? rows.map(r => ({ ...r, contact_name: maskName(r.contact_name), phone: maskPhone(r.phone), email: maskEmail(r.email) }))
+        : rows;
+      return { success: true, data };
     }
 
     case 'readRegistrations': {
       const { rows } = await db.query(
         `SELECT * FROM community_registrations ORDER BY created_at DESC`,
       );
-      return { success: true, data: rows };
+      // Sama seperti listSponsorLeads: demo = read-only, tapi PII tetap
+      // disamarkan (pic/phone/email) alih-alih dikirim mentah.
+      const isDemo = req.auth?.user?.role === DEMO_ROLE;
+      const data = isDemo
+        ? rows.map(r => ({ ...r, pic: maskName(r.pic), phone: maskPhone(r.phone), email: maskEmail(r.email) }))
+        : rows;
+      return { success: true, data };
     }
 
     // ══════════ GENERATED LETTERS ══════════

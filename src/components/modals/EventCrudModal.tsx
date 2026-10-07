@@ -15,7 +15,13 @@ import { RecurringEventFields } from '../forms/RecurringEventFields';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<EventItem>) => Promise<boolean>;
+  /**
+   * `lifecycle` = arah visibilitas eksplisit yang diminta pengguna
+   * ('draft' = sembunyikan, 'published' = tampilkan). Digabung ke satu request
+   * dengan perubahan field — mapper umum draft-only (ADR 008), dan dua tulisan
+   * terpisah bisa gagal separuh.
+   */
+  onSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => Promise<boolean>;
   onSaveBatch?: (data: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];
@@ -117,6 +123,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
   const [areaId, setAreaId] = useState('');
   const [overrideAck, setOverrideAck] = useState(false);
   const [detachSeries, setDetachSeries] = useState(false);
+  // Visibilitas di halaman publik. Flag lifecycle `status` ('draft' =
+  // disembunyikan) terpisah dari status temporal; hanya dikirim saat berubah
+  // supaya edit biasa tidak menulis kolom lifecycle (ADR 008).
+  const [visible, setVisible] = useState(true);
   const [posterUploading, setPosterUploading] = useState(false);
   const [posterError, setPosterError] = useState('');
   const posterInputRef = useRef<HTMLInputElement>(null);
@@ -207,6 +217,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
     setAreaId(editingEvent?.areaId || initialData?.areaId || '');
     setOverrideAck(false);
     setDetachSeries(false);
+    setVisible(editingEvent ? editingEvent.status !== 'draft' : true);
     setErrors({});
     setIsSubmitting(false);
     setPosterError('');
@@ -488,13 +499,20 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
         );
 
     setIsSubmitting(true);
+    // Arah visibilitas eksplisit (bukan disimpulkan dari finalStatus), dan
+    // dikirim dalam SATU request bersama perubahan field: kalau gagal, tidak
+    // ada perubahan separuh dan modal tetap terbuka.
+    const wasVisible = editingEvent ? editingEvent.status !== 'draft' : true;
+    const lifecycle: 'draft' | 'published' | undefined = isEdit && wasVisible !== visible
+      ? (visible ? 'published' : 'draft')
+      : undefined;
     const success = await onSave({
       ...(editingEvent ? { id: editingEvent.id, rowIndex: editingEvent.rowIndex } : {}),
       ...normalizedFormData,
       ...meta,
       status: finalStatus,
       areaId: areaId || null,
-    });
+    }, lifecycle);
     if (!success) setIsSubmitting(false);
   };
 
@@ -662,6 +680,31 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
             errors={errors}
             onFieldChange={set}
           />
+
+          {/* Visibilitas di halaman publik — hanya saat edit (create selalu
+              live; hide setelah dibuat). Dikirim sebagai lifecycle eksplisit. */}
+          {isEdit && (
+            <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-3">
+              <label className="flex cursor-pointer items-start gap-2">
+                <input
+                  type="checkbox"
+                  role="switch"
+                  aria-label="Tampilkan di halaman publik"
+                  checked={visible}
+                  onChange={e => setVisible(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-[var(--wf-rule)] text-[var(--wf-accent)] focus:ring-[var(--wf-accent)]"
+                />
+                <span className="text-xs">
+                  <span className="block font-semibold text-[var(--wf-ink)]">Tampilkan di halaman publik</span>
+                  <span className="mt-0.5 block text-[var(--wf-ink-muted)]">
+                    {visible
+                      ? 'Acara ini muncul di jadwal publik.'
+                      : 'Acara ini disembunyikan dari jadwal publik (tetap terlihat di dashboard, filter "Internal").'}
+                  </span>
+                </span>
+              </label>
+            </div>
+          )}
 
           {/* Keterangan */}
           <div>

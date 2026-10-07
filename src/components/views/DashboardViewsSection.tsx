@@ -44,6 +44,8 @@ interface Props {
   areas?: EventArea[];
   onEdit?: (event: EventItem) => void;
   onDelete?: (event: EventItem) => void;
+  /** Sembunyikan/tampilkan event di halaman publik (hanya bila boleh edit). */
+  onToggleVisibility?: (event: EventItem) => void;
   onDetail: (event: EventItem) => void;
 }
 
@@ -73,6 +75,7 @@ export function DashboardViewsSection(props: Props) {
     areas,
     onEdit,
     onDelete,
+    onToggleVisibility,
     onDetail,
   } = props;
 
@@ -199,6 +202,7 @@ export function DashboardViewsSection(props: Props) {
                   areas={areas}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  onToggleVisibility={onToggleVisibility}
                   onDetail={onDetail}
                 />
               )}

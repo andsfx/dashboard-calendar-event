@@ -4,9 +4,12 @@
 
 export {
   fetchEvents,
+  fetchAdminEvents,
+  fetchThemesAndHolidays,
   fetchEventById,
   createEvent,
   updateEvent,
+  setEventVisibility,
   deleteEvent,
   batchCreateEvents,
   deleteRecurringSeries,

@@ -1,5 +1,5 @@
 import { Fragment, useMemo } from 'react';
-import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays, Layers } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, ArrowUpDown, ExternalLink, Download, CalendarDays, Layers, Eye, EyeOff } from 'lucide-react';
 import { EventItem, EventArea } from '../../types';
 import { downloadBlob } from '../../lib/download';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -14,6 +14,8 @@ interface Props {
   areas?: EventArea[];
   onEdit?: (ev: EventItem) => void;
   onDelete?: (ev: EventItem) => void;
+  /** Sembunyikan/tampilkan event di halaman publik (flag lifecycle `draft`). */
+  onToggleVisibility?: (ev: EventItem) => void;
   onDetail: (ev: EventItem) => void;
 }
 
@@ -58,7 +60,7 @@ function exportCSV(events: EventItem[]) {
   downloadBlob(blob, `events-${new Date().toISOString().split('T')[0]}.csv`);
 }
 
-export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail }: Props) {
+export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleVisibility, onDetail }: Props) {
   const groupedEvents: TableGroup[] = useMemo(() => {
     const sortedEvents = sortTableEvents(events);
 
@@ -230,6 +232,18 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                   >
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Detail
                   </button>
+                  {onToggleVisibility && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleVisibility(ev)}
+                        aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
+                      >
+                        {ev.status === 'draft'
+                          ? <><Eye className="h-3.5 w-3.5" aria-hidden /> Tampilkan</>
+                          : <><EyeOff className="h-3.5 w-3.5" aria-hidden /> Sembunyikan</>}
+                      </button>
+                  )}
                   {onEdit && (
                       <button
                         type="button"
@@ -378,6 +392,19 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onDetail 
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
+                        {onToggleVisibility && (
+                          <button
+                            type="button"
+                            onClick={() => onToggleVisibility(ev)}
+                            aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                            title={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                            className="ui-focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[11px] font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
+                          >
+                            {ev.status === 'draft'
+                              ? <><Eye className="h-3.5 w-3.5" aria-hidden="true" /> Tampilkan</>
+                              : <><EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> Sembunyikan</>}
+                          </button>
+                        )}
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (

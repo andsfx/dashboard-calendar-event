@@ -42,6 +42,7 @@ const createEventDataSchema = z.object({
 }).passthrough();
 
 const ACTION_SCHEMAS = {
+  listEvents: z.object({ action: z.literal('listEvents') }),
   createEvent: z.object({ action: z.literal('createEvent'), data: createEventDataSchema }),
   updateEvent: z.object({ action: z.literal('updateEvent'), id: z.string().min(1), data: z.object({}).passthrough() }),
   deleteEvent: z.object({ action: z.literal('deleteEvent'), id: z.string().min(1) }),

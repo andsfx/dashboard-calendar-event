@@ -9,7 +9,8 @@ export type EventHandlersDeps = {
   showToast: ShowToast;
   eventsLength: number;
   addEvent: (event: EventItem) => Promise<boolean>;
-  updateEvent: (event: EventItem) => Promise<boolean>;
+  updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published') => Promise<boolean>;
+  setEventVisibility: (event: EventItem, hidden: boolean) => Promise<boolean>;
   deleteEvent: (id: string) => Promise<boolean>;
   addRecurringEvents: (events: EventItem[]) => Promise<boolean>;
   deleteRecurringSeries: (groupId: string) => Promise<boolean>;
@@ -33,16 +34,18 @@ export interface EventHandlersResult {
   setInitialEventData: (v: Partial<EventItem> | null) => void;
   handleAddNew: () => void;
   handleEdit: (ev: EventItem) => void;
-  handleSave: (data: Partial<EventItem>) => Promise<boolean>;
+  handleSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => Promise<boolean>;
   handleSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   handleDeleteClick: (ev: EventItem) => void;
   handleDeleteConfirm: () => Promise<boolean>;
   handleDeleteSeries: (groupId: string) => Promise<boolean>;
   handleDetailClick: (ev: EventItem) => void;
+  /** Sembunyikan/tampilkan event di halaman publik (flag lifecycle `draft`). */
+  handleToggleVisibility: (ev: EventItem) => Promise<boolean>;
 }
 
 export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
-  const { showToast, eventsLength, addEvent, updateEvent, deleteEvent, addRecurringEvents, deleteRecurringSeries, confirm } = deps;
+  const { showToast, eventsLength, addEvent, updateEvent, setEventVisibility, deleteEvent, addRecurringEvents, deleteRecurringSeries, confirm } = deps;
 
   const [showCrudModal, setShowCrudModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -63,10 +66,10 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
     setShowCrudModal(true);
   }, []);
 
-  const handleSave = useCallback(async (data: Partial<EventItem>) => {
+  const handleSave = useCallback(async (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => {
     let success = false;
     if (editingEvent) {
-      success = await updateEvent({ ...editingEvent, ...data } as EventItem);
+      success = await updateEvent({ ...editingEvent, ...data } as EventItem, lifecycle);
       if (success) showToast('success', 'Berhasil diperbarui!', `"${data.acara}" telah diperbarui.`);
       else showToast('error', 'Gagal memperbarui', 'Perubahan belum tersimpan. Silakan coba lagi.');
     } else {
@@ -126,6 +129,26 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
     setShowDetailModal(true);
   }, []);
 
+  // Sembunyikan / tampilkan event di halaman publik. Gerbangnya flag lifecycle
+  // kolom `status`, ditulis lewat jalur eksplisit `setEventVisibility` — mapper
+  // umum sengaja hanya mengirim 'draft' (ADR 008).
+  const handleToggleVisibility = useCallback(async (ev: EventItem) => {
+    const hide = ev.status !== 'draft';
+    const success = await setEventVisibility(ev, hide);
+    if (success) {
+      showToast(
+        'success',
+        hide ? 'Disembunyikan dari halaman publik' : 'Tampil di halaman publik',
+        hide
+          ? `"${ev.acara}" tidak lagi muncul di jadwal publik.`
+          : `"${ev.acara}" kembali muncul di jadwal publik.`,
+      );
+    } else {
+      showToast('error', 'Gagal mengubah visibilitas', 'Perubahan belum tersimpan. Silakan coba lagi.');
+    }
+    return success;
+  }, [setEventVisibility, showToast]);
+
   return {
     showCrudModal, setShowCrudModal,
     showDeleteModal, setShowDeleteModal,
@@ -136,5 +159,6 @@ export function useEventHandlers(deps: EventHandlersDeps): EventHandlersResult {
     initialEventData, setInitialEventData,
     handleAddNew, handleEdit, handleSave, handleSaveBatch,
     handleDeleteClick, handleDeleteConfirm, handleDeleteSeries, handleDetailClick,
+    handleToggleVisibility,
   };
 }

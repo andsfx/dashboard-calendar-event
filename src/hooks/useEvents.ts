@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
-import { sortEvents, recalculateStatuses } from '../utils/eventUtils';
-import { fetchEvents, createEvent as apiCreate, updateEvent as apiUpdate, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/domainApi';
+import { sortEvents, recalculateStatuses, getStatus } from '../utils/eventUtils';
+import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent as apiCreate, updateEvent as apiUpdate, setEventVisibility as apiSetVisibility, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/domainApi';
 import { AdminError } from '../lib/adminError';
 
 function normalizeEvent(ev: EventItem): EventItem {
@@ -12,8 +12,16 @@ function normalizeEvent(ev: EventItem): EventItem {
   return normalized;
 }
 
-export function useEvents(options?: { realtime?: boolean }) {
+export function useEvents(options?: { realtime?: boolean; includeHidden?: boolean; enabled?: boolean }) {
   const realtimeEnabled = options?.realtime ?? true;
+  // `includeHidden` = pemakai boleh melihat jadwal internal (admin/superadmin/demo).
+  // Hanya mereka yang membaca channel admin (`listEvents`, termasuk event
+  // tersembunyi); pengunjung publik tetap membaca GET /events tanpa draft.
+  const includeHidden = options?.includeHidden ?? false;
+  // `enabled: false` menahan fetch sampai jawaban sesi diketahui. Tanpa ini,
+  // dashboard sempat membaca GET /events publik selama /auth/me masih terbang
+  // (includeHidden masih false) — persis pencampuran kanal yang dilarang.
+  const enabled = options?.enabled ?? true;
   const [events, setEvents] = useState<EventItem[]>([]);
   const [annualThemes, setThemes] = useState<AnnualTheme[]>([]);
   const [holidays, setHolidays] = useState<HolidayItem[]>([]);
@@ -28,22 +36,35 @@ export function useEvents(options?: { realtime?: boolean }) {
   const clearLastError = useCallback(() => setLastError(null), []);
 
   const refreshEvents = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!enabled) return;
     if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
-      const { events: fetchedEvents, themes: fetchedThemes, holidays: fetchedHolidays } = await fetchEvents();
-      setEvents(recalculateStatuses(fetchedEvents));
-      setThemes(fetchedThemes);
-      setHolidays(fetchedHolidays);
+      // Dashboard (includeHidden) memakai channel admin untuk daftar event dan
+      // TIDAK menyentuh GET /events publik — dua kanal tetap terpisah.
+      if (includeHidden) {
+        const [adminEvents, { themes, holidays }] = await Promise.all([
+          fetchAdminEvents(),
+          fetchThemesAndHolidays(),
+        ]);
+        setEvents(recalculateStatuses(adminEvents));
+        setThemes(themes);
+        setHolidays(holidays);
+      } else {
+        const publicData = await fetchEvents();
+        setEvents(recalculateStatuses(publicData.events));
+        setThemes(publicData.themes);
+        setHolidays(publicData.holidays);
+      }
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
     } finally {
       if (!opts?.silent) setIsLoading(false);
     }
-  }, []);
+  }, [includeHidden, enabled]);
 
-  // Load from REST API (VPS)
+  // Load from REST API (VPS) — setelah sesi diketahui (lihat `enabled`).
   useEffect(() => {
     refreshEvents();
   }, [refreshEvents]);
@@ -163,13 +184,13 @@ export function useEvents(options?: { realtime?: boolean }) {
     }
   }, []);
 
-  const updateEvent = useCallback(async (ev: EventItem): Promise<boolean> => {
+  const updateEvent = useCallback(async (ev: EventItem, lifecycle?: 'draft' | 'published'): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
     const normalizedEvent = normalizeEvent(ev);
     setEvents(prev => prev.map(e => e.id === ev.id ? normalizedEvent : e));
     if (ev.id) {
       try {
-        await apiUpdate(normalizedEvent as EventItem & { id: string });
+        await apiUpdate(normalizedEvent as EventItem & { id: string }, lifecycle);
         return true;
       } catch (err) {
         const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
@@ -182,6 +203,32 @@ export function useEvents(options?: { realtime?: boolean }) {
       }
     }
     return true;
+  }, [events]);
+
+  /**
+   * Sembunyikan/tampilkan event di halaman publik. Jalur eksplisit
+   * (`setEventVisibility`) karena mapper umum hanya boleh menulis `'draft'`
+   * (ADR 008). Optimistic: state lokal diubah dulu, dikembalikan bila gagal.
+   */
+  const setEventVisibility = useCallback(async (ev: EventItem, hidden: boolean): Promise<boolean> => {
+    const prevEvent = events.find(e => e.id === ev.id);
+    const nextStatus: EventStatus = hidden
+      ? 'draft'
+      : getStatus(ev.dateStr, ev.jam || '', ev.dateEnd, ev.dayTimeSlots);
+    setEvents(prev => prev.map(e => e.id === ev.id ? { ...e, status: nextStatus } : e));
+    if (!ev.id) return true;
+    try {
+      await apiSetVisibility(ev.id, hidden);
+      return true;
+    } catch (err) {
+      const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+      setLastError(ae);
+      if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
+      else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
+      console.error('Error setting event visibility:', err);
+      if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
+      return false;
+    }
   }, [events]);
 
   const deleteEvent = useCallback(async (id: string): Promise<boolean> => {
@@ -280,7 +327,7 @@ export function useEvents(options?: { realtime?: boolean }) {
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
-    addEvent, addRecurringEvents, updateEvent, deleteEvent, deleteRecurringSeries,
+    addEvent, addRecurringEvents, updateEvent, setEventVisibility, deleteEvent, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     refreshEvents,
   };

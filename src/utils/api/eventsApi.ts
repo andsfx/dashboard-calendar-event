@@ -20,13 +20,28 @@ interface DbHolidayRow {
 // ─── Public read ─────────────────────────────────────────────────
 
 export async function fetchEvents(): Promise<{ events: EventItem[]; themes: AnnualTheme[]; holidays: HolidayItem[] }> {
-  const [events, themeRows, holidayRows] = await Promise.all([
+  const [events, { themes, holidays }] = await Promise.all([
     apiGet<DbEvent[]>('/events'),
+    fetchThemesAndHolidays(),
+  ]);
+
+  const eventItems: EventItem[] = (events || []).map((row, idx) => dbEventToEventItem(row, idx));
+  return { events: eventItems, themes, holidays };
+}
+
+/**
+ * Themes + holidays SAJA, tanpa menyentuh endpoint event publik.
+ *
+ * Dipakai dashboard: ia membaca daftar event dari channel admin
+ * (`fetchAdminEvents`), jadi tidak boleh ikut menarik GET /events publik —
+ * dua kanal tetap terpisah (AGENTS.md), dan payloadnya akan dibuang.
+ */
+export async function fetchThemesAndHolidays(): Promise<{ themes: AnnualTheme[]; holidays: HolidayItem[] }> {
+  const [themeRows, holidayRows] = await Promise.all([
     apiGet<DbThemeRow[]>('/themes'),
     apiGet<DbHolidayRow[]>('/holidays'),
   ]);
 
-  const eventItems: EventItem[] = (events || []).map((row, idx) => dbEventToEventItem(row, idx));
   const themes: AnnualTheme[] = (themeRows || []).map(row => ({
     id: row.id, name: row.name, dateStart: row.date_start, dateEnd: row.date_end, color: row.color,
   }));
@@ -34,7 +49,18 @@ export async function fetchEvents(): Promise<{ events: EventItem[]; themes: Annu
     id: row.id, tanggal: row.tanggal, dateStr: row.date_str, day: row.day, month: row.month,
     name: row.name, type: row.type, description: row.description || '',
   }));
-  return { events: eventItems, themes, holidays };
+  return { themes, holidays };
+}
+
+/**
+ * Admin read — daftar event LENGKAP termasuk yang disembunyikan
+ * (`status = 'draft'`). Dashboard memakai ini supaya event yang sudah
+ * disembunyikan dari halaman publik tetap terlihat dan bisa ditampilkan
+ * kembali; channel publik tetap `fetchEvents()` (tanpa draft).
+ */
+export async function fetchAdminEvents(): Promise<EventItem[]> {
+  const result = await adminAction<{ success: boolean; data?: DbEvent[] }>('listEvents', {});
+  return (result.data || []).map((row, idx) => dbEventToEventItem(row, idx));
 }
 
 /** Public read satu event by id — draft di-exclude (T-003: publik tidak lihat internal). */
@@ -58,11 +84,32 @@ export async function createEvent(eventData: Omit<EventItem, 'id' | 'sheetRow' |
   return { row: 0, id: result.id || '' };
 }
 
-export async function updateEvent(eventData: Partial<EventItem> & { id: string }): Promise<void> {
+/**
+ * `lifecycle` = jalur EKSPLISIT untuk gerbang visibilitas publik
+ * ('draft' | 'published'). Mapper `eventItemToDbRow` sengaja hanya menulis
+ * 'draft' (ADR 008), jadi menampilkan kembali event harus menyebut tujuannya
+ * di sini. Digabung ke request yang sama dengan perubahan field supaya tidak
+ * ada dua tulisan terpisah yang bisa gagal separuh.
+ */
+export async function updateEvent(
+  eventData: Partial<EventItem> & { id: string },
+  lifecycle?: 'draft' | 'published',
+): Promise<void> {
   const { id, ...rest } = eventData;
   const payload = withDerivedStatusCache(rest);
-  const result = await adminAction<{ success: boolean; error?: string }>('updateEvent', { id, data: eventItemToDbRow(payload) });
+  const data: Record<string, unknown> = eventItemToDbRow(payload);
+  if (lifecycle) data.status = lifecycle;
+  const result = await adminAction<{ success: boolean; error?: string }>('updateEvent', { id, data });
   if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui event');
+}
+
+/**
+ * Hide/unhide dari tombol baris tabel. Delegasi ke {@link updateEvent} dengan
+ * lifecycle eksplisit — hanya kolom `status` yang ditulis (field lain
+ * undefined → di-skip mapper).
+ */
+export async function setEventVisibility(id: string, hidden: boolean): Promise<void> {
+  await updateEvent({ id }, hidden ? 'draft' : 'published');
 }
 
 export async function deleteEvent(id: string): Promise<void> {

@@ -16,7 +16,8 @@ export type DashboardHandlersDeps = {
   logout: () => Promise<void> | void;
   events: EventItem[];
   addEvent: (event: EventItem) => Promise<boolean>;
-  updateEvent: (event: EventItem) => Promise<boolean>;
+  updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published') => Promise<boolean>;
+  setEventVisibility: (event: EventItem, hidden: boolean) => Promise<boolean>;
   deleteEvent: (id: string) => Promise<boolean>;
   addRecurringEvents: (events: EventItem[]) => Promise<boolean>;
   deleteRecurringSeries: (groupId: string) => Promise<boolean>;
@@ -41,7 +42,7 @@ export type DashboardHandlersDeps = {
 export function useDashboardHandlers(deps: DashboardHandlersDeps) {
   const {
     showToast, logout,
-    events, addEvent, updateEvent, deleteEvent,
+    events, addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     refreshEvents,
@@ -54,7 +55,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
   const event: EventHandlersResult = useEventHandlers({
     showToast,
     eventsLength: events.length,
-    addEvent, updateEvent, deleteEvent,
+    addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     confirm,
   });
@@ -126,6 +127,7 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     handleSave: event.handleSave, handleSaveBatch: event.handleSaveBatch,
     handleDeleteClick: event.handleDeleteClick, handleDeleteConfirm: event.handleDeleteConfirm,
     handleDeleteSeries: event.handleDeleteSeries, handleDetailClick: event.handleDetailClick,
+    handleToggleVisibility: event.handleToggleVisibility,
 
     showDraftModal: draft.showDraftModal, setShowDraftModal: draft.setShowDraftModal,
     showDraftHistory: draft.showDraftHistory, setShowDraftHistory: draft.setShowDraftHistory,

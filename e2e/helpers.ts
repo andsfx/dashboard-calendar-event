@@ -309,44 +309,49 @@ export async function mockAdminAuth(page: Page) {
 export async function setupApiMocks(page: Page, role: 'superadmin' | 'admin' | 'viewer' | 'eo_tenant' | 'tenant_relation' = 'superadmin') {
   await mockAuth(page, role);
 
-  // Events (public + admin — DbEvent shape, tanpa PII utk public)
+  const eventRows = [
+    {
+      id: 'evt_test123',
+      date_str: '2026-07-15',
+      date_end: null,
+      day: 'Selasa',
+      tanggal: '15 Jul 2026',
+      jam: '10:00 - 22:00',
+      acara: 'Pameran Otomotif Bekasi 2026',
+      lokasi: 'Atrium Utama',
+      eo: 'PT Otomotif Indonesia',
+      pic: 'Andi',
+      phone: '081234567890',
+      keterangan: '',
+      month: 'Juli',
+      status: 'past',
+      category: 'Exhibition',
+      categories: ['Exhibition'],
+      priority: 'medium',
+      event_model: '',
+      event_nominal: '',
+      event_model_notes: '',
+      source_draft_id: '',
+      is_multi_day: false,
+      day_time_slots: null,
+      event_type: 'single',
+      recurrence_group_id: '',
+      is_recurring: false,
+      poster_url: null,
+    },
+  ];
+
+  // Events — GET /events publik TIDAK mengirim PII (public.js: pic/phone
+  // tidak diseleksi); dikosongkan di fixture agar mock jujur.
   await page.route('**/api/v1/events*', async (route) => {
-    await route.fulfill({
-      json: {
-        success: true,
-        data: [
-          {
-            id: 'evt_test123',
-            date_str: '2026-07-15',
-            date_end: null,
-            day: 'Selasa',
-            tanggal: '15 Jul 2026',
-            jam: '10:00 - 22:00',
-            acara: 'Pameran Otomotif Bekasi 2026',
-            lokasi: 'Atrium Utama',
-            eo: 'PT Otomotif Indonesia',
-            pic: 'Andi',
-            phone: '081234567890',
-            keterangan: '',
-            month: 'Juli',
-            status: 'past',
-            category: 'Exhibition',
-            categories: ['Exhibition'],
-            priority: 'medium',
-            event_model: '',
-            event_nominal: '',
-            event_model_notes: '',
-            source_draft_id: '',
-            is_multi_day: false,
-            day_time_slots: null,
-            event_type: 'single',
-            recurrence_group_id: '',
-            is_recurring: false,
-            poster_url: null,
-          },
-        ],
-      },
-    });
+    const publicRows = eventRows.map((row) => ({ ...row, pic: '', phone: '' }));
+    await route.fulfill({ json: { success: true, data: publicRows } });
+  });
+
+  // Dashboard membaca channel admin (`POST /admin/listEvents`) yang MEMUAT
+  // event tersembunyi (status 'draft'); GET /events publik tetap tanpa draft.
+  await page.route('**/api/v1/admin/listEvents', async (route) => {
+    await route.fulfill({ json: { success: true, data: eventRows } });
   });
 
   // Tenant surveys (duplicate check → kosong)

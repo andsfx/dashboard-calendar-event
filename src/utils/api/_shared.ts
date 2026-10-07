@@ -115,7 +115,13 @@ export function eventItemToDbRow(ev: Partial<EventItem>): Record<string, unknown
   if (ev.phone !== undefined) row.phone = ev.phone;
   if (ev.keterangan !== undefined) row.keterangan = ev.keterangan;
   if (ev.month !== undefined) row.month = ev.month;
-  if (ev.status !== undefined) row.status = ev.status;
+  // Hanya flag lifecycle 'draft' yang dikirim ke server. Status temporal
+  // (upcoming/ongoing/past) DITURUNKAN dari tanggal saat baca (lihat
+  // dbEventToEventItem) — mengirimkannya hanya menulis nilai basi ke DB,
+  // dan itulah akar bug yang membuat filter SQL produksi salah (ADR 002).
+  // Menampilkan kembali event yang disembunyikan lewat jalur eksplisit
+  // (`setEventVisibility`), bukan lewat mapper ini (ADR 008).
+  if (ev.status === 'draft') row.status = 'draft';
   if (ev.category !== undefined) row.category = ev.category;
   if (ev.categories !== undefined) row.categories = ev.categories;
   if (ev.priority !== undefined) row.priority = ev.priority;

@@ -19,7 +19,7 @@ interface DashboardModalsProps {
   // CRUD modal
   showCrudModal: boolean;
   onCloseCrudModal: () => void;
-  onSave: (data: Partial<EventItem>) => Promise<boolean>;
+  onSave: (data: Partial<EventItem>, lifecycle?: 'draft' | 'published') => Promise<boolean>;
   onSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   editingEvent: EventItem | null;
   events: EventItem[];

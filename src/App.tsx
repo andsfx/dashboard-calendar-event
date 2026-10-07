@@ -71,7 +71,7 @@ export default function App() {
     activeCategory, setActiveCategory,
     activePriority, setActivePriority,
     activeMonth, setActiveMonth,
-    addEvent, updateEvent, deleteEvent,
+    addEvent, updateEvent, setEventVisibility, deleteEvent,
     addRecurringEvents, deleteRecurringSeries,
     addTheme, updateTheme, deleteTheme,
     annualThemes,
@@ -79,7 +79,18 @@ export default function App() {
     isLoading,
     error,
     refreshEvents,
-  } = useEvents({ realtime: location.pathname.startsWith('/dashboard') });
+  } = useEvents({
+    realtime: location.pathname.startsWith('/dashboard'),
+    // Admin/demo melihat jadwal internal → daftar lengkap (termasuk event yang
+    // disembunyikan dari halaman publik) supaya bisa ditampilkan kembali.
+    // Dibatasi ke route dashboard: dua kanal data tetap terpisah (AGENTS.md),
+    // jadi halaman publik tidak pernah menarik daftar admin meski sedang login.
+    includeHidden: canSeeInternalSchedule && location.pathname.startsWith('/dashboard'),
+    // Tahan fetch HANYA di route dashboard sampai /auth/me selesai: kalau
+    // tidak, dashboard sempat memakai channel publik (draft tak ikut) sebelum
+    // role diketahui. Halaman publik tidak perlu menunggu sesi.
+    enabled: !location.pathname.startsWith('/dashboard') || !auth.isLoading,
+  });
   const {
     draftEvents,
     activeDrafts,
@@ -150,6 +161,7 @@ export default function App() {
     handleSelectLetterEvent,
     handleDeleteClick,
     handleDetailClick,
+    handleToggleVisibility,
     handleSave,
     handleSaveBatch,
     handleDeleteSeries,
@@ -165,6 +177,7 @@ export default function App() {
     events,
     addEvent,
     updateEvent,
+    setEventVisibility,
     deleteEvent,
     addRecurringEvents,
     deleteRecurringSeries,
@@ -256,7 +269,7 @@ export default function App() {
   };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
-  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
+  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleToggleVisibility, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };
   const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };

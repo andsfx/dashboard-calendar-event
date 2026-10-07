@@ -119,6 +119,8 @@ export interface DashboardPageHandlers {
   handleSelectLetterEvent: (event: EventItem) => void;
   handleDeleteClick: (ev: EventItem) => void;
   handleDetailClick: (ev: EventItem) => void;
+  /** Sembunyikan/tampilkan event di halaman publik (flag lifecycle `draft`). */
+  handleToggleVisibility: (ev: EventItem) => Promise<boolean>;
   handleSave: (data: Partial<EventItem>) => Promise<boolean>;
   handleSaveBatch: (evs: EventItem[]) => Promise<boolean>;
   handleDeleteSeries: (groupId: string) => Promise<boolean>;
@@ -405,6 +407,7 @@ export function DashboardPage({
               areas={siteSettings.eventAreas}
               onEdit={permissions.canEditEvents ? handlers.handleEdit : undefined}
               onDelete={permissions.canDeleteEvents ? handlers.handleDeleteClick : undefined}
+              onToggleVisibility={permissions.canEditEvents ? handlers.handleToggleVisibility : undefined}
               onDetail={handlers.handleDetailClick}
             />
           </Suspense>
@@ -553,6 +556,7 @@ export function DashboardPage({
               areas={siteSettings.eventAreas}
               onEdit={permissions.canEditEvents ? handlers.handleEdit : undefined}
               onDelete={permissions.canDeleteEvents ? handlers.handleDeleteClick : undefined}
+              onToggleVisibility={permissions.canEditEvents ? handlers.handleToggleVisibility : undefined}
               onDetail={handlers.handleDetailClick}
             />
           </Suspense>

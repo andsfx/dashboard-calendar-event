@@ -53,6 +53,7 @@ export const LIST_READ_ROLES_WITH_DEMO = [...LIST_READ_ROLES, DEMO_ROLE];
  * berarti demo bisa menulisnya.
  */
 export const DEMO_READ_ACTIONS = new Set([
+  'listEvents',
   'readDrafts',
   'readRegistrations',
   'listLetters',
@@ -135,7 +136,7 @@ export function publicUser(row) {
 }
 
 export async function signAccess(user) {
-  return new SignJWT({ role: user.role, email: user.email, display_name: user.display_name, typ: 'access' })
+  return new SignJWT({ role: user.role, email: user.email, display_name: user.display_name, typ: 'access', ver: tokenVersionOf(user) })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(String(user.id))
     .setIssuedAt()
@@ -143,13 +144,32 @@ export async function signAccess(user) {
     .sign(secretKey());
 }
 
-export async function signRefresh(userId) {
-  return new SignJWT({ typ: 'refresh' })
+export async function signRefresh(userId, tokenVersion = 0) {
+  return new SignJWT({ typ: 'refresh', ver: normalizeTokenVersion(tokenVersion) })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(String(userId))
     .setIssuedAt()
     .setExpirationTime(`${REFRESH_TOKEN_TTL}s`)
     .sign(secretKey());
+}
+
+/**
+ * Normalisasi `token_version` dari DB ke angka aman.
+ *
+ * Token yang diterbitkan SEBELUM kolom ini ada tidak punya claim `ver`. Itu
+ * diperlakukan sebagai versi 0 — sama dengan DEFAULT kolom — sehingga deploy
+ * tidak memaksa seluruh pengguna login ulang; pencabutan mulai berlaku pada
+ * logout/reset berikutnya. Nilai NULL/aneh dari DB juga dipetakan ke 0 supaya
+ * perbandingan tidak pernah gagal karena tipe, hanya karena versi.
+ */
+export function normalizeTokenVersion(value) {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 0 ? n : 0;
+}
+
+/** Ambil versi dari baris user (`loadUser` selalu menyertakan kolom ini). */
+function tokenVersionOf(user) {
+  return normalizeTokenVersion(user?.token_version);
 }
 
 async function verifyToken(token, expectedTyp) {
@@ -166,15 +186,31 @@ async function verifyToken(token, expectedTyp) {
 
 async function loadUser(id) {
   const result = await db.query(
-    'SELECT id, email, display_name, role, is_active FROM users WHERE id = $1',
+    'SELECT id, email, display_name, role, is_active, token_version FROM users WHERE id = $1',
     [id],
   );
   return result.rows[0] || null;
 }
 
 /**
+ * Token ini masih berlaku untuk user tersebut?
+ *
+ * `payload.ver` yang tidak ada dianggap 0 (token pra-migrasi). Token yang
+ * versionnya tidak cocok ditolak di kedua jalur.
+ */
+function tokenVersionMatches(payload, user) {
+  return normalizeTokenVersion(payload?.ver) === tokenVersionOf(user);
+}
+
+/**
  * Verifikasi sesi: access token (Bearer/cookie) → refresh token bila
  * access kedaluwarsa (rotasi + set cookie baru).
+ *
+ * Pencabutan: kedua jalur memeriksa claim `ver` terhadap `users.token_version`.
+ * Setelah logout (versi naik), access token lama TIDAK lolos fast-path dan
+ * refresh token lama TIDAK bisa ditukar — jadi token curian mati seketika,
+ * bukan menunggu 30 hari.
+ *
  * @returns {Promise<{ user: object } | null>}
  */
 export async function authenticate(req, res) {
@@ -185,7 +221,7 @@ export async function authenticate(req, res) {
   const accessPayload = access ? await verifyToken(access, 'access') : null;
   if (accessPayload && accessPayload.sub) {
     const user = await loadUser(accessPayload.sub);
-    if (user && user.is_active) return { user };
+    if (user && user.is_active && tokenVersionMatches(accessPayload, user)) return { user };
   }
 
   // Access invalid/expired → coba refresh (rotasi token).
@@ -196,11 +232,12 @@ export async function authenticate(req, res) {
 
   const user = await loadUser(refreshPayload.sub);
   if (!user || !user.is_active) return null;
+  if (!tokenVersionMatches(refreshPayload, user)) return null;
 
   try {
     const [accessToken, refreshToken] = await Promise.all([
       signAccess(user),
-      signRefresh(user.id),
+      signRefresh(user.id, user.token_version),
     ]);
     setAuthCookies(res, accessToken, refreshToken);
   } catch {
@@ -245,6 +282,34 @@ export function maskEmail(email) {
   const [local, domain] = email.split('@');
   if (local.length <= 2) return `${local[0] ?? ''}***@${domain}`;
   return `${local[0]}***${local[local.length - 1]}@${domain}`;
+}
+
+/**
+ * Samarkan nama orang untuk role read-only (demo): tiap kata disisakan huruf
+ * pertama, sisanya bintang. `Budi Santoso` → `B***i S***o`. Dipakai bersama
+ * {@link maskEmail}/{@link maskPhone} agar akun demo melihat bentuk data tanpa
+ * identitas pemiliknya.
+ */
+export function maskName(name) {
+  if (typeof name !== 'string' || name.trim() === '') return name;
+  return name
+    .split(/(\s+)/)
+    .map((part) => {
+      if (/^\s+$/.test(part) || part.length <= 1) return part;
+      return `${part[0]}***${part[part.length - 1]}`;
+    })
+    .join('');
+}
+
+/**
+ * Samarkan nomor telepon: sisakan 4 digit terakhir, sisanya bintang.
+ * `081234567890` → `********7890`. Non-digit dibiarkan apa adanya.
+ */
+export function maskPhone(phone) {
+  if (typeof phone !== 'string' || phone.trim() === '') return phone;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length <= 4) return '*'.repeat(digits.length);
+  return `${'*'.repeat(digits.length - 4)}${digits.slice(-4)}`;
 }
 
 /** Public user row → session payload (untuk /auth/me dan /auth/login). */
