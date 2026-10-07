@@ -43,19 +43,27 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       // Dashboard (includeHidden) memakai channel admin untuk daftar event dan
       // TIDAK menyentuh GET /events publik — dua kanal tetap terpisah.
       if (includeHidden) {
-        const [adminEvents, { themes, holidays }] = await Promise.all([
-          fetchAdminEvents(),
-          fetchThemesAndHolidays(),
-        ]);
-        setEvents(recalculateStatuses(adminEvents));
-        setThemes(themes);
-        setHolidays(holidays);
-      } else {
-        const publicData = await fetchEvents();
-        setEvents(recalculateStatuses(publicData.events));
-        setThemes(publicData.themes);
-        setHolidays(publicData.holidays);
+        try {
+          const [adminEvents, meta] = await Promise.all([
+            fetchAdminEvents(),
+            fetchThemesAndHolidays(),
+          ]);
+          setEvents(recalculateStatuses(adminEvents));
+          setThemes(meta.themes);
+          setHolidays(meta.holidays);
+          return;
+        } catch (err) {
+          // SPA (Vercel, auto-deploy) dan API (VPS, deploy manual) berversi
+          // independen: API yang belum punya aksi `listEvents` membalas error.
+          // Jangan biarkan dashboard kosong — turun ke kanal publik (tanpa
+          // event tersembunyi) supaya jadwal tetap tampil.
+          console.warn('listEvents gagal; fallback ke kanal publik.', err);
+        }
       }
+      const publicData = await fetchEvents();
+      setEvents(recalculateStatuses(publicData.events));
+      setThemes(publicData.themes);
+      setHolidays(publicData.holidays);
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
@@ -187,10 +195,21 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
   const updateEvent = useCallback(async (ev: EventItem, lifecycle?: 'draft' | 'published'): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
     const normalizedEvent = normalizeEvent(ev);
-    setEvents(prev => prev.map(e => e.id === ev.id ? normalizedEvent : e));
+    // Lifecycle eksplisit harus tercermin di state lokal sekarang juga, bukan
+    // menunggu poll 30 detik: hide → kelompok "Internal", unhide → status
+    // temporal. Tanpa ini, unhide tampak gagal walau DB sudah benar.
+    const optimisticEvent: EventItem = lifecycle
+      ? {
+          ...normalizedEvent,
+          status: lifecycle === 'draft'
+            ? 'draft'
+            : getStatus(normalizedEvent.dateStr, normalizedEvent.jam || '', normalizedEvent.dateEnd, normalizedEvent.dayTimeSlots),
+        }
+      : normalizedEvent;
+    setEvents(prev => prev.map(e => e.id === ev.id ? optimisticEvent : e));
     if (ev.id) {
       try {
-        await apiUpdate(normalizedEvent as EventItem & { id: string }, lifecycle);
+        await apiUpdate(optimisticEvent as EventItem & { id: string }, lifecycle);
         return true;
       } catch (err) {
         const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);

@@ -488,15 +488,17 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
       dayTimeSlots: formData.isMultiDay ? formData.dayTimeSlots : [],
     };
     const meta = formData.dateStr ? dateToMeta(formData.dateStr) : { day: '', tanggal: '', month: '' };
-    // Canonical derive (SPEC §3.3); preserve legacy internal draft flag if editing one
-    const finalStatus = editingEvent?.status === 'draft'
-      ? 'draft'
-      : getStatus(
+    // Status lifecycle = kebalikan switch visibilitas (bukan menebak dari
+    // status lama), supaya payload jujur: sembunyikan → 'draft', tampilkan →
+    // status temporal yang diturunkan dari tanggal (ADR 002).
+    const finalStatus = visible
+      ? getStatus(
           formData.dateStr,
           formData.jam || '',
           normalizedFormData.dateEnd,
           normalizedFormData.dayTimeSlots,
-        );
+        )
+      : 'draft';
 
     setIsSubmitting(true);
     // Arah visibilitas eksplisit (bukan disimpulkan dari finalStatus), dan

@@ -1,13 +1,15 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
-import { fetchEvents, createEvent } from '../../utils/domainApi';
+import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent } from '../../utils/domainApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
 import { EventItem } from '../../types';
 
 // Mock the dependencies
 vi.mock('../../utils/domainApi', () => ({
   fetchEvents: vi.fn(),
+  fetchAdminEvents: vi.fn(),
+  fetchThemesAndHolidays: vi.fn(),
   createEvent: vi.fn(),
   updateEvent: vi.fn(),
   deleteEvent: vi.fn(),
@@ -21,6 +23,7 @@ vi.mock('../../utils/domainApi', () => ({
 vi.mock('../../utils/eventUtils', () => ({
   sortEvents: vi.fn((events) => events),
   recalculateStatuses: vi.fn((events) => events || []),
+  getStatus: vi.fn(() => 'upcoming'),
 }));
 
 describe('useEvents', () => {
@@ -196,4 +199,49 @@ describe('useEvents', () => {
       vi.useRealTimers();
     }
   });
+  it('fallback ke kanal publik saat aksi admin listEvents belum ada di server', async () => {
+    // SPA (Vercel, auto-deploy) dan API (VPS, deploy manual) berversi
+    // independen. API lama membalas error untuk aksi baru → dashboard TIDAK
+    // boleh kosong; harus turun ke kanal publik.
+    vi.mocked(fetchAdminEvents).mockRejectedValueOnce(new Error('Aksi tidak dikenal'));
+    vi.mocked(fetchThemesAndHolidays).mockResolvedValueOnce({ themes: [], holidays: [] });
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+
+    const { result } = renderHook(() => useEvents({ includeHidden: true }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.events).toEqual(mockEvents);
+    expect(result.current.error).toBeNull();
+    expect(fetchEvents).toHaveBeenCalledTimes(1);
+  });
+
+  it('kanal admin dipakai bila tersedia — tanpa menyentuh endpoint publik', async () => {
+    vi.mocked(fetchAdminEvents).mockResolvedValueOnce(mockEvents);
+    vi.mocked(fetchThemesAndHolidays).mockResolvedValueOnce({ themes: [], holidays: [] });
+
+    const { result } = renderHook(() => useEvents({ includeHidden: true }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.events).toEqual(mockEvents);
+    expect(fetchEvents).not.toHaveBeenCalled();
+  });
+
+  it('hide/unhide langsung tercermin di state lokal (tanpa menunggu poll)', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    vi.mocked(updateEvent).mockResolvedValueOnce(undefined);
+    await act(async () => {
+      await result.current.updateEvent({ ...mockEvents[0]!, status: 'upcoming' }, 'draft');
+    });
+    expect(result.current.events[0]!.status).toBe('draft');
+
+    vi.mocked(updateEvent).mockResolvedValueOnce(undefined);
+    await act(async () => {
+      await result.current.updateEvent({ ...mockEvents[0]!, status: 'draft' }, 'published');
+    });
+    expect(result.current.events[0]!.status).toBe('upcoming');
+  });
+
 });
