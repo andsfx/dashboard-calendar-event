@@ -14,7 +14,7 @@ import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
 import { useExhibitions } from './hooks/useExhibitions';
 import { useDashboardHandlers } from './hooks/useDashboardHandlers';
-import { useConfirmDialog } from './components/modals/ConfirmDialog';
+import { useConfirmDialog } from './components/modals/useConfirmDialog';
 import { ViewMode } from './types';
 import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 

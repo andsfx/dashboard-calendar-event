@@ -2,6 +2,7 @@ import { ExternalLink, MessageCircle, RotateCcw } from 'lucide-react';
 import { DraftEventItem } from '../../types';
 import { DraftProgressBadge } from './DraftProgressBadge';
 import { formatDraftPublishedAt, getWhatsAppUrl } from '../../utils/draftUtils';
+import { MdButton } from '../md';
 
 export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventItem[]; onRestore?: (draft: DraftEventItem) => void }) {
   if (drafts.length === 0) {
@@ -66,12 +67,9 @@ export function DraftHistoryTable({ drafts, onRestore }: { drafts: DraftEventIte
                         <span className="text-xs text-[var(--wf-ink-muted)]">Tidak ada nomor</span>
                       )}
                       {onRestore && !draft.published && (draft.deleted || draft.progress === 'cancel') && (
-                        <button
-                          onClick={() => onRestore(draft)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-accent)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-accent)] transition hover:bg-[var(--wf-accent-soft)]"
-                        >
+                        <MdButton variant="outlined" onClick={() => onRestore(draft)}>
                           <RotateCcw className="h-3.5 w-3.5" />Pulihkan
-                        </button>
+                        </MdButton>
                       )}
                     </div>
                   </td>

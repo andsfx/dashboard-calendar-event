@@ -378,7 +378,6 @@ export function DashboardPage({
                 tabs={availableViewTabs}
                 viewMode={view.viewMode}
                 onSelect={view.setViewMode}
-                panelId={`dashboard-panel-${view.viewMode}`}
               />
           </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>
@@ -527,7 +526,6 @@ export function DashboardPage({
               tabs={availableViewTabs}
               viewMode={view.viewMode}
               onSelect={view.setViewMode}
-              panelId={`dashboard-panel-${view.viewMode}`}
             />
           </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>

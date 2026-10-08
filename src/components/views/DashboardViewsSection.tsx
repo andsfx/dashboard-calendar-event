@@ -14,6 +14,7 @@ import { SCHEDULE_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
 import { ExportScopePicker } from '../pdf/ExportScopePicker';
 import { useExportScope } from '../pdf/useExportScope';
+import { MdButton } from '../md';
 
 interface Props {
   viewMode: ViewMode;
@@ -145,25 +146,20 @@ export function DashboardViewsSection(props: Props) {
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="ui-focus-ring flex items-center gap-1 self-start text-xs font-semibold text-[var(--wf-accent)] hover:underline"
-              >
+              <MdButton variant="text" onClick={resetFilters}>
                 <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
-              </button>
+              </MdButton>
             )}
             {canExportSchedulePdf && (
-              <button
-                type="button"
+              <MdButton
+                variant="outlined"
                 onClick={() => setIsExportOptionsOpen(true)}
                 disabled={visibleEvents.length === 0}
-                className="ui-focus-ring inline-flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-strong)] hover:text-[var(--wf-ink)] disabled:opacity-50"
-                aria-label="Unduh jadwal event sebagai PDF"
+                ariaLabel="Unduh jadwal event sebagai PDF"
               >
                 <Download className="h-3.5 w-3.5" aria-hidden />
                 Unduh PDF
-              </button>
+              </MdButton>
             )}
           </div>
         </div>
@@ -186,12 +182,9 @@ export function DashboardViewsSection(props: Props) {
               <SearchX className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
               <p className="font-semibold text-[var(--wf-ink)]">Tidak ada acara yang cocok</p>
               <p className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</p>
-              <button
-                onClick={resetFilters}
-                className="ui-focus-ring mt-1 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-xs font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)]"
-              >
+              <MdButton variant="filled" className="mt-1" onClick={resetFilters}>
                 Reset Filter
-              </button>
+              </MdButton>
             </div>
           ) : (
             <>

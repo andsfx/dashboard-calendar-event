@@ -1,5 +1,6 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { ViewMode } from '../../types';
+import { MdTabs, type MdTabItem } from '../md';
 
 export interface ViewToggleTab {
   key: ViewMode;
@@ -11,62 +12,28 @@ interface ViewToggleProps {
   tabs: ViewToggleTab[];
   viewMode: ViewMode;
   onSelect: (view: ViewMode) => void;
-  /** id of the tabpanel the tabs control (aria-controls). */
-  panelId: string;
   className?: string;
 }
 
-/** Segmented table/calendar/kanban/timeline toggle — mirrors the HTML prototype `.view-toggle`. */
-export function ViewToggle({ tabs, viewMode, onSelect, panelId, className = '' }: ViewToggleProps) {
-  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
-
-    event.preventDefault();
-    const lastIndex = tabs.length - 1;
-    let nextIndex = index;
-
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = index === lastIndex ? 0 : index + 1;
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = index === 0 ? lastIndex : index - 1;
-    if (event.key === 'Home') nextIndex = 0;
-    if (event.key === 'End') nextIndex = lastIndex;
-
-    const nextTab = tabs[nextIndex];
-    if (!nextTab) return;
-
-    onSelect(nextTab.key);
-    requestAnimationFrame(() => document.getElementById(`dashboard-tab-${nextTab.key}`)?.focus());
-  };
+/**
+ * Segmented table/calendar/kanban/timeline toggle.
+ *
+ * Roving tabindex + navigasi panah sekarang datang dari `md-tabs` (pola APG
+ * tabs), jadi handler keyboard manual dan prop `panelId` dihapus. `aria-labelledby`
+ * pada tabpanel tetap bekerja karena setiap `md-primary-tab` diberi id
+ * `dashboard-tab-<key>` lewat `idPrefix`.
+ */
+export function ViewToggle({ tabs, viewMode, onSelect, className = '' }: ViewToggleProps) {
+  const items: MdTabItem[] = tabs.map(tab => ({ key: tab.key, label: tab.label, icon: tab.icon }));
 
   return (
-    <div
-      role="tablist"
-      aria-label="Pilih tampilan jadwal"
-      className={`inline-flex max-w-full flex-wrap gap-0.5 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-1 ${className}`}
-    >
-      {tabs.map(tab => {
-        const active = viewMode === tab.key;
-        return (
-          <button
-            key={tab.key}
-            id={`dashboard-tab-${tab.key}`}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            aria-controls={panelId}
-            tabIndex={active ? 0 : -1}
-            onClick={() => onSelect(tab.key)}
-            onKeyDown={event => handleKeyDown(event, tabs.findIndex(item => item.key === tab.key))}
-            className={`ui-focus-ring inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              active
-                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+    <MdTabs
+      items={items}
+      value={viewMode}
+      onChange={key => onSelect(key as ViewMode)}
+      ariaLabel="Pilih tampilan jadwal"
+      idPrefix="dashboard-tab-"
+      className={`max-w-full ${className}`}
+    />
   );
 }

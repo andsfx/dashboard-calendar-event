@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X, Check, Loader2, KeyRound, Mail, Shield } from 'lucide-react';
 import { ModalWrapper } from '../modals/ModalWrapper';
 import { apiPost, ApiError } from '../../lib/rest';
+import { MdButton, MdIconButton, MdSelect, MdTextField } from '../md';
 
 export interface EditableUser {
   id: string;
@@ -98,8 +99,6 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
 
   if (!user) return null;
 
-  const inputClass =
-    'w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]';
   const labelClass = 'mb-1 block text-xs font-medium text-[var(--wf-ink-muted)]';
 
   return (
@@ -112,15 +111,14 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             <h3 id="user-edit-title" className="text-base font-bold text-[var(--wf-ink)]">Edit Pengguna</h3>
             <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{user.display_name || user.email}</p>
           </div>
-          <button
-            type="button"
+          <MdIconButton
+            ariaLabel="Tutup"
             onClick={onClose}
             disabled={isSubmitting}
-            aria-label="Tutup"
-            className="touch-target-hit relative flex items-center justify-center rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:opacity-70"
+            className="touch-target-hit relative"
           >
             <X className="h-4 w-4" />
-          </button>
+          </MdIconButton>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 px-5 pb-5">
@@ -128,24 +126,24 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             <label htmlFor="ue-email" className={labelClass}>
               <Mail className="mr-1 inline h-3 w-3" aria-hidden="true" />Email
             </label>
-            <input
+            <MdTextField
               id="ue-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="off"
-              className={inputClass}
+              onChange={setEmail}
+              ariaLabel="Email"
+              className="w-full"
             />
           </div>
 
           <div>
             <label htmlFor="ue-name" className={labelClass}>Nama Tampilan</label>
-            <input
+            <MdTextField
               id="ue-name"
-              type="text"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className={inputClass}
+              onChange={setDisplayName}
+              ariaLabel="Nama Tampilan"
+              className="w-full"
             />
           </div>
 
@@ -153,15 +151,15 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             <label htmlFor="ue-role" className={labelClass}>
               <Shield className="mr-1 inline h-3 w-3" aria-hidden="true" />Role
             </label>
-            <select
+            <MdSelect
               id="ue-role"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={setRole}
               disabled={isSelf}
-              className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
-            >
-              {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+              ariaLabel="Role"
+              options={ROLE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+              className="w-full"
+            />
             {isSelf && (
               <p className="mt-1 text-[11px] text-[var(--wf-action)]">
                 Role akun sendiri tidak bisa diubah.
@@ -173,14 +171,14 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             <label htmlFor="ue-password" className={labelClass}>
               <KeyRound className="mr-1 inline h-3 w-3" aria-hidden="true" />Password Baru
             </label>
-            <input
+            <MdTextField
               id="ue-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               placeholder={`Kosongkan bila tidak diubah (min. ${MIN_PASSWORD})`}
-              autoComplete="new-password"
-              className={inputClass}
+              ariaLabel="Password Baru"
+              className="w-full"
             />
           </div>
 
@@ -191,22 +189,22 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
           )}
 
           <div className="flex gap-2 pt-1">
-            <button
-              type="button"
+            <MdButton
+              variant="outlined"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-70"
+              className="flex-1"
             >
               Batal
-            </button>
-            <button
+            </MdButton>
+            <MdButton
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:opacity-90 disabled:opacity-60"
+              className="flex-1"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               {isSubmitting ? 'Menyimpan…' : 'Simpan'}
-            </button>
+            </MdButton>
           </div>
         </form>
       </div>

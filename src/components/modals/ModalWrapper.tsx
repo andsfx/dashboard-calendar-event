@@ -1,13 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import * as React from 'react';
 
-// Stack modul-level modals yang terbuka — Escape/Tab hanya ditangani modal
-// teratas, sehingga dialog konfirmasi bersarang (mis. ConfirmDialog di dalam
-// AlbumManagerModal) tidak menutup modal parent saat Escape ditekan.
-let openModalStack: symbol[] = [];
+/**
+ * `md-dialog` dimuat malas dan baru dipasang setelah modal pertama kali dibuka.
+ *
+ * Alasan: `ModalWrapper` juga dipakai komponen yang tampil di halaman PUBLIK
+ * (mis. `CalendarView` di `/events`). Impor statis `MdDialog` akan menyeret
+ * Material Web + Lit ke initial load halaman publik, padahal scope migrasi
+ * hanya dashboard admin. Dengan pemasangan malas, MD3 baru diunduh saat
+ * pengguna benar-benar membuka sebuah modal.
+ */
+const MdDialog = React.lazy(() =>
+  import('../md/MdDialog').then(m => ({ default: m.MdDialog })),
+);
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  /** kelas lebar Tailwind, mis. 'max-w-lg' (dipertahankan agar pemanggil tak berubah) */
   maxWidth?: string;
   className?: string;
   ariaLabelledBy?: string;
@@ -15,182 +25,63 @@ interface Props {
 }
 
 /**
- * Reusable modal container with:
- * - Backdrop fade animation + panel exit animation
- * - Escape key close
- * - Focus trap (cycles Tab/Shift+Tab within modal)
- * - Scroll lock
- * - Proper ARIA dialog role on panel
+ * Lebar eksplisit per kelas `max-w-*` yang dipakai pemanggil.
+ *
+ * md-dialog shrink-wrap (`width: fit-content`), jadi `w-full` + `max-w-*` saja
+ * tidak menghasilkan lebar yang pasti — lebar harus diberikan eksplisit.
+ * Nilai di bawah identik dengan skala `max-w-*` Tailwind.
  */
-export function ModalWrapper({ isOpen, onClose, children, maxWidth = 'max-w-lg', className = '', ariaLabelledBy, ariaLabel = 'Dialog' }: Props) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
-  const [isClosing, setIsClosing] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
-  // Identitas instance untuk stack modal teratas
-  const instanceId = useRef<symbol>(Symbol('modal'));
+const WIDTHS: Record<string, string> = {
+  'max-w-sm': '24rem',
+  'max-w-md': '28rem',
+  'max-w-lg': '32rem',
+  'max-w-xl': '36rem',
+  'max-w-2xl': '42rem',
+  'max-w-3xl': '48rem',
+  'max-w-4xl': '56rem',
+  'max-w-5xl': '64rem',
+  'max-w-6xl': '72rem',
+};
 
-  // Handle open/close with exit animation
-  useEffect(() => {
-    if (isOpen) {
-      triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      setShouldRender(true);
-      return;
-    } else if (shouldRender && !isClosing) {
-      // Parent set isOpen=false (e.g. after successful login) — trigger exit animation
-      setIsClosing(true);
-      const timer = setTimeout(() => {
-        setIsClosing(false);
-        setShouldRender(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-    return;
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+/**
+ * Container modal admin.
+ *
+ * Sebelumnya file ini memegang orkestrasi manual (stack modal `openModalStack`,
+ * focus trap, scroll lock, timer animasi keluar). Semuanya kini disediakan
+ * native oleh `<dialog>` + `showModal()` lewat `md-dialog` — termasuk semantik
+ * Escape untuk dialog bersarang (hanya dialog teratas yang menerima Escape).
+ * Props publik dipertahankan agar 13 pemanggil tidak perlu diubah.
+ */
+export function ModalWrapper({
+  isOpen,
+  onClose,
+  children,
+  maxWidth = 'max-w-lg',
+  className = '',
+  ariaLabelledBy,
+  ariaLabel = 'Dialog',
+}: Props) {
+  const width = WIDTHS[maxWidth];
+  // Sekali modal pernah dibuka, `MdDialog` tetap terpasang supaya animasi
+  // keluar dan event `closed` milik md tetap berjalan (seperti modal persisten
+  // pada implementasi lama yang hanya menyembunyikan panel, bukan meng-unmount).
+  const [hasOpened, setHasOpened] = React.useState(isOpen);
+  React.useEffect(() => {
+    if (isOpen) setHasOpened(true);
+  }, [isOpen]);
 
-  const handleClose = useCallback(() => {
-    if (isClosing) return;
-    setIsClosing(true);
-    const timer = setTimeout(() => {
-      setIsClosing(false);
-      setShouldRender(false);
-      onClose();
-    }, 200); // match modal-panel-out duration
-    return () => clearTimeout(timer);
-  }, [onClose, isClosing]);
-
-  // Return focus to opener after close.
-  //
-  // Two mount styles have to be covered:
-  //  1. Persistent modals that stay mounted and flip `shouldRender` — handled by
-  //     the effect below. Guarded against the mount race where the modal mounts
-  //     with isOpen already true and this effect would "restore" focus mid-open.
-  //  2. Conditionally mounted modals (e.g. `{showDetailModal && <EventDetailModal/>}`
-  //     in DashboardModals) — closing unmounts the component, so no render ever
-  //     happens for the effect to observe. Those are handled by the unmount
-  //     cleanup, which is the only hook React guarantees on that path.
-  const hasOpenedRef = useRef(false);
-  const restoreFocus = useCallback((target: HTMLElement) => {
-    // Defer so it runs after the DOM settles post-animation, and skip when
-    // another dialog already took focus (modal chain: detail → edit/delete).
-    requestAnimationFrame(() => {
-      const current = document.activeElement;
-      const focusTaken = current instanceof HTMLElement && current.closest('[role="dialog"]');
-      if (focusTaken) return;
-      if (document.contains(target)) target.focus();
-    });
-  }, []);
-
-  useEffect(() => {
-    if (shouldRender) {
-      hasOpenedRef.current = true;
-      return;
-    }
-    if (!hasOpenedRef.current) return;
-    hasOpenedRef.current = false;
-    const target = triggerRef.current;
-    triggerRef.current = null;
-    if (target) restoreFocus(target);
-  }, [shouldRender, restoreFocus]);
-
-  // Unmount path: conditionally mounted modals never reach the effect above.
-  useEffect(() => {
-    return () => {
-      if (!hasOpenedRef.current) return;
-      const target = triggerRef.current;
-      triggerRef.current = null;
-      if (target) restoreFocus(target);
-    };
-  }, [restoreFocus]);
-
-  // Scroll lock + pendaftaran stack modal teratas
-  useEffect(() => {
-    if (shouldRender) {
-      document.body.style.overflow = 'hidden';
-      openModalStack.push(instanceId.current);
-    }
-    return () => {
-      document.body.style.overflow = '';
-      openModalStack = openModalStack.filter(id => id !== instanceId.current);
-    };
-  }, [shouldRender]);
-
-  // Escape key handler — hanya modal teratas yang menutup
-  useEffect(() => {
-    if (!shouldRender || isClosing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (openModalStack[openModalStack.length - 1] !== instanceId.current) return;
-      handleClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [shouldRender, isClosing, handleClose]);
-
-  // Focus trap: cycle Tab/Shift+Tab within modal
-  useEffect(() => {
-    if (!shouldRender || isClosing || !panelRef.current) return;
-
-    const panel = panelRef.current;
-    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-    // Focus the dialog panel itself (tabIndex=-1) so screen readers announce the
-    // dialog's accessible name first, then the first focusable control.
-    panel.focus();
-    const firstFocusable = panel.querySelector<HTMLElement>(focusableSelector);
-    if (document.activeElement === panel && firstFocusable) {
-      firstFocusable.focus({ preventScroll: true });
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      // Nested modal terbuka (mis. ConfirmDialog) → biarkan trap-nya yang handle
-      if (openModalStack[openModalStack.length - 1] !== instanceId.current) return;
-
-
-      // Re-query focusable elements on every Tab press to handle dynamic content (e.g., upload buttons added after modal opens)
-      const focusableElements = Array.from(panel.querySelectorAll<HTMLElement>(focusableSelector));
-      if (focusableElements.length === 0) return;
-
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey) {
-        if (first && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        }
-      } else {
-        if (last && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [shouldRender, isClosing]);
-
-  if (!shouldRender) return null;
+  if (!hasOpened) return null;
 
   return (
-    <div
-      className={`modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 ${isClosing ? 'modal-backdrop-out' : ''}`}
-      onClick={handleClose}
-    >
-      <div
-        ref={panelRef}
-        className={`modal-panel w-full ${maxWidth} ${className} ${isClosing ? 'modal-panel-out' : ''}`}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={ariaLabelledBy}
-        aria-label={ariaLabelledBy ? undefined : ariaLabel}
-        tabIndex={-1}
-      >
-        {children}
-      </div>
-    </div>
+    <React.Suspense fallback={null}>
+      <MdDialog open={isOpen} onClose={onClose} labelledBy={ariaLabelledBy} ariaLabel={ariaLabel}>
+        <div
+          className={`md-dialog-content w-full ${maxWidth} ${className}`}
+          style={width ? { width: `min(${width}, calc(100vw - 2rem))`, maxWidth: '100%' } : undefined}
+        >
+          {children}
+        </div>
+      </MdDialog>
+    </React.Suspense>
   );
 }

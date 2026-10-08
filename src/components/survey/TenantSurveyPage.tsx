@@ -21,6 +21,7 @@ import TenantSurveyForm, {
 } from './TenantSurveyForm';
 import TenantSurveyList from './TenantSurveyList';
 import TenantSurveyAnalyticsPanel from './TenantSurveyAnalytics';
+import { MdButton, MdIconButton, MdSelect, MdTabs, MdTextField } from '../md';
 
 const SurveyQRCode = lazy(() => import('./SurveyQRCode'));
 
@@ -381,41 +382,17 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           </div>
         )}
 
-        {/* Tabs */}
-        <div
-          role="tablist"
-          aria-label="Tenant self-assessment"
-          className="ui-dashboard-surface flex gap-1 overflow-x-auto p-1"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'list'}
-            onClick={() => setActiveTab('list')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
-              activeTab === 'list'
-                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-            }`}
-          >
-              <List className="h-4 w-4 shrink-0" />
-              Self-Assessment
-            </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'analytics'}
-            onClick={() => setActiveTab('analytics')}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
-              activeTab === 'analytics'
-                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-            }`}
-          >
-            <BarChart3 className="h-4 w-4 shrink-0" />
-            Analytics
-          </button>
-        </div>
+        {/* Tabs — md-tabs menyediakan roving tabindex + navigasi panah (APG) */}
+        <MdTabs
+          items={[
+            { key: 'list', label: 'Self-Assessment', icon: <List className="h-4 w-4 shrink-0" /> },
+            { key: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4 shrink-0" /> },
+          ]}
+          value={activeTab}
+          onChange={(key) => setActiveTab(key as TabKey)}
+          ariaLabel="Tenant self-assessment"
+          className="ui-dashboard-surface p-1"
+        />
 
         {activeTab === 'list' && (
           <TenantSurveyList
@@ -438,19 +415,17 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             <div className="ui-dashboard-surface flex flex-wrap items-center gap-2 px-3 py-2.5">
               <Calendar className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
               <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Event</span>
-              <select
+              <MdSelect
                 value={analyticsEventFilter}
-                onChange={(e) => setAnalyticsEventFilter(e.target.value)}
-                aria-label="Filter event"
-                className="ui-dashboard-control cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 focus:ring-[var(--wf-accent)]"
-              >
-                <option value="all">Semua Event</option>
-                {events
-                  .filter(ev => ev.status === 'past' || ev.status === 'ongoing')
-                  .map(ev => (
-                    <option key={ev.id} value={ev.id}>{ev.acara}</option>
-                  ))}
-              </select>
+                onChange={setAnalyticsEventFilter}
+                ariaLabel="Filter event"
+                options={[
+                  { value: 'all', label: 'Semua Event' },
+                  ...events
+                    .filter(ev => ev.status === 'past' || ev.status === 'ongoing')
+                    .map(ev => ({ value: ev.id, label: ev.acara })),
+                ]}
+              />
             </div>
 
             <TenantSurveyAnalyticsPanel
@@ -491,14 +466,10 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
     return (
       <div className="space-y-4">
-        <button
-          type="button"
-          onClick={handleCancelForm}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)]"
-        >
+        <MdButton variant="text" onClick={handleCancelForm}>
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
-        </button>
+        </MdButton>
 
         <div className="ui-dashboard-surface p-5 sm:p-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -516,18 +487,17 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
             <div className="flex flex-wrap gap-2">
               {canEdit && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
                   onClick={() => handleEditSurvey(editingSurvey)}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
                 >
                   <Edit className="h-3.5 w-3.5" />
                   Ubah
-                </button>
+                </MdButton>
               )}
               {canSubmitDraft && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="filled"
                   disabled={actionLoading === 'submit'}
                   onClick={async () => {
                     setActionLoading('submit');
@@ -541,37 +511,35 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                       setActionLoading(null);
                     }
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50"
                 >
                   {actionLoading === 'submit' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   Kirim
-                </button>
+                </MdButton>
               )}
               {canReview && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
                   onClick={() => {
                     setReviewOpen((v) => !v);
                     setConfirmDelete(false);
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent)] transition-colors"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   {editingSurvey.status === 'reviewed' ? 'Update review' : 'Review'}
-                </button>
+                </MdButton>
               )}
               {canDelete && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
+                  danger
                   onClick={() => {
                     setConfirmDelete(true);
                     setReviewOpen(false);
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-600/10 dark:border-red-800 dark:text-red-300"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Hapus
-                </button>
+                </MdButton>
               )}
             </div>
           </div>
@@ -592,23 +560,22 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
                     Permanen. Tidak bisa dibatalkan.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
+                    <MdButton
+                      variant="filled"
+                      danger
                       disabled={actionLoading === 'delete'}
                       onClick={handleDelete}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                     >
                       {actionLoading === 'delete' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                       Ya, hapus
-                    </button>
-                    <button
-                      type="button"
+                    </MdButton>
+                    <MdButton
+                      variant="outlined"
                       disabled={actionLoading === 'delete'}
                       onClick={() => setConfirmDelete(false)}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)]"
                     >
                       Batal
-                    </button>
+                    </MdButton>
                   </div>
                 </div>
               </div>
@@ -617,36 +584,33 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
 
           {reviewOpen && canReview && (
             <div className="mb-4 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
-              <label htmlFor="review-notes" className="text-xs font-semibold text-[var(--wf-accent)]">
-                Catatan review
-              </label>
-              <textarea
+              <MdTextField
                 id="review-notes"
+                type="textarea"
+                label="Catatan review"
                 value={reviewNotes}
-                onChange={(e) => setReviewNotes(e.target.value)}
+                onChange={setReviewNotes}
                 rows={3}
                 maxLength={2000}
                 placeholder="Opsional. Ringkas temuan admin…"
-                className="mt-1.5 w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
+                className="w-full"
               />
               <div className="mt-2 flex flex-wrap gap-2">
-                <button
-                  type="button"
+                <MdButton
+                  variant="filled"
                   disabled={actionLoading === 'review'}
                   onClick={handleReview}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50"
                 >
                   {actionLoading === 'review' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                   Simpan review
-                </button>
-                <button
-                  type="button"
+                </MdButton>
+                <MdButton
+                  variant="outlined"
                   disabled={actionLoading === 'review'}
                   onClick={() => setReviewOpen(false)}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)]"
                 >
                   Batal
-                </button>
+                </MdButton>
               </div>
             </div>
           )}
@@ -789,14 +753,10 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   if (formStatus === 'duplicate' && !editingSurvey) {
     return (
       <div>
-        <button
-          type="button"
-          onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)]"
-        >
+        <MdButton variant="text" className="mb-4" onClick={handleStartNewAfterSuccess}>
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
-        </button>
+        </MdButton>
         <TenantSurveyDuplicate
           eventName={selectedEvent.acara}
           onBack={handleStartNewAfterSuccess}
@@ -824,14 +784,10 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   ) {
     return (
       <div>
-        <button
-          type="button"
-          onClick={handleStartNewAfterSuccess}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)]"
-        >
+        <MdButton variant="text" className="mb-4" onClick={handleStartNewAfterSuccess}>
           <ChevronLeft className="h-4 w-4" />
           Kembali ke daftar
-        </button>
+        </MdButton>
         <TenantSurveyDuplicate
           eventName={selectedEvent.acara}
           onBack={handleStartNewAfterSuccess}
@@ -850,14 +806,10 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   if (formStatus === 'error' && formError) {
     return (
       <div>
-        <button
-          type="button"
-          onClick={() => setFormStatus('idle')}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)]"
-        >
+        <MdButton variant="text" className="mb-4" onClick={() => setFormStatus('idle')}>
           <ChevronLeft className="h-4 w-4" />
           Coba lagi
-        </button>
+        </MdButton>
         <TenantSurveyError
           message={formError}
           onRetry={() => setFormStatus('idle')}
@@ -880,15 +832,15 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   // DEFAULT — show the form (with disabled state if duplicate detected)
   return (
     <div>
-      <button
-        type="button"
-        onClick={handleCancelForm}
+      <MdButton
+        variant="text"
+        className="mb-4"
         disabled={formStatus === 'submitting'}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)] disabled:opacity-50"
+        onClick={handleCancelForm}
       >
         <ChevronLeft className="h-4 w-4" />
         Kembali ke daftar
-      </button>
+      </MdButton>
 
       <TenantSurveyForm
         event={selectedEvent}
@@ -948,47 +900,55 @@ function TenantSurveyEventRow({
           </p>
         </div>
 
-        {!readOnly && <button
-          onClick={() => onToggleConfig(event.id, isActive)}
-          disabled={isToggling}
-          className={`shrink-0 transition-colors ${isActive ? 'text-[var(--wf-live)]' : 'text-[var(--wf-ink-muted)]'}`}
-          title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
-        >
-          {isToggling ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : isActive ? (
-            <ToggleRight className="h-5 w-5" />
-          ) : (
-            <ToggleLeft className="h-5 w-5" />
-          )}
-        </button>}
+        {!readOnly && (
+          <MdIconButton
+            ariaLabel={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
+            title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
+            disabled={isToggling}
+            onClick={() => onToggleConfig(event.id, isActive)}
+            className={isActive
+              ? 'shrink-0 [--md-icon-button-icon-color:var(--wf-live)]'
+              : 'shrink-0 [--md-icon-button-icon-color:var(--wf-ink-muted)]'}
+          >
+            {isToggling ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : isActive ? (
+              <ToggleRight className="h-5 w-5" />
+            ) : (
+              <ToggleLeft className="h-5 w-5" />
+            )}
+          </MdIconButton>
+        )}
 
-        <button
-          onClick={() => onCopyLink(event.id)}
-className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]"
+        <MdButton
+          variant="text"
+          className={isCopied ? 'shrink-0 [--md-text-button-icon-color:var(--wf-live)]' : 'shrink-0'}
           title="Copy survey link"
+          onClick={() => onCopyLink(event.id)}
         >
-          {isCopied ? <Check className="h-3 w-3 text-[var(--wf-live)]" /> : <Link2 className="h-3 w-3" />}
+          {isCopied ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
           {isCopied ? 'Tersalin!' : 'Link'}
-        </button>
+        </MdButton>
 
-        <button
-          onClick={() => onExport(event.id)}
-          className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-accent)] hover:bg-[var(--wf-board-2)]"
+        <MdButton
+          variant="text"
+          className="shrink-0"
           title="Export CSV"
+          onClick={() => onExport(event.id)}
         >
           <Download className="h-3 w-3" />
           CSV
-        </button>
+        </MdButton>
 
-        <button
-          onClick={() => setShowQR(!showQR)}
-className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]"
+        <MdButton
+          variant="text"
+          className="shrink-0"
           title="QR Code"
+          onClick={() => setShowQR(!showQR)}
         >
           <QrCode className="h-3 w-3" />
           QR
-        </button>
+        </MdButton>
       </div>
 
       {showQR && (
@@ -1067,6 +1027,11 @@ function TenantSurveyManagementSection({
 
   return (
     <div className="ui-dashboard-surface">
+      {/*
+       * Sengaja tetap <button> native: ini click-target baris penuh yang
+       * membungkus heading + subteks (layout disclosure header), bukan kontrol
+       * — md-button tidak bisa membungkus konten blok seperti ini.
+       */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -1092,13 +1057,14 @@ function TenantSurveyManagementSection({
               Cari event, aktifkan toggle, copy link/QR. Default nonaktif. Nyalakan dulu agar form public buka.
             </p>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-              <input
+              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
+              <MdTextField
                 type="search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={setQuery}
+                ariaLabel="Cari event"
                 placeholder="Cari event (contoh: Bekasi Criterium)…"
-                className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-xs text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
+                className="w-full"
               />
             </div>
             <p className="mt-1.5 text-[10px] text-[var(--wf-ink-muted)]">

@@ -12,6 +12,7 @@ import {
 } from '../../utils/eventUtils';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
+import { MdButton, MdIconButton, MdTabs } from '../md';
 
 /** Lima tampilan, senada dengan kalender internal tim (Bulan/Minggu/Hari/Agenda/Linimasa). */
 type CalendarMode = 'month' | 'week' | 'day' | 'agenda' | 'timeline';
@@ -265,31 +266,13 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
     <div className="space-y-4">
       {/* Toolbar: pilih tampilan + navigasi periode */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div
-          role="tablist"
-          aria-label="Pilih tampilan kalender"
-          className="inline-flex max-w-full flex-wrap gap-0.5 rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-1"
-        >
-          {VIEW_TABS.map(tab => {
-            const active = mode === tab.key;
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => { setMode(tab.key); setSelectedDate(null); }}
-                className={`ui-focus-ring inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  active
-                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                    : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+        <MdTabs
+          items={VIEW_TABS.map(tab => ({ key: tab.key, label: tab.label }))}
+          value={mode}
+          onChange={key => { setMode(key as CalendarMode); setSelectedDate(null); }}
+          ariaLabel="Pilih tampilan kalender"
+          className="max-w-full"
+        />
 
         <div className="flex flex-wrap items-center gap-2">
           <p className="flex items-center gap-2 text-sm font-semibold text-[var(--wf-ink)]">
@@ -297,29 +280,18 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
             {periodLabel}
           </p>
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => shift(-1)}
-              aria-label="Periode sebelumnya"
-              className="ui-focus-ring rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-            >
+            <MdIconButton ariaLabel="Periode sebelumnya" variant="outlined" onClick={() => shift(-1)}>
               <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
+            </MdIconButton>
+            <MdButton
+              variant="outlined"
               onClick={() => { setReference(new Date()); setSelectedDate(null); }}
-              className="ui-focus-ring rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)] transition-colors hover:border-[var(--wf-rule-strong)]"
             >
               Hari Ini
-            </button>
-            <button
-              type="button"
-              onClick={() => shift(1)}
-              aria-label="Periode berikutnya"
-              className="ui-focus-ring rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-            >
+            </MdButton>
+            <MdIconButton ariaLabel="Periode berikutnya" variant="outlined" onClick={() => shift(1)}>
               <ChevronRight className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           </div>
         </div>
       </div>
@@ -552,14 +524,9 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                   {selectedDayHolidays.length > 0 ? ` · ${selectedDayHolidays.length} hari libur` : ''}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedDate(null)}
-                aria-label="Tutup"
-                className="ui-focus-ring rounded-lg p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
-              >
+              <MdIconButton ariaLabel="Tutup" onClick={() => setSelectedDate(null)}>
                 <X className="h-4 w-4" aria-hidden="true" />
-              </button>
+              </MdIconButton>
             </div>
 
             <div className="space-y-4 px-4 py-5 sm:px-6">

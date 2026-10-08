@@ -9,7 +9,7 @@ import {
   fetchAlbums,
 } from '../../utils/domainApi';
 import type { PhotoAlbum } from '../../types';
-import { useConfirmDialog } from '../modals/ConfirmDialog';
+import { useConfirmDialog } from '../modals/useConfirmDialog';
 
 interface EventPhoto {
   id: string;

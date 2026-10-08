@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { EventFormModelFields } from '../EventFormModelFields'
 
@@ -18,11 +18,13 @@ describe('EventFormModelFields', () => {
   })
 
   it('shows all model options', () => {
-    render(<EventFormModelFields {...mockProps} />)
-    expect(screen.getByText('Pilih model')).toBeInTheDocument()
-    expect(screen.getByText('Free')).toBeInTheDocument()
-    expect(screen.getByText('Bayar')).toBeInTheDocument()
-    expect(screen.getByText('Support')).toBeInTheDocument()
+    const { container } = render(<EventFormModelFields {...mockProps} />)
+    // md-select kini merender <select> native (mock jsdom), jadi opsinya ada di DOM.
+    const select = container.querySelector('md-outlined-select') as HTMLElement
+    expect(within(select).getByRole('option', { name: 'Pilih model' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Free' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Bayar' })).toBeInTheDocument()
+    expect(within(select).getByRole('option', { name: 'Support' })).toBeInTheDocument()
   })
 
   it('hides detail fields when model is empty or free', () => {
@@ -45,7 +47,7 @@ describe('EventFormModelFields', () => {
 
   it('calls onFieldChange when model changes', () => {
     const { container } = render(<EventFormModelFields {...mockProps} />)
-    const select = container.querySelector('select')
+    const select = container.querySelector('md-outlined-select')
     if (select) {
       fireEvent.change(select, { target: { value: 'bayar' } })
       expect(mockProps.onFieldChange).toHaveBeenCalledWith('eventModel', 'bayar')

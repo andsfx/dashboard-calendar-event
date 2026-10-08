@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
 import { uploadToR2 } from '../../utils/api/albumsApi';
 import { apiPost, ApiError } from '../../lib/rest';
+import { MdButton, MdIconButton, MdTextField } from '../md';
 
 interface Props {
   posts: string[];
@@ -97,22 +98,22 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
           {heroUrl ? (
             <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
               <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
-              {!readOnly && <button
-                type="button"
-                onClick={handleRemoveHero}
-                className="absolute right-2 top-2 rounded-lg bg-red-600/10 p-1.5 text-red-700 transition-colors hover:bg-red-600/20 dark:text-red-300"
+              {!readOnly && <MdIconButton
+                ariaLabel="Hapus foto hero"
                 title="Hapus foto hero"
+                onClick={handleRemoveHero}
+                className="absolute right-2 top-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </button>}
+              </MdIconButton>}
               <p className="absolute bottom-2 left-3 rounded-md bg-black/50 px-1.5 py-0.5 text-xs font-medium text-white/90">Hero background aktif</p>
             </div>
           ) : readOnly ? null : (
-            <button
-              type="button"
+            <MdButton
+              variant="outlined"
               onClick={() => heroFileRef.current?.click()}
               disabled={heroUploading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)] py-8 text-sm text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] disabled:opacity-60"
+              className="w-full"
             >
               {heroUploading ? (
                 <span>Mengupload…</span>
@@ -122,7 +123,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
                   <span>Upload foto hero background</span>
                 </>
               )}
-            </button>
+            </MdButton>
           )}
           {!readOnly && <input
             ref={heroFileRef}
@@ -132,14 +133,13 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
             onChange={e => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f); e.target.value = ''; }}
           />}
           {heroUrl && !readOnly && (
-            <button
-              type="button"
+            <MdButton
+              variant="text"
               onClick={() => heroFileRef.current?.click()}
               disabled={heroUploading}
-              className="text-xs font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent-hover)] disabled:opacity-60"
             >
               {heroUploading ? 'Mengupload…' : 'Ganti foto'}
-            </button>
+            </MdButton>
           )}
         </div>
 
@@ -153,13 +153,14 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               <Globe className="h-3.5 w-3.5" />
               Post {i + 1}:
             </label>
-            <input
+            <MdTextField
               id={`ig-post-${i}`}
-              value={postUrls[i]}
-              onChange={e => setUrl(i, e.target.value)}
+              value={postUrls[i] ?? ''}
+              onChange={value => setUrl(i, value)}
               readOnly={readOnly}
               placeholder="https://www.instagram.com/p/..."
-              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent)]/20 read-only:cursor-default read-only:opacity-70"
+              ariaLabel={`Post ${i + 1}`}
+              className="w-full"
             />
           </div>
         ))}
@@ -169,8 +170,8 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
         </p>
 
         {/* Sync Instagram Button */}
-        {!readOnly && <button
-          type="button"
+        {!readOnly && <MdButton
+          variant="outlined"
           disabled={isSyncing || postUrls.every(u => !u.trim())}
           onClick={async () => {
             const validUrls = postUrls.filter(u => u.trim() && u.includes('instagram.com'));
@@ -199,11 +200,11 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
               setIsSyncing(false);
             }
           }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 py-2.5 text-sm font-medium text-[var(--wf-live)] transition-colors hover:bg-[var(--wf-live)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full"
         >
           <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
           {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
-        </button>}
+        </MdButton>}
         {syncResult && (
           <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>
             {syncResult}
@@ -218,14 +219,14 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
 
         {/* Actions */}
         {!readOnly && <div className="pt-2">
-          <button
+          <MdButton
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full"
           >
             <Save className="h-4 w-4" />
             {isSubmitting ? 'Menyimpan…' : 'Simpan'}
-          </button>
+          </MdButton>
         </div>}
       </form>
     </div>

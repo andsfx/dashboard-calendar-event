@@ -11,6 +11,7 @@ import { EventPhotoGallery } from '../events/EventPhotoGallery';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { CATEGORY_COLORS, isMultiDayEvent, getEventDuration, isRecurringEvent } from '../../utils/eventUtils';
+import { MdButton, MdIconButton } from '../md';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -53,15 +54,15 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </div>
           )}
 
-          <button
+          <MdIconButton
+            ariaLabel="Tutup"
             onClick={onClose}
-            className={`absolute right-4 top-4 rounded-xl p-2 transition-colors ${event.posterUrl
+            className={`absolute right-4 top-4 ${event.posterUrl
               ? 'bg-black/45 text-white backdrop-blur-sm hover:bg-black/65'
               : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'}`}
-            aria-label="Tutup"
           >
             <X className="h-4 w-4" />
-          </button>
+          </MdIconButton>
 
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
@@ -163,12 +164,9 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
-          >
+          <MdButton variant="outlined" onClick={onClose} className="flex-1">
             Tutup
-          </button>
+          </MdButton>
           {!isAdmin && (
             <Link
               to={`/events/${event.id}`}
@@ -178,28 +176,33 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </Link>
           )}
           {onEdit && (
-            <button
+            <MdButton
+              variant="outlined"
               onClick={() => { onClose(); onEdit(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95"
+              className="flex-1"
             >
               <Edit2 className="h-3.5 w-3.5" /> Ubah
-            </button>
+            </MdButton>
           )}
           {onDelete && (
-            <button
+            <MdButton
+              variant="outlined"
+              danger
               onClick={() => { onClose(); onDelete(event); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-600/10 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600/20 active:scale-95 dark:border-red-900/50 dark:text-red-300"
+              className="flex-1"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
-            </button>
+            </MdButton>
           )}
           {isRecurring && onDeleteSeries && event.recurrenceGroupId && (
-            <button
+            <MdButton
+              variant="outlined"
+              danger
               onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-600/20 py-2.5 text-sm font-semibold text-red-800 transition-colors hover:bg-red-600/30 active:scale-95 dark:border-red-900/50 dark:text-red-300"
+              className="flex-1"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
-            </button>
+            </MdButton>
           )}
         </div>
       </div>

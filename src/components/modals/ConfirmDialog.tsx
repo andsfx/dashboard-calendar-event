@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, X, Trash2 } from 'lucide-react';
+import { MdButton, MdIconButton } from '../md';
 import { ModalWrapper } from './ModalWrapper';
 
 export interface ConfirmOptions {
@@ -53,14 +54,9 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/30">
               <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-            <button
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-slate-700"
-              aria-label="Tutup"
-            >
+            <MdIconButton ariaLabel="Tutup" onClick={onClose} disabled={isSubmitting}>
               <X className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           </div>
 
           <h3 id="confirm-dialog-title" className="mb-2 text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
@@ -75,73 +71,19 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
         </div>
 
         <div className="flex gap-3 border-t border-slate-100 px-6 py-4 dark:border-slate-700">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-          >
+          <MdButton variant="outlined" onClick={onClose} disabled={isSubmitting} className="flex-1">
             {cancelLabel}
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={isSubmitting}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-red-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          </MdButton>
+          <MdButton variant="filled" danger onClick={handleConfirm} disabled={isSubmitting} className="flex-1">
             <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : confirmLabel}
-          </button>
+          </MdButton>
         </div>
       </div>
     </ModalWrapper>
   );
 }
 
-interface ConfirmRequest extends ConfirmOptions {
-  resolve: (ok: boolean) => void;
-}
-
-/**
- * Hook konfirmasi promise-based — drop-in untuk window.confirm().
- * const confirmDialog = useConfirmDialog(); ... if (!(await confirmDialog.confirm({...}))) return;
- */
-export function useConfirmDialog() {
-  const [request, setRequest] = useState<ConfirmRequest | null>(null);
-  const requestRef = useRef<ConfirmRequest | null>(null);
-  requestRef.current = request;
-
-  const confirm = useCallback((options: ConfirmOptions): Promise<boolean> => {
-    const { promise, resolve } = Promise.withResolvers<boolean>();
-    setRequest(prev => {
-      // kalau masih ada dialog terbuka, tolak yang lama (anggap batal)
-      if (prev) prev.resolve(false);
-      return { ...options, resolve };
-    });
-    return promise;
-  }, []);
-
-  const close = useCallback(() => {
-    const req = requestRef.current;
-    if (req) req.resolve(false);
-    setRequest(null);
-  }, []);
-
-  const handleConfirm = useCallback(async () => {
-    const req = requestRef.current;
-    if (!req) return;
-    req.resolve(true);
-    setRequest(null);
-  }, []);
-
-  const dialog = request ? (
-    <ConfirmDialog
-      isOpen
-      title={request.title}
-      message={request.message}
-      subject={request.subject}
-      confirmLabel={request.confirmLabel}
-      onClose={close}
-      onConfirm={handleConfirm}
-    />
-  ) : null;
-
-  return { confirm, dialog };
-}
+// Hook `useConfirmDialog` TIDAK di-ekspor ulang dari sini: modul ini merender
+// md-dialog (→ Material Web + Lit), sedangkan hook dipakai jalur boot dan
+// komponen lain yang tidak boleh menyeret MD3. Impor langsung dari
+// './useConfirmDialog'.

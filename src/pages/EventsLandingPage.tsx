@@ -2,7 +2,7 @@
  * design-system: DESIGN.md · designed-as-app
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  */
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
@@ -29,8 +29,17 @@ import { EventItem, HolidayItem, PhotoAlbum, EventArea, AnnualTheme } from '../t
 import { renderEventsSchedulePdfResult } from '../utils/eventsSchedulePdf';
 import { formatIsoId } from '../utils/exportDateRange';
 import type { SchedulePdfSection } from '../components/pdf/buildSchedulePdf';
-import { PdfExportOptionsModal } from '../components/pdf/PdfExportOptionsModal';
-import { ExportScopePicker } from '../components/pdf/ExportScopePicker';
+import type { ExportScopePicker as ExportScopePickerComponent } from '../components/pdf/ExportScopePicker';
+// Modal ekspor + pemilih cakupannya memakai ModalWrapper → md-dialog (Material
+// Web + Lit). Dimuat malas supaya MD3 tidak ikut initial load halaman PUBLIK ini.
+// `lazy()` menghapus tipe generik komponennya, jadi tipenya dipulihkan lewat
+// cast agar pemanggil tetap mendapat inferensi `T` penuh.
+const PdfExportOptionsModal = lazy(() =>
+  import('../components/pdf/PdfExportOptionsModal').then(m => ({ default: m.PdfExportOptionsModal })),
+);
+const ExportScopePicker = lazy(() =>
+  import('../components/pdf/ExportScopePicker').then(m => ({ default: m.ExportScopePicker })),
+) as unknown as typeof ExportScopePickerComponent;
 import { useExportScope } from '../components/pdf/useExportScope';
 import { SCHEDULE_SECTION_OPTIONS } from '../components/pdf/pdfSectionOptions';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
@@ -919,32 +928,36 @@ export function EventsLandingPage({
         </div>
       </footer>
 
-      <PdfExportOptionsModal
-        isOpen={isExportOptionsOpen}
-        onClose={() => setIsExportOptionsOpen(false)}
-        title="Unduh Jadwal Event"
-        description={
-          isFilterActive
-            ? exportScope.ignorePageFilter
-              ? `${exportScope.selected.length} dari ${events.length} event akan disertakan. Filter halaman diabaikan, jadi seluruh acara ditawarkan.`
-              : `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
-            : `${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
-        }
-        sections={SCHEDULE_SECTION_OPTIONS}
-        defaultSelected={['summary', 'table']}
-        requiredSections={['table']}
-        onGenerate={handleDownloadSchedulePdf}
-        canGenerate={exportScope.selected.length > 0}
-      >
-        <ExportScopePicker
-          scope={exportScope}
-          getId={(event) => event.id}
-          primary={(event) => event.acara || '(tanpa nama)'}
-          secondary={(event) => [formatIsoId(event.dateStr), event.lokasi, event.eo].filter(Boolean).join(' · ')}
-          itemNoun="event"
-          searchPlaceholder="Cari acara, lokasi, penyelenggara…"
-        />
-      </PdfExportOptionsModal>
+      {isExportOptionsOpen && (
+        <Suspense fallback={null}>
+          <PdfExportOptionsModal
+            isOpen={isExportOptionsOpen}
+            onClose={() => setIsExportOptionsOpen(false)}
+            title="Unduh Jadwal Event"
+            description={
+              isFilterActive
+                ? exportScope.ignorePageFilter
+                  ? `${exportScope.selected.length} dari ${events.length} event akan disertakan. Filter halaman diabaikan, jadi seluruh acara ditawarkan.`
+                  : `${exportScope.selected.length} dari ${filteredEvents.length} event akan disertakan. Filter halaman aktif, jadi hanya acara yang tampil di daftar.`
+                : `${exportScope.selected.length} dari ${events.length} event akan disertakan. Atur periode dan event, lalu pilih bagian dokumen.`
+            }
+            sections={SCHEDULE_SECTION_OPTIONS}
+            defaultSelected={['summary', 'table']}
+            requiredSections={['table']}
+            onGenerate={handleDownloadSchedulePdf}
+            canGenerate={exportScope.selected.length > 0}
+          >
+            <ExportScopePicker
+              scope={exportScope}
+              getId={(event) => event.id}
+              primary={(event) => event.acara || '(tanpa nama)'}
+              secondary={(event) => [formatIsoId(event.dateStr), event.lokasi, event.eo].filter(Boolean).join(' · ')}
+              itemNoun="event"
+              searchPlaceholder="Cari acara, lokasi, penyelenggara…"
+            />
+          </PdfExportOptionsModal>
+        </Suspense>
+      )}
     </div>
   );
 }

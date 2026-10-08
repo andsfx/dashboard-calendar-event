@@ -6,6 +6,7 @@ import { findAreaConflicts } from '../../utils/areaConflict';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from '../ui/ModalHeader';
+import { MdButton, MdRadio, MdSelect, MdTextField } from '../md';
 import { EventFormBasicFields } from '../forms/EventFormBasicFields';
 import { EventFormDetailsFields } from '../forms/EventFormDetailsFields';
 import { EventFormModelFields } from '../forms/EventFormModelFields';
@@ -392,27 +393,26 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
           {/* Tipe acara */}
           <div className="space-y-2">
             <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="radiogroup">
               {([
                 { value: 'single', label: 'Acara biasa' },
                 { value: 'multi_day', label: 'Rangkaian acara' },
                 { value: 'recurring', label: 'Event reguler' },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                <div key={opt.value} onClick={() => set('eventType', opt.value)} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
                   form.eventType === opt.value
                     ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                     : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
                 }`}>
-                  <input
-                    type="radio"
+                  <MdRadio
                     name="draftEventType"
                     value={opt.value}
                     checked={form.eventType === opt.value}
                     onChange={() => set('eventType', opt.value)}
-                    className="sr-only"
+                    ariaLabel={opt.label}
                   />
-                  {opt.label}
-                </label>
+                  <span>{opt.label}</span>
+                </div>
               ))}
             </div>
           </div>
@@ -467,58 +467,61 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
           />
 
           <div>
-            <label htmlFor="draft-progress" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Progress</label>
-            <select
+            <MdSelect
               id="draft-progress"
               value={form.progress}
-              onChange={e => set('progress', e.target.value)}
-              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
-            >
-              <option value="draft">Draft</option>
-              <option value="confirm">Konfirmasi</option>
-              <option value="cancel">Batal</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</label>
-            <textarea
-              id="draft-keterangan"
-              value={form.keterangan}
-              onChange={e => set('keterangan', e.target.value)}
-              rows={2}
-              placeholder="Tulis status progres atau catatan follow-up event"
-              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+              onChange={value => set('progress', value)}
+              label="Progress"
+              className="w-full"
+              options={[
+                { value: 'draft', label: 'Draft' },
+                { value: 'confirm', label: 'Konfirmasi' },
+                { value: 'cancel', label: 'Batal' },
+              ]}
             />
           </div>
           <div>
-            <label htmlFor="draft-internal-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Internal</label>
-            <textarea
-              id="draft-internal-note"
-              value={form.internalNote}
-              onChange={e => set('internalNote', e.target.value)}
+            <MdTextField
+              id="draft-keterangan"
+              type="textarea"
+              value={form.keterangan}
+              onChange={value => set('keterangan', value)}
               rows={2}
+              label="Keterangan"
+              placeholder="Tulis status progres atau catatan follow-up event"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <MdTextField
+              id="draft-internal-note"
+              type="textarea"
+              value={form.internalNote}
+              onChange={value => set('internalNote', value)}
+              rows={2}
+              label="Catatan Internal"
               placeholder="Catatan admin internal, tidak ikut diterbitkan ke event utama"
-              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+              className="w-full"
             />
           </div>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <button
-              type="button"
+            <MdButton
+              variant="outlined"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex-1"
             >
               Batal
-            </button>
-            <button
+            </MdButton>
+            <MdButton
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex-1"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
-            </button>
+            </MdButton>
           </div>
         </form>
       </div>

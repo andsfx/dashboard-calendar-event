@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { MdIconButton } from '../md';
 import { cn } from '../../utils/cn';
 
 export interface ModalChromeHeaderProps {
@@ -58,15 +59,14 @@ export function ModalHeader({
         </div>
       </div>
       {onClose && (
-        <button
-          type="button"
+        <MdIconButton
+          ariaLabel={closeAriaLabel}
           onClick={onClose}
           disabled={closeDisabled}
-          aria-label={closeAriaLabel}
-          className="shrink-0 rounded-xl p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="shrink-0"
         >
           <X className="h-4 w-4" />
-        </button>
+        </MdIconButton>
       )}
     </div>
   );

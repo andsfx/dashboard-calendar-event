@@ -52,9 +52,10 @@ beforeEach(() => {
 });
 
 describe('ExportPdfModal — cakupan album', () => {
-  it('menawarkan semua album pada rentang default', () => {
+  it('menawarkan semua album pada rentang default', async () => {
     renderModal();
-    expect(screen.getByText('3 album pada periode ini')).toBeInTheDocument();
+    // ModalWrapper memuat md-dialog dengan React.lazy → render pertama async.
+    expect(await screen.findByText('3 album pada periode ini')).toBeInTheDocument();
     expect(screen.getByText('3 album siap diexport')).toBeInTheDocument();
   });
 

@@ -11,6 +11,7 @@ import { EventFormDetailsFields } from '../forms/EventFormDetailsFields';
 import { EventFormModelFields } from '../forms/EventFormModelFields';
 import { MultiDayEventFields } from '../forms/MultiDayEventFields';
 import { RecurringEventFields } from '../forms/RecurringEventFields';
+import { MdButton, MdCheckbox, MdRadio, MdSwitch, MdTextField } from '../md';
 
 interface Props {
   isOpen: boolean;
@@ -583,13 +584,13 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                       ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                       : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'}`
                 }`}>
-                  <input
-                    type="radio"
+                  <MdRadio
                     name="eventType"
                     value={opt.value}
                     checked={form.eventType === opt.value}
                     onChange={() => set('eventType', opt.value)}
                     disabled={opt.disabled}
+                    ariaLabel={opt.label}
                     className="sr-only"
                   />
                   {opt.label}
@@ -614,11 +615,10 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                 </span>
               </div>
               <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink)]">
-                <input
-                  type="checkbox"
+                <MdCheckbox
                   checked={detachSeries}
-                  onChange={e => setDetachSeries(e.target.checked)}
-                  className="h-4 w-4 rounded border-[var(--wf-rule)] text-[var(--wf-accent)] focus:ring-[var(--wf-accent)]"
+                  onChange={setDetachSeries}
+                  ariaLabel='Lepas dari series saat disimpan (badge "Reguler" hilang dari acara ini)'
                 />
                 Lepas dari series saat disimpan (badge &quot;Reguler&quot; hilang dari acara ini)
               </label>
@@ -688,13 +688,11 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
           {isEdit && (
             <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-3">
               <label className="flex cursor-pointer items-start gap-2">
-                <input
-                  type="checkbox"
-                  role="switch"
-                  aria-label="Tampilkan di halaman publik"
-                  checked={visible}
-                  onChange={e => setVisible(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-[var(--wf-rule)] text-[var(--wf-accent)] focus:ring-[var(--wf-accent)]"
+                <MdSwitch
+                  selected={visible}
+                  onChange={setVisible}
+                  ariaLabel="Tampilkan di halaman publik"
+                  className="mt-0.5"
                 />
                 <span className="text-xs">
                   <span className="block font-semibold text-[var(--wf-ink)]">Tampilkan di halaman publik</span>
@@ -711,13 +709,15 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
           {/* Keterangan */}
           <div>
             <label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</label>
-            <textarea
+            <MdTextField
               id="event-keterangan"
+              type="textarea"
               value={form.keterangan}
-              onChange={e => set('keterangan', e.target.value)}
+              onChange={value => set('keterangan', value)}
               rows={2}
               placeholder="Deskripsi singkat tentang acara…"
-              className="w-full resize-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+              ariaLabel="Keterangan"
+              className="w-full"
             />
           </div>
 
@@ -736,32 +736,31 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <div className="flex gap-2 border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-2 backdrop-blur-sm">
-                  <button
-                    type="button"
+                  <MdButton
+                    variant="outlined"
                     onClick={() => posterInputRef.current?.click()}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board)] disabled:opacity-50"
                   >
                     <Upload className="h-3.5 w-3.5" />
                     Ganti
-                  </button>
-                  <button
-                    type="button"
+                  </MdButton>
+                  <MdButton
+                    variant="outlined"
+                    danger
                     onClick={handleRemovePoster}
                     disabled={posterUploading}
-                    className="flex items-center gap-1.5 rounded-lg bg-red-600/10 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-600/20 disabled:opacity-50 dark:text-red-300"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     Hapus
-                  </button>
+                  </MdButton>
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
+              <MdButton
+                variant="outlined"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-4 text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-live)] hover:text-[var(--wf-live)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full"
               >
                 {posterUploading ? (
                   <>
@@ -775,7 +774,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     <span className="text-[10px]">JPG, PNG, WebP · maks. 10 MB</span>
                   </>
                 )}
-              </button>
+              </MdButton>
             )}
             <input
               ref={posterInputRef}
@@ -789,22 +788,22 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <button
-              type="button"
+            <MdButton
+              variant="outlined"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex-1"
             >
               Batal
-            </button>
-            <button
+            </MdButton>
+            <MdButton
               type="submit"
               disabled={isSubmitting}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex-1"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
-            </button>
+            </MdButton>
           </div>
         </form>
       </div>

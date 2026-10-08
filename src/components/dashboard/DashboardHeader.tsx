@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import { MdButton } from '../md';
 import { SearchBar } from '../ui/SearchBar';
 import { getWayfindingMap } from './dashboardNavigation';
 
@@ -72,9 +73,9 @@ export function DashboardHeader({
             </div>
           )}
           {primaryAction && (
-            <button onClick={primaryAction.onClick} className="wf-btn wf-btn--primary shrink-0">
+            <MdButton variant="filled" onClick={primaryAction.onClick} className="shrink-0">
               <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
-            </button>
+            </MdButton>
           )}
         </div>
       </div>

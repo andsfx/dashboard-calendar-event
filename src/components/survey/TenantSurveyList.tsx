@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { TenantEventSurvey, EventItem, TenantSurveyStatus } from '../../types';
 import { isV3Survey } from '../../utils/surveyUtils';
+import { MdButton, MdSelect, MdTextField } from '../md';
 
 interface TenantSurveyListProps {
   surveys: TenantEventSurvey[];
@@ -259,9 +260,9 @@ export default function TenantSurveyList({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p>{error}</p>
-            <button type="button" onClick={onRefresh} className="mt-1 cursor-pointer underline hover:no-underline">
+            <MdButton variant="text" onClick={onRefresh} className="mt-1">
               Coba lagi
-            </button>
+            </MdButton>
           </div>
         </div>
       </div>
@@ -281,14 +282,14 @@ export default function TenantSurveyList({
       {/* Toolbar */}
       <div className="ui-dashboard-surface p-3 sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-            <input
+          <div className="relative min-w-0 flex-1 group">
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
+            <MdTextField
               type="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={setSearch}
               placeholder="Cari gerai, event, PIC, kategori…"
-              className="ui-dashboard-control w-full rounded-xl py-2 pl-9 pr-3 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
+              className="w-full"
             />
           </div>
 
@@ -296,23 +297,20 @@ export default function TenantSurveyList({
               tampil juga untuk role read-only (mis. demo) dan selalu gagal 403
               setelah form diisi — lebih baik disembunyikan sejak awal. */}
           {isAdmin && <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowEventPicker(!showEventPicker)}
-              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] sm:w-auto"
-            >
+            <MdButton variant="filled" className="w-full sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
               <ClipboardCheck className="h-4 w-4" />
               Buat Self-Assessment
-            </button>
+            </MdButton>
 
             {showEventPicker && (
               <div className="ui-dashboard-surface absolute right-0 z-20 mt-2 w-[min(calc(100%-2rem),20rem)] p-2 sm:w-80">
-                <input
+                <MdTextField
                   type="search"
                   value={eventQuery}
-                  onChange={(e) => setEventQuery(e.target.value)}
+                  onChange={setEventQuery}
+                  ariaLabel="Cari event…"
                   placeholder="Cari event…"
-                  className="ui-dashboard-control mb-2 w-full rounded-xl px-3 py-2 text-xs text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
+                  className="mb-2 w-full"
                 />
                 {availableEvents.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-[var(--wf-ink-muted)]">
@@ -323,6 +321,8 @@ export default function TenantSurveyList({
                 ) : (
                   <div className="max-h-64 overflow-y-auto">
                     {availableEvents.map((ev) => (
+                      /* Sengaja tetap <button> native: baris daftar penuh yang
+                         membungkus dua blok teks (layout), bukan kontrol. */
                       <button
                         key={ev.id}
                         type="button"
@@ -358,16 +358,11 @@ export default function TenantSurveyList({
                     ? counts.submitted
                     : counts.reviewed;
             return (
-              <button
+              <MdButton
                 key={tab.key}
-                type="button"
+                variant={statusFilter === tab.key ? 'filled' : 'outlined'}
+                ariaPressed={statusFilter === tab.key}
                 onClick={() => setStatusFilter(tab.key)}
-                aria-pressed={statusFilter === tab.key}
-                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  statusFilter === tab.key
-                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                    : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-                }`}
               >
                 {tab.dot && (
                   <span
@@ -384,7 +379,7 @@ export default function TenantSurveyList({
                 >
                   {count}
                 </span>
-              </button>
+              </MdButton>
             );
           })}
         </div>
@@ -392,45 +387,33 @@ export default function TenantSurveyList({
         {/* Secondary filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-          <select
+          <MdSelect
             value={eventFilter}
-            onChange={(e) => setEventFilter(e.target.value)}
-            aria-label="Filter event"
-            className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
-          >
-            <option value="all">Semua event</option>
-            {eventsInData.map((ev) => (
-              <option key={ev.id} value={ev.id}>
-                {ev.acara}
-              </option>
-            ))}
-          </select>
+            onChange={setEventFilter}
+            ariaLabel="Filter event"
+            options={[
+              { value: 'all', label: 'Semua event' },
+              ...eventsInData.map((ev) => ({ value: ev.id, label: ev.acara })),
+            ]}
+          />
 
           {kategoriInData.length > 0 && (
-            <select
+            <MdSelect
               value={kategoriFilter}
-              onChange={(e) => setKategoriFilter(e.target.value)}
-              aria-label="Filter kategori"
-              className="ui-dashboard-control cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] outline-none focus:ring-2 focus:ring-[var(--wf-accent)]"
-            >
-              <option value="all">Semua kategori</option>
-              {kategoriInData.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
+              onChange={setKategoriFilter}
+              ariaLabel="Filter kategori"
+              options={[
+                { value: 'all', label: 'Semua kategori' },
+                ...kategoriInData.map((k) => ({ value: k, label: k })),
+              ]}
+            />
           )}
 
           {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
-            >
+            <MdButton variant="text" onClick={clearFilters}>
               <X className="h-3 w-3" />
               Reset filter
-            </button>
+            </MdButton>
           )}
 
           <span className="ml-auto text-[11px] tabular-nums text-[var(--wf-ink-muted)]">
@@ -462,13 +445,9 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
           <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
             Tidak ada hasil filter
           </p>
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="mt-2 cursor-pointer text-xs font-semibold text-[var(--wf-accent)] underline hover:no-underline"
-          >
+          <MdButton variant="text" className="mt-2" onClick={clearFilters}>
             Reset filter
-          </button>
+          </MdButton>
         </div>
       ) : (
         <>
@@ -694,24 +673,22 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
                   </span>
                 </p>
                 <div className="flex items-center gap-1">
-                  <button
-                    type="button"
+                  <MdButton
+                    variant="outlined"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                     Sebelum
-                  </button>
-                  <button
-                    type="button"
+                  </MdButton>
+                  <MdButton
+                    variant="outlined"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Berikut
                     <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
+                  </MdButton>
                 </div>
               </div>
             )}
@@ -720,27 +697,25 @@ className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 
           {/* Mobile pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between md:hidden">
-              <button
-                type="button"
+              <MdButton
+                variant="outlined"
                 disabled={safePage <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-3 py-2 text-xs font-semibold text-[var(--wf-ink-muted)] disabled:opacity-40"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Sebelum
-              </button>
+              </MdButton>
               <span className="text-xs tabular-nums text-[var(--wf-ink-muted)]">
                 {safePage} / {totalPages}
               </span>
-              <button
-                type="button"
+              <MdButton
+                variant="outlined"
                 disabled={safePage >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-3 py-2 text-xs font-semibold text-[var(--wf-ink-muted)] disabled:opacity-40"
               >
                 Berikut
                 <ChevronRight className="h-3.5 w-3.5" />
-              </button>
+              </MdButton>
             </div>
           )}
         </>
@@ -793,32 +768,15 @@ function ActionBtn({
   compact?: boolean;
   disabled?: boolean;
 }) {
-  if (primary) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className={`inline-flex cursor-pointer items-center gap-1 rounded-lg bg-[var(--wf-accent)] font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50 ${
-          compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
-        }`}
-      >
-        <Icon className="h-3 w-3" />
-        {label}
-      </button>
-    );
-  }
   return (
-    <button
-      type="button"
+    <MdButton
+      variant={primary ? 'filled' : 'outlined'}
+      className={compact ? 'text-[11px]' : undefined}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--wf-rule)] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-50 ${
-        compact ? 'px-2 py-1 text-[11px]' : 'px-3 py-1.5 text-xs'
-      }`}
     >
       <Icon className="h-3 w-3" />
       {label}
-    </button>
+    </MdButton>
   );
 }

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { X } from 'lucide-react';
+import { MdChip, MdSelect } from '../md';
 
 const CATEGORIES = ['Bazaar','Festival','Workshop','Kompetisi','Fashion','Seminar','Pameran','Konser','Sosial','Seni','Hiburan','Karir','Produk','Anak','Kuliner','Olahraga','Teknologi','Kesehatan','Umum'];
 
@@ -72,20 +72,17 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       {/* Organisasi (komunitas / EO terdaftar) */}
       {!isDraft && organizationOptions.length > 0 && (
         <div>
-          <label htmlFor={`${datalistId}-org`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-            Organisasi Terdaftar (opsional)
-          </label>
-          <select
+          <MdSelect
             id={`${datalistId}-org`}
             value={organizationId || ''}
-            onChange={e => onFieldChange('organizationId', e.target.value)}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
-          >
-            <option value="">- Tanpa organisasi terdaftar -</option>
-            {organizationOptions.map(opt => (
-              <option key={opt.id} value={opt.id}>{opt.name}</option>
-            ))}
-          </select>
+            onChange={v => onFieldChange('organizationId', v)}
+            label="Organisasi Terdaftar (opsional)"
+            options={[
+              { value: '', label: '- Tanpa organisasi terdaftar -' },
+              ...organizationOptions.map(opt => ({ value: opt.id, label: opt.name })),
+            ]}
+            className="w-full"
+          />
         </div>
       )}
 
@@ -146,50 +143,44 @@ export const EventFormDetailsFields = memo(function EventFormDetailsFields({
       {/* Categories + Priority */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label htmlFor={`${datalistId}-category`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jenis Acara</label>
-          <select
+          <MdSelect
             id={`${datalistId}-category`}
             value=""
-            aria-invalid={!!errors.categories}
-            aria-describedby={errors.categories ? categoriesErrorId : undefined}
-            onChange={e => {
-              onAddCategory(e.target.value);
-              e.target.value = '';
-            }}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)]"
-          >
-            <option value="">Pilih jenis acara</option>
-            {CATEGORIES.filter(category => !categories.includes(category)).map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+            onChange={v => onAddCategory(v)}
+            label="Jenis Acara"
+            error={!!errors.categories}
+            options={[
+              { value: '', label: 'Pilih jenis acara' },
+              ...CATEGORIES.filter(category => !categories.includes(category)).map(c => ({ value: c, label: c })),
+            ]}
+            className="w-full"
+          />
           <div className="mt-2 flex flex-wrap gap-2">
             {categories.map(category => (
-              <span key={category} className="inline-flex items-center gap-1 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2.5 py-1 text-xs font-medium text-[var(--wf-ink-muted)]">
-                {category}
-                <button
-                  type="button"
-                  onClick={() => onRemoveCategory(category)}
-                  className="rounded-full p-0.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
-                  aria-label={`Hapus kategori ${category}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
+              <MdChip
+                key={category}
+                label={category}
+                removable
+                ariaLabel={`Hapus kategori ${category}`}
+                onRemove={() => onRemoveCategory(category)}
+              />
             ))}
           </div>
           {errors.categories && <p id={categoriesErrorId} className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.categories}</p>}
         </div>
         <div>
-          <label htmlFor={`${datalistId}-priority`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Prioritas</label>
-          <select
+          <MdSelect
             id={`${datalistId}-priority`}
             value={priority}
-            onChange={e => onFieldChange('priority', e.target.value)}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)]"
-          >
-            <option value="high">🔴 Tinggi</option>
-            <option value="medium">🔵 Sedang</option>
-            <option value="low">⚪ Rendah</option>
-          </select>
+            onChange={v => onFieldChange('priority', v)}
+            label="Prioritas"
+            options={[
+              { value: 'high', label: '🔴 Tinggi' },
+              { value: 'medium', label: '🔵 Sedang' },
+              { value: 'low', label: '⚪ Rendah' },
+            ]}
+            className="w-full"
+          />
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import { Edit2, ExternalLink, MessageCircle, Trash2, Upload } from 'lucide-react
 import { DraftEventItem, DraftProgress } from '../../types';
 import { DraftProgressBadge } from './DraftProgressBadge';
 import { getWhatsAppUrl } from '../../utils/draftUtils';
+import { MdButton, MdSelect } from '../md';
 
 interface Props {
   drafts: DraftEventItem[];
@@ -56,32 +57,32 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
                     <div className="space-y-2">
                       <DraftProgressBadge progress={draft.progress} />
                       {onProgressChange && (
-                        <select
+                        <MdSelect
                           value={draft.progress}
-                          onChange={e => onProgressChange(draft, e.target.value as DraftProgress)}
-                          aria-label={`Progress ${draft.acara}`}
-                          className="ui-dashboard-control w-full rounded-lg px-2.5 py-1.5 text-xs text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)]"
-                        >
-                          <option value="draft">Draft</option>
-                          <option value="confirm">Konfirmasi</option>
-                          <option value="cancel">Batal</option>
-                        </select>
+                          onChange={v => onProgressChange(draft, v as DraftProgress)}
+                          ariaLabel={`Progress ${draft.acara}`}
+                          options={[
+                            { value: 'draft', label: 'Draft' },
+                            { value: 'confirm', label: 'Konfirmasi' },
+                            { value: 'cancel', label: 'Batal' },
+                          ]}
+                          className="w-full"
+                        />
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      {onEdit && <button onClick={() => onEdit(draft)} className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-accent)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-accent)] transition hover:bg-[var(--wf-accent-soft)]"><Edit2 className="h-3.5 w-3.5" />Ubah</button>}
-                      {onDelete && <button onClick={() => onDelete(draft)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-600/10 dark:border-red-800 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
-                      {onPublish && <button
-                        type="button"
+                      {onEdit && <MdButton variant="outlined" onClick={() => onEdit(draft)}><Edit2 className="h-3.5 w-3.5" />Ubah</MdButton>}
+                      {onDelete && <MdButton variant="outlined" danger onClick={() => onDelete(draft)}><Trash2 className="h-3.5 w-3.5" />Hapus</MdButton>}
+                      {onPublish && <MdButton
+                        variant="outlined"
                         onClick={() => onPublish(draft)}
                         disabled={draft.progress !== 'confirm'}
                         title={draft.progress !== 'confirm' ? 'Set progress ke Konfirmasi dulu sebelum menerbitkan' : 'Terbitkan ke jadwal utama'}
-                        className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Upload className="h-3.5 w-3.5" />Terbitkan
-                      </button>}
+                      </MdButton>}
                       {!canMutate && <span className="text-xs text-[var(--wf-ink-muted)]">-</span>}
                       {whatsappUrl && (
                         <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-live)]/30 px-2.5 py-1.5 text-xs font-medium text-[var(--wf-live)] transition hover:bg-[var(--wf-live)]/10">

@@ -2,6 +2,7 @@ import { Archive, ChevronDown, ChevronUp, ClipboardList, Plus } from 'lucide-rea
 import { DraftEventItem, EventItem } from '../../types';
 import { DraftHistoryTable } from './DraftHistoryTable';
 import { DraftQueueTable } from './DraftQueueTable';
+import { MdButton } from '../md';
 
 interface Props {
   activeDrafts: DraftEventItem[];
@@ -46,12 +47,9 @@ export function AdminDraftSection({
           </div>
         </div>
         {onAddDraft && (
-          <button
-            onClick={onAddDraft}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl ui-btn-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors"
-          >
+          <MdButton variant="filled" onClick={onAddDraft} className="shrink-0">
             <Plus className="h-4 w-4" /> Tambah Draft Event
-          </button>
+          </MdButton>
         )}
       </div>
 
@@ -78,6 +76,10 @@ export function AdminDraftSection({
       )}
 
       <div className="ui-dashboard-card-padded">
+        {/* Baris disclosure full-width yang membungkus konten (ikon + dua blok
+            teks + jumlah item + chevron) dengan `justify-between` — ini layout,
+            bukan kontrol: `MdButton` selalu memusatkan labelnya sehingga tidak
+            bisa merepresentasikan baris ini. Karena itu tetap native. */}
         <button
           onClick={() => setShowDraftHistory(v => !v)}
           className="flex w-full items-center justify-between gap-3 text-left ui-focus-ring rounded-xl"

@@ -4,6 +4,7 @@ import {
   Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings, AlertCircle,
 } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
+import { MdButton, MdSelect } from '../md';
 
 interface LogEntry {
   id: number;
@@ -108,35 +109,40 @@ export function ActivityLog() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-        <select aria-label="Filter aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }}
-          className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]">
-          <option value="">Semua Aksi</option>
-          <option value="create">Buat</option>
-          <option value="update">Perbarui</option>
-          <option value="delete">Hapus</option>
-          <option value="login">Login</option>
-          <option value="logout">Logout</option>
-          <option value="invite">Undang</option>
-        </select>
-        <select aria-label="Filter tipe resource" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }}
-          className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]">
-          <option value="">Semua Tipe</option>
-          <option value="event">Event</option>
-          <option value="draft">Draft</option>
-          <option value="user">Pengguna</option>
-          <option value="theme">Tema</option>
-          <option value="survey_config">Konfigurasi Survey</option>
-        </select>
+        <MdSelect ariaLabel="Filter aksi" value={filterAction} onChange={v => { setFilterAction(v); setPage(1); }}
+          options={[
+            { value: '', label: 'Semua Aksi' },
+            { value: 'create', label: 'Buat' },
+            { value: 'update', label: 'Perbarui' },
+            { value: 'delete', label: 'Hapus' },
+            { value: 'login', label: 'Login' },
+            { value: 'logout', label: 'Logout' },
+            { value: 'invite', label: 'Undang' },
+          ]}
+        />
+        <MdSelect ariaLabel="Filter tipe resource" value={filterResource} onChange={v => { setFilterResource(v); setPage(1); }}
+          options={[
+            { value: '', label: 'Semua Tipe' },
+            { value: 'event', label: 'Event' },
+            { value: 'draft', label: 'Draft' },
+            { value: 'user', label: 'Pengguna' },
+            { value: 'theme', label: 'Tema' },
+            { value: 'survey_config', label: 'Konfigurasi Survey' },
+          ]}
+        />
+        {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
           aria-label="Dari tanggal"
           className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
         <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
+        {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
         <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
           aria-label="Sampai tanggal"
           className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
         {(filterAction || filterResource || dateFrom || dateTo) && (
-          <button onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-            className="text-[10px] text-[var(--wf-accent)] hover:underline">Atur Ulang</button>
+          <MdButton variant="text" onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}>
+            Atur Ulang
+          </MdButton>
         )}
       </div>
 
@@ -149,9 +155,9 @@ export function ActivityLog() {
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <p>{error}</p>
-              <button type="button" onClick={fetchLogs} className="mt-1 cursor-pointer underline hover:no-underline">
+              <MdButton variant="text" onClick={fetchLogs}>
                 Coba lagi
-              </button>
+              </MdButton>
             </div>
           </div>
         </div>
@@ -219,15 +225,13 @@ export function ActivityLog() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
-            className="rounded-lg border border-[var(--wf-rule)] px-3 py-1 text-xs font-medium text-[var(--wf-ink-muted)] disabled:opacity-40">
+          <MdButton variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
             Sebelumnya
-          </button>
+          </MdButton>
           <span className="text-xs text-[var(--wf-ink-muted)]">{page} / {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
-            className="rounded-lg border border-[var(--wf-rule)] px-3 py-1 text-xs font-medium text-[var(--wf-ink-muted)] disabled:opacity-40">
+          <MdButton variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
             Berikutnya
-          </button>
+          </MdButton>
         </div>
       )}
     </div>

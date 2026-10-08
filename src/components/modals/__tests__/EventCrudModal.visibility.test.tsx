@@ -53,8 +53,10 @@ function renderModal(editingEvent: EventItem | null, handlers: {
   )
 }
 
-function submitForm() {
-  fireEvent.submit(screen.getByRole('button', { name: /simpan/i }).closest('form')!)
+async function submitForm() {
+  // ModalWrapper memuat md-dialog dengan React.lazy → tombol baru ada setelah render kedua.
+  const btn = await screen.findByRole('button', { name: /simpan/i })
+  fireEvent.submit(btn.closest('form')!)
 }
 
 describe('EventCrudModal — kontrol visibilitas halaman publik', () => {
@@ -64,10 +66,10 @@ describe('EventCrudModal — kontrol visibilitas halaman publik', () => {
     const onSave = vi.fn().mockResolvedValue(true)
     renderModal(makeEvent('upcoming'), { onSave })
 
-    const sw = screen.getByRole('switch', { name: 'Tampilkan di halaman publik' })
+    const sw = await screen.findByRole('switch', { name: 'Tampilkan di halaman publik' })
     expect(sw).toBeChecked()
 
-    submitForm()
+    await submitForm()
     await waitFor(() => expect(onSave).toHaveBeenCalled())
     // Argumen kedua undefined → edit biasa tidak menyentuh kolom lifecycle.
     expect(onSave.mock.calls[0]![1]).toBeUndefined()
@@ -83,7 +85,7 @@ describe('EventCrudModal — kontrol visibilitas halaman publik', () => {
     renderModal(makeEvent('upcoming'), { onSave })
 
     fireEvent.click(screen.getByRole('switch', { name: 'Tampilkan di halaman publik' }))
-    submitForm()
+    await submitForm()
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1))
     expect(onSave.mock.calls[0]![1]).toBe('draft')
@@ -94,7 +96,7 @@ describe('EventCrudModal — kontrol visibilitas halaman publik', () => {
     renderModal(makeEvent('draft'), { onSave })
 
     fireEvent.click(screen.getByRole('switch', { name: 'Tampilkan di halaman publik' }))
-    submitForm()
+    await submitForm()
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1))
     expect(onSave.mock.calls[0]![1]).toBe('published')

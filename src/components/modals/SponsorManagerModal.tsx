@@ -9,7 +9,8 @@ import {
   setEventProposal,
   deleteEventProposal,
 } from '../../utils/domainApi';
-import { useConfirmDialog } from './ConfirmDialog';
+import { useConfirmDialog } from './useConfirmDialog';
+import { MdButton, MdSelect } from '../md';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -160,24 +161,20 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto rounded-xl bg-[var(--wf-board-2)] p-1">
-            <button
-              type="button"
+            <MdButton
+              variant={tab === 'proposals' ? 'filled' : 'text'}
               onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
-              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'proposals'
-                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
+              className="flex-1 whitespace-nowrap px-3 py-2"
             >
               Proposal Event
-            </button>
-            <button
-              type="button"
+            </MdButton>
+            <MdButton
+              variant={tab === 'leads' ? 'filled' : 'text'}
               onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
-              className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${tab === 'leads'
-                ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'}`}
+              className="flex-1 whitespace-nowrap px-3 py-2"
             >
               Minat Support ({leads.length})
-            </button>
+            </MdButton>
           </div>
 
           {/* Error message */}
@@ -241,13 +238,14 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                         </a>
                         {!readOnly && (<>
                         <span className="text-[var(--wf-ink-muted)]">·</span>
-                        <button
-                          type="button"
+                        <MdButton
+                          variant="text"
+                          danger
                           onClick={() => handleDeleteProposal(item)}
-                          className="font-medium text-red-700 hover:underline dark:text-red-300"
+                          className="!min-w-0 px-0"
                         >
                           Hapus
-                        </button>
+                        </MdButton>
                         </>)}
                       </div>
                     ) : (
@@ -263,11 +261,10 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                       id={`proposal-file-${item.event.id}`}
                       onChange={(e) => handleProposalSelect(item.event.id, e.target.files?.[0])}
                     />)}
-                    {!readOnly && (<button
-                      type="button"
+                    {!readOnly && (<MdButton
                       onClick={() => document.getElementById(`proposal-file-${item.event.id}`)?.click()}
                       disabled={isUploading}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--wf-accent)] px-3.5 py-1.5 text-xs font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50"
+                      className="px-3.5 py-1.5 text-xs"
                     >
                       {isUploading && uploadingEventId === item.event.id ? (
                         <>
@@ -280,7 +277,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                           {item.proposal.fileUrl ? 'Ganti' : 'Upload'}
                         </>
                       )}
-                    </button>)}
+                    </MdButton>)}
                   </div>
                 </div>
               ))}
@@ -339,22 +336,20 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                         </span>
                       ) : (
                         <>
-                          <select
+                          <MdSelect
                             value={lead.status}
-                            onChange={(e) => handleStatusChange(lead, e.target.value as SponsorLeadStatus)}
-                            className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-xs font-medium text-[var(--wf-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
-                          >
-                            {statusOptions.map((s) => (
-                              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
+                            onChange={value => handleStatusChange(lead, value as SponsorLeadStatus)}
+                            ariaLabel={`Status lead ${lead.companyName}`}
+                            options={statusOptions.map(s => ({ value: s, label: STATUS_LABELS[s] }))}
+                          />
+                          <MdButton
+                            variant="text"
+                            danger
                             onClick={() => handleDeleteLead(lead)}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-red-700 hover:underline dark:text-red-300"
+                            className="!min-w-0 px-0 text-xs"
                           >
                             <Trash2 className="h-3 w-3" /> Hapus
-                          </button>
+                          </MdButton>
                         </>
                       )}
                     </div>

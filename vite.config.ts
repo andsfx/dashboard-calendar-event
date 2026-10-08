@@ -94,7 +94,11 @@ export default defineConfig({
     target: 'es2022',
     rollupOptions: {
       output: {
-        experimentalMinChunkSize: 98304,
+        // Merging chunk kecil berbahaya di sini: Material Web bisa "tenggelam"
+        // ke chunk gabungan yang lalu di-import statis oleh chunk LAZY milik
+        // rute PUBLIK (terukur: chunk SurveyQRCode menarik md). Tanpa merge,
+        // md tetap di chunk yang benar-benar memakainya.
+        experimentalMinChunkSize: 0,
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           // Engine PDF (jspdf + jspdf-autotable + fflate/fast-png/@babel/runtime)
@@ -110,6 +114,11 @@ export default defineConfig({
           // dinamisnya (buildLetterPdf/buildSchedulePdf/…), dan entry hanya
           // memuat `vendor`.
           if (id.includes("jspdf") || id.includes("fflate") || id.includes("fast-png") || id.includes("@babel/runtime") || id.includes("gsap")) return;
+          // Material Web + Lit — jangan dipaksa ke `vendor` (vendor ada di jalur
+          // boot entry). Dibiarkan menempel ke chunk lazy pengimpor, dan
+          // `experimentalMinChunkSize: 0` mencegahnya tenggelam ke chunk
+          // gabungan yang di-import statis oleh chunk publik.
+          if (/[\\/]node_modules[\\/](@material|lit|lit-element|lit-html|@lit|@lit-labs)[\\/]/.test(id)) return;
           return "vendor";
         },
       },

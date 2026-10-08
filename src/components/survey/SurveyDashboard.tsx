@@ -7,6 +7,7 @@ import {
   MessageSquare, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import { apiGet, apiPost } from '../../lib/rest';
+import { MdButton, MdIconButton, MdTextField } from '../md';
 
 // Base REST untuk download blob CSV (fetch native — apiGet meng-unwrap JSON).
 const API_V1 = ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') + '/api/v1';
@@ -189,7 +190,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
     return (
       <div className="rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
         {error}
-        <button onClick={fetchStats} className="ml-2 underline">Coba lagi</button>
+        <MdButton variant="text" className="ml-2" onClick={fetchStats}>Coba lagi</MdButton>
       </div>
     );
   }
@@ -207,7 +208,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
           <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span className="flex-1">{actionError}</span>
-            <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
+            <MdButton variant="text" onClick={() => setActionError('')}>Tutup</MdButton>
           </div>
         )}
         {/* Still show event management even with no responses */}
@@ -233,20 +234,20 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
           <h2 className="text-base font-bold text-[var(--wf-ink)]">Survey Kepuasan</h2>
           <p className="text-xs text-[var(--wf-ink-muted)]">Feedback dari penyelenggara & peserta event</p>
         </div>
-        <button
+        <MdIconButton
           onClick={fetchStats}
-          className="rounded-lg p-2 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
           title="Refresh"
+          ariaLabel="Refresh"
         >
           <RefreshCw className="h-4 w-4" />
-        </button>
+        </MdIconButton>
       </div>
 
       {actionError && (
         <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">{actionError}</span>
-          <button onClick={() => setActionError('')} className="shrink-0 underline hover:no-underline">Tutup</button>
+          <MdButton variant="text" onClick={() => setActionError('')}>Tutup</MdButton>
         </div>
       )}
 
@@ -317,6 +318,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
             {/* Date filter */}
             <div className="flex items-center gap-2">
               <Calendar className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
+              {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
               <input
                 type="date"
                 value={dateFrom}
@@ -326,6 +328,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                 placeholder="Dari"
               />
               <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
+              {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
               <input
                 type="date"
                 value={dateTo}
@@ -335,9 +338,9 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
                 placeholder="Sampai"
               />
               {(dateFrom || dateTo) && (
-                <button onClick={() => { setDateFrom(''); setDateTo(''); }} className="text-[10px] text-[var(--wf-accent)] hover:underline">
+                <MdButton variant="text" onClick={() => { setDateFrom(''); setDateTo(''); }}>
                   Reset
-                </button>
+                </MdButton>
               )}
             </div>
           </div>
@@ -352,6 +355,8 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
               const hasComments = r.mall_comment || r.eo_comment || r.general_comment;
               return (
                 <div key={r.id}>
+                  {/* Sengaja tetap <button> native: baris disclosure penuh yang
+                      membungkus konten blok (layout), bukan kontrol. */}
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : r.id)}
@@ -466,14 +471,14 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
         <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Survey per Event</h3>
         <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan, atau export data</p>
         <div className="relative mt-2">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-          <input
+          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
+          <MdTextField
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={setQuery}
             placeholder="Cari nama event…"
-            aria-label="Cari event"
-            className="ui-dashboard-control w-full rounded-xl py-1.5 pl-9 pr-3 text-xs text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+            ariaLabel="Cari event"
+            className="w-full"
           />
         </div>
       </div>
@@ -495,12 +500,12 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               <p className="min-w-0 flex-1 truncate text-xs text-[var(--wf-ink)]">{ev.acara}</p>
 
               {/* Toggle active */}
-              {!readOnly && <button
+              {!readOnly && <MdIconButton
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
-                className={`shrink-0 transition-colors ${isActive ? 'text-[var(--wf-live)]' : 'text-[var(--wf-ink-muted)]'}`}
-                aria-pressed={isActive}
-                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
+                toggle
+                selected={isActive}
+                ariaLabel={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
                 title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
               >
                 {isToggling ? (
@@ -510,28 +515,28 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 ) : (
                   <ToggleLeft className="h-5 w-5" />
                 )}
-              </button>}
+              </MdIconButton>}
 
               {/* Copy link */}
-              <button
+              <MdButton
+                variant="text"
                 onClick={() => onCopyLink(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
                 title="Salin tautan survey"
-                aria-label={`Salin tautan survey ${ev.acara}`}
+                ariaLabel={`Salin tautan survey ${ev.acara}`}
               >
                 {isCopied ? <Check className="h-3 w-3 text-[var(--wf-live)]" /> : <Link2 className="h-3 w-3" />}
                 {isCopied ? 'Tersalin!' : 'Link'}
-              </button>
+              </MdButton>
 
               {/* Export */}
-              <button
+              <MdButton
+                variant="text"
                 onClick={() => onExport(ev.id)}
-                className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
-                aria-label={`Unduh CSV survey ${ev.acara}`}
+                ariaLabel={`Unduh CSV survey ${ev.acara}`}
               >
                 <Download className="h-3 w-3" />
                 CSV
-              </button>
+              </MdButton>
             </div>
           );
         })}

@@ -2,8 +2,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ModalWrapper } from '../ModalWrapper';
-import { ConfirmDialog, useConfirmDialog } from '../ConfirmDialog';
+import { ConfirmDialog } from '../ConfirmDialog';
+import { useConfirmDialog } from '../useConfirmDialog';
 
+/**
+ * ModalWrapper kini adapter tipis di atas `md-dialog`. Perilaku yang dulu
+ * diorkestrasi manual — Escape untuk dialog teratas, penutupan sekali per
+ * dialog — sekarang berasal dari `<dialog>` bertumpuk (di jsdom: mock
+ * md-dialog di `src/test/md-mocks.ts`). Tes ini menjaga kontraknya.
+ */
 function Harness({ onCloseOuter, onCloseConfirm }: { onCloseOuter: () => void; onCloseConfirm: () => void }) {
   return (
     <ModalWrapper isOpen onClose={onCloseOuter} ariaLabelledBy="outer-title">
@@ -15,7 +22,19 @@ function Harness({ onCloseOuter, onCloseConfirm }: { onCloseOuter: () => void; o
   );
 }
 
-describe('ModalWrapper nested (dialog konfirmasi di dalam modal parent)', () => {
+describe('ModalWrapper (adapter md-dialog)', () => {
+  it('merender children di dalam dialog dan meneruskan aria-labelledby', async () => {
+    render(
+      <ModalWrapper isOpen onClose={() => {}} ariaLabelledBy="judul-modal">
+        <h2 id="judul-modal">Judul</h2>
+      </ModalWrapper>,
+    );
+    // ModalWrapper memuat md-dialog dengan React.lazy → render pertama async.
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'judul-modal');
+    expect(screen.getByText('Judul')).toBeInTheDocument();
+  });
+
   it('Escape hanya menutup dialog konfirmasi teratas, modal parent tetap terbuka', async () => {
     const onCloseOuter = vi.fn();
     const onCloseConfirm = vi.fn();
@@ -24,10 +43,10 @@ describe('ModalWrapper nested (dialog konfirmasi di dalam modal parent)', () => 
     expect(screen.getByText('Modal Parent')).toBeInTheDocument();
     expect(screen.getByText('Hapus album?')).toBeInTheDocument();
 
-    fireEvent.keyDown(window, { key: 'Escape' });
-    await waitFor(() => expect(onCloseConfirm).toHaveBeenCalledTimes(1), { timeout: 500 });
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(onCloseConfirm).toHaveBeenCalledTimes(1));
     // Modal parent TIDAK ikut tertutup
-    await waitFor(() => expect(onCloseOuter).not.toHaveBeenCalled(), { timeout: 400 });
+    expect(onCloseOuter).not.toHaveBeenCalled();
   });
 
   it('setelah dialog konfirmasi tertutup, Escape berikutnya menutup modal parent', async () => {
@@ -35,16 +54,37 @@ describe('ModalWrapper nested (dialog konfirmasi di dalam modal parent)', () => 
     const onCloseConfirm = vi.fn();
     const { rerender } = render(<Harness onCloseOuter={onCloseOuter} onCloseConfirm={onCloseConfirm} />);
 
-    fireEvent.keyDown(window, { key: 'Escape' });
-    await waitFor(() => expect(onCloseConfirm).toHaveBeenCalledTimes(1), { timeout: 500 });
-    // Dialog konfirmasi hilang — sekarang parent jadi modal teratas
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(onCloseConfirm).toHaveBeenCalledTimes(1));
+
+    // Dialog konfirmasi hilang — sekarang parent jadi dialog teratas
     rerender(
       <ModalWrapper isOpen onClose={onCloseOuter} ariaLabelledBy="outer-title">
         <div><h2 id="outer-title">Modal Parent</h2></div>
       </ModalWrapper>,
     );
-    fireEvent.keyDown(window, { key: 'Escape' });
-    await waitFor(() => expect(onCloseOuter).toHaveBeenCalledTimes(1), { timeout: 500 });
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(onCloseOuter).toHaveBeenCalledTimes(1));
+  });
+
+  it('menutup lewat prop isOpen tidak memanggil onClose (tanpa loop umpan balik)', async () => {
+    const onClose = vi.fn();
+    const { container, rerender } = render(
+      <ModalWrapper isOpen onClose={onClose} ariaLabelledBy="t">
+        <h2 id="t">Judul</h2>
+      </ModalWrapper>,
+    );
+    const dialog = (): Element | null => container.querySelector('md-dialog');
+    expect(dialog()).not.toHaveAttribute('hidden');
+
+    rerender(
+      <ModalWrapper isOpen={false} onClose={onClose} ariaLabelledBy="t">
+        <h2 id="t">Judul</h2>
+      </ModalWrapper>,
+    );
+    await waitFor(() => expect(dialog()).toHaveAttribute('hidden'));
+    // Parent sudah tahu dialog ditutup; memanggil onClose di sini akan jadi loop.
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('useConfirmDialog: confirm() saat dialog nested resolve false tanpa menutup parent', async () => {
@@ -64,10 +104,9 @@ describe('ModalWrapper nested (dialog konfirmasi di dalam modal parent)', () => 
     }
     render(<HarnessHook />);
     const promise = capturedConfirm!({ title: 'Hapus foto?', message: 'Permanen.' });
-    // tunggu dialog ter-render (act flush) sebelum keydown
     await screen.findByText('Hapus foto?');
-    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.keyDown(document, { key: 'Escape' });
     await expect(promise).resolves.toBe(false);
-    await waitFor(() => expect(onCloseOuter).not.toHaveBeenCalled(), { timeout: 400 });
+    expect(onCloseOuter).not.toHaveBeenCalled();
   });
 });

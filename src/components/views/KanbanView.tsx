@@ -2,6 +2,7 @@ import { Clock, MapPin, Edit2, Trash2, ExternalLink, FileText, Radio, Clock3, Ch
 import { EventItem, EventStatus } from '../../types';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
+import { MdIconButton } from '../md';
 import { CATEGORY_COLORS, isRecurringEvent } from '../../utils/eventUtils';
 
 const COLUMNS: Array<{
@@ -85,35 +86,35 @@ function EventCard({
             className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100 focus-within:opacity-100"
             onClick={e => e.stopPropagation()}
           >
-            <button
+            <MdIconButton
               onClick={() => onDetail(ev)}
               title="Lihat detail"
-              aria-label="Lihat detail"
-              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:outline-none"
+              ariaLabel="Lihat detail"
+              className="min-h-[36px] min-w-[36px]"
             >
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
-            </button>
+            </MdIconButton>
             {(onEdit || onDelete) && (
               <>
                 {onEdit && (
-                <button
+                <MdIconButton
                   onClick={() => onEdit(ev)}
                   title="Ubah"
-                  aria-label="Ubah acara"
-                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:outline-none"
+                  ariaLabel="Ubah acara"
+                  className="min-h-[36px] min-w-[36px]"
                 >
                   <Edit2 className="h-3 w-3" aria-hidden="true" />
-                </button>
+                </MdIconButton>
                 )}
                 {onDelete && (
-                <button
+                <MdIconButton
                   onClick={() => onDelete(ev)}
                   title="Hapus"
-                  aria-label="Hapus acara"
-                  className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+                  ariaLabel="Hapus acara"
+                  className="min-h-[36px] min-w-[36px]"
                 >
                   <Trash2 className="h-3 w-3" aria-hidden="true" />
-                </button>
+                </MdIconButton>
                 )}
               </>
             )}

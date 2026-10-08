@@ -11,6 +11,7 @@ import { ExportScopePicker } from '../pdf/ExportScopePicker';
 import { useExportScope } from '../pdf/useExportScope';
 import { ALBUM_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import { ModalWrapper } from './ModalWrapper';
+import { MdButton, MdIconButton, MdSelect } from '../md';
 
 interface Props {
   isOpen: boolean;
@@ -154,7 +155,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
   };
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={preview ? 'max-w-6xl' : 'max-w-2xl'} ariaLabel="Export album ke PDF">
+    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth={preview ? 'max-w-6xl' : 'max-w-2xl'} ariaLabelledBy="export-pdf-title">
       {preview ? (
         <PdfPreviewStage result={preview} onBack={handleBackToFilter} onClose={onClose} />
       ) : (
@@ -162,53 +163,55 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight">Export Album Foto</h2>
+            <h2 id="export-pdf-title" className="mt-1 text-2xl font-bold tracking-tight">Export Album Foto</h2>
             <p className="mt-1 text-sm ui-text-muted">Generate report landscape berdasarkan tanggal atau tema event.</p>
           </div>
-          <button
+          <MdIconButton
+            ariaLabel="Tutup modal"
             onClick={onClose}
-            className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
-            aria-label="Tutup modal"
+            className="shrink-0"
           >
             <X className="h-5 w-5" />
-          </button>
+          </MdIconButton>
         </div>
 
         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
+            <MdButton
+              variant="outlined"
               onClick={() => setMode('date')}
               className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <CalendarDays className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tanggal</div>
               <div className="mt-1 text-xs opacity-75">Pilih range tanggal event.</div>
-            </button>
-            <button
-              type="button"
+            </MdButton>
+            <MdButton
+              variant="outlined"
               onClick={() => setMode('theme')}
               className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <Palette className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tema</div>
               <div className="mt-1 text-xs opacity-75">Export satu tema event.</div>
-            </button>
+            </MdButton>
           </div>
 
           {mode === 'theme' && (
             <label className="block">
               <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Tema event</span>
-              <select
-                value={themeId}
-                onChange={(event) => setThemeId(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-              >
-                <option value="">Pilih tema</option>
-                {themes.map(theme => (
-                  <option key={theme.id} value={theme.id}>{theme.name}</option>
-                ))}
-              </select>
+              <div className="mt-2">
+                <MdSelect
+                  value={themeId}
+                  onChange={setThemeId}
+                  ariaLabel="Tema event"
+                  options={[
+                    { value: '', label: 'Pilih tema' },
+                    ...themes.map(theme => ({ value: theme.id, label: theme.name })),
+                  ]}
+                  className="w-full"
+                />
+              </div>
             </label>
           )}
 
@@ -244,22 +247,19 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
         </div>
 
         <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-          <button
-            type="button"
+          <MdButton
+            variant="text"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             Batal
-          </button>
-          <button
-            type="button"
+          </MdButton>
+          <MdButton
             onClick={() => setIsSectionPickerOpen(true)}
             disabled={!canGenerate}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
             {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
-          </button>
+          </MdButton>
         </div>
       </div>
       )}

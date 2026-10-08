@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, Download, Loader2, X } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, X } from 'lucide-react';
 import { downloadBlob } from '../../lib/download';
+import { MdButton, MdCheckbox, MdIconButton } from '../md';
 import { ModalWrapper } from '../modals/ModalWrapper';
 
 // ============================================================
@@ -153,15 +154,14 @@ export function PdfExportOptionsModal({
                 : description}
             </p>
           </div>
-          <button
-            type="button"
+          <MdIconButton
+            ariaLabel="Tutup"
             onClick={onClose}
             disabled={isGenerating}
-            className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50 dark:hover:bg-slate-800 dark:hover:text-white"
-            aria-label="Tutup"
+            className="shrink-0 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
           >
             <X className="h-5 w-5" />
-          </button>
+          </MdIconButton>
         </div>
 
         {/* Body yang menggulir, bukan seluruh panel: footer tetap terlihat
@@ -184,13 +184,12 @@ export function PdfExportOptionsModal({
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
                   Bagian yang diekspor
                 </span>
-                <button
-                  type="button"
+                <MdButton
+                  variant="text"
                   onClick={() => setSelected(allSelected ? [...requiredSections] : sections.map((section) => section.id))}
-                  className="text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
                 >
                   {allSelected ? 'Kosongkan' : 'Pilih semua'}
-                </button>
+                </MdButton>
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
@@ -212,24 +211,12 @@ export function PdfExportOptionsModal({
                             : ''
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        className="sr-only"
-                        name={`pdf-section-${section.id}`}
+                      <MdCheckbox
                         checked={isChecked}
                         disabled={isRequired}
                         onChange={() => toggle(section.id)}
+                        className="mt-0.5 shrink-0"
                       />
-                      <span
-                        aria-hidden="true"
-                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition ${
-                          isChecked
-                            ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                            : 'border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900'
-                        }`}
-                      >
-                        {isChecked && <Check className="h-3.5 w-3.5" />}
-                      </span>
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold text-slate-900 dark:text-white">
                           {section.label}
@@ -255,42 +242,24 @@ export function PdfExportOptionsModal({
         <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
           {isPreviewStage ? (
             <>
-              <button
-                type="button"
-                onClick={() => setPreview(null)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
+              <MdButton key="preview-back" variant="text" onClick={() => setPreview(null)}>
                 <ArrowLeft className="h-4 w-4" />
                 Kembali
-              </button>
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
-              >
+              </MdButton>
+              <MdButton key="preview-download" variant="filled" onClick={handleDownload}>
                 <Download className="h-4 w-4" />
                 Unduh PDF
-              </button>
+              </MdButton>
             </>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isGenerating}
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
+              <MdButton key="select-cancel" variant="text" onClick={onClose} disabled={isGenerating}>
                 Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={!canGenerate}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
-              >
+              </MdButton>
+              <MdButton key="select-generate" variant="filled" onClick={handleGenerate} disabled={!canGenerate}>
                 {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 {isGenerating ? 'Menyiapkan…' : generateLabel}
-              </button>
+              </MdButton>
             </>
           )}
         </div>

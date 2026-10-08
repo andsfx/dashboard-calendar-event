@@ -3,6 +3,7 @@ import { CalendarDays, Save } from 'lucide-react';
 import { AnnualTheme } from '../../types';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from '../ui/ModalHeader';
+import { MdButton, MdTextField } from '../md';
 
 const COLOR_OPTIONS = [
   { value: '#00918e', label: 'Tosca' },
@@ -102,9 +103,15 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
 
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <div>
-            <label htmlFor="annual-theme-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Tema <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-            <input id="annual-theme-name" value={form.name} onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }} className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 ${errors.name ? 'border-red-400 focus:ring-red-100' : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'}`} />
-            {errors.name && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{errors.name}</p>}
+            <MdTextField
+              id="annual-theme-name"
+              value={form.name}
+              onChange={value => { setForm(prev => ({ ...prev, name: value })); setErrors(prev => ({ ...prev, name: '' })); }}
+              label="Nama Tema *"
+              error={!!errors.name}
+              errorText={errors.name}
+              className="w-full"
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -126,15 +133,15 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
               {COLOR_OPTIONS.map(option => {
                 const isSelected = form.color === option.value;
                 return (
-                  <button
+                  <MdButton
                     key={option.value}
-                    type="button"
+                    variant="outlined"
                     onClick={() => { setForm(prev => ({ ...prev, color: option.value })); setErrors(prev => ({ ...prev, color: '' })); }}
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${isSelected ? 'border-[var(--wf-ink)] ring-2 ring-[var(--wf-rule)]' : 'border-[var(--wf-rule)] hover:border-[var(--wf-rule-strong)]'}`}
+                    className={`justify-start ${isSelected ? 'ring-2 ring-[var(--wf-ink)]' : ''}`}
                   >
                     <span className="h-3 w-3 rounded-full" style={{ backgroundColor: option.value }} />
                     <span>{option.label}</span>
-                  </button>
+                  </MdButton>
                 );
               })}
             </div>
@@ -142,13 +149,22 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
           </div>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] disabled:cursor-not-allowed disabled:opacity-70">
+            <MdButton
+              variant="outlined"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="flex-1"
+            >
               Batal
-            </button>
-            <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70">
+            </MdButton>
+            <MdButton
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1"
+            >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : editingTheme ? 'Simpan Tema' : 'Tambah Tema'}
-            </button>
+            </MdButton>
           </div>
         </form>
       </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, X, Eye, EyeOff } from 'lucide-react';
 import { ModalWrapper } from './ModalWrapper';
+import { MdButton, MdTextField } from '../md';
 import type { LoginResult } from '../../types/auth';
 
 interface Props {
@@ -85,38 +86,29 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-                Email
-              </label>
-              <input
+              <MdTextField
                 id="admin-login-email"
                 type="email"
+                label="Email"
                 value={email}
-                onChange={e => { setEmail(e.target.value); setError(''); }}
+                onChange={value => { setEmail(value); setError(''); }}
                 placeholder="admin@example.com"
                 autoFocus
-                className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-2.5 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent)]/20"
+                className="w-full"
               />
             </div>
 
             <div>
-              <label htmlFor="admin-login-password" className="mb-1.5 block text-xs font-semibold text-[var(--wf-ink-muted)]">
-                Password
-              </label>
               <div className="relative">
-                <input
+                <MdTextField
                   id="admin-login-password"
                   type={showPw ? 'text' : 'password'}
+                  label="Password"
                   value={pw}
-                  onChange={e => { setPw(e.target.value); setError(''); }}
+                  onChange={value => { setPw(value); setError(''); }}
                   placeholder="Masukkan password…"
-                  aria-invalid={!!error || undefined}
-                  aria-describedby={error ? 'admin-login-error' : undefined}
-                  className={`w-full rounded-xl border bg-[var(--wf-board)] px-4 py-2.5 pr-10 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 ${
-                    error
-                      ? 'border-red-400 focus:border-red-400 focus:ring-red-500/20'
-                      : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent)]/20'
-                  }`}
+                  error={!!error}
+                  className="w-full"
                 />
                 <button
                   type="button"
@@ -134,10 +126,10 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
               )}
             </div>
 
-            <button
+            <MdButton
               type="submit"
               disabled={!canSubmit}
-              className="w-full rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-accent-hover)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -150,7 +142,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
               ) : (
                 'Masuk sebagai Admin'
               )}
-            </button>
+            </MdButton>
           </form>
         </div>
       </div>

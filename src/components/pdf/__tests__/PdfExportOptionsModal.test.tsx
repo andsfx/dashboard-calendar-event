@@ -28,9 +28,10 @@ function renderModal(overrides: Partial<Parameters<typeof PdfExportOptionsModal>
 }
 
 describe('PdfExportOptionsModal', () => {
-  it('menampilkan seluruh bagian dan memilih default', () => {
+  it('menampilkan seluruh bagian dan memilih default', async () => {
     renderModal();
-    expect(screen.getByText('Ringkasan')).toBeInTheDocument();
+    // ModalWrapper memuat md-dialog dengan React.lazy → render pertama async.
+    expect(await screen.findByText('Ringkasan')).toBeInTheDocument();
     expect(screen.getByText('Tabel Jadwal')).toBeInTheDocument();
     expect(screen.getByText('Agenda per Area')).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: /Ringkasan/ })).toBeChecked();

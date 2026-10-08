@@ -1,6 +1,7 @@
 import { Copy } from 'lucide-react';
 import { DayTimeSlot } from '../../types';
 import { parseDateStrLocal } from '../../utils/eventUtils';
+import { MdButton } from '../md';
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -77,15 +78,15 @@ export function MultiDayEventFields({
                   />
                 </div>
                 {idx > 0 && (
-                  <button
-                    type="button"
+                  <MdButton
+                    variant="text"
                     onClick={() => onCopyFromPreviousDay(idx)}
                     className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
                     title="Salin dari hari sebelumnya"
-                    aria-label="Salin jam dari hari sebelumnya"
+                    ariaLabel="Salin jam dari hari sebelumnya"
                   >
                     <Copy className="h-4 w-4" />
-                  </button>
+                  </MdButton>
                 )}
               </div>
             );

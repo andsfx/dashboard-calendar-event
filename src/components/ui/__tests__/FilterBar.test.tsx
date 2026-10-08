@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { FilterBar } from '../FilterBar'
 
@@ -64,11 +64,13 @@ describe('FilterBar', () => {
     expect(screen.queryByLabelText('Semua Prioritas')).not.toBeInTheDocument()
   })
 
-  it('opens dropdown on click', () => {
+  it('dropdown bulan memuat semua opsi dan meneruskan perubahan', () => {
     render(<FilterBar {...mockProps} />)
     const monthDropdown = screen.getByLabelText('Semua Bulan')
-    fireEvent.click(monthDropdown)
-    expect(screen.getByText('Januari')).toBeInTheDocument()
-    expect(screen.getByText('Februari')).toBeInTheDocument()
+    // md-select kini merender <select> native (mock jsdom), jadi opsinya ada di DOM.
+    expect(within(monthDropdown).getByRole('option', { name: 'Januari' })).toBeInTheDocument()
+    expect(within(monthDropdown).getByRole('option', { name: 'Februari' })).toBeInTheDocument()
+    fireEvent.change(monthDropdown, { target: { value: 'Januari' } })
+    expect(mockProps.onMonthChange).toHaveBeenCalledWith('Januari')
   })
 })

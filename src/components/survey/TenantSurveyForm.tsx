@@ -15,6 +15,7 @@ import {
   TRAFFIC_LABELS,
 } from './TenantSurveyShared';
 import type { TenantDropdownOption } from '../../utils/domainApi';
+import { MdButton, MdLinearProgress, MdSelect, MdTextField } from '../md';
 
 // ─── Main Form Component ─────────────────────────────────────────
 
@@ -342,27 +343,21 @@ export default function TenantSurveyForm({
                 <span className="ml-1 rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto</span>
               )}
             </label>
-            <select
+            <MdSelect
               id="ts-form-lokasi"
               value={formData.lokasi_zona}
-              onChange={(e) => updateField('lokasi_zona')(e.target.value)}
+              onChange={updateField('lokasi_zona')}
               disabled={disabled}
-              aria-required="true"
-              aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
-              className="w-full appearance-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 pr-9 text-sm text-[var(--wf-ink)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
-            >
-              <option value="">Pilih lokasi / zona</option>
-              {SURVEY_OPTIONS.lokasi_zona.map((z) => (
-                <option key={z} value={z}>{z}</option>
-              ))}
-            </select>
-            <ChevronLeft className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 rotate-90 text-[var(--wf-ink-muted)]" />
-            {fieldLevelErrors.lokasi_zona && (
-              <p className="mt-1 flex items-center gap-1 text-xs text-red-700 dark:text-red-300" role="alert">
-                <AlertTriangle className="h-3 w-3" />
-                {fieldLevelErrors.lokasi_zona}
-              </p>
-            )}
+              required
+              ariaLabel="Lokasi / Zona"
+              error={!!fieldLevelErrors.lokasi_zona}
+              errorText={fieldLevelErrors.lokasi_zona}
+              options={[
+                { value: '', label: 'Pilih lokasi / zona' },
+                ...SURVEY_OPTIONS.lokasi_zona.map((z) => ({ value: z, label: z })),
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Kategori */}
@@ -429,16 +424,16 @@ export default function TenantSurveyForm({
                 <Building2 className="h-3.5 w-3.5" />
                 Nama PIC
               </label>
-              <input
+              <MdTextField
                 id="ts-form-pic-name"
                 type="text"
                 value={formData.pic_name}
-                onChange={(e) => updateField('pic_name')(e.target.value)}
+                onChange={updateField('pic_name')}
                 placeholder="Nama penanggung jawab"
                 maxLength={100}
                 disabled={disabled}
-                autoComplete="name"
-                className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
+                ariaLabel="Nama PIC"
+                className="w-full"
               />
             </div>
             <div>
@@ -446,17 +441,16 @@ export default function TenantSurveyForm({
                 <Phone className="h-3.5 w-3.5" />
                 No. Telepon PIC
               </label>
-              <input
+              <MdTextField
                 id="ts-form-pic-phone"
                 type="tel"
-                inputMode="tel"
                 value={formData.pic_phone}
-                onChange={(e) => updateField('pic_phone')(e.target.value)}
+                onChange={updateField('pic_phone')}
                 placeholder="08xxx"
                 maxLength={20}
                 disabled={disabled}
-                autoComplete="tel"
-                className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
+                ariaLabel="No. Telepon PIC"
+                className="w-full"
               />
             </div>
           </div>
@@ -468,15 +462,16 @@ export default function TenantSurveyForm({
             Umpan Balik (Opsional)
           </h3>
           <div>
-            <textarea
-              aria-label="Masukan / Feedback"
+            <MdTextField
+              type="textarea"
+              ariaLabel="Masukan / Feedback"
               value={formData.feedback_teks}
-              onChange={(e) => updateField('feedback_teks')(e.target.value)}
+              onChange={updateField('feedback_teks')}
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
               disabled={disabled}
-              className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60"
+              className="w-full"
             />
             <p className="mt-1 text-right text-[10px] text-[var(--wf-ink-muted)]">
               {2000 - formData.feedback_teks.length} karakter tersisa
@@ -487,12 +482,7 @@ export default function TenantSurveyForm({
 
       {/* Progress indicator */}
       <div className="space-y-1.5">
-        <div className="overflow-hidden rounded-full bg-[var(--wf-board-2)]">
-          <div
-            className="h-2 rounded-full bg-[var(--wf-accent)] transition-[width] duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <MdLinearProgress value={progress / 100} ariaLabel={`Progres pengisian ${progress}%`} />
         <div className="flex items-center justify-between text-[10px] text-[var(--wf-ink-muted)]">
           <span role="status" aria-live="polite">{progress}% selesai</span>
           <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
@@ -501,36 +491,22 @@ export default function TenantSurveyForm({
 
       {/* Actions */}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-50"
-        >
+        <MdButton variant="outlined" onClick={onCancel} disabled={isSubmitting}>
           <ChevronLeft className="h-4 w-4" />
           Batal
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSubmit(true)}
-          disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-50"
-        >
+        </MdButton>
+        <MdButton variant="outlined" onClick={() => handleSubmit(true)} disabled={isSubmitting || disabled}>
           <Save className="h-4 w-4" />
           Simpan Draft
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting || disabled}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2"
-        >
+        </MdButton>
+        <MdButton type="submit" variant="filled" disabled={isSubmitting || disabled}>
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Send className="h-4 w-4" />
           )}
           Kirim Survey
-        </button>
+        </MdButton>
       </div>
     </form>
   );
@@ -560,14 +536,10 @@ export function TenantSurveySuccess({
       <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
         Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
       </p>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
-      >
+      <MdButton variant="filled" className="mt-6" onClick={onBack}>
         <ChevronLeft className="h-4 w-4" />
         Kembali ke Dashboard
-      </button>
+      </MdButton>
     </div>
   );
 }
@@ -598,22 +570,14 @@ export function TenantSurveyDuplicate({
       </p>
       <div className="mt-6 flex gap-3">
         {onViewExisting && (
-          <button
-            type="button"
-            onClick={onViewExisting}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
-          >
+          <MdButton variant="outlined" onClick={onViewExisting}>
             Lihat Survey
-          </button>
+          </MdButton>
         )}
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
-        >
+        <MdButton variant="filled" onClick={onBack}>
           <ChevronLeft className="h-4 w-4" />
           Kembali
-        </button>
+        </MdButton>
       </div>
     </div>
   );
@@ -639,24 +603,16 @@ export function TenantSurveyError({
       </p>
       <div className="mt-6 flex gap-3">
         {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
-          >
+          <MdButton variant="outlined" onClick={onRetry}>
             <RefreshCw className="h-4 w-4" />
             Coba Lagi
-          </button>
+          </MdButton>
         )}
         {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]"
-          >
+          <MdButton variant="filled" onClick={onBack}>
             <ChevronLeft className="h-4 w-4" />
             Kembali
-          </button>
+          </MdButton>
         )}
       </div>
     </div>

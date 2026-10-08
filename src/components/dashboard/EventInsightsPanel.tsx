@@ -12,6 +12,7 @@ import type {
 } from '../../types';
 import { Card } from './Card';
 import { InsightAiSummary } from './InsightAiSummary';
+import { MdButton } from '../md';
 import { buildEventInsights } from '../../utils/eventInsights';
 
 /** Kunci localStorage untuk insight yang disembunyikan pengguna. */
@@ -154,14 +155,10 @@ export function EventInsightsPanel({
       subtitle={`Analisis otomatis dari data event${crossModuleCount > 0 ? ' & modul lain' : ''} · diperbarui ${generatedLabel}`}
       actions={
         visible.length > 0 ? (
-          <button
-            type="button"
-            onClick={copySummary}
-            className="inline-flex items-center gap-1.5 rounded-[var(--wf-radius-control)] px-2 py-1 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-          >
+          <MdButton variant="text" onClick={copySummary}>
             <Copy className="h-3.5 w-3.5" aria-hidden />
             Salin ringkasan
-          </button>
+          </MdButton>
         ) : null
       }
     >
@@ -173,14 +170,10 @@ export function EventInsightsPanel({
               : 'Belum ada insight — data event belum cukup untuk menarik kesimpulan.'}
           </p>
           {dismissed.length > 0 ? (
-            <button
-              type="button"
-              onClick={restoreAll}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--wf-accent)] transition-colors hover:underline"
-            >
+            <MdButton variant="text" onClick={restoreAll}>
               <RotateCcw className="h-3.5 w-3.5" aria-hidden />
               Tampilkan {dismissed.length} yang disembunyikan
-            </button>
+            </MdButton>
           ) : null}
         </div>
       ) : (
@@ -192,31 +185,22 @@ export function EventInsightsPanel({
                 const active = severityFilter === option.value;
                 const total = option.value === 'Semua' ? visible.length : counts[option.value];
                 return (
-                  <button
+                  <MdButton
                     key={option.value}
-                    type="button"
-                    aria-pressed={active}
+                    variant={active ? 'filled' : 'outlined'}
+                    ariaPressed={active}
                     onClick={() => setSeverityFilter(option.value)}
-                    className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${
-                      active
-                        ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
-                        : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-                    }`}
                   >
                     {option.label} ({total})
-                  </button>
+                  </MdButton>
                 );
               })}
             </div>
             {dismissed.length > 0 ? (
-              <button
-                type="button"
-                onClick={restoreAll}
-                className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-              >
+              <MdButton variant="text" className="ml-auto" onClick={restoreAll}>
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 Tampilkan {dismissed.length} yang disembunyikan
-              </button>
+              </MdButton>
             ) : null}
           </div>
 
@@ -257,23 +241,18 @@ export function EventInsightsPanel({
                       {actions.length > 0 || onAction ? (
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           {actions.map((action) => (
-                            <button
+                            <MdButton
                               key={`${insight.id}-${action.path}-${action.label}`}
-                              type="button"
+                              variant="outlined"
                               onClick={() => onAction?.(action)}
-                              className="rounded-[var(--wf-radius-control)] border border-[var(--wf-accent)] px-2.5 py-1 text-xs font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
                             >
                               {action.label}
-                            </button>
+                            </MdButton>
                           ))}
-                          <button
-                            type="button"
-                            onClick={() => dismiss(insight.id)}
-                            className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)]"
-                          >
+                          <MdButton variant="text" className="ml-auto" onClick={() => dismiss(insight.id)}>
                             <EyeOff className="h-3.5 w-3.5" aria-hidden />
                             Sembunyikan
-                          </button>
+                          </MdButton>
                         </div>
                       ) : null}
                     </div>

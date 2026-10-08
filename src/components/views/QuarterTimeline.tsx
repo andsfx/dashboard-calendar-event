@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, CalendarDays, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CalendarDays, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AnnualTheme } from '../../types';
+import { MdButton, MdIconButton, MdSelect } from '../md';
 
 interface Props {
   themes: AnnualTheme[];
@@ -61,9 +62,9 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               : 'Tidak ada tema aktif'}
           </span>
           {isAdmin && onAddTheme && (
-            <button onClick={onAddTheme} className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]">
+            <MdButton variant="outlined" onClick={onAddTheme}>
               <Plus className="h-3.5 w-3.5" />Tambah Tema
-            </button>
+            </MdButton>
           )}
         </div>
       </div>
@@ -72,17 +73,13 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
         {selectedTheme && (
           <>
             <div className="relative">
-              <select
+              <MdSelect
                 value={selectedTheme.id}
-                onChange={e => setSelectedThemeId(e.target.value)}
-                aria-label="Pilih tema"
-                className="h-11 w-full appearance-none rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 pr-10 text-sm font-medium text-[var(--wf-ink)] outline-none transition-colors focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
-              >
-                {themes.map(theme => (
-                  <option key={theme.id} value={theme.id}>{theme.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
+                onChange={v => setSelectedThemeId(v)}
+                ariaLabel="Pilih tema"
+                options={themes.map(theme => ({ value: theme.id, label: theme.name }))}
+                className="w-full"
+              />
             </div>
 
             <div
@@ -100,8 +97,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               </div>
               {isAdmin && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {onEditTheme && <button type="button" onClick={() => onEditTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" />Ubah</button>}
-                  {onDeleteTheme && <button type="button" onClick={() => onDeleteTheme(selectedTheme)} className="inline-flex items-center gap-1 rounded-lg border border-red-600/20 px-2.5 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" />Hapus</button>}
+                  {onEditTheme && <MdButton variant="outlined" onClick={() => onEditTheme(selectedTheme)}><Pencil className="h-3.5 w-3.5" />Ubah</MdButton>}
+                  {onDeleteTheme && <MdButton variant="outlined" danger onClick={() => onDeleteTheme(selectedTheme)}><Trash2 className="h-3.5 w-3.5" />Hapus</MdButton>}
                 </div>
               )}
               <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
@@ -151,8 +148,8 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               )}
               {isAdmin && (
                 <div className="absolute right-3 top-3 flex gap-1">
-                  {onEditTheme && <button type="button" aria-label={`Ubah tema ${theme.name}`} onClick={() => onEditTheme(theme)} className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-1 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"><Pencil className="h-3.5 w-3.5" aria-hidden /></button>}
-                  {onDeleteTheme && <button type="button" aria-label={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="rounded-lg border border-red-600/20 bg-[var(--wf-board)] p-1 text-red-700 transition-colors hover:bg-red-600/10 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" aria-hidden /></button>}
+                  {onEditTheme && <MdIconButton variant="outlined" ariaLabel={`Ubah tema ${theme.name}`} onClick={() => onEditTheme(theme)}><Pencil className="h-3.5 w-3.5" aria-hidden /></MdIconButton>}
+                  {onDeleteTheme && <MdIconButton variant="outlined" ariaLabel={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="text-red-700 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" aria-hidden /></MdIconButton>}
                 </div>
               )}
 

@@ -1,10 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lucide-react';
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/domainApi';
 import { GalleryHeader } from '../components/media/GalleryHeader';
-import { ExportPdfModal } from '../components/modals/ExportPdfModal';
+// Modal ekspor dimuat malas: ia memakai ModalWrapper → md-dialog (Material Web
+// + Lit). Impor statis akan menarik MD3 ke halaman PUBLIK ini pada initial load,
+// padahal scope migrasi hanya dashboard admin. Dimuat hanya saat dibuka.
+const ExportPdfModal = lazy(() =>
+  import('../components/modals/ExportPdfModal').then(m => ({ default: m.ExportPdfModal })),
+);
 import { thumbUrl } from '../utils/imageOptim';
 
 import { usePageMeta } from '../utils/pageMeta';
@@ -283,12 +288,14 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
 
       {/* ─── Export PDF Modal ───────────────────────────────── */}
       {showExportModal && (
-        <ExportPdfModal
-          isOpen={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          albums={albums}
-          themes={themes}
-        />
+        <Suspense fallback={null}>
+          <ExportPdfModal
+            isOpen={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            albums={albums}
+            themes={themes}
+          />
+        </Suspense>
       )}
     </div>
   );

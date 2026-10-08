@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Download, X } from 'lucide-react';
 import { downloadBlob } from '../../lib/download';
+import { MdButton, MdIconButton } from '../md';
 import type { PdfExportResult } from './PdfExportOptionsModal';
 
 // ============================================================
@@ -42,14 +43,13 @@ export function PdfPreviewStage({ result, onBack, onClose, title = 'Pratinjau PD
             Cek dulu hasilnya sebelum diunduh — {result.fileName}
           </p>
         </div>
-        <button
-          type="button"
+        <MdIconButton
+          ariaLabel="Tutup"
           onClick={onClose}
-          className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
-          aria-label="Tutup"
+          className="shrink-0 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
         >
           <X className="h-5 w-5" />
-        </button>
+        </MdIconButton>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
@@ -61,22 +61,14 @@ export function PdfPreviewStage({ result, onBack, onClose, title = 'Pratinjau PD
       </div>
 
       <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-        >
+        <MdButton variant="text" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
           Kembali
-        </button>
-        <button
-          type="button"
-          onClick={() => downloadBlob(result.blob, result.fileName)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
-        >
+        </MdButton>
+        <MdButton variant="filled" onClick={() => downloadBlob(result.blob, result.fileName)}>
           <Download className="h-4 w-4" />
           Unduh PDF
-        </button>
+        </MdButton>
       </div>
     </div>
   );

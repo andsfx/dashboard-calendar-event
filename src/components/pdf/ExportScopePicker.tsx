@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CalendarRange, Search } from 'lucide-react';
 import { EXPORT_PERIODS, describeRange } from '../../utils/exportDateRange';
+import { MdButton, MdCheckbox, MdSelect, MdTextField } from '../md';
 import type { ExportScope } from './useExportScope';
 
 // ============================================================
@@ -66,19 +67,19 @@ export function ExportScopePicker<T>({
           {periods.map((option) => {
             const isActive = scope.period === option.id;
             return (
-              <button
+              <MdButton
                 key={option.id}
-                type="button"
-                aria-pressed={isActive}
+                variant="text"
+                ariaPressed={isActive}
                 onClick={() => scope.setPeriod(option.id)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                className={`!min-w-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                   isActive
                     ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
                     : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300'
                 }`}
               >
                 {option.label}
-              </button>
+              </MdButton>
             );
           })}
         </div>
@@ -86,47 +87,51 @@ export function ExportScopePicker<T>({
         {scope.period === 'month' && (
           <label className="block pt-1">
             <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Bulan</span>
-            <select
-              value={scope.monthKey}
-              onChange={(event) => scope.setMonthKey(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-            >
-              {scope.months.length === 0 && <option value="">Tidak ada data</option>}
-              {scope.months.map((month) => (
-                <option key={month.value} value={month.value}>{month.label}</option>
-              ))}
-            </select>
+            <div className="mt-1">
+              <MdSelect
+                value={scope.monthKey}
+                onChange={scope.setMonthKey}
+                ariaLabel="Bulan"
+                options={[
+                  ...(scope.months.length === 0 ? [{ value: '', label: 'Tidak ada data' }] : []),
+                  ...scope.months.map((month) => ({ value: month.value, label: month.label })),
+                ]}
+                className="w-full"
+              />
+            </div>
           </label>
         )}
 
         {scope.period === 'year' && (
           <label className="block pt-1">
             <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Tahun</span>
-            <select
-              value={scope.year}
-              onChange={(event) => scope.setYear(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-            >
-              {scope.years.length === 0 && <option value="">Tidak ada data</option>}
-              {scope.years.map((year) => (
-                <option key={year.value} value={year.value}>{year.label}</option>
-              ))}
-            </select>
+            <div className="mt-1">
+              <MdSelect
+                value={scope.year}
+                onChange={scope.setYear}
+                ariaLabel="Tahun"
+                options={[
+                  ...(scope.years.length === 0 ? [{ value: '', label: 'Tidak ada data' }] : []),
+                  ...scope.years.map((year) => ({ value: year.value, label: year.label })),
+                ]}
+                className="w-full"
+              />
+            </div>
           </label>
         )}
 
         {scope.period === 'theme' && (
           <label className="block pt-1">
             <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Tema</span>
-            <select
-              value={scope.themeId}
-              onChange={(event) => scope.setThemeId(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
-            >
-              {scope.themes.map((theme) => (
-                <option key={theme.id} value={theme.id}>{theme.name}</option>
-              ))}
-            </select>
+            <div className="mt-1">
+              <MdSelect
+                value={scope.themeId}
+                onChange={scope.setThemeId}
+                ariaLabel="Tema"
+                options={scope.themes.map((theme) => ({ value: theme.id, label: theme.name }))}
+                className="w-full"
+              />
+            </div>
           </label>
         )}
 
@@ -168,12 +173,11 @@ export function ExportScopePicker<T>({
             halaman sedang difilter. */}
         {scope.canIgnorePageFilter && (
           <label className="mt-2 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 px-3 py-2 dark:border-slate-700">
-            <input
-              type="checkbox"
-              name="export-scope-ignore-page-filter"
+            <MdCheckbox
               checked={scope.ignorePageFilter}
-              onChange={(event) => scope.setIgnorePageFilter(event.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
+              onChange={scope.setIgnorePageFilter}
+              ariaLabel="Abaikan filter halaman"
+              className="mt-0.5 shrink-0"
             />
             <span className="text-xs leading-snug text-slate-600 dark:text-slate-300">
               Abaikan filter halaman
@@ -195,27 +199,27 @@ export function ExportScopePicker<T>({
           <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
             {scope.inRange.length} {itemNoun} pada periode ini
           </span>
-          <button
-            type="button"
+          <MdButton
+            variant="text"
             onClick={() => (scope.allSelected ? scope.clearSelection() : scope.selectAll())}
-            className="text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
+            className="!min-w-0 text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
           >
             {scope.allSelected ? `Kosongkan pilihan ${itemNoun}` : `Pilih semua ${itemNoun}`}
-          </button>
+          </MdButton>
         </div>
 
-        <label className="relative block">
+        <div className="relative block">
           <span className="sr-only">{searchPlaceholder}</span>
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-          <input
+          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <MdTextField
             type="search"
-            name="export-scope-search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={setQuery}
+            ariaLabel={searchPlaceholder}
             placeholder={searchPlaceholder}
-            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+            className="w-full"
           />
-        </label>
+        </div>
 
         {visibleItems.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
@@ -231,12 +235,10 @@ export function ExportScopePicker<T>({
                 return (
                   <li key={id}>
                     <label className="flex cursor-pointer items-start gap-3 px-3 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
-                      <input
-                        type="checkbox"
-                        name={`export-scope-item-${id}`}
+                      <MdCheckbox
                         checked={isChecked}
                         onChange={() => scope.toggleId(id)}
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-brand-primary-600 focus:ring-brand-primary-500 dark:border-slate-600"
+                        className="mt-0.5 shrink-0"
                       />
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium text-slate-900 dark:text-white">

@@ -1,0 +1,72 @@
+/* MD3 tokens mapped onto Metmal brand (DESIGN.md). Values reference existing
+ * --wf-* / --brand-* tokens; do not hard-code brand hexes here. */
+:root {
+  /* Color roles — admin board palette */
+  --md-sys-color-primary: var(--wf-accent);                 /* #00706e, AA on board */
+  --md-sys-color-on-primary: var(--wf-accent-ink);          /* #ffffff */
+  --md-sys-color-primary-container: var(--wf-accent-soft);
+  --md-sys-color-on-primary-container: var(--wf-accent);
+  --md-sys-color-secondary: var(--wf-accent);
+  --md-sys-color-on-secondary: var(--wf-accent-ink);
+  --md-sys-color-secondary-container: var(--wf-accent-soft);
+  --md-sys-color-on-secondary-container: var(--wf-accent);
+  --md-sys-color-surface: var(--wf-board);
+  --md-sys-color-surface-container: var(--wf-board);
+  --md-sys-color-surface-container-high: var(--wf-board-2);
+  --md-sys-color-surface-container-highest: var(--wf-board-2);
+  --md-sys-color-on-surface: var(--wf-ink);
+  --md-sys-color-on-surface-variant: var(--wf-ink-muted);
+  --md-sys-color-outline: var(--wf-rule-strong);
+  --md-sys-color-outline-variant: var(--wf-rule);
+  --md-sys-color-error: #b3261e;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #fde7e6;
+  --md-sys-color-on-error-container: #7a1c16;
+
+  /* Typeface */
+  --md-ref-typeface-brand: var(--font-body);
+  --md-ref-typeface-plain: var(--font-body);
+
+  /* Shape — align MD3 corners to wf radii */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: var(--wf-radius-control); /* 8px */
+  --md-sys-shape-corner-small: var(--wf-radius-control);
+  --md-sys-shape-corner-medium: var(--wf-radius-board);        /* 12px */
+  --md-sys-shape-corner-large: var(--wf-radius-board);
+  --md-sys-shape-corner-extra-large: 16px;
+  --md-sys-shape-corner-full: 9999px;
+}
+
+/* md-dialog mengunci :host ke max 560×560px dan `display: contents`. Aturan di
+ * light DOM (outer tree) menang atas `:host`, jadi di sini kita bebaskan ukuran
+ * agar mengikuti lebar/tinggi isi yang ditentukan pemanggil (max-w-* / max-h).
+ * `display: contents` sengaja dibiarkan: box-nya dimiliki <dialog> di shadow. */
+md-dialog {
+  max-width: min(80rem, calc(100vw - 2rem));
+  max-height: min(90vh, calc(100vh - 2rem));
+  min-width: 0;
+  min-height: 0;
+}
+
+/* md-dialog memberi padding 24px ke isi slot="content"; pemanggil modal di app
+ * ini sudah merender panelnya sendiri (border, radius, padding), jadi padding
+ * itu harus nol. Aturan outer tree menang atas `::slotted` di shadow tree. */
+md-dialog .md-dialog-content {
+  padding: 0;
+}
+.dark {
+  --md-sys-color-primary: var(--wf-accent);          /* #33bfbc, 7.35:1 */
+  --md-sys-color-on-primary: var(--wf-accent-ink);   /* #06120f */
+  --md-sys-color-surface: var(--wf-board);           /* #16211b */
+  --md-sys-color-surface-container: var(--wf-board);
+  --md-sys-color-surface-container-high: var(--wf-board-2);
+  --md-sys-color-surface-container-highest: var(--wf-board-2);
+  --md-sys-color-on-surface: var(--wf-ink);
+  --md-sys-color-on-surface-variant: var(--wf-ink-muted);
+  --md-sys-color-outline: var(--wf-rule-strong);
+  --md-sys-color-outline-variant: var(--wf-rule);
+  --md-sys-color-error: #f2b8b5;
+  --md-sys-color-on-error: #601410;
+  --md-sys-color-error-container: #8c1d18;
+  --md-sys-color-on-error-container: #f9dedc;
+}

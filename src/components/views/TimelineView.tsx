@@ -3,6 +3,7 @@ import { EventItem } from '../../types';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
+import { MdIconButton } from '../md';
 import { formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../../utils/eventUtils';
 
 interface Props {
@@ -117,32 +118,32 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                         className="flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                         onClick={e => e.stopPropagation()}
                       >
-                        <button
+                        <MdIconButton
                           onClick={() => onDetail(ev)}
-                          className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
-                          aria-label="Lihat detail"
+                          ariaLabel="Lihat detail"
+                          className="min-h-[36px] min-w-[36px]"
                         >
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                        </button>
+                        </MdIconButton>
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (
-                            <button
+                            <MdIconButton
                               onClick={() => onEdit(ev)}
-                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
-                              aria-label='Ubah acara'
+                              ariaLabel='Ubah acara'
+                              className="min-h-[36px] min-w-[36px]"
                             >
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </button>
+                            </MdIconButton>
                             )}
                             {onDelete && (
-                            <button
+                            <MdIconButton
                               onClick={() => onDelete(ev)}
-                              className="rounded-lg min-h-[36px] min-w-[36px] p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
-                              aria-label="Hapus acara"
+                              ariaLabel="Hapus acara"
+                              className="min-h-[36px] min-w-[36px]"
                             >
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </button>
+                            </MdIconButton>
                             )}
                           </>
                         )}

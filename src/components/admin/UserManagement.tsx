@@ -4,9 +4,10 @@ import {
   ToggleLeft, ToggleRight, Pencil, Trash2, Mail, Check, X,
   Crown, BarChart3,
 } from 'lucide-react';
-import { useConfirmDialog } from '../modals/ConfirmDialog';
+import { useConfirmDialog } from '../modals/useConfirmDialog';
 import { apiGet, apiPost } from '../../lib/rest';
 import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
+import { MdButton, MdIconButton, MdSelect, MdTextField } from '../md';
 import { UserEditModal } from './UserEditModal';
 
 interface UserRecord {
@@ -138,12 +139,12 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
         </div>
         <div className="flex gap-2">
           {!readOnly && (<>
-          <button onClick={() => setShowForm('invite')} className="flex items-center gap-1.5 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)]">
+          <MdButton variant="filled" onClick={() => setShowForm('invite')}>
             <Mail className="h-3.5 w-3.5" /> Invite
-          </button>
-          <button onClick={() => setShowForm('create')} className="flex items-center gap-1.5 rounded-lg border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
+          </MdButton>
+          <MdButton variant="outlined" onClick={() => setShowForm('create')}>
             <UserPlus className="h-3.5 w-3.5" /> Buat Manual
-          </button>
+          </MdButton>
           </>)}
         </div>
       </div>
@@ -158,44 +159,42 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
             <h3 className="text-sm font-semibold text-[var(--wf-ink)]">
               {showForm === 'invite' ? 'Undang User Baru' : 'Buat User Manual'}
             </h3>
-            <button
-              type="button"
+            <MdIconButton
+              ariaLabel="Tutup form"
               onClick={() => { setShowForm(null); setFormError(''); setFormSuccess(''); }}
-              aria-label="Tutup form"
-              className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
             >
               <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </MdIconButton>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input type="email" aria-label="Alamat email" placeholder="Alamat email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
+            <MdTextField type="email" ariaLabel="Alamat email" placeholder="Alamat email" value={formData.email} onChange={v => setFormData(p => ({ ...p, email: v }))} className="w-full" />
             {showForm === 'create' && (
-              <input type="password" aria-label="Password (minimal 6 karakter)" placeholder="Password (minimal 6)" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
-                className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
+              <MdTextField type="password" ariaLabel="Password (minimal 6 karakter)" placeholder="Password (minimal 6)" value={formData.password} onChange={v => setFormData(p => ({ ...p, password: v }))} className="w-full" />
             )}
-            <input type="text" aria-label="Nama tampilan" placeholder="Nama Tampilan" value={formData.display_name} onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
-              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]" />
-            <select aria-label="Peran pengguna" value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
-              className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)]">
-              <option value="admin">Admin</option>
-              <option value="viewer">Viewer</option>
-              <option value="demo">Demo (hanya lihat)</option>
-              <option value="eo_tenant">EO/Tenant</option>
-              <option value="tenant_relation">Tenant Relation</option>
-            </select>
+            <MdTextField type="text" ariaLabel="Nama tampilan" placeholder="Nama Tampilan" value={formData.display_name} onChange={v => setFormData(p => ({ ...p, display_name: v }))} className="w-full" />
+            <MdSelect
+              ariaLabel="Peran pengguna"
+              value={formData.role}
+              onChange={v => setFormData(p => ({ ...p, role: v }))}
+              options={[
+                { value: 'admin', label: 'Admin' },
+                { value: 'viewer', label: 'Viewer' },
+                { value: 'demo', label: 'Demo (hanya lihat)' },
+                { value: 'eo_tenant', label: 'EO/Tenant' },
+                { value: 'tenant_relation', label: 'Tenant Relation' },
+              ]}
+              className="w-full"
+            />
             {formData.role === 'eo_tenant' && (
-              <input type="text" aria-label="Nama organisasi EO" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={e => setFormData(p => ({ ...p, eo_organization: e.target.value }))}
-                className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] sm:col-span-2" />
+              <MdTextField type="text" ariaLabel="Nama organisasi EO" placeholder="Nama Organisasi EO" value={formData.eo_organization} onChange={v => setFormData(p => ({ ...p, eo_organization: v }))} className="w-full sm:col-span-2" />
             )}
           </div>
           {formError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{formError}</p>}
           {formSuccess && <p className="mt-2 text-xs text-[var(--wf-live)]">{formSuccess}</p>}
-          <button onClick={handleSubmitForm} disabled={formLoading || !formData.email || !formData.role}
-            className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent-hover)] disabled:opacity-50">
+          <MdButton variant="filled" className="mt-3" onClick={handleSubmitForm} disabled={formLoading || !formData.email || !formData.role}>
             {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {showForm === 'invite' ? 'Kirim Undangan' : 'Buat User'}
-          </button>
+          </MdButton>
         </div>
       )}
 
@@ -230,34 +229,32 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                   <div className="flex shrink-0 items-center gap-1">
                     {/* Edit tersedia untuk semua baris — superadmin pun perlu
                         bisa mengganti email/password miliknya sendiri. */}
-                    <button
+                    <MdIconButton
                       onClick={() => setEditingUser(u)}
-                      className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-accent)]"
                       title="Edit user"
-                      aria-label={`Edit ${userLabel}`}
+                      ariaLabel={`Edit ${userLabel}`}
                     >
                       <Pencil className="h-4 w-4" />
-                    </button>
+                    </MdIconButton>
                     {/* Toggle/delete sengaja tidak tersedia untuk superadmin:
                         mencegah akun superadmin terakhir terkunci. */}
                     {u.role !== 'superadmin' && (<>
-                    <button
+                    <MdIconButton
                       onClick={() => handleToggleActive(u.id, u.is_active)}
-                      className={`rounded-lg p-1.5 transition-colors ${u.is_active ? 'text-[var(--wf-live)] hover:bg-[var(--wf-live)]/10' : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'}`}
                       title={u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                      aria-label={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${userLabel}`}
-                      aria-pressed={u.is_active}
+                      ariaLabel={`${u.is_active ? 'Nonaktifkan' : 'Aktifkan'} ${userLabel}`}
+                      toggle
+                      selected={u.is_active}
                     >
                       {u.is_active ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
-                    </button>
-                    <button
+                    </MdIconButton>
+                    <MdIconButton
                       onClick={() => handleDelete(u.id)}
-                      className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
                       title="Nonaktifkan user"
-                      aria-label={`Nonaktifkan ${userLabel}`}
+                      ariaLabel={`Nonaktifkan ${userLabel}`}
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
-                    </button>
+                    </MdIconButton>
                     </>)}
                   </div>
                 )}

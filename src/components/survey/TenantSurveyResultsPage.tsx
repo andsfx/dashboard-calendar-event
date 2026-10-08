@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { Suspense, lazy, useMemo, useState, useCallback, useEffect } from 'react';
 import {
   BarChart3,
   Download,
@@ -32,7 +32,11 @@ import {
 } from '../../utils/tenantSurveyResultsAggregate';
 import { renderTenantSurveyResultsPdfResult } from '../../utils/tenantSurveyResultsPdf';
 import type { SurveyPdfSection } from '../pdf/buildSurveyResultsPdf';
-import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
+// Modal ekspor memakai ModalWrapper → md-dialog (Material Web + Lit). Dimuat
+// malas supaya MD3 tidak ikut initial load halaman PUBLIK ini.
+const PdfExportOptionsModal = lazy(() =>
+  import('../pdf/PdfExportOptionsModal').then(m => ({ default: m.PdfExportOptionsModal })),
+);
 import { SURVEY_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import {
   fetchPublicTenantRoster,
@@ -1221,15 +1225,19 @@ export default function TenantSurveyResultsPage({
         </div>
       )}
 
-      <PdfExportOptionsModal
-        isOpen={showExportOptions}
-        onClose={() => setShowExportOptions(false)}
-        title="Export Hasil Evaluasi"
-        description={`${agg.total} submisi · ${agg.uniqueGerai} tenant. Pilih bagian yang ingin diekspor.`}
-        sections={SURVEY_SECTION_OPTIONS}
-        defaultSelected={['kpi', 'distribution', 'topGerai', 'crossTab', 'feedback']}
-        onGenerate={handleExportPdf}
-      />
+      {showExportOptions && (
+        <Suspense fallback={null}>
+          <PdfExportOptionsModal
+            isOpen={showExportOptions}
+            onClose={() => setShowExportOptions(false)}
+            title="Export Hasil Evaluasi"
+            description={`${agg.total} submisi · ${agg.uniqueGerai} tenant. Pilih bagian yang ingin diekspor.`}
+            sections={SURVEY_SECTION_OPTIONS}
+            defaultSelected={['kpi', 'distribution', 'topGerai', 'crossTab', 'feedback']}
+            onGenerate={handleExportPdf}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

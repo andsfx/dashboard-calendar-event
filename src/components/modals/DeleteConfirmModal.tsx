@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X, Trash2 } from 'lucide-react';
 import { EventItem } from '../../types';
+import { MdButton, MdIconButton } from '../md';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -35,14 +36,9 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-600/10">
               <AlertTriangle className="h-6 w-6 text-red-700 dark:text-red-300" />
             </div>
-            <button
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="rounded-lg p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] disabled:cursor-not-allowed disabled:opacity-70"
-              aria-label="Tutup"
-            >
+            <MdIconButton ariaLabel="Tutup" onClick={onClose} disabled={isSubmitting}>
               <X className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           </div>
 
           <h3 id="delete-confirm-title" className="mb-2 text-lg font-bold text-[var(--wf-ink)]">Hapus Acara?</h3>
@@ -64,20 +60,12 @@ export function DeleteConfirmModal({ isOpen, event, onClose, onConfirm }: Props)
         </div>
 
         <div className="flex gap-3 border-t border-[var(--wf-rule)] px-6 py-4">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="flex-1 rounded-xl border border-[var(--wf-rule)] py-2.5 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          <MdButton variant="outlined" onClick={onClose} disabled={isSubmitting} className="flex-1">
             Batal
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={isSubmitting}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          </MdButton>
+          <MdButton variant="filled" danger onClick={handleConfirm} disabled={isSubmitting} className="flex-1">
             <Trash2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Menghapus…' : 'Hapus Sekarang'}
-          </button>
+          </MdButton>
         </div>
       </div>
     </ModalWrapper>

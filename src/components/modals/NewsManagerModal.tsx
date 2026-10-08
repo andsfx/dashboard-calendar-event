@@ -3,7 +3,8 @@ import { X, Plus, Trash2, Image as ImageIcon, Upload, Save, Newspaper, ChevronLe
 import { NewsArticle } from '../../types';
 import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsArticle, uploadToR2 } from '../../utils/domainApi';
 import { adminThumbUrl } from '../../utils/imageOptim';
-import { useConfirmDialog } from './ConfirmDialog';
+import { useConfirmDialog } from './useConfirmDialog';
+import { MdButton, MdIconButton, MdTextField } from '../md';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -11,9 +12,6 @@ interface Props {
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-const inputClass =
-  'w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]';
 
 const labelClass = 'mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]';
 
@@ -186,14 +184,13 @@ export function NewsManagerModal({ readOnly = false }: Props) {
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {view === 'edit' && (
-            <button
-              type="button"
+            <MdIconButton
+              ariaLabel="Kembali"
               onClick={goBackToList}
-              aria-label="Kembali"
-              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+              className="mt-1"
             >
               <ChevronLeft className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           )}
           <div className="min-w-0">
             {view === 'edit' && (
@@ -230,14 +227,14 @@ export function NewsManagerModal({ readOnly = false }: Props) {
           {view === 'list' && !isLoading && (
             <>
               {!readOnly && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
                   onClick={startCreate}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
+                  className="w-full"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Artikel Baru
-                </button>
+                </MdButton>
               )}
 
               {articles.length === 0 && (
@@ -294,33 +291,25 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                       {/* Actions */}
                       <div className="flex shrink-0 items-center gap-1">
                         {!readOnly && (<>
-                        <button
-                          type="button"
+                        <MdIconButton
+                          ariaLabel={`Edit ${article.title}`}
                           onClick={() => startEdit(article)}
-                          className="rounded-lg p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-accent)]"
-                          aria-label={`Edit ${article.title}`}
                         >
                           <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
+                        </MdIconButton>
+                        <MdButton
+                          variant={article.status === 'published' ? 'text' : 'filled'}
                           onClick={() => handleTogglePublish(article)}
-                          className={
-                            article.status === 'published'
-                              ? 'rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]'
-                              : 'rounded-lg bg-[var(--wf-accent)] px-2 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)]'
-                          }
+                          className="px-2 py-1.5 text-xs"
                         >
                           {article.status === 'published' ? 'Tarik Terbit' : 'Terbitkan'}
-                        </button>
-                        <button
-                          type="button"
+                        </MdButton>
+                        <MdIconButton
+                          ariaLabel={`Hapus ${article.title}`}
                           onClick={() => handleDelete(article)}
-                          className="rounded-lg p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
-                          aria-label={`Hapus ${article.title}`}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </button>
+                        </MdIconButton>
                         </>)}
                       </div>
                     </div>
@@ -335,45 +324,51 @@ export function NewsManagerModal({ readOnly = false }: Props) {
             <div className="space-y-3">
               <div>
                 <label htmlFor="news-title" className={labelClass}>Judul *</label>
-                <input
+                <MdTextField
                   id="news-title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={setTitle}
                   placeholder="Judul artikel"
-                  className={inputClass}
+                  ariaLabel="Judul"
+                  className="w-full"
                 />
               </div>
               <div>
                 <label htmlFor="news-excerpt" className={labelClass}>Ringkasan</label>
-                <textarea
+                <MdTextField
                   id="news-excerpt"
+                  type="textarea"
                   value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
+                  onChange={setExcerpt}
                   placeholder="Ringkasan singkat artikel (opsional)"
                   rows={2}
-                  className={inputClass}
+                  ariaLabel="Ringkasan"
+                  className="w-full"
                 />
               </div>
               <div>
                 <label htmlFor="news-content" className={labelClass}>Isi Artikel</label>
-                <textarea
+                <MdTextField
                   id="news-content"
+                  type="textarea"
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={setContent}
                   placeholder="Tulis isi artikel di sini…"
                   rows={8}
-                  className={`${inputClass} resize-y leading-relaxed`}
+                  ariaLabel="Isi Artikel"
+                  className="w-full"
                 />
               </div>
 
               <div>
                 <label htmlFor="news-author" className={labelClass}>Penulis</label>
-                <input
+                <MdTextField
                   id="news-author"
                   value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
+                  onChange={setAuthor}
                   placeholder="Marcomm Metropolitan Mall Bekasi"
-                  className={inputClass}
+                  ariaLabel="Penulis"
+                  className="w-full"
                 />
               </div>
 
@@ -383,14 +378,13 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                 {coverImageUrl ? (
                   <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
                     <img src={coverImageUrl} alt="Cover artikel" className="aspect-[16/9] w-full object-cover" />
-                    <button
-                      type="button"
+                    <MdIconButton
+                      ariaLabel="Hapus cover"
                       onClick={() => { setCoverImageUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                      className="absolute right-2 top-2 rounded-lg bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
-                      aria-label="Hapus cover"
+                      className="absolute right-2 top-2"
                     >
                       <X className="h-4 w-4" />
-                    </button>
+                    </MdIconButton>
                   </div>
                 ) : (
                   <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]">
@@ -410,22 +404,19 @@ export function NewsManagerModal({ readOnly = false }: Props) {
 
               {/* Action buttons */}
               <div className="flex items-center justify-end gap-2 pt-1">
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
                   onClick={goBackToList}
-                  className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
                 >
                   Batal
-                </button>
-                <button
-                  type="button"
+                </MdButton>
+                <MdButton
                   onClick={handleSave}
                   disabled={!title.trim() || isUploading}
-                  className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save className="h-3.5 w-3.5" />
                   Simpan Artikel
-                </button>
+                </MdButton>
               </div>
             </div>
           )}

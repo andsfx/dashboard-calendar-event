@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Plus, Trash2, Image as ImageIcon, Upload, Star, ChevronLeft, Save } from 'lucide-react';
 import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../../utils/domainApi';
-import { useConfirmDialog } from './ConfirmDialog';
+import { useConfirmDialog } from './useConfirmDialog';
 import { adminThumbUrl } from '../../utils/imageOptim';
+import { MdButton, MdIconButton, MdLinearProgress, MdSelect, MdTextField } from '../md';
 
 interface Props {
   pastEvents?: EventItem[];
@@ -328,14 +329,13 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {view === 'detail' && (
-            <button
-              type="button"
+            <MdIconButton
+              ariaLabel="Kembali"
               onClick={goBackToList}
-              aria-label="Kembali"
-              className="mt-1 rounded-xl p-2 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+              className="mt-1"
             >
               <ChevronLeft className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           )}
           <div className="min-w-0">
             {view === 'detail' && (
@@ -372,14 +372,14 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
             <>
               {/* Create Album Button */}
               {!readOnly && !showCreateForm && (
-                <button
-                  type="button"
+                <MdButton
+                  variant="outlined"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
-className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule-strong)] py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]"
+                  className="w-full"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
-                </button>
+                </MdButton>
               )}
 
               {/* Create Album Form */}
@@ -389,37 +389,37 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                   <div className="space-y-3">
                     {/* Event dropdown */}
                     <div>
-                      <label htmlFor="album-manager-event" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Pilih Event</label>
-                      <select
+                      <MdSelect
                         id="album-manager-event"
                         value={isCustomEvent ? '__custom__' : selectedEventId}
-                      >
-                        <option value="">Pilih event yang sudah berlangsung…</option>
-                        {(pastEvents || [])
-                          .filter(e => !albums.some(a => a.eventId === e.id))
-                          .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
-                          .map(e => (
-                            <option key={e.id} value={e.id}>{e.acara} - {e.tanggal}</option>
-                          ))
-                        }
-                        <option value="__custom__">✏ Custom (ketik manual)</option>
-                      </select>
+                        onChange={handleEventSelect}
+                        label="Pilih Event"
+                        options={[
+                          { value: '', label: 'Pilih event yang sudah berlangsung…' },
+                          ...(pastEvents || [])
+                            .filter(e => !albums.some(a => a.eventId === e.id))
+                            .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
+                            .map(e => ({ value: e.id, label: `${e.acara} - ${e.tanggal}` })),
+                          { value: '__custom__', label: '✏ Custom (ketik manual)' },
+                        ]}
+                      />
                     </div>
 
                     {/* Theme dropdown */}
                     <div>
-                      <label htmlFor="album-manager-theme" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tema Tahunan</label>
-                      <select
+                      <MdSelect
                         id="album-manager-theme"
                         value={selectedThemeId}
-                        onChange={(e) => setSelectedThemeId(e.target.value)}
-                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2.5 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
-                      >
-                        <option value="">Pilih tema (opsional)…</option>
-                        {(annualThemes || []).map(t => (
-                          <option key={t.id} value={t.id}>{t.name} ({t.dateStart} - {t.dateEnd})</option>
-                        ))}
-                      </select>
+                        onChange={setSelectedThemeId}
+                        label="Tema Tahunan"
+                        options={[
+                          { value: '', label: 'Pilih tema (opsional)…' },
+                          ...(annualThemes || []).map(t => ({
+                            value: t.id,
+                            label: `${t.name} (${t.dateStart} - ${t.dateEnd})`,
+                          })),
+                        ]}
+                      />
                       {selectedThemeId && !isCustomEvent && (
                         <p className="mt-1 text-xs text-[var(--wf-accent)]">Auto-matched berdasarkan tanggal event</p>
                       )}
@@ -427,25 +427,25 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                     {/* Name */}
                     <div>
-                      <label htmlFor="album-manager-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Event *</label>
-                      <input
+                      <MdTextField
                         id="album-manager-name"
                         value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
+                        onChange={setNewName}
+                        label="Nama Event *"
                         placeholder="Nama event"
-                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                        className="w-full"
                       />
                     </div>
 
                     <div>
                       {/* Description */}
-                      <label htmlFor="album-manager-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
-                      <input
+                      <MdTextField
                         id="album-manager-desc"
                         value={newDesc}
-                        onChange={(e) => setNewDesc(e.target.value)}
+                        onChange={setNewDesc}
+                        label="Deskripsi"
                         placeholder="Deskripsi event"
-                        className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                        className="w-full"
                       />
                     </div>
 
@@ -465,13 +465,13 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                         />
                       </div>
                       <div>
-                        <label htmlFor="album-manager-lokasi" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Lokasi</label>
-                        <input
+                        <MdTextField
                           id="album-manager-lokasi"
                           value={newLokasi}
-                          onChange={(e) => setNewLokasi(e.target.value)}
+                          onChange={setNewLokasi}
+                          label="Lokasi"
                           placeholder="Lokasi event"
-                          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus-visible:border-[var(--wf-accent)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+                          className="w-full"
                         />
                       </div>
                     </div>
@@ -479,22 +479,19 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
+                    <MdButton
+                      variant="outlined"
                       onClick={() => { setShowCreateForm(false); clearCreateForm(); setError(''); }}
-                      className="rounded-xl border border-[var(--wf-rule)] px-4 py-2 text-sm font-medium text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
                     >
                       Batal
-                    </button>
-                    <button
-                      type="button"
+                    </MdButton>
+                    <MdButton
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
-                      className="flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
-                    </button>
+                    </MdButton>
                   </div>
                 </div>
               )}
@@ -550,14 +547,12 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                       </div>
 
                       {/* Delete */}
-                      {!readOnly && <button
-                        type="button"
-                        aria-label={`Hapus album ${album.name}`}
-                        onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }}
-                        className="rounded-lg p-2 text-[var(--wf-ink-muted)] opacity-0 transition-[background-color,color,opacity] hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300 group-hover:opacity-100"
+                      {!readOnly && <MdIconButton
+                        ariaLabel={`Hapus album ${album.name}`}
+                        onClick={() => handleDeleteAlbum(album)}
                       >
                         <Trash2 className="h-4 w-4" aria-hidden />
-                      </button>}
+                      </MdIconButton>}
                     </div>
                   ))}
                 </div>
@@ -591,25 +586,24 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
 
                           {/* Set cover button */}
                           {!readOnly && !isCover && (
-                            <button
-                              type="button"
-                              onClick={() => handleSetCover(photo.url)}
+                            <MdIconButton
+                              ariaLabel="Jadikan Cover"
                               title="Jadikan Cover"
-                              className="absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-black/40 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-[var(--wf-action)] group-hover:opacity-100"
+                              onClick={() => handleSetCover(photo.url)}
+                              className="absolute left-1.5 top-1.5 z-10"
                             >
                               <Star className="h-3.5 w-3.5" />
-                            </button>
+                            </MdIconButton>
                           )}
 
                           {/* Delete button */}
-                          {!readOnly && <button
-                            type="button"
-                            aria-label="Hapus foto"
+                          {!readOnly && <MdIconButton
+                            ariaLabel="Hapus foto"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
-                            className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-lg bg-red-600/90 text-white opacity-0 backdrop-blur-sm transition-[background-color,opacity] hover:bg-red-700 group-hover:opacity-100"
+                            className="absolute right-1.5 top-1.5 z-10"
                           >
                             <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                          </button>}
+                          </MdIconButton>}
 
                           {/* Thumbnail */}
                           <div className="aspect-[4/3] w-full">
@@ -699,14 +693,13 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                             className="h-full w-full object-cover"
                           />
                           {!uploading && (
-                            <button
-                              type="button"
-                              aria-label="Hapus berkas"
-                              onClick={(e) => { e.stopPropagation(); removeUploadFile(idx); }}
-                              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-[opacity] group-hover:opacity-100"
+                            <MdIconButton
+                              ariaLabel="Hapus berkas"
+                              onClick={() => removeUploadFile(idx)}
+                              className="absolute right-1 top-1"
                             >
                               <X className="h-3.5 w-3.5" aria-hidden />
-                            </button>
+                            </MdIconButton>
                           )}
                         </div>
                       ))}
@@ -717,27 +710,24 @@ className="flex w-full items-center justify-center gap-2 rounded-xl border-2 bor
                     {/* Progress bar */}
                     {uploading && uploadProgress.total > 0 && (
                       <div className="space-y-1">
-                        <div className="h-2 overflow-hidden rounded-full bg-[var(--wf-board-2)]">
-                          <div
-                            className="h-full rounded-full bg-[var(--wf-accent)] transition-all duration-300"
-                            style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
-                          />
-                        </div>
+                        <MdLinearProgress
+                          value={uploadProgress.current / uploadProgress.total}
+                          ariaLabel="Progres unggah"
+                        />
                         <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
                     )}
 
                     {/* Upload button */}
                     {!uploading && (
-                      <button
-                        type="button"
+                      <MdButton
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
-                      </button>
+                      </MdButton>
                     )}
                   </div>
                 )}

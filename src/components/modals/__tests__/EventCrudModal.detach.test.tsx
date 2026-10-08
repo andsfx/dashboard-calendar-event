@@ -66,8 +66,10 @@ function renderModal(editingEvent: EventItem | null, onSave: (ev: Partial<EventI
   );
 }
 
-function submitForm() {
-  fireEvent.submit(screen.getByRole('button', { name: /simpan/i }).closest('form')!);
+async function submitForm() {
+  // ModalWrapper memuat md-dialog dengan React.lazy → tombol baru ada setelah render kedua.
+  const btn = await screen.findByRole('button', { name: /simpan/i });
+  fireEvent.submit(btn.closest('form')!);
 }
 
 describe('EventCrudModal — keanggotaan series reguler', () => {
@@ -78,7 +80,7 @@ describe('EventCrudModal — keanggotaan series reguler', () => {
   it('edit anggota series tanpa detach → payload pertahankan isRecurring=true + groupId', async () => {
     const onSave = vi.fn().mockResolvedValue(true);
     renderModal(makeSeriesEvent(), onSave);
-    submitForm();
+    await submitForm();
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     const payload = onSave.mock.calls[0]![0] as Partial<EventItem>;
     expect(payload.isRecurring).toBe(true);
@@ -88,8 +90,8 @@ describe('EventCrudModal — keanggotaan series reguler', () => {
   it('centang "Lepas dari series" → payload isRecurring=false, groupId kosong', async () => {
     const onSave = vi.fn().mockResolvedValue(true);
     renderModal(makeSeriesEvent(), onSave);
-    fireEvent.click(screen.getByRole('checkbox'));
-    submitForm();
+    fireEvent.click(screen.getByRole('checkbox', { name: /Lepas dari series/i }));
+    await submitForm();
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     const payload = onSave.mock.calls[0]![0] as Partial<EventItem>;
     expect(payload.isRecurring).toBe(false);
@@ -103,7 +105,7 @@ describe('EventCrudModal — keanggotaan series reguler', () => {
     // isi tanggal selesai agar validasi multi-day lolos
     const dateEndInput = screen.getAllByLabelText(/tanggal selesai/i)[0] as HTMLInputElement;
     fireEvent.change(dateEndInput, { target: { value: '2026-09-12' } });
-    submitForm();
+    await submitForm();
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     const payload = onSave.mock.calls[0]![0] as Partial<EventItem>;
     expect(payload.isRecurring).toBe(false);

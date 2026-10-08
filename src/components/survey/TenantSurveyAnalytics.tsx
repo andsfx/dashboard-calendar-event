@@ -7,6 +7,7 @@ import type { TenantSurveyAnalytics, TenantEventSurvey } from '../../types';
 import { isV3Survey, salesPositivePct, trafficPositivePct } from '../../utils/surveyUtils';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
 import TenantSurveyTrendChart from './TenantSurveyTrendChart';
+import { MdButton } from '../md';
 
 interface TenantSurveyAnalyticsProps {
   analytics: TenantSurveyAnalytics[];
@@ -91,13 +92,9 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
       <p className="mt-2 text-sm font-medium text-red-700 dark:text-red-300">Gagal memuat analytics</p>
       <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">{message}</p>
       {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700"
-        >
+        <MdButton variant="filled" danger className="mt-3" onClick={onRetry}>
           Coba lagi
-        </button>
+        </MdButton>
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import { AlertCircle, Check, ChevronLeft, ChevronRight, FileText, Save } from 'l
 import { LetterRequestItem } from '../../types';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from '../ui/ModalHeader';
+import { MdButton, MdTextField, type MdTextFieldType } from '../md';
 
 interface Props {
   isOpen: boolean;
@@ -237,18 +238,31 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
     <p id={`${String(field)}-error`} className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{errors[field]}</p>
   );
 
-  const renderInput = (field: keyof LetterRequestItem, label: string, placeholder?: string, type = 'text') => (
+  const renderInput = (field: keyof LetterRequestItem, label: string, placeholder?: string, type: MdTextFieldType | 'date' = 'text') => (
     <div>
       {renderLabel(label, field)}
-      <input
-        id={String(field)}
-        type={type}
-        value={form[field]}
-        onChange={e => setField(field, e.target.value)}
-        placeholder={placeholder}
-        className={`${inputClass} ${errors[field] ? errorClass : ''}`}
-        {...fieldProps(field)}
-      />
+      {type === 'date' ? (
+        <input
+          id={String(field)}
+          type="date"
+          value={form[field]}
+          onChange={e => setField(field, e.target.value)}
+          placeholder={placeholder}
+          className={`${inputClass} ${errors[field] ? errorClass : ''}`}
+          {...fieldProps(field)}
+        />
+      ) : (
+        <MdTextField
+          id={String(field)}
+          type={type}
+          value={form[field]}
+          onChange={value => setField(field, value)}
+          placeholder={placeholder}
+          ariaLabel={label}
+          error={Boolean(errors[field])}
+          className="w-full"
+        />
+      )}
       {renderError(field)}
     </div>
   );
@@ -256,14 +270,16 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
   const renderTextarea = (field: keyof LetterRequestItem, label: string, placeholder?: string) => (
     <div>
       {renderLabel(label, field)}
-      <textarea
+      <MdTextField
         id={String(field)}
+        type="textarea"
         value={form[field]}
-        onChange={e => setField(field, e.target.value)}
+        onChange={value => setField(field, value)}
         rows={3}
         placeholder={placeholder}
-        className={`${inputClass} resize-none ${errors[field] ? errorClass : ''}`}
-        {...fieldProps(field)}
+        ariaLabel={label}
+        error={Boolean(errors[field])}
+        className="w-full"
       />
       {renderError(field)}
     </div>
@@ -445,11 +461,20 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row lg:min-w-[360px]">
-                <button type="button" onClick={handleBack} disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+                <MdButton
+                  variant="outlined"
+                  onClick={handleBack}
+                  disabled={isSubmitting}
+                  className="flex-1"
+                >
                   {currentStep > 0 && <ChevronLeft className="h-4 w-4" />}
                   {currentStep === 0 ? 'Batal' : 'Kembali'}
-                </button>
-                <button type="submit" disabled={isSubmitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-primary-200 transition hover:bg-brand-primary-700 disabled:cursor-not-allowed disabled:opacity-70 dark:shadow-brand-primary-900/30">
+                </MdButton>
+                <MdButton
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1"
+                >
                   {currentStep === STEPS.length - 1 ? (
                     <>
                       <Save className="h-4 w-4" />
@@ -461,7 +486,7 @@ export function DraftLetterModal({ isOpen, onClose, initialData, onSubmit }: Pro
                       <ChevronRight className="h-4 w-4" />
                     </>
                   )}
-                </button>
+                </MdButton>
               </div>
             </div>
           </footer>

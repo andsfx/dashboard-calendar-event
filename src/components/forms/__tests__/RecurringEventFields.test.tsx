@@ -31,8 +31,10 @@ describe('RecurringEventFields', () => {
 
   it('highlights selected days', () => {
     render(<RecurringEventFields {...mockProps} />)
-    const senButton = screen.getByText('Sen')
-    expect(senButton).toHaveClass('bg-[var(--wf-accent)]')
+    // Pil hari kini md-filter-chip: status selected direfleksikan ke attribute.
+    const senChip = screen.getByText('Sen')
+    expect(senChip).toHaveAttribute('selected')
+    expect(screen.getByText('Min')).not.toHaveAttribute('selected')
   })
 
   it('calls onToggleDayOfWeek when day clicked', () => {

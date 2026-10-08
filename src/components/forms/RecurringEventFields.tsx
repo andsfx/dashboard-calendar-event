@@ -1,5 +1,6 @@
 import { RecurrenceFrequency, RecurrenceRule } from '../../types';
 import { parseDateStrLocal, generateRecurringDates } from '../../utils/eventUtils';
+import { MdChip, MdSelect, MdTextField } from '../md';
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -35,18 +36,19 @@ export function RecurringEventFields({
     <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3">
       {/* Frequency selector */}
       <div>
-        <label htmlFor="recurrence-frequency" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Frekuensi</label>
-        <select
+        <MdSelect
           id="recurrence-frequency"
           value={recurrenceFrequency}
-          onChange={e => onFieldChange('recurrenceFrequency', e.target.value)}
-          className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)]"
-        >
-          <option value="weekly">Setiap minggu</option>
-          <option value="biweekly">Setiap 2 minggu</option>
-          <option value="monthly">Setiap bulan</option>
-          <option value="custom">Custom (setiap N hari)</option>
-        </select>
+          onChange={v => onFieldChange('recurrenceFrequency', v)}
+          label="Frekuensi"
+          options={[
+            { value: 'weekly', label: 'Setiap minggu' },
+            { value: 'biweekly', label: 'Setiap 2 minggu' },
+            { value: 'monthly', label: 'Setiap bulan' },
+            { value: 'custom', label: 'Custom (setiap N hari)' },
+          ]}
+          className="w-full"
+        />
       </div>
 
       {/* Days of week for weekly/biweekly */}
@@ -55,19 +57,12 @@ export function RecurringEventFields({
           <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]" id="recurrence-days-label">Hari</label>
           <div className="flex flex-wrap gap-2" role="group" aria-labelledby="recurrence-days-label" aria-describedby={errors.recurrenceDaysOfWeek ? 'recurrence-days-error' : undefined}>
             {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, idx) => (
-              <button
+              <MdChip
                 key={idx}
-                type="button"
+                label={day}
+                selected={recurrenceDaysOfWeek.includes(idx)}
                 onClick={() => onToggleDayOfWeek(idx)}
-                aria-pressed={recurrenceDaysOfWeek.includes(idx)}
-                className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                  recurrenceDaysOfWeek.includes(idx)
-                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                    : 'bg-[var(--wf-board)] border border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
-                }`}
-              >
-                {day}
-              </button>
+              />
             ))}
           </div>
           {errors.recurrenceDaysOfWeek && <p id="recurrence-days-error" className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.recurrenceDaysOfWeek}</p>}
@@ -77,15 +72,13 @@ export function RecurringEventFields({
       {/* Day of month for monthly */}
       {recurrenceFrequency === 'monthly' && (
         <div>
-          <label htmlFor="recurrence-day-of-month" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Setiap tanggal</label>
-          <input
+          <MdTextField
             id="recurrence-day-of-month"
             type="number"
-            min={1}
-            max={31}
-            value={recurrenceDayOfMonth}
-            onChange={e => onFieldChange('recurrenceDayOfMonth', e.target.value)}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
+            value={String(recurrenceDayOfMonth)}
+            onChange={v => onFieldChange('recurrenceDayOfMonth', v)}
+            label="Setiap tanggal"
+            className="w-full"
           />
         </div>
       )}
@@ -93,14 +86,13 @@ export function RecurringEventFields({
       {/* Interval for custom */}
       {recurrenceFrequency === 'custom' && (
         <div>
-          <label htmlFor="recurrence-interval" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Setiap berapa hari?</label>
-          <input
+          <MdTextField
             id="recurrence-interval"
             type="number"
-            min={1}
-            value={recurrenceInterval}
-            onChange={e => onFieldChange('recurrenceInterval', e.target.value)}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
+            value={String(recurrenceInterval)}
+            onChange={v => onFieldChange('recurrenceInterval', v)}
+            label="Setiap berapa hari?"
+            className="w-full"
           />
         </div>
       )}

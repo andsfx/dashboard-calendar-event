@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../../types';
 import { CategoryBadges } from '../ui/CategoryBadges';
+import { MdButton } from '../md';
 
 /* Keyed by MEANING, not by colour name: "live" for what is running now,
  * "action" for what is coming up. The callers previously passed
@@ -12,12 +13,10 @@ import { CategoryBadges } from '../ui/CategoryBadges';
 const ACCENT_STYLES = {
   live: {
     count: 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]',
-    link: 'text-[var(--wf-accent)]',
     border: 'border-[var(--wf-rule)]',
   },
   action: {
     count: 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]',
-    link: 'text-[var(--wf-accent)]',
     border: 'border-[var(--wf-rule)]',
   },
 } as const;
@@ -143,13 +142,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         })}
       </div>
       {events.length > 3 && (
-        <button
-          type="button"
+        <MdButton
+          variant="text"
           onClick={() => navigate('/dashboard/events')}
-          className={`mt-3 cursor-pointer text-xs font-medium transition-colors hover:underline ${accentStyle.link}`}
+          className="mt-3"
         >
           +{events.length - 3} acara lainnya. Lihat di daftar acara
-        </button>
+        </MdButton>
       )}
     </div>
   );

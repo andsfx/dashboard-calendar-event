@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ConfirmDialog, useConfirmDialog } from '../ConfirmDialog';
+import { ConfirmDialog } from '../ConfirmDialog';
+import { useConfirmDialog } from '../useConfirmDialog';
 
 describe('ConfirmDialog', () => {
-  it('merender judul, pesan, dan subjek', () => {
+  it('merender judul, pesan, dan subjek', async () => {
     render(
       <ConfirmDialog
         isOpen
@@ -15,7 +16,8 @@ describe('ConfirmDialog', () => {
         onConfirm={() => {}}
       />,
     );
-    expect(screen.getByText('Hapus album?')).toBeInTheDocument();
+    // ModalWrapper memuat md-dialog dengan React.lazy → render pertama async.
+    expect(await screen.findByText('Hapus album?')).toBeInTheDocument();
     expect(screen.getByText(/Semua foto di dalamnya/)).toBeInTheDocument();
     expect(screen.getByText(/Pasar Ramadhan 2026/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Batal/ })).toBeInTheDocument();

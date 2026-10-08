@@ -7,6 +7,7 @@ import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../../utils/eventUtils';
 import { resolveAreaDisplay } from '../../utils/areaGrouping';
+import { MdButton, MdIconButton } from '../md';
 
 interface Props {
   events: EventItem[];
@@ -224,43 +225,36 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                   </div>
                    </div>
 
-                <div className="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => onDetail(ev)}
-                    className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
-                  >
+                {/* `grid-cols-2`: empat tombol (Detail/Sembunyikan/Ubah/Hapus)
+                    tidak muat satu baris di layar sempit — tanpa wrap tombol
+                    terakhir terpotong oleh panel (dulu 3 tombol masih muat,
+                    tombol "Sembunyikan" yang membuatnya meluber 59px). Grid 2×2
+                    menjaga lebar tombol setara alih-alih menyisakan satu tombol
+                    selebar penuh. */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <MdButton variant="outlined" onClick={() => onDetail(ev)}>
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Detail
-                  </button>
+                  </MdButton>
                   {onToggleVisibility && (
-                      <button
-                        type="button"
+                      <MdButton
+                        variant="outlined"
                         onClick={() => onToggleVisibility(ev)}
-                        aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
-                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
+                        ariaLabel={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
                       >
                         {ev.status === 'draft'
                           ? <><Eye className="h-3.5 w-3.5" aria-hidden /> Tampilkan</>
                           : <><EyeOff className="h-3.5 w-3.5" aria-hidden /> Sembunyikan</>}
-                      </button>
+                      </MdButton>
                   )}
                   {onEdit && (
-                      <button
-                        type="button"
-                        onClick={() => onEdit(ev)}
-                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-3 py-2 text-xs font-medium text-[var(--wf-accent)] transition hover:bg-[var(--wf-accent-soft)]"
-                      >
+                      <MdButton variant="outlined" onClick={() => onEdit(ev)}>
                         <Edit2 className="h-3.5 w-3.5" aria-hidden /> Ubah
-                      </button>
+                      </MdButton>
                   )}
                   {onDelete && (
-                      <button
-                        type="button"
-                        onClick={() => onDelete(ev)}
-                        className="ui-focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-600/10 dark:border-red-900/50 dark:text-red-300"
-                      >
+                      <MdButton variant="outlined" danger onClick={() => onDelete(ev)}>
                         <Trash2 className="h-3.5 w-3.5" aria-hidden /> Hapus
-                      </button>
+                      </MdButton>
                   )}
                 </div>
               </div>
@@ -377,55 +371,46 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                         })()}
                       </td>
                     )}
-                    {/* EO */}
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
-                      {ev.eo || '-'}
+                    {/* EO — nama penyelenggara bisa sangat panjang. Dulu
+                        `whitespace-nowrap` membuat kolom ini ~254px dan ikut
+                        mendikte lebar tabel. Biarkan terpotong dengan tooltip. */}
+                    <td className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
+                      <span className="block max-w-[12rem] truncate" title={ev.eo || undefined}>
+                        {ev.eo || '-'}
+                      </span>
                     </td>
-                    {/* Actions */}
-                    <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
+                    {/* Actions — dipin di kanan (`sticky right-0`), jadi selalu
+                        terlihat walau tabel lebih lebar dari panel. Latar harus
+                        opaque (bukan transparan) supaya kolom di bawahnya tidak
+                        tembus saat tergeser; `group-hover` menyamai hover baris. */}
+                    <td className="sticky right-0 z-10 border-l border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-right transition-colors group-hover:bg-[var(--wf-board-2)]" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => onDetail(ev)}
-                          aria-label="Lihat detail"
-                          className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
-                        >
+                        <MdIconButton ariaLabel="Lihat detail" onClick={() => onDetail(ev)}>
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                        </button>
+                        </MdIconButton>
                         {onToggleVisibility && (
-                          <button
-                            type="button"
+                          <MdButton
+                            variant="text"
                             onClick={() => onToggleVisibility(ev)}
-                            aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                            ariaLabel={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
                             title={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
-                            className="ui-focus-ring inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[11px] font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
                           >
                             {ev.status === 'draft'
                               ? <><Eye className="h-3.5 w-3.5" aria-hidden="true" /> Tampilkan</>
                               : <><EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> Sembunyikan</>}
-                          </button>
+                          </MdButton>
                         )}
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (
-                            <button
-                              type="button"
-                              onClick={() => onEdit(ev)}
-                              aria-label='Ubah acara'
-                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)]"
-                            >
+                            <MdIconButton ariaLabel='Ubah acara' onClick={() => onEdit(ev)}>
                               <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </button>
+                            </MdIconButton>
                             )}
                             {onDelete && (
-                            <button
-                              type="button"
-                              onClick={() => onDelete(ev)}
-                              aria-label="Hapus acara"
-                              className="ui-focus-ring rounded-lg min-h-11 min-w-11 p-1.5 text-[var(--wf-ink-muted)] transition hover:bg-red-600/10 hover:text-red-700 dark:hover:text-red-300"
-                            >
+                            <MdIconButton ariaLabel="Hapus acara" onClick={() => onDelete(ev)}>
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </button>
+                            </MdIconButton>
                             )}
                           </>
                         )}
@@ -443,13 +428,9 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
       <div className="ui-dashboard-muted flex items-center justify-between border-t border-[var(--wf-rule)] px-4 py-2.5">
         <p className="text-xs text-[var(--wf-ink-muted)]">Menampilkan {events.length} acara</p>
         {isAdmin && (
-          <button
-            type="button"
-            onClick={() => exportCSV(events)}
-className="ui-focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
-          >
+          <MdButton variant="text" onClick={() => exportCSV(events)}>
             <Download className="h-3 w-3" aria-hidden /> Ekspor CSV
-          </button>
+          </MdButton>
         )}
       </div>
     </div>
