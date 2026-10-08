@@ -782,7 +782,7 @@ export function EventsLandingPage({
                     >
                       <MapPin className="h-3 w-3 text-[var(--brand-tosca)]" aria-hidden="true" />
                       {g.name}
-                      <span className="ml-0.5 rounded-full bg-slate-100 px-1.5 py-px text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      <span className="ml-0.5 rounded-full bg-slate-100 px-1.5 py-px text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                         {g.events.length}
                       </span>
                     </a>
