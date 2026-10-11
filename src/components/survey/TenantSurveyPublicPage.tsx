@@ -468,8 +468,8 @@ export default function TenantSurveyPublicPage() {
             <div key={step.num} className="flex items-center gap-2">
               <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${
                 step.filled
-                  ? 'bg-emerald-500 text-white'
-: 'bg-slate-200 ui-text-muted dark:bg-slate-700 '
+                  ? 'bg-emerald-700 text-white dark:bg-emerald-300 dark:text-emerald-950'
+                  : 'bg-slate-200 ui-text-muted dark:bg-slate-700 '
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
@@ -686,7 +686,7 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 3: Umpan Balik */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <section className="scroll-mb-28 rounded-2xl border border-slate-200 bg-white p-4 sm:scroll-mb-0 dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
             Bagian 3: Umpan Balik
           </h2>
@@ -726,7 +726,7 @@ export default function TenantSurveyPublicPage() {
         </div>
 
         {/* Submit — sticky on mobile */}
-        <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+        <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-slate-200 bg-slate-50/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
           {filledCount < requiredCount && (
             <p className="text-center text-xs ui-text-muted sm:text-right">
               Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
@@ -737,7 +737,7 @@ export default function TenantSurveyPublicPage() {
               type="button"
               onClick={goBack}
               disabled={formStatus === 'submitting'}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               <ChevronLeft className="h-4 w-4" />
               Batal
@@ -745,7 +745,7 @@ export default function TenantSurveyPublicPage() {
             <button
               type="submit"
               disabled={formStatus === 'submitting' || filledCount < requiredCount}
-              className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
+              className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
                 filledCount >= requiredCount
                   ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
                   : 'bg-slate-400 cursor-not-allowed'
@@ -763,7 +763,7 @@ export default function TenantSurveyPublicPage() {
 
         <p className="text-center text-[11px] ui-text-muted">
           <Shield className="mr-1 inline h-3 w-3" />
-          Survey ini dapat diakses tanpa login. Identitas Anda akan disimpan secara anonim.
+          Survey ini dapat diakses tanpa login. Nama gerai dan kontak PIC yang Anda isi tersimpan teridentifikasi untuk verifikasi.
         </p>
       </form>
       </div>

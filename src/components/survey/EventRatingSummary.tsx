@@ -9,10 +9,10 @@ interface EventRatingSummaryProps {
 }
 
 const ratingColor = (n: number | null | undefined): string => {
-  if (n == null) return 'text-slate-500';
-  if (n >= 8) return 'text-emerald-500';
-  if (n >= 5) return 'text-yellow-500';
-  return 'text-red-500';
+  if (n == null) return 'text-slate-500 dark:text-slate-300';
+  if (n >= 8) return 'text-emerald-700 dark:text-emerald-300';
+  if (n >= 5) return 'text-yellow-700 dark:text-yellow-300';
+  return 'text-red-600 dark:text-red-300';
 };
 
 export default function EventRatingSummary({ eventId, compact = false }: EventRatingSummaryProps) {
@@ -121,7 +121,7 @@ function RatingRow({ label, value }: { label: string; value: number | null | und
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
         <div
-          className={`h-full rounded-full transition-[width] duration-500 ${v >= 8 ? 'bg-emerald-500' : v >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}
+          className={`h-full rounded-full transition-[width] duration-500 ${v >= 8 ? 'bg-emerald-600 dark:bg-emerald-400' : v >= 5 ? 'bg-yellow-700 dark:bg-yellow-300' : 'bg-red-600 dark:bg-red-300'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

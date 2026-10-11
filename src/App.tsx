@@ -313,6 +313,8 @@ export default function App() {
             areas={eventAreas}
             themes={annualThemes}
             isLoading={isLoading}
+            error={error}
+            onRetry={() => { void refreshEvents(); }}
             onDetail={handleDetailClick}
           />
           <EventDetailModal

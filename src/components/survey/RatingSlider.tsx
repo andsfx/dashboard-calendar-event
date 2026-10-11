@@ -9,11 +9,11 @@ interface RatingSliderProps {
 }
 
 const ratingColor = (n: number): string => {
-  if (n <= 3) return 'bg-red-500 ring-red-300 text-white';
-  if (n <= 5) return 'bg-orange-500 ring-orange-300 text-white';
-  if (n <= 7) return 'bg-yellow-500 ring-yellow-300 text-white';
-  if (n <= 9) return 'bg-emerald-500 ring-emerald-300 text-white';
-  return 'bg-emerald-600 ring-emerald-400 text-white';
+  if (n <= 3) return 'bg-red-600 ring-red-700 dark:ring-red-300 text-white';
+  if (n <= 5) return 'bg-orange-700 ring-orange-700 dark:ring-orange-300 text-white';
+  if (n <= 7) return 'bg-yellow-700 ring-yellow-800 dark:ring-yellow-300 text-white';
+  if (n <= 9) return 'bg-emerald-700 ring-emerald-700 dark:ring-emerald-300 text-white';
+  return 'bg-emerald-800 ring-emerald-800 dark:ring-emerald-300 text-white';
 };
 
 const ratingLabel = (n: number): string => {

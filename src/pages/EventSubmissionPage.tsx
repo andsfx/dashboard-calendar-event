@@ -45,9 +45,9 @@ const EMPTY_FORM: FormState = {
   honeypot: '',
 };
 
-const inputClass = 'w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition focus:ring-2 dark:bg-slate-700 dark:text-white';
-const okInput = 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600';
-const errInput = 'border-red-400 focus:ring-red-100';
+const inputClass = 'w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition ui-focus-ring dark:bg-slate-700 dark:text-white';
+const okInput = 'border-slate-200 focus-visible:border-brand-primary-600 dark:border-slate-600 dark:focus-visible:border-brand-primary-300';
+const errInput = 'border-red-500 focus-visible:border-red-600 dark:focus-visible:border-red-300';
 
 export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
   usePageMeta({

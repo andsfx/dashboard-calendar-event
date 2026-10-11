@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw } from 'lucide-react';
+import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { uploadToR2 } from '../../utils/api/albumsApi';
 import { apiPost, ApiError } from '../../lib/rest';
 import { MdButton, MdIconButton, MdTextField } from '../md';
@@ -206,15 +206,16 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
           {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
         </MdButton>}
         {syncResult && (
-          <p className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>
+          <p role={syncResult.includes('Berhasil') ? 'status' : 'alert'} className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>
             {syncResult}
           </p>
         )}
 
         {error && (
-          <p className="rounded-lg bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:text-red-300">
-            {error}
-          </p>
+          <div role="alert" className="flex items-start gap-2 rounded-lg bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <p>{error} Periksa kembali isian, lalu coba simpan ulang.</p>
+          </div>
         )}
 
         {/* Actions */}

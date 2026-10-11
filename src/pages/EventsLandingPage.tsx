@@ -5,6 +5,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
+  AlertTriangle,
   ArrowRight,
   CalendarDays,
   Clock,
@@ -13,6 +14,7 @@ import {
   MapPin,
   Moon,
   Radio,
+  RefreshCw,
   SunMedium,
   Timer,
   X,
@@ -56,6 +58,10 @@ interface Props {
   /** Tema tahunan untuk preset "Tema" di ekspor PDF. */
   themes?: AnnualTheme[];
   isLoading?: boolean;
+  /** Pesan galat fetch jadwal; bila terisi, halaman merender status error + aksi coba lagi. */
+  error?: string | null;
+  /** Dipanggil tombol "Coba lagi" pada status error (di-wire ke refreshEvents). */
+  onRetry?: () => void;
   onDetail: (ev: EventItem) => void;
 }
 
@@ -384,6 +390,28 @@ function EventRailCard({
   );
 }
 
+function EventsErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div role="alert" className="flex flex-col items-center px-6 py-12 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/30">
+        <AlertTriangle className="h-7 w-7 text-red-600 dark:text-red-400" aria-hidden="true" />
+      </div>
+      <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Gagal memuat jadwal</p>
+      <p className="mt-2 max-w-xs text-sm leading-6 ui-text-muted">{message}</p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+        >
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+          Coba lagi
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function EventsLandingPage({
   isDark,
   onToggleDark,
@@ -393,6 +421,8 @@ export function EventsLandingPage({
   areas = [],
   themes = [],
   isLoading = false,
+  error = null,
+  onRetry,
   onDetail,
 }: Props) {
   usePageMeta({
@@ -577,7 +607,7 @@ export function EventsLandingPage({
                 Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.
               </p>
 
-              {!isLoading && (
+              {!isLoading && !error && (
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
                   <div className="rounded-2xl border border-[var(--border-subtle)] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">Total Event</dt>
@@ -649,6 +679,10 @@ export function EventsLandingPage({
             <div className="min-w-0">
               {isLoading ? (
                 <div className="h-full min-h-[22rem] animate-pulse rounded-[2rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+              ) : error ? (
+                <div className="flex h-full min-h-[22rem] flex-col items-center justify-center rounded-[2rem] border border-red-200 bg-white/70 px-6 py-12 text-center dark:border-red-800 dark:bg-slate-900/50">
+                  <EventsErrorState message={error} onRetry={onRetry} />
+                </div>
               ) : highlight ? (
                 <HighlightEventCard
                   event={highlight}
@@ -732,6 +766,10 @@ export function EventsLandingPage({
                 {[0, 1, 2].map(i => (
                   <div key={i} className="h-36 animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
                 ))}
+              </div>
+            ) : error ? (
+              <div className="rounded-[1.5rem] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
+                <EventsErrorState message={error} onRetry={onRetry} />
               </div>
             ) : isFilterActive ? (
               <>
@@ -868,6 +906,10 @@ export function EventsLandingPage({
 
             {isLoading ? (
               <div className="h-[28rem] animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+            ) : error ? (
+              <div className="rounded-[1.5rem] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
+                <EventsErrorState message={error} onRetry={onRetry} />
+              </div>
             ) : (
               <CalendarView events={events} holidays={holidays} onDetail={onDetail} variant="public" />
             )}

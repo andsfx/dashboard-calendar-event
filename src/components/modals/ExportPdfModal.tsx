@@ -159,7 +159,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       {preview ? (
         <PdfPreviewStage result={preview} onBack={handleBackToFilter} onClose={onClose} />
       ) : (
-      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
+      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-[var(--radius-card-lg)] bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
@@ -180,7 +180,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <MdButton
               variant="outlined"
               onClick={() => setMode('date')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <CalendarDays className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tanggal</div>
@@ -189,7 +189,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             <MdButton
               variant="outlined"
               onClick={() => setMode('theme')}
-              className={`rounded-2xl border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+              className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
             >
               <Palette className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tema</div>
@@ -216,7 +216,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
           )}
 
           {mode === 'theme' && !themeId ? (
-            <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
+            <p className="rounded-[var(--wf-radius-board)] border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
               Pilih tema dulu untuk melihat album yang tersedia.
             </p>
           ) : (
@@ -232,7 +232,7 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             />
           )}
 
-          <div className="rounded-2xl border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-800 dark:bg-slate-950">
+          <div className="rounded-[var(--radius-card)] border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-500/15 dark:text-brand-primary-300">
                 <FileText className="h-5 w-5" />

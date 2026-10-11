@@ -313,7 +313,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, mall: e.target.value }))}
               maxLength={1000}
               rows={2}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
             />
           </section>
 
@@ -348,7 +348,7 @@ export default function SurveyPage() {
                 onChange={(e) => setComments(prev => ({ ...prev, eo: e.target.value }))}
                 maxLength={1000}
                 rows={2}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
               />
             </section>
           )}
@@ -365,7 +365,7 @@ export default function SurveyPage() {
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
               maxLength={1000}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
             />
           </section>
 

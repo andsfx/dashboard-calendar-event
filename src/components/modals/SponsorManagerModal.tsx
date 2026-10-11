@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Upload, Trash2, Handshake, FileText, ExternalLink } from 'lucide-react';
+import { Upload, Trash2, Handshake, FileText, ExternalLink, AlertCircle, RefreshCw } from 'lucide-react';
 import type { EventProposalEvent, SponsorLead, SponsorLeadStatus } from '../../types';
 import {
   fetchSponsorEventsWithProposals,
@@ -179,22 +179,22 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
 
           {/* Error message */}
           {error && (
-            <div className="rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-              {error}
-            </div>
-          )}
-
-          {/* Success message */}
-          {success && (
-            <div className="rounded-xl border border-[var(--wf-live)]/30 bg-[var(--wf-live)]/10 px-4 py-3 text-sm text-[var(--wf-live)]">
-              {success}
+            <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-600/20 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <p>{error}</p>
+                <button type="button" onClick={() => loadData()} className="ui-focus-ring mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-[var(--radius-control)] font-semibold underline underline-offset-2">
+                  <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+                  Coba lagi
+                </button>
+              </div>
             </div>
           )}
 
           {/* Loading */}
           {isLoading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" />
+            <div role="status" className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--wf-accent)]" aria-hidden="true" />
               <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}

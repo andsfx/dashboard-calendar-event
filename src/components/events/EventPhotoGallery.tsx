@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Camera, Upload, Trash2, Loader2, X, ImagePlus, Link2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Camera, Upload, Trash2, Loader2, X, ImagePlus, Link2, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
 import {
   uploadToR2,
@@ -51,11 +51,30 @@ interface EventPhotoGalleryProps {
   canUpload?: boolean;
 }
 
+function GalleryErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div role="alert" className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 px-4 py-6 text-center dark:border-red-800 dark:bg-red-950/30">
+      <Camera className="mx-auto h-6 w-6 text-red-700 dark:text-red-300" aria-hidden="true" />
+      <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Gagal memuat foto</p>
+      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{message}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="ui-focus-ring mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+      >
+        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+        Coba lagi
+      </button>
+    </div>
+  );
+}
+
 export function EventPhotoGallery({ eventId, eventName, canUpload = false }: EventPhotoGalleryProps) {
   const [photos, setPhotos] = useState<EventPhoto[]>([]);
   const { confirm, dialog: confirmDialogEl } = useConfirmDialog();
   const [linkedAlbum, setLinkedAlbum] = useState<PhotoAlbum | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [showLinkForm, setShowLinkForm] = useState(false);
@@ -64,6 +83,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
   // Reads stay public REST (GET /albums — RLS must allow public read)
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const { albums, photos } = await apiGet<{ albums: DbAlbumRow[]; photos: DbPhotoRow[] }>('/albums');
       // Filter eventId client-side (backend /albums kirim semua album + foto).
@@ -96,7 +116,9 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
             }
           : null
       );
-    } catch { /* ignore */ }
+    } catch {
+      setLoadError('Foto tidak bisa dimuat. Periksa koneksi lalu coba lagi.');
+    }
     finally { setLoading(false); }
   }, [eventId]);
 
@@ -156,13 +178,20 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-6">
-        <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" />
+      <div className="flex items-center justify-center gap-2 py-6" role="status">
+        <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" aria-hidden="true" />
+        <p className="text-xs ui-text-muted">Memuat foto...</p>
       </div>
     );
   }
 
   const hasContent = photos.length > 0 || linkedAlbum;
+
+  // Gagal muat dibedakan dari kosong: publik mendapat sebab + aksi coba lagi,
+  // bukan ruang kosong senyap.
+  if (loadError && !hasContent && !canUpload) {
+    return <GalleryErrorState message={loadError} onRetry={() => { void fetchPhotos(); }} />;
+  }
 
   if (!hasContent && !canUpload) return null;
 
@@ -215,6 +244,10 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
           Mengupload foto…
         </div>
       )}
+      {/* Galat muat untuk admin: sebab + retry, upload tetap tersedia */}
+      {!!canUpload && loadError && (
+        <GalleryErrorState message={loadError} onRetry={() => { void fetchPhotos(); }} />
+      )}
 
       {/* Link album form */}
       {showLinkForm && (
@@ -257,13 +290,20 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
           {photos.map((photo, idx) => (
             <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-xl">
-              <img
-                src={photo.url}
-                alt={photo.caption || `Foto ${idx + 1}`}
-                className="h-full w-full cursor-pointer object-cover transition group-hover:scale-105"
+              <button
+                type="button"
                 onClick={() => setLightboxIdx(idx)}
-                loading="lazy"
-              />
+                data-gallery-thumb={idx}
+                className="ui-focus-ring block h-full w-full cursor-pointer rounded-xl"
+                aria-label={`Buka foto ${idx + 1} dari ${photos.length}${photo.caption ? `: ${photo.caption}` : ''}`}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.caption || `Foto ${idx + 1}`}
+                  className="h-full w-full object-cover transition group-hover:scale-105"
+                  loading="lazy"
+                />
+              </button>
               {!!canUpload && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
@@ -319,10 +359,63 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
   onNext: () => void;
 }) {
   const photo = photos[currentIdx];
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const idxRef = useRef(currentIdx);
+  useEffect(() => { idxRef.current = currentIdx; }, [currentIdx]);
+
+  // Simpan pembuka untuk pengembalian fokus saat dialog ditutup.
+  // Kembali ke thumbnail posisi terakhir (bukan selalu pembuka awal).
+  useEffect(() => {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    return () => {
+      const current = document.querySelector<HTMLElement>(`[data-gallery-thumb="${idxRef.current}"]`);
+      (current ?? openerRef.current)?.focus();
+    };
+  }, []);
+
+  // Tutup via Escape, navigasi via panah kiri/kanan.
+  useEffect(() => {
+    if (!photo) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [photo, onClose, onPrev, onNext]);
+
+  // Trap fokus di dalam dialog + fokus awal ke tombol tutup.
+  useEffect(() => {
+    if (!photo || !dialogRef.current) return;
+    const container = dialogRef.current;
+    const focusableSelector = 'button:not([disabled])';
+
+    const closeBtn = container.querySelector<HTMLElement>('[data-lightbox-close]');
+    closeBtn?.focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(container.querySelectorAll<HTMLElement>(focusableSelector));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (first && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      } else {
+        if (last && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [photo]);
+
   if (!photo) return null;
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90"
       onClick={onClose}
       role="dialog"
@@ -330,8 +423,10 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
       aria-label={photo.caption ? `Foto: ${photo.caption}` : `Foto ${currentIdx + 1} dari ${photos.length}`}
     >
       <button
-        onClick={onClose}
-        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+        type="button"
+        data-lightbox-close
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="ui-focus-ring absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
         aria-label="Tutup lightbox"
       >
         <X className="h-5 w-5" aria-hidden="true" />
@@ -339,8 +434,9 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
 
       {currentIdx > 0 && (
         <button
+          type="button"
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="absolute left-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          className="ui-focus-ring absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           aria-label="Foto sebelumnya"
         >
           <ChevronLeft className="h-6 w-6" aria-hidden="true" />
@@ -356,8 +452,9 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
 
       {currentIdx < photos.length - 1 && (
         <button
+          type="button"
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="absolute right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          className="ui-focus-ring absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           aria-label="Foto berikutnya"
         >
           <ChevronRight className="h-6 w-6" aria-hidden="true" />

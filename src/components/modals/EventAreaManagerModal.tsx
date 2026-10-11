@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  AlertCircle,
   Camera,
   ChevronLeft,
   Eye,
@@ -10,6 +11,7 @@ import {
   MapPin,
   Pencil,
   Plus,
+  RefreshCw,
   Save,
   Star,
   Trash2,
@@ -456,14 +458,21 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
       <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
-              {error}
+            <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-600/10 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <p>{error}</p>
+                <button type="button" onClick={() => loadAreas()} className="ui-focus-ring mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-[var(--radius-control)] font-semibold underline underline-offset-2">
+                  <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+                  Coba lagi
+                </button>
+              </div>
             </div>
           )}
 
           {isLoading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-accent)] border-t-transparent" />
+            <div role="status" className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--wf-accent)] border-t-transparent" aria-hidden="true" />
               <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat…</span>
             </div>
           )}
@@ -667,8 +676,8 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
               )}
 
               {isMappingLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)] motion-reduce:animate-none" />
+                <div role="status" className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)] motion-reduce:animate-none" aria-hidden="true" />
                   <span className="ml-3 text-sm text-[var(--wf-ink-muted)]">Memuat lokasi…</span>
                 </div>
               ) : mappingRows.length === 0 ? (

@@ -160,8 +160,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
         <div className="mb-10 max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Sponsorship</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
             Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.
           </p>
@@ -252,8 +251,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
           <div id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
             <div className="mb-6 text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Minat Support</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Tertarik Support Event?</h2>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik Support Event?</h2>
               <p className="mt-2 text-sm leading-6 ui-text-muted">
                 Isi form di bawah. Tim Marcomm Metropolitan Mall Bekasi akan menghubungi Anda dalam 5 hari kerja.
               </p>

@@ -85,3 +85,17 @@ Env vars — client: `VITE_API_URL` (**required di produksi**, tidak dipakai lok
 - **Unit (vitest)**: jsdom + globals, setup `src/test/setup.ts` (mocks `matchMedia`, `IntersectionObserver`); 61 file / 420 test hijau (verifikasi audit 2026-09-10; fetch-REST mocks — `api/__tests__/` legacy ikut terhapus saat `api/` dihilangkan). Mock REST di global fetch per-URL, jangan spin server sungguhan.
 - **E2E (Playwright)**: `testDir e2e/`, chromium, `baseURL http://localhost:5173`, webServer auto-starts Vite. `helpers.ts` sudah Opsi B (mock cookie JWT + REST `/api/v1`, one-handler dispatch — jangan regresi ke Supabase-era localStorage injection); e2e tetap utility dok, bukan CI gate. `deck-assets` (regenerate screenshot ke `presentasi/assets/`) juga di-freeze binding ke Supabase-URL-tidak-ada — sedang di-freeze.
 - Known quirks: Windows flaky vitest exit codes are environmental, not regressions; e2e last run green pramigration (`test-results/.last-run.json` dari lama). Coverage configured, ungated.
+
+<!-- antislop:start -->
+## antislop
+For UI, copy, people, mobile layout, or code comments work, read `antislop.md` (core) and then the skill for the task:
+- UI / visual: `skills/antislop-ui/SKILL.md`
+- Copy & text: `skills/antislop-copywriting/SKILL.md`
+- People: `skills/antislop-human/SKILL.md`
+- Mobile / responsive: `skills/antislop-layoutmobile/SKILL.md`
+- Code comments: `skills/antislop-code/SKILL.md`
+Before starting, follow the core's "Two Usage Modes" section in strict order: explicit session instruction first, then global preference, then ask. A session instruction always wins. For a resolved mode, say `antislop active: <mode> (session override).` or `antislop active: <mode> (global preference).` once before presenting findings or making edits, using the actual mode and source. Acknowledging the user's request without naming the source does not replace this notice.
+Only an explicit choice of antislop during or after selects a session mode. A request to review, audit, or avoid file edits does not select antislop's mode; read the global preference in that case. Another skill's mode does not select antislop's mode.
+If the mode is unresolved, ask during/after and end the response; wait for the answer before any UI review, planning, or concept. For read-only tasks, put the active-mode notice only at the start of the final answer, never in progress messages. For editing tasks, announce before the first edit and omit it from the final answer.
+To update antislop later: download `antislop.md` again, or run `npx antislop-ai --update` if it was installed as skill folders.
+<!-- antislop:end -->
