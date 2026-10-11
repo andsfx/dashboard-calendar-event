@@ -31,6 +31,24 @@ const TAGS: Record<MdButtonVariant, string> = {
   text: 'md-text-button',
 };
 
+/**
+ * MD3 hanya punya slot ikon bernama `icon`. Ikon `<svg>` yang ditaruh di slot
+ * default ikut masuk `.label` yang `overflow: hidden + ellipsis`, jadi label
+ * kepotong dan tombol menyusut. Helper ini memindah ikon langsung ke slot
+ * `icon` setelah mount (slot attribute dibaca saat slot assignment).
+ */
+function useMdIconSlot(ref: React.RefObject<HTMLElement | null>): void {
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    for (const child of Array.from(el.children)) {
+      if (child instanceof SVGElement && child.getAttribute('slot') !== 'icon') {
+        child.setAttribute('slot', 'icon');
+      }
+    }
+  });
+}
+
 /** Token destruktif (rose-800 #9f1239 ≈ 6.9:1 dengan teks putih). */
 const DANGER: Record<MdButtonVariant, React.CSSProperties> = {
   filled: {
@@ -83,6 +101,10 @@ export function MdButton({
   const ref = useMdRef<MdHost>();
 
   useMdProps(ref, { disabled, type });
+  // Ikon (svg) di child harus masuk slot "icon" MD3, bukan slot default —
+  // kalau tidak, ikut ke .label yang overflow:hidden sehingga label terpotong.
+  useMdIconSlot(ref);
+
   useMdEvent(ref, 'click', onClick ? (onClick as (e: Event) => void) : undefined, !disabled);
 
   return mdCreate(
