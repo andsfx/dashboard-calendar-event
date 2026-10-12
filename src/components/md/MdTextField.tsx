@@ -40,6 +40,8 @@ export interface MdTextFieldProps {
   className?: string;
   inputRef?: React.Ref<HTMLElement>;
   onKeyDown?: (event: KeyboardEvent) => void;
+  /** konten slot md, mis. `<Search slot="leading-icon" />`. */
+  children?: React.ReactNode;
 }
 
 export function MdTextField({
@@ -62,6 +64,7 @@ export function MdTextField({
   className,
   inputRef,
   onKeyDown,
+  children,
 }: MdTextFieldProps): React.ReactElement {
   const ref = useMdRef<MdHost>();
 
@@ -81,7 +84,6 @@ export function MdTextField({
       supportingText: supportingText ?? '',
     };
     if (rows !== undefined) next.rows = rows;
-    if (maxLength !== undefined) next.maxLength = maxLength;
     for (const key of Object.keys(next)) {
       const val = next[key];
       if (el[key] !== val) el[key] = val;
@@ -99,9 +101,25 @@ export function MdTextField({
   const handleInput = React.useCallback(
     (event: Event) => {
       const host = event.currentTarget as MdHost | null;
-      onChange(typeof host?.value === 'string' ? host.value : '');
+      const raw = typeof host?.value === 'string' ? host.value : '';
+      // `maxLength` ditegakkan di sini, bukan diteruskan ke md: men-set
+      // `maxLength` pada md-text-field memunculkan baris counter "n / N"
+      // bawaan shadow DOM (tampilan pra-migrasi tidak punya itu).
+      // Lewati saat IME composition — memotong di tengah komposisi merusak
+      // input CJK.
+      if (
+        maxLength !== undefined &&
+        raw.length > maxLength &&
+        !(event instanceof InputEvent && event.isComposing)
+      ) {
+        const clamped = raw.slice(0, maxLength);
+        if (host) host.value = clamped;
+        onChange(clamped);
+        return;
+      }
+      onChange(raw);
     },
-    [onChange],
+    [onChange, maxLength],
   );
   // `input` dan `change` sama-sama dipetakan ke `onChange`: md meriwayatkan
   // keduanya dari input internalnya (lihat `redispatchEvent`/`handleInput` di
@@ -119,11 +137,15 @@ export function MdTextField({
     ref.current?.focus();
   }, [ref, autoFocus]);
 
-  return mdCreate('md-outlined-text-field', {
-    ref,
-    id,
-    class: className,
-    'aria-label': ariaLabel,
-    'aria-labelledby': undefined,
-  });
+  return mdCreate(
+    'md-outlined-text-field',
+    {
+      ref,
+      id,
+      class: className,
+      'aria-label': ariaLabel,
+      'aria-labelledby': undefined,
+    },
+    children,
+  );
 }

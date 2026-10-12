@@ -45,7 +45,6 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
 
   return (
     <div className="relative group">
-      <Search className={`pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)] group-focus-within:text-[var(--wf-accent)]'}`} />
       <MdTextField
         value={value}
         onChange={onChange}
@@ -55,7 +54,13 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
         ariaLabel="Cari acara"
         className="w-full"
         inputRef={inputRef}
-      />
+      >
+        <Search
+          slot="leading-icon"
+          className={`h-4 w-4 transition-colors ${value ? 'text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)] group-focus-within:text-[var(--wf-accent)]'}`}
+          aria-hidden="true"
+        />
+      </MdTextField>
 
       {/* Right side: clear button OR keyboard shortcut hint */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">

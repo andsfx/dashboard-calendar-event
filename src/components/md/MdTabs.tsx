@@ -29,7 +29,12 @@ function Tab({ item, active, id }: { item: MdTabItem; active: boolean; id?: stri
   const bindActive = React.useCallback(
     (el: HTMLElement | null) => {
       if (!el) return;
-      (el as MdHost).active = active;
+      const host = el as MdHost;
+      host.active = active;
+      // Pra-migrasi memakai segmented pill: ikon 16px SEJAJAR label.
+      // `inlineIcon` mematikan mode *stacked* md (ikon 24px di atas label,
+      // tinggi 64px). Properti non-reflecting, jadi ditulis imperatif.
+      host.inlineIcon = true;
     },
     [active],
   );
@@ -43,7 +48,12 @@ function Tab({ item, active, id }: { item: MdTabItem; active: boolean; id?: stri
     // axe mengabaikannya. Menuliskan atributnya menyamakan keduanya tanpa
     // mengubah semantik: nilainya identik dengan yang dipasang md.
     { ref: bindActive, id, role: 'tab', 'aria-selected': active ? 'true' : 'false' },
-    marker != null ? mdCreate('span', { slot: 'icon' }, marker) : null,
+    // md-primary-tab menata `slot="icon"` + label secara *stacked* (ikon 24px
+    // di atas label, tinggi 64px). Tampilan pra-migrasi adalah segmented pill
+    // dengan ikon 16px sejajar label, jadi wadah ikon dikunci ke ukuran itu.
+    marker != null
+      ? mdCreate('span', { slot: 'icon', class: 'inline-flex h-4 w-4 shrink-0 items-center justify-center' }, marker)
+      : null,
     item.label,
   );
 }

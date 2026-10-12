@@ -54,6 +54,39 @@ md-dialog {
 md-dialog .md-dialog-content {
   padding: 0;
 }
+
+/* Tailwind preflight (`@layer base { *, ::before, ::after { padding: 0 } }`)
+ * menang atas `:host` di shadow tree, jadi `md-primary-tab` kehilangan
+ * `padding: 0 16px` miliknya dan label antar-tab saling menempel. Pulihkan di
+ * outer tree — ini satu-satunya komponen md yang :host-nya memakai padding.
+ * (md-tabs sudah memasang gap sendiri lewat token; jangan tambah di sini.) */
+md-primary-tab {
+  padding: 0 16px;
+}
+
+/* Sama seperti `md-primary-tab`: `padding-inline-start/end` di `:host` tombol
+ * md tidak pernah terpakai di app ini (computed 0px padahal var internalnya
+ * hidup), jadi setiap tombol kehilangan padding horizontal intrinsiknya dan
+ * label menempel ke tepi. Aturan outer tree di bawah ini yang menegakkannya.
+ * Nilainya memakai var internal md bila ada, dengan fallback MD3 standar. */
+md-filled-button,
+md-outlined-button,
+md-text-button {
+  padding-inline-start: var(--_leading-space, 24px);
+  padding-inline-end: var(--_trailing-space, 24px);
+}
+md-filled-button[has-icon]:not([trailing-icon]),
+md-outlined-button[has-icon]:not([trailing-icon]),
+md-text-button[has-icon]:not([trailing-icon]) {
+  padding-inline-start: var(--_with-leading-icon-leading-space, 16px);
+  padding-inline-end: var(--_with-leading-icon-trailing-space, 24px);
+}
+md-filled-button[has-icon][trailing-icon],
+md-outlined-button[has-icon][trailing-icon],
+md-text-button[has-icon][trailing-icon] {
+  padding-inline-start: var(--_with-trailing-icon-leading-space, 24px);
+  padding-inline-end: var(--_with-trailing-icon-trailing-space, 16px);
+}
 .dark {
   --md-sys-color-primary: var(--wf-accent);          /* #33bfbc, 7.35:1 */
   --md-sys-color-on-primary: var(--wf-accent-ink);   /* #06120f */
