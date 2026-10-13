@@ -308,6 +308,47 @@ export interface ExhibitionDetail {
   leads: ExhibitionLead[];
 }
 
+// ─── Kolaborasi tenant (pengajuan event/kerja sama gerai) ───────────
+export type TenantEventProposalType = 'promo' | 'workshop' | 'exhibition' | 'performance' | 'launching' | 'other';
+export type TenantEventProposalStatus = 'pending' | 'contacted' | 'approved' | 'rejected';
+
+/** Payload form publik `/kolaborasi-tenant` — snake_case berhenti di API module. */
+export interface TenantEventProposalInput {
+  tenantName: string;
+  unitNumber: string;
+  tenantCategory: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  eventTitle: string;
+  eventType: TenantEventProposalType;
+  eventDescription: string;
+  proposedStart: string;
+  proposedEnd: string;
+  preferredArea: string;
+  expectedVisitors: string;
+  needs: string;
+  proposalFileUrl: string;
+  proposalFileName: string;
+  proposalMimeType: string;
+}
+
+export interface TenantEventProposal extends TenantEventProposalInput {
+  id: string;
+  proposalFileSize: number;
+  status: TenantEventProposalStatus;
+  internalNotes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Hasil unggah lampiran proposal ke R2 (metadata saja lewat backend). */
+export interface TenantProposalUpload {
+  fileUrl: string;
+  fileName: string;
+  mimeType: string;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

@@ -63,7 +63,7 @@ const MIME_EXT = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
 
-const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/', 'proposals/', 'registrations/', 'areas/'];
+const ALLOWED_PREFIXES = ['events/', 'albums/', 'gallery/', 'site/', 'proposals/', 'registrations/', 'areas/', 'tenant-proposals/'];
 
 function validateContentType(contentType) {
   const ct = String(contentType || '').split(';')[0].trim().toLowerCase();
@@ -109,6 +109,35 @@ function validateExistingKey(fileName) {
     return { ok: false, error: 'fileName di luar prefix yang diizinkan' };
   }
   return { ok: true, key };
+}
+
+/**
+ * Presign PUT ke R2 untuk folder yang diizinkan.
+ *
+ * Dipakai `/r2/presign` (staff) DAN route publik terbatas (lampiran pengajuan
+ * tenant) supaya aturan key/tipe hanya hidup di satu tempat — bukan dua salinan
+ * yang bisa menyimpang. Pemanggil wajib memeriksa `r2Ready` lebih dulu.
+ *
+ * @returns {{ok:false,error:string} | {ok:true,uploadUrl:string,publicUrl:string,key:string,contentType:string}}
+ */
+export async function createPresignedUpload({ folder, originalName, contentType }) {
+  const safe = buildSafeObjectKey({ folder, originalName, contentType });
+  if (!safe.ok) return safe;
+
+  const command = new PutObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: safe.key,
+    ContentType: safe.contentType,
+  });
+  const uploadUrl = await getSignedUrl(R2, command, { expiresIn: 300 });
+
+  return {
+    ok: true,
+    uploadUrl,
+    publicUrl: `${R2_PUBLIC_URL}/${safe.key}`,
+    key: safe.key,
+    contentType: safe.contentType,
+  };
 }
 
 // ─── Helper terpakai routes/admin.js (mirror api/supabase-admin.js) ─────
@@ -221,28 +250,19 @@ router.post('/presign', requireRole(['superadmin', 'admin']), async (req, res, n
       folderHint = idx > 0 ? raw.slice(0, idx + 1) : 'gallery/';
     }
 
-    const safe = buildSafeObjectKey({
+    const safe = await createPresignedUpload({
       folder: folderHint,
       originalName: originalName || (fileName ? String(fileName).split('/').pop() : ''),
       contentType,
     });
     if (!safe.ok) return res.status(400).json({ success: false, error: safe.error });
 
-    const command = new PutObjectCommand({
-      Bucket: R2_BUCKET,
-      Key: safe.key,
-      ContentType: safe.contentType,
-    });
-
-    const uploadUrl = await getSignedUrl(R2, command, { expiresIn: 300 });
-    const url = `${R2_PUBLIC_URL}/${safe.key}`;
-
     logActivity(req.auth?.user || null, 'upload_r2_file', 'r2', safe.key, {
       folder: safe.key.slice(0, safe.key.lastIndexOf('/') + 1),
       contentType: safe.contentType,
     }, req);
 
-    res.json({ success: true, uploadUrl, publicUrl: url, fileName: safe.key });
+    res.json({ success: true, uploadUrl: safe.uploadUrl, publicUrl: safe.publicUrl, fileName: safe.key });
   } catch (error) {
     console.error('R2 presign error:', error);
     next(error);

@@ -1,36 +1,45 @@
 import { useEffect, useState } from 'react';
-import type { ExhibitionLead, TenantEventSurvey } from '../types';
+import type { ExhibitionLead, TenantEventProposal, TenantEventSurvey } from '../types';
 import { fetchTenantSurveys } from '../utils/api/surveysApi';
 import { fetchExhibitionLeads } from '../utils/api/exhibitionsApi';
+import { fetchTenantEventProposals } from '../utils/api/tenantEventProposalsApi';
 
 export interface InsightContextOptions {
   /** Muat survey kepuasan tenant (butuh izin lihat evaluasi tenant). */
   surveys?: boolean;
   /** Muat pengajuan kolaborasi pameran (butuh izin lihat pameran). */
   exhibitionLeads?: boolean;
+  /** Muat pengajuan kolaborasi tenant (butuh izin lihat kolaborasi tenant). */
+  tenantProposals?: boolean;
 }
 
 export interface InsightContext {
   surveys: TenantEventSurvey[];
   exhibitionLeads: ExhibitionLead[];
+  tenantProposals: TenantEventProposal[];
 }
 
 /**
- * Data lintas-modul untuk panel Insight Cerdas: survey kepuasan tenant dan
- * pengajuan pameran. Keduanya dimuat **sekali** saat panel aktif (bukan ikut
- * polling event) dan **gagal senyap** — kegagalan satu sumber tidak boleh
- * menjatuhkan panel, apalagi halaman. Yang gagal cukup dikosongkan sehingga
- * mesin insight tidak menghasilkan insight dari sumber tersebut.
+ * Data lintas-modul untuk panel Insight Cerdas: survey kepuasan tenant,
+ * pengajuan pameran, dan pengajuan kolaborasi tenant. Semuanya dimuat **sekali**
+ * saat panel aktif (bukan ikut polling event) dan **gagal senyap** — kegagalan
+ * satu sumber tidak boleh menjatuhkan panel, apalagi halaman. Yang gagal cukup
+ * dikosongkan sehingga mesin insight tidak menghasilkan insight dari sumber itu.
  *
  * Izin tetap ditegakkan pemanggil (`permissions.*`): hook ini hanya tahu
  * "muat atau tidak", bukan siapa yang boleh melihat.
  */
-export function useInsightContext({ surveys = false, exhibitionLeads = false }: InsightContextOptions): InsightContext {
+export function useInsightContext({
+  surveys = false,
+  exhibitionLeads = false,
+  tenantProposals = false,
+}: InsightContextOptions): InsightContext {
   const [surveyRows, setSurveyRows] = useState<TenantEventSurvey[]>([]);
   const [leadRows, setLeadRows] = useState<ExhibitionLead[]>([]);
+  const [proposalRows, setProposalRows] = useState<TenantEventProposal[]>([]);
 
   useEffect(() => {
-    if (!surveys && !exhibitionLeads) return;
+    if (!surveys && !exhibitionLeads && !tenantProposals) return;
     let cancelled = false;
 
     const tasks: Promise<void>[] = [];
@@ -48,10 +57,17 @@ export function useInsightContext({ surveys = false, exhibitionLeads = false }: 
           .catch(() => { if (!cancelled) setLeadRows([]); }),
       );
     }
+    if (tenantProposals) {
+      tasks.push(
+        fetchTenantEventProposals()
+          .then((rows) => { if (!cancelled) setProposalRows(rows); })
+          .catch(() => { if (!cancelled) setProposalRows([]); }),
+      );
+    }
     void Promise.all(tasks);
 
     return () => { cancelled = true; };
-  }, [surveys, exhibitionLeads]);
+  }, [surveys, exhibitionLeads, tenantProposals]);
 
-  return { surveys: surveyRows, exhibitionLeads: leadRows };
+  return { surveys: surveyRows, exhibitionLeads: leadRows, tenantProposals: proposalRows };
 }

@@ -11,7 +11,7 @@ describe('DashboardStats', () => {
     past: 75,
   }
 
-  const attention = { draftCount: 2, pendingRegistrations: 1, pendingExhibitionLeads: 1, draftsError: null }
+  const attention = { draftCount: 2, pendingRegistrations: 1, pendingExhibitionLeads: 1, pendingTenantProposals: 0, draftsError: null }
 
   it('renders the actionable counts plus the reference pair', () => {
     render(<DashboardStats stats={mockStats} attention={attention} />)
@@ -60,13 +60,19 @@ describe('DashboardStats', () => {
   })
 
   it('shows no queue tier at all when nothing is waiting', () => {
-    render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, draftsError: null }} />)
+    render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 0, draftsError: null }} />)
     expect(screen.queryByText('Menunggu keputusan')).not.toBeInTheDocument()
     expect(screen.getByText('Sedang Berlangsung')).toBeInTheDocument()
   })
 
+  it('counts pending tenant collaboration proposals into the lead number', () => {
+    render(<DashboardStats stats={mockStats} attention={{ draftCount: 1, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 3, draftsError: null }} />)
+    // 1 draft + 3 pengajuan kolaborasi tenant
+    expect(screen.getByText('4')).toBeInTheDocument()
+  })
+
   it('names the cause when the draft queue fails to load', () => {
-    render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, draftsError: 'Gagal memuat draft event.' }} />)
+    render(<DashboardStats stats={mockStats} attention={{ draftCount: 0, pendingRegistrations: 0, pendingExhibitionLeads: 0, pendingTenantProposals: 0, draftsError: 'Gagal memuat draft event.' }} />)
     expect(screen.getByText('—')).toBeInTheDocument()
     expect(screen.getByText(/Sebagian antrian gagal dimuat: Gagal memuat draft event\./)).toBeInTheDocument()
   })

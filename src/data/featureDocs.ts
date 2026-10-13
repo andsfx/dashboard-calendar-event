@@ -832,6 +832,29 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
           },
           {
+            id: 'kolaborasi-tenant',
+            name: 'Kolaborasi Tenant',
+            path: '/kolaborasi-tenant',
+            audience: 'Tenant',
+            summary:
+              'Halaman pengajuan event kerja sama untuk gerai dan tenant Metropolitan Mall Bekasi, dengan lampiran proposal opsional.',
+            steps: [
+              'Buka /kolaborasi-tenant.',
+              'Bagian Data Gerai: isi Nama Gerai (wajib), lalu Nomor Unit/Lot dan Kategori Gerai bila ada.',
+              'Bagian PIC: isi Nama PIC dan Nomor WhatsApp (wajib), lengkapi Email bila perlu.',
+              'Bagian Rencana Event: isi Judul Event, Jenis Kegiatan, Deskripsi Kegiatan (wajib), serta Tanggal Mulai (wajib).',
+              'Isi Tanggal Selesai bila kegiatan lebih dari sehari, Area yang diinginkan, Perkiraan Pengunjung, dan Kebutuhan Fasilitas.',
+              'Lampirkan proposal (PDF/Word, maksimal 20MB) bila konsepnya sudah tertulis.',
+              'Klik "Kirim Pengajuan" dan lihat konfirmasi bahwa pengajuan masuk antrean tinjauan.',
+            ],
+            notes: [
+              'Yang wajib: nama gerai, nama PIC, nomor WhatsApp, judul event, deskripsi (minimal 10 karakter), dan tanggal mulai.',
+              'Tanggal mulai tidak boleh di masa lalu; tanggal selesai tidak boleh sebelum tanggal mulai dan boleh dikosongkan untuk kegiatan sehari.',
+              'Ajukan minimal dua pekan sebelum tanggal rencana agar penjadwalan dan perizinan sempat diproses.',
+              'Pengajuan ditinjau lewat modul Kolaborasi Tenant di dashboard; menyetujui pengajuan tidak otomatis membuat event.',
+            ],
+          },
+          {
             id: 'survey-publik',
             name: 'Survey Kepuasan',
             path: '/survey/:eventId',

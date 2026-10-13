@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
-import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead } from '../../types';
+import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { DASHBOARD_GROUP_ORDER, getCommandCenterCards } from './dashboardNavigation';
 
@@ -11,6 +11,8 @@ interface CommandCenterDirectoryProps {
   communityRegistrations: CommunityRegistration[];
   /** Pengajuan pameran/aktivasi yang menunggu review manusia. */
   exhibitionLeads?: ExhibitionLead[];
+  /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
+  tenantProposals?: TenantEventProposal[];
   draftsError?: string | null;
   permissions: Permissions;
 }
@@ -32,6 +34,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
   annualThemes,
   communityRegistrations,
   exhibitionLeads,
+  tenantProposals,
   draftsError,
   permissions,
 }: CommandCenterDirectoryProps) {
@@ -40,6 +43,7 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
     annualThemes,
     communityRegistrations,
     exhibitionLeads,
+    tenantProposals,
     draftsError,
     permissions,
   });

@@ -16,6 +16,8 @@
  *   GET  /api/v1/albums/:slug    — detail album by slug
  *   GET  /api/v1/areas           — event areas (+ photos)
  *   GET  /api/v1/settings/:key   — site setting by key (JSON value)
+ *   POST /api/v1/tenant-event-proposals            — pengajuan kolaborasi tenant (publik)
+ *   POST /api/v1/tenant-event-proposals/attachment — presign lampiran proposal (publik terbatas)
  *   POST /api/v1/auth/login      — login (bcrypt + JWT cookie)
  *   POST /api/v1/auth/logout     — logout (clear cookie)
  *   GET  /api/v1/auth/me         — sesi aktif
@@ -44,6 +46,7 @@ import surveyRouter from './routes/survey.js';
 import tenantRouter from './routes/tenant.js';
 import extraRouter from './routes/extra.js';
 import exhibitionsRouter from './routes/exhibitions.js';
+import tenantProposalsRouter from './routes/tenantProposals.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -82,6 +85,7 @@ app.use((req, _res, next) => {
 app.use('/api/v1', publicRouter);
 app.use('/api/v1', extraRouter);
 app.use('/api/v1', exhibitionsRouter);
+app.use('/api/v1', tenantProposalsRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/r2', r2Router);

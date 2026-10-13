@@ -24,6 +24,7 @@ const adminPermissions: Permissions = {
   canViewDrafts: true,
   canViewThemes: true,
   canViewExhibitions: true,
+  canViewTenantProposals: true,
   canViewUsers: true,
   canViewSettings: true,
   canViewSponsorship: true,
@@ -259,6 +260,7 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
         canViewDrafts: false,
         canViewThemes: false,
         canViewExhibitions: false,
+        canViewTenantProposals: false,
         canViewRegistrations: false,
         canViewSurvey: false,
         canViewTenantSurveys: false,
@@ -272,5 +274,55 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
     // `events` dan `insights` tidak dijaga predicate izin modul (sama seperti
     // rail: keduanya hanya gugur untuk akun tenant-relation murni).
     expect(cards.map(card => card.id)).toEqual(['events', 'insights']);
+  });
+});
+
+describe('getCommandCenterCards: modul Kolaborasi Tenant', () => {
+  it('muncul di register dengan plat lokasi yang sama', () => {
+    const cards = getCommandCenterCards({ ...baseParams });
+    const card = cards.find(item => item.id === 'tenant-proposals');
+
+    expect(card).toBeDefined();
+    expect(card!.title).toBe('Kolaborasi Tenant');
+    expect(card!.route).toBe('/dashboard/tenant-proposals');
+    expect(card!.subtitle).toBe(getWayfindingMap('/tenant-proposals').current.description);
+  });
+
+  it('membawa antrian pengajuan yang belum direview', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      tenantProposals: [
+        { id: 'p1', status: 'pending' },
+        { id: 'p2', status: 'contacted' },
+        { id: 'p3', status: 'pending' },
+      ] as never,
+    });
+
+    expect(cards.find(item => item.id === 'tenant-proposals')!.queue).toMatchObject({
+      count: 2,
+      state: 'pengajuan menunggu review',
+    });
+  });
+
+  it('tidak punya antrian bila tidak ada pengajuan yang menunggu', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      tenantProposals: [{ id: 'p1', status: 'approved' }] as never,
+    });
+
+    expect(cards.find(item => item.id === 'tenant-proposals')!.queue).toBeUndefined();
+  });
+
+  it('disembunyikan bila role tidak punya izin melihat kolaborasi tenant', () => {
+    const cards = getCommandCenterCards({
+      ...baseParams,
+      permissions: { ...adminPermissions, canViewTenantProposals: false },
+    });
+
+    expect(cards.find(item => item.id === 'tenant-proposals')).toBeUndefined();
+  });
+
+  it('tersedia di jalur dashboard yang diizinkan', () => {
+    expect(getAllowedDashboardPaths(adminPermissions)).toContain('/tenant-proposals');
   });
 });

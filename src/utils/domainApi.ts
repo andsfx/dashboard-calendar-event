@@ -133,6 +133,14 @@ export {
   type AdminExhibition,
 } from './api/exhibitionsApi';
 
+export {
+  fetchTenantEventProposals,
+  submitTenantEventProposal,
+  uploadTenantProposalAttachment,
+  updateTenantEventProposal,
+  deleteTenantEventProposal,
+} from './api/tenantEventProposalsApi';
+
 export type {
   PublicTenantSurveyEventInfo,
   TenantDropdownOption,

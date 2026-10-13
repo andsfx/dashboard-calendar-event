@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, InsightAction } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, TenantEventProposal, TenantEventProposalStatus, InsightAction } from '../../types';
 import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
 import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
@@ -33,6 +33,7 @@ const TenantSurveyPage = lazy(() => import('../survey/TenantSurveyPage'));
 const UserManagement = lazy(() => import('../admin/UserManagement').then(m => ({ default: m.UserManagement })));
 const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
+const TenantProposalManager = lazy(() => import('../admin/TenantProposalManager').then(m => ({ default: m.TenantProposalManager })));
 /* Modul konten — dulu modal, kini halaman pada rute /dashboard/content/*. */
 const InstagramSettingsModal = lazy(() => import('../modals/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 const AlbumManagerModal = lazy(() => import('../modals/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
@@ -85,6 +86,15 @@ export interface DashboardPageExhibitions {
   onReviewLead: (id: string, status: ExhibitionLead['status']) => Promise<boolean>;
   onLinkActivation: (exhibitionId: string, eventId: string) => Promise<boolean>;
   onUnlinkActivation: (eventId: string) => Promise<boolean>;
+}
+
+export interface DashboardPageTenantProposals {
+  proposals: TenantEventProposal[];
+  isLoading: boolean;
+  error: string;
+  onReview: (id: string, status: TenantEventProposalStatus) => Promise<boolean>;
+  onSaveNotes: (id: string, notes: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
 }
 
 export interface DashboardPageFilters {
@@ -188,6 +198,7 @@ export interface DashboardPageProps {
   events: DashboardPageEvents;
   drafts: DashboardPageDrafts;
   exhibitions: DashboardPageExhibitions;
+  tenantProposals: DashboardPageTenantProposals;
   filters: DashboardPageFilters;
   view: DashboardPageView;
   handlers: DashboardPageHandlers;
@@ -202,7 +213,7 @@ export interface DashboardPageProps {
 export function DashboardPage({
   isAdmin, isLoading, permissions, canSeeInternalSchedule,
   isDark, onToggleDark, dashboardPath, publicSectionItems,
-  auth, events, drafts, exhibitions, filters, view,
+  auth, events, drafts, exhibitions, tenantProposals, filters, view,
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
   const navigate = useNavigate();
@@ -218,6 +229,7 @@ export function DashboardPage({
   const insightContext = useInsightContext({
     surveys: permissions.canViewTenantSurveys && !permissions.isTenantRelation,
     exhibitionLeads: permissions.canViewExhibitions,
+    tenantProposals: permissions.canViewTenantProposals,
   });
   const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
 
@@ -346,6 +358,9 @@ export function DashboardPage({
               pendingExhibitionLeads: permissions.canViewExhibitions
                 ? exhibitions.leads.filter(lead => lead.status === 'pending').length
                 : 0,
+              pendingTenantProposals: permissions.canViewTenantProposals
+                ? tenantProposals.proposals.filter(item => item.status === 'pending').length
+                : 0,
               draftsError: drafts.draftError,
             }}
           />
@@ -354,6 +369,7 @@ export function DashboardPage({
             annualThemes={events.annualThemes}
             communityRegistrations={registrations.communityRegistrations}
             exhibitionLeads={exhibitions.leads}
+            tenantProposals={tenantProposals.proposals}
             draftsError={drafts.draftError}
             permissions={permissions}
           />
@@ -368,6 +384,7 @@ export function DashboardPage({
             annualThemes={events.annualThemes}
             communityRegistrations={registrations.communityRegistrations}
             exhibitionLeads={exhibitions.leads}
+            tenantProposals={tenantProposals.proposals}
             draftsError={drafts.draftError}
             permissions={permissions}
           />
@@ -388,6 +405,7 @@ export function DashboardPage({
             areas={siteSettings.eventAreas}
             surveys={insightContext.surveys}
             exhibitionLeads={insightContext.exhibitionLeads}
+            tenantProposals={insightContext.tenantProposals}
             allowedPaths={allowedInsightPaths}
             onAction={handleInsightAction}
           />
@@ -478,6 +496,24 @@ export function DashboardPage({
               onReviewLead={exhibitions.onReviewLead}
               onLinkActivation={exhibitions.onLinkActivation}
               onUnlinkActivation={exhibitions.onUnlinkActivation}
+              onConfirm={modalState.openConfirm}
+              readOnly={!permissions.canEditEvents}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {/* Kolaborasi Tenant — antrean pengajuan event dari gerai */}
+      {permissions.canViewTenantProposals && dashboardPath === '/tenant-proposals' && (
+        <section id="tenant-proposals-section" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <TenantProposalManager
+              proposals={tenantProposals.proposals}
+              isLoading={tenantProposals.isLoading}
+              error={tenantProposals.error}
+              onReview={tenantProposals.onReview}
+              onSaveNotes={tenantProposals.onSaveNotes}
+              onDelete={tenantProposals.onDelete}
               onConfirm={modalState.openConfirm}
               readOnly={!permissions.canEditEvents}
             />

@@ -7,6 +7,7 @@ import type {
   EventItem,
   ExhibitionLead,
   InsightSeverity,
+  TenantEventProposal,
   TenantEventSurvey,
 } from '../../types';
 
@@ -445,6 +446,27 @@ describe('buildEventInsights', () => {
       const insight = result.insights.find((item) => item.id === 'pengajuan-pameran');
       expect(insight?.metric).toBe('2');
       expect(insight?.crossModule).toBe(true);
+    });
+
+    it('melaporkan pengajuan kolaborasi tenant yang menunggu tinjauan', () => {
+      const result = buildEventInsights({
+        events: [],
+        activeDrafts: [],
+        registrations: [],
+        areas: [],
+        tenantProposals: [
+          { id: 'p1', status: 'pending' },
+          { id: 'p2', status: 'pending' },
+          { id: 'p3', status: 'pending' },
+          { id: 'p4', status: 'approved' },
+        ] as unknown as TenantEventProposal[],
+        now: NOW,
+      });
+      const insight = result.insights.find((item) => item.id === 'pengajuan-kolaborasi-tenant');
+      expect(insight?.metric).toBe('3');
+      expect(insight?.severity).toBe('saran');
+      expect(insight?.crossModule).toBe(true);
+      expect(insight?.actions?.[0]?.path).toBe('/tenant-proposals');
     });
 
     it('tidak menghasilkan insight lintas-modul bila data tidak diberikan', () => {

@@ -65,6 +65,7 @@ export const DEMO_READ_ACTIONS = new Set([
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',
+  'listTenantEventProposals',
 ]);
 
 /** Boleh tidak role ini menjalankan aksi admin tersebut? (demo = baca saja) */

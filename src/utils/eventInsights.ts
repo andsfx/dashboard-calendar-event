@@ -6,6 +6,7 @@ import type {
   EventItem,
   ExhibitionLead,
   InsightSeverity,
+  TenantEventProposal,
   TenantEventSurvey,
 } from '../types';
 import { MONTH_NAMES, getDateRange, getStatus, parseDateStrLocal } from './eventUtils';
@@ -35,6 +36,8 @@ export interface EventInsightsInput {
   surveys?: TenantEventSurvey[];
   /** Opsional — pengajuan kolaborasi pameran. */
   exhibitionLeads?: ExhibitionLead[];
+  /** Opsional — pengajuan kolaborasi tenant. */
+  tenantProposals?: TenantEventProposal[];
   /** Titik waktu acuan. Eksplisit agar dapat diuji; default `new Date()`. */
   now?: Date;
 }
@@ -467,6 +470,22 @@ function exhibitionQueueInsight(leads: ExhibitionLead[]): EventInsight[] {
   }];
 }
 
+/** Pengajuan kolaborasi tenant yang belum ditinjau. */
+function tenantProposalQueueInsight(proposals: TenantEventProposal[]): EventInsight[] {
+  const pending = proposals.filter((item) => item.status === 'pending').length;
+  if (pending === 0) return [];
+
+  return [{
+    id: 'pengajuan-kolaborasi-tenant',
+    severity: pending >= 3 ? 'saran' : 'info',
+    title: 'Pengajuan kolaborasi tenant menunggu tinjauan',
+    body: `${pending} pengajuan event dari gerai tenant berstatus "menunggu" belum ditinjau.`,
+    metric: String(pending),
+    crossModule: true,
+    actions: [{ label: 'Kolaborasi Tenant', path: '/tenant-proposals' }],
+  }];
+}
+
 /**
  * Susun seluruh insight dari data mentah halaman, diurutkan menurut kepentingan
  * (peringatan → saran → info). Urutan antar-severity stabil sesuai urutan sumber.
@@ -478,6 +497,7 @@ export function buildEventInsights({
   areas,
   surveys,
   exhibitionLeads,
+  tenantProposals,
   now = new Date(),
 }: EventInsightsInput): EventInsightsResult {
   const insights: EventInsight[] = [
@@ -493,6 +513,7 @@ export function buildEventInsights({
     ...gapInsight(events, now),
     ...tenantRatingInsight(surveys ?? [], now),
     ...exhibitionQueueInsight(exhibitionLeads ?? []),
+    ...tenantProposalQueueInsight(tenantProposals ?? []),
   ];
 
   insights.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);

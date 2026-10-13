@@ -27,6 +27,7 @@ const adminPermissions: Permissions = {
   canViewDrafts: true,
   canViewThemes: true,
   canViewExhibitions: true,
+  canViewTenantProposals: true,
   canViewUsers: true,
   canViewSettings: true,
   canViewSponsorship: true,

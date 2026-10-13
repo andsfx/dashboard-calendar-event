@@ -1179,6 +1179,52 @@ async function switchAction(action, req) {
       return { success: true };
     }
 
+    // ══════════ KOLABORASI TENANT ══════════
+    case 'listTenantEventProposals': {
+      const { rows } = await db.query(
+        `SELECT * FROM tenant_event_proposals ORDER BY created_at DESC`,
+      );
+      // Demo = read-only, tapi PII tetap disamarkan (pola readRegistrations /
+      // listSponsorLeads): struktur boleh dilihat, identitas PIC tidak.
+      const isDemo = req.auth?.user?.role === DEMO_ROLE;
+      const data = isDemo
+        ? rows.map(r => ({ ...r, contact_name: maskName(r.contact_name), phone: maskPhone(r.phone), email: maskEmail(r.email) }))
+        : rows;
+      return { success: true, data };
+    }
+
+    case 'updateTenantEventProposal': {
+      // Kolom ditulis lewat SET tetap (whitelist manual) — bukan spread body,
+      // supaya key asing tidak pernah bisa jadi nama kolom.
+      const sets = [];
+      const values = [];
+      if (body.status !== undefined) { values.push(body.status); sets.push(`status = $${values.length}`); }
+      if (body.internalNotes !== undefined) { values.push(body.internalNotes); sets.push(`internal_notes = $${values.length}`); }
+      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      sets.push('updated_at = NOW()');
+      values.push(body.id);
+
+      const { rowCount } = await db.query(
+        `UPDATE tenant_event_proposals SET ${sets.join(', ')} WHERE id = $${values.length}`,
+        values,
+      );
+      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      logActivity(auth.user, 'update_tenant_event_proposal', 'tenant_event_proposal', body.id, { status: body.status }, req);
+      return { success: true };
+    }
+
+    case 'deleteTenantEventProposal': {
+      const { rows } = await db.query(
+        'SELECT proposal_file_url FROM tenant_event_proposals WHERE id = $1 LIMIT 1',
+        [body.id],
+      );
+      const { rowCount } = await db.query('DELETE FROM tenant_event_proposals WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      if (rows[0]?.proposal_file_url) await deleteR2File(rows[0].proposal_file_url);
+      logActivity(auth.user, 'delete_tenant_event_proposal', 'tenant_event_proposal', body.id, null, req);
+      return { success: true };
+    }
+
     // ══════════ INSIGHT CERDAS — narasi AI (opsional) ══════════
     case 'getInsightNarrative': {
       if (!isAiEnabled()) {

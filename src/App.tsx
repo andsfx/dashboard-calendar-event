@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/ui/DashboardSkeleton';
 import { ToastContainer } from './components/ui/ToastContainer';
-import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
+import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageTenantProposals, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath, CONTENT_ROUTES } from './components/dashboard/dashboardNavigation';
 import { DashboardShell } from './components/dashboard/DashboardShell';
 import { deriveCommunityStats } from './components/community/communityStats';
@@ -13,6 +13,7 @@ import { useToast } from './hooks/useToast';
 import { useAuth } from './hooks/useAuth';
 import { usePermission } from './hooks/usePermission';
 import { useExhibitions } from './hooks/useExhibitions';
+import { useTenantEventProposals } from './hooks/useTenantEventProposals';
 import { useDashboardHandlers } from './hooks/useDashboardHandlers';
 import { useConfirmDialog } from './components/modals/useConfirmDialog';
 import { ViewMode } from './types';
@@ -61,6 +62,7 @@ const TenantDirectoryPage = lazy(() => import('./pages/TenantDirectoryPage').the
 const CommunityDirectoryPage = lazy(() => import('./pages/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
 const ExhibitionsLandingPage = lazy(() => import('./pages/ExhibitionsLandingPage').then(m => ({ default: m.ExhibitionsLandingPage })));
 const RegistrationPage = lazy(() => import('./pages/RegistrationPage').then(m => ({ default: m.RegistrationPage })));
+const TenantCollaborationPage = lazy(() => import('./pages/TenantCollaborationPage').then(m => ({ default: m.TenantCollaborationPage })));
 const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./pages/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
@@ -83,6 +85,7 @@ export default function App() {
   const auth = useAuth();
   const permissions = usePermission(auth.user);
   const exhibitions = useExhibitions(permissions.canViewExhibitions);
+  const tenantProposals = useTenantEventProposals(permissions.canViewTenantProposals);
   const isAdmin = permissions.canViewDashboard;
   const canSeeInternalSchedule = permissions.canViewInternalSchedule;
   const { toasts, showToast, removeToast } = useToast();
@@ -291,6 +294,14 @@ export default function App() {
     onLinkActivation: exhibitions.linkActivation,
     onUnlinkActivation: exhibitions.unlinkActivation,
   };
+  const dpTenantProposals: DashboardPageTenantProposals = {
+    proposals: tenantProposals.proposals,
+    isLoading: tenantProposals.isLoading,
+    error: tenantProposals.error,
+    onReview: tenantProposals.reviewProposal,
+    onSaveNotes: tenantProposals.saveNotes,
+    onDelete: tenantProposals.removeProposal,
+  };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
   const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleToggleVisibility, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
@@ -421,6 +432,12 @@ export default function App() {
           <EventSubmissionPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
+      {/* Kolaborasi tenant — pengajuan event/kerja sama gerai + lampiran proposal */}
+      <Route path="/kolaborasi-tenant" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <TenantCollaborationPage isDark={isDark} onToggleDark={toggleDark} />
+        </Suspense>
+      } />
       <Route path="/community" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <CommunityDirectoryPage isDark={isDark} onToggleDark={toggleDark} />
@@ -526,6 +543,7 @@ export default function App() {
               events={dpEvents}
               drafts={dpDrafts}
               exhibitions={dpExhibitions}
+              tenantProposals={dpTenantProposals}
               filters={dpFilters}
               view={dpView}
               handlers={dpHandlers}
