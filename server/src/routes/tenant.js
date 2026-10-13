@@ -35,6 +35,7 @@ import {
   DEMO_READ_ROLES,
 } from '../auth.js';
 import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
+import { jakartaToday, startedOnOrBefore, startedStatusCase } from '../lib/eventWindow.js';
 
 const router = Router();
 
@@ -99,6 +100,56 @@ const SURVEY_OPTIONS = {
   ],
 };
 
+/**
+ * Label Bahasa Indonesia untuk pesan validasi. WAJIB di module scope.
+ *
+ * Regresi: `LABELS` pernah dideklarasikan di dalam `pushTextLimitErrors`,
+ * padahal dipakai juga oleh `validateDraftSubmission`. Dua pemakai yang
+ * tidak bisa saling melihat → `ReferenceError: LABELS is not defined` saat
+ * `POST /api/v1/tenant/create` menerima enum di luar daftar, yang manifest
+ * sebagai HTTP 500 (bukan 400 + pesan yang bisa ditindaklanjuti). `server/`
+ * tidak dicek tsc dan tidak diimpor tes, jadi ReferenceError seperti ini
+ * lolos tooling apa pun — hanya muncul saat endpoint dipanggil produksi.
+ */
+const LABELS = {
+  feedback_teks: 'Teks masukan',
+  feedback_comment: 'Komentar',
+  improvement_suggestion: 'Saran perbaikan',
+  pic_name: 'Nama penanggung jawab',
+  pic_phone: 'Nomor telepon penanggung jawab',
+  lokasi_zona: 'Lokasi/zona',
+  kategori: 'Kategori',
+  kenaikan_traffic: 'Kenaikan traffic',
+  kenaikan_sales: 'Kenaikan sales',
+};
+
+/**
+ * Normalisasi input ke enum `business_category_enum` Postgres ('fnb','retail',
+ * 'jasa','other'). Kolomnya USER-DEFINED enum, jadi string asing tidak bisa
+ * "dibiarkan ke CHECK" — harus dipetakan ke nilai yang valid SEBELUM query,
+ * atau insert gagal dengan error 22P02 yang bocor sebagai HTTP 500.
+ * Nilai kosong = null (field opsional), bukan 'other' paksa.
+ */
+function businessCategory(value) {
+  if (value == null || value === '') return null;
+  const v = String(value).trim().toLowerCase();
+  return BUSINESS_CATEGORIES.has(v) ? v : null;
+}
+
+/**
+ * Persentase kenaikan — kolom NUMERIC(5,2) dengan CHECK -100..1000.
+ * Input form dikirim sebagai string dan bisa kosong; konversi di sini
+ * mencegah error numerik yang ter-map ke pesan CHECK yang menyesatkan.
+ */
+function liftPct(value) {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Nilai yang diizinkan enum `business_category_enum` (lihat schema.sql §0). */
+const BUSINESS_CATEGORIES = new Set(['fnb', 'retail', 'jasa', 'other']);
+
 function pushTextLimitErrors(body, errors) {
   const limits = [
     ['feedback_teks', 2000],
@@ -107,17 +158,7 @@ function pushTextLimitErrors(body, errors) {
     ['pic_name', 100],
     ['pic_phone', 20],
   ];
-  const LABELS = {
-    feedback_teks: 'Teks masukan',
-    feedback_comment: 'Komentar',
-    improvement_suggestion: 'Saran perbaikan',
-    pic_name: 'Nama penanggung jawab',
-    pic_phone: 'Nomor telepon penanggung jawab',
-    lokasi_zona: 'Lokasi/zona',
-    kategori: 'Kategori',
-    kenaikan_traffic: 'Kenaikan traffic',
-    kenaikan_sales: 'Kenaikan sales',
-  };
+
   for (const [field, max] of limits) {
     const raw = body[field];
     if (raw != null && String(raw).length > max) {
@@ -231,7 +272,14 @@ function csvEscape(val) {
 // PUBLIC
 // ═══════════════════════════════════════════════════════════════════
 
-// ─── GET /events — event past+ongoing dgn survey aktif ─────────────
+// ─── GET /events — event yang SUDAH MULAI + survey aktif ───────────
+//
+// Status event diturunkan dari tanggal (ADR 002), bukan dari kolom
+// `events.status` yang basi: `publishDraft` tidak pernah mengisinya, jadi tiap
+// event dari draft terkunci 'upcoming' (produksi 258/258) dan filter
+// `status IN ('past','ongoing')` hanya mengembalikan 1 dari 5 event aktif.
+// Kolom `status` kini hanya dibaca untuk menyingkirkan draft (gerbang
+// visibilitas publik), bukan untuk menentukan waktu.
 router.get('/events', async (_req, res, next) => {
   try {
     const { rows: configs } = await db.query(
@@ -242,12 +290,15 @@ router.get('/events', async (_req, res, next) => {
       return res.json({ success: true, data: { events: [] } });
     }
     const { rows } = await db.query(
-      `SELECT id, acara, tanggal, lokasi, eo, status
-       FROM events
-       WHERE status IN ('past', 'ongoing') AND id = ANY($1::text[])
-       ORDER BY tanggal DESC
+      `SELECT e.id, e.acara, e.tanggal, e.lokasi, e.eo,
+              ${startedStatusCase('e.date_str', 'e.date_end', '$2')} AS status
+       FROM events e
+       WHERE e.status <> 'draft'
+         AND ${startedOnOrBefore('e.date_str', '$2')}
+         AND e.id = ANY($1::text[])
+       ORDER BY e.date_str DESC
        LIMIT 200`,
-      [activeIds],
+      [activeIds, jakartaToday()],
     );
     return res.json({ success: true, data: rows });
   } catch (err) {
@@ -704,8 +755,9 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
          venue_rating, management_rating, event_organization_rating, booth_facility_rating, overall_rating,
          feedback_comment, improvement_suggestion, nama_gerai, lokasi_zona, kategori,
          kenaikan_traffic, kenaikan_sales, feedback_teks, tenant_id,
+         business_category, business_subcategory, sales_lift_pct, traffic_lift_pct,
          pic_name, pic_phone, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,'draft')
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,'draft')
        RETURNING *`,
       [
         sanitize(body.event_id, 200),
@@ -728,6 +780,13 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
         body.kenaikan_sales || null,
         sanitize(body.feedback_teks || '', 2000),
         sanitize(body.tenant_id || '', 100),
+        // Keempat kolom ini menerima input dari client (surveysApi.ts createTenantSurvey)
+        // dan bisa ditulis lewat /update, tapi INSERT di sini pernah mengabaikannya
+        // sehingga draft staff/eo_tenant diam-diam kehilangan isian dan tetap balas 201.
+        businessCategory(body.business_category),
+        body.business_subcategory ? sanitize(String(body.business_subcategory), 50) : null,
+        liftPct(body.sales_lift_pct),
+        liftPct(body.traffic_lift_pct),
         sanitize(body.pic_name || '', 100),
         sanitize(body.pic_phone || '', 20),
       ],

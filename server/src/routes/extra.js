@@ -31,6 +31,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { db } from '../db.js';
 import { requireRole, logActivity, STAFF_ROLES, DEMO_ROLE, DEMO_READ_ROLES, maskEmail } from '../auth.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
+import { jakartaToday, notStartedOn } from '../lib/eventWindow.js';
 
 const router = Router();
 
@@ -383,10 +384,14 @@ router.get('/sponsor/events', async (req, res) => {
                  FROM event_proposals ep
                 WHERE ep.event_id = e.id) AS event_proposals
          FROM events e
-        WHERE e.status = 'upcoming'
-          AND e.date_str >= to_char(CURRENT_DATE, 'YYYY-MM-DD')
+        -- "Upcoming" murni urusan tanggal, bukan kolom status (ADR 002):
+        -- kolom itu menyimpan nilai basi karena publishDraft tidak pernah
+        -- mengisinya. Draft tetap disingkirkan sebagai gerbang visibilitas.
+        WHERE e.status <> 'draft'
+          AND ${notStartedOn('e.date_str', '$1')}
         ORDER BY e.date_str ASC
         LIMIT 100`,
+      [jakartaToday()],
     );
     return res.status(200).json({ success: true, data: rows });
   } catch (err) {

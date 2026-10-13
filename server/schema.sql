@@ -170,7 +170,11 @@ CREATE TABLE IF NOT EXISTS events (
   eo TEXT,
   keterangan TEXT,
   month TEXT,
-  status TEXT DEFAULT 'upcoming',                  -- prod tanpa CHECK (hanya FKs)
+  -- Fresh-DB: constraint inline aman karena tabel yang baru dibuat belum punya baris.
+  -- DB yang sudah ada upgrading lewat migrations/2026-10-04-normalize-event-status.sql
+  -- (backfill → constraint), bukan lewat CREATE TABLE IF NOT EXISTS di sini.
+  status TEXT DEFAULT 'published' CONSTRAINT chk_events_status_lifecycle
+    CHECK (status IN ('draft', 'published')),  -- HANYA flag lifecycle. Nilai temporal (upcoming/ongoing/past) TIDAK disimpan — diturunkan dari date_str/date_end (ADR 002).
   category TEXT DEFAULT 'Umum',
   priority TEXT DEFAULT 'medium',
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -193,8 +197,17 @@ CREATE TABLE IF NOT EXISTS events (
   area_id TEXT REFERENCES event_areas(id) ON DELETE SET NULL
 );
 
+
+-- CATATAN: constraint `chk_events_status_lifecycle` TIDAK dipasang di sini.
+-- `CREATE TABLE IF NOT EXISTS` tidak menyentuh tabel yang sudah ada, tapi
+-- `ADD CONSTRAINT` berikut akan tetap dievaluasi — dan gagal pada DB yang
+-- masih punya baris legacy ('upcoming'/'past'/'ongoing'). Satu-satunya jalur
+-- yang aman adalah migrasi terurut: normalisasi data dulu, baru pasang
+-- constraint (server/migrations/2026-10-04-normalize-event-status.sql).
+
 CREATE INDEX IF NOT EXISTS idx_events_date_str ON events (date_str);
-CREATE INDEX IF NOT EXISTS idx_events_status ON events (status);
+-- Indeks status lama (idx_events_status) di-drop: tak ada lagi filter temporal.
+CREATE INDEX IF NOT EXISTS idx_events_draft ON events (id) WHERE status = 'draft';
 CREATE INDEX IF NOT EXISTS idx_events_category ON events (category);
 CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type);
 CREATE INDEX IF NOT EXISTS idx_events_priority ON events (priority);
@@ -264,6 +277,11 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_login_at TIMESTAMPTZ,
+  -- Versi token: dinaikkan saat logout / reset password untuk mencabut SEMUA
+  -- access+refresh token yang sudah beredar (stolen token tak lagi sah).
+  -- Access & refresh JWT membawa claim `ver`; `authenticate` membandingkannya
+  -- dengan kolom ini di kedua jalur (access fast-path dan refresh-rotation).
+  token_version INTEGER NOT NULL DEFAULT 0,
   created_by UUID REFERENCES users(id),
   eo_organization TEXT DEFAULT '',
   assigned_events TEXT[] DEFAULT '{}',

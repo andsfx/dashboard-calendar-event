@@ -71,10 +71,14 @@ async function main() {
   const hash = await bcrypt.hash(password, 12);
 
   if (reset) {
+    // Reset password juga mencabut SEMUA token yang beredar: menaikkan
+    // token_version membuat access+refresh lama langsung tidak sah. Ini yang
+    // diharapkan setelah kredensial diganti (mis. akun diduga dibajak).
     const result = await pool.query(
-      `UPDATE users SET password_hash = $2, is_active = true, updated_at = NOW()
+      `UPDATE users SET password_hash = $2, is_active = true, updated_at = NOW(),
+                         token_version = token_version + 1
        WHERE lower(email) = $1
-       RETURNING id, role`,
+       RETURNING id, role, token_version`,
       [email, hash],
     );
     if (!result.rows[0]) {
@@ -82,7 +86,7 @@ async function main() {
       await pool.end();
       process.exit(2);
     }
-    console.log(`OK: password di-reset — ${email} (id ${result.rows[0].id}, role ${result.rows[0].role})`);
+    console.log(`OK: password di-reset — ${email} (id ${result.rows[0].id}, role ${result.rows[0].role}, token_version ${result.rows[0].token_version})`);
     await pool.end();
     return;
   }
