@@ -231,17 +231,19 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/dashboard',
             audience: 'Admin',
             summary:
-              'Halaman pendarat setelah masuk, disusun seperti Corporate Overview: strip status antrian, Grid Kartu Modul per grup, grafik kategori/utilisasi area, tren bulanan, tabel area tersibuk, dan bilah peringatan antrian.',
+              'Halaman pendarat setelah masuk, disusun sebagai papan triage: strip status antrian, register "Perlu tindakan", band "Hari ini di mall", lalu direktori "Semua modul". Analitik eksplorasi ada di Analitik; jadwal lengkap ada di Jadwal Event.',
             steps: [
               'Buka Pusat Komando dari grup Ringkasan.',
-              'Baca strip status: berlangsung, akan datang, total, dan selesai — dipimpin antrian yang menunggu tindakan.',
-              'Telusuri Grid Kartu Modul: setiap kartu adalah satu modul, dikelompokkan per grup (Ringkasan, Kelola Event, Interaksi, Sistem, Konten). Kartu bertanda "Perlu tindakan" naik ke depan grupnya.',
-              'Lihat grafik "Event per kategori", "Tren event per bulan", dan "Event per area".',
-              'Telusuri tabel "Area paling sering dipakai" untuk melihat area tersibuk dan mana yang dipakai sekarang.',
-              'Bila ada antrian, bilah peringatan di bawah menautkan langsung ke pendaftaran.',
-              'Klik salah satu Kartu Modul untuk menuju halamannya.',
+              'Baca strip status: angka antrian yang menunggu keputusan memimpin; "Sedang Berlangsung" dan "Akan Datang" di bawahnya; "Total Acara" dan "Selesai" sebagai baris rujukan.',
+              'Buka register "Perlu tindakan": hanya modul yang menunggu keputusan manusia, masing-masing dengan jumlah antrian, keadaannya, dan aksinya.',
+              'Lihat band "Hari ini di mall": event yang sedang berlangsung dan yang berikutnya; klik barisnya untuk detail.',
+              'Telusuri register "Semua modul" (dikelompokkan per grup) bila perlu menuju modul lain; baris dengan titik penuh berarti modul itu punya antrian yang menunggu keputusan.',
+              'Untuk jadwal lengkap dengan saringan dan pemilih tampilan, pakai "Buka Jadwal Event"; untuk tren dan statistik, buka Analitik.',
             ],
-            notes: ['Bila draft gagal dimuat, angkanya ditampilkan sebagai "—" dengan pesan galat.'],
+            notes: [
+              'Bila draft gagal dimuat, baris Antrian Draft tampil dengan angka "—" dan pesan galat yang menyebut sebabnya — antrian yang tak terbaca tidak pernah ditampilkan sebagai kosong.',
+              'Jumlah antrian hanya ditulis di strip status (total) dan di register "Perlu tindakan" (per modul). Baris direktori tidak membawa angka.',
+            ],
           },
           {
             id: 'analitik',

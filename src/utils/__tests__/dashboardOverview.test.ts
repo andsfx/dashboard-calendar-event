@@ -3,7 +3,6 @@ import {
   computeAreaUsage,
   computeAreaUtilisation,
   computeCategoryCounts,
-  computeMonthlyCounts,
 } from '../dashboardOverview';
 import type { EventArea, EventItem } from '../../types';
 
@@ -61,23 +60,6 @@ describe('computeCategoryCounts', () => {
   it('memakai kategori tunggal bila categories kosong dan melewati nama kosong', () => {
     const rows = computeCategoryCounts([event({ category: 'Seminar', categories: [] }), event({ category: '', categories: [] })]);
     expect(rows).toEqual([{ label: 'Seminar', value: 1 }]);
-  });
-});
-
-describe('computeMonthlyCounts', () => {
-  it('selalu 12 batang dan hanya menghitung tahun yang diminta', () => {
-    const rows = computeMonthlyCounts(
-      [
-        event({ dateStr: '2026-03-10' }),
-        event({ dateStr: '2026-03-20' }),
-        event({ dateStr: '2025-03-01' }),
-        event({ dateStr: 'not-a-date' }),
-      ],
-      2026,
-    );
-    expect(rows).toHaveLength(12);
-    expect(rows[2]).toEqual({ label: 'Mar', value: 2 });
-    expect(rows[0]).toEqual({ label: 'Jan', value: 0 });
   });
 });
 

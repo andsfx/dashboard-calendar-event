@@ -10,8 +10,7 @@ export interface CardProps {
 }
 
 /**
- * Kartu panel Pusat Komando. Strukturnya mengikuti Card Corporate Overview
- * (judul, subjudul, aksi, badan).
+ * Kartu panel admin: judul, subjudul, aksi, badan.
  *
  * Geometrinya mengikuti kontrak admin, bukan set token publik: radius papan
  * 12px (`--wf-radius-board`) dan **tanpa** bayangan. Kontrak wayfinding

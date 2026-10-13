@@ -60,9 +60,10 @@ export function useRegistrationHandlers(deps: RegistrationHandlersDeps): Registr
   }, [canViewRegistrations, showToast]);
 
   useEffect(() => {
-    // Pusat Komando (`/dashboard`) juga menampilkan antrian pendaftaran (kartu
-    // metrik + bilah peringatan), jadi data ini harus dimuat di sana juga —
-    // bukan hanya di `/dashboard/registrations`. Tanpa ini angkanya selalu 0.
+    // Pusat Komando (`/dashboard`) juga menampilkan antrian pendaftaran
+    // (baris di register "Perlu tindakan"), jadi data ini harus dimuat di sana
+    // juga — bukan hanya di `/dashboard/registrations`. Tanpa ini angkanya
+    // selalu 0.
     //
     // `isDashboardRoute` wajib: dashboardPath untuk halaman publik `/` juga
     // bernilai `/`, sehingga tanpa pembeda ini fetch ikut jalan di landing page

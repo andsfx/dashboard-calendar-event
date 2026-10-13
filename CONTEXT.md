@@ -53,5 +53,6 @@
 
 | Istilah | Arti kanonik | Bukan |
 |---------|--------------|-------|
-| **Kartu Modul** | Ringkasan satu modul admin di Pusat Komando; pintu masuk ke modul itu. | Panel; baris menu rail; tombol aksi |
-| **Grid Kartu Modul** | Susunan Kartu Modul di Pusat Komando, dikelompokkan per Dashboard Group. Hanya memuat modul yang diizinkan Role Akses. | Navigasi rail; halaman modul; daftar menu |
+| **Baris Modul** | Satu baris direktori di register "Semua modul" Pusat Komando: nama modul dan satu kalimat "modul ini untuk apa". Tanpa angka. | Panel antrian; baris menu rail; tombol aksi |
+| **Register "Perlu tindakan"** | Daftar di Pusat Komando yang hanya memuat modul yang menunggu keputusan manusia, masing-masing dengan jumlah antrian, keadaannya, dan aksinya. | Register "Semua modul"; bilah peringatan |
+| **Register "Semua modul"** | Direktori tujuan di Pusat Komando, dikelompokkan per Dashboard Group. Hanya memuat modul yang diizinkan Role Akses, dan tidak membawa angka antrian. | Navigasi rail; halaman modul; daftar menu |

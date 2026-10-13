@@ -1,8 +1,13 @@
 # Pusat Komando memakai Grid Kartu Modul, bukan register datar
 
+> **superseded by [ADR-009](./009-pusat-komando-papan-triage.md)** (2026-10-13).
+> Grid 18 kartu seragam diganti dua register berbeda bobot ("Perlu tindakan" +
+> "Semua modul"), dan Pusat Komando berhenti merender salinan halaman Jadwal
+> Event. Riwayat di bawah dipertahankan apa adanya.
+
 ## Status
 
-accepted (2026-10-04)
+superseded (2026-10-04)
 
 ## Konteks
 

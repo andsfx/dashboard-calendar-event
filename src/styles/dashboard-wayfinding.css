@@ -154,12 +154,19 @@
 
 /* ── Metric tier ────────────────────────────────────────────────────────── */
 
-/* The queue leads the page and takes the accent border; reference counts sit
- * one tier down (dashed, no fill, smaller figure) so the operator's eye lands
- * on the one number that needs a decision. */
+/* Three tiers, not five equal cards: the queue leads as a full-width band, the
+ * two "today" counts sit under it, and the reference pair drops to one quiet
+ * line (`.wf-reference`) so two numbers nobody acts on cannot carry the same
+ * weight as the number that needs a decision. */
+.wf-status-key {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .wf-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -175,7 +182,6 @@
 }
 
 .wf-metric--lead {
-  grid-column: 1 / -1;
   border-color: var(--wf-action);
 }
 
@@ -225,10 +231,26 @@
   color: var(--wf-ink-muted);
 }
 
+/* Reference tier: measured counts that nobody acts on. Same tokens as every
+ * other muted line, no border and no card — it is a footnote to the strip, not
+ * a third row of metrics. */
+.wf-reference {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.75rem;
+  padding-left: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--wf-ink-muted);
+}
+
+.wf-reference__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
 @media (max-width: 64rem) {
-  .wf-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .wf-metric--secondary {
     border-style: solid;
     background: var(--wf-board);
@@ -330,19 +352,14 @@ button.wf-row:hover {
   color: var(--wf-ink-muted);
 }
 
-/* ── Grid Kartu Modul (Pusat Komando directory) ─────────────────────────── */
+/* ── Registers (Pusat Komando: queue + directory) ───────────────────────── */
 
-/* Replaces the flat "Semua Modul" register. Cards are grouped per Dashboard
- * Group, and the grid reads as a board of panels rather than a menu list.
- * Same geometry contract as every other admin panel: 12px board radius,
- * hairline border, no shadow. */
-.wf-card-grid-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-}
+/* Two registers with deliberately different weight. "Perlu tindakan" rows are
+ * full width and carry the number, the state in words, and the action that
+ * clears the queue; directory rows are compact, numberless destinations. The
+ * module that waits on a human must be the heavier object on the page. */
 
-.wf-card-grid-group__title {
+.wf-group-label {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -353,86 +370,184 @@ button.wf-row:hover {
   color: var(--wf-ink-muted);
 }
 
-.wf-card-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+.wf-queue-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px dashed var(--wf-rule);
+  border-radius: var(--wf-radius-board);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--wf-ink-muted);
 }
 
-.wf-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 0;
+.wf-row__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--wf-ink-muted);
+}
+
+.wf-row--queue .wf-row__icon {
+  color: var(--wf-action);
+}
+
+.wf-row__count {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--wf-action);
+}
+
+.wf-row__action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--wf-accent);
+}
+
+a.wf-row:hover .wf-row__action-label {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The row itself is the link, so on a phone the trailing action label is the
+ * first thing to go — the title, the count and the arrow still carry it. */
+@media (max-width: 40rem) {
+  .wf-row__action-label {
+    display: none;
+  }
+}
+
+.wf-row--directory {
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Grid baris-mayor dua kolom, supaya urutan grup tetap kanonik (Ringkasan →
+ * Kelola Event → Interaksi → Sistem → Konten). Lima grup meninggalkan satu sel
+ * kosong di baris terakhir, jadi grup terakhir yang ganjil dibiarkan merentang
+ * penuh: lubangnya hilang tanpa memindahkan grup dari urutannya. Aturan ini
+ * menyesuaikan sendiri — role dengan jumlah grup genap tidak terpengaruh. */
+.wf-directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem 1.25rem;
+}
+
+@media (min-width: 64rem) {
+  .wf-directory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wf-directory > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Agenda band (today's schedule entry point) ─────────────────────────── */
+
+/* A third shape: one board holding two ruled lists side by side. It exists so
+ * Pusat Komando can answer "what is happening now / next" without rendering a
+ * second copy of the Jadwal Event page. */
+.wf-agenda {
   border: 1px solid var(--wf-rule);
   border-radius: var(--wf-radius-board);
   background: var(--wf-board);
-  padding: 0.875rem 1rem;
-  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 1rem 1.25rem;
 }
 
-a.wf-card:hover {
-  background: var(--wf-board-2);
-}
-
-.wf-card:focus-visible {
-  outline: 2px solid var(--wf-accent);
-  outline-offset: -2px;
-}
-
-/* Attention: the card that needs a decision takes the accent border and names
- * the state in words — colour alone never carries the meaning. */
-.wf-card--attention {
-  border-color: var(--wf-action);
-}
-
-.wf-card__top {
+.wf-agenda__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
-.wf-card__title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--wf-ink);
+.wf-agenda__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin-top: 0.875rem;
 }
 
-.wf-card__icon {
+@media (min-width: 64rem) {
+  .wf-agenda__columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* Tanpa event berjalan tidak ada daftar kedua untuk diimbangi, jadi kolom
+   * kiri hanya akan menyisakan papan kosong setinggi kolom kanan (terukur
+   * ~300px). Satu kolom + catatan selebar papan lebih baik daripada dua kolom
+   * yang salah satunya kosong. */
+  .wf-agenda__columns--single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.wf-agenda-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid var(--wf-rule);
+  padding: 0.625rem 0.75rem;
+  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wf-register > li:first-child .wf-agenda-row {
+  border-top: 0;
+  border-top-left-radius: calc(var(--wf-radius-board) - 1px);
+  border-top-right-radius: calc(var(--wf-radius-board) - 1px);
+}
+
+.wf-register > li:last-child .wf-agenda-row {
+  border-bottom-left-radius: calc(var(--wf-radius-board) - 1px);
+  border-bottom-right-radius: calc(var(--wf-radius-board) - 1px);
+}
+
+.wf-agenda-row:hover {
+  background: var(--wf-board-2);
+}
+
+.wf-agenda-row:focus-visible {
+  outline: 2px solid var(--wf-accent);
+  outline-offset: -2px;
+}
+
+.wf-agenda-row__mark {
+  display: inline-flex;
   flex-shrink: 0;
   color: var(--wf-ink-muted);
 }
 
-.wf-card__value {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--wf-ink);
-}
-
-.wf-card__value--attention {
-  color: var(--wf-action);
-}
-
-.wf-card__hint {
-  font-size: 0.75rem;
+.wf-agenda__empty {
+  padding: 0.75rem 0.75rem 0.75rem 0;
+  font-size: 0.8125rem;
   color: var(--wf-ink-muted);
 }
 
-@media (max-width: 64rem) {
-  .wf-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.wf-agenda__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  border: 1px solid var(--wf-action);
+  border-radius: var(--wf-radius-control);
+  background: color-mix(in oklab, var(--wf-action) 10%, transparent);
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--wf-ink);
 }
 
-@media (max-width: 34rem) {
-  .wf-card-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.wf-agenda__error > :first-child {
+  margin-top: 0.125rem;
+  color: var(--wf-action);
 }
 
 /* ── Status key: shape + colour, redundant by design ────────────────────── */
@@ -581,7 +696,7 @@ a.wf-card:hover {
 @media (prefers-reduced-motion: reduce) {
   .wf-rail-row,
   .wf-row,
-  .wf-card,
+  .wf-agenda-row,
   .wf-btn {
     transition: none;
   }

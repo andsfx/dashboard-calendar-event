@@ -9,14 +9,16 @@ import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardStats } from './DashboardStats';
-import { CommandCenterOverview } from './CommandCenterOverview';
 import { CommandCenterSummary } from './CommandCenterSummary';
+import { CommandCenterAgenda } from './CommandCenterAgenda';
+import { CommandCenterDirectory } from './CommandCenterDirectory';
 import { EventInsightsPanel } from './EventInsightsPanel';
 import { useInsightContext } from '../../hooks/useInsightContext';
 import { DashboardModals } from './DashboardModals';
 import { ViewToggle } from './ViewToggle';
 import { CONTENT_ROUTES, getAllowedDashboardPaths } from './dashboardNavigation';
 import { getAvailableViewTabs } from './viewTabs';
+import { sortEvents } from '../../utils/eventUtils';
 import { UnderMaintenance } from '../ui/UnderMaintenance';
 
 const FeaturedEvents = lazy(() => import('../events/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
@@ -219,6 +221,22 @@ export function DashboardPage({
   });
   const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
 
+  /**
+   * Agenda band reads the FULL event set, not the filter pipeline.
+   *
+   * `events.ongoingEvents` / `events.upcomingEvents` come from `filteredEvents`,
+   * and the shared filter starts at `'upcoming'`. Wired to those, the agenda's
+   * "Sedang berlangsung" column was always empty on a fresh load while the strip
+   * directly above it counted one running event: the page contradicted itself.
+   * The band states a fact about today, so it must agree with the strip, which
+   * counts `events.events`. Drafts stay out either way because they carry status
+   * `'draft'`, never `'ongoing'`/`'upcoming'`.
+   */
+  const agendaEvents = useMemo(() => ({
+    ongoing: sortEvents(events.events.filter(e => e.status === 'ongoing')),
+    upcoming: sortEvents(events.events.filter(e => e.status === 'upcoming')),
+  }), [events.events]);
+
   /** Terapkan filter insight ke halaman, lalu navigasi. Relatif ke /dashboard. */
   const handleInsightAction = useCallback((action: InsightAction) => {
     const { status, category, month, priority, search } = action.filter ?? {};
@@ -294,12 +312,16 @@ export function DashboardPage({
         isAdmin={isAdmin}
         searchQuery={filters.searchQuery}
         onSearchChange={filters.setSearchQuery}
-        /* Only the routes that actually render the event list get the plate
-           search and the event-create action. Every other module owns its own
-           create control in the body (drafts: "Tambah Draft Event", themes:
-           "Tambah Tema", users: "Invite"/"Buat Manual"), so offering the event
-           creator here gave those pages a second, wrong primary action. */
-        searchable={dashboardPath === '/' || dashboardPath === '/events'}
+        /* Only the route that actually renders the event list gets the plate
+           search: it writes to the shared event filter, so anywhere else it was
+           a visible control that changed nothing (and since ADR-009 Pusat
+           Komando no longer renders the list). The create action stays on both
+           routes: Pusat Komando is where an operator takes the call. Every
+           other module owns its own create control in the body (drafts: "Tambah
+           Draft Event", themes: "Tambah Tema", users: "Invite"/"Buat Manual"),
+           so offering the event creator there gave those pages a second, wrong
+           primary action. */
+        searchable={dashboardPath === '/events'}
         primaryAction={
           permissions.canEditEvents && (dashboardPath === '/' || dashboardPath === '/events')
             ? { label: 'Tambah', onClick: handlers.handleAddNew }
@@ -308,11 +330,12 @@ export function DashboardPage({
         dashboardPath={dashboardPath}
       />
 
-      {/* 1. Overview — antrian lebih dulu, grafik menyusul.
-          Susunannya mengikuti kontrak arah: strip status yang dipimpin antrian,
-          lalu Grid Kartu Modul, baru analitik. Grid menggantikan register datar
-          "Semua Modul" (ADR-007) supaya halaman terbaca sebagai panel dashboard,
-          bukan daftar menu — tanpa membuang hierarki antrian di atasnya. */}
+      {/* 1. Pusat Komando: triage + wayfinding, satu pertanyaan: apa yang perlu
+          saya tindak hari ini, dan ke mana saya pergi?
+          Susunannya: strip status (angka antrian memimpin, rujukan di baris
+          tenang) → register "Perlu tindakan" → agenda hari ini → direktori
+          "Semua modul". Analitik penjelajahan tidak lagi dirender di sini dan
+          jadwal penuh tidak lagi disalin dari `/dashboard/events` (ADR-009). */}
       {isAdmin && dashboardPath === '/' && (
         <section id="overview" className="scroll-mt-20 space-y-6">
           <DashboardStats
@@ -320,25 +343,32 @@ export function DashboardPage({
             attention={{
               draftCount: drafts.activeDrafts.length,
               pendingRegistrations: registrations.communityRegistrations.filter(r => r.status === 'pending').length,
+              pendingExhibitionLeads: permissions.canViewExhibitions
+                ? exhibitions.leads.filter(lead => lead.status === 'pending').length
+                : 0,
               draftsError: drafts.draftError,
             }}
           />
           <CommandCenterSummary
-            totalEvents={events.visibleStats.total}
-            upcomingEvents={events.visibleStats.upcoming}
-            ongoingEvents={events.visibleStats.ongoing}
             activeDrafts={drafts.activeDrafts}
             annualThemes={events.annualThemes}
             communityRegistrations={registrations.communityRegistrations}
+            exhibitionLeads={exhibitions.leads}
             draftsError={drafts.draftError}
             permissions={permissions}
-            isSuperadmin={auth.isSuperadmin}
           />
-          <CommandCenterOverview
-            events={events.events}
-            areas={siteSettings.eventAreas}
+          <CommandCenterAgenda
+            ongoingEvents={agendaEvents.ongoing}
+            upcomingEvents={agendaEvents.upcoming}
+            error={events.error}
+            onDetail={handlers.handleDetailClick}
+          />
+          <CommandCenterDirectory
             activeDrafts={drafts.activeDrafts}
+            annualThemes={events.annualThemes}
             communityRegistrations={registrations.communityRegistrations}
+            exhibitionLeads={exhibitions.leads}
+            draftsError={drafts.draftError}
             permissions={permissions}
           />
         </section>
@@ -348,7 +378,7 @@ export function DashboardPage({
           Komando. Panelnya tinggi (ringkasan AI + saringan + daftar aksi
           bertombol), jadi menempelkannya di halaman yang dibuka harian hanya
           menambah gulir tanpa menambah keputusan. Pintu masuknya rail
-          "Ringkasan" dan Grid Kartu Modul di Pusat Komando. */}
+          "Ringkasan" dan register "Semua modul" di Pusat Komando. */}
       {isAdmin && dashboardPath === '/insights' && (
         <section id="insights" className="scroll-mt-20">
           <EventInsightsPanel
@@ -364,21 +394,16 @@ export function DashboardPage({
         </section>
       )}
 
-      {/* 2. Jadwal Event — admin landing & dedicated route (header → stats → command center → jadwal) */}
-      {isAdmin && (dashboardPath === '/' || dashboardPath === '/events') && (
+      {/* 2. Jadwal Event: hanya rute yang memilikinya. Pusat Komando tidak lagi
+          merender salinan halaman ini; ia menaut ke sini (lihat ADR-009). */}
+      {isAdmin && dashboardPath === '/events' && (
         <section id="views" className="scroll-mt-20">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            {dashboardPath !== '/events' && (
-              <div>
-                <h2 className="font-display text-xl font-bold text-[var(--wf-ink)]">Jadwal Event</h2>
-                <p className="mt-0.5 text-sm text-[var(--wf-ink-muted)]">Kelola semua event dalam berbagai tampilan</p>
-              </div>
-            )}
-              <ViewToggle
-                tabs={availableViewTabs}
-                viewMode={view.viewMode}
-                onSelect={view.setViewMode}
-              />
+            <ViewToggle
+              tabs={availableViewTabs}
+              viewMode={view.viewMode}
+              onSelect={view.setViewMode}
+            />
           </div>
           <Suspense fallback={<SectionFallback height="h-80" />}>
             <DashboardViewsSection

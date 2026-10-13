@@ -274,8 +274,8 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
           TANPA tinggi terbatas, sehingga `sticky top-0` jadi no-op (header ikut
           tergulung) DAN `min-w-[750px]` yang lebih kecil dari kebutuhan konten
           nyata (~1110px) memotong kolom Aksi tanpa memunculkan scrollbar sama
-          sekali — tombol Ubah/Hapus tak bisa dijangkau. Pola ini sama dengan
-          CommandCenterOverview (max-h + sticky thead). */}
+          sekali — tombol Ubah/Hapus tak bisa dijangkau. Pola ini (max-h + sticky
+          thead) juga dipakai tabel lain di dashboard. */}
       <div
         className="hidden max-h-[70vh] overflow-auto md:block"
         role="region"

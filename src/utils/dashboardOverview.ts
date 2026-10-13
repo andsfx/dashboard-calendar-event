@@ -1,8 +1,7 @@
 import type { EventArea, EventItem } from '../types';
-import { parseDateStrLocal } from './eventUtils';
 
 /**
- * Derivasi untuk Pusat Komando (layout Corporate Overview).
+ * Derivasi bersama untuk panel admin (Insight Cerdas, Pusat Komando).
  *
  * Semua fungsi murni dan menerima daftar event yang SUDAH disaring pemanggil,
  * supaya angka yang tampil dapat dilacak ke satu sumber dan mudah diuji.
@@ -22,8 +21,6 @@ export interface AreaUsageRow {
   inUseNow: boolean;
 }
 
-const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
 /** Jumlah event per kategori, urut menurun. Event multi-kategori dihitung di tiap kategorinya. */
 export function computeCategoryCounts(events: EventItem[]): OverviewBarItem[] {
   const counts = new Map<string, number>();
@@ -38,18 +35,6 @@ export function computeCategoryCounts(events: EventItem[]): OverviewBarItem[] {
   return [...counts.entries()]
     .map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
-}
-
-/** Jumlah event per bulan untuk satu tahun, selalu 12 batang agar skala terbaca. */
-export function computeMonthlyCounts(events: EventItem[], year: number): OverviewBarItem[] {
-  const counts = new Array<number>(12).fill(0);
-  for (const event of events) {
-    const date = parseDateStrLocal(event.dateStr);
-    if (!date || date.getFullYear() !== year) continue;
-    const month = date.getMonth();
-    counts[month] = (counts[month] ?? 0) + 1;
-  }
-  return MONTH_SHORT.map((label, index) => ({ label, value: counts[index] ?? 0 }));
 }
 
 /**

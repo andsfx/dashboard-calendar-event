@@ -36,18 +36,15 @@ const adminPermissions: Permissions = {
 };
 
 const baseProps = {
-  totalEvents: 10,
-  upcomingEvents: 4,
-  ongoingEvents: 1,
   activeDrafts: [],
   annualThemes: [],
   communityRegistrations: [],
+  exhibitionLeads: [],
   draftsError: null,
   permissions: adminPermissions,
-  isSuperadmin: true,
 };
 
-function renderGrid(props: Partial<Parameters<typeof CommandCenterSummary>[0]> = {}) {
+function renderRegister(props: Partial<Parameters<typeof CommandCenterSummary>[0]> = {}) {
   return render(
     <MemoryRouter>
       <CommandCenterSummary {...baseProps} {...props} />
@@ -55,63 +52,80 @@ function renderGrid(props: Partial<Parameters<typeof CommandCenterSummary>[0]> =
   );
 }
 
-describe('CommandCenterSummary — Grid Kartu Modul', () => {
-  it('merender 5 Dashboard Group sebagai judul grup', () => {
-    renderGrid();
+describe('CommandCenterSummary: register "Perlu tindakan"', () => {
+  it('hanya memuat modul yang punya antrian manusia', () => {
+    renderRegister({ activeDrafts: [{ id: 'd1' } as never] });
 
-    for (const label of ['Ringkasan', 'Kelola Event', 'Interaksi', 'Sistem', 'Konten']) {
-      expect(screen.getByRole('heading', { name: new RegExp(label) })).toBeInTheDocument();
-    }
+    const register = screen.getByRole('region', { name: 'Perlu tindakan' });
+    expect(within(register).getByRole('link', { name: /Antrian Draft/ })).toBeInTheDocument();
+    // Modul pasif tidak boleh naik ke register antrian.
+    expect(within(register).queryByRole('link', { name: /Log Aktivitas/ })).not.toBeInTheDocument();
+    expect(within(register).queryByRole('link', { name: /Jadwal Event/ })).not.toBeInTheDocument();
   });
 
-  it('tidak merender tautan ke halaman Pusat Komando sendiri', () => {
-    renderGrid();
+  it('menyebut angka, keadaan, dan aksi untuk modul yang menunggu', () => {
+    renderRegister({ activeDrafts: [{ id: 'd1' } as never, { id: 'd2' } as never] });
 
-    const links = screen.getAllByRole('link');
-    for (const link of links) {
-      expect(link).not.toHaveAttribute('href', '/dashboard');
-    }
+    const row = screen.getByRole('link', { name: /Antrian Draft/ });
+    expect(row).toHaveAttribute('href', '/dashboard/drafts');
+    expect(within(row).getByText('2')).toBeInTheDocument();
+    expect(within(row).getByText('menunggu dipublikasikan')).toBeInTheDocument();
+    expect(within(row).getByText('Buka antrian draft')).toBeInTheDocument();
   });
 
-  it('menautkan tiap kartu ke rute modulnya', () => {
-    renderGrid();
-
-    expect(screen.getByRole('link', { name: /Jadwal Event/ })).toHaveAttribute('href', '/dashboard/events');
-    expect(screen.getByRole('link', { name: /Halaman Landing/ })).toHaveAttribute('href', '/dashboard/content/landing');
-  });
-
-  it('menandai kartu yang menunggu tindakan dengan teks, bukan warna saja', () => {
-    renderGrid({ activeDrafts: [{ id: 'd1' } as never] });
-
-    const draftsCard = screen.getByRole('link', { name: /Antrian Draft/ });
-    expect(within(draftsCard).getByText('Perlu tindakan')).toBeInTheDocument();
-  });
-
-  it('menyembunyikan grup Konten untuk role tanpa izin settings/sponsorship', () => {
-    renderGrid({
-      permissions: { ...adminPermissions, canViewSettings: false, canViewSponsorship: false },
+  it('memakai angka antrian, bukan total pendaftaran', () => {
+    renderRegister({
+      communityRegistrations: [
+        { id: 'r1', status: 'pending' },
+        { id: 'r2', status: 'approved' },
+        { id: 'r3', status: 'approved' },
+      ] as never,
     });
 
-    expect(screen.queryByRole('heading', { name: /Konten/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Halaman Landing/ })).not.toBeInTheDocument();
+    const row = screen.getByRole('link', { name: /Pendaftaran/ });
+    expect(within(row).getByText('1')).toBeInTheDocument();
+    expect(within(row).getByText('menunggu review')).toBeInTheDocument();
   });
 
-  it('menandai Buat Surat sebagai sedang diperbaiki', () => {
-    renderGrid();
+  it('memasukkan pengajuan pameran yang menunggu review', () => {
+    renderRegister({
+      exhibitionLeads: [
+        { id: 'l1', status: 'pending' },
+        { id: 'l2', status: 'approved' },
+      ] as never,
+    });
 
-    const suratCard = screen.getByRole('link', { name: /Buat Surat/ });
-    expect(within(suratCard).getByText('Sedang diperbaiki')).toBeInTheDocument();
+    const row = screen.getByRole('link', { name: /Pameran & Aktivasi/ });
+    expect(row).toHaveAttribute('href', '/dashboard/exhibitions');
+    expect(within(row).getByText('1')).toBeInTheDocument();
+    expect(within(row).getByText('pengajuan menunggu review')).toBeInTheDocument();
   });
 
-  it('memberi tahu saat tidak ada modul yang menunggu tindakan', () => {
-    renderGrid({ ongoingEvents: 0, activeDrafts: [], communityRegistrations: [] });
+  it('tidak menganggap antrian draft yang gagal dimuat sebagai kosong', () => {
+    renderRegister({ draftsError: 'Gagal memuat draft event.' });
 
-    expect(screen.getByText(/Tidak ada modul yang menunggu tindakan/)).toBeInTheDocument();
-  });
-
-  it('tidak menampilkan pesan antrian kosong saat ada yang menunggu', () => {
-    renderGrid({ activeDrafts: [{ id: 'd1' } as never] });
-
+    const row = screen.getByRole('link', { name: /Antrian Draft/ });
+    expect(within(row).getByText('—')).toBeInTheDocument();
+    expect(within(row).getByText(/Antrian gagal dimuat: Gagal memuat draft event\./)).toBeInTheDocument();
     expect(screen.queryByText(/Tidak ada modul yang menunggu tindakan/)).not.toBeInTheDocument();
+  });
+
+  it('menyatakan antrian kosong saat tidak ada modul yang menunggu', () => {
+    renderRegister();
+
+    expect(screen.getByText(/Tidak ada modul yang menunggu tindakan\. Antrian kosong\./)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Antrian Draft/ })).not.toBeInTheDocument();
+  });
+
+  it('tidak merender modul yang tidak boleh dibuka role', () => {
+    renderRegister({
+      activeDrafts: [{ id: 'd1' } as never],
+      communityRegistrations: [{ id: 'r1', status: 'pending' }] as never,
+      permissions: { ...adminPermissions, canViewDrafts: false, canViewRegistrations: false },
+    });
+
+    expect(screen.queryByRole('link', { name: /Antrian Draft/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Pendaftaran/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Tidak ada modul yang menunggu tindakan/)).toBeInTheDocument();
   });
 });

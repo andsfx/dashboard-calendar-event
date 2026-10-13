@@ -18,10 +18,10 @@ import {
   UserCog,
   Users,
 } from 'lucide-react';
-import type { AnnualTheme, CommunityRegistration, DraftEventItem } from '../../types';
+import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 
-/** Monoline admin icons — stroke 1.5 matches brand-spec / HTML prototype (1.4) */
+/** Monoline admin icons: stroke 1.5 matches brand-spec / HTML prototype (1.4) */
 const NAV = 'h-4 w-4 shrink-0';
 const CARD = 'h-5 w-5 shrink-0';
 const sw = 1.5;
@@ -33,7 +33,7 @@ export interface DashboardNavItem {
   action: 'route' | 'callback';
   route?: string;
   callback?: () => void;
-  /** Fitur sengaja ditutup sementara — rail menandainya agar tidak dikira rusak. */
+  /** Fitur sengaja ditutup sementara: rail menandainya agar tidak dikira rusak. */
   maintenance?: boolean;
 }
 
@@ -51,7 +51,7 @@ interface DashboardNavCallbacks {
   onOpenEventAreaManager: () => void;
 }
 
-/** Rute nyata per modul konten — bukan query param yang membuka modal. */
+/** Rute nyata per modul konten: bukan query param yang membuka modal. */
 export const CONTENT_ROUTES = {
   'landing-page': '/dashboard/content/landing',
   'album-gallery': '/dashboard/content/galeri',
@@ -61,9 +61,9 @@ export const CONTENT_ROUTES = {
   sponsorship: '/dashboard/content/sponsorship',
 } as const satisfies Record<string, string>;
 
-/** Canonical Dashboard Group labels, in display order, used by the Grid Kartu
- *  Modul to group its cards. The rail lists the same five groups, but with its
- *  own literal labels — this constant does not drive the rail. */
+/** Canonical Dashboard Group labels, in display order, used by the register
+ *  "Semua modul" to group its rows. The rail lists the same five groups, but
+ *  with its own literal labels: this constant does not drive the rail. */
 export type DashboardGroupLabel = 'Ringkasan' | 'Kelola Event' | 'Interaksi' | 'Sistem' | 'Konten';
 
 export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
@@ -74,35 +74,51 @@ export const DASHBOARD_GROUP_ORDER: DashboardGroupLabel[] = [
   'Konten',
 ];
 
-interface CommandCenterCard {
+/**
+ * Antrian yang benar-benar menunggu keputusan manusia. Kehadirannya, bukan
+ * angkanya, yang menentukan berat sebuah modul di Pusat Komando: modul tanpa
+ * antrian hanya baris direktori, modul ber-antrian naik ke register
+ * "Perlu tindakan" dengan angka, keadaan, dan aksi.
+ */
+export interface CommandCenterQueue {
+  count: number;
+  /** Keadaan antrian dalam kata (mis. "menunggu review"). */
+  state: string;
+  /** Label aksi menuju modul yang memilikinya. */
+  action: string;
+  /** Pesan gagal muat: antrian yang tak terbaca tidak boleh terbaca kosong. */
+  error?: string | null;
+}
+
+export interface CommandCenterCard {
   id: string;
   title: string;
-  /** Measured count, when the module has one. Omitted for modules that are
-   *  destinations rather than queues — an icon in this slot would read as a
-   *  second icon next to the row's own. */
-  value?: React.ReactNode;
+  /** Satu baris: modul ini untuk apa. Kalimatnya sama dengan plat lokasi dan
+   *  rail (lihat `WAYFINDING`), jadi satu modul tidak menyebut dirinya dengan
+   *  dua kalimat berbeda. */
   subtitle: string;
   icon: React.ReactNode;
   route: string;
-  /** Optional attention hint for ops (e.g. pending count) */
-  attention?: boolean;
-  /** Dashboard Group this module belongs to — the grid's grouping key. */
+  /** Dashboard Group this module belongs to: the register's grouping key. */
   group: DashboardGroupLabel;
-  /** Fitur sengaja ditutup sementara — kartu menandainya agar tidak dikira rusak. */
+  /** Antrian manusia. Tidak ada angka di baris direktori: angkanya hidup di
+   *  register "Perlu tindakan", sekali, supaya tidak diulang di satu halaman. */
+  queue?: CommandCenterQueue;
+  /** Keadaan bukan-antrian yang menyebut NAMA, bukan angka (mis. tema aktif). */
+  state?: string;
+  /** Fitur sengaja ditutup sementara: baris menandainya agar tidak dikira rusak. */
   maintenance?: boolean;
 }
 
 interface CommandCenterCardParams {
-  totalEvents: number;
-  upcomingEvents: number;
-  ongoingEvents: number;
   activeDrafts: DraftEventItem[];
   annualThemes: AnnualTheme[];
   communityRegistrations: CommunityRegistration[];
-  /** Pesan error saat fetch draft gagal — antrian tidak boleh dianggap kosong */
+  /** Pengajuan pameran/aktivasi yang menunggu review manusia. */
+  exhibitionLeads?: ExhibitionLead[];
+  /** Pesan error saat fetch draft gagal: antrian tidak boleh dianggap kosong */
   draftsError?: string | null;
   permissions: Permissions;
-  isSuperadmin?: boolean;
 }
 
 export function getDashboardNavGroups(
@@ -209,7 +225,7 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/content/landing', label: 'Halaman Landing', description: 'Gambar hero dan feed Instagram halaman landing' },
   { path: '/content/galeri', label: 'Galeri Album', description: 'Album foto yang tampil di halaman galeri publik' },
   { path: '/content/foto-area', label: 'Foto Area Event', description: 'Area event dan foto representatifnya' },
-  { path: '/content/surat', label: 'Buat Surat', description: 'Sedang diperbaiki — generator surat ditutup sementara' },
+  { path: '/content/surat', label: 'Buat Surat', description: 'Sedang diperbaiki: generator surat ditutup sementara' },
   { path: '/content/berita', label: 'Berita', description: 'Artikel berita yang tampil di situs publik' },
   { path: '/content/sponsorship', label: 'Sponsorship', description: 'Sponsor, status penawaran, dan kerja sama' },
 ];
@@ -250,18 +266,35 @@ export function getDefaultDashboardPath(permissions: Permissions): string {
   return paths[0] || '/';
 }
 
+/** Kalimat "modul ini untuk apa", dibaca dari peta wayfinding yang sama dengan
+ *  plat lokasi: satu modul, satu kalimat, tidak ada dua deskripsi paralel. */
+const MODULE_PURPOSE: Record<string, string> = Object.fromEntries(
+  WAYFINDING.map(entry => [entry.path, entry.description]),
+);
+
+/**
+ * Isi register "Semua modul": modul yang boleh dibuka role ini, satu baris per
+ * modul, dikelompokkan per Dashboard Group. Predicate izinnya identik dengan
+ * rail (`canViewDrafts`, `canViewSettings`, `canViewSponsorship`, …) sehingga
+ * modul yang tidak boleh dibuka tidak pernah muncul.
+ *
+ * Baris direktori sengaja TIDAK membawa angka. Angka antrian hidup sekali di
+ * register "Perlu tindakan" (`CommandCenterSummary`); yang dibawa baris adalah
+ * kalimat "modul ini untuk apa" plus penanda keadaan: titik penuh untuk modul
+ * yang menunggu manusia (nama keadaannya dibawa `sr-only` + `title`, bentuknya
+ * ikut membedakan tanpa warna), dan kalimat "Sedang diperbaiki" untuk modul
+ * yang sengaja ditutup.
+ */
 export function getCommandCenterCards({
-  totalEvents,
-  upcomingEvents,
-  ongoingEvents,
   activeDrafts,
   annualThemes,
   communityRegistrations,
+  exhibitionLeads = [],
   draftsError,
   permissions,
-  isSuperadmin,
 }: CommandCenterCardParams): CommandCenterCard[] {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
+  const pendingLeads = exhibitionLeads.filter(l => l.status === 'pending').length;
   const isTrOnly = permissions.isTenantRelation && !permissions.canEditEvents;
   const currentTheme = annualThemes.find(theme => {
     const now = new Date();
@@ -270,58 +303,67 @@ export function getCommandCenterCards({
     return now >= start && now <= end;
   });
 
+  /* Antrian draft: gagal muat ≠ kosong. Keduanya jadi `queue` supaya modulnya
+     tetap naik ke "Perlu tindakan"; yang membedakan hanya keadaannya. */
+  const draftQueue: CommandCenterQueue | undefined = draftsError
+    ? { count: 0, state: 'Gagal dimuat', action: 'Buka antrian draft', error: draftsError }
+    : activeDrafts.length > 0
+      ? { count: activeDrafts.length, state: 'menunggu dipublikasikan', action: 'Buka antrian draft' }
+      : undefined;
+
   const cards: CommandCenterCard[] = [
     {
       id: 'events',
       title: 'Jadwal Event',
-      value: totalEvents,
-      subtitle: `${upcomingEvents} mendatang · ${ongoingEvents} berlangsung`,
+      subtitle: MODULE_PURPOSE['/events'] ?? 'Kelola semua event dalam berbagai tampilan',
       icon: <CalendarDays className={CARD} strokeWidth={sw} />,
       route: '/dashboard/events',
-      attention: ongoingEvents > 0,
       group: 'Kelola Event',
     },
     ...(permissions.canViewDrafts ? [{
       id: 'drafts',
       title: 'Antrian Draft',
-      value: draftsError ? '-' : activeDrafts.length,
-      subtitle: draftsError ? 'Gagal memuat' : activeDrafts.length === 0 ? 'Antrian kosong' : 'Perlu review',
+      subtitle: MODULE_PURPOSE['/drafts'] ?? 'Kelola draft event sebelum dipublikasikan',
       icon: <FileEdit className={CARD} strokeWidth={sw} />,
       route: '/dashboard/drafts',
-      attention: activeDrafts.length > 0,
+      queue: draftQueue,
       group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewThemes ? [{
       id: 'themes',
       title: 'Tema Tahunan',
-      value: annualThemes.length,
-      subtitle: currentTheme ? `Aktif: ${currentTheme.name}` : 'Belum ada tema aktif',
+      subtitle: MODULE_PURPOSE['/themes'] ?? 'Kelola tema dan perencanaan tahunan',
       icon: <Palette className={CARD} strokeWidth={sw} />,
       route: '/dashboard/themes',
+      state: currentTheme ? `Aktif: ${currentTheme.name}` : 'Belum ada tema aktif',
       group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewExhibitions ? [{
       id: 'exhibitions',
       title: 'Pameran & Aktivasi',
-      subtitle: 'Pameran, aktivasi & pengajuan brand/EO',
+      subtitle: MODULE_PURPOSE['/exhibitions'] ?? 'Kelola pameran, aktivasi, dan pengajuan brand/EO',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/exhibitions',
+      queue: pendingLeads > 0
+        ? { count: pendingLeads, state: 'pengajuan menunggu review', action: 'Buka pameran & aktivasi' }
+        : undefined,
       group: 'Kelola Event' as const,
     }] : []),
     ...(permissions.canViewRegistrations ? [{
       id: 'registrations',
       title: 'Pendaftaran',
-      value: communityRegistrations.length,
-      subtitle: pendingRegistrations > 0 ? `${pendingRegistrations} menunggu review` : 'Semua sudah direview',
+      subtitle: MODULE_PURPOSE['/registrations'] ?? 'Kelola permintaan pendaftaran dari community',
       icon: <Users className={CARD} strokeWidth={sw} />,
       route: '/dashboard/registrations',
-      attention: pendingRegistrations > 0,
+      queue: pendingRegistrations > 0
+        ? { count: pendingRegistrations, state: 'menunggu review', action: 'Buka pendaftaran' }
+        : undefined,
       group: 'Interaksi' as const,
     }] : []),
     ...(permissions.canViewSurvey ? [{
       id: 'survey',
       title: 'Survey Kepuasan',
-      subtitle: 'Lihat respons survey',
+      subtitle: MODULE_PURPOSE['/survey'] ?? 'Kelola Survey Kepuasan pengunjung dan organizer per event',
       icon: <ClipboardCheck className={CARD} strokeWidth={sw} />,
       route: '/dashboard/survey',
       group: 'Interaksi' as const,
@@ -329,7 +371,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
-      subtitle: 'Evaluasi EO/tenant',
+      subtitle: MODULE_PURPOSE['/tenant-surveys'] ?? 'Self-assessment tenant/gerai per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
       group: 'Interaksi' as const,
@@ -345,7 +387,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewSurvey ? [{
       id: 'analytics',
       title: 'Analitik',
-      subtitle: 'Tren & insight',
+      subtitle: MODULE_PURPOSE['/analytics'] ?? 'Analisis tren dan statistik event',
       icon: <BarChart3 className={CARD} strokeWidth={sw} />,
       route: '/dashboard/analytics',
       group: 'Ringkasan' as const,
@@ -353,7 +395,7 @@ export function getCommandCenterCards({
     ...(!isTrOnly ? [{
       id: 'insights',
       title: 'Insight Cerdas',
-      subtitle: 'Analisis otomatis & rekomendasi tindakan',
+      subtitle: MODULE_PURPOSE['/insights'] ?? 'Analisis otomatis dan rekomendasi tindakan',
       icon: <Sparkles className={CARD} strokeWidth={sw} />,
       route: '/dashboard/insights',
       group: 'Ringkasan' as const,
@@ -361,7 +403,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewActivityLog ? [{
       id: 'activity-log',
       title: 'Log Aktivitas',
-      subtitle: 'Aktivitas terbaru',
+      subtitle: MODULE_PURPOSE['/activity-log'] ?? 'Audit trail dari semua aktivitas sistem',
       icon: <Activity className={CARD} strokeWidth={sw} />,
       route: '/dashboard/activity-log',
       group: 'Sistem' as const,
@@ -369,19 +411,19 @@ export function getCommandCenterCards({
     ...(permissions.canViewUsers ? [{
       id: 'users',
       title: 'Manajemen Pengguna',
-      subtitle: 'Kelola admin',
+      subtitle: MODULE_PURPOSE['/users'] ?? 'Kelola user dan permission',
       icon: <UserCog className={CARD} strokeWidth={sw} />,
       route: '/dashboard/users',
       group: 'Sistem' as const,
     }] : []),
-    /* Modul Konten — dulu tidak ada di register, kini warga penuh grid.
-       Gate izin identik dengan rail (canViewSettings / canViewSponsorship),
-       jadi kartu ini tidak pernah bocor ke role yang tidak berhak. */
+    /* Modul Konten: gate izin identik dengan rail (canViewSettings /
+       canViewSponsorship), jadi baris ini tidak pernah bocor ke role yang
+       tidak berhak. */
     ...(permissions.canViewSettings ? [
       {
         id: 'content-landing',
         title: 'Halaman Landing',
-        subtitle: 'Hero & feed Instagram',
+        subtitle: MODULE_PURPOSE[CONTENT_ROUTES['landing-page']] ?? 'Gambar hero dan feed Instagram halaman landing',
         icon: <Globe className={CARD} strokeWidth={sw} />,
         route: CONTENT_ROUTES['landing-page'],
         group: 'Konten' as const,
@@ -389,7 +431,7 @@ export function getCommandCenterCards({
       {
         id: 'content-galeri',
         title: 'Galeri Album',
-        subtitle: 'Album foto publik',
+        subtitle: MODULE_PURPOSE[CONTENT_ROUTES['album-gallery']] ?? 'Album foto yang tampil di halaman galeri publik',
         icon: <Images className={CARD} strokeWidth={sw} />,
         route: CONTENT_ROUTES['album-gallery'],
         group: 'Konten' as const,
@@ -397,7 +439,7 @@ export function getCommandCenterCards({
       {
         id: 'content-foto-area',
         title: 'Foto Area Event',
-        subtitle: 'Area & foto representatif',
+        subtitle: MODULE_PURPOSE[CONTENT_ROUTES['event-areas']] ?? 'Area event dan foto representatifnya',
         icon: <MapPin className={CARD} strokeWidth={sw} />,
         route: CONTENT_ROUTES['event-areas'],
         group: 'Konten' as const,
@@ -414,7 +456,7 @@ export function getCommandCenterCards({
       {
         id: 'content-berita',
         title: 'Berita',
-        subtitle: 'Artikel berita publik',
+        subtitle: MODULE_PURPOSE[CONTENT_ROUTES.news] ?? 'Artikel berita yang tampil di situs publik',
         icon: <Newspaper className={CARD} strokeWidth={sw} />,
         route: CONTENT_ROUTES.news,
         group: 'Konten' as const,
@@ -423,7 +465,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewSponsorship ? [{
       id: 'content-sponsorship',
       title: 'Sponsorship',
-      subtitle: 'Sponsor & kerja sama',
+      subtitle: MODULE_PURPOSE[CONTENT_ROUTES.sponsorship] ?? 'Sponsor, status penawaran, dan kerja sama',
       icon: <Handshake className={CARD} strokeWidth={sw} />,
       route: CONTENT_ROUTES.sponsorship,
       group: 'Konten' as const,
