@@ -1017,7 +1017,9 @@ function TenantSurveyManagementSection({
   if (surveyableEvents.length === 0) {
     return (
       <div className="ui-dashboard-surface p-4">
-        <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Self-Assessment per Event</h3>
+        {/* `<h2>`, sama dengan cabang non-empty di bawah: dulu `<h3>` sehingga
+            urutan heading melompat h1 → h3 persis saat daftar event kosong. */}
+        <h2 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Self-Assessment per Event</h2>
         <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
           Belum ada event berstatus ongoing/past. Event draft/upcoming tidak bisa dibuka untuk survey tenant.
         </p>

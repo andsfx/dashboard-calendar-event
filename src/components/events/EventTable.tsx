@@ -176,7 +176,10 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
             </div>
             {group.events.map(ev => (
               <div key={ev.id} className={`space-y-3 p-4 ${ev.status === 'past' ? 'opacity-80' : ''}`}>
-                {/* Mobile card — use div+role instead of nested buttons */}
+                {/* Kartu mobile full-width: target klik yang membungkus konten
+                    (judul, badge, meta) — ini layout, bukan kontrol, jadi tetap
+                    native. `role="button"` pada <div> dipakai alih-alih <button>
+                    bersarang agar kontrol aksi di bawahnya tetap valid. */}
                 <div
                   role="button"
                   tabIndex={0}
@@ -265,8 +268,21 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
         })}
       </div>
 
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[750px] text-sm">
+      {/* Panel scroll sendiri (dua sumbu) + tinggi terbatas: `<thead>` sticky
+          hanya benar-benar menempel bila kontainer scroll punya tinggi terbatas.
+          Dulu `overflow-x-auto` membuat wrapper jadi scroll-container dua sumbu
+          TANPA tinggi terbatas, sehingga `sticky top-0` jadi no-op (header ikut
+          tergulung) DAN `min-w-[750px]` yang lebih kecil dari kebutuhan konten
+          nyata (~1110px) memotong kolom Aksi tanpa memunculkan scrollbar sama
+          sekali — tombol Ubah/Hapus tak bisa dijangkau. Pola ini sama dengan
+          CommandCenterOverview (max-h + sticky thead). */}
+      <div
+        className="hidden max-h-[70vh] overflow-auto md:block"
+        role="region"
+        aria-label="Daftar jadwal event"
+        tabIndex={0}
+      >
+        <table className="w-full min-w-[60rem] text-sm">
           <caption className="sr-only">Tabel jadwal event</caption>
           <thead className="sticky top-0 z-10 bg-[var(--wf-board-2)]">
             <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
@@ -282,7 +298,10 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</th>
               {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</th>}
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
+              {/* `sticky right-0`: kolom Aksi dipin di kanan supaya tombol
+                  Sembunyikan/Ubah/Hapus SELALU terlihat tanpa perlu menggeser
+                  tabel ke kanan. `z-20` agar berada di atas sel-sel lain. */}
+              <th className="sticky right-0 z-20 border-l border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--wf-rule)]">
@@ -307,7 +326,7 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                 {group.events.map(ev => (
                   <tr
                     key={ev.id}
-                    className={`group transition-colors hover:bg-[var(--wf-board-2)] ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                    className={`group transition-colors hover:bg-[var(--wf-board-2)] ${ev.status === 'past' ? '[&>td:not(:last-child)]:opacity-80' : ''}`}
                   >
                     {/* Date */}
                     <td className="whitespace-nowrap px-4 py-3">

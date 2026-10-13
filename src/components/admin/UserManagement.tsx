@@ -214,7 +214,10 @@ export function UserManagement({ readOnly = false, currentUserId }: UserManageme
                 </div>
                 {/* Info */}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+                  {/* `flex-wrap`: badge peran + "Nonaktif" tidak menyusut, jadi
+                      tanpa wrap keduanya memakan seluruh baris dan nama user
+                      ter-squeeze sampai ~14px di layar 375px (hanya "…"). */}
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-sm font-medium text-[var(--wf-ink)]">{u.display_name}</p>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${roleInfo.color}`}>
                       {roleInfo.icon} {roleInfo.label}
