@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { useState } from 'react';
 import { MdTextField } from '../MdTextField';
 import { MdSelect } from '../MdSelect';
+import { MdChip } from '../MdChip';
 import { MdButton } from '../MdButton';
 import { MdCheckbox } from '../MdCheckbox';
 import { MdSwitch } from '../MdSwitch';
@@ -78,6 +79,57 @@ describe('md wrapper mocks', () => {
     expect(onCheck).toHaveBeenCalledWith(true);
     fireEvent.click(screen.getByRole('switch', { name: 'Tampilkan di halaman publik' }));
     expect(onSwitch).toHaveBeenCalledWith(true);
+  });
+
+  it('MdChip: mengklik chip yang sudah terpilih tidak melepasnya (selected terkontrol)', () => {
+    // Skenario terukur di /dashboard: FilterBar menerapkan ulang filter yang
+    // sama saat chip aktif diklik → state konsumen tidak berubah → tidak ada
+    // render ulang yang menulis ulang property. md-filter-chip sudah men-toggle
+    // `selected` internalnya sendiri di jalur klik, jadi tanpa re-assert dari
+    // wrapper chip ini akan tampil tidak terpilih padahal filternya masih aktif.
+    // `onClick` sengaja tanpa perubahan state apa pun supaya tes ini GAGAL bila
+    // wrapper tidak mengembalikan `selected` ke nilai prop.
+    const onClick = vi.fn();
+    render(<MdChip label="Selesai" selected onClick={onClick} />);
+    const chip = screen.getByRole('button', { name: 'Selesai' });
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(chip);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    expect(chip).toHaveAttribute('selected');
+    expect((chip as HTMLElement & { selected: boolean }).selected).toBe(true);
+  });
+
+  it('MdChip: mengklik chip yang belum terpilih memilihnya', () => {
+    function Harness() {
+      const [selected, setSelected] = useState(false);
+      return <MdChip label="Selesai" selected={selected} onClick={() => setSelected(true)} />;
+    }
+    render(<Harness />);
+    const chip = screen.getByRole('button', { name: 'Selesai' });
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(chip);
+
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+    expect(chip).toHaveAttribute('selected');
+    expect((chip as HTMLElement & { selected: boolean }).selected).toBe(true);
+  });
+
+  it('MdChip: chip removable tetap memakai klik sebagai aksi hapus, bukan toggle', () => {
+    const onRemove = vi.fn();
+    render(<MdChip label="Kategori: Bazaar" removable ariaLabel="Hapus kategori Bazaar" onRemove={onRemove} />);
+    const chip = screen.getByRole('button', { name: 'Hapus kategori Bazaar' });
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(chip);
+
+    expect(onRemove).toHaveBeenCalledTimes(1);
+    // `selected` tidak dipakai chip removable: klik tidak boleh men-toggle-nya.
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+    expect(chip).not.toHaveAttribute('selected');
   });
 
   it('MdDialog: hanya menutup sekali dan hanya dialog teratas yang menangkap Escape', async () => {

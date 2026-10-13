@@ -1,5 +1,5 @@
 import { EventStatus } from '../../types';
-import { MdChip, MdSelect, MdTabs, type MdTabItem } from '../md';
+import { MdChip, MdSelect } from '../md';
 
 const STATUS_TABS: Array<{ key: EventStatus | 'Semua'; label: string; dot?: string }> = [
   { key: 'Semua',    label: 'Semua' },
@@ -46,8 +46,12 @@ interface Props {
 /**
  * Baris filter dashboard.
  *
- * Status memakai `md-tabs` (pola APG tabs: roving tabindex + navigasi panah
- * bawaan), dropdown memakai `md-outlined-select`, dan chip filter aktif memakai
+ * Status memakai grup chip toggle `md-filter-chip` (`aria-pressed` dipasang md
+ * pada button internalnya) — BUKAN `md-tabs`: tidak ada tabpanel di bawah baris
+ * ini, jadi `role="tablist"`/`role="tab"` akan menjanjikan navigasi panah
+ * antar-panel yang tidak ada. `md-tabs` tetap dipakai untuk berpindah VIEW
+ * (Tabel/Kalender/Kanban/Timeline) di `DashboardViewsSection`.
+ * Dropdown memakai `md-outlined-select`, dan chip filter aktif memakai
  * `md-filter-chip` removable. Handler keyboard/`listbox` manual yang dulu ada
  * di sini sudah tidak diperlukan.
  */
@@ -65,8 +69,6 @@ export function FilterBar({
   const statusTabs = showDraft ? STATUS_TABS : STATUS_TABS.filter(tab => tab.key !== 'draft');
   const dropdownCols = showPriority ? 'grid grid-cols-1 gap-2 sm:grid-cols-3' : 'grid grid-cols-1 gap-2 sm:grid-cols-2';
 
-  const tabItems: MdTabItem[] = statusTabs.map(tab => ({ key: tab.key, label: tab.label, dot: tab.dot }));
-
   const activeChips = [
     activeFilter !== 'Semua' ? { key: 'status', label: `Status: ${statusTabs.find(tab => tab.key === activeFilter)?.label ?? activeFilter}`, clear: () => onFilterChange('Semua') } : null,
     activeMonth !== 'Semua' ? { key: 'month', label: `Bulan: ${activeMonth}`, clear: () => onMonthChange('Semua') } : null,
@@ -76,14 +78,24 @@ export function FilterBar({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Status pill tabs - scrollable on mobile */}
-      <div className="flex w-full overflow-x-auto">
-        <MdTabs
-          items={tabItems}
-          value={activeFilter}
-          onChange={key => onFilterChange(key as EventStatus | 'Semua')}
-          ariaLabel="Filter status acara"
-        />
+      {/* Filter status — grup chip toggle (`aria-pressed` dari md-filter-chip),
+          bukan tablist: tidak ada tabpanel di bawah baris ini.
+          Scrollable di mobile (chip `shrink-0` supaya tidak terkompresi). */}
+      <div
+        role="group"
+        aria-label="Filter status acara"
+        className="flex w-full items-center gap-2 overflow-x-auto"
+      >
+        {statusTabs.map(tab => (
+          <MdChip
+            key={tab.key}
+            label={tab.label}
+            selected={activeFilter === tab.key}
+            onClick={() => onFilterChange(tab.key)}
+            className="shrink-0"
+            leadingIcon={tab.dot ? <span className={`h-1.5 w-1.5 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
+          />
+        ))}
       </div>
 
       {/* Dropdowns row - wrap on mobile */}

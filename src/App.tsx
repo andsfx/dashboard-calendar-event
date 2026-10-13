@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from 'react';
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy, type ComponentProps } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { DashboardSkeleton } from './components/ui/DashboardSkeleton';
@@ -20,7 +20,31 @@ import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+// `EventDetailModal` dipakai halaman PUBLIK (`/`, `/events`). Modulnya
+// mengimpor `MdButton`/`MdIconButton` dari `../md` + `ModalWrapper` secara
+// statis, jadi `lazy()` saja TIDAK cukup: elemen lazy yang tetap dirender saat
+// boot langsung memicu import()-nya dan menyeret Material Web + Lit ke initial
+// load halaman publik. Karena itu render-nya digerbangi `isOpen` — pola yang
+// sama dengan `DashboardModals` di dashboard — sehingga MD3 baru diunduh saat
+// pengguna benar-benar membuka detail event.
 const EventDetailModal = lazy(() => import('./components/modals/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
+
+/**
+ * Detail event untuk halaman publik — md-free dan tidak memuat apa pun sampai
+ * benar-benar dibuka.
+ *
+ * `Suspense fallback={null}` meniru `useConfirmDialog`/`ModalWrapper`: batas
+ * Suspense TERDEKAT menahan suspend saat chunk modal diunduh, supaya skeleton
+ * halaman penuh (boundary rute di bawah) tidak berkedip di tengah interaksi.
+ */
+function PublicEventDetailModal(props: ComponentProps<typeof EventDetailModal>) {
+  if (!props.isOpen) return null;
+  return (
+    <Suspense fallback={null}>
+      <EventDetailModal {...props} />
+    </Suspense>
+  );
+}
 const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 
 const CommunityLandingPage = lazy(() => import('./pages/CommunityLandingPage').then(m => ({ default: m.CommunityLandingPage })));
@@ -293,7 +317,7 @@ export default function App() {
             isLoading={isLoading}
             stats={communityStats}
           />
-          <EventDetailModal
+          <PublicEventDetailModal
             isOpen={showDetailModal}
             event={detailEvent}
             onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}
@@ -317,7 +341,7 @@ export default function App() {
             onRetry={() => { void refreshEvents(); }}
             onDetail={handleDetailClick}
           />
-          <EventDetailModal
+          <PublicEventDetailModal
             isOpen={showDetailModal}
             event={detailEvent}
             onClose={() => { setShowDetailModal(false); setDetailEvent(null); }}

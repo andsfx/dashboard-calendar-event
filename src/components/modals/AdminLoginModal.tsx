@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, X, Eye, EyeOff } from 'lucide-react';
 import { ModalWrapper } from './ModalWrapper';
-import { MdButton, MdTextField } from '../md';
+import { MdButton, MdIconButton, MdTextField } from '../md';
 import type { LoginResult } from '../../types/auth';
 
 interface Props {
@@ -72,13 +72,13 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
                 <p className="text-xs text-[var(--wf-accent-ink)]/70">Masuk ke mode admin</p>
               </div>
             </div>
-            <button
+            <MdIconButton
+              ariaLabel="Tutup"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-[var(--wf-accent-ink)]/70 transition hover:bg-[var(--wf-accent-ink)]/20 hover:text-[var(--wf-accent-ink)]"
-              aria-label="Tutup"
+              className="text-[var(--wf-accent-ink)]/70 transition hover:text-[var(--wf-accent-ink)]"
             >
               <X className="h-4 w-4" />
-            </button>
+            </MdIconButton>
           </div>
         </div>
 
@@ -108,16 +108,27 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
                   onChange={value => { setPw(value); setError(''); }}
                   placeholder="Masukkan password…"
                   error={!!error}
-                  className="w-full"
+                  /* Ruang trailing md diperlebar agar teks password tidak
+                     berjalan di bawah tombol mata. Token md yang dipakai:
+                     `--md-outlined-text-field-trailing-space` (default 16px,
+                     node_modules/@material/web/textfield/internal/outlined-styles.css
+                     → `--_trailing-space: var(--md-outlined-text-field-trailing-space, 16px)`,
+                     dipakai sebagai `padding-inline-end` konten field).
+                     Nilai = inset tombol (right-3 = 12px) + lebar tombol md
+                     (40px) + jarak aman 8px. */
+                  className="w-full [--md-outlined-text-field-trailing-space:calc(12px_+_40px_+_8px)]"
                 />
-                <button
-                  type="button"
+                <MdIconButton
+                  ariaLabel={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
+                  title={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
+                  toggle
+                  selected={showPw}
                   tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+                </MdIconButton>
               </div>
               {error && (
                 <p id="admin-login-error" role="alert" className="mt-1.5 flex items-center gap-1 text-xs text-red-700 dark:text-red-300">

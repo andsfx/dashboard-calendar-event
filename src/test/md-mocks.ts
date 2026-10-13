@@ -389,7 +389,9 @@ class MdRadioMock extends MdMockBase {
 
 class MdChipMock extends MdMockBase {
   private _label = '';
+  private _labelNode: Text | null = null;
   private _removeClickBound = false;
+  private _toggleClickBound = false;
 
   mdSync(): void {
     this.setAttribute('role', 'button');
@@ -407,12 +409,33 @@ class MdChipMock extends MdMockBase {
         this.dispatchEvent(new Event('remove', { bubbles: true, composed: true }));
       });
     }
-    // Chip punya children React (teks label) yang menjadi accessible name-nya.
+    // md-filter-chip asli men-toggle `selected` internalnya di jalur klik
+    // (`chips/internal/filter-chip.js` → `handleClickOnChild`) SEBELUM
+    // me-redispatch event dari host. Listener ini terpasang saat connect —
+    // sebelum `useLayoutEffect` wrapper memasang listener-nya — jadi urutannya
+    // sama dengan md asli. Tanpa tiruan ini, tes jsdom tidak bisa membuktikan
+    // wrapper mengembalikan `selected` ke nilai prop. Chip `removable` tidak
+    // men-toggle: kliknya aksi hapus (md memakai tombol hapus terpisah).
+    if (!this._toggleClickBound) {
+      this._toggleClickBound = true;
+      this.addEventListener('click', () => {
+        if (this._bool('_removable') || this._bool('_disabled')) return;
+        this._set('_selected', !this._bool('_selected'));
+      });
+    }
+    // Chip punya children React (mis. `<span slot="icon">` titik status dari
+    // `MdChip.leadingIcon`) DAN label dari property `label`. Dulu label ditulis
+    // lewat `textContent = label`, yang MENCABUT children React: React lalu
+    // melempar NotFoundError saat melepas node yang sudah hilang. Sekarang label
+    // ditulis sebagai text node milik mock ini, jadi children React tetap utuh.
     // Chip removable juga dapat `aria-label` dari wrapper → jangan dilepas.
     this._label = this._str('_label');
-    if (this._label && this.textContent !== this._label) {
-      // label property hanya dipakai bila tidak ada children React
-      this.textContent = this._label;
+    if (this._label) {
+      if (!this._labelNode) {
+        this._labelNode = document.createTextNode('');
+        this.appendChild(this._labelNode);
+      }
+      if (this._labelNode.data !== this._label) this._labelNode.data = this._label;
     }
   }
 }

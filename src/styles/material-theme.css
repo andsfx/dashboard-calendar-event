@@ -22,6 +22,7 @@
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-error-container: #fde7e6;
   --md-sys-color-on-error-container: #7a1c16;
+  --md-sys-color-scrim: #000; /* netral md-dialog; fallback md juga #000, dikunci eksplisit bukan hex brand */
 
   /* Typeface */
   --md-ref-typeface-brand: var(--font-body);
@@ -35,6 +36,12 @@
   --md-sys-shape-corner-large: var(--wf-radius-board);
   --md-sys-shape-corner-extra-large: 16px;
   --md-sys-shape-corner-full: 9999px;
+  /* Bentuk tombol — pakai token shape milik md ("--md-*-button-container-shape"), */
+  /* bukan `border-radius` dari outer tree, supaya ikut lapisan container/state di */
+  /* shadow tree. Nilai mengikuti DESIGN.md `--radius-control` (8px, sama seperti `.wf-btn`). */
+  --md-filled-button-container-shape: var(--wf-radius-control);
+  --md-outlined-button-container-shape: var(--wf-radius-control);
+  --md-text-button-container-shape: var(--wf-radius-control);
 }
 
 /* md-dialog mengunci :host ke max 560×560px dan `display: contents`. Aturan di
@@ -55,20 +62,19 @@ md-dialog .md-dialog-content {
   padding: 0;
 }
 
-/* Tailwind preflight (`@layer base { *, ::before, ::after { padding: 0 } }`)
- * menang atas `:host` di shadow tree, jadi `md-primary-tab` kehilangan
- * `padding: 0 16px` miliknya dan label antar-tab saling menempel. Pulihkan di
- * outer tree — ini satu-satunya komponen md yang :host-nya memakai padding.
- * (md-tabs sudah memasang gap sendiri lewat token; jangan tambah di sini.) */
+/* `:host` md berlaku untuk semua properti kecuali `padding-*`: `padding: 0 16px` */
+/* bawaan `md-primary-tab` hilang di app ini (terukur 0px), padahal satu-satunya */
+/* aturan universal milik app adalah `outline-color` — bukan preflight `* { padding: 0 }`. */
+/* Pulihkan di outer tree. (md-tabs sudah memasang gap sendiri lewat token; jangan tambah di sini.) */
 md-primary-tab {
   padding: 0 16px;
 }
 
-/* Sama seperti `md-primary-tab`: `padding-inline-start/end` di `:host` tombol
- * md tidak pernah terpakai di app ini (computed 0px padahal var internalnya
- * hidup), jadi setiap tombol kehilangan padding horizontal intrinsiknya dan
- * label menempel ke tepi. Aturan outer tree di bawah ini yang menegakkannya.
- * Nilainya memakai var internal md bila ada, dengan fallback MD3 standar. */
+/* Perilaku terverifikasi, sama seperti `md-primary-tab` di atas: `padding-inline-start/end` */
+/* di `:host` tombol md tidak terpakai di app ini (computed 0px padahal var internalnya */
+/* hidup), jadi setiap tombol kehilangan padding horizontal intrinsiknya dan label */
+/* menempel ke tepi. Aturan outer tree di bawah ini yang menegakkannya. Nilainya memakai */
+/* var internal md bila ada, dengan fallback MD3 standar. */
 md-filled-button,
 md-outlined-button,
 md-text-button {

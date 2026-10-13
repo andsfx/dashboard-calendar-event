@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Users, Inbox, Clock, CheckCircle2, XCircle, Eye, Filter } from 'lucide-react';
 import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../../types';
+import { MdChip } from '../md';
 
 interface Props {
   registrations: CommunityRegistration[];
@@ -101,22 +102,16 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
 
       {/* Filter rows */}
       <div className="space-y-2">
-        {/* Status filter */}
+        {/* Status filter — chip toggle MD3 (`aria-pressed` dari md-filter-chip) */}
         <div className="flex flex-wrap gap-2">
           {STATUS_TABS.map((tab) => (
-            <button
+            <MdChip
               key={tab.key}
+              label={tab.label}
+              selected={activeTab === tab.key}
               onClick={() => setActiveTab(tab.key)}
-              aria-pressed={activeTab === tab.key}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                activeTab === tab.key
-                  ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                  : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-              }`}
-            >
-              {tab.dot && <span className={`h-2 w-2 rounded-full ${activeTab === tab.key ? 'bg-[var(--wf-accent-ink)]/80' : tab.dot}`} />}
-              {tab.label}
-            </button>
+              leadingIcon={tab.dot ? <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
+            />
           ))}
         </div>
 
@@ -124,30 +119,20 @@ export function CommunityRegistrationSection({ registrations, isLoading, onDetai
         {orgTypesInData.length > 1 && (
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-            <button
+            <MdChip
+              label="Semua Tipe"
+              selected={orgTypeFilter === 'all'}
               onClick={() => setOrgTypeFilter('all')}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-                orgTypeFilter === 'all'
-                  ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                  : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
-              }`}
-            >
-              Semua Tipe
-            </button>
+            />
             {orgTypesInData.map(type => {
               const config = ORG_TYPE_CONFIG[type] || ORG_TYPE_CONFIG.other;
               return (
-                <button
+                <MdChip
                   key={type}
+                  label={config.label}
+                  selected={orgTypeFilter === type}
                   onClick={() => setOrgTypeFilter(type)}
-                  className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
-                    orgTypeFilter === type
-                      ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
-                      : `${config.color} hover:opacity-80`
-                  }`}
-                >
-                  {config.label}
-                </button>
+                />
               );
             })}
           </div>

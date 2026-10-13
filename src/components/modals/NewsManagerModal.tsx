@@ -214,10 +214,10 @@ export function NewsManagerModal({ readOnly = false }: Props) {
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <p>{error}</p>
-                <button type="button" onClick={() => loadArticles()} className="ui-focus-ring mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-[var(--radius-control)] font-semibold underline underline-offset-2">
+                <MdButton variant="text" onClick={loadArticles} className="mt-2 underline underline-offset-2">
                   <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                   Coba lagi
-                </button>
+                </MdButton>
               </div>
             </div>
           )}
