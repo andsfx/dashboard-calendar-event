@@ -188,6 +188,121 @@ export async function measureClippedControls(page: Page): Promise<ClippedFinding
   });
 }
 
+// ─── Klip horizontal & keterjangkauan kontrol ────────────────────
+
+export interface HorizontalClipFinding {
+  selector: string;
+  scrollWidth: number;
+  clientWidth: number;
+  overflowX: string;
+  /** 'scrollable' = punya scrollbar (konten terjangkau); 'clipped' = terpotong tanpa jalan. */
+  kind: 'scrollable' | 'clipped';
+}
+
+/**
+ * Kontainer yang isinya lebih lebar dari kotaknya.
+ *
+ * Kenapa ada: `measureShell` hanya melihat `documentElement`, sehingga konten
+ * yang terpotong DI DALAM sebuah kontainer bersarang sama sekali tak terlihat
+ * (overflow halaman 0). Itu persis kelas cacat yang membuat kolom Aksi tabel
+ * event lolos audit berbulan-bulan.
+ */
+export async function measureHorizontalClip(page: Page): Promise<HorizontalClipFinding[]> {
+  return await page.evaluate(() => {
+    const describe = (el: Element): string => {
+      let out = el.tagName.toLowerCase();
+      if (el.id) out += `#${el.id}`;
+      const cls = (el.getAttribute('class') || '').trim().split(/\s+/).filter(Boolean).slice(0, 4);
+      if (cls.length) out += `.${cls.join('.')}`;
+      return out;
+    };
+    const out: Array<{ selector: string; scrollWidth: number; clientWidth: number; overflowX: string; kind: 'scrollable' | 'clipped' }> = [];
+    // `sr-only` sengaja 1×1 (skip-link, label tersembunyi) dan `truncate`/
+    // `line-clamp` sengaja memotong. Keduanya bukan cacat — tanpa penyaring ini
+    // audit tenggelam dalam ratusan false positive dan temuan asli tak terlihat.
+    const intentional = (el: Element): boolean =>
+      /(^|\s)sr-only(\s|$)/.test(el.getAttribute('class') || '') ||
+      /truncate|line-clamp/.test(el.getAttribute('class') || '') ||
+      /truncate|line-clamp/.test(el.parentElement?.getAttribute('class') || '');
+    for (const el of Array.from(document.querySelectorAll('*'))) {
+      if (el.closest('[inert]') || el.closest('[aria-hidden="true"]')) continue;
+      if (intentional(el)) continue;
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+      const scrollW = el.scrollWidth;
+      const clientW = el.clientWidth;
+      // <= 2px = elemen sr-only yang lolos penyaring kelas (mis. span tanpa kelas).
+      if (clientW <= 2 || scrollW <= clientW + 1) continue;
+      // Elemen dengan overflow-x visible tidak memotong: isinya meluber ke
+      // luar dan tetap terlihat (bisa jadi overflow halaman — diukur terpisah).
+      if (!/auto|scroll|hidden|clip/.test(cs.overflowX)) continue;
+      out.push({
+        selector: describe(el),
+        scrollWidth: Math.round(scrollW),
+        clientWidth: Math.round(clientW),
+        overflowX: cs.overflowX,
+        kind: /auto|scroll/.test(cs.overflowX) ? 'scrollable' : 'clipped',
+      });
+    }
+    return out.slice(0, 30);
+  });
+}
+
+export interface UnreachableFinding {
+  selector: string;
+  text: string;
+  clipper: string;
+  reason: string;
+}
+
+/**
+ * Kontrol interaktif yang benar-benar tak bisa dijangkau: leluhurnya memotong
+ * (`overflow: hidden|clip`) tanpa scrollbar, dan kotaknya berada di luar kotak
+ * leluhur itu. Berbeda dari "perlu scroll": yang ini tidak punya jalan sama
+ * sekali, sehingga sama dengan tombol hilang.
+ */
+export async function measureUnreachableControls(page: Page): Promise<UnreachableFinding[]> {
+  return await page.evaluate(() => {
+    const describe = (el: Element): string => {
+      let out = el.tagName.toLowerCase();
+      if (el.id) out += `#${el.id}`;
+      const cls = (el.getAttribute('class') || '').trim().split(/\s+/).filter(Boolean).slice(0, 3);
+      if (cls.length) out += `.${cls.join('.')}`;
+      return out;
+    };
+    const out: Array<{ selector: string; text: string; clipper: string; reason: string }> = [];
+    const sel = 'a[href], button, [role="button"], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    for (const el of Array.from(document.querySelectorAll(sel))) {
+      if (el.closest('[inert]')) continue;
+      const cs0 = getComputedStyle(el);
+      if (cs0.display === 'none' || cs0.visibility === 'hidden' || Number(cs0.opacity) === 0) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      let node: Element | null = el.parentElement;
+      while (node) {
+        const cs = getComputedStyle(node);
+        const clips = /hidden|clip/.test(cs.overflowX);
+        const scrolls = /auto|scroll/.test(cs.overflowX);
+        if ((clips || scrolls) && node.scrollWidth > node.clientWidth + 1) {
+          if (scrolls) break; // punya scrollbar: terjangkau
+          const nr = node.getBoundingClientRect();
+          if (r.right > nr.right + 1 || r.left < nr.left - 1) {
+            out.push({
+              selector: describe(el),
+              text: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 30),
+              clipper: describe(node),
+              reason: `right=${Math.round(r.right)} > clipper.right=${Math.round(nr.right)}`,
+            });
+          }
+          break;
+        }
+        node = node.parentElement;
+      }
+    }
+    return out.slice(0, 30);
+  });
+}
+
 // ─── Empty-state census ──────────────────────────────────────────
 
 export interface EmptyStateFinding {

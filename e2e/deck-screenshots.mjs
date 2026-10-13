@@ -60,7 +60,8 @@ await page.getByText(/Menampilkan \d+ dari \d+ acara/).waitFor({ timeout: 20000 
 await page.waitForTimeout(800);
 
 // Show ALL events so every mode is populated (kanban columns, timeline, calendar)
-await page.getByRole('tab', { name: 'Semua', exact: true }).click();
+// Filter status kini grup chip toggle (`aria-pressed`), bukan tablist.
+await page.getByRole('group', { name: 'Filter status acara' }).getByRole('button', { name: 'Semua', exact: true }).click();
 await page.getByText(/Menampilkan \d+ dari \d+ acara/).waitFor({ timeout: 10000 });
 await page.waitForTimeout(900);
 

@@ -268,6 +268,12 @@ export async function installDashboardMocks(
     if (p.startsWith('/admin/')) {
       const action = p.replace('/admin/', '');
       const table: Record<string, unknown> = {
+        // `listEvents` WAJIB ada. Dulu tidak ada di tabel ini, sehingga
+        // `/admin/listEvents` jatuh ke `?? []` dan tabel event diaudit KOSONG —
+        // markup barisnya (tempat cacat klip/sticky berada) tak pernah
+        // dirender, dan audit melaporkan "0 temuan" untuk halaman yang justru
+        // rusak. `readDrafts` tetap untuk halaman draft.
+        listEvents: EVENTS,
         readDrafts: DRAFTS,
         readRegistrations: REGISTRATIONS,
         listExhibitions: EXHIBITIONS,

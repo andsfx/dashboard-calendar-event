@@ -1,0 +1,18 @@
+admin/ExhibitionManager                mdImp=1 mdUse=14 | btn= 3 inp= 2 sel= 1 ta=0
+admin/UserManagement                   mdImp=0 mdUse= 0 | btn= 7 inp= 4 sel= 1 ta=0
+admin/ActivityLog                      mdImp=0 mdUse= 0 | btn= 4 inp= 2 sel= 2 ta=0
+dashboard/EventInsightsPanel           mdImp=0 mdUse= 0 | btn= 6 inp= 0 sel= 0 ta=0
+survey/TenantSurveyPage                mdImp=1 mdUse= 7 | btn=13 inp= 1 sel= 0 ta=1
+survey/TenantSurveyList                mdImp=1 mdUse= 2 | btn=11 inp= 1 sel= 2 ta=0
+survey/SurveyDashboard                 mdImp=0 mdUse= 0 | btn= 9 inp= 3 sel= 0 ta=0
+survey/TenantSurveyForm                mdImp=0 mdUse= 0 | btn= 8 inp= 2 sel= 1 ta=1
+views/QuarterTimeline                  mdImp=1 mdUse= 1 | btn= 5 inp= 0 sel= 0 ta=0
+views/KanbanView                       mdImp=1 mdUse= 3 | btn= 0 inp= 0 sel= 0 ta=0
+views/TimelineView                     mdImp=1 mdUse= 3 | btn= 0 inp= 0 sel= 0 ta=0
+views/DashboardViewsSection            mdImp=0 mdUse= 0 | btn= 3 inp= 0 sel= 0 ta=0
+events/EventTable                      mdImp=1 mdUse= 9 | btn= 0 inp= 0 sel= 0 ta=0
+events/FeaturedEvents                  mdImp=0 mdUse= 0 | btn= 1 inp= 0 sel= 0 ta=0
+drafts/AdminDraftSection               mdImp=0 mdUse= 0 | btn= 2 inp= 0 sel= 0 ta=0
+drafts/DraftQueueTable                 mdImp=0 mdUse= 0 | btn= 3 inp= 0 sel= 1 ta=0
+drafts/DraftHistoryTable               mdImp=0 mdUse= 0 | btn= 1 inp= 0 sel= 0 ta=0
+community/CommunityRegistrationSection mdImp=0 mdUse= 0 | btn= 5 inp= 0 sel= 0 ta=0

@@ -1,0 +1,57 @@
+# ============================================================================
+# CI — gerbang otomatis (build + typecheck + unit test)
+# ----------------------------------------------------------------------------
+# Sebelum ini repo TIDAK punya CI sama sekali (`.github/` tidak ada, tidak ada
+# husky). Klaim "726 test hijau" karenanya hanya berlaku di satu mesin
+# pengembang — regresi apa pun bisa masuk main tanpa terdeteksi.
+#
+# Job ini menjalankan tiga gerbang yang sama dengan verifikasi manual:
+#   1. `npx tsc --noEmit`        — tipe SPA (server/ adalah JS, tidak dicek tsc)
+#   2. `npx vitest run`          — unit test (jsdom + beberapa file env `node`)
+#   3. `npm run build`           — tsc + vite build produksi
+#
+# Catatan: `NODE_ENV=test` WAJIB untuk vitest. Tanpa itu, React memakai build
+# produksi dan tes yang menyentuh `act()` gagal dengan pesan menyesatkan.
+# ============================================================================
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Batalkan run lama untuk ref yang sama — hemat menit CI.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: build + typecheck + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install (clean)
+        run: npm ci
+
+      - name: Typecheck (SPA)
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npx vitest run --reporter=dot
+        env:
+          NODE_ENV: test
+
+      # Build produksi TIDAK memakai NODE_ENV=test: itu akan membuat Vite
+      # meng-*inline* build React pengembangan ke bundle. `npm run build`
+      # sendiri sudah menjalankan `tsc && vite build` + assert-lazy-entry-chunks.
+      - name: Build produksi
+        run: npm run build
