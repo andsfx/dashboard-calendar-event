@@ -25,7 +25,19 @@ export function mdCreate(
     props?: Record<string, unknown> | null,
     ...children: React.ReactNode[]
   ) => React.ReactElement;
-  return create(tag, props, ...children);
+  // Wrapper md menulis `class`, bukan `className`, supaya tetap terbaca sebagai
+  // atribut kustom-elemen. React 19 menyalurkan prop lewat heuristik
+  // property-vs-attribute dan hanya mengenali `className`; `class` yang lolos
+  // mentah diperlakukan sebagai atribut tak dikenal dan memicu
+  // "Invalid DOM property 'class'". Keduanya berakhir sebagai attribute
+  // `class` yang sama, jadi normalisasi di sini menghapus warning tanpa
+  // mengubah DOM. `className` menang bila keduanya ada.
+  let nextProps = props;
+  if (props && 'class' in props) {
+    const { class: classProp, ...rest } = props;
+    nextProps = 'className' in rest ? rest : { ...rest, className: classProp };
+  }
+  return create(tag, nextProps, ...children);
 }
 
 /** Ref ke host `md-*`. */
