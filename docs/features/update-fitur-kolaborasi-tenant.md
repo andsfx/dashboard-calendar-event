@@ -1,6 +1,6 @@
 # Update Fitur: Kolaborasi Tenant — Pengajuan Event & Proposal
 
-Status: **DIKERJAKAN** · Repo: schedule-event-v2 · Stack: Opsi B (Express/Postgres VPS, ADR 005 — bukan Supabase) · 2026-10-13
+Status: **SELESAI** (live: halaman publik `/kolaborasi-tenant` di Vercel; API `POST /api/v1/tenant-event-proposals` + `/attachment` di VPS; tabel `tenant_event_proposals` sudah dimigrasi di produksi) · Repo: schedule-event-v2 · Stack: Opsi B (Express/Postgres VPS, ADR 005 — bukan Supabase) · 2026-10-13
 
 Preseden: fitur **Pameran & Kolaborasi** (`/pameran`, `POST /exhibition-leads`, `ExhibitionManager`) untuk bentuk halaman-publik + form + antrean review; `/daftar` (community registration) untuk pola unggah proposal; `update-fitur-sponsorship.md` untuk tata letak antrean lead.
 
@@ -83,9 +83,9 @@ Kolom non-skalar: **tidak ada** (TEXT/DATE/BIGINT saja) → tidak butuh `pgValue
 - `src/pages/TenantCollaborationPage.tsx` (baru) + route lazy `/kolaborasi-tenant` (`src/App.tsx`) + entri nav Jelajahi ("Kolaborasi") di `src/pages/CommunityLandingPage.tsx` + entri katalog fitur `src/data/featureDocs.ts`.
 - Admin: `src/hooks/useTenantEventProposals.ts`, `src/components/admin/TenantProposalManager.tsx`, wiring di `DashboardPage`/`dashboardNavigation` (`/dashboard/tenant-proposals`, grup Interaksi), `usePermission.ts`, `CommandCenterSummary`/`CommandCenterDirectory`/`DashboardStats`, `useInsightContext` + `eventInsights.ts`.
 
-## 6. Verifikasi
+## 6. Verifikasi (hasil 2026-10-13)
 
-1. `npx tsc --noEmit` → 0 error; `npm run build` sukses.
-2. `NODE_ENV=test npx vitest run` → suite hijau (termasuk test baru `tenantProposalsApi` + kasus antrean baru).
-3. Smoke browser `npm run dev`: `/kolaborasi-tenant` render → submit kosong menampilkan error Indonesia → submit valid mengirim `POST /api/v1/tenant-event-proposals`; unggah proposal melewati presign; dashboard `Kolaborasi Tenant` menampilkan pengajuan + ubah status + catatan.
-4. Produksi (read-only): `healthz` `db:true`; `POST /tenant-event-proposals` payload kosong → 400 tanpa menulis; presign tipe terlarang → 400; halaman `/kolaborasi-tenant` render di `www.metmalcommunityspace.web.id`.
+1. `npx tsc --noEmit` → 0 error; `npm run build` sukses (penjaga `assert-lazy-entry-chunks` lolos).
+2. `NODE_ENV=test npx vitest run` → 859 lulus; 2 test ekspor PDF (`EventsLandingPage.export`, `TenantSurveyResultsPage.export`) flake di suite penuh (timeout 1s `findByRole('dialog')` vs beban import suite) — direproduksi tanpa perubahan fitur ini dan lulus saat dijalankan sendiri. Bukan regresi.
+3. Smoke lokal: `/kolaborasi-tenant` render; submit kosong → 6 error Indonesia + `aria-invalid`; submit valid → `POST /api/v1/tenant-event-proposals`; presign PDF → 200, tipe terlarang → 400; lampiran URL di luar prefix → 400. Komponen `TenantProposalManager` ditutup test permanen (review, catatan internal, hapus + batal, read-only, state kosong/error).
+4. Produksi (read-only): `POST /tenant-event-proposals` `{}` → 400 (tanpa tulis; `count(*)` tetap 0); presign `text/html` → 400, PDF → 200 dengan key `tenant-proposals/`; `admin/listTenantEventProposals` tanpa sesi → 401; `EXPLAIN` INSERT/UPDATE/DELETE terhadap skema produksi tervalidasi; `/kolaborasi-tenant` di www → 200 dan entri nav "Kolaborasi Tenant" muncul.
