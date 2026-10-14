@@ -4,7 +4,8 @@ import {
   ArrowLeft, CalendarDays, CheckCircle2, FileText, Handshake, Moon, Paperclip, Send, SunMedium, X,
 } from 'lucide-react';
 import type { TenantEventProposalInput, TenantEventProposalType } from '../types';
-import { fetchEventAreas, submitTenantEventProposal, uploadTenantProposalAttachment } from '../utils/domainApi';
+import { fetchEventAreas, submitTenantEventProposal, uploadTenantProposalAttachment, type TenantDropdownOption } from '../utils/domainApi';
+import { TenantSearchSelect } from '../components/survey/TenantSurveyShared';
 import { getTodayIsoLocal } from '../utils/eventDateTime';
 import { validateEmail, validatePhone } from '../utils/validation';
 import { usePageMeta } from '../utils/pageMeta';
@@ -34,6 +35,7 @@ const ATTACHMENT_MIME = [
 ];
 
 const EMPTY_FORM: TenantEventProposalInput = {
+  tenantId: '',
   tenantName: '', unitNumber: '', tenantCategory: '',
   contactName: '', phone: '', email: '',
   eventTitle: '', eventType: 'promo', eventDescription: '',
@@ -53,6 +55,16 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
 
   const [form, setForm] = useState<TenantEventProposalInput>({ ...EMPTY_FORM });
   const [areaOptions, setAreaOptions] = useState<string[]>([]);
+  /**
+   * Gerai diambil dari master MID (pilih dari daftar) supaya nama/unit/kategori
+   * konsisten dengan data mall. Jalur manual tetap ada karena halaman ini
+   * publik: bila gerai belum terdaftar atau layanan MID sedang bermasalah,
+   * form tidak boleh mati total.
+   */
+  const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
+  const [manualEntry, setManualEntry] = useState(false);
+  /** Field yang terisi otomatis dan belum disentuh user — direset saat pilihan dilepas. */
+  const [autoFilled, setAutoFilled] = useState({ unitNumber: false, tenantCategory: false });
   const [file, setFile] = useState<File | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
@@ -71,11 +83,67 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
 
   const setField = <K extends keyof TenantEventProposalInput>(key: K, value: TenantEventProposalInput[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    // Field hasil auto-isi MID yang disentuh user berhenti dianggap otomatis,
+    // supaya melepas pilihan gerai tidak menghapus ketikan user.
+    if (key === 'unitNumber') {
+      setAutoFilled((prev) => (prev.unitNumber ? { ...prev, unitNumber: false } : prev));
+    } else if (key === 'tenantCategory') {
+      setAutoFilled((prev) => (prev.tenantCategory ? { ...prev, tenantCategory: false } : prev));
+    }
     setError('');
     setFieldErrors((prev) => {
       if (!prev[key]) return prev;
       const next = { ...prev };
       delete next[key];
+      return next;
+    });
+  };
+
+  /** Pilih gerai dari master MID → isi nama, unit, dan kategori sekaligus. */
+  const handleTenantSelect = (tenant: TenantDropdownOption | null) => {
+    setSelectedTenant(tenant);
+    setForm((prev) => {
+      if (!tenant) {
+        // Lepas pilihan: buang hanya field yang masih murni hasil auto-isi,
+        // jangan hapus yang sudah disunting user.
+        return {
+          ...prev,
+          tenantId: '',
+          unitNumber: autoFilled.unitNumber ? '' : prev.unitNumber,
+          tenantCategory: autoFilled.tenantCategory ? '' : prev.tenantCategory,
+        };
+      }
+      return {
+        ...prev,
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        unitNumber: tenant.lot,
+        tenantCategory: tenant.category,
+      };
+    });
+    setAutoFilled(tenant
+      ? { unitNumber: Boolean(tenant.lot), tenantCategory: Boolean(tenant.category) }
+      : { unitNumber: false, tenantCategory: false });
+    setError('');
+    setFieldErrors((prev) => {
+      if (!prev.tenantName) return prev;
+      const next = { ...prev };
+      delete next.tenantName;
+      return next;
+    });
+  };
+
+  /** Pindah jalur pengisian gerai; pilihan MID dibuang agar tidak ada data separuh. */
+  const switchEntryMode = (manual: boolean) => {
+    setManualEntry(manual);
+    setSelectedTenant(null);
+    setAutoFilled({ unitNumber: false, tenantCategory: false });
+    setForm((prev) => ({ ...prev, tenantId: '', tenantName: '' }));
+    setError('');
+    setFieldErrors((prev) => {
+      if (!prev.tenantName) return prev;
+      const next = { ...prev };
+      delete next.tenantName;
       return next;
     });
   };
@@ -103,7 +171,8 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     event.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (form.tenantName.trim().length < 2) errors.tenantName = 'Nama gerai minimal 2 karakter.';
+    if (!manualEntry && !selectedTenant) errors.tenantName = 'Pilih gerai dari daftar, atau isi manual.';
+    else if (form.tenantName.trim().length < 2) errors.tenantName = 'Nama gerai minimal 2 karakter.';
     if (form.contactName.trim().length < 3) errors.contactName = 'Nama PIC minimal 3 karakter.';
     const phoneCheck = validatePhone(form.phone);
     if (!phoneCheck.valid) errors.phone = phoneCheck.error || 'Nomor WhatsApp tidak valid.';
@@ -234,21 +303,61 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
               <fieldset className="sm:col-span-2">
                 <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Data gerai</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <label className={labelClass} htmlFor="tp-tenant">
-                      Nama gerai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </label>
-                    <input
-                      id="tp-tenant"
-                      className={inputClass}
-                      value={form.tenantName}
-                      onChange={(e) => setField('tenantName', e.target.value)}
-                      maxLength={200}
-                      aria-invalid={Boolean(fieldErrors.tenantName)}
-                      aria-describedby={fieldErrors.tenantName ? 'tp-tenant-err' : undefined}
-                    />
-                    {fieldErrors.tenantName && <p id="tp-tenant-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.tenantName}</p>}
-                  </div>
+                  {!manualEntry ? (
+                    <div className="sm:col-span-2">
+                      <label className={labelClass} htmlFor="tp-tenant">
+                        Nama gerai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      </label>
+                      <TenantSearchSelect
+                        id="tp-tenant"
+                        value={selectedTenant?.name || form.tenantName}
+                        onChange={(next) => setField('tenantName', next)}
+                        onTenantSelect={handleTenantSelect}
+                        required
+                        error={fieldErrors.tenantName}
+                      />
+                      {selectedTenant && (
+                        <div className="mt-2 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
+                          <p className="text-xs font-semibold text-slate-800 dark:text-white">{selectedTenant.name}</p>
+                          <p className="text-[11px] ui-text-muted">
+                            {[selectedTenant.category, selectedTenant.floor, selectedTenant.lot && `Lot ${selectedTenant.lot}`]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => switchEntryMode(true)}
+                        className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                      >
+                        Gerai saya belum ada di daftar
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="sm:col-span-2">
+                      <label className={labelClass} htmlFor="tp-tenant-manual">
+                        Nama gerai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      </label>
+                      <input
+                        id="tp-tenant-manual"
+                        className={inputClass}
+                        value={form.tenantName}
+                        onChange={(e) => setField('tenantName', e.target.value)}
+                        maxLength={200}
+                        aria-invalid={Boolean(fieldErrors.tenantName)}
+                        aria-describedby={fieldErrors.tenantName ? 'tp-tenant-err' : undefined}
+                      />
+                      {fieldErrors.tenantName && <p id="tp-tenant-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.tenantName}</p>}
+                      <button
+                        type="button"
+                        onClick={() => switchEntryMode(false)}
+                        className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                      >
+                        Cari gerai di daftar
+                      </button>
+                    </div>
+                  )}
                   <div>
                     <label className={labelClass} htmlFor="tp-unit">Nomor unit atau lot</label>
                     <input id="tp-unit" className={inputClass} value={form.unitNumber} onChange={(e) => setField('unitNumber', e.target.value)} maxLength={50} placeholder="Contoh: GF-12" />

@@ -42,6 +42,7 @@ afterEach(() => {
 function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     id: 'tep-1',
+    tenant_id: '180102223',
     tenant_name: 'Kopi Kenangan',
     unit_number: 'GF-12',
     tenant_category: 'F&B',
@@ -69,6 +70,7 @@ function makeRow(overrides: Record<string, unknown> = {}) {
 }
 
 const INPUT = {
+  tenantId: '180102223',
   tenantName: 'Kopi Kenangan',
   unitNumber: 'GF-12',
   tenantCategory: 'F&B',
@@ -101,6 +103,7 @@ describe('tenantEventProposalsApi', () => {
     expect(rows).toHaveLength(2);
     expect(rows[0]).toMatchObject({
       id: 'tep-1',
+      tenantId: '180102223',
       tenantName: 'Kopi Kenangan',
       unitNumber: 'GF-12',
       eventTitle: 'Workshop Latte Art',
@@ -151,6 +154,21 @@ describe('tenantEventProposalsApi', () => {
     });
 
     await expect(submitTenantEventProposal(INPUT)).resolves.toBeUndefined();
+  });
+
+  it('meneruskan tenantId master MID pada payload submit', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
+      ok: true,
+      status: 201,
+      json: async () => ({ success: true, id: 'tep-9' }),
+      text: async () => '',
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await submitTenantEventProposal(INPUT);
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({ tenantId: '180102223', tenantName: 'Kopi Kenangan' });
   });
 
   it('presign lampiran lalu PUT berkas ke R2', async () => {

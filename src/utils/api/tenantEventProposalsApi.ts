@@ -16,6 +16,7 @@ function str(value: unknown): string {
 function mapProposal(row: Record<string, unknown>): TenantEventProposal {
   return {
     id: str(row.id),
+    tenantId: str(row.tenant_id),
     tenantName: str(row.tenant_name),
     unitNumber: str(row.unit_number),
     tenantCategory: str(row.tenant_category),
@@ -44,6 +45,7 @@ function mapProposal(row: Record<string, unknown>): TenantEventProposal {
 /** Payload form (camelCase) → kolom DB (snake_case) untuk POST publik. */
 function toDbRow(input: TenantEventProposalInput): Record<string, unknown> {
   return {
+    tenantId: input.tenantId,
     tenantName: input.tenantName,
     unitNumber: input.unitNumber,
     tenantCategory: input.tenantCategory,

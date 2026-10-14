@@ -779,6 +779,7 @@ CREATE TRIGGER trg_exhibitions_period_guard
 
 CREATE TABLE IF NOT EXISTS tenant_event_proposals (
   id TEXT PRIMARY KEY DEFAULT ('tep_' || replace(gen_random_uuid()::text, '-', '')),
+  tenant_id TEXT NOT NULL DEFAULT '',   -- TENANT_ID master MID; '' = diisi manual
   tenant_name TEXT NOT NULL,
   unit_number TEXT NOT NULL DEFAULT '',
   tenant_category TEXT NOT NULL DEFAULT '',

@@ -119,9 +119,15 @@ export function TenantProposalManager({
                     {item.tenantName}
                     {item.unitNumber && <span className="font-normal text-[var(--wf-ink-muted)]">· {item.unitNumber}</span>}
                   </p>
-                  {item.tenantCategory && (
-                    <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{item.tenantCategory}</p>
-                  )}
+                  <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
+                    {item.tenantCategory}
+                    {/* ID master MID: gerai yang dipilih dari daftar bisa ditelusuri
+                        walau nama diketik ulang berbeda. */}
+                    {item.tenantId && (
+                      <span className="ml-1 font-mono text-[11px]">· ID gerai {item.tenantId}</span>
+                    )}
+                    {!item.tenantId && <span className="ml-1">· diisi manual</span>}
+                  </p>
                 </div>
                 <span className="wf-code shrink-0">{STATUS_LABELS[item.status]}</span>
               </div>

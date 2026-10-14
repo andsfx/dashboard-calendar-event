@@ -128,13 +128,14 @@ router.post('/tenant-event-proposals', async (req, res, next) => {
 
     const { rows } = await db.query(
       `INSERT INTO tenant_event_proposals
-        (tenant_name, unit_number, tenant_category, contact_name, phone, email,
+        (tenant_id, tenant_name, unit_number, tenant_category, contact_name, phone, email,
          event_title, event_type, event_description, proposed_start, proposed_end,
          preferred_area, expected_visitors, needs,
          proposal_file_url, proposal_file_name, proposal_mime_type, proposal_file_size)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
        RETURNING id`,
       [
+        proposal.tenantId || '',
         proposal.tenantName,
         proposal.unitNumber,
         proposal.tenantCategory,

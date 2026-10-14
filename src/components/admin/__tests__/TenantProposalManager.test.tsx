@@ -7,7 +7,7 @@ import { TenantProposalManager } from '../TenantProposalManager';
 
 function makeProposal(overrides: Partial<TenantEventProposal> = {}): TenantEventProposal {
   return {
-    id: 'tep-1', tenantName: 'Kopi Kenangan', unitNumber: 'GF-12', tenantCategory: 'F&B',
+    id: 'tep-1', tenantId: '180102223', tenantName: 'Kopi Kenangan', unitNumber: 'GF-12', tenantCategory: 'F&B',
     contactName: 'Rani Putri', phone: '08123456789', email: 'rani@example.com',
     eventTitle: 'Workshop Latte Art', eventType: 'workshop',
     eventDescription: 'Kelas latte art 60 menit untuk 30 peserta.',
@@ -40,6 +40,14 @@ describe('TenantProposalManager', () => {
     expect(screen.getByRole('link', { name: /proposal\.pdf/ })).toHaveAttribute(
       'href', 'https://cdn.example.com/tenant-proposals/proposal.pdf',
     );
+  });
+
+  it('menandai asal data gerai: tautan master MID atau isi manual', () => {
+    const { rerender } = render(<TenantProposalManager {...props} />);
+    expect(screen.getByText(/ID gerai 180102223/)).toBeInTheDocument();
+
+    rerender(<TenantProposalManager {...props} proposals={[makeProposal({ tenantId: '' })]} />);
+    expect(screen.getByText(/diisi manual/)).toBeInTheDocument();
   });
 
   it('menghitung pengajuan yang menunggu tinjauan', () => {

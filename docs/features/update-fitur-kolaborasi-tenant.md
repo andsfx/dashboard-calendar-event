@@ -25,12 +25,14 @@ Non-goal: membuat Event/Draft otomatis dari pengajuan (sejalan ADR 003 — menye
 | D7 | Dashboard: modul **Kolaborasi Tenant** di grup Interaksi, izin `canViewTenantProposals = isAdmin \|\| isViewer \|\| isDemo`; kartu antrean "pengajuan menunggu review" di Pusat Komando (`getCommandCenterCards`); total `Menunggu keputusan` ikut menghitung; insight `pengajuan-kolaborasi-tenant` (bila ada ≥1 pending). |
 | D8 | Tidak ada endpoint baca publik untuk pengajuan — antrean hanya lewat `adminAction` ber-guard. Respons submit tidak mengembalikan data apa pun selain id. |
 | D9 | Copy Indonesia; halaman publik mengikuti struktur `RegistrationPage`/`ExhibitionsLandingPage` (header logo + dark toggle, `usePageMeta`, token `var(--brand-*)`, kelas `ui-*`); dashboard memakai komponen MD3 (`src/components/md`) seperti `ExhibitionManager`. |
+| D10 | Gerai dipilih dari **master tenant MID** (`GET /api/v1/tenant/tenants?q=`, proxy `apiloyalty.metropolitanland.com/getAllTenants`; kunci `MID_API_KEY` sudah ada di server, tidak pernah ke klien). Form memakai `TenantSearchSelect` yang sudah dipakai survey tenant, lalu mengisi nama/unit (`TENANT_LOT`)/kategori (`TENANT_CATEGORY`) otomatis dan menyimpan `tenant_id`. Jalur isi manual tetap tersedia ("Gerai saya belum ada di daftar") karena halaman ini publik: gerai baru atau upstream MID bermasalah tidak boleh mematikan form. `tenant_id` kosong menandai pengajuan manual — bukan galat. |
 
 ## 3. Database — `server/migrations/2026-10-13-tenant-event-proposals.sql` (+ blok sama di `server/schema.sql`)
 
 ```sql
 CREATE TABLE IF NOT EXISTS tenant_event_proposals (
   id TEXT PRIMARY KEY DEFAULT ('tep_' || replace(gen_random_uuid()::text, '-', '')),
+  tenant_id TEXT NOT NULL DEFAULT '',   -- TENANT_ID master MID; '' = diisi manual
   tenant_name TEXT NOT NULL,
   unit_number TEXT NOT NULL DEFAULT '',
   tenant_category TEXT NOT NULL DEFAULT '',
@@ -65,6 +67,8 @@ CREATE INDEX IF NOT EXISTS idx_tenant_event_proposals_created_at ON tenant_event
 ```
 
 Kolom non-skalar: **tidak ada** (TEXT/DATE/BIGINT saja) → tidak butuh `pgValues`. Migrasi dijalankan manual di VPS **sebelum** deploy kode api.
+
+Migrasi lanjutan: `server/migrations/2026-10-14-tenant-proposals-tenant-id.sql` (`ADD COLUMN IF NOT EXISTS tenant_id`) menambahkan tautan ke master tenant MID.
 
 ## 4. Server API
 

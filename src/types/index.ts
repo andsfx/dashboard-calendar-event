@@ -314,6 +314,8 @@ export type TenantEventProposalStatus = 'pending' | 'contacted' | 'approved' | '
 
 /** Payload form publik `/kolaborasi-tenant` — snake_case berhenti di API module. */
 export interface TenantEventProposalInput {
+  /** TENANT_ID master MID saat gerai dipilih dari daftar; '' bila diisi manual. */
+  tenantId: string;
   tenantName: string;
   unitNumber: string;
   tenantCategory: string;

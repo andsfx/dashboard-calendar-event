@@ -22,6 +22,7 @@ export const TENANT_EVENT_TYPES = ['promo', 'workshop', 'exhibition', 'performan
 export const TENANT_PROPOSAL_STATUSES = ['pending', 'contacted', 'approved', 'rejected'];
 
 export const tenantEventProposalSchema = z.object({
+  tenantId: z.string().trim().max(50, 'ID gerai terlalu panjang').optional().default(''),
   tenantName: z.string().trim().min(2, 'Nama gerai minimal 2 karakter').max(200, 'Nama gerai maksimal 200 karakter'),
   unitNumber: z.string().trim().max(50, 'Nomor unit maksimal 50 karakter').optional().default(''),
   tenantCategory: z.string().trim().max(100, 'Kategori gerai maksimal 100 karakter').optional().default(''),
