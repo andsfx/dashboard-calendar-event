@@ -135,6 +135,8 @@ describe('TenantProposalManager', () => {
     await user.click(screen.getByRole('button', { name: 'Hapus - Kopi Kenangan' }));
 
     expect(onConfirm).toHaveBeenCalled();
+    // Hapus memang destruktif: tanpa tone, jatuh ke default danger (merah).
+    expect(onConfirm.mock.calls[0][0].tone).toBeUndefined();
     expect(onDelete).toHaveBeenCalledWith('tep-1');
   });
 
@@ -340,7 +342,7 @@ describe('TenantProposalManager — kartu ringkas dengan detail yang bisa dibuka
 describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
   /** Bentuk opsi yang dikirim ke dialog konfirmasi; mock-nya perlu bertipe
    *  agar `mock.calls[0][0]` bisa dibaca di assertion. */
-  type ConfirmOptions = { title: string; message: string; confirmLabel?: string };
+  type ConfirmOptions = { title: string; message: string; confirmLabel?: string; tone?: 'danger' | 'neutral' };
 
   it('meminta konfirmasi sebelum menyetujui', async () => {
     const user = userEvent.setup();
@@ -355,6 +357,8 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
     const options = onConfirm.mock.calls[0][0];
     expect(options.message).toContain('Workshop Latte Art');
     expect(options.message).toContain('Kopi Kenangan');
+    // Keputusan konsekuensial, bukan destruktif: dialog tosca.
+    expect(options.tone).toBe('neutral');
     expect(onReview).toHaveBeenCalledWith('tep-1', 'approved');
   });
 
@@ -369,6 +373,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
 
     expect(onConfirm).toHaveBeenCalledWith(expect.objectContaining({ title: 'Tolak pengajuan ini?' }));
     expect(onConfirm.mock.calls[0][0].message).toMatch(/diberi tahu/);
+    expect(onConfirm.mock.calls[0][0].tone).toBe('neutral');
     expect(onReview).toHaveBeenCalledWith('tep-1', 'rejected');
   });
 

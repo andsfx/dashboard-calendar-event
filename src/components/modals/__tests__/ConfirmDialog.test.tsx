@@ -48,6 +48,26 @@ describe('ConfirmDialog', () => {
     );
     expect(screen.getByRole('button', { name: /Terbitkan/ })).toBeInTheDocument();
   });
+
+  it('default (tanpa tone) merender bar atas merah destruktif', async () => {
+    const { container } = render(
+      <ConfirmDialog isOpen title="Hapus?" message="x" onClose={() => {}} onConfirm={() => {}} />,
+    );
+    expect(await screen.findByText('Hapus?')).toBeInTheDocument();
+    // Bar atas dekoratif: asersi via kelas pembedanya.
+    expect(container.querySelector('.bg-red-600')).toBeInTheDocument();
+    expect(container.querySelector('.bg-\\[var\\(--wf-accent\\)\\]')).not.toBeInTheDocument();
+  });
+
+  it("tone 'neutral' merender bar atas tosca dan bukan yang merah", async () => {
+    const { container } = render(
+      <ConfirmDialog isOpen tone="neutral" title="Setujui pengajuan ini?" message="x" confirmLabel="Setujui" onClose={() => {}} onConfirm={() => {}} />,
+    );
+    expect(await screen.findByText('Setujui pengajuan ini?')).toBeInTheDocument();
+    expect(container.querySelector('.bg-\\[var\\(--wf-accent\\)\\]')).toBeInTheDocument();
+    expect(container.querySelector('.bg-red-600')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Setujui/ })).toBeInTheDocument();
+  });
 });
 
 describe('useConfirmDialog', () => {

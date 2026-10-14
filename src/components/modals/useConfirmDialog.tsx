@@ -62,6 +62,7 @@ export function useConfirmDialog() {
         message={request.message}
         subject={request.subject}
         confirmLabel={request.confirmLabel}
+        tone={request.tone}
         onClose={close}
         onConfirm={handleConfirm}
       />

@@ -67,17 +67,21 @@ function formatFileSize(bytes: number): string {
  * dan mengembalikan ke Menunggu tidak (murah dan mudah dibalik).
  */
 const STATUS_CONFIRM: Partial<Record<TenantEventProposalStatus, (item: TenantEventProposal) => {
-  title: string; message: string; confirmLabel: string;
+  title: string; message: string; confirmLabel: string; tone: 'neutral';
 }>> = {
   approved: (item) => ({
     title: 'Setujui pengajuan ini?',
     message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai disetujui. Menyetujui tidak membuat event otomatis, jadwalnya tetap disusun di Jadwal Event.`,
     confirmLabel: 'Setujui',
+    // Keputusan konsekuensial, bukan destruktif: dialog tosca, bukan merah.
+    tone: 'neutral',
   }),
   rejected: (item) => ({
     title: 'Tolak pengajuan ini?',
     message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai ditolak, dan tenant akan diberi tahu lewat kontak PIC yang dicantumkan.`,
     confirmLabel: 'Tolak',
+    // Ditolak memberi tahu tenant, bukan menghapus apa pun: dialog tosca.
+    tone: 'neutral',
   }),
 };
 
