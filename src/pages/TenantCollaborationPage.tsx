@@ -137,8 +137,16 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
   const switchEntryMode = (manual: boolean) => {
     setManualEntry(manual);
     setSelectedTenant(null);
+    setForm((prev) => ({
+      ...prev,
+      tenantId: '',
+      tenantName: '',
+      // Unit/kategori dari gerai MID sebelumnya tidak boleh tertinggal: nama
+      // gerai sudah kosong, jadi sisa itu akan terkirim sebagai data campuran.
+      unitNumber: autoFilled.unitNumber ? '' : prev.unitNumber,
+      tenantCategory: autoFilled.tenantCategory ? '' : prev.tenantCategory,
+    }));
     setAutoFilled({ unitNumber: false, tenantCategory: false });
-    setForm((prev) => ({ ...prev, tenantId: '', tenantName: '' }));
     setError('');
     setFieldErrors((prev) => {
       if (!prev.tenantName) return prev;
