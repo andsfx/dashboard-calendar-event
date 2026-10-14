@@ -181,7 +181,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Buka kartu acara untuk detail lengkap, lalu tambahkan ke kalender atau bagikan lewat WhatsApp.',
               'Telusuri dokumentasi acara di /gallery dan kabar terbaru di /news.',
               'Cari tenant di /tenants atau organisasi yang pernah tampil di /community.',
-              'Ingin menggelar acara? Isi pendaftaran di /daftar atau ajukan langsung di /ajukan-event.',
+              'Ingin mengadakan acara? Isi pendaftaran di /daftar atau ajukan langsung di /ajukan-event.',
               'Punya brand atau komunitas? Tawarkan dukungan di /sponsor atau ikut kolaborasi di /pameran.',
               'Untuk acara yang sudah lewat, bagikan penilaian lewat survey kepuasan.',
             ],
@@ -769,7 +769,7 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/community',
             audience: 'Publik',
             summary:
-              'Organisasi dan komunitas yang pernah menggelar acara, dikelompokkan per tipe dengan statistik acara.',
+              'Organisasi dan komunitas yang pernah mengadakan acara, dikelompokkan per tipe dengan statistik acara.',
             steps: [
               'Buka /community.',
               'Baca statistik: jumlah Organisasi, Total Acara, dan Acara Mendatang.',

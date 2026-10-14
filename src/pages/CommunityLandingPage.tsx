@@ -99,7 +99,7 @@ const MOBILE_NAV_GROUPS: Array<{ heading: string | null; items: NavDropdownItem[
 export function CommunityLandingPage({ isDark, onToggleDark, onBack, instagramPosts, events = [], onEventDetail, heroImageUrl, albums = [], areas = [], isLoading = false, stats }: CommunityLandingProps) {
   usePageMeta({
     title: 'Komunitas - Metropolitan Mall Bekasi',
-    description: 'Gabung komunitas dan kirim pengajuan event untuk digelar di Metropolitan Mall Bekasi.',
+    description: 'Gabung komunitas dan kirim pengajuan event untuk diselenggarakan di Metropolitan Mall Bekasi.',
   });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   /** Label dropdown desktop yang terbuka — satu saja pada satu waktu. */

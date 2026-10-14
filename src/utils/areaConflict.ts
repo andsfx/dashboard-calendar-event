@@ -1,6 +1,6 @@
 // ─── Area Conflict — deteksi double-booking space (Fase 4 space entity) ───
 // Soft warning di form admin: area yang sama dipakai event lain pada rentang tanggal overlap.
-// Area mall sah menggelar dua aktivasi kecil paralel — admin bisa override lewat checkbox.
+// Area mall sah mengadakan dua aktivasi kecil paralel — admin bisa override lewat checkbox.
 import type { EventItem } from '../types';
 import { parseIsoDateLocal } from './eventDateTime';
 

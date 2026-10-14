@@ -178,7 +178,7 @@ const AREAS_RESP = {
 };
 
 const NEWS = [
-  { id: 'news_1', title: 'Metmal Gelar Bazaar Kuliner Akhir Pekan', slug: 'bazaar-kuliner', excerpt: 'Lebih dari 40 tenant kuliner ikut meramaikan bazaar akhir pekan ini.', content: 'Isi artikel...', cover_image_url: IMG, author: 'Marcomm', status: 'published', published_at: '2026-09-10T08:00:00Z', created_at: '2026-09-10T08:00:00Z', updated_at: '2026-09-10T08:00:00Z' },
+  { id: 'news_1', title: 'Metmal Mengadakan Bazaar Kuliner Akhir Pekan', slug: 'bazaar-kuliner', excerpt: 'Lebih dari 40 tenant kuliner ikut meramaikan bazaar akhir pekan ini.', content: 'Isi artikel...', cover_image_url: IMG, author: 'Marcomm', status: 'published', published_at: '2026-09-10T08:00:00Z', created_at: '2026-09-10T08:00:00Z', updated_at: '2026-09-10T08:00:00Z' },
   { id: 'news_2', title: 'Program Casual Leasing Dibuka', slug: 'casual-leasing', excerpt: 'Pendaftaran casual leasing kuartal empat resmi dibuka.', content: 'Isi artikel...', cover_image_url: '', author: 'Leasing', status: 'draft', published_at: null, created_at: '2026-09-12T08:00:00Z' },
 ];
 

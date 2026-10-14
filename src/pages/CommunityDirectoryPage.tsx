@@ -162,7 +162,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
         <div className="mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Komunitas</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Komunitas Metropolitan Mall Bekasi</h1>
-          <p className="mt-1 max-w-2xl text-sm ui-text-muted">EO, sekolah, dan komunitas yang pernah menggelar acara di Metropolitan Mall Bekasi.</p>
+          <p className="mt-1 max-w-2xl text-sm ui-text-muted">EO, sekolah, dan komunitas yang pernah mengadakan acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
             <div className="mt-4 grid max-w-xl grid-cols-3 gap-1">
               <div className="bg-white/80 px-3 py-2 dark:bg-slate-800/80">
