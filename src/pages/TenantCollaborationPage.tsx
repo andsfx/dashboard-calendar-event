@@ -265,7 +265,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
         <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Gelar Event Bersama Metropolitan Mall Bekasi
+          Ajukan Event Bersama Metropolitan Mall Bekasi
         </h1>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
           Halaman ini untuk tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
