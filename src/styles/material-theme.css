@@ -53,6 +53,12 @@ md-dialog {
   max-height: min(90vh, calc(100vh - 2rem));
   min-width: 0;
   min-height: 0;
+  /* Center modal. Preflight `* { margin: 0 }` menang atas `:host { margin: auto }`
+   * (spesifisitas :host paling rendah), dan `dialog { margin: inherit }` di shadow
+   * mewarisi 0 itu, sehingga panel menempel pojok kiri atas alih-alih center.
+   * Diulang di outer tree karena aturan outer tree menang atas `:host`, pola yang
+   * sama dengan penyesuaian `:host` lain di berkas ini. */
+  margin: auto;
 }
 
 /* md-dialog memberi padding 24px ke isi slot="content"; pemanggil modal di app
