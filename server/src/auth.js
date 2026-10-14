@@ -40,19 +40,39 @@ export const LIST_READ_ROLES = ['superadmin', 'admin', 'tenant_relation', 'eo_te
  * Baca tetap dibuka lewat ACTION_READ_ALLOWLIST di routes/admin.js.
  */
 export const DEMO_ROLE = 'demo';
+/**
+ * Role `viewer` — baca-saja seperti demo, tapi HANYA pada permukaan yang memang
+ * boleh dibaca viewer (SPEC.md §2: registrasi + survey kepuasan). Permukaan yang
+ * SPEC tutup untuk viewer (activity log, manage users, export Evaluasi Tenant)
+ * tetap memakai `DEMO_READ_ROLES`, jadi viewer tidak ikut masuk ke sana.
+ */
+export const VIEWER_ROLE = 'viewer';
 export const DEMO_READ_ROLES = [...STAFF_ROLES, DEMO_ROLE];
 export const ANALYTICS_READ_ROLES_WITH_DEMO = [...ANALYTICS_READ_ROLES, DEMO_ROLE];
 export const LIST_READ_ROLES_WITH_DEMO = [...LIST_READ_ROLES, DEMO_ROLE];
 
+/** Role yang boleh MELIHAT tapi tidak boleh mengubah (lihat READ_ONLY_ACTIONS). */
+export const READ_ONLY_ROLES = [DEMO_ROLE, VIEWER_ROLE];
+
 /**
- * Aksi admin yang AMAN dibaca role `demo` (read-only). Semua aksi lain
- * dianggap tulis dan ditolak 403 untuk demo.
+ * Role yang boleh memanggil router aksi admin: staff + role baca-saja.
  *
- * Sengaja allowlist (bukan blocklist): aksi baru otomatis TERTUTUP untuk
- * demo. Lupa menambahkannya berarti demo tidak bisa membacanya — bukan
- * berarti demo bisa menulisnya.
+ * Sebelumnya daftar ini hanya `DEMO_READ_ROLES`, sehingga `viewer` ditolak 403
+ * di gate router padahal klien menampilkan halaman itu kepadanya
+ * (`canViewTenantProposals`/`canViewRegistrations` = isViewer). Aksi tulis tetap
+ * staff-only lewat `READ_ONLY_ACTIONS` di bawah.
  */
-export const DEMO_READ_ACTIONS = new Set([
+export const ADMIN_READ_ROLES = [...STAFF_ROLES, ...READ_ONLY_ROLES];
+
+/**
+ * Aksi admin yang AMAN dibaca role baca-saja (`demo`, `viewer`). Semua aksi
+ * lain dianggap tulis dan ditolak 403 untuk mereka.
+ *
+ * Sengaja allowlist (bukan blocklist): aksi baru otomatis TERTUTUP untuk role
+ * baca-saja. Lupa menambahkannya berarti mereka tidak bisa membacanya — bukan
+ * berarti mereka bisa menulisnya.
+ */
+export const READ_ONLY_ACTIONS = new Set([
   'listEvents',
   'readDrafts',
   'readRegistrations',
@@ -68,10 +88,10 @@ export const DEMO_READ_ACTIONS = new Set([
   'listTenantEventProposals',
 ]);
 
-/** Boleh tidak role ini menjalankan aksi admin tersebut? (demo = baca saja) */
+/** Boleh tidak role ini menjalankan aksi admin tersebut? (role baca-saja = baca saja) */
 export function canPerformAdminAction(role, action) {
-  if (role !== DEMO_ROLE) return true; // role lain diatur requireRole
-  return DEMO_READ_ACTIONS.has(action);
+  if (!READ_ONLY_ROLES.includes(role)) return true; // staff diatur requireRole
+  return READ_ONLY_ACTIONS.has(action);
 }
 
 function secretKey() {

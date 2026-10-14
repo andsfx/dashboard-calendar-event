@@ -20,6 +20,56 @@ const STATUS_LABELS: Record<TenantEventProposalStatus, string> = {
   rejected: 'Ditolak',
 };
 
+/**
+ * Nada status memakai empat kunci yang sudah ada di sistem signage
+ * (`dashboard-wayfinding.css`): `action` untuk yang menunggu tindakan, `accent`
+ * untuk yang sedang ditangani, `live` untuk yang berhasil, dan `idle` untuk yang
+ * sudah selesai. Sebelumnya keempat status memakai `wf-code` yang berarti "nilai
+ * terukur", sehingga Menunggu/Dihubungi/Disetujui/Ditolak tampil identik.
+ */
+const STATUS_TONES: Record<TenantEventProposalStatus, string> = {
+  pending: 'action',
+  contacted: 'accent',
+  approved: 'live',
+  rejected: 'idle',
+};
+
+/** Label tipe berkas lampiran. MIME di luar daftar ditampilkan apa adanya. */
+const MIME_LABELS: Record<string, string> = {
+  'application/pdf': 'PDF',
+  'application/msword': 'DOC',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+  'image/png': 'PNG',
+  'image/jpeg': 'JPEG',
+};
+
+/** Ukuran berkas dengan pemisah desimal koma (kaidah Indonesia). */
+function formatFileSize(bytes: number): string {
+  if (!bytes || bytes <= 0) return '';
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MB`;
+}
+
+/**
+ * Dua status yang mengubah nasib pengajuan: ditolak memberi tahu tenant, dan
+ * disetujui adalah pintu masuk penjadwalan. Keduanya dikonfirmasi; menghubungi
+ * dan mengembalikan ke Menunggu tidak (murah dan mudah dibalik).
+ */
+const STATUS_CONFIRM: Partial<Record<TenantEventProposalStatus, (item: TenantEventProposal) => {
+  title: string; message: string; confirmLabel: string;
+}>> = {
+  approved: (item) => ({
+    title: 'Setujui pengajuan ini?',
+    message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai disetujui. Menyetujui tidak membuat event otomatis, jadwalnya tetap disusun di Jadwal Event.`,
+    confirmLabel: 'Setujui',
+  }),
+  rejected: (item) => ({
+    title: 'Tolak pengajuan ini?',
+    message: `Pengajuan "${item.eventTitle}" dari ${item.tenantName} akan ditandai ditolak, dan tenant akan diberi tahu lewat kontak PIC yang dicantumkan.`,
+    confirmLabel: 'Tolak',
+  }),
+};
+
 /** Sumber tunggal nilai status yang sah; `satisfies` memvalidasi tiap anggota. */
 const STATUSES = ['pending', 'contacted', 'approved', 'rejected'] as const satisfies readonly TenantEventProposalStatus[];
 
@@ -27,11 +77,12 @@ interface Props {
   proposals: TenantEventProposal[];
   isLoading: boolean;
   error: string;
+  onRetry: () => void;
   onReview: (id: string, status: TenantEventProposalStatus) => Promise<boolean>;
   onSaveNotes: (id: string, notes: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   onConfirm: (options: { title: string; message: string; subject?: string; confirmLabel?: string }) => Promise<boolean>;
-  /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
+  /** Akun demo / viewer: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
   readOnly?: boolean;
 }
 
@@ -43,25 +94,39 @@ interface Props {
  * Jadwal Event, dan catatan itu ditulis di kartunya supaya tidak dikira bug.
  */
 export function TenantProposalManager({
-  proposals, isLoading, error, onReview, onSaveNotes, onDelete, onConfirm, readOnly = false,
+  proposals, isLoading, error, onRetry, onReview, onSaveNotes, onDelete, onConfirm, readOnly = false,
 }: Props) {
-  const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
+  /**
+   * Catatan internal yang sedang disunting, disimpan bersama nilai server saat
+   * pengetikan dimulai (`base`). Bila reload latar membawa catatan server yang
+   * berbeda, draft lokal dianggap basi dan dibuang; kalau tidak, tombol Simpan
+   * akan menimpa catatan terbaru dari staff lain dengan teks lama.
+   */
+  const [notesDraft, setNotesDraft] = useState<Record<string, { value: string; base: string }>>({});
   const [busyId, setBusyId] = useState('');
 
   const pendingCount = proposals.filter((item) => item.status === 'pending').length;
 
-  const handleReview = async (id: string, status: TenantEventProposalStatus) => {
+  /** Draft yang masih sejalan dengan catatan server; selain itu `undefined`. */
+  const liveDraft = (item: TenantEventProposal) => {
+    const draft = notesDraft[item.id];
+    return draft !== undefined && draft.base === item.internalNotes ? draft : undefined;
+  };
+
+  const handleReview = async (id: string, status: TenantEventProposalStatus, item: TenantEventProposal) => {
+    const confirmCopy = STATUS_CONFIRM[status];
+    if (confirmCopy && !(await onConfirm(confirmCopy(item)))) return;
     setBusyId(id);
     await onReview(id, status);
     setBusyId('');
   };
 
-  const handleSaveNotes = async (id: string) => {
-    const notes = notesDraft[id];
-    if (notes === undefined) return;
-    setBusyId(id);
-    const ok = await onSaveNotes(id, notes);
-    if (ok) setNotesDraft((prev) => { const next = { ...prev }; delete next[id]; return next; });
+  const handleSaveNotes = async (item: TenantEventProposal) => {
+    const draft = liveDraft(item);
+    if (!draft) return;
+    setBusyId(item.id);
+    const ok = await onSaveNotes(item.id, draft.value);
+    if (ok) setNotesDraft((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
     setBusyId('');
   };
 
@@ -73,7 +138,9 @@ export function TenantProposalManager({
     });
     if (!ok) return;
     setBusyId(item.id);
-    await onDelete(item.id);
+    const deleted = await onDelete(item.id);
+    // Baris sudah hilang di server; draft catatannya tidak akan pernah dipakai lagi.
+    if (deleted) setNotesDraft((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
     setBusyId('');
   };
 
@@ -89,9 +156,13 @@ export function TenantProposalManager({
       </div>
 
       {error && (
-        <p role="alert" className="rounded-[var(--radius-control)] border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
-          {error}
-        </p>
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-control)] border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
+        >
+          <span>{error}</span>
+          <MdButton variant="outlined" onClick={() => onRetry()}>Coba lagi</MdButton>
+        </div>
       )}
 
       {isLoading && proposals.length === 0 && (
@@ -106,9 +177,14 @@ export function TenantProposalManager({
 
       <ul className="space-y-3">
         {proposals.map((item) => {
-          const notes = notesDraft[item.id] ?? item.internalNotes;
+          const draft = liveDraft(item);
+          const notes = draft ? draft.value : item.internalNotes;
           const notesDirty = notes !== item.internalNotes;
           const busy = busyId === item.id;
+          const fileMeta = [
+            MIME_LABELS[item.proposalMimeType] || item.proposalMimeType,
+            formatFileSize(item.proposalFileSize),
+          ].filter(Boolean).join(' · ');
 
           return (
             <li key={item.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
@@ -129,7 +205,10 @@ export function TenantProposalManager({
                     {!item.tenantId && <span className="ml-1">· diisi manual</span>}
                   </p>
                 </div>
-                <span className="wf-code shrink-0">{STATUS_LABELS[item.status]}</span>
+                <span className={`wf-key wf-key--${STATUS_TONES[item.status]}`}>
+                  <span className="wf-dot" aria-hidden />
+                  {STATUS_LABELS[item.status]}
+                </span>
               </div>
 
               <p className="mt-3 text-sm font-semibold text-[var(--wf-ink)]">
@@ -155,23 +234,29 @@ export function TenantProposalManager({
                 )}
               </p>
 
-              <p className="mt-2 whitespace-pre-line text-sm text-[var(--wf-ink)]">{item.eventDescription}</p>
+              <p className="mt-2 whitespace-pre-line text-sm text-[var(--wf-ink)] [overflow-wrap:anywhere]">{item.eventDescription}</p>
 
               {item.needs && (
-                <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">Kebutuhan fasilitas: {item.needs}</p>
+                <p className="mt-2 text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">Kebutuhan fasilitas: {item.needs}</p>
               )}
 
               <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
-                <span>{item.contactName}</span>
-                <span className="inline-flex items-center gap-1">
-                  <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="[overflow-wrap:anywhere]">{item.contactName}</span>
+                <a
+                  href={`tel:${item.phone.replace(/[^\d+]/g, '')}`}
+                  className="inline-flex items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
+                >
+                  <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {item.phone}
-                </span>
+                </a>
                 {item.email && (
-                  <span className="inline-flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-                    {item.email}
-                  </span>
+                  <a
+                    href={`mailto:${item.email}`}
+                    className="inline-flex items-center gap-1 py-1 text-[var(--wf-accent)] underline-offset-2 hover:underline"
+                  >
+                    <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 break-all">{item.email}</span>
+                  </a>
                 )}
               </p>
 
@@ -181,10 +266,11 @@ export function TenantProposalManager({
                     href={item.proposalFileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--wf-accent)] underline-offset-2 hover:underline"
+                    className="inline-flex max-w-full items-center gap-1.5 py-1 text-sm font-semibold text-[var(--wf-accent)] underline-offset-2 hover:underline"
                   >
-                    <FileText className="h-4 w-4" aria-hidden="true" />
-                    {item.proposalFileName || 'Lampiran proposal'}
+                    <FileText className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 break-all">{item.proposalFileName || 'Lampiran proposal'}</span>
+                    {fileMeta && <span className="shrink-0 text-xs font-normal text-[var(--wf-ink-muted)]">{fileMeta}</span>}
                   </a>
                 </p>
               )}
@@ -200,7 +286,8 @@ export function TenantProposalManager({
                           key={status}
                           variant="outlined"
                           disabled={busy}
-                          onClick={() => void handleReview(item.id, status)}
+                          ariaLabel={`${STATUS_LABELS[status]} - ${item.tenantName}`}
+                          onClick={() => void handleReview(item.id, status, item)}
                         >
                           {STATUS_LABELS[status]}
                         </MdButton>
@@ -215,16 +302,23 @@ export function TenantProposalManager({
                       label="Catatan internal"
                       maxLength={2000}
                       value={notes}
-                      onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: value }))}
+                      onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value, base: item.internalNotes } }))}
                     />
                     <MdButton
                       variant="text"
                       disabled={busy || !notesDirty}
-                      onClick={() => void handleSaveNotes(item.id)}
+                      ariaLabel={`Simpan catatan - ${item.tenantName}`}
+                      onClick={() => void handleSaveNotes(item)}
                     >
                       Simpan catatan
                     </MdButton>
-                    <MdButton variant="text" danger disabled={busy} onClick={() => void handleDelete(item)}>
+                    <MdButton
+                      variant="text"
+                      danger
+                      disabled={busy}
+                      ariaLabel={`Hapus - ${item.tenantName}`}
+                      onClick={() => void handleDelete(item)}
+                    >
                       Hapus
                     </MdButton>
                   </div>
@@ -236,7 +330,7 @@ export function TenantProposalManager({
               )}
 
               {readOnly && item.internalNotes && (
-                <p className="mt-3 border-t border-[var(--wf-rule)] pt-3 text-xs text-[var(--wf-ink-muted)]">
+                <p className="mt-3 border-t border-[var(--wf-rule)] pt-3 text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">
                   Catatan internal: {item.internalNotes}
                 </p>
               )}

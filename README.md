@@ -222,7 +222,7 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 ### Admin Mode
 
 - Login **email + password** (backend VPS, bcrypt + JWT cookie HttpOnly).
-- **Demo mode** — akun peragaan read-only; seluruh permukaan dashboard terlihat, semua mutasi ditegakkan backend (`DEMO_READ_ACTIONS`).
+- **Demo mode** — akun peragaan read-only; seluruh permukaan dashboard terlihat, semua mutasi ditegakkan backend (`READ_ONLY_ACTIONS`).
 
 ---
 

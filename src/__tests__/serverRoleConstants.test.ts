@@ -26,8 +26,11 @@ const ROLE_CONSTANTS = [
   'LIST_READ_ROLES',
   'LIST_READ_ROLES_WITH_DEMO',
   'DEMO_ROLE',
+  'VIEWER_ROLE',
   'DEMO_READ_ROLES',
-  'DEMO_READ_ACTIONS',
+  'READ_ONLY_ROLES',
+  'ADMIN_READ_ROLES',
+  'READ_ONLY_ACTIONS',
   'canPerformAdminAction',
   'maskEmail',
 ];

@@ -153,7 +153,7 @@ export function getDashboardNavGroups(
       label: 'Interaksi',
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
-        ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
+        ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi Tenant', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
         ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
@@ -370,7 +370,7 @@ export function getCommandCenterCards({
       id: 'tenant-proposals',
       title: 'Kolaborasi Tenant',
       subtitle: MODULE_PURPOSE['/tenant-proposals'] ?? 'Tinjau pengajuan event dan kerja sama dari tenant',
-      icon: <Store className={CARD} strokeWidth={sw} />,
+      icon: <Handshake className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-proposals',
       queue: pendingTenantProposals > 0
         ? { count: pendingTenantProposals, state: 'pengajuan menunggu review', action: 'Buka kolaborasi tenant' }

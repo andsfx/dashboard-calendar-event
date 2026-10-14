@@ -26,6 +26,7 @@ export const AUDIT_ROUTES = [
   '/dashboard/themes',
   '/dashboard/exhibitions',
   '/dashboard/registrations',
+  '/dashboard/tenant-proposals',
   '/dashboard/survey',
   '/dashboard/tenant-surveys',
   '/dashboard/users',
@@ -138,6 +139,57 @@ const EXHIBITIONS = [
 const EXH_LEADS = [
   { id: 'lead_1', exhibition_id: 'exh_1', brand_name: 'Kopi Kenangan', contact_name: 'Rudi', contact_email: 'rudi@example.com', contact_phone: '081300000001', proposal: 'Ingin buka booth 3x3', status: 'new', internal_notes: '', created_at: '2026-09-10T08:00:00Z' },
   { id: 'lead_2', exhibition_id: 'exh_1', brand_name: 'Fashion Hub', contact_name: 'Sari', contact_email: 'sari@example.com', contact_phone: '081300000002', proposal: 'Pop-up store 2 minggu', status: 'reviewed', internal_notes: 'Tunggu approval leasing', created_at: '2026-09-11T08:00:00Z' },
+];
+
+/**
+ * Pengajuan kolaborasi tenant — bentuk snake_case persis seperti `SELECT * FROM
+ * tenant_event_proposals` di `server/src/routes/admin.js`. Empat baris menutup
+ * keempat keadaan yang dirender kartunya: menunggu (dengan lampiran), disetujui
+ * (dengan catatan internal), ditolak, dan isian manual tanpa `tenant_id`.
+ */
+const TENANT_PROPOSALS = [
+  {
+    id: 'tep_1', tenant_id: '180102223', tenant_name: 'Kopi Kenangan', unit_number: 'GF-12', tenant_category: 'FOOD & BEVERAGE',
+    contact_name: 'Rani Putri', phone: '081234567890', email: 'rani@kopikenangan.example',
+    event_title: 'Workshop Latte Art untuk Pelanggan', event_type: 'workshop',
+    event_description: 'Kelas latte art 60 menit untuk 30 peserta, dibimbing barista internal.',
+    proposed_start: '2026-11-05', proposed_end: '', preferred_area: 'Main Atrium', expected_visitors: '30 orang',
+    needs: 'Meja, kursi, listrik, sound',
+    proposal_file_url: 'https://cdn.metmalcommunityspace.web.id/tenant-proposals/proposal.pdf',
+    proposal_file_name: 'proposal-workshop-latte-art.pdf', proposal_mime_type: 'application/pdf', proposal_file_size: 1258291,
+    status: 'pending', internal_notes: '', created_at: '2026-10-13T02:00:00Z', updated_at: '2026-10-13T02:00:00Z',
+  },
+  {
+    id: 'tep_2', tenant_id: '180102777', tenant_name: 'Batik Nusantara', unit_number: 'LT2-08', tenant_category: 'FASHION & AKSESORIS',
+    contact_name: 'Dimas Aryo', phone: '081298765432', email: 'dimas@batiknusantara.example',
+    event_title: 'Pameran Koleksi Batik Tulis', event_type: 'exhibition',
+    event_description: 'Pameran dan penjualan koleksi batik tulis selama tiga hari di area atrium.',
+    proposed_start: '2026-11-20', proposed_end: '2026-11-22', preferred_area: 'Panggung Lt. Dasar', expected_visitors: '200 orang per hari',
+    needs: 'Rak display, pencahayaan tambahan',
+    proposal_file_url: 'https://cdn.metmalcommunityspace.web.id/tenant-proposals/materi-batik.png',
+    proposal_file_name: 'materi-batik.png', proposal_mime_type: 'image/png', proposal_file_size: 2457600,
+    status: 'approved', internal_notes: 'Sudah dikoordinasikan dengan Marcomm; tanggal disetujui.', created_at: '2026-10-12T04:30:00Z', updated_at: '2026-10-13T01:00:00Z',
+  },
+  {
+    id: 'tep_3', tenant_id: '180102901', tenant_name: 'Aneka Jajanan Pasar', unit_number: 'GF-03', tenant_category: 'FOOD & BEVERAGE',
+    contact_name: 'Siti Aminah', phone: '081211223344', email: '',
+    event_title: 'Bazaar Jajanan Pasar Akhir Pekan', event_type: 'promo',
+    event_description: 'Bazaar jajanan pasar tradisional di koridor utama selama dua hari akhir pekan.',
+    proposed_start: '2026-11-01', proposed_end: '2026-11-02', preferred_area: 'Lorong Bekasi Lt. 2', expected_visitors: '150 orang',
+    needs: 'Booth 2x2 meter',
+    proposal_file_url: '', proposal_file_name: '', proposal_mime_type: '', proposal_file_size: 0,
+    status: 'rejected', internal_notes: 'Bentrok dengan agenda bazaar komunitas pada tanggal yang sama.', created_at: '2026-10-11T07:15:00Z', updated_at: '2026-10-12T09:00:00Z',
+  },
+  {
+    id: 'tep_4', tenant_id: '', tenant_name: 'Kedai Teh Wangi', unit_number: 'GF-21', tenant_category: 'FOOD & BEVERAGE',
+    contact_name: 'Bagas Prakoso', phone: '081355667788', email: 'bagas@tehwangi.example',
+    event_title: 'Peluncuran Menu Teh Seri Baru', event_type: 'launching',
+    event_description: 'Peluncuran lima varian teh seri baru dengan sesi cicip gratis untuk pengunjung mall.',
+    proposed_start: '2026-12-01', proposed_end: '', preferred_area: '', expected_visitors: '80 orang',
+    needs: 'Meja cicip, listrik',
+    proposal_file_url: '', proposal_file_name: '', proposal_mime_type: '', proposal_file_size: 0,
+    status: 'contacted', internal_notes: '', created_at: '2026-10-10T03:45:00Z', updated_at: '2026-10-11T02:00:00Z',
+  },
 ];
 
 const USERS = [
@@ -276,6 +328,7 @@ export async function installDashboardMocks(
         listEvents: EVENTS,
         readDrafts: DRAFTS,
         readRegistrations: REGISTRATIONS,
+        listTenantEventProposals: TENANT_PROPOSALS,
         listExhibitions: EXHIBITIONS,
         listExhibitionLeads: EXH_LEADS,
         listExhibitionActivations: [{ event_id: 'evt_1', exhibition_id: 'exh_1', acara: 'Pameran Otomotif Bekasi 2026', date_str: '2026-07-15', date_end: null, jam: '10:00 - 22:00', lokasi: 'Atrium Utama', eo: 'PT Otomotif Indonesia' }],

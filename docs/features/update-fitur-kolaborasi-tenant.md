@@ -21,7 +21,7 @@ Non-goal: membuat Event/Draft otomatis dari pengajuan (sejalan ADR 003 — menye
 | D3 | Upload proposal memakai **presign publik terbatas**: `POST /api/v1/tenant-event-proposals/attachment` — folder dipaksa `tenant-proposals/`, tipe hanya PDF/DOC/DOCX/PNG/JPEG, rate limit 10/15 mnt. `ContentType` ikut ditandatangani (`signableHeaders`) agar tipe tersimpan tidak bisa ditukar pengunggah. Saat submit server memverifikasi ulang: prefix URL wajib `tenant-proposals/`, `headR2File` (ada + ≤ 20MB = `MAX_PROPOSAL_BYTES`), `verifyMimeMagicBytes` (M-3); gagal → objek dihapus dari R2 + 400. Route staff `/r2/presign` tidak diubah (batasan lama di `src/utils/api/surveysApi.ts:70-74` di luar scope ini). |
 | D4 | `POST /api/v1/tenant-event-proposals` publik: zod penuh (`server/src/lib/tenantProposalSchemas.js`), rate limit 10/15 mnt, respons `{success:true,id}` **tanpa echo PII**. `proposed_end` boleh kosong (event sehari); server menolak `end < start` dan `start` lampau (helper `jakartaToday`). |
 | D5 | Admin via `adminAction`: `listTenantEventProposals` (ORDER BY created_at DESC), `updateTenantEventProposal` (status dan/atau internalNotes; wajib ada minimal satu perubahan), `deleteTenantEventProposal` (hapus baris + file R2 best-effort). Kolom ditulis lewat SET tetap — **whitelist manual**, bukan mengandalkan zod. |
-| D6 | Role demo: `listTenantEventProposals` masuk `DEMO_READ_ACTIONS`; PII (`contact_name`, `phone`, `email`) disamarkan untuk demo (pola `readRegistrations`); update/delete ditolak 403 oleh allowlist. |
+| D6 | Role demo: `listTenantEventProposals` masuk `READ_ONLY_ACTIONS`; PII (`contact_name`, `phone`, `email`) disamarkan untuk demo (pola `readRegistrations`); update/delete ditolak 403 oleh allowlist. |
 | D7 | Dashboard: modul **Kolaborasi Tenant** di grup Interaksi, izin `canViewTenantProposals = isAdmin \|\| isViewer \|\| isDemo`; kartu antrean "pengajuan menunggu review" di Pusat Komando (`getCommandCenterCards`); total `Menunggu keputusan` ikut menghitung; insight `pengajuan-kolaborasi-tenant` (bila ada ≥1 pending). |
 | D8 | Tidak ada endpoint baca publik untuk pengajuan — antrean hanya lewat `adminAction` ber-guard. Respons submit tidak mengembalikan data apa pun selain id. |
 | D9 | Copy Indonesia; halaman publik mengikuti struktur `RegistrationPage`/`ExhibitionsLandingPage` (header logo + dark toggle, `usePageMeta`, token `var(--brand-*)`, kelas `ui-*`); dashboard memakai komponen MD3 (`src/components/md`) seperti `ExhibitionManager`. |
@@ -78,7 +78,7 @@ Migrasi lanjutan: `server/migrations/2026-10-14-tenant-proposals-tenant-id.sql` 
 - **`server/src/r2.js`** — `ALLOWED_PREFIXES` += `tenant-proposals/`; export `createPresignedUpload({folder, originalName, contentType})` yang dipakai bersama `/r2/presign` (tidak mengubah perilakunya).
 - **`server/src/lib/tenantProposalSchemas.js`** (baru) — `tenantEventProposalSchema` (submit) + `TENANT_PROPOSAL_ACTION_SCHEMAS` (list/update/delete); di-spread di `ACTION_SCHEMAS` (`server/src/lib/schemas.js`).
 - **`server/src/routes/admin.js`** — case `listTenantEventProposals` / `updateTenantEventProposal` / `deleteTenantEventProposal` + `logActivity`.
-- **`server/src/auth.js`** — `DEMO_READ_ACTIONS` += `listTenantEventProposals`.
+- **`server/src/auth.js`** — `READ_ONLY_ACTIONS` += `listTenantEventProposals`.
 
 ## 5. Client
 

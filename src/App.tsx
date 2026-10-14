@@ -298,6 +298,7 @@ export default function App() {
     proposals: tenantProposals.proposals,
     isLoading: tenantProposals.isLoading,
     error: tenantProposals.error,
+    onRetry: tenantProposals.reload,
     onReview: tenantProposals.reviewProposal,
     onSaveNotes: tenantProposals.saveNotes,
     onDelete: tenantProposals.removeProposal,

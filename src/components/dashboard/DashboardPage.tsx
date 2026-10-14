@@ -92,6 +92,7 @@ export interface DashboardPageTenantProposals {
   proposals: TenantEventProposal[];
   isLoading: boolean;
   error: string;
+  onRetry: () => void;
   onReview: (id: string, status: TenantEventProposalStatus) => Promise<boolean>;
   onSaveNotes: (id: string, notes: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
@@ -511,6 +512,7 @@ export function DashboardPage({
               proposals={tenantProposals.proposals}
               isLoading={tenantProposals.isLoading}
               error={tenantProposals.error}
+              onRetry={tenantProposals.onRetry}
               onReview={tenantProposals.onReview}
               onSaveNotes={tenantProposals.onSaveNotes}
               onDelete={tenantProposals.onDelete}
@@ -673,7 +675,7 @@ export function DashboardPage({
           `canManageSettings`, sehingga akun demo — yang melihat semua menu
           tapi tidak boleh mengubah — mendarat di halaman kosong. Modul
           menerima `readOnly` dan menyembunyikan aksi mutasi; backend tetap
-          menolak tulis dari demo (allowlist `DEMO_READ_ACTIONS`). */}
+          menolak tulis dari demo (allowlist `READ_ONLY_ACTIONS`). */}
       {permissions.canViewSettings && dashboardPath === '/content/landing' && (
         <section id="content-landing" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>

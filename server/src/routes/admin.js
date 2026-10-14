@@ -18,7 +18,7 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity, DEMO_ROLE, DEMO_READ_ROLES, canPerformAdminAction, maskEmail, maskName, maskPhone } from '../auth.js';
+import { requireRole, logActivity, DEMO_ROLE, ADMIN_READ_ROLES, canPerformAdminAction, maskEmail, maskName, maskPhone } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
 import { isAiEnabled, generateInsightNarrative } from '../lib/ai.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
@@ -33,17 +33,17 @@ import {
 
 const router = Router();
 
-// ─── Gate umum: staff roles (+ demo read-only) + rate limit longgar + zod ─
-router.post('/:action', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
+// ─── Gate umum: staff + role baca-saja (demo/viewer) + rate limit longgar + zod ─
+router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) => {
   const action = req.params.action;
 
-  // Role demo: hanya aksi baca (allowlist di auth.js). Ini penegakan
-  // sesungguhnya — menyembunyikan tombol di UI saja tidak cukup karena
+  // Role baca-saja (demo, viewer): hanya aksi baca (allowlist di auth.js). Ini
+  // penegakan sesungguhnya — menyembunyikan tombol di UI saja tidak cukup karena
   // request bisa dikirim langsung ke API.
   if (!canPerformAdminAction(req.auth?.user?.role, action)) {
     return res.status(403).json({
       success: false,
-      error: 'Akun demo hanya dapat melihat data (read-only).',
+      error: 'Akun baca-saja hanya dapat melihat data (read-only).',
     });
   }
 

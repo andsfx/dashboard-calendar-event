@@ -130,7 +130,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Ekspor PDF dan CSV tetap tersedia.',
             ],
             notes: [
-              'Server ikut menolak aksi tulis akun demo (respons 403 "Akun demo hanya dapat melihat data (read-only)"), jadi bukan hanya tampilan yang disembunyikan.',
+              'Server ikut menolak aksi tulis akun baca-saja, demo maupun viewer (respons 403 "Akun baca-saja hanya dapat melihat data (read-only)"), jadi bukan hanya tampilan yang disembunyikan.',
               'Email pengguna ditampilkan dalam bentuk tersamarkan.',
             ],
           },
