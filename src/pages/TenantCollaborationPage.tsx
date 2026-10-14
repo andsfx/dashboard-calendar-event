@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft, CalendarDays, CheckCircle2, FileText, Handshake, Moon, Paperclip, Send, SunMedium, X,
@@ -43,7 +43,20 @@ const EMPTY_FORM: TenantEventProposalInput = {
   proposalFileUrl: '', proposalFileName: '', proposalMimeType: '',
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:border-slate-600 dark:bg-slate-800 dark:text-white';
+/**
+ * Kontrol form. `border-slate-400` dipilih karena batas input adalah satu-satunya
+ * penanda bidang di atas kartu putih, jadi ia harus lolos 3:1 non-teks (WCAG 1.4.11):
+ * #7d8579 vs putih = 3.82:1, vs bidang gelap #2d382f = 3.20:1. Placeholder gelap
+ * memakai slate-300 (6.65:1); slate-400 hanya 3.20:1 dan gagal 4.5:1.
+ */
+const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-400 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-300';
+/**
+ * TenantSearchSelect adalah komponen survei (rounded-xl 20px, py-2 38px, latar
+ * gelap sama dengan kartu). Halaman ini menyetelnya agar setara input lain:
+ * `rounded-md` = --radius-md 0.75rem = --radius-control, ditulis sebagai kelas
+ * yang bisa di-merge `cn()` (kunci konflik `rounded`), bukan var() arbitrary.
+ */
+const tenantFieldClass = 'rounded-md border-slate-400 py-3 dark:border-slate-400 dark:bg-slate-800 dark:placeholder:text-slate-300';
 const labelClass = 'mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300';
 const focusRing = 'ui-focus-ring';
 
@@ -70,6 +83,12 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  /** Target fokus setelah form unmount: tanpa ini fokus jatuh ke <body> tanpa kabar. */
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (submitted) successRef.current?.focus();
+  }, [submitted]);
 
   // Daftar Area kanonis (aktif) untuk pilihan lokasi. Gagal memuat = tetap bisa
   // mengajukan: kolomnya jatuh ke input teks bebas, bukan memblokir form.
@@ -248,14 +267,14 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
             <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Kolaborasi Tenant</span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Link to="/" className={`${focusRing} inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:text-[var(--brand-tosca)] dark:text-slate-300`}>
+            <Link to="/" className={`${focusRing} inline-flex min-h-11 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:text-[var(--brand-tosca-600)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]`}>
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Beranda
             </Link>
             <button
               type="button"
               onClick={onToggleDark}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-              className={`${focusRing} rounded-lg border border-slate-200 p-2 dark:border-slate-600`}
+              className={`${focusRing} inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600`}
             >
               {isDark ? <SunMedium className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
             </button>
@@ -277,15 +296,15 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           <h2 id="alur-title" className="font-display text-lg font-bold">Alur pengajuan</h2>
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
-              <span className="wf-code shrink-0">1</span>
+              <span className="shrink-0 font-semibold tabular-nums">1</span>
               <span>Kirim pengajuan lewat formulir ini. Lampiran proposal (PDF atau Word) bersifat opsional bila konsepnya sudah tertulis.</span>
             </li>
             <li className="flex gap-3">
-              <span className="wf-code shrink-0">2</span>
+              <span className="shrink-0 font-semibold tabular-nums">2</span>
               <span>Tim meninjau kelayakan jadwal, area, dan kebutuhan fasilitas. Bila perlu, kami menghubungi PIC untuk pendalaman.</span>
             </li>
             <li className="flex gap-3">
-              <span className="wf-code shrink-0">3</span>
+              <span className="shrink-0 font-semibold tabular-nums">3</span>
               <span>Bila disetujui, jadwal event disusun bersama dan tanggal final dikonfirmasi tertulis. Pengajuan yang masuk belum berarti jadwal terkunci.</span>
             </li>
           </ol>
@@ -299,7 +318,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
 
           {submitted ? (
-            <div className="mt-4 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+            <div ref={successRef} tabIndex={-1} className="mt-4 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 outline-none dark:bg-emerald-950/40 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
               <p>
                 Pengajuan Anda sudah terkirim dan masuk antrean tinjauan tim. Kami akan menghubungi PIC lewat nomor WhatsApp
@@ -309,12 +328,12 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           ) : (
             <form onSubmit={handleSubmit} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Data tenant</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Data tenant</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {!manualEntry ? (
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="tp-tenant">
-                        Nama tenant <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                        Nama tenant <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                       </label>
                       <TenantSearchSelect
                         id="tp-tenant"
@@ -323,6 +342,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                         onTenantSelect={handleTenantSelect}
                         required
                         error={fieldErrors.tenantName}
+                        className={tenantFieldClass}
                       />
                       {selectedTenant && (
                         <div className="mt-2 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
@@ -337,7 +357,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       <button
                         type="button"
                         onClick={() => switchEntryMode(true)}
-                        className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                        className={`${focusRing} mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
                       >
                         Tenant saya belum ada di daftar
                       </button>
@@ -345,7 +365,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                   ) : (
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="tp-tenant-manual">
-                        Nama tenant <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                        Nama tenant <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                       </label>
                       <input
                         id="tp-tenant-manual"
@@ -356,11 +376,11 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                         aria-invalid={Boolean(fieldErrors.tenantName)}
                         aria-describedby={fieldErrors.tenantName ? 'tp-tenant-err' : undefined}
                       />
-                      {fieldErrors.tenantName && <p id="tp-tenant-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.tenantName}</p>}
+                      {fieldErrors.tenantName && <p id="tp-tenant-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.tenantName}</p>}
                       <button
                         type="button"
                         onClick={() => switchEntryMode(false)}
-                        className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                        className={`${focusRing} mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
                       >
                         Cari tenant di daftar
                       </button>
@@ -378,11 +398,11 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
               </fieldset>
 
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">PIC yang bisa dihubungi</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">PIC yang bisa dihubungi</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className={labelClass} htmlFor="tp-contact">
-                      Nama PIC <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      Nama PIC <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input
                       id="tp-contact"
@@ -393,11 +413,11 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.contactName)}
                       aria-describedby={fieldErrors.contactName ? 'tp-contact-err' : undefined}
                     />
-                    {fieldErrors.contactName && <p id="tp-contact-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.contactName}</p>}
+                    {fieldErrors.contactName && <p id="tp-contact-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.contactName}</p>}
                   </div>
                   <div>
                     <label className={labelClass} htmlFor="tp-phone">
-                      Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      Nomor WhatsApp <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input
                       id="tp-phone"
@@ -408,7 +428,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.phone)}
                       aria-describedby={fieldErrors.phone ? 'tp-phone-err' : undefined}
                     />
-                    {fieldErrors.phone && <p id="tp-phone-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.phone}</p>}
+                    {fieldErrors.phone && <p id="tp-phone-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.phone}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <label className={labelClass} htmlFor="tp-email">Email</label>
@@ -422,17 +442,17 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.email)}
                       aria-describedby={fieldErrors.email ? 'tp-email-err' : undefined}
                     />
-                    {fieldErrors.email && <p id="tp-email-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
+                    {fieldErrors.email && <p id="tp-email-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.email}</p>}
                   </div>
                 </div>
               </fieldset>
 
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Rencana event</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Rencana event</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className={labelClass} htmlFor="tp-title">
-                      Judul event <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      Judul event <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input
                       id="tp-title"
@@ -444,7 +464,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.eventTitle)}
                       aria-describedby={fieldErrors.eventTitle ? 'tp-title-err' : undefined}
                     />
-                    {fieldErrors.eventTitle && <p id="tp-title-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.eventTitle}</p>}
+                    {fieldErrors.eventTitle && <p id="tp-title-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.eventTitle}</p>}
                   </div>
                   <div>
                     <label className={labelClass} htmlFor="tp-type">Jenis kegiatan</label>
@@ -460,7 +480,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                   </div>
                   <div className="sm:col-span-2">
                     <label className={labelClass} htmlFor="tp-desc">
-                      Deskripsi kegiatan <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      Deskripsi kegiatan <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <textarea
                       id="tp-desc"
@@ -473,11 +493,11 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.eventDescription)}
                       aria-describedby={fieldErrors.eventDescription ? 'tp-desc-err' : undefined}
                     />
-                    {fieldErrors.eventDescription && <p id="tp-desc-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.eventDescription}</p>}
+                    {fieldErrors.eventDescription && <p id="tp-desc-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.eventDescription}</p>}
                   </div>
                   <div>
                     <label className={labelClass} htmlFor="tp-start">
-                      Tanggal mulai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                      Tanggal mulai <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input
                       id="tp-start"
@@ -489,7 +509,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-invalid={Boolean(fieldErrors.proposedStart)}
                       aria-describedby={fieldErrors.proposedStart ? 'tp-start-err' : undefined}
                     />
-                    {fieldErrors.proposedStart && <p id="tp-start-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.proposedStart}</p>}
+                    {fieldErrors.proposedStart && <p id="tp-start-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.proposedStart}</p>}
                   </div>
                   <div>
                     <label className={labelClass} htmlFor="tp-end">Tanggal selesai</label>
@@ -503,7 +523,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       aria-describedby={fieldErrors.proposedEnd ? 'tp-end-err' : 'tp-end-hint'}
                     />
                     {fieldErrors.proposedEnd
-                      ? <p id="tp-end-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.proposedEnd}</p>
+                      ? <p id="tp-end-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.proposedEnd}</p>
                       : <p id="tp-end-hint" className="mt-1 text-xs ui-text-muted">Kosongkan bila kegiatan hanya sehari.</p>}
                   </div>
                   <div>
@@ -528,7 +548,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
 
               <div className="sm:col-span-2">
                 <label className={labelClass} htmlFor="tp-file">Lampiran proposal (opsional)</label>
-                <input id="tp-file" type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={handleFileChange} />
+                <input id="tp-file" type="file" accept=".pdf,.doc,.docx" className="sr-only" tabIndex={-1} onChange={handleFileChange} />
                 {file ? (
                   <div className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-800">
                     <span className="flex min-w-0 items-center gap-2">
@@ -539,7 +559,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                     <button
                       type="button"
                       onClick={() => setFile(null)}
-                      className={`${focusRing} shrink-0 rounded-full p-1.5 text-slate-500 transition hover:text-slate-800 dark:hover:text-white`}
+                      className={`${focusRing} shrink-0 rounded-full p-1.5 text-slate-500 transition hover:text-slate-800 dark:text-slate-300 dark:hover:text-white`}
                       aria-label="Hapus lampiran"
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
@@ -549,7 +569,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                   <button
                     type="button"
                     onClick={() => document.getElementById('tp-file')?.click()}
-                    className={`${focusRing} flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-500 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:text-white`}
+                    className={`${focusRing} flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-slate-400 bg-slate-50/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-400 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:text-white`}
                   >
                     <Paperclip className="h-4 w-4" aria-hidden="true" />
                     Pilih berkas proposal (PDF atau Word, maksimal 20MB)
@@ -558,7 +578,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
               </div>
 
               {error && (
-                <p role="alert" className="sm:col-span-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p role="alert" className="sm:col-span-2 text-sm text-rose-700 dark:text-rose-400">{error}</p>
               )}
 
               <div className="sm:col-span-2">

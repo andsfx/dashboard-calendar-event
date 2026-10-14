@@ -8,6 +8,7 @@ import {
   type TenantDropdownOption,
 } from '../../utils/domainApi';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
+import { cn } from '../../utils/cn';
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
 // Pick-from-list only: ketik = search; commit nama/id hanya lewat pilih item.
 // Ketik ulang setelah select → clear selection parent (onChange '' + onTenantSelect null).
 
-export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, id, required, error }: {
+export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, id, required, error, className }: {
   value: string;
   onChange: (v: string) => void;
   onTenantSelect?: (tenant: TenantDropdownOption | null) => void;
@@ -115,6 +116,9 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   id: string;
   required?: boolean;
   error?: string;
+  /** Kelas tambahan untuk input. Dipakai pemanggil di luar survei agar kontrol
+   *  ini seragam dengan input form sekitarnya; halaman survei tidak mengirimnya. */
+  className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -235,7 +239,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
         <input
           ref={inputRef}
           id={id}
@@ -255,7 +259,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           aria-required={required || undefined}
           aria-invalid={!!error || undefined}
           aria-describedby={describedBy}
-          className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+          className={cn('w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500', className)}
         />
         {query && !disabled && (
           <button
