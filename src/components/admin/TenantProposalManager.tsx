@@ -100,7 +100,7 @@ export function TenantProposalManager({
 
       {!isLoading && proposals.length === 0 && !error && (
         <p className="text-sm text-[var(--wf-ink-muted)]">
-          Belum ada pengajuan. Gerai mengirim pengajuan lewat halaman publik <span className="wf-code">/kolaborasi-tenant</span>.
+          Belum ada pengajuan. Tenant mengirim pengajuan lewat halaman publik <span className="wf-code">/kolaborasi-tenant</span>.
         </p>
       )}
 
@@ -121,10 +121,10 @@ export function TenantProposalManager({
                   </p>
                   <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
                     {item.tenantCategory}
-                    {/* ID master MID: gerai yang dipilih dari daftar bisa ditelusuri
+                    {/* ID master MID: tenant yang dipilih dari daftar bisa ditelusuri
                         walau nama diketik ulang berbeda. */}
                     {item.tenantId && (
-                      <span className="ml-1 font-mono text-[11px]">· ID gerai {item.tenantId}</span>
+                      <span className="ml-1 font-mono text-[11px]">· ID tenant {item.tenantId}</span>
                     )}
                     {!item.tenantId && <span className="ml-1">· diisi manual</span>}
                   </p>

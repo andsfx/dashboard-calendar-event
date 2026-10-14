@@ -51,10 +51,10 @@ export default function TenantSurveyForm({
   });
 
   /**
-   * Saat mengubah survey yang sudah ada, identitas gerai harus direkonstruksi
+   * Saat mengubah survey yang sudah ada, identitas tenant harus direkonstruksi
    * dari data yang tersimpan. Tanpa ini `selectedTenant` tetap null, sehingga
    * `buildFormData` menulis `tenant_id: ''` (tautan ke master tenant hilang)
-   * dan guard "pilih dari daftar" memblokir submit ulang walau nama gerai
+   * dan guard "pilih dari daftar" memblokir submit ulang walau nama tenant
    * sudah terisi.
    */
   const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(() => {
@@ -156,7 +156,7 @@ export default function TenantSurveyForm({
 
     // Pick-from-list: submit non-draft wajib selectedTenant (bukan free-text)
     if (!isDraft && !selectedTenant) {
-      const msg = 'Pilih gerai dari daftar, bukan ketik bebas.';
+      const msg = 'Pilih tenant dari daftar, bukan ketik bebas.';
       setFieldLevelErrors({ nama_gerai: msg });
       setErrors([msg]);
       return;
@@ -170,7 +170,7 @@ export default function TenantSurveyForm({
     if (!validation.valid) {
       const fieldErrs: Record<string, string> = {};
       const patterns: Array<[RegExp, string]> = [
-        [/[Nn]ama gerai|[Pp]ilih gerai/i, 'nama_gerai'],
+        [/[Nn]ama tenant|[Pp]ilih tenant/i, 'nama_gerai'],
         [/[Ll]okasi/i, 'lokasi_zona'],
         [/[Kk]ategori/i, 'kategori'],
         [/traffic/i, 'kenaikan_traffic'],
@@ -270,25 +270,25 @@ export default function TenantSurveyForm({
         </div>
       )}
 
-      {/* Section 1: Informasi Gerai */}
+      {/* Section 1: Informasi Tenant */}
       <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
         <h3 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
-          Informasi Gerai
+          Informasi Tenant
         </h3>
         <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
-          Isi data gerai Anda di Metropolitan Mall Bekasi.
+          Isi data tenant Anda di Metropolitan Mall Bekasi.
         </p>
 
         <div className="space-y-4">
           {/* Tenant search */}
           <div>
-            <label htmlFor="ts-form-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+            <label htmlFor="ts-form-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
               <Building2 className="h-3.5 w-3.5" />
-              Nama Gerai
+              Nama Tenant
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
             </label>
             <TenantSearchSelect
-              id="ts-form-gerai"
+              id="ts-form-tenant"
               value={selectedTenant?.name || formData.nama_gerai}
               onChange={updateField('nama_gerai')}
               onTenantSelect={handleTenantSelect}
@@ -367,7 +367,7 @@ export default function TenantSurveyForm({
             </div>
           )}
           <RadioGroup
-            label="Kategori Gerai"
+            label="Kategori Tenant"
             options={SURVEY_OPTIONS.kategori}
             value={formData.kategori}
             onChange={updateField('kategori')}

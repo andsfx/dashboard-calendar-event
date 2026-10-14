@@ -180,7 +180,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Lihat acara yang sedang dan akan berlangsung di /events — bisa disaring per waktu atau kategori.',
               'Buka kartu acara untuk detail lengkap, lalu tambahkan ke kalender atau bagikan lewat WhatsApp.',
               'Telusuri dokumentasi acara di /gallery dan kabar terbaru di /news.',
-              'Cari gerai di /tenants atau organisasi yang pernah tampil di /community.',
+              'Cari tenant di /tenants atau organisasi yang pernah tampil di /community.',
               'Ingin menggelar acara? Isi pendaftaran di /daftar atau ajukan langsung di /ajukan-event.',
               'Punya brand atau komunitas? Tawarkan dukungan di /sponsor atau ikut kolaborasi di /pameran.',
               'Untuk acara yang sudah lewat, bagikan penilaian lewat survey kepuasan.',
@@ -195,17 +195,17 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Panduan Cepat Tenant',
             audience: 'Tenant',
             summary:
-              'Sebagai tenant, Anda mengisi self-assessment dampak event terhadap gerai. Bisa dibuka lewat tautan atau QR tanpa login.',
+              'Sebagai tenant, Anda mengisi self-assessment dampak event terhadap tenant. Bisa dibuka lewat tautan atau QR tanpa login.',
             steps: [
               'Buka /tenant-survey, lalu cari event yang Anda ikuti berdasarkan nama, lokasi, atau penyelenggara.',
               'Klik baris event untuk mulai mengisi.',
-              'Bagian 1 — pilih gerai Anda dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
-              'Bagian 2 — pilih kenaikan traffic dan penjualan gerai Anda.',
+              'Bagian 1 — pilih tenant Anda dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
+              'Bagian 2 — pilih kenaikan traffic dan penjualan tenant Anda.',
               'Bagian 3 — tulis umpan balik, lalu kirim.',
               'Bila Anda juga menerima tautan hasil, buka /tenant-survey-results untuk membaca agregatnya.',
             ],
             notes: [
-              'Nama gerai harus dipilih dari daftar, bukan diketik bebas.',
+              'Nama tenant harus dipilih dari daftar, bukan diketik bebas.',
               'Satu perangkat hanya bisa mengisi sekali per event.',
               'Survey hanya terbuka untuk event yang sudah diaktifkan admin; bila daftar kosong, hubungi tim mall.',
             ],
@@ -270,7 +270,7 @@ export const DOC_SECTIONS: DocSection[] = [
             steps: [
               'Buka Hasil Evaluasi Tenant dari grup Ringkasan.',
               'Pilih event pada filter agar angka terhitung untuk event yang benar.',
-              'Tab Ringkasan — baca KPI, distribusi traffic/sales/kategori/zona, Top Gerai, dan tren.',
+              'Tab Ringkasan — baca KPI, distribusi traffic/sales/kategori/zona, Top Tenant, dan tren.',
               'Tab Checklist — lihat tenant mana yang sudah dan belum mengisi.',
               'Tab Bagikan — salin tautan atau tampilkan QR untuk disebar ke tenant.',
               'Tab Detail — baca umpan balik dan tabel respons; klik "Export PDF" bila berwenang.',
@@ -409,7 +409,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Mengelola self-assessment tenant per event: daftar respons, detail, review, kelola tautan/QR, ekspor CSV, dan tab Analytics.',
             steps: [
               'Buka Evaluasi Tenant.',
-              'Tab "Self-Assessment" — saring status/event/kategori dan cari gerai.',
+              'Tab "Self-Assessment" — saring status/event/kategori dan cari tenant.',
               'Klik baris untuk membuka Detail, lalu "Review" dengan catatan atau "Hapus".',
               'Buka bagian "Kelola Self-Assessment per Event" untuk menyalakan toggle, menyalin tautan, menampilkan QR, atau mengekspor CSV.',
               'Tab "Analytics" — pilih event untuk melihat agregatnya.',
@@ -751,7 +751,7 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/tenants',
             audience: 'Publik',
             summary:
-              'Daftar gerai dengan pencarian dan filter kategori, beserta statistik jumlah tenant dan kategori.',
+              'Daftar tenant dengan pencarian dan filter kategori, beserta statistik jumlah tenant dan kategori.',
             steps: [
               'Buka /tenants.',
               'Ketik di kotak cari untuk menyaring berdasarkan nama, kategori, atau lantai.',
@@ -760,7 +760,7 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
             notes: [
               'Pencarian dan filter di halaman ini tidak tersimpan di alamat halaman, jadi tidak bisa dibagikan lewat URL.',
-              'Logo gerai yang gagal dimuat otomatis diganti ikon.',
+              'Logo tenant yang gagal dimuat otomatis diganti ikon.',
             ],
           },
           {
@@ -837,10 +837,10 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/kolaborasi-tenant',
             audience: 'Tenant',
             summary:
-              'Halaman pengajuan event kerja sama untuk gerai dan tenant Metropolitan Mall Bekasi, dengan lampiran proposal opsional.',
+              'Halaman pengajuan event kerja sama untuk tenant Metropolitan Mall Bekasi, dengan lampiran proposal opsional.',
             steps: [
               'Buka /kolaborasi-tenant.',
-              'Bagian Data Gerai: isi Nama Gerai (wajib), lalu Nomor Unit/Lot dan Kategori Gerai bila ada.',
+              'Bagian Data Tenant: isi Nama Tenant (wajib), lalu Nomor Unit/Lot dan Kategori Tenant bila ada.',
               'Bagian PIC: isi Nama PIC dan Nomor WhatsApp (wajib), lengkapi Email bila perlu.',
               'Bagian Rencana Event: isi Judul Event, Jenis Kegiatan, Deskripsi Kegiatan (wajib), serta Tanggal Mulai (wajib).',
               'Isi Tanggal Selesai bila kegiatan lebih dari sehari, Area yang diinginkan, Perkiraan Pengunjung, dan Kebutuhan Fasilitas.',
@@ -848,7 +848,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Klik "Kirim Pengajuan" dan lihat konfirmasi bahwa pengajuan masuk antrean tinjauan.',
             ],
             notes: [
-              'Yang wajib: nama gerai, nama PIC, nomor WhatsApp, judul event, deskripsi (minimal 10 karakter), dan tanggal mulai.',
+              'Yang wajib: nama tenant, nama PIC, nomor WhatsApp, judul event, deskripsi (minimal 10 karakter), dan tanggal mulai.',
               'Tanggal mulai tidak boleh di masa lalu; tanggal selesai tidak boleh sebelum tanggal mulai dan boleh dikosongkan untuk kegiatan sehari.',
               'Ajukan minimal dua pekan sebelum tanggal rencana agar penjadwalan dan perizinan sempat diproses.',
               'Pengajuan ditinjau lewat modul Kolaborasi Tenant di dashboard; menyetujui pengajuan tidak otomatis membuat event.',
@@ -885,14 +885,14 @@ export const DOC_SECTIONS: DocSection[] = [
             steps: [
               'Buka /tenant-survey.',
               'Cari event berdasarkan nama, lokasi, atau penyelenggara (minimal 2 huruf), lalu klik baris event.',
-              'Bagian 1: Informasi Gerai — pilih Nama Gerai dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
+              'Bagian 1: Informasi Tenant — pilih Nama Tenant dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
               'Bagian 2: Evaluasi Traffic & Sales — pilih kenaikan traffic pengunjung dan kenaikan penjualan.',
               'Bagian 3: Umpan Balik — tulis kesan atau saran Anda (opsional).',
               'Klik "Kirim Survey" dan lihat konfirmasi "Survey Terkirim!".',
             ],
             notes: [
-              'Nama gerai harus dipilih dari daftar, bukan diketik bebas.',
-              'Lima field wajib: nama gerai, lokasi/zona, kategori, kenaikan traffic, dan kenaikan sales.',
+              'Nama tenant harus dipilih dari daftar, bukan diketik bebas.',
+              'Lima field wajib: nama tenant, lokasi/zona, kategori, kenaikan traffic, dan kenaikan sales.',
               'Satu perangkat hanya dapat mengisi sekali untuk setiap event.',
               'Bila daftar kosong, berarti admin belum menyalakan survey untuk event mana pun.',
             ],

@@ -54,7 +54,7 @@ describe('validateTenantSurvey', () => {
       data.nama_gerai = '';
       const result = validateTenantSurvey(data, false);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.toLowerCase().includes('nama gerai'))).toBe(true);
+      expect(result.errors.some(e => e.toLowerCase().includes('nama tenant'))).toBe(true);
     });
 
     it('should reject nama_gerai exceeding 100 chars', () => {

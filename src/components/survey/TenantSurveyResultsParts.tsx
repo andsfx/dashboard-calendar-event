@@ -270,7 +270,7 @@ export function ResultsReadingGuide() {
               {
                 n: '1',
                 t: 'Pilih event',
-                d: 'Pilih event terlebih dahulu. Rentang tanggal, zona, dan kategori gerai dapat digunakan untuk mempersempit data.',
+                d: 'Pilih event terlebih dahulu. Rentang tanggal, zona, dan kategori tenant dapat digunakan untuk mempersempit data.',
               },
               {
                 n: '2',
@@ -280,7 +280,7 @@ export function ResultsReadingGuide() {
               {
                 n: '3',
                 t: 'Buka tab Ringkasan',
-                d: 'Tab ini menampilkan sebaran jawaban, peringkat gerai, dan tren bulanan.',
+                d: 'Tab ini menampilkan sebaran jawaban, peringkat tenant, dan tren bulanan.',
               },
               {
                 n: '4',
@@ -353,7 +353,7 @@ export function ResultsReadingGuide() {
                 </li>
                 <li>
                   <strong className="font-semibold text-[var(--wf-ink)]">
-                    Top Gerai
+                    Top Tenant
                   </strong>
                   {' '}
                   diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi.
@@ -363,7 +363,7 @@ export function ResultsReadingGuide() {
                     Kategori × Sales
                   </strong>
                   {' '}
-                  menunjukkan jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya.
+                  menunjukkan jenis tenant yang paling sering melaporkan kenaikan omzet, beserta besarannya.
                 </li>
                 <li>
                   Untuk laporan singkat, pilih satu event kemudian ekspor PDF.

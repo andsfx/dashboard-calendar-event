@@ -503,7 +503,7 @@ export function DashboardPage({
         </section>
       )}
 
-      {/* Kolaborasi Tenant — antrean pengajuan event dari gerai */}
+      {/* Kolaborasi Tenant — antrean pengajuan event dari tenant */}
       {permissions.canViewTenantProposals && dashboardPath === '/tenant-proposals' && (
         <section id="tenant-proposals-section" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-64" />}>

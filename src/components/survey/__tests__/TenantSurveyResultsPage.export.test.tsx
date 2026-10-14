@@ -58,7 +58,7 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
     const labels = [...dialog.querySelectorAll('span')].map((el) => el.textContent);
     expect(labels).toContain('Ringkasan KPI');
     expect(labels).toContain('Distribusi Jawaban');
-    expect(labels).toContain('Top Gerai');
+    expect(labels).toContain('Top Tenant');
     expect(labels).toContain('Cross-tab');
     expect(labels).toContain('Cuplikan Feedback');
     expect(resultMock).not.toHaveBeenCalled();

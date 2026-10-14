@@ -175,9 +175,9 @@ function validatePublicSubmission(body) {
   }
 
   if (!body.nama_gerai || typeof body.nama_gerai !== 'string' || !sanitize(body.nama_gerai).length) {
-    errors.push('Nama gerai wajib diisi.');
+    errors.push('Nama tenant wajib diisi.');
   } else if (sanitize(body.nama_gerai).length > 100) {
-    errors.push('Nama gerai maksimal 100 karakter.');
+    errors.push('Nama tenant maksimal 100 karakter.');
   }
 
   if (!body.lokasi_zona || !SURVEY_OPTIONS.lokasi_zona.includes(body.lokasi_zona)) {
@@ -221,7 +221,7 @@ function validateDraftSubmission(body) {
   }
 
   if (body.nama_gerai != null && sanitize(body.nama_gerai).length > 100) {
-    errors.push('Nama gerai maksimal 100 karakter.');
+    errors.push('Nama tenant maksimal 100 karakter.');
   }
 
   pushTextLimitErrors(body, errors);
@@ -1175,7 +1175,7 @@ router.get('/export', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
     }
 
     const headers = [
-      'ID', 'Nama Gerai', 'Lokasi', 'Kategori', 'Traffic', 'Sales', 'Feedback',
+      'ID', 'Nama Tenant', 'Lokasi', 'Kategori', 'Traffic', 'Sales', 'Feedback',
       'PIC Name', 'PIC Phone', 'Venue', 'Manajemen', 'Organisasi', 'Fasilitas', 'Overall',
       'Feedback V2', 'Saran', 'Status', 'Tanggal',
     ];

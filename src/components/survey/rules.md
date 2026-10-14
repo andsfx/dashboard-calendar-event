@@ -5,7 +5,7 @@ Baca file ini **sebelum** edit form / API / types / migrate tenant survey.
 ## Product intent
 
 - **Public form = anonymous, no login.** Jangan tambah auth wall di `/tenant-survey` atau `/tenant-survey/:eventId`.
-- Tujuan: tenant mall (gerai) isi self-assessment pasca event lewat link/QR.
+- Tujuan: tenant mall isi self-assessment pasca event lewat link/QR.
 - Dashboard `/dashboard/tenant-surveys` = admin/EO manage list, analytics, config, QR — **bukan** jalur utama pengisian tenant.
 - Standalone `/tenant-survey-results` = **public** read-only analisa (filter, KPI, checklist, bagikan form + QR). **Tanpa** form/CRUD/config toggle admin, **tanpa** PIC, **tanpa** login. Legacy `/dashboard/tenant-survey-results` redirect ke sini.
 - Share form: link `/tenant-survey/:eventId` + QR (`SurveyQRCode`, `basePath="/tenant-survey"`) — tampil **nama event** (`acara`).
@@ -115,12 +115,12 @@ Aturan public:
 - Prefer `TenantSurveyShared.tsx` untuk RadioGroup, TenantSearchSelect, `floorToZona`, `apiCategoryToKategori`.
 - **Jangan** reimplement copy di `TenantSurveyPublicPage` — drift bug. Public **import Shared**.
 - `TenantSearchSelect` = **pick-from-list only** (tenant dari API MID):
-  - Placeholder: “Cari & pilih gerai dari daftar”
+  - Placeholder: “Cari & pilih tenant dari daftar”
   - Ketik = search only; **tidak** commit free-text ke `nama_gerai`
   - Commit `nama_gerai` + `tenant_id` **hanya** lewat pilih item list
   - Ketik ulang setelah select → clear selection + reset auto-fill (zona/kategori/pic yang auto)
-  - Submit non-draft/public **wajib** `selectedTenant` — error: “Pilih gerai dari daftar, bukan ketik bebas.”
-  - Progress gerai terisi hanya jika `selectedTenant` ada
+  - Submit non-draft/public **wajib** `selectedTenant` — error: “Pilih tenant dari daftar, bukan ketik bebas.”
+  - Progress tenant terisi hanya jika `selectedTenant` ada
   - Draft dashboard boleh tanpa select; submit ketat
 - Style: Metmal pastel, clean data-first (lihat root `AGENTS.md`).
 - Public form: loading / empty / error / duplicate / success states wajib tetap ada.

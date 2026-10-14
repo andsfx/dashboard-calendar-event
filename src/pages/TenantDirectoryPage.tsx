@@ -16,7 +16,7 @@ const ALL_CATEGORIES = 'Semua';
 export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
     title: 'Direktori Tenant - Metropolitan Mall Bekasi',
-    description: 'Direktori penyewa gerai (tenant) resmi di Metropolitan Mall Bekasi.',
+    description: 'Direktori tenant resmi di Metropolitan Mall Bekasi.',
   });
 
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         <div className="mb-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Direktori Tenant</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
-          <p className="mt-2 text-base ui-text-muted">Jelajahi gerai yang tersedia di Metropolitan Mall Bekasi</p>
+          <p className="mt-2 text-base ui-text-muted">Jelajahi tenant yang tersedia di Metropolitan Mall Bekasi</p>
           {!isLoading && !fetchError && (
             <div className="mt-6 flex flex-wrap gap-3">
               <div className="rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">

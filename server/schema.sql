@@ -771,7 +771,7 @@ CREATE TRIGGER trg_exhibitions_period_guard
   FOR EACH ROW EXECUTE FUNCTION enforce_exhibition_activation_period();
 
 -- ============================================================================
--- KOLABORASI TENANT (pengajuan event/kerja sama dari gerai)
+-- KOLABORASI TENANT (pengajuan event/kerja sama dari tenant)
 -- ============================================================================
 -- Antrean privat: ditulis form publik /kolaborasi-tenant, dibaca hanya lewat
 -- adminAction ber-guard. Status review: pending -> contacted -> approved/rejected

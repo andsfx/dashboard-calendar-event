@@ -595,7 +595,7 @@ export default function TenantSurveyResultsPage({
           helper={
             checklistStats.total > 0
               ? `${checklistStats.pending} belum mengisi`
-              : 'Jumlah gerai yang menjawab'
+              : 'Jumlah tenant yang menjawab'
           }
           tone={
             checklistStats.total === 0
@@ -916,14 +916,14 @@ export default function TenantSurveyResultsPage({
                 icon={<Tag className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.kategoriDist}
                 total={agg.total}
-                hint="Jenis gerai yang paling banyak mengisi"
+                hint="Jenis tenant yang paling banyak mengisi"
               />
               <DistBars
                 title="Zona"
                 icon={<MapPin className="h-3.5 w-3.5" aria-hidden />}
                 dist={agg.zonaDist}
                 total={agg.total}
-                hint="Lantai atau area lokasi gerai"
+                hint="Lantai atau area lokasi tenant"
               />
             </section>
 
@@ -931,7 +931,7 @@ export default function TenantSurveyResultsPage({
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] px-4 py-2.5">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]">
-                    Top Gerai
+                    Top Tenant
                   </h3>
                   <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
                     Diurut berdasarkan frekuensi laporan kenaikan pengunjung atau omzet, bukan nilai omzet tertinggi
@@ -979,7 +979,7 @@ export default function TenantSurveyResultsPage({
                     Kategori × Sales
                   </h3>
                   <p className="mt-0.5 text-[11px] text-[var(--wf-ink-muted)]">
-                    Jenis gerai yang paling sering melaporkan kenaikan omzet, beserta besarannya
+                    Jenis tenant yang paling sering melaporkan kenaikan omzet, beserta besarannya
                   </p>
                 </div>
                 <div className="max-h-80 overflow-auto">
@@ -1039,19 +1039,19 @@ export default function TenantSurveyResultsPage({
                     id="feedback-heading"
                     className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink)]"
                   >
-                    Feedback Gerai
+                    Feedback Tenant
                     <span className="ml-1.5 font-semibold normal-case tracking-normal text-[var(--wf-ink-muted)]">
                       ({feedbackFiltered.length})
                     </span>
                   </h3>
                   <p className="text-[11px] text-[var(--wf-ink-muted)]">
-                    Komentar dari gerai. Perhatikan keluhan atau saran yang sering muncul.
+                    Komentar dari tenant. Perhatikan keluhan atau saran yang sering muncul.
                   </p>
                 </div>
               </div>
               <div className="relative max-w-xs flex-1">
                 <label htmlFor="feedback-search" className="sr-only">
-                  Cari feedback atau gerai
+                  Cari feedback atau tenant
                 </label>
                 <Search
                   className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
@@ -1062,7 +1062,7 @@ export default function TenantSurveyResultsPage({
                   type="search"
                   value={feedbackQ}
                   onChange={(e) => setFeedbackQ(e.target.value)}
-                  placeholder="Cari feedback / gerai…"
+                  placeholder="Cari feedback / tenant…"
                   className={`${FIELD} py-1.5 pl-8 pr-3`}
                 />
               </div>
@@ -1160,7 +1160,7 @@ export default function TenantSurveyResultsPage({
                 <thead className="sticky top-0 z-10">
 <tr className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)]">
                     <th scope="col" className="px-4 py-2.5 font-semibold">
-                      Gerai
+                      Tenant
                     </th>
                     <th scope="col" className="px-2 py-2.5 font-semibold">
                       Event

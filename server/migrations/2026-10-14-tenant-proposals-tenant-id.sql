@@ -1,8 +1,8 @@
 -- Tambah tautan ke master tenant MID (apiloyalty) pada pengajuan kolaborasi.
 --
--- Kolom `tenant_id` menyimpan TENANT_ID dari MID saat gerai dipilih dari daftar,
--- sehingga staff bisa menelusuri pengajuan ke gerai yang benar walau nama
--- diketik ulang berbeda. Kosong = pengajuan memakai jalur isi manual (gerai
+-- Kolom `tenant_id` menyimpan TENANT_ID dari MID saat tenant dipilih dari daftar,
+-- sehingga staff bisa menelusuri pengajuan ke tenant yang benar walau nama
+-- diketik ulang berbeda. Kosong = pengajuan memakai jalur isi manual (tenant
 -- belum ada di MID / upstream sedang bermasalah) — bukan galat.
 --
 -- Idempoten: ADD COLUMN IF NOT EXISTS.

@@ -102,11 +102,11 @@ export default function TenantSurveyEventPicker() {
     <div className="space-y-6">
       {/* Header description */}
       <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-        Pilih event untuk menilai perubahan traffic dan penjualan gerai Anda.
+        Pilih event untuk menilai perubahan traffic dan penjualan tenant Anda.
       </p>
 
       <p className="text-xs ui-text-muted">
-        Isi survey ini jika gerai Anda ikut dalam event yang dipilih. Waktu pengisian sekitar 2 menit.
+        Isi survey ini jika tenant Anda ikut dalam event yang dipilih. Waktu pengisian sekitar 2 menit.
       </p>
 
       {/* Search */}

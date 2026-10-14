@@ -31,7 +31,7 @@ const props = {
 };
 
 describe('TenantProposalManager', () => {
-  it('menampilkan identitas gerai, rencana event, kontak, dan lampiran proposal', () => {
+  it('menampilkan identitas tenant, rencana event, kontak, dan lampiran proposal', () => {
     render(<TenantProposalManager {...props} />);
 
     expect(screen.getByText('Kopi Kenangan')).toBeInTheDocument();
@@ -42,9 +42,9 @@ describe('TenantProposalManager', () => {
     );
   });
 
-  it('menandai asal data gerai: tautan master MID atau isi manual', () => {
+  it('menandai asal data tenant: tautan master MID atau isi manual', () => {
     const { rerender } = render(<TenantProposalManager {...props} />);
-    expect(screen.getByText(/ID gerai 180102223/)).toBeInTheDocument();
+    expect(screen.getByText(/ID tenant 180102223/)).toBeInTheDocument();
 
     rerender(<TenantProposalManager {...props} proposals={[makeProposal({ tenantId: '' })]} />);
     expect(screen.getByText(/diisi manual/)).toBeInTheDocument();

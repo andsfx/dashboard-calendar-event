@@ -24,7 +24,7 @@ export const ALBUM_SECTION_OPTIONS: PdfSectionOption[] = [
 export const SURVEY_SECTION_OPTIONS: PdfSectionOption[] = [
   { id: 'kpi', label: 'Ringkasan KPI', hint: 'Total submisi, tenant, traffic & sales positif' },
   { id: 'distribution', label: 'Distribusi Jawaban', hint: 'Traffic, sales, kategori, zona' },
-  { id: 'topGerai', label: 'Top Gerai', hint: 'Peringkat gerai berdasarkan skor' },
+  { id: 'topGerai', label: 'Top Tenant', hint: 'Peringkat tenant berdasarkan skor' },
   { id: 'crossTab', label: 'Cross-tab', hint: 'Kategori × sales, maksimal 20 baris' },
   { id: 'feedback', label: 'Cuplikan Feedback', hint: 'Komentar teks, maksimal 30' },
 ];

@@ -164,7 +164,7 @@ export default function TenantSurveyPublicPage() {
     setFieldErrors([]);
 
     if (!selectedTenant) {
-      setFieldErrors(['Pilih gerai dari daftar, bukan ketik bebas.']);
+      setFieldErrors(['Pilih tenant dari daftar, bukan ketik bebas.']);
       setFormStatus('idle');
       submittingRef.current = false;
       requestAnimationFrame(() => {
@@ -393,7 +393,7 @@ export default function TenantSurveyPublicPage() {
   const fieldErrorMap = (() => {
     const map: Record<string, string> = {};
     const patterns: Array<[RegExp, string]> = [
-      [/[Nn]ama gerai|[Pp]ilih gerai/i, 'nama_gerai'],
+      [/[Nn]ama tenant|[Pp]ilih tenant/i, 'nama_gerai'],
       [/[Ll]okasi/i, 'lokasi_zona'],
       [/[Kk]ategori/i, 'kategori'],
       [/traffic/i, 'kenaikan_traffic'],
@@ -461,7 +461,7 @@ export default function TenantSurveyPublicPage() {
       {/* Section stepper */}
         <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
           {[
-            { num: 1, label: 'Informasi Gerai', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
+            { num: 1, label: 'Informasi Tenant', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
             { num: 2, label: 'Evaluasi', filled: !!(formData.kenaikan_traffic && formData.kenaikan_sales) },
             { num: 3, label: 'Umpan Balik', filled: formData.feedback_teks.trim().length > 0 },
           ].map(step => (
@@ -498,25 +498,25 @@ export default function TenantSurveyPublicPage() {
           </div>
         )}
 
-        {/* Section 1: Informasi Gerai */}
+        {/* Section 1: Informasi Tenant */}
         <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
           <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
-            Bagian 1: Informasi Gerai
+            Bagian 1: Informasi Tenant
           </h2>
           <p className="mb-4 text-xs ui-text-muted">
-            Isi informasi dasar tenant dan lokasi gerai Anda di Metropolitan Mall Bekasi.
+            Isi informasi dasar dan lokasi tenant Anda di Metropolitan Mall Bekasi.
           </p>
 
           <div className="space-y-4">
             {/* Tenant search + badge */}
             <div>
-              <label htmlFor="tenant-survey-gerai" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label htmlFor="tenant-survey-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <Building2 className="h-3.5 w-3.5" />
-                Nama Gerai
+                Nama Tenant
                 <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               </label>
               <TenantSearchSelect
-                id="tenant-survey-gerai"
+                id="tenant-survey-tenant"
                 value={selectedTenant?.name || formData.nama_gerai}
                 onChange={updateField('nama_gerai')}
                 onTenantSelect={handleTenantSelect}
@@ -601,7 +601,7 @@ export default function TenantSurveyPublicPage() {
                 </div>
               )}
               <RadioGroup
-                label="Kategori Gerai"
+                label="Kategori Tenant"
                 options={SURVEY_OPTIONS.kategori}
                 value={formData.kategori}
                 onChange={updateField('kategori')}
@@ -763,7 +763,7 @@ export default function TenantSurveyPublicPage() {
 
         <p className="text-center text-[11px] ui-text-muted">
           <Shield className="mr-1 inline h-3 w-3" />
-          Survey ini dapat diakses tanpa login. Nama gerai dan kontak PIC yang Anda isi tersimpan teridentifikasi untuk verifikasi.
+          Survey ini dapat diakses tanpa login. Nama tenant dan kontak PIC yang Anda isi tersimpan teridentifikasi untuk verifikasi.
         </p>
       </form>
       </div>

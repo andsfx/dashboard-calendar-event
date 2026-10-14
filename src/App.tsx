@@ -432,7 +432,7 @@ export default function App() {
           <EventSubmissionPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
-      {/* Kolaborasi tenant — pengajuan event/kerja sama gerai + lampiran proposal */}
+      {/* Kolaborasi tenant — pengajuan event/kerja sama tenant + lampiran proposal */}
       <Route path="/kolaborasi-tenant" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
           <TenantCollaborationPage isDark={isDark} onToggleDark={toggleDark} />
@@ -468,7 +468,7 @@ export default function App() {
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
                   <h1 className="text-xl font-bold text-slate-900 dark:text-white">Evaluasi Dampak Event</h1>
-                  <p className="mt-1 text-sm ui-text-muted">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap gerai Anda.</p>
+                  <p className="mt-1 text-sm ui-text-muted">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap tenant Anda.</p>
                 </div>
                 <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
               </div>

@@ -184,10 +184,10 @@ export function validateTenantSurvey(
   // nama_gerai: required, 1-100 chars after trim
   const namaGerai = (data.nama_gerai as string || '').trim();
   if (!isDraft && !namaGerai) {
-    errors.push('Nama gerai wajib diisi.');
+    errors.push('Nama tenant wajib diisi.');
   }
   if (namaGerai.length > 100) {
-    errors.push('Nama gerai maksimal 100 karakter.');
+    errors.push('Nama tenant maksimal 100 karakter.');
   }
 
   // lokasi_zona: required, must be in SURVEY_OPTIONS.lokasi_zona

@@ -52,7 +52,7 @@ describe('buildSurveyResultsPdf', () => {
     const text = extractPdfStrings(doc);
     expect(text).toContain('Hasil Evaluasi Tenant');
     expect(text).toContain('Distribusi Traffic');
-    expect(text).toContain('Top Gerai');
+    expect(text).toContain('Top Tenant');
     expect(text).toContain('Cross-tab');
     expect(text).toContain('Cuplikan Feedback');
     expect(text).toContain('tanpa data PIC');

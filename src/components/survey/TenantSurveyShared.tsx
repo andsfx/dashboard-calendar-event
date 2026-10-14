@@ -244,7 +244,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Cari & pilih gerai dari daftar"
+          placeholder="Cari & pilih tenant dari daftar"
           disabled={disabled}
           autoComplete="off"
           role="combobox"
@@ -322,7 +322,7 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
       )}
       {!value && !error && (
         <p id={hintId} className="mt-1 text-[11px] ui-text-muted">
-          Pilih gerai dari daftar, bukan ketik bebas.
+          Pilih tenant dari daftar, bukan ketik bebas.
         </p>
       )}
       {error && (

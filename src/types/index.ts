@@ -308,13 +308,13 @@ export interface ExhibitionDetail {
   leads: ExhibitionLead[];
 }
 
-// ─── Kolaborasi tenant (pengajuan event/kerja sama gerai) ───────────
+// ─── Kolaborasi tenant (pengajuan event/kerja sama tenant) ───────────
 export type TenantEventProposalType = 'promo' | 'workshop' | 'exhibition' | 'performance' | 'launching' | 'other';
 export type TenantEventProposalStatus = 'pending' | 'contacted' | 'approved' | 'rejected';
 
 /** Payload form publik `/kolaborasi-tenant` — snake_case berhenti di API module. */
 export interface TenantEventProposalInput {
-  /** TENANT_ID master MID saat gerai dipilih dari daftar; '' bila diisi manual. */
+  /** TENANT_ID master MID saat tenant dipilih dari daftar; '' bila diisi manual. */
   tenantId: string;
   tenantName: string;
   unitNumber: string;

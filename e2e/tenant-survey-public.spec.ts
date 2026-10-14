@@ -12,7 +12,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
     await expect(page.getByText('Self-Assessment Tenant')).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'Bagian 1: Informasi Gerai' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Bagian 1: Informasi Tenant' })).toBeVisible();
     await expect(page.getByRole('heading', { name: /Evaluasi Traffic.*Sales/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Bagian 3: Umpan Balik' })).toBeVisible();
 
@@ -28,7 +28,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(submitBtn).toBeVisible();
     await expect(submitBtn).toBeDisabled();
 
-    // Progress shows 0/5 (pick-from-list: gerai counts only after select)
+    // Progress shows 0/5 (pick-from-list: tenant counts only after select)
     await expect(page.getByText('0% selesai')).toBeVisible();
     await expect(page.getByText('0 dari 5 field wajib terisi')).toBeVisible();
   });
@@ -37,8 +37,8 @@ test.describe('Tenant Survey — Public Flow', () => {
     await page.goto(`/tenant-survey/${MOCK_EVENT.id}`);
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
 
-    // Section 1: Nama gerai — pick from MID list (not free-text)
-    await page.getByPlaceholder('Cari & pilih gerai dari daftar').fill('Kopi Metmal');
+    // Section 1: Nama tenant — pick from MID list (not free-text)
+    await page.getByPlaceholder('Cari & pilih tenant dari daftar').fill('Kopi Metmal');
     await page.getByRole('option', { name: /Kopi Metmal/ }).click();
 
     // Lokasi — auto-filled from tenant, verify or select manually
@@ -85,7 +85,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByText('0% selesai')).toBeVisible();
 
     // Fill nama_gerai via pick-from-list
-    await page.getByPlaceholder('Cari & pilih gerai dari daftar').fill('Kopi Metmal');
+    await page.getByPlaceholder('Cari & pilih tenant dari daftar').fill('Kopi Metmal');
     await page.getByRole('option', { name: /Kopi Metmal/ }).click();
 
     // After select + auto-filled lokasi + kategori = 3/5
@@ -105,7 +105,7 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
 
     // Type query (min 2 chars)
-    const searchInput = page.getByPlaceholder('Cari & pilih gerai dari daftar');
+    const searchInput = page.getByPlaceholder('Cari & pilih tenant dari daftar');
     await searchInput.fill('Kopi');
     await searchInput.focus();
 

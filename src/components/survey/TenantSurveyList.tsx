@@ -276,7 +276,7 @@ export default function TenantSurveyList({
         <KpiCard label="Total" value={counts.total} icon={<ClipboardCheck className="h-4 w-4" />} />
         <KpiCard label="Draft" value={counts.draft} icon={<Clock className="h-4 w-4" />} accent="amber" />
         <KpiCard label="Terkirim" value={counts.submitted} icon={<CheckCircle className="h-4 w-4" />} accent="emerald" />
-        <KpiCard label="Gerai unik" value={counts.gerai} icon={<Store className="h-4 w-4" />} accent="brand" />
+        <KpiCard label="Tenant unik" value={counts.gerai} icon={<Store className="h-4 w-4" />} accent="brand" />
       </div>
 
       {/* Toolbar */}
@@ -288,7 +288,7 @@ export default function TenantSurveyList({
               type="search"
               value={search}
               onChange={setSearch}
-              placeholder="Cari gerai, event, PIC, kategori…"
+              placeholder="Cari tenant, event, PIC, kategori…"
               className="w-full"
             />
           </div>
@@ -539,7 +539,7 @@ export default function TenantSurveyList({
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
 <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
-                    <th className="px-4 py-3">Gerai / Tenant</th>
+                    <th className="px-4 py-3">Tenant</th>
                     <th className="px-4 py-3">Event</th>
                     <th className="px-4 py-3">Impact</th>
                     <th className="px-4 py-3">Status</th>

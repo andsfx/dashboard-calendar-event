@@ -35,7 +35,7 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
 
     await expect(page.getByRole('tab', { name: 'Self-Assessment', exact: true })).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('tab', { name: 'Analytics', exact: true })).toBeVisible();
-    // Nama gerai dirender ganda (kartu tersembunyi + tabel) — ambil sel tabel yang terlihat.
+    // Nama tenant dirender ganda (kartu tersembunyi + tabel) — ambil sel tabel yang terlihat.
     await expect(page.getByRole('table').getByText(MOCK_SURVEY_V3.nama_gerai!, { exact: true })).toBeVisible();
     await expect(page.getByRole('table').getByText('Publik', { exact: true })).toBeVisible();
   });
@@ -80,11 +80,11 @@ test.describe('Tenant Survey — Admin Dashboard', () => {
     await expect(eventBtn).toBeVisible({ timeout: 5000 });
     await eventBtn.click();
 
-    await expect(page.getByRole('heading', { name: 'Informasi Gerai' })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Informasi Tenant' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByRole('heading', { name: /Evaluasi Traffic/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /Umpan Balik/ })).toBeVisible();
-    // v3 memilih gerai dari combobox (bukan input ketik bebas seperti v2)
-    await expect(page.getByRole('combobox', { name: /Nama Gerai/ })).toBeVisible();
+    // v3 memilih tenant dari combobox (bukan input ketik bebas seperti v2)
+    await expect(page.getByRole('combobox', { name: /Nama Tenant/ })).toBeVisible();
     await expect(page.getByText('Kualitas Venue')).not.toBeVisible();
     await expect(page.getByText('Kualitas Manajemen')).not.toBeVisible();
   });

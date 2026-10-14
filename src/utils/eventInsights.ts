@@ -479,7 +479,7 @@ function tenantProposalQueueInsight(proposals: TenantEventProposal[]): EventInsi
     id: 'pengajuan-kolaborasi-tenant',
     severity: pending >= 3 ? 'saran' : 'info',
     title: 'Pengajuan kolaborasi tenant menunggu tinjauan',
-    body: `${pending} pengajuan event dari gerai tenant berstatus "menunggu" belum ditinjau.`,
+    body: `${pending} pengajuan event dari tenant berstatus "menunggu" belum ditinjau.`,
     metric: String(pending),
     crossModule: true,
     actions: [{ label: 'Kolaborasi Tenant', path: '/tenant-proposals' }],

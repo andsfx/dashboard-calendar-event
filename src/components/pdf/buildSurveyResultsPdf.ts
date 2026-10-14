@@ -222,8 +222,8 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
 
   if (enabled.has('topGerai')) {
     y = ensureSpace(doc, y, 90, {});
-    y = drawSectionTitle(doc, 'Top Gerai', 'diurutkan dari traffic + sales positif', y);
-    doc.outline.add(null, 'Top Gerai', { pageNumber: doc.getNumberOfPages() });
+    y = drawSectionTitle(doc, 'Top Tenant', 'diurutkan dari traffic + sales positif', y);
+    doc.outline.add(null, 'Top Tenant', { pageNumber: doc.getNumberOfPages() });
     if (aggregate.topGerai.length === 0) {
       doc.setFont(FONT, 'normal');
       doc.setFontSize(8.5);
@@ -233,7 +233,7 @@ export function buildSurveyResultsPdf(payload: TenantSurveyResultsPdfPayload): j
     } else {
       y = drawTable(
         doc,
-        ['Gerai', 'Submisi', 'Traffic+', 'Sales+', 'Skor'],
+        ['Tenant', 'Submisi', 'Traffic+', 'Sales+', 'Skor'],
         aggregate.topGerai.map((gerai) => [
           gerai.nama_gerai,
           String(gerai.count),

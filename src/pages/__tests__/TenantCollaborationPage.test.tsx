@@ -29,7 +29,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-/** Satu gerai master MID seperti bentuk asli `GET /tenant/tenants`. */
+/** Satu tenant master MID seperti bentuk asli `GET /tenant/tenants`. */
 const MID_TENANT = {
   id: '1801021146', name: 'Kopi Kenangan', floor: 'LT2', lot: '16 II',
   category: 'FOOD & BEVERAGE', pic: '', picTelp: '', logo: '', status: 'active', participantEvoucher: '',
@@ -47,11 +47,11 @@ function renderPage() {
 
 const areasRoute = { '/api/v1/areas': { body: { success: true, data: { areas: [], photos: [] } } } };
 
-/** Combobox "Nama gerai" — halaman juga punya <select> jenis kegiatan. */
-const geraiPicker = () => screen.getByRole('combobox', { name: /Nama gerai/ });
+/** Combobox "Nama tenant" — halaman juga punya <select> jenis kegiatan. */
+const geraiPicker = () => screen.getByRole('combobox', { name: /Nama tenant/ });
 
-describe('TenantCollaborationPage — pemilihan gerai', () => {
-  it('mengisi nama, unit, dan kategori dari master MID saat gerai dipilih', async () => {
+describe('TenantCollaborationPage — pemilihan tenant', () => {
+  it('mengisi nama, unit, dan kategori dari master MID saat tenant dipilih', async () => {
     const user = userEvent.setup();
     mockFetchRoutes({
       ...areasRoute,
@@ -66,21 +66,21 @@ describe('TenantCollaborationPage — pemilihan gerai', () => {
 
     await waitFor(() => expect(geraiPicker()).toHaveValue('Kopi Kenangan'));
     expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('16 II');
-    expect(screen.getByLabelText(/Kategori gerai/)).toHaveValue('FOOD & BEVERAGE');
+    expect(screen.getByLabelText(/Kategori tenant/)).toHaveValue('FOOD & BEVERAGE');
     expect(screen.getByText(/FOOD & BEVERAGE · LT2 · Lot 16 II/)).toBeInTheDocument();
   });
 
-  it('menolak submit sebelum gerai dipilih, dengan pesan yang bisa ditindaklanjuti', async () => {
+  it('menolak submit sebelum tenant dipilih, dengan pesan yang bisa ditindaklanjuti', async () => {
     const user = userEvent.setup();
     mockFetchRoutes(areasRoute);
     renderPage();
 
     await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/ }));
 
-    expect(await screen.findByText('Pilih gerai dari daftar, atau isi manual.')).toBeInTheDocument();
+    expect(await screen.findByText('Pilih tenant dari daftar, atau isi manual.')).toBeInTheDocument();
   });
 
-  it('tidak meninggalkan unit/kategori gerai sebelumnya saat beralih ke isi manual', async () => {
+  it('tidak meninggalkan unit/kategori tenant sebelumnya saat beralih ke isi manual', async () => {
     const user = userEvent.setup();
     mockFetchRoutes({
       ...areasRoute,
@@ -92,14 +92,14 @@ describe('TenantCollaborationPage — pemilihan gerai', () => {
     await user.click(await screen.findByRole('option', { name: /Kopi Kenangan/ }));
     await waitFor(() => expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('16 II'));
 
-    await user.click(screen.getByRole('button', { name: 'Gerai saya belum ada di daftar' }));
+    await user.click(screen.getByRole('button', { name: 'Tenant saya belum ada di daftar' }));
 
-    expect(screen.getByLabelText(/Nama gerai/)).toHaveValue('');
+    expect(screen.getByLabelText(/Nama tenant/)).toHaveValue('');
     expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('');
-    expect(screen.getByLabelText(/Kategori gerai/)).toHaveValue('');
+    expect(screen.getByLabelText(/Kategori tenant/)).toHaveValue('');
   });
 
-  it('mempertahankan unit yang sudah disunting user saat pilihan gerai dilepas', async () => {
+  it('mempertahankan unit yang sudah disunting user saat pilihan tenant dilepas', async () => {
     const user = userEvent.setup();
     mockFetchRoutes({
       ...areasRoute,
@@ -114,7 +114,7 @@ describe('TenantCollaborationPage — pemilihan gerai', () => {
     await user.clear(unit);
     await user.type(unit, 'GF-01');
 
-    await user.click(screen.getByRole('button', { name: 'Gerai saya belum ada di daftar' }));
+    await user.click(screen.getByRole('button', { name: 'Tenant saya belum ada di daftar' }));
 
     expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('GF-01');
   });

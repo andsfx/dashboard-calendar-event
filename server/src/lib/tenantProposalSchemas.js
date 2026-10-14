@@ -17,15 +17,15 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const isoDate = z.string().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD');
 
-/** Jenis kegiatan yang bisa diajukan gerai. `other` = tidak masuk daftar. */
+/** Jenis kegiatan yang bisa diajukan tenant. `other` = tidak masuk daftar. */
 export const TENANT_EVENT_TYPES = ['promo', 'workshop', 'exhibition', 'performance', 'launching', 'other'];
 export const TENANT_PROPOSAL_STATUSES = ['pending', 'contacted', 'approved', 'rejected'];
 
 export const tenantEventProposalSchema = z.object({
-  tenantId: z.string().trim().max(50, 'ID gerai terlalu panjang').optional().default(''),
-  tenantName: z.string().trim().min(2, 'Nama gerai minimal 2 karakter').max(200, 'Nama gerai maksimal 200 karakter'),
+  tenantId: z.string().trim().max(50, 'ID tenant terlalu panjang').optional().default(''),
+  tenantName: z.string().trim().min(2, 'Nama tenant minimal 2 karakter').max(200, 'Nama tenant maksimal 200 karakter'),
   unitNumber: z.string().trim().max(50, 'Nomor unit maksimal 50 karakter').optional().default(''),
-  tenantCategory: z.string().trim().max(100, 'Kategori gerai maksimal 100 karakter').optional().default(''),
+  tenantCategory: z.string().trim().max(100, 'Kategori tenant maksimal 100 karakter').optional().default(''),
   contactName: z.string().trim().min(3, 'Nama PIC minimal 3 karakter').max(100, 'Nama PIC maksimal 100 karakter'),
   phone: z.string().trim().regex(PHONE_REGEX, 'Format nomor telepon tidak valid (08xxx / +628xxx)'),
   email: z.string().trim().max(255, 'Email maksimal 255 karakter')

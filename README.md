@@ -158,7 +158,7 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 - **Foto Area Event** — kartu area (Panggung, Lorong, Atrium, Parkir) bisa diklik → **lightbox galeri foto** (prev/next, `Esc` untuk tutup).
 - **Jadwal publik** (`/events`) + **permalink detail event** (`/events/:id`) yang shareable + **unduh PDF jadwal**.
 - **Direktori Komunitas** (`/community`) — EO/komunitas yang pernah membuat event, beserta statistik & aktivitas.
-- **Direktori Tenant** (`/tenants`) — gerai di mall.
+- **Direktori Tenant** (`/tenants`) — tenant di mall.
 - **Pameran & Aktivasi** (`/pameran`) — jadwal pameran, tautan aktivasi, pengajuan brand/EO.
 - **Berita** (`/news`) & **Sponsorship** (`/sponsor`).
 - **Galeri** (`/gallery`) — album foto event.

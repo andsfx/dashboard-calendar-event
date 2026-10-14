@@ -620,7 +620,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
             <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-7">
               <div className="ui-dashboard-muted flex flex-col items-center rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] px-3 py-3">
                 <Store className="mb-1 h-4 w-4 text-[var(--wf-ink-muted)]" />
-                <span className="text-xs text-[var(--wf-ink-muted)]">Gerai</span>
+                <span className="text-xs text-[var(--wf-ink-muted)]">Tenant</span>
                 <span className="mt-1 text-sm font-bold text-[var(--wf-ink)]">{editingSurvey.nama_gerai || '-'}</span>
               </div>
               <div className="ui-dashboard-muted flex flex-col items-center rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] px-3 py-3">

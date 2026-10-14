@@ -50,15 +50,15 @@ const focusRing = 'ui-focus-ring';
 export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
     title: 'Kolaborasi Tenant - Metropolitan Mall Bekasi',
-    description: 'Ajukan event kerja sama gerai Anda di Metropolitan Mall Bekasi: promo, workshop, pameran produk, hingga pertunjukan. Lampirkan proposal bila sudah siap.',
+    description: 'Ajukan event kerja sama tenant Anda di Metropolitan Mall Bekasi: promo, workshop, pameran produk, hingga pertunjukan. Lampirkan proposal bila sudah siap.',
   });
 
   const [form, setForm] = useState<TenantEventProposalInput>({ ...EMPTY_FORM });
   const [areaOptions, setAreaOptions] = useState<string[]>([]);
   /**
-   * Gerai diambil dari master MID (pilih dari daftar) supaya nama/unit/kategori
+   * Tenant diambil dari master MID (pilih dari daftar) supaya nama/unit/kategori
    * konsisten dengan data mall. Jalur manual tetap ada karena halaman ini
-   * publik: bila gerai belum terdaftar atau layanan MID sedang bermasalah,
+   * publik: bila tenant belum terdaftar atau layanan MID sedang bermasalah,
    * form tidak boleh mati total.
    */
   const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
@@ -84,7 +84,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
   const setField = <K extends keyof TenantEventProposalInput>(key: K, value: TenantEventProposalInput[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     // Field hasil auto-isi MID yang disentuh user berhenti dianggap otomatis,
-    // supaya melepas pilihan gerai tidak menghapus ketikan user.
+    // supaya melepas pilihan tenant tidak menghapus ketikan user.
     if (key === 'unitNumber') {
       setAutoFilled((prev) => (prev.unitNumber ? { ...prev, unitNumber: false } : prev));
     } else if (key === 'tenantCategory') {
@@ -99,7 +99,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     });
   };
 
-  /** Pilih gerai dari master MID → isi nama, unit, dan kategori sekaligus. */
+  /** Pilih tenant dari master MID → isi nama, unit, dan kategori sekaligus. */
   const handleTenantSelect = (tenant: TenantDropdownOption | null) => {
     setSelectedTenant(tenant);
     setForm((prev) => {
@@ -133,7 +133,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     });
   };
 
-  /** Pindah jalur pengisian gerai; pilihan MID dibuang agar tidak ada data separuh. */
+  /** Pindah jalur pengisian tenant; pilihan MID dibuang agar tidak ada data separuh. */
   const switchEntryMode = (manual: boolean) => {
     setManualEntry(manual);
     setSelectedTenant(null);
@@ -141,8 +141,8 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
       ...prev,
       tenantId: '',
       tenantName: '',
-      // Unit/kategori dari gerai MID sebelumnya tidak boleh tertinggal: nama
-      // gerai sudah kosong, jadi sisa itu akan terkirim sebagai data campuran.
+      // Unit/kategori dari tenant MID sebelumnya tidak boleh tertinggal: nama
+      // tenant sudah kosong, jadi sisa itu akan terkirim sebagai data campuran.
       unitNumber: autoFilled.unitNumber ? '' : prev.unitNumber,
       tenantCategory: autoFilled.tenantCategory ? '' : prev.tenantCategory,
     }));
@@ -179,8 +179,8 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     event.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (!manualEntry && !selectedTenant) errors.tenantName = 'Pilih gerai dari daftar, atau isi manual.';
-    else if (form.tenantName.trim().length < 2) errors.tenantName = 'Nama gerai minimal 2 karakter.';
+    if (!manualEntry && !selectedTenant) errors.tenantName = 'Pilih tenant dari daftar, atau isi manual.';
+    else if (form.tenantName.trim().length < 2) errors.tenantName = 'Nama tenant minimal 2 karakter.';
     if (form.contactName.trim().length < 3) errors.contactName = 'Nama PIC minimal 3 karakter.';
     const phoneCheck = validatePhone(form.phone);
     if (!phoneCheck.valid) errors.phone = phoneCheck.error || 'Nomor WhatsApp tidak valid.';
@@ -268,7 +268,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           Gelar Event Bersama Metropolitan Mall Bekasi
         </h1>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
-          Halaman ini untuk gerai dan tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
+          Halaman ini untuk tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
           baik sebagai promo, workshop, pameran produk, pertunjukan, maupun peluncuran produk. Isi formulir di bawah,
           tim Marcomm dan Casual Leasing akan meninjau pengajuan Anda.
         </p>
@@ -309,12 +309,12 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           ) : (
             <form onSubmit={handleSubmit} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Data gerai</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Data tenant</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {!manualEntry ? (
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="tp-tenant">
-                        Nama gerai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                        Nama tenant <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                       </label>
                       <TenantSearchSelect
                         id="tp-tenant"
@@ -339,13 +339,13 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                         onClick={() => switchEntryMode(true)}
                         className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
                       >
-                        Gerai saya belum ada di daftar
+                        Tenant saya belum ada di daftar
                       </button>
                     </div>
                   ) : (
                     <div className="sm:col-span-2">
                       <label className={labelClass} htmlFor="tp-tenant-manual">
-                        Nama gerai <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+                        Nama tenant <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                       </label>
                       <input
                         id="tp-tenant-manual"
@@ -362,7 +362,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                         onClick={() => switchEntryMode(false)}
                         className={`${focusRing} mt-2 text-xs font-semibold text-[var(--brand-tosca-700)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
                       >
-                        Cari gerai di daftar
+                        Cari tenant di daftar
                       </button>
                     </div>
                   )}
@@ -371,7 +371,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                     <input id="tp-unit" className={inputClass} value={form.unitNumber} onChange={(e) => setField('unitNumber', e.target.value)} maxLength={50} placeholder="Contoh: GF-12" />
                   </div>
                   <div>
-                    <label className={labelClass} htmlFor="tp-category">Kategori gerai</label>
+                    <label className={labelClass} htmlFor="tp-category">Kategori tenant</label>
                     <input id="tp-category" className={inputClass} value={form.tenantCategory} onChange={(e) => setField('tenantCategory', e.target.value)} maxLength={100} placeholder="Contoh: F&amp;B, Fashion" />
                   </div>
                 </div>
@@ -469,7 +469,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                       value={form.eventDescription}
                       onChange={(e) => setField('eventDescription', e.target.value)}
                       maxLength={4000}
-                      placeholder="Jelaskan bentuk kegiatannya, target peserta, dan bagaimana gerai Anda terlibat."
+                      placeholder="Jelaskan bentuk kegiatannya, target peserta, dan bagaimana tenant Anda terlibat."
                       aria-invalid={Boolean(fieldErrors.eventDescription)}
                       aria-describedby={fieldErrors.eventDescription ? 'tp-desc-err' : undefined}
                     />

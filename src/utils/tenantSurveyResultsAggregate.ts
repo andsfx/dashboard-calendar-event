@@ -102,7 +102,7 @@ export function aggregateResults(surveys: TenantEventSurvey[]): ResultsAggregate
     if (s.kenaikan_sales && SALES_POS.has(s.kenaikan_sales)) salesPos += 1;
   }
 
-  // top gerai by combined positive signals
+  // top tenant by combined positive signals
   const byGerai = new Map<string, TopGeraiRow>();
   for (const s of v3) {
     const name = (s.nama_gerai || s.tenant_name || 'Tanpa nama').trim() || 'Tanpa nama';
@@ -132,7 +132,7 @@ export function aggregateResults(surveys: TenantEventSurvey[]): ResultsAggregate
     .filter((s) => (s.feedback_teks || '').trim().length > 0)
     .map((s) => ({
       id: s.id,
-      gerai: (s.nama_gerai || s.tenant_name || 'Gerai').trim(),
+      gerai: (s.nama_gerai || s.tenant_name || 'Tenant').trim(),
       event_id: s.event_id,
       text: (s.feedback_teks || '').trim(),
       at: s.submitted_at || s.created_at,

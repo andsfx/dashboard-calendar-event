@@ -220,9 +220,9 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/themes', label: 'Tema Tahunan', description: 'Kelola tema dan perencanaan tahunan' },
   { path: '/exhibitions', label: 'Pameran & Aktivasi', description: 'Kelola pameran Casual Leasing, tautan aktivasi, dan pengajuan brand/EO' },
   { path: '/registrations', label: 'Pendaftaran', description: 'Kelola permintaan pendaftaran dari community' },
-  { path: '/tenant-proposals', label: 'Kolaborasi Tenant', description: 'Tinjau pengajuan event dan kerja sama dari gerai tenant' },
+  { path: '/tenant-proposals', label: 'Kolaborasi Tenant', description: 'Tinjau pengajuan event dan kerja sama dari tenant' },
   { path: '/survey', label: 'Survey Kepuasan', description: 'Kelola Survey Kepuasan pengunjung dan organizer per event' },
-  { path: '/tenant-surveys', label: 'Evaluasi Tenant', description: 'Self-assessment tenant/gerai per event' },
+  { path: '/tenant-surveys', label: 'Evaluasi Tenant', description: 'Self-assessment tenant per event' },
   { path: '/analytics', label: 'Analitik', description: 'Analisis tren dan statistik event' },
   { path: '/users', label: 'Manajemen Pengguna', description: 'Kelola user dan permission' },
   { path: '/activity-log', label: 'Log Aktivitas', description: 'Audit trail dari semua aktivitas sistem' },
@@ -369,7 +369,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewTenantProposals ? [{
       id: 'tenant-proposals',
       title: 'Kolaborasi Tenant',
-      subtitle: MODULE_PURPOSE['/tenant-proposals'] ?? 'Tinjau pengajuan event dan kerja sama dari gerai tenant',
+      subtitle: MODULE_PURPOSE['/tenant-proposals'] ?? 'Tinjau pengajuan event dan kerja sama dari tenant',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-proposals',
       queue: pendingTenantProposals > 0
@@ -388,7 +388,7 @@ export function getCommandCenterCards({
     ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{
       id: 'tenant-surveys',
       title: 'Evaluasi Tenant',
-      subtitle: MODULE_PURPOSE['/tenant-surveys'] ?? 'Self-assessment tenant/gerai per event',
+      subtitle: MODULE_PURPOSE['/tenant-surveys'] ?? 'Self-assessment tenant per event',
       icon: <Store className={CARD} strokeWidth={sw} />,
       route: '/dashboard/tenant-surveys',
       group: 'Interaksi' as const,

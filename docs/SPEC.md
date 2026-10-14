@@ -244,7 +244,7 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 
 ### 5.2 Evaluasi Tenant
 
-- Self-assessment tenant/gerai; skala 1–5.
+- Self-assessment tenant; skala 1–5.
 - Status: `draft` | `submitted` | `reviewed` (ini progress form tenant, **bukan** Draft antrian Event).
 - Review: `reviewed_by`, `reviewed_at`, `review_notes` (admin/TR sesuai permission).
 - **Jangan** campur storage/UX naming dengan Survey Kepuasan.
