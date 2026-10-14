@@ -201,11 +201,12 @@ describe('tenantEventProposalsApi', () => {
 
   it('melempar ApiError saat presign lampiran ditolak (tipe tidak diizinkan)', async () => {
     mockFetchRoutes({
-      '/api/v1/tenant-event-proposals/attachment': { status: 400, body: { success: false, error: 'Lampiran harus PDF atau Word (DOC/DOCX).' } },
+      '/api/v1/tenant-event-proposals/attachment': { status: 400, body: { success: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' } },
     });
 
-    const file = new File(['x'], 'gambar.png', { type: 'image/png' });
-    await expect(uploadTenantProposalAttachment(file)).rejects.toThrow(/PDF atau Word/);
+    // GIF di luar allowlist lampiran (PDF/DOC/DOCX/PNG/JPEG), jadi tetap ditolak.
+    const file = new File(['x'], 'animasi.gif', { type: 'image/gif' });
+    await expect(uploadTenantProposalAttachment(file)).rejects.toThrow(/PDF, Word \(DOC\/DOCX\), PNG, atau JPEG/);
   });
 
   it('melempar ApiError saat unggahan ke R2 gagal', async () => {

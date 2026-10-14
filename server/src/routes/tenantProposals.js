@@ -5,10 +5,17 @@
  *   POST /tenant-event-proposals/attachment   publik — presign lampiran proposal
  *
  * Kontrak: pengajuan masuk antrean review staff dan TIDAK membuat Event/Draft
- * otomatis (sejalan ADR 003). Lampiran proposal bersifat opsional; bila ada,
- * server memverifikasi ulang bahwa objeknya benar-benar di folder kita, ukurannya
- * ≤ 20MB, dan isinya cocok dengan tipe yang diklaim (magic bytes) — presign
- * publik tidak boleh jadi celah unggah sembarangan ke bucket.
+ * otomatis (sejalan ADR 003). Lampiran proposal bersifat opsional dan boleh berupa
+ * dokumen (PDF/Word) atau materi gambar (PNG/JPEG); bila ada, server memverifikasi
+ * ulang bahwa objeknya benar-benar di folder kita, ukurannya ≤ 20MB, dan isinya cocok
+ * dengan tipe yang diklaim (magic bytes) — presign publik tidak boleh jadi celah
+ * unggah sembarangan ke bucket.
+ *
+ * Presign di route ini publik dan tanpa sesi, jadi tiga lapis yang menahannya: folder
+ * dipaksa `tenant-proposals/` (agar tidak bisa menulis ke folder lain), `ContentType`
+ * ikut ditandatangani (`signableHeaders` di r2.js, agar tipe tersimpan tidak bisa
+ * ditukar pengunggah), dan verifikasi magic bytes saat submit. Folder pin saja tidak
+ * cukup: ia hanya mengatur LOKASI, bukan tipe objek yang akhirnya disimpan.
  *
  * Respons submit: { success, id } — tanpa echo PII.
  */
@@ -32,11 +39,13 @@ const router = Router();
 /** Folder R2 khusus lampiran pengajuan tenant (whitelist di r2.js). */
 const ATTACHMENT_FOLDER = 'tenant-proposals/';
 
-/** Lampiran proposal hanya dokumen: PDF atau Word. */
+/** Lampiran proposal: dokumen (PDF/Word) atau materi gambar (PNG/JPEG). */
 const ALLOWED_ATTACHMENT_MIME = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
+  'image/jpeg',
 ]);
 
 /**
@@ -50,7 +59,7 @@ async function verifyAttachment(url, mimeType) {
     return { ok: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
   }
   if (!ALLOWED_ATTACHMENT_MIME.has(String(mimeType || '').toLowerCase())) {
-    return { ok: false, error: 'Lampiran harus PDF atau Word (DOC/DOCX).' };
+    return { ok: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' };
   }
 
   const head = await headR2File(url);
@@ -66,8 +75,11 @@ async function verifyAttachment(url, mimeType) {
 }
 
 // ─── POST /tenant-event-proposals/attachment — presign publik terbatas ──
-// Folder dipaksa ke `tenant-proposals/` dan tipe dibatasi dokumen, jadi route
-// publik ini tidak bisa dipakai mengunggah gambar/HTML ke folder lain.
+// Folder dipaksa ke `tenant-proposals/` dan tipe dibatasi ke allowlist (dokumen atau
+// gambar), jadi route publik tanpa sesi ini tidak bisa dipakai mengunggah tipe lain
+// ke folder lain. Folder pin ini yang menjaga unggahan tetap di satu tempat; ia tidak
+// menjamin tipe objek tersimpan, dan itu ditutup oleh `signableHeaders` di
+// `createPresignedUpload` (r2.js) plus verifikasi magic bytes saat submit.
 router.post('/tenant-event-proposals/attachment', async (req, res, next) => {
   // 10 unggahan / 15 menit per IP — sejajar submit pengajuan.
   if (!enforceRateLimit(req, res, 'tenant-proposal-attachment', 10, 15 * 60 * 1000)) return;
@@ -78,7 +90,7 @@ router.post('/tenant-event-proposals/attachment', async (req, res, next) => {
   const body = req.body || {};
   const contentType = String(body.contentType || '').split(';')[0].trim().toLowerCase();
   if (!ALLOWED_ATTACHMENT_MIME.has(contentType)) {
-    return res.status(400).json({ success: false, error: 'Lampiran harus PDF atau Word (DOC/DOCX).' });
+    return res.status(400).json({ success: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' });
   }
 
   const originalName = String(body.originalName || '').trim();

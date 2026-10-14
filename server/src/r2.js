@@ -129,7 +129,15 @@ export async function createPresignedUpload({ folder, originalName, contentType 
     Key: safe.key,
     ContentType: safe.contentType,
   });
-  const uploadUrl = await getSignedUrl(R2, command, { expiresIn: 300 });
+  // `signableHeaders` WAJIB: tanpa ini `ContentType` di atas tidak ikut ditandatangani,
+  // sehingga tipe objek yang tersimpan adalah apa pun yang dikirim pengunggah. Siapa pun
+  // yang memegang URL presign bisa mengunggah body HTML dengan header `text/html`, lolos
+  // dari `validateContentType`, lalu objeknya disajikan sebagai HTML dari origin media
+  // publik. Dengan pin ini tipe tersimpan hanya bisa salah satu nilai di ALLOWED_MIME.
+  const uploadUrl = await getSignedUrl(R2, command, {
+    expiresIn: 300,
+    signableHeaders: new Set(['content-type']),
+  });
 
   return {
     ok: true,

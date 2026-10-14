@@ -844,7 +844,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Bagian PIC: isi Nama PIC dan Nomor WhatsApp (wajib), lengkapi Email bila perlu.',
               'Bagian Rencana Event: isi Judul Event, Jenis Kegiatan, Deskripsi Kegiatan (wajib), serta Tanggal Mulai (wajib).',
               'Isi Tanggal Selesai bila kegiatan lebih dari sehari, Area yang diinginkan, Perkiraan Pengunjung, dan Kebutuhan Fasilitas.',
-              'Lampirkan proposal (PDF/Word, maksimal 20MB) bila konsepnya sudah tertulis.',
+              'Lampirkan proposal (PDF/Word, atau gambar PNG/JPEG, maksimal 20MB) bila konsepnya sudah tertulis.',
               'Klik "Kirim Pengajuan" dan lihat konfirmasi bahwa pengajuan masuk antrean tinjauan.',
             ],
             notes: [

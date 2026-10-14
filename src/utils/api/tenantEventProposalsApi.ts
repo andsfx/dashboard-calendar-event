@@ -69,9 +69,12 @@ function toDbRow(input: TenantEventProposalInput): Record<string, unknown> {
 /**
  * Presign lampiran ke R2 lalu PUT langsung dari browser.
  *
- * Route presign publik terbatas ini hanya menerima dokumen (PDF/DOC/DOCX) dan
- * memaksa folder `tenant-proposals/`; server memverifikasi ulang objeknya saat
- * submit.
+ * Route presign publik terbatas ini hanya menerima dokumen (PDF/DOC/DOCX) atau
+ * gambar (PNG/JPEG), dan memaksa folder `tenant-proposals/`; server memverifikasi
+ * ulang objeknya saat submit (magic bytes). Folder itu dipatok karena presign-nya
+ * publik dan tanpa sesi: pin folder menahan berkas tetap di satu tempat, sementara
+ * `ContentType` yang ikut ditandatangani plus verifikasi magic bytes yang menahan
+ * tipenya tidak bisa ditukar. Berkas di luar allowlist ditolak 400 di sini.
  */
 export async function uploadTenantProposalAttachment(file: File): Promise<TenantProposalUpload> {
   const presign = await apiPost<{ success: boolean; error?: string; uploadUrl?: string; publicUrl?: string }>(

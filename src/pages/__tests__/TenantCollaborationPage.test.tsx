@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -117,5 +117,77 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
     await user.click(screen.getByRole('button', { name: 'Tenant saya belum ada di daftar' }));
 
     expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('GF-01');
+  });
+});
+
+describe('TenantCollaborationPage — lampiran proposal', () => {
+  const REJECTION = 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.';
+
+  /**
+   * `fireEvent.change` dipakai, bukan `userEvent.upload`: userEvent menyaring berkas
+   * lewat atribut `accept` lebih dulu, sehingga berkas yang justru ingin kita tolak
+   * tidak pernah sampai ke handler dan tesnya menguji hal yang salah.
+   */
+  function pickAttachment(file: File) {
+    const input = screen.getByLabelText(/Lampiran proposal/) as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+  }
+
+  it('menerima lampiran PNG', () => {
+    mockFetchRoutes(areasRoute);
+    renderPage();
+
+    pickAttachment(new File(['x'], 'materi.png', { type: 'image/png' }));
+
+    expect(screen.getByText('materi.png')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('menerima lampiran JPEG dengan ekstensi .jpg maupun .jpeg', () => {
+    mockFetchRoutes(areasRoute);
+    renderPage();
+
+    pickAttachment(new File(['x'], 'foto.jpg', { type: 'image/jpeg' }));
+    expect(screen.getByText('foto.jpg')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    pickAttachment(new File(['x'], 'foto-poster.jpeg', { type: 'image/jpeg' }));
+    expect(screen.getByText('foto-poster.jpeg')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('menolak tipe di luar daftar dengan pesan yang menyebut format yang diterima', () => {
+    mockFetchRoutes(areasRoute);
+    renderPage();
+
+    pickAttachment(new File(['x'], 'animasi.gif', { type: 'image/gif' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(REJECTION);
+    expect(screen.queryByText('animasi.gif')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pilih berkas proposal/ })).toBeInTheDocument();
+  });
+
+  it('menolak berkas yang tipe dan ekstensinya tidak sepadan', () => {
+    mockFetchRoutes(areasRoute);
+    renderPage();
+
+    // Dua-duanya ada di allowlist, tapi tidak sepasang. Kasus inilah yang lolos di
+    // logika lama: `application/pdf` diterima sebagai mime DAN `doc` diterima sebagai
+    // ekstensi, padahal keduanya menunjuk tipe berbeda.
+    pickAttachment(new File(['x'], 'proposal.doc', { type: 'application/pdf' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(REJECTION);
+    expect(screen.queryByText('proposal.doc')).not.toBeInTheDocument();
+  });
+
+  it('menolak ekstensi yang tidak sepasang walau tipenya bukan dokumen', () => {
+    mockFetchRoutes(areasRoute);
+    renderPage();
+
+    // Tipe gambar dengan ekstensi dokumen: juga harus ditolak, bukan hanya arah sebaliknya.
+    pickAttachment(new File(['x'], 'materi.png', { type: 'image/jpeg' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(REJECTION);
+    expect(screen.queryByText('materi.png')).not.toBeInTheDocument();
   });
 });

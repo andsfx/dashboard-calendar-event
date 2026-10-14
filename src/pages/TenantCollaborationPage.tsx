@@ -26,13 +26,28 @@ const EVENT_TYPES: { value: TenantEventProposalType; label: string }[] = [
   { value: 'other', label: 'Lainnya' },
 ];
 
-/** Selaras dengan zod server: lampiran hanya dokumen, maksimal 20MB. */
+/** Selaras dengan allowlist server: lampiran berupa dokumen atau materi gambar, maksimal 20MB. */
 const ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024;
-const ATTACHMENT_MIME = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
+/**
+ * Satu peta tipe → ekstensi yang sah, bukan dua daftar terpisah. Tipe yang diklaim
+ * berkas dan ekstensinya harus sepadan: `.png` yang mengaku `application/pdf` ditolak
+ * di sini, bukan baru ketahuan di verifikasi magic-bytes server dengan pesan yang
+ * membingungkan. Server menyimpan ekstensi objek dari MIME (bukan dari nama berkas),
+ * jadi ekstensi di nama berkas tidak pernah ikut menentukan tipe tersimpan.
+ */
+const ATTACHMENT_TYPES: Record<string, string[]> = {
+  'application/pdf': ['pdf'],
+  'application/msword': ['doc'],
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['docx'],
+  'image/png': ['png'],
+  'image/jpeg': ['jpg', 'jpeg'],
+};
+/** Daftar format untuk `accept` dan pesan penolakan, diturunkan dari peta di atas agar tidak menyimpang. */
+const ATTACHMENT_ACCEPT = [
+  ...Object.keys(ATTACHMENT_TYPES),
+  ...Object.values(ATTACHMENT_TYPES).flat().map((ext) => `.${ext}`),
+].join(',');
+const ATTACHMENT_FORMATS = 'PDF, Word (DOC/DOCX), PNG, atau JPEG';
 
 const EMPTY_FORM: TenantEventProposalInput = {
   tenantId: '',
@@ -180,9 +195,10 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
     event.target.value = '';
     if (!picked) { setFile(null); return; }
     const extension = picked.name.split('.').pop()?.toLowerCase() || '';
-    if (!ATTACHMENT_MIME.includes(picked.type) || !['pdf', 'doc', 'docx'].includes(extension)) {
+    const allowedExtensions = ATTACHMENT_TYPES[picked.type];
+    if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setFile(null);
-      setError('Lampiran harus PDF atau Word (DOC/DOCX).');
+      setError(`Lampiran harus ${ATTACHMENT_FORMATS}.`);
       return;
     }
     if (picked.size > ATTACHMENT_MAX_BYTES) {
@@ -297,7 +313,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">1</span>
-              <span>Kirim pengajuan lewat formulir ini. Lampiran proposal (PDF atau Word) bersifat opsional bila konsepnya sudah tertulis.</span>
+              <span>Kirim pengajuan lewat formulir ini. Lampiran proposal (PDF, Word, atau gambar PNG/JPEG) bersifat opsional bila konsepnya sudah tertulis.</span>
             </li>
             <li className="flex gap-3">
               <span className="shrink-0 font-semibold tabular-nums">2</span>
@@ -548,7 +564,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
 
               <div className="sm:col-span-2">
                 <label className={labelClass} htmlFor="tp-file">Lampiran proposal (opsional)</label>
-                <input id="tp-file" type="file" accept=".pdf,.doc,.docx" className="sr-only" tabIndex={-1} onChange={handleFileChange} />
+                <input id="tp-file" type="file" accept={ATTACHMENT_ACCEPT} className="sr-only" tabIndex={-1} onChange={handleFileChange} />
                 {file ? (
                   <div className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-800">
                     <span className="flex min-w-0 items-center gap-2">
@@ -572,7 +588,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
                     className={`${focusRing} flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-slate-400 bg-slate-50/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-400 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:text-white`}
                   >
                     <Paperclip className="h-4 w-4" aria-hidden="true" />
-                    Pilih berkas proposal (PDF atau Word, maksimal 20MB)
+                    Pilih berkas proposal (PDF, Word, PNG, atau JPEG, maksimal 20MB)
                   </button>
                 )}
               </div>
