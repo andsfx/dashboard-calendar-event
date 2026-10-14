@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Building2, CalendarDays, FileText, Mail, MapPin, Phone, Users } from 'lucide-react';
-import { MdButton, MdTextField } from '../md';
+import { useMemo, useState } from 'react';
+import {
+  Building2, CalendarDays, ChevronDown, ChevronUp, FileText, Mail, MapPin, Phone, Users,
+} from 'lucide-react';
+import { MdButton, MdChip, MdTextField } from '../md';
 import type { TenantEventProposal, TenantEventProposalStatus, TenantEventProposalType } from '../../types';
 import { formatDateRange } from '../../utils/eventUtils';
 
@@ -32,6 +34,15 @@ const STATUS_TONES: Record<TenantEventProposalStatus, string> = {
   contacted: 'accent',
   approved: 'live',
   rejected: 'idle',
+};
+
+/** Titik chip filter per nada, memakai token yang sama dengan kunci status di
+ *  kartu supaya warna chip dan warna kartu tidak bisa menyimpang. */
+const TONE_DOTS: Record<string, string> = {
+  action: 'bg-[var(--wf-action)]',
+  accent: 'bg-[var(--wf-accent)]',
+  live: 'bg-[var(--wf-live)]',
+  idle: 'bg-[var(--wf-ink-muted)]',
 };
 
 /** Label tipe berkas lampiran. MIME di luar daftar ditampilkan apa adanya. */
@@ -73,6 +84,19 @@ const STATUS_CONFIRM: Partial<Record<TenantEventProposalStatus, (item: TenantEve
 /** Sumber tunggal nilai status yang sah; `satisfies` memvalidasi tiap anggota. */
 const STATUSES = ['pending', 'contacted', 'approved', 'rejected'] as const satisfies readonly TenantEventProposalStatus[];
 
+/**
+ * Saringan antrean. "Semua" dulu, lalu keempat status dengan titik yang
+ * warnanya sama persis dengan kunci status di kartunya.
+ */
+const STATUS_FILTERS: Array<{ key: TenantEventProposalStatus | 'all'; label: string; dot?: string }> = [
+  { key: 'all', label: 'Semua' },
+  ...STATUSES.map((status) => ({
+    key: status,
+    label: STATUS_LABELS[status],
+    dot: TONE_DOTS[STATUS_TONES[status]],
+  })),
+];
+
 interface Props {
   proposals: TenantEventProposal[];
   isLoading: boolean;
@@ -92,10 +116,19 @@ interface Props {
  * Satu kartu per pengajuan, urut terbaru dari server. Menyetujui pengajuan
  * TIDAK membuat Event/Draft (ADR 003) — jadwal tetap disusun eksplisit di
  * Jadwal Event, dan catatan itu ditulis di kartunya supaya tidak dikira bug.
+ *
+ * Antrean bisa panjang, jadi tiap kartu tampil ringkas lebih dulu: identitas,
+ * jadwal, kontak, dan lampiran cukup untuk menilai. Deskripsi, kebutuhan
+ * fasilitas, dan ruang review ada di balik "Lihat detail lengkap", sehingga
+ * antrean 200 baris tidak merender 200 editor catatan sekaligus. Saringan
+ * status di atas daftar adalah cara staf menemukan pekerjaannya.
  */
 export function TenantProposalManager({
   proposals, isLoading, error, onRetry, onReview, onSaveNotes, onDelete, onConfirm, readOnly = false,
 }: Props) {
+  const [filter, setFilter] = useState<TenantEventProposalStatus | 'all'>('all');
+  /** Kartu yang sedang dibuka detailnya, per id supaya bertahan saat data disegarkan. */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   /**
    * Catatan internal yang sedang disunting, disimpan bersama nilai server saat
    * pengetikan dimulai (`base`). Bila reload latar membawa catatan server yang
@@ -105,7 +138,13 @@ export function TenantProposalManager({
   const [notesDraft, setNotesDraft] = useState<Record<string, { value: string; base: string }>>({});
   const [busyId, setBusyId] = useState('');
 
+  // Hitungan di header dan di Pusat Komando selalu dari daftar PENUH, bukan
+  // hasil saringan: angkanya menjawab "berapa pekerjaan yang tersisa".
   const pendingCount = proposals.filter((item) => item.status === 'pending').length;
+  const visibleProposals = useMemo(
+    () => (filter === 'all' ? proposals : proposals.filter((item) => item.status === filter)),
+    [proposals, filter],
+  );
 
   /** Draft yang masih sejalan dengan catatan server; selain itu `undefined`. */
   const liveDraft = (item: TenantEventProposal) => {
@@ -139,8 +178,12 @@ export function TenantProposalManager({
     if (!ok) return;
     setBusyId(item.id);
     const deleted = await onDelete(item.id);
-    // Baris sudah hilang di server; draft catatannya tidak akan pernah dipakai lagi.
-    if (deleted) setNotesDraft((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
+    // Baris sudah hilang di server; draft catatan dan status bukanya tidak akan
+    // pernah dipakai lagi.
+    if (deleted) {
+      setNotesDraft((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
+      setExpanded((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
+    }
     setBusyId('');
   };
 
@@ -153,6 +196,19 @@ export function TenantProposalManager({
             ? `${pendingCount} dari ${proposals.length} pengajuan menunggu tinjauan.`
             : `${proposals.length} pengajuan, tidak ada yang menunggu tinjauan.`}
         </p>
+      </div>
+
+      {/* Saringan status. Klik chip yang sedang aktif mengembalikan ke Semua. */}
+      <div className="flex flex-wrap gap-2">
+        {STATUS_FILTERS.map((tab) => (
+          <MdChip
+            key={tab.key}
+            label={tab.label}
+            selected={filter === tab.key}
+            onClick={() => setFilter((current) => (current === tab.key ? 'all' : tab.key))}
+            leadingIcon={tab.dot ? <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
+          />
+        ))}
       </div>
 
       {error && (
@@ -175,12 +231,18 @@ export function TenantProposalManager({
         </p>
       )}
 
+      {/* Kosong karena saringan, bukan karena antreannya memang kosong. */}
+      {!isLoading && proposals.length > 0 && visibleProposals.length === 0 && (
+        <p className="text-sm text-[var(--wf-ink-muted)]">Tidak ada pengajuan dengan status ini.</p>
+      )}
+
       <ul className="space-y-3">
-        {proposals.map((item) => {
+        {visibleProposals.map((item) => {
           const draft = liveDraft(item);
           const notes = draft ? draft.value : item.internalNotes;
           const notesDirty = notes !== item.internalNotes;
           const busy = busyId === item.id;
+          const isOpen = expanded[item.id] === true;
           const fileMeta = [
             MIME_LABELS[item.proposalMimeType] || item.proposalMimeType,
             formatFileSize(item.proposalFileSize),
@@ -188,6 +250,7 @@ export function TenantProposalManager({
 
           return (
             <li key={item.id} className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+              {/* Zona ringkas: cukup untuk menilai tanpa membuka apa pun. */}
               <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-sm font-bold text-[var(--wf-ink)]">
@@ -234,12 +297,6 @@ export function TenantProposalManager({
                 )}
               </p>
 
-              <p className="mt-2 whitespace-pre-line text-sm text-[var(--wf-ink)] [overflow-wrap:anywhere]">{item.eventDescription}</p>
-
-              {item.needs && (
-                <p className="mt-2 text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">Kebutuhan fasilitas: {item.needs}</p>
-              )}
-
               <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                 <span className="[overflow-wrap:anywhere]">{item.contactName}</span>
                 <a
@@ -275,64 +332,86 @@ export function TenantProposalManager({
                 </p>
               )}
 
-              {!readOnly && (
+              <div className="mt-2">
+                <MdButton
+                  variant="text"
+                  ariaLabel={`${isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'} - ${item.tenantName}`}
+                  onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))}
+                >
+                  {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                  {isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'}
+                </MdButton>
+              </div>
+
+              {/* Zona detail: deskripsi, kebutuhan fasilitas, dan ruang review. */}
+              {isOpen && (
                 <div className="mt-3 space-y-3 border-t border-[var(--wf-rule)] pt-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-[var(--wf-ink)]">Ubah status</span>
-                    {STATUSES
-                      .filter((status) => status !== item.status)
-                      .map((status) => (
+                  <p className="whitespace-pre-line text-sm text-[var(--wf-ink)] [overflow-wrap:anywhere]">{item.eventDescription}</p>
+
+                  {item.needs && (
+                    <p className="text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">Kebutuhan fasilitas: {item.needs}</p>
+                  )}
+
+                  {readOnly && item.internalNotes && (
+                    <p className="text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">
+                      Catatan internal: {item.internalNotes}
+                    </p>
+                  )}
+
+                  {!readOnly && (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-semibold text-[var(--wf-ink)]">Ubah status</span>
+                        {STATUSES
+                          .filter((status) => status !== item.status)
+                          .map((status) => (
+                            <MdButton
+                              key={status}
+                              variant="outlined"
+                              disabled={busy}
+                              ariaLabel={`${STATUS_LABELS[status]} - ${item.tenantName}`}
+                              onClick={() => void handleReview(item.id, status, item)}
+                            >
+                              {STATUS_LABELS[status]}
+                            </MdButton>
+                          ))}
+                      </div>
+
+                      <div className="flex flex-wrap items-end gap-2">
+                        <MdTextField
+                          className="min-w-[260px] flex-1"
+                          type="textarea"
+                          rows={2}
+                          label="Catatan internal"
+                          maxLength={2000}
+                          value={notes}
+                          onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value, base: item.internalNotes } }))}
+                        />
                         <MdButton
-                          key={status}
-                          variant="outlined"
-                          disabled={busy}
-                          ariaLabel={`${STATUS_LABELS[status]} - ${item.tenantName}`}
-                          onClick={() => void handleReview(item.id, status, item)}
+                          variant="text"
+                          disabled={busy || !notesDirty}
+                          ariaLabel={`Simpan catatan - ${item.tenantName}`}
+                          onClick={() => void handleSaveNotes(item)}
                         >
-                          {STATUS_LABELS[status]}
+                          Simpan catatan
                         </MdButton>
-                      ))}
-                  </div>
+                        <MdButton
+                          variant="text"
+                          danger
+                          disabled={busy}
+                          ariaLabel={`Hapus - ${item.tenantName}`}
+                          onClick={() => void handleDelete(item)}
+                        >
+                          Hapus
+                        </MdButton>
+                      </div>
 
-                  <div className="flex flex-wrap items-end gap-2">
-                    <MdTextField
-                      className="min-w-[260px] flex-1"
-                      type="textarea"
-                      rows={2}
-                      label="Catatan internal"
-                      maxLength={2000}
-                      value={notes}
-                      onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value, base: item.internalNotes } }))}
-                    />
-                    <MdButton
-                      variant="text"
-                      disabled={busy || !notesDirty}
-                      ariaLabel={`Simpan catatan - ${item.tenantName}`}
-                      onClick={() => void handleSaveNotes(item)}
-                    >
-                      Simpan catatan
-                    </MdButton>
-                    <MdButton
-                      variant="text"
-                      danger
-                      disabled={busy}
-                      ariaLabel={`Hapus - ${item.tenantName}`}
-                      onClick={() => void handleDelete(item)}
-                    >
-                      Hapus
-                    </MdButton>
-                  </div>
-
-                  <p className="text-[11px] text-[var(--wf-ink-muted)]">
-                    Menyetujui pengajuan tidak membuat event. Susun jadwalnya di Jadwal Event setelah tanggal disepakati.
-                  </p>
+                      <p className="text-[11px] text-[var(--wf-ink-muted)]">
+                        Menyetujui pengajuan tidak membuat event. Susun jadwalnya di Jadwal Event setelah tanggal disepakati.
+                      </p>
+                    </>
+                  )}
                 </div>
-              )}
-
-              {readOnly && item.internalNotes && (
-                <p className="mt-3 border-t border-[var(--wf-rule)] pt-3 text-xs text-[var(--wf-ink-muted)] [overflow-wrap:anywhere]">
-                  Catatan internal: {item.internalNotes}
-                </p>
               )}
             </li>
           );

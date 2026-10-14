@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import type { TenantEventProposal } from '../../../types';
 import { TenantProposalManager } from '../TenantProposalManager';
 
@@ -30,6 +30,14 @@ const props = {
   onDelete: vi.fn(async () => true),
   onConfirm: vi.fn(async () => true),
 };
+
+/**
+ * Kartu tampil ringkas lebih dulu, jadi apa pun yang hidup di zona review
+ * (tombol status, catatan, hint) baru ada setelah kartunya dibuka.
+ */
+async function expandCard(user: UserEvent, tenantName = 'Kopi Kenangan') {
+  await user.click(screen.getByRole('button', { name: `Lihat detail lengkap - ${tenantName}` }));
+}
 
 describe('TenantProposalManager', () => {
   it('menampilkan identitas tenant, rencana event, kontak, dan lampiran proposal', () => {
@@ -77,8 +85,10 @@ describe('TenantProposalManager', () => {
     expect(screen.getByRole('link', { name: /rani@example\.com/ })).toHaveAttribute('href', 'mailto:rani@example.com');
   });
 
-  it('memberi setiap tombol status nama yang mengikatnya ke pengajuan', () => {
+  it('memberi setiap tombol status nama yang mengikatnya ke pengajuan', async () => {
+    const user = userEvent.setup();
     render(<TenantProposalManager {...props} />);
+    await expandCard(user);
 
     expect(screen.getByRole('button', { name: 'Disetujui - Kopi Kenangan' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ditolak - Kopi Kenangan' })).toBeInTheDocument();
@@ -91,6 +101,7 @@ describe('TenantProposalManager', () => {
     const user = userEvent.setup();
     const onReview = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onReview={onReview} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Disetujui - Kopi Kenangan' }));
 
@@ -102,6 +113,7 @@ describe('TenantProposalManager', () => {
     const user = userEvent.setup();
     const onSaveNotes = vi.fn(async () => true);
     render(<TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'lama' })]} onSaveNotes={onSaveNotes} />);
+    await expandCard(user);
 
     const save = screen.getByRole('button', { name: 'Simpan catatan - Kopi Kenangan' });
     expect(save).toBeDisabled();
@@ -118,6 +130,7 @@ describe('TenantProposalManager', () => {
     const onDelete = vi.fn(async () => true);
     const onConfirm = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onDelete={onDelete} onConfirm={onConfirm} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Hapus - Kopi Kenangan' }));
 
@@ -129,14 +142,17 @@ describe('TenantProposalManager', () => {
     const user = userEvent.setup();
     const onDelete = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onDelete={onDelete} onConfirm={async () => false} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Hapus - Kopi Kenangan' }));
 
     expect(onDelete).not.toHaveBeenCalled();
   });
 
-  it('menyembunyikan seluruh mutasi untuk akun demo (read-only)', () => {
+  it('menyembunyikan seluruh mutasi untuk akun demo (read-only)', async () => {
+    const user = userEvent.setup();
     render(<TenantProposalManager {...props} readOnly />);
+    await expandCard(user);
 
     expect(screen.queryByRole('button', { name: 'Disetujui - Kopi Kenangan' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Hapus - Kopi Kenangan' })).not.toBeInTheDocument();
@@ -152,6 +168,175 @@ describe('TenantProposalManager', () => {
   });
 });
 
+describe('TenantProposalManager — saringan status', () => {
+  const mixed = [
+    makeProposal({ id: 'a', tenantName: 'Kopi Kenangan', status: 'pending' }),
+    makeProposal({ id: 'b', tenantName: 'Batik Nusantara', status: 'approved' }),
+  ];
+
+  it('menampilkan kelima chip saringan', () => {
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    for (const label of ['Semua', 'Menunggu', 'Dihubungi', 'Disetujui', 'Ditolak']) {
+      expect(screen.getByRole('button', { name: label }), label).toBeInTheDocument();
+    }
+  });
+
+  it('menyaring daftar ke satu status saja', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    await user.click(screen.getByRole('button', { name: 'Menunggu' }));
+
+    expect(screen.getByText('Kopi Kenangan')).toBeInTheDocument();
+    expect(screen.queryByText('Batik Nusantara')).not.toBeInTheDocument();
+  });
+
+  it('menandai chip yang aktif lewat aria-pressed', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    expect(screen.getByRole('button', { name: 'Semua' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Menunggu' })).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(screen.getByRole('button', { name: 'Menunggu' }));
+
+    expect(screen.getByRole('button', { name: 'Menunggu' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Semua' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('tetap menghitung pengajuan menunggu dari daftar penuh, bukan hasil saringan', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    expect(screen.getByText(/1 dari 2 pengajuan menunggu tinjauan/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Disetujui' }));
+
+    // Satu-satunya baris yang tampil disetujui, tapi header tetap bicara antrean penuh.
+    expect(screen.getByText(/1 dari 2 pengajuan menunggu tinjauan/)).toBeInTheDocument();
+  });
+
+  it('kembali ke Semua saat chip yang sedang aktif diklik ulang', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    await user.click(screen.getByRole('button', { name: 'Menunggu' }));
+    expect(screen.queryByText('Batik Nusantara')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Menunggu' }));
+
+    expect(screen.getByText('Batik Nusantara')).toBeInTheDocument();
+    expect(screen.getByText('Kopi Kenangan')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Semua' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('membedakan kosong karena saringan dari antrean yang memang kosong', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={mixed} />);
+
+    await user.click(screen.getByRole('button', { name: 'Ditolak' }));
+
+    expect(screen.getByText('Tidak ada pengajuan dengan status ini.')).toBeInTheDocument();
+    // Bukan empty state global: pengajuannya ada, hanya tidak ada yang ditolak.
+    expect(screen.queryByText(/Belum ada pengajuan/)).not.toBeInTheDocument();
+  });
+});
+
+describe('TenantProposalManager — kartu ringkas dengan detail yang bisa dibuka', () => {
+  it('menyembunyikan deskripsi dan ruang review sampai detail diminta', () => {
+    render(<TenantProposalManager {...props} />);
+
+    expect(screen.getByText(/Workshop Latte Art/)).toBeInTheDocument();
+    expect(screen.queryByText(/Kelas latte art 60 menit/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Kebutuhan fasilitas/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Catatan internal/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Disetujui - Kopi Kenangan' })).not.toBeInTheDocument();
+  });
+
+  it('membuka dan menutup detail dengan label yang sesuai keadaan', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} />);
+
+    expect(screen.getByRole('button', { name: 'Lihat detail lengkap - Kopi Kenangan' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Sembunyikan detail - Kopi Kenangan' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Lihat detail lengkap - Kopi Kenangan' }));
+
+    expect(screen.getByText(/Kelas latte art 60 menit/)).toBeInTheDocument();
+    expect(screen.getByText(/Kebutuhan fasilitas: Meja, kursi, listrik/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sembunyikan detail - Kopi Kenangan' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Sembunyikan detail - Kopi Kenangan' }));
+
+    expect(screen.queryByText(/Kelas latte art 60 menit/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Lihat detail lengkap - Kopi Kenangan' })).toBeInTheDocument();
+  });
+
+  it('membuka kartu secara independen satu sama lain', async () => {
+    const user = userEvent.setup();
+    render(
+      <TenantProposalManager
+        {...props}
+        proposals={[
+          makeProposal({ id: 'a', tenantName: 'Kopi Kenangan' }),
+          makeProposal({ id: 'b', tenantName: 'Batik Nusantara', eventDescription: 'Deskripsi batik.' }),
+        ]}
+      />,
+    );
+
+    await expandCard(user, 'Batik Nusantara');
+
+    expect(screen.getByText('Deskripsi batik.')).toBeInTheDocument();
+    expect(screen.queryByText(/Kelas latte art 60 menit/)).not.toBeInTheDocument();
+  });
+
+  it('mempertahankan kartu yang terbuka saat data disegarkan ulang', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<TenantProposalManager {...props} />);
+
+    await expandCard(user);
+    expect(screen.getByText(/Kelas latte art 60 menit/)).toBeInTheDocument();
+
+    // Refetch: objek baris baru, id sama.
+    rerender(<TenantProposalManager {...props} proposals={[makeProposal()]} />);
+
+    expect(screen.getByText(/Kelas latte art 60 menit/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sembunyikan detail - Kopi Kenangan' })).toBeInTheDocument();
+  });
+
+  it('menutup kartu yang tersaring keluar lalu tampil lagi', async () => {
+    const user = userEvent.setup();
+    render(
+      <TenantProposalManager
+        {...props}
+        proposals={[makeProposal({ id: 'a', tenantName: 'Kopi Kenangan', status: 'pending' })]}
+      />,
+    );
+
+    await expandCard(user);
+    expect(screen.getByText(/Kelas latte art 60 menit/)).toBeInTheDocument();
+
+    // Pindah ke status lain, lalu kembali: keadaan buka tetap menempel pada id-nya.
+    await user.click(screen.getByRole('button', { name: 'Disetujui' }));
+    expect(screen.queryByText('Kopi Kenangan')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Menunggu' }));
+    expect(screen.getByText(/Kelas latte art 60 menit/)).toBeInTheDocument();
+  });
+
+  it('menampilkan catatan internal pada mode baca-saja setelah detail dibuka', async () => {
+    const user = userEvent.setup();
+    render(<TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'Sudah ditelepon.' })]} readOnly />);
+
+    expect(screen.queryByText(/Catatan internal: Sudah ditelepon\./)).not.toBeInTheDocument();
+
+    await expandCard(user);
+
+    expect(screen.getByText(/Catatan internal: Sudah ditelepon\./)).toBeInTheDocument();
+  });
+});
+
 describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
   /** Bentuk opsi yang dikirim ke dialog konfirmasi; mock-nya perlu bertipe
    *  agar `mock.calls[0][0]` bisa dibaca di assertion. */
@@ -162,6 +347,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
     const onConfirm = vi.fn(async (_options: ConfirmOptions) => true);
     const onReview = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onConfirm={onConfirm} onReview={onReview} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Disetujui - Kopi Kenangan' }));
 
@@ -177,6 +363,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
     const onConfirm = vi.fn(async (_options: ConfirmOptions) => true);
     const onReview = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onConfirm={onConfirm} onReview={onReview} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Ditolak - Kopi Kenangan' }));
 
@@ -189,6 +376,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
     const user = userEvent.setup();
     const onReview = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onReview={onReview} onConfirm={async () => false} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Disetujui - Kopi Kenangan' }));
 
@@ -200,6 +388,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
     const onConfirm = vi.fn(async () => true);
     const onReview = vi.fn(async () => true);
     render(<TenantProposalManager {...props} onConfirm={onConfirm} onReview={onReview} />);
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Dihubungi - Kopi Kenangan' }));
 
@@ -219,6 +408,7 @@ describe('TenantProposalManager — konfirmasi status berkonsekuensi', () => {
         onReview={onReview}
       />,
     );
+    await expandCard(user);
 
     await user.click(screen.getByRole('button', { name: 'Menunggu - Kopi Kenangan' }));
 
@@ -249,6 +439,7 @@ describe('TenantProposalManager — draft catatan tidak menimpa catatan server',
   it('membuang draft basi saat catatan server berubah di bawahnya', async () => {
     const user = userEvent.setup();
     const { rerender } = render(<TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'A' })]} />);
+    await expandCard(user);
 
     const textarea = screen.getByLabelText(/Catatan internal/);
     await user.type(textarea, 'X');
@@ -267,6 +458,7 @@ describe('TenantProposalManager — draft catatan tidak menimpa catatan server',
     const { rerender } = render(
       <TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'A' })]} onSaveNotes={onSaveNotes} />,
     );
+    await expandCard(user);
 
     await user.type(screen.getByLabelText(/Catatan internal/), 'X');
     rerender(<TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'B' })]} onSaveNotes={onSaveNotes} />);
@@ -276,21 +468,24 @@ describe('TenantProposalManager — draft catatan tidak menimpa catatan server',
     expect(onSaveNotes).not.toHaveBeenCalled();
   });
 
-  it('melepas draft catatan setelah pengajuan dihapus', async () => {
+  it('melepas draft catatan dan keadaan buka setelah pengajuan dihapus', async () => {
     const user = userEvent.setup();
     const onDelete = vi.fn(async () => true);
     const { rerender } = render(
       <TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'A' })]} onDelete={onDelete} />,
     );
+    await expandCard(user);
 
     await user.type(screen.getByLabelText(/Catatan internal/), 'X');
     await user.click(screen.getByRole('button', { name: 'Hapus - Kopi Kenangan' }));
     expect(onDelete).toHaveBeenCalledWith('tep-1');
 
     // Baris yang sama muncul lagi (mis. reload membawa data server): draft lama
-    // tidak boleh ikut hidup kembali.
+    // tidak boleh ikut hidup kembali, dan kartunya kembali ringkas.
     rerender(<TenantProposalManager {...props} proposals={[makeProposal({ internalNotes: 'A' })]} onDelete={onDelete} />);
 
+    expect(screen.getByRole('button', { name: 'Lihat detail lengkap - Kopi Kenangan' })).toBeInTheDocument();
+    await expandCard(user);
     expect(screen.getByLabelText(/Catatan internal/)).toHaveValue('A');
   });
 });
@@ -306,7 +501,7 @@ describe('TenantProposalManager — kunci status terbaca', () => {
 
     for (const [status, tone] of cases) {
       // Kueri langsung ke elemen kunci di dalam kartu: label status juga muncul
-      // sebagai teks tombol, jadi pencarian teks global ambigu.
+      // sebagai teks tombol dan chip, jadi pencarian teks global ambigu.
       const { container, unmount } = render(<TenantProposalManager {...props} proposals={[makeProposal({ status })]} />);
       const key = container.querySelector('.wf-key');
       expect(key, status).not.toBeNull();
