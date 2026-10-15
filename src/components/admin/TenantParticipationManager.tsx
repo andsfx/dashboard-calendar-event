@@ -3,6 +3,7 @@ import {
   Building2, CalendarDays, ChevronDown, ChevronUp, Mail, MapPin, Phone, Settings2, Store, Tag, Users,
 } from 'lucide-react';
 import { MdButton, MdChip, MdSelect, MdTextField } from '../md';
+import { InfoTip } from '../ui/InfoTip';
 import type {
   TenantParticipation, TenantParticipationKind, TenantParticipationStatus,
 } from '../../types';
@@ -280,7 +281,13 @@ export function TenantParticipationManager({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Partisipasi Tenant</h2>
+        <div className="flex items-center gap-1.5">
+          <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Partisipasi Tenant</h2>
+          <InfoTip
+            label="Penjelasan alur tinjauan"
+            content="Alur: tinjau isian, hubungi tenant bila perlu, lalu Setujui atau Tolak. Disetujui berarti partisipasi tampil di halaman event publik; tenant memantau statusnya lewat kode pengajuan."
+          />
+        </div>
         <div className="flex items-center gap-3">
           <p className="text-xs text-[var(--wf-ink-muted)]">
             {pendingCount > 0
@@ -293,10 +300,16 @@ export function TenantParticipationManager({
               Kelola opsi
             </MdButton>
           )}
+          {/* Panduan daftar opsi tetap tampil untuk akun baca-saja: isinya
+              menjelaskan apa yang diatur, bukan mengubah apa pun. */}
+          <InfoTip
+            label="Penjelasan kelola opsi"
+            content="Pilihan dropdown di form publik /partisipasi-tenant: skema booth, ukuran booth, jenis voucher, format voucher. Opsi nonaktif tidak muncul untuk pengajuan baru; pengajuan yang sudah masuk tidak berubah."
+          />
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {STATUS_FILTERS.map((tab) => (
           <MdChip
             key={tab.key}
@@ -306,6 +319,18 @@ export function TenantParticipationManager({
             leadingIcon={tab.dot ? <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
           />
         ))}
+        <InfoTip
+          label="Penjelasan status pengajuan"
+          content={(
+            <ul className="space-y-1">
+              <li>Menunggu: belum ditinjau.</li>
+              <li>Dihubungi: tenant sudah dihubungi, keputusan belum diambil.</li>
+              <li>Disetujui: tampil di halaman event publik.</li>
+              <li>Ditolak: tidak tampil publik; tenant tetap melihat statusnya lewat kode pengajuan.</li>
+              <li>Pilih salah satu chip untuk menyaring antrean.</li>
+            </ul>
+          )}
+        />
       </div>
 
       {error && (
@@ -451,7 +476,13 @@ export function TenantParticipationManager({
                 <div className="mt-3 space-y-3 border-t border-[var(--wf-rule)] pt-3">
                   {showBooth && (
                     <div className="space-y-1 text-sm text-[var(--wf-ink)]">
-                      <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Booth</p>
+                      <p className="flex items-center gap-1 text-xs font-semibold text-[var(--wf-ink-muted)]">
+                        Booth
+                        <InfoTip
+                          label="Panduan meninjau booth"
+                          content="Periksa kecocokan area, tanggal, dan kebutuhan fasilitas dengan rencana event sebelum menyetujui."
+                        />
+                      </p>
                       <p className="[overflow-wrap:anywhere]">
                         {item.boothProducts || '—'}
                         {item.boothSize && <span className="ml-2 text-xs text-[var(--wf-ink-muted)]">· {item.boothSize}</span>}
@@ -464,7 +495,13 @@ export function TenantParticipationManager({
                   )}
                   {showVoucher && (
                     <div className="space-y-1 text-sm text-[var(--wf-ink)]">
-                      <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Voucher</p>
+                      <p className="flex items-center gap-1 text-xs font-semibold text-[var(--wf-ink-muted)]">
+                        Voucher
+                        <InfoTip
+                          label="Panduan meninjau voucher"
+                          content="Periksa jenis, format, dan kuota voucher. Kuota kosong berarti tanpa batas."
+                        />
+                      </p>
                       <p className="[overflow-wrap:anywhere]">{item.voucherTerms || '—'}</p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
                         {tenantParticipationOptionLabel('voucher_type', item.voucherType, options)} · {tenantParticipationOptionLabel('voucher_format', item.voucherFormat, options)}
@@ -505,6 +542,10 @@ export function TenantParticipationManager({
                           <details className="rounded-[var(--radius-control)] border border-[var(--wf-rule)] p-3">
                             <summary className="cursor-pointer text-xs font-semibold text-[var(--wf-ink)]">
                               Koreksi isian tenant
+                              <InfoTip
+                                label="Penjelasan koreksi isian"
+                                content="Hanya field yang diubah yang dikirim ke server, jadi perubahan staf lain pada field berbeda tidak tertimpa. Status pengajuan tidak ikut berubah."
+                              />
                             </summary>
                             <div className="mt-3 grid gap-3 sm:grid-cols-2">
                               {showBooth && (

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { ModalWrapper } from '../modals/ModalWrapper';
 import { MdButton, MdIconButton, MdSelect, MdSwitch, MdTextField } from '../md';
+import { InfoTip } from '../ui/InfoTip';
 import type { TenantParticipationOption, TenantParticipationOptionGroup } from '../../types';
 import { ApiError } from '../../lib/rest';
 import {
@@ -430,27 +431,59 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
               onChange={(next) => setNewGroup(next as TenantParticipationOptionGroup)}
               options={GROUP_ORDER.map((group) => ({ value: group, label: GROUP_LABELS[group] }))}
             />
-            <MdTextField
-              id="opt-new-value"
-              label="Value (slug)"
-              value={newValue}
-              maxLength={50}
-              disabled={isSubmitting}
-              placeholder="mis. outdoor"
-              className="min-w-0 w-full"
-              onChange={setNewValue}
-            />
-            <MdTextField
-              id="opt-new-label"
-              label="Label tampil"
-              value={newLabel}
-              maxLength={100}
-              disabled={isSubmitting}
-              placeholder="mis. Outdoor / halaman"
-              className="min-w-0 w-full"
-              onChange={setNewLabel}
-            />
+            <div className="flex items-center gap-1.5">
+              <MdTextField
+                id="opt-new-value"
+                label="Value (slug)"
+                value={newValue}
+                maxLength={50}
+                disabled={isSubmitting}
+                placeholder="mis. outdoor"
+                className="min-w-0 flex-1"
+                onChange={setNewValue}
+              />
+              <InfoTip
+                label="Penjelasan value"
+                content="Kode internal yang disimpan di data pengajuan. Huruf kecil, angka, tanda hubung, atau garis bawah. Tidak tampil ke tenant."
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MdTextField
+                id="opt-new-label"
+                label="Label tampil"
+                value={newLabel}
+                maxLength={100}
+                disabled={isSubmitting}
+                placeholder="mis. Outdoor / halaman"
+                className="min-w-0 flex-1"
+                onChange={setNewLabel}
+              />
+              <InfoTip
+                label="Penjelasan label"
+                content="Teks yang dilihat tenant di dropdown form publik."
+              />
+            </div>
           </div>
+          {/* Urutan dan saklar Aktif hanya ada di baris opsi, bukan di form
+              tambah. Panduannya cukup sekali di sini: menaruh ikon info di
+              setiap baris berarti empat ikon per baris untuk dua kontrol. */}
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--wf-ink-muted)]">
+            <span>Per baris opsi di atas:</span>
+            <span className="inline-flex items-center gap-1">
+              Urutan
+              <InfoTip
+                label="Penjelasan urutan"
+                content="Urutan tampil di dropdown form publik. Angka lebih kecil tampil lebih dulu."
+              />
+            </span>
+            <span className="inline-flex items-center gap-1">
+              Aktif
+              <InfoTip
+                label="Penjelasan aktif"
+                content="Nonaktif berarti tidak muncul di form untuk pengajuan baru. Pengajuan yang sudah masuk tetap terbaca dan ditandai nonaktif di antrean."
+              />
+            </span>
+          </p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             {formError ? (
               <p role="alert" className="min-w-0 flex-1 text-xs font-semibold text-rose-700 dark:text-rose-400">
