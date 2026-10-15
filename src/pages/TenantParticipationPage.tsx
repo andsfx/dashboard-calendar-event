@@ -18,6 +18,7 @@ import {
   fetchTenantParticipationOptions,
   fetchTenantParticipationStatus,
   submitTenantParticipation,
+  tenantParticipationOptionLabel,
   TENANT_PARTICIPATION_FALLBACK_OPTIONS,
 } from '../utils/domainApi';
 import { TenantSearchSelect } from '../components/survey/TenantSurveyShared';
@@ -73,6 +74,15 @@ function eventDateLabel(event: TenantParticipationEligibleEvent): string {
   return formatDateRange(event.dateStr, event.dateEnd || event.dateStr);
 }
 
+/** Samakan lokasi event dengan nama area kanonis: exact → trim/case-insensitive → apa adanya. */
+function resolveBoothArea(lokasi: string, areas: string[]): string {
+  const trimmed = lokasi.trim();
+  if (!trimmed) return '';
+  if (areas.includes(trimmed)) return trimmed;
+  const loose = areas.find((name) => name.trim().toLowerCase() === trimmed.toLowerCase());
+  return loose ?? lokasi;
+}
+
 export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
     title: 'Partisipasi Tenant - Metropolitan Mall Bekasi',
@@ -91,7 +101,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
   const [options, setOptions] = useState<TenantParticipationOptionPublic[]>(TENANT_PARTICIPATION_FALLBACK_OPTIONS);
   const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
   const [manualEntry, setManualEntry] = useState(false);
-  const [autoFilled, setAutoFilled] = useState({ unitNumber: false, tenantCategory: false });
+  const [autoFilled, setAutoFilled] = useState({ unitNumber: false, tenantCategory: false, boothArea: false });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -170,9 +180,20 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
     if (!match) return;
     setForm((prev) => {
       if (prev.eventId) return prev;
-      return { ...prev, eventId: match.id, boothStart: prev.boothStart || match.dateStr, boothEnd: prev.boothEnd || (match.dateEnd || match.dateStr) };
+      return {
+        ...prev,
+        eventId: match.id,
+        boothStart: prev.boothStart || match.dateStr,
+        boothEnd: prev.boothEnd || (match.dateEnd || match.dateStr),
+        // Sama seperti handleEventSelect: area dari lokasi event, tanpa menimpa
+        // nilai manual (di jalur preselect form baru → boothArea pasti kosong).
+        boothArea: match.lokasi.trim() && !prev.boothArea ? resolveBoothArea(match.lokasi, areaOptions) : prev.boothArea,
+      };
     });
-  }, [preselectedEventId, events]);
+    if (match.lokasi.trim()) {
+      setAutoFilled((prev) => ({ ...prev, boothArea: true }));
+    }
+  }, [preselectedEventId, events, areaOptions]);
 
   const selectedEvent = useMemo(
     () => events.find((ev) => ev.id === form.eventId) ?? null,
@@ -185,6 +206,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       setAutoFilled((prev) => (prev.unitNumber ? { ...prev, unitNumber: false } : prev));
     } else if (key === 'tenantCategory') {
       setAutoFilled((prev) => (prev.tenantCategory ? { ...prev, tenantCategory: false } : prev));
+    } else if (key === 'boothArea') {
+      setAutoFilled((prev) => (prev.boothArea ? { ...prev, boothArea: false } : prev));
     }
     setError('');
     setFieldErrors((prev) => {
@@ -203,7 +226,15 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       eventId,
       boothStart: match ? match.dateStr : prev.boothStart,
       boothEnd: match ? (match.dateEnd || match.dateStr) : prev.boothEnd,
+      // Auto-isi area dari lokasi event — hanya bila kosong atau masih nilai
+      // auto-isi event sebelumnya; nilai ketikan manual tidak pernah ditimpa.
+      boothArea: match && match.lokasi.trim() && (!prev.boothArea || autoFilled.boothArea)
+        ? resolveBoothArea(match.lokasi, areaOptions)
+        : prev.boothArea,
     }));
+    if (match && match.lokasi.trim()) {
+      setAutoFilled((prev) => ({ ...prev, boothArea: true }));
+    }
     setError('');
     setFieldErrors((prev) => {
       if (!prev.eventId) return prev;
@@ -234,9 +265,9 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
         tenantLogo: tenant.logo || '',
       };
     });
-    setAutoFilled(tenant
-      ? { unitNumber: Boolean(tenant.lot), tenantCategory: Boolean(tenant.category) }
-      : { unitNumber: false, tenantCategory: false });
+    setAutoFilled((prev) => (tenant
+      ? { ...prev, unitNumber: Boolean(tenant.lot), tenantCategory: Boolean(tenant.category) }
+      : { ...prev, unitNumber: false, tenantCategory: false }));
     setError('');
     setFieldErrors((prev) => {
       if (!prev.tenantName) return prev;
@@ -258,7 +289,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       tenantCategory: autoFilled.tenantCategory ? '' : prev.tenantCategory,
       tenantLogo: '',
     }));
-    setAutoFilled({ unitNumber: false, tenantCategory: false });
+    setAutoFilled((prev) => ({ ...prev, unitNumber: false, tenantCategory: false }));
     setError('');
     setFieldErrors((prev) => {
       if (!prev.tenantName) return prev;
@@ -453,7 +484,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                   setForm({ ...EMPTY_FORM });
                   setSelectedTenant(null);
                   setManualEntry(false);
-                  setAutoFilled({ unitNumber: false, tenantCategory: false });
+                  setAutoFilled({ unitNumber: false, tenantCategory: false, boothArea: false });
                   setCopied(false);
                 }}
                 className={`${focusRing} mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-emerald-800 underline-offset-2 hover:underline dark:text-emerald-200`}
@@ -695,12 +726,17 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                           value={form.boothArea}
                           onChange={(e) => setField('boothArea', e.target.value)}
                           aria-invalid={Boolean(fieldErrors.boothArea)}
-                          aria-describedby={fieldErrors.boothArea ? 'tp-booth-area-err' : undefined}
+                          aria-describedby={fieldErrors.boothArea ? 'tp-booth-area-err' : (autoFilled.boothArea ? 'tp-booth-area-hint' : undefined)}
                         >
                           <option value="">Pilih area…</option>
                           {areaOptions.map((name) => (
                             <option key={name} value={name}>{name}</option>
                           ))}
+                          {/* Nilai auto-isi dari lokasi event yang tidak ada di daftar
+                              kanonis tetap ditampilkan agar select tidak "kehilangan" nilai. */}
+                          {form.boothArea && !areaOptions.includes(form.boothArea) && (
+                            <option value={form.boothArea}>{form.boothArea} (tidak tersedia lagi)</option>
+                          )}
                         </select>
                       ) : (
                         <input
@@ -711,10 +747,12 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                           maxLength={200}
                           placeholder="Contoh: Main Atrium"
                           aria-invalid={Boolean(fieldErrors.boothArea)}
-                          aria-describedby={fieldErrors.boothArea ? 'tp-booth-area-err' : undefined}
+                          aria-describedby={fieldErrors.boothArea ? 'tp-booth-area-err' : (autoFilled.boothArea ? 'tp-booth-area-hint' : undefined)}
                         />
                       )}
-                      {fieldErrors.boothArea && <p id="tp-booth-area-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothArea}</p>}
+                      {fieldErrors.boothArea
+                        ? <p id="tp-booth-area-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothArea}</p>
+                        : (autoFilled.boothArea && <p id="tp-booth-area-hint" className="mt-1 text-xs ui-text-muted">Terisi otomatis dari lokasi event; sesuaikan bila perlu.</p>)}
                     </div>
                     <div>
                       <label className={labelClass} htmlFor="tp-booth-size">Ukuran booth yang dibutuhkan</label>
@@ -959,6 +997,13 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               )}
               {statusResult.kind !== 'booth' && statusResult.voucherTerms && (
                 <p className="mt-1 text-xs opacity-90 [overflow-wrap:anywhere]">Voucher: {statusResult.voucherTerms}</p>
+              )}
+              {statusResult.kind !== 'booth' && statusResult.voucherType && (
+                <p className="mt-1 text-xs opacity-90">
+                  Jenis voucher: {tenantParticipationOptionLabel('voucher_type', statusResult.voucherType, options)}
+                  {' · '}
+                  Format: {tenantParticipationOptionLabel('voucher_format', statusResult.voucherFormat, options)}
+                </p>
               )}
               {statusResult.status === 'approved' && (
                 <p className="mt-3 text-xs opacity-80">

@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarDays, MapPin, Store, Tag } from 'lucide-react';
-import type { TenantParticipationPublicItem } from '../../types';
-import { fetchEventTenantParticipations } from '../../utils/domainApi';
+import type { TenantParticipationOptionPublic, TenantParticipationPublicItem } from '../../types';
+import {
+  fetchEventTenantParticipations,
+  fetchTenantParticipationOptions,
+  tenantParticipationOptionLabel,
+} from '../../utils/domainApi';
 import { formatDateRange } from '../../utils/eventUtils';
 
 interface Props {
@@ -11,20 +15,11 @@ interface Props {
   isPast: boolean;
 }
 
-const VOUCHER_TYPE_LABELS: Record<TenantParticipationPublicItem['voucherType'], string> = {
-  discount_percent: 'Diskon persentase',
-  discount_amount: 'Potongan harga',
-  buy1get1: 'Beli 1 gratis 1',
-  free_item: 'Gratis item',
-  min_spend: 'Diskon minimum belanja',
-  other: 'Penawaran khusus',
-};
-
-const VOUCHER_FORMAT_LABELS: Record<TenantParticipationPublicItem['voucherFormat'], string> = {
-  digital: 'Digital',
-  fisik: 'Fisik',
-  both: 'Digital & fisik',
-};
+/**
+ * Label opsi baca dari daftar dinamis server (termasuk opsi custom admin) via
+ * `tenantParticipationOptionLabel`: fallback statis + humanize ditangani di
+ * sana, jadi nilai apa pun (custom, lama, sudah dihapus) tetap punya teks tampil.
+ */
 
 /**
  * "Tenant di event ini" — booth & voucher tenant yang sudah disetujui Marcomm.
@@ -36,11 +31,16 @@ const VOUCHER_FORMAT_LABELS: Record<TenantParticipationPublicItem['voucherFormat
  */
 export function EventTenantParticipationSection({ eventId, isPast }: Props) {
   const [items, setItems] = useState<TenantParticipationPublicItem[]>([]);
+  const [options, setOptions] = useState<TenantParticipationOptionPublic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    // Opsi label dimuat paralel; gagal = label jatuh ke fallback statis (helper).
+    fetchTenantParticipationOptions()
+      .then((rows) => { if (!cancelled) setOptions(rows); })
+      .catch(() => { /* biarkan kosong — helper memakai fallback + humanize */ });
     fetchEventTenantParticipations(eventId)
       .then((rows) => { if (!cancelled) setItems(rows); })
       .catch(() => { if (!cancelled) setItems([]); })
@@ -147,9 +147,9 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
                         <span className="inline-flex items-center gap-1">
                           <Tag className="h-3.5 w-3.5" aria-hidden="true" /> Voucher
                         </span>
-                        <span className="font-normal text-slate-600 dark:text-slate-300">{VOUCHER_TYPE_LABELS[item.voucherType]}</span>
+                        <span className="font-normal text-slate-600 dark:text-slate-300">{tenantParticipationOptionLabel('voucher_type', item.voucherType, options)}</span>
                         <span className="font-normal ui-text-muted">
-                          {VOUCHER_FORMAT_LABELS[item.voucherFormat]}
+                          {tenantParticipationOptionLabel('voucher_format', item.voucherFormat, options)}
                           {item.voucherQuota !== null && ` · ${item.voucherQuota} voucher`}
                         </span>
                       </p>

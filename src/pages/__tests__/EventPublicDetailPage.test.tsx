@@ -20,13 +20,19 @@ import type { EventItem } from '../../types';
 const fetchEventByIdMock = vi.hoisted(() => vi.fn());
 const fetchAlbumsMock = vi.hoisted(() => vi.fn(async () => []));
 const fetchEventTenantParticipationsMock = vi.hoisted(() => vi.fn(async () => []));
-vi.mock('../../utils/domainApi', () => ({
-  fetchEventById: fetchEventByIdMock,
-  fetchAlbums: fetchAlbumsMock,
-  // Section "Tenant di event ini" memanggil endpoint publik ini; default kosong
-  // supaya tes fokus pada halaman detail, bukan pada daftar partisipasi.
-  fetchEventTenantParticipations: fetchEventTenantParticipationsMock,
-}));
+vi.mock('../../utils/domainApi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/domainApi')>();
+  return {
+    ...actual,
+    fetchEventById: fetchEventByIdMock,
+    fetchAlbums: fetchAlbumsMock,
+    // Section "Tenant di event ini" memanggil endpoint publik ini; default kosong
+    // supaya tes fokus pada halaman detail, bukan pada daftar partisipasi.
+    fetchEventTenantParticipations: fetchEventTenantParticipationsMock,
+    // Daftar opsi untuk label: gagal = fallback statis (sama dengan produksi).
+    fetchTenantParticipationOptions: vi.fn(async () => actual.TENANT_PARTICIPATION_FALLBACK_OPTIONS),
+  };
+});
 
 function makeEvent(partial: Partial<EventItem> = {}): EventItem {
   return {

@@ -154,6 +154,7 @@ export {
   createTenantParticipationOption,
   updateTenantParticipationOption,
   deleteTenantParticipationOption,
+  tenantParticipationOptionLabel,
   TENANT_PARTICIPATION_FALLBACK_OPTIONS,
   type TenantParticipationPatch,
 } from './api/tenantParticipationsApi';

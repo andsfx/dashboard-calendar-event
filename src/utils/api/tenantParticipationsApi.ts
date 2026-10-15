@@ -51,6 +51,36 @@ export const TENANT_PARTICIPATION_FALLBACK_OPTIONS: TenantParticipationOptionPub
   { group: 'voucher_format', value: 'both', label: 'Digital dan fisik', sortOrder: 30 },
 ];
 
+function humanizeOptionValue(value: string): string {
+  return value
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Label tampil untuk nilai opsi tersimpan (slug), dipakai SEMUA permukaan yang
+ * menampilkan data pengajuan (section publik, antrean admin, panel cek status).
+ * Urutan sumber: daftar opsi dinamis milik pemanggil (jika ada) → fallback
+ * bawaan (seed DB) → nilai di-humanize (`min_spend` → "Min spend") sehingga
+ * opsi custom admin tidak pernah tampil kosong atau sebagai slug kasar.
+ */
+export function tenantParticipationOptionLabel(
+  group: TenantParticipationOptionGroup,
+  value: string,
+  options?: TenantParticipationOptionPublic[],
+): string {
+  if (!value) return '';
+  const dynamic = options?.find((option) => option.group === group && option.value === value);
+  if (dynamic) return dynamic.label;
+  const fallback = TENANT_PARTICIPATION_FALLBACK_OPTIONS.find(
+    (option) => option.group === group && option.value === value,
+  );
+  if (fallback) return fallback.label;
+  return humanizeOptionValue(value);
+}
+
 
 function mapPublicItem(row: Record<string, unknown>): TenantParticipationPublicItem {
   return {

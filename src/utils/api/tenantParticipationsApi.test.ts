@@ -12,6 +12,7 @@ import {
   createTenantParticipationOption,
   updateTenantParticipationOption,
   deleteTenantParticipationOption,
+  tenantParticipationOptionLabel,
   TENANT_PARTICIPATION_FALLBACK_OPTIONS,
 } from './tenantParticipationsApi';
 import type { TenantParticipationInput } from '../../types';
@@ -301,5 +302,27 @@ describe('tenantParticipationsApi — opsi form (dikelola admin)', () => {
       '/api/v1/admin/createTenantParticipationOption': { body: { success: false, error: 'Opsi dengan value itu sudah ada' } },
     });
     await expect(createTenantParticipationOption('booth_scheme', 'solo', 'Duplikat')).rejects.toThrow('Opsi dengan value itu sudah ada');
+  });
+});
+
+describe('tenantParticipationOptionLabel — satu sumber label nilai opsi', () => {
+  const dynamic = [
+    { group: 'voucher_type' as const, value: 'paket_hemat', label: 'Paket hemat', sortOrder: 70 },
+  ];
+
+  it('opsi dinamis pemanggil menang (label custom admin)', () => {
+    expect(tenantParticipationOptionLabel('voucher_type', 'paket_hemat', dynamic)).toBe('Paket hemat');
+  });
+
+  it('nilai bawaan memakai fallback statis (seed DB)', () => {
+    expect(tenantParticipationOptionLabel('voucher_type', 'min_spend', dynamic)).toBe('Diskon minimum belanja');
+    expect(tenantParticipationOptionLabel('voucher_format', 'both')).toBe('Digital dan fisik');
+    expect(tenantParticipationOptionLabel('booth_scheme', 'solo')).toBe('Booth sendiri');
+  });
+
+  it('nilai tak dikenal di-humanize — tidak pernah undefined atau slug kasar', () => {
+    expect(tenantParticipationOptionLabel('voucher_type', 'paket_hemat')).toBe('Paket Hemat');
+    expect(tenantParticipationOptionLabel('voucher_type', 'min_spend_extra')).toBe('Min Spend Extra');
+    expect(tenantParticipationOptionLabel('booth_size', '')).toBe('');
   });
 });

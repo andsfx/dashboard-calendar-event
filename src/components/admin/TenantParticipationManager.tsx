@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Building2, CalendarDays, ChevronDown, ChevronUp, Mail, MapPin, Phone, Settings2, Store, Tag, Users,
 } from 'lucide-react';
@@ -9,6 +9,7 @@ import type {
 import { formatDateRange } from '../../utils/eventUtils';
 import {
   fetchTenantParticipationOptions,
+  tenantParticipationOptionLabel,
   TENANT_PARTICIPATION_FALLBACK_OPTIONS,
   type TenantParticipationPatch,
 } from '../../utils/api/tenantParticipationsApi';
@@ -47,16 +48,11 @@ const TONE_DOTS: Record<string, string> = {
   idle: 'bg-[var(--wf-ink-muted)]',
 };
 
-/**
- * Label nilai opsi dari fallback bawaan (seed DB). Nilai di luar daftar
- * (opsi custom admin, atau nilai lama yang opsinya sudah dihapus) tampil
- * apa adanya — bukan hilang.
- */
-const OPTION_LABELS: Record<string, string> = Object.fromEntries(
-  TENANT_PARTICIPATION_FALLBACK_OPTIONS.map((option) => [option.value, option.label]),
-);
-
-const optionLabel = (value: string): string => OPTION_LABELS[value] ?? value;
+// Label nilai opsi — helper terpusat `tenantParticipationOptionLabel`: daftar
+// dinamis server (termasuk opsi custom admin) dulu, lalu fallback bawaan, lalu
+// humanize (`min_spend` → "Min spend"). Nilai di luar semua daftar tetap
+// terbaca, tidak pernah kosong. Dipanggil langsung di render dengan group +
+// daftar `options` state komponen.
 
 /**
  * Dua status yang mengubah nasib pengajuan dikonfirmasi; Menghubungi dan
@@ -186,6 +182,13 @@ export function TenantParticipationManager({
     setOptions(await fetchTenantParticipationOptions());
   };
 
+  // Muat opsi dari server sekali saat mount — tanpa ini label chip/detail hanya
+  // memakai fallback statis sampai modal "Kelola opsi" dibuka.
+  useEffect(() => {
+    void loadOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleOptionsOpen = () => {
     setOptionsOpen(true);
     void loadOptions();
@@ -265,7 +268,11 @@ export function TenantParticipationManager({
       .filter((option) => option.group === group)
       .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
     if (current !== '' && !active.some((option) => option.value === current)) {
-      return [...active, { group, value: current, label: `${current} (tidak tersedia lagi)`, sortOrder: 0 }];
+      const known = tenantParticipationOptionLabel(group, current, options);
+      const suffix = known === current
+        ? `${current.split(/[_\s-]+/).filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} (tidak tersedia lagi)`
+        : `${known} (nonaktif)`;
+      return [...active, { group, value: current, label: suffix, sortOrder: 0 }];
     }
     return active;
   };
@@ -389,7 +396,7 @@ export function TenantParticipationManager({
                 {showVoucher && (
                   <span className="inline-flex items-center gap-1">
                     <Tag className="h-3.5 w-3.5" aria-hidden="true" />
-                    {optionLabel(item.voucherType)}
+                    {tenantParticipationOptionLabel('voucher_type', item.voucherType, options)}
                     {item.voucherQuota !== null && ` · ${item.voucherQuota} voucher`}
                   </span>
                 )}
@@ -437,7 +444,7 @@ export function TenantParticipationManager({
                         {item.boothSize && <span className="ml-2 text-xs text-[var(--wf-ink-muted)]">· {item.boothSize}</span>}
                       </p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
-                        Skema: {optionLabel(item.boothScheme)}
+                        Skema: {tenantParticipationOptionLabel('booth_scheme', item.boothScheme, options)}
                         {item.boothNeeds && <span> · Kebutuhan: {item.boothNeeds}</span>}
                       </p>
                     </div>
@@ -447,7 +454,7 @@ export function TenantParticipationManager({
                       <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Voucher</p>
                       <p className="[overflow-wrap:anywhere]">{item.voucherTerms || '—'}</p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
-                        {optionLabel(item.voucherType)} · {optionLabel(item.voucherFormat)}
+                        {tenantParticipationOptionLabel('voucher_type', item.voucherType, options)} · {tenantParticipationOptionLabel('voucher_format', item.voucherFormat, options)}
                         {item.voucherQuota !== null && ` · kuota ${item.voucherQuota}`}
                       </p>
                     </div>

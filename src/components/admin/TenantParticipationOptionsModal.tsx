@@ -49,6 +49,7 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
   const [loadError, setError] = useState('');
   const [busyId, setBusyId] = useState('');
   const [labelDrafts, setLabelDrafts] = useState<Record<string, string>>({});
+  const [sortDrafts, setSortDrafts] = useState<Record<string, string>>({});
   const [newGroup, setNewGroup] = useState<TenantParticipationOptionGroup>('booth_scheme');
   const [newValue, setNewValue] = useState('');
   const [newLabel, setNewLabel] = useState('');
@@ -89,6 +90,27 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
   const labelDirty = (option: TenantParticipationOption) => {
     const draft = labelDrafts[option.id];
     return draft !== undefined && draft !== option.label;
+  };
+
+  /** Pola sama dengan label: draft + tombol Simpan saat dirty. Kosong/negatif/NaN tidak dikirim. */
+  const handleSaveSort = async (option: TenantParticipationOption) => {
+    const parsed = Number(sortDrafts[option.id]);
+    if (sortDrafts[option.id] === undefined || !Number.isInteger(parsed) || parsed < 0 || parsed > 9999) return;
+    if (parsed === option.sortOrder) {
+      setSortDrafts((prev) => { const next = { ...prev }; delete next[option.id]; return next; });
+      return;
+    }
+    setBusyId(option.id);
+    try {
+      await updateTenantParticipationOption(option.id, { sortOrder: parsed });
+      setSortDrafts((prev) => { const next = { ...prev }; delete next[option.id]; return next; });
+      setOptions((prev) => prev.map((row) => (row.id === option.id ? { ...row, sortOrder: parsed } : row)));
+      onSaved();
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : 'Gagal menyimpan urutan');
+    } finally {
+      setBusyId('');
+    }
   };
 
   const handleSaveLabel = async (option: TenantParticipationOption) => {
@@ -199,6 +221,8 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                   <ul className="space-y-2">
                     {list.map((option) => {
                       const busy = busyId === option.id;
+                      const sortDraft = sortDrafts[option.id];
+                      const sortDirty = sortDraft !== undefined && sortDraft.trim() !== String(option.sortOrder);
                       return (
                         <li
                           key={option.id}
@@ -217,6 +241,26 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                             />
                             <p className="mt-0.5 font-mono text-[11px] text-slate-400 dark:text-slate-500">{option.value}</p>
                           </div>
+                          <div className="w-20 shrink-0">
+                            <label className="sr-only" htmlFor={`opt-sort-${option.id}`}>Urutan {option.label}</label>
+                            <input
+                              id={`opt-sort-${option.id}`}
+                              type="number"
+                              min={0}
+                              max={9999}
+                              step={1}
+                              className={`${inputClass} py-1.5 text-center`}
+                              value={sortDraft ?? String(option.sortOrder)}
+                              onChange={(e) => setSortDrafts((prev) => ({ ...prev, [option.id]: e.target.value }))}
+                              onKeyDown={(e) => { if (e.key === 'Enter') void handleSaveSort(option); }}
+                              disabled={busy}
+                            />
+                          </div>
+                          {sortDirty && (
+                            <MdButton variant="outlined" disabled={busy} ariaLabel={`Simpan urutan ${option.label}`} onClick={() => void handleSaveSort(option)}>
+                              Simpan
+                            </MdButton>
+                          )}
                           {labelDirty(option) && (
                             <MdButton variant="outlined" disabled={busy} ariaLabel={`Simpan label ${option.label}`} onClick={() => void handleSaveLabel(option)}>
                               Simpan
