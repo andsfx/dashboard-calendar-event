@@ -350,10 +350,16 @@ export function TenantParticipationManager({
               {/* Zona ringkas */}
               <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                 <div className="min-w-0">
-                  <p className="flex items-center gap-2 text-sm font-bold text-[var(--wf-ink)]">
-                    <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    {item.tenantName}
-                    {item.unitNumber && <span className="font-normal text-[var(--wf-ink-muted)]">· {item.unitNumber}</span>}
+                  {/* Nama dan nomor unit mengalir sebagai SATU paragraf. Sebelumnya
+                      keduanya flex item terpisah tanpa `min-w-0`, sehingga nama
+                      panjang membungkus 3 baris sementara "· <unit>" di sebelahnya
+                      membungkus sendiri — blok nama jadi ragged. */}
+                  <p className="flex items-start gap-2 text-sm font-bold text-[var(--wf-ink)]">
+                    <Building2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 [overflow-wrap:anywhere]">
+                      {item.tenantName}
+                      {item.unitNumber && <span className="font-normal text-[var(--wf-ink-muted)]"> · {item.unitNumber}</span>}
+                    </span>
                   </p>
                   <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">
                     {item.tenantCategory}
@@ -362,15 +368,22 @@ export function TenantParticipationManager({
                     {!item.tenantId && <span className="ml-1">· diisi manual</span>}
                   </p>
                 </div>
-                <span className={`wf-key wf-key--${STATUS_TONES[item.status]}`}>
+                {/* `ml-auto` menjaga chip tetap rata kanan saat baris wrap
+                    (blok kiri penuh) — sebelumnya chip "melompat" ke kiri
+                    bawah sementara kartu lain menaruhnya di kanan atas. */}
+                <span className={`wf-key wf-key--${STATUS_TONES[item.status]} ml-auto shrink-0`}>
                   <span className="wf-dot" aria-hidden />
                   {STATUS_LABELS[item.status]}
                 </span>
               </div>
 
-              <p className="mt-3 text-sm font-semibold text-[var(--wf-ink)]">
-                {item.eventTitle}
-                <span className="ml-2 rounded-full bg-[var(--wf-ink-muted)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+              {/* Baris judul + pill jenis: flex-wrap dengan pill `shrink-0
+                  whitespace-nowrap` sebagai flex item ATOMIK. Sebelumnya pill
+                  inline di dalam <p>, jadi saat judul memenuhi baris pill
+                  terbelah dua (2 fragmen) di 390–430px. */}
+              <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-[var(--wf-ink)]">
+                <span className="min-w-0 [overflow-wrap:anywhere]">{item.eventTitle}</span>
+                <span className="shrink-0 whitespace-nowrap rounded-full bg-[var(--wf-ink-muted)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
                   {KIND_LABELS[item.kind]}
                 </span>
               </p>
