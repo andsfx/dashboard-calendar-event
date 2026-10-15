@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
-import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, TenantEventProposal, TenantEventProposalStatus, InsightAction } from '../../types';
+import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
+import type { TenantParticipationPatch } from '../../utils/api/tenantParticipationsApi';
 import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
 import type { SectionNavItem } from '../ui/SectionNav';
 import { DashboardShell } from './DashboardShell';
@@ -34,6 +35,7 @@ const UserManagement = lazy(() => import('../admin/UserManagement').then(m => ({
 const ActivityLog = lazy(() => import('../admin/ActivityLog').then(m => ({ default: m.ActivityLog })));
 const ExhibitionManager = lazy(() => import('../admin/ExhibitionManager').then(m => ({ default: m.ExhibitionManager })));
 const TenantProposalManager = lazy(() => import('../admin/TenantProposalManager').then(m => ({ default: m.TenantProposalManager })));
+const TenantParticipationManager = lazy(() => import('../admin/TenantParticipationManager').then(m => ({ default: m.TenantParticipationManager })));
 /* Modul konten — dulu modal, kini halaman pada rute /dashboard/content/*. */
 const InstagramSettingsModal = lazy(() => import('../modals/InstagramSettingsModal').then(m => ({ default: m.InstagramSettingsModal })));
 const AlbumManagerModal = lazy(() => import('../modals/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
@@ -95,6 +97,17 @@ export interface DashboardPageTenantProposals {
   onRetry: () => void;
   onReview: (id: string, status: TenantEventProposalStatus) => Promise<boolean>;
   onSaveNotes: (id: string, notes: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
+}
+
+export interface DashboardPageTenantParticipations {
+  participations: TenantParticipation[];
+  isLoading: boolean;
+  error: string;
+  onRetry: () => void;
+  onReview: (id: string, status: TenantParticipationStatus) => Promise<boolean>;
+  onSaveNotes: (id: string, notes: string) => Promise<boolean>;
+  onSaveCorrection: (id: string, patch: TenantParticipationPatch) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
 }
 
@@ -200,6 +213,7 @@ export interface DashboardPageProps {
   drafts: DashboardPageDrafts;
   exhibitions: DashboardPageExhibitions;
   tenantProposals: DashboardPageTenantProposals;
+  tenantParticipations: DashboardPageTenantParticipations;
   filters: DashboardPageFilters;
   view: DashboardPageView;
   handlers: DashboardPageHandlers;
@@ -214,7 +228,7 @@ export interface DashboardPageProps {
 export function DashboardPage({
   isAdmin, isLoading, permissions, canSeeInternalSchedule,
   isDark, onToggleDark, dashboardPath, publicSectionItems,
-  auth, events, drafts, exhibitions, tenantProposals, filters, view,
+  auth, events, drafts, exhibitions, tenantProposals, tenantParticipations, filters, view,
   handlers, modalState, modalData, registrations, siteSettings,
 }: DashboardPageProps) {
   const navigate = useNavigate();
@@ -231,6 +245,7 @@ export function DashboardPage({
     surveys: permissions.canViewTenantSurveys && !permissions.isTenantRelation,
     exhibitionLeads: permissions.canViewExhibitions,
     tenantProposals: permissions.canViewTenantProposals,
+    tenantParticipations: permissions.canViewTenantParticipations,
   });
   const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
 
@@ -362,6 +377,9 @@ export function DashboardPage({
               pendingTenantProposals: permissions.canViewTenantProposals
                 ? tenantProposals.proposals.filter(item => item.status === 'pending').length
                 : 0,
+              pendingTenantParticipations: permissions.canViewTenantParticipations
+                ? tenantParticipations.participations.filter(item => item.status === 'pending').length
+                : 0,
               draftsError: drafts.draftError,
             }}
           />
@@ -371,6 +389,7 @@ export function DashboardPage({
             communityRegistrations={registrations.communityRegistrations}
             exhibitionLeads={exhibitions.leads}
             tenantProposals={tenantProposals.proposals}
+            tenantParticipations={tenantParticipations.participations}
             draftsError={drafts.draftError}
             permissions={permissions}
           />
@@ -386,6 +405,7 @@ export function DashboardPage({
             communityRegistrations={registrations.communityRegistrations}
             exhibitionLeads={exhibitions.leads}
             tenantProposals={tenantProposals.proposals}
+            tenantParticipations={tenantParticipations.participations}
             draftsError={drafts.draftError}
             permissions={permissions}
           />
@@ -407,6 +427,7 @@ export function DashboardPage({
             surveys={insightContext.surveys}
             exhibitionLeads={insightContext.exhibitionLeads}
             tenantProposals={insightContext.tenantProposals}
+            tenantParticipations={insightContext.tenantParticipations}
             allowedPaths={allowedInsightPaths}
             onAction={handleInsightAction}
           />
@@ -516,6 +537,26 @@ export function DashboardPage({
               onReview={tenantProposals.onReview}
               onSaveNotes={tenantProposals.onSaveNotes}
               onDelete={tenantProposals.onDelete}
+              onConfirm={modalState.openConfirm}
+              readOnly={!permissions.canEditEvents}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {/* Partisipasi Tenant — antrean open booth & voucher per event */}
+      {permissions.canViewTenantParticipations && dashboardPath === '/tenant-participations' && (
+        <section id="tenant-participations-section" className="scroll-mt-20">
+          <Suspense fallback={<SectionFallback height="h-64" />}>
+            <TenantParticipationManager
+              participations={tenantParticipations.participations}
+              isLoading={tenantParticipations.isLoading}
+              error={tenantParticipations.error}
+              onRetry={tenantParticipations.onRetry}
+              onReview={tenantParticipations.onReview}
+              onSaveNotes={tenantParticipations.onSaveNotes}
+              onSaveCorrection={tenantParticipations.onSaveCorrection}
+              onDelete={tenantParticipations.onDelete}
               onConfirm={modalState.openConfirm}
               readOnly={!permissions.canEditEvents}
             />

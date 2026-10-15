@@ -6,6 +6,7 @@ import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/cale
 import { EventPhotoGallery } from '../components/events/EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from '../components/events/EventDetailContent';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
+import { EventTenantParticipationSection } from '../components/events/EventTenantParticipationSection';
 import { resolveEventPoster } from '../utils/eventPoster';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { StatusBadge } from '../components/ui/StatusBadge';
@@ -301,6 +302,9 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             <div className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
               <EventPhotoGallery eventId={event.id} eventName={event.acara} canUpload={false} />
             </div>
+
+            {/* Tenant di event ini — booth & voucher approved (fitur partisipasi tenant) */}
+            <EventTenantParticipationSection eventId={event.id} isPast={event.status === 'past'} />
 
             <div className="flex justify-center pt-2">
               <Link

@@ -1225,6 +1225,59 @@ async function switchAction(action, req) {
       return { success: true };
     }
 
+    // ══════════ PARTISIPASI TENANT (open booth & voucher) ══════════
+    case 'listTenantParticipations': {
+      const { rows } = await db.query(
+        `SELECT * FROM tenant_participations ORDER BY created_at DESC`,
+      );
+      // Demo = read-only, tapi PII tetap disamarkan (pola listTenantEventProposals).
+      const isDemo = req.auth?.user?.role === DEMO_ROLE;
+      const data = isDemo
+        ? rows.map(r => ({ ...r, contact_name: maskName(r.contact_name), phone: maskPhone(r.phone), email: maskEmail(r.email) }))
+        : rows;
+      return { success: true, data };
+    }
+
+    case 'updateTenantParticipation': {
+      // Kolom ditulis lewat SET tetap (whitelist manual) — bukan spread body,
+      // supaya key asing tidak pernah bisa jadi nama kolom. Koreksi isian (K10)
+      // memakai field yang sama dengan form publik.
+      const sets = [];
+      const values = [];
+      const push = (column, value) => { values.push(value); sets.push(`${column} = $${values.length}`); };
+      if (body.status !== undefined) push('status', body.status);
+      if (body.internalNotes !== undefined) push('internal_notes', body.internalNotes);
+      if (body.boothArea !== undefined) push('booth_area', body.boothArea);
+      if (body.boothStart !== undefined) push('booth_start', body.boothStart === '' ? null : body.boothStart);
+      if (body.boothEnd !== undefined) push('booth_end', body.boothEnd === '' ? null : body.boothEnd);
+      if (body.boothSize !== undefined) push('booth_size', body.boothSize);
+      if (body.boothProducts !== undefined) push('booth_products', body.boothProducts);
+      if (body.boothScheme !== undefined) push('booth_scheme', body.boothScheme);
+      if (body.boothNeeds !== undefined) push('booth_needs', body.boothNeeds);
+      if (body.voucherType !== undefined) push('voucher_type', body.voucherType);
+      if (body.voucherTerms !== undefined) push('voucher_terms', body.voucherTerms);
+      if (body.voucherQuota !== undefined) push('voucher_quota', body.voucherQuota);
+      if (body.voucherFormat !== undefined) push('voucher_format', body.voucherFormat);
+      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      sets.push('updated_at = NOW()');
+      values.push(body.id);
+
+      const { rowCount } = await db.query(
+        `UPDATE tenant_participations SET ${sets.join(', ')} WHERE id = $${values.length}`,
+        values,
+      );
+      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      logActivity(auth.user, 'update_tenant_participation', 'tenant_participation', body.id, { status: body.status }, req);
+      return { success: true };
+    }
+
+    case 'deleteTenantParticipation': {
+      const { rowCount } = await db.query('DELETE FROM tenant_participations WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Pengajuan tidak ditemukan' };
+      logActivity(auth.user, 'delete_tenant_participation', 'tenant_participation', body.id, null, req);
+      return { success: true };
+    }
+
     // ══════════ INSIGHT CERDAS — narasi AI (opsional) ══════════
     case 'getInsightNarrative': {
       if (!isAiEnabled()) {

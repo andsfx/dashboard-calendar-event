@@ -351,6 +351,101 @@ export interface TenantProposalUpload {
   mimeType: string;
 }
 
+// ─── Partisipasi tenant (open booth & voucher per event) ─────────────
+export type TenantParticipationKind = 'booth' | 'voucher' | 'both';
+export type TenantParticipationStatus = 'pending' | 'contacted' | 'approved' | 'rejected';
+export type TenantParticipationScheme = 'solo' | 'joint' | 'mall_support';
+export type TenantParticipationVoucherType =
+  | 'discount_percent' | 'discount_amount' | 'buy1get1' | 'free_item' | 'min_spend' | 'other';
+export type TenantParticipationVoucherFormat = 'digital' | 'fisik' | 'both';
+
+/** Payload form publik `/partisipasi-tenant` — snake_case berhenti di API module. */
+export interface TenantParticipationInput {
+  /** TENANT_ID master MID saat tenant dipilih dari daftar; '' bila diisi manual. */
+  tenantId: string;
+  tenantName: string;
+  unitNumber: string;
+  tenantCategory: string;
+  /** URL logo tenant dari master MID (disalin saat submit agar halaman publik tidak memanggil MID). */
+  tenantLogo: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  eventId: string;
+  kind: TenantParticipationKind;
+  boothArea: string;
+  boothStart: string;
+  boothEnd: string;
+  boothSize: string;
+  boothProducts: string;
+  boothScheme: TenantParticipationScheme;
+  boothNeeds: string;
+  voucherType: TenantParticipationVoucherType;
+  voucherTerms: string;
+  /** Kuota voucher; '' = tanpa kuota. */
+  voucherQuota: number | '';
+  voucherFormat: TenantParticipationVoucherFormat;
+}
+
+export interface TenantParticipation extends Omit<TenantParticipationInput, 'voucherQuota'> {
+  id: string;
+  code: string;
+  eventTitle: string;
+  eventDate: string;
+  voucherQuota: number | null;
+  status: TenantParticipationStatus;
+  internalNotes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Item daftar approved pada halaman detail event — kolom aman saja, tanpa kontak. */
+export interface TenantParticipationPublicItem {
+  tenantName: string;
+  unitNumber: string;
+  tenantCategory: string;
+  tenantLogo: string;
+  kind: TenantParticipationKind;
+  boothArea: string;
+  boothStart: string;
+  boothEnd: string;
+  boothSize: string;
+  boothProducts: string;
+  voucherType: TenantParticipationVoucherType;
+  voucherTerms: string;
+  voucherQuota: number | null;
+  voucherFormat: TenantParticipationVoucherFormat;
+}
+
+/** Event eligible untuk dropdown form (published + belum mulai). */
+export interface TenantParticipationEligibleEvent {
+  id: string;
+  acara: string;
+  tanggal: string;
+  dateStr: string;
+  dateEnd: string | null;
+  lokasi: string;
+  categories: string[] | null;
+}
+
+/** Hasil cek status via kode + telepon — tanpa kontak PIC dan tanpa catatan internal. */
+export interface TenantParticipationStatusResult {
+  code: string;
+  tenantName: string;
+  eventTitle: string;
+  eventDate: string | null;
+  kind: TenantParticipationKind;
+  status: TenantParticipationStatus;
+  boothArea: string;
+  boothStart: string | null;
+  boothEnd: string | null;
+  voucherType: TenantParticipationVoucherType;
+  voucherTerms: string;
+  voucherFormat: TenantParticipationVoucherFormat;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

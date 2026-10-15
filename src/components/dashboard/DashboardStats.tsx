@@ -23,6 +23,8 @@ interface DashboardStatsProps {
     pendingExhibitionLeads: number;
     /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
     pendingTenantProposals: number;
+    /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
+    pendingTenantParticipations?: number;
     draftsError?: string | null;
   } | null;
 }
@@ -77,7 +79,7 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
   ];
 
   const pendingTotal = attention
-    ? attention.draftCount + attention.pendingRegistrations + attention.pendingExhibitionLeads + attention.pendingTenantProposals
+    ? attention.draftCount + attention.pendingRegistrations + attention.pendingExhibitionLeads + attention.pendingTenantProposals + (attention.pendingTenantParticipations ?? 0)
     : 0;
 
   return (

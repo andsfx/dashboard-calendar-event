@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal } from '../../types';
+import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { getCommandCenterCards } from './dashboardNavigation';
 
@@ -13,6 +13,8 @@ interface CommandCenterSummaryProps {
   exhibitionLeads?: ExhibitionLead[];
   /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
   tenantProposals?: TenantEventProposal[];
+  /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
+  tenantParticipations?: TenantParticipation[];
   draftsError?: string | null;
   permissions: Permissions;
 }
@@ -40,6 +42,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
   communityRegistrations,
   exhibitionLeads,
   tenantProposals,
+  tenantParticipations,
   draftsError,
   permissions,
 }: CommandCenterSummaryProps) {
@@ -49,6 +52,7 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
     communityRegistrations,
     exhibitionLeads,
     tenantProposals,
+    tenantParticipations,
     draftsError,
     permissions,
   }).filter(card => card.queue);

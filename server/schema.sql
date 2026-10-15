@@ -812,6 +812,57 @@ CREATE INDEX IF NOT EXISTS idx_tenant_event_proposals_status ON tenant_event_pro
 CREATE INDEX IF NOT EXISTS idx_tenant_event_proposals_created_at ON tenant_event_proposals (created_at DESC);
 
 -- ============================================================================
+-- 21. PARTISIPASI TENANT (open booth & voucher per event)
+-- ============================================================================
+-- Satu baris = satu pengajuan partisipasi tenant pada SATU event existing.
+-- `code` unik (TPR-XXXXXX) dibuat server dan dipakai tenant cek status bersama
+-- nomor telepon. `event_id` boleh NULL bila event dihapus; judul/tanggal
+-- didenormalisasi agar antrean admin tetap terbaca. Cutoff H-1 ditegakkan di
+-- route publik (server/src/routes/tenantParticipations.js), bukan constraint.
+
+CREATE TABLE IF NOT EXISTS tenant_participations (
+  id TEXT PRIMARY KEY DEFAULT ('tpr_' || replace(gen_random_uuid()::text, '-', '')),
+  code TEXT NOT NULL UNIQUE,
+  tenant_id TEXT NOT NULL DEFAULT '',
+  tenant_name TEXT NOT NULL,
+  unit_number TEXT NOT NULL DEFAULT '',
+  tenant_category TEXT NOT NULL DEFAULT '',
+  tenant_logo TEXT NOT NULL DEFAULT '',
+  contact_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL DEFAULT '',
+  event_id TEXT REFERENCES events(id) ON DELETE SET NULL,
+  event_title TEXT NOT NULL,
+  event_date DATE,
+  kind TEXT NOT NULL DEFAULT 'both'
+    CONSTRAINT chk_tenant_participations_kind CHECK (kind IN ('booth','voucher','both')),
+  booth_area TEXT NOT NULL DEFAULT '',
+  booth_start DATE,
+  booth_end DATE,
+  booth_size TEXT NOT NULL DEFAULT '',
+  booth_products TEXT NOT NULL DEFAULT '',
+  booth_scheme TEXT NOT NULL DEFAULT 'solo'
+    CONSTRAINT chk_tenant_participations_scheme CHECK (booth_scheme IN ('solo','joint','mall_support')),
+  booth_needs TEXT NOT NULL DEFAULT '',
+  voucher_type TEXT NOT NULL DEFAULT 'other'
+    CONSTRAINT chk_tenant_participations_voucher_type
+    CHECK (voucher_type IN ('discount_percent','discount_amount','buy1get1','free_item','min_spend','other')),
+  voucher_terms TEXT NOT NULL DEFAULT '',
+  voucher_quota INTEGER CHECK (voucher_quota IS NULL OR voucher_quota >= 0),
+  voucher_format TEXT NOT NULL DEFAULT 'both'
+    CONSTRAINT chk_tenant_participations_voucher_format CHECK (voucher_format IN ('digital','fisik','both')),
+  status TEXT NOT NULL DEFAULT 'pending'
+    CONSTRAINT chk_tenant_participations_status CHECK (status IN ('pending','contacted','approved','rejected')),
+  internal_notes TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_tenant_participations_event ON tenant_participations (event_id, status);
+CREATE INDEX IF NOT EXISTS idx_tenant_participations_status ON tenant_participations (status);
+CREATE INDEX IF NOT EXISTS idx_tenant_participations_created_at ON tenant_participations (created_at DESC);
+
+-- ============================================================================
 -- AUTO-UPDATE updated_at TRIGGER
 -- ============================================================================
 
@@ -852,6 +903,9 @@ CREATE TRIGGER event_areas_updated_at BEFORE UPDATE ON event_areas FOR EACH ROW 
 
 DROP TRIGGER IF EXISTS tenant_event_proposals_updated_at ON tenant_event_proposals;
 CREATE TRIGGER tenant_event_proposals_updated_at BEFORE UPDATE ON tenant_event_proposals FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS tenant_participations_updated_at ON tenant_participations;
+CREATE TRIGGER tenant_participations_updated_at BEFORE UPDATE ON tenant_participations FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================================================
 -- TABEL DEFERRED (ada di prod, TIDAK direferensi kode — tidak dimigrasi)

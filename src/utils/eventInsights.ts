@@ -8,6 +8,7 @@ import type {
   InsightSeverity,
   TenantEventProposal,
   TenantEventSurvey,
+  TenantParticipation,
 } from '../types';
 import { MONTH_NAMES, getDateRange, getStatus, parseDateStrLocal } from './eventUtils';
 import { computeAreaUsage, computeAreaUtilisation, computeCategoryCounts } from './dashboardOverview';
@@ -38,6 +39,8 @@ export interface EventInsightsInput {
   exhibitionLeads?: ExhibitionLead[];
   /** Opsional — pengajuan kolaborasi tenant. */
   tenantProposals?: TenantEventProposal[];
+  /** Opsional — pengajuan partisipasi tenant (open booth & voucher). */
+  tenantParticipations?: TenantParticipation[];
   /** Titik waktu acuan. Eksplisit agar dapat diuji; default `new Date()`. */
   now?: Date;
 }
@@ -486,6 +489,22 @@ function tenantProposalQueueInsight(proposals: TenantEventProposal[]): EventInsi
   }];
 }
 
+/** Pengajuan partisipasi tenant (open booth & voucher) yang belum ditinjau. */
+function tenantParticipationQueueInsight(participations: TenantParticipation[]): EventInsight[] {
+  const pending = participations.filter((item) => item.status === 'pending').length;
+  if (pending === 0) return [];
+
+  return [{
+    id: 'pengajuan-partisipasi-tenant',
+    severity: pending >= 3 ? 'saran' : 'info',
+    title: 'Pengajuan partisipasi tenant menunggu tinjauan',
+    body: `${pending} pengajuan open booth atau voucher dari tenant berstatus "menunggu" belum ditinjau.`,
+    metric: String(pending),
+    crossModule: true,
+    actions: [{ label: 'Partisipasi Tenant', path: '/tenant-participations' }],
+  }];
+}
+
 /**
  * Susun seluruh insight dari data mentah halaman, diurutkan menurut kepentingan
  * (peringatan → saran → info). Urutan antar-severity stabil sesuai urutan sumber.
@@ -498,6 +517,7 @@ export function buildEventInsights({
   surveys,
   exhibitionLeads,
   tenantProposals,
+  tenantParticipations,
   now = new Date(),
 }: EventInsightsInput): EventInsightsResult {
   const insights: EventInsight[] = [
@@ -514,6 +534,7 @@ export function buildEventInsights({
     ...tenantRatingInsight(surveys ?? [], now),
     ...exhibitionQueueInsight(exhibitionLeads ?? []),
     ...tenantProposalQueueInsight(tenantProposals ?? []),
+    ...tenantParticipationQueueInsight(tenantParticipations ?? []),
   ];
 
   insights.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);

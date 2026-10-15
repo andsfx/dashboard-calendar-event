@@ -47,6 +47,7 @@ import tenantRouter from './routes/tenant.js';
 import extraRouter from './routes/extra.js';
 import exhibitionsRouter from './routes/exhibitions.js';
 import tenantProposalsRouter from './routes/tenantProposals.js';
+import tenantParticipationsRouter from './routes/tenantParticipations.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -86,6 +87,7 @@ app.use('/api/v1', publicRouter);
 app.use('/api/v1', extraRouter);
 app.use('/api/v1', exhibitionsRouter);
 app.use('/api/v1', tenantProposalsRouter);
+app.use('/api/v1', tenantParticipationsRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/r2', r2Router);

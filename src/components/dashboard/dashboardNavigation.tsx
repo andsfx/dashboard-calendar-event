@@ -18,7 +18,7 @@ import {
   UserCog,
   Users,
 } from 'lucide-react';
-import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal } from '../../types';
+import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 
 /** Monoline admin icons: stroke 1.5 matches brand-spec / HTML prototype (1.4) */
@@ -118,6 +118,8 @@ interface CommandCenterCardParams {
   exhibitionLeads?: ExhibitionLead[];
   /** Pengajuan kolaborasi tenant yang menunggu review manusia. */
   tenantProposals?: TenantEventProposal[];
+  /** Pengajuan partisipasi tenant (open booth & voucher) yang menunggu review. */
+  tenantParticipations?: TenantParticipation[];
   /** Pesan error saat fetch draft gagal: antrian tidak boleh dianggap kosong */
   draftsError?: string | null;
   permissions: Permissions;
@@ -154,6 +156,7 @@ export function getDashboardNavGroups(
       items: [
         ...(permissions.canViewRegistrations ? [{ id: 'registrations', label: 'Pendaftaran', icon: <Users className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/registrations' }] : []),
         ...(permissions.canViewTenantProposals ? [{ id: 'tenant-proposals', label: 'Kolaborasi Tenant', icon: <Handshake className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-proposals' }] : []),
+        ...(permissions.canViewTenantParticipations ? [{ id: 'tenant-participations', label: 'Partisipasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-participations' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'survey', label: 'Survey Kepuasan', icon: <ClipboardCheck className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/survey' }] : []),
         ...(permissions.canViewTenantSurveys && !permissions.isTenantRelation ? [{ id: 'tenant-surveys', label: 'Evaluasi Tenant', icon: <Store className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/tenant-surveys' }] : []),
       ],
@@ -221,6 +224,7 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/exhibitions', label: 'Pameran & Aktivasi', description: 'Kelola pameran Casual Leasing, tautan aktivasi, dan pengajuan brand/EO' },
   { path: '/registrations', label: 'Pendaftaran', description: 'Kelola permintaan pendaftaran dari community' },
   { path: '/tenant-proposals', label: 'Kolaborasi Tenant', description: 'Tinjau pengajuan event dan kerja sama dari tenant' },
+  { path: '/tenant-participations', label: 'Partisipasi Tenant', description: 'Tinjau pengajuan open booth dan voucher tenant per event' },
   { path: '/survey', label: 'Survey Kepuasan', description: 'Kelola Survey Kepuasan pengunjung dan organizer per event' },
   { path: '/tenant-surveys', label: 'Evaluasi Tenant', description: 'Self-assessment tenant per event' },
   { path: '/analytics', label: 'Analitik', description: 'Analisis tren dan statistik event' },
@@ -295,12 +299,14 @@ export function getCommandCenterCards({
   communityRegistrations,
   exhibitionLeads = [],
   tenantProposals = [],
+  tenantParticipations = [],
   draftsError,
   permissions,
 }: CommandCenterCardParams): CommandCenterCard[] {
   const pendingRegistrations = communityRegistrations.filter(r => r.status === 'pending').length;
   const pendingLeads = exhibitionLeads.filter(l => l.status === 'pending').length;
   const pendingTenantProposals = tenantProposals.filter(p => p.status === 'pending').length;
+  const pendingTenantParticipations = tenantParticipations.filter(p => p.status === 'pending').length;
   const isTrOnly = permissions.isTenantRelation && !permissions.canEditEvents;
   const currentTheme = annualThemes.find(theme => {
     const now = new Date();
@@ -374,6 +380,17 @@ export function getCommandCenterCards({
       route: '/dashboard/tenant-proposals',
       queue: pendingTenantProposals > 0
         ? { count: pendingTenantProposals, state: 'pengajuan menunggu review', action: 'Buka kolaborasi tenant' }
+        : undefined,
+      group: 'Interaksi' as const,
+    }] : []),
+    ...(permissions.canViewTenantParticipations ? [{
+      id: 'tenant-participations',
+      title: 'Partisipasi Tenant',
+      subtitle: MODULE_PURPOSE['/tenant-participations'] ?? 'Tinjau pengajuan open booth dan voucher tenant per event',
+      icon: <Store className={CARD} strokeWidth={sw} />,
+      route: '/dashboard/tenant-participations',
+      queue: pendingTenantParticipations > 0
+        ? { count: pendingTenantParticipations, state: 'pengajuan menunggu review', action: 'Buka partisipasi tenant' }
         : undefined,
       group: 'Interaksi' as const,
     }] : []),

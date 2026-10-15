@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { ExhibitionLead, TenantEventProposal, TenantEventSurvey } from '../types';
+import type { ExhibitionLead, TenantEventProposal, TenantEventSurvey, TenantParticipation } from '../types';
 import { fetchTenantSurveys } from '../utils/api/surveysApi';
 import { fetchExhibitionLeads } from '../utils/api/exhibitionsApi';
 import { fetchTenantEventProposals } from '../utils/api/tenantEventProposalsApi';
+import { fetchTenantParticipations } from '../utils/api/tenantParticipationsApi';
 
 export interface InsightContextOptions {
   /** Muat survey kepuasan tenant (butuh izin lihat evaluasi tenant). */
@@ -11,12 +12,15 @@ export interface InsightContextOptions {
   exhibitionLeads?: boolean;
   /** Muat pengajuan kolaborasi tenant (butuh izin lihat kolaborasi tenant). */
   tenantProposals?: boolean;
+  /** Muat pengajuan partisipasi tenant (butuh izin lihat partisipasi tenant). */
+  tenantParticipations?: boolean;
 }
 
 export interface InsightContext {
   surveys: TenantEventSurvey[];
   exhibitionLeads: ExhibitionLead[];
   tenantProposals: TenantEventProposal[];
+  tenantParticipations: TenantParticipation[];
 }
 
 /**
@@ -33,13 +37,15 @@ export function useInsightContext({
   surveys = false,
   exhibitionLeads = false,
   tenantProposals = false,
+  tenantParticipations = false,
 }: InsightContextOptions): InsightContext {
   const [surveyRows, setSurveyRows] = useState<TenantEventSurvey[]>([]);
   const [leadRows, setLeadRows] = useState<ExhibitionLead[]>([]);
   const [proposalRows, setProposalRows] = useState<TenantEventProposal[]>([]);
+  const [participationRows, setParticipationRows] = useState<TenantParticipation[]>([]);
 
   useEffect(() => {
-    if (!surveys && !exhibitionLeads && !tenantProposals) return;
+    if (!surveys && !exhibitionLeads && !tenantProposals && !tenantParticipations) return;
     let cancelled = false;
 
     const tasks: Promise<void>[] = [];
@@ -64,10 +70,22 @@ export function useInsightContext({
           .catch(() => { if (!cancelled) setProposalRows([]); }),
       );
     }
+    if (tenantParticipations) {
+      tasks.push(
+        fetchTenantParticipations()
+          .then((rows) => { if (!cancelled) setParticipationRows(rows); })
+          .catch(() => { if (!cancelled) setParticipationRows([]); }),
+      );
+    }
     void Promise.all(tasks);
 
     return () => { cancelled = true; };
-  }, [surveys, exhibitionLeads, tenantProposals]);
+  }, [surveys, exhibitionLeads, tenantProposals, tenantParticipations]);
 
-  return { surveys: surveyRows, exhibitionLeads: leadRows, tenantProposals: proposalRows };
+  return {
+    surveys: surveyRows,
+    exhibitionLeads: leadRows,
+    tenantProposals: proposalRows,
+    tenantParticipations: participationRows,
+  };
 }

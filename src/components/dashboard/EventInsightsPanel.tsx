@@ -10,6 +10,7 @@ import type {
   InsightSeverity,
   TenantEventProposal,
   TenantEventSurvey,
+  TenantParticipation,
 } from '../../types';
 import { Card } from './Card';
 import { InsightAiSummary } from './InsightAiSummary';
@@ -29,6 +30,7 @@ export interface EventInsightsPanelProps {
   surveys?: TenantEventSurvey[];
   exhibitionLeads?: ExhibitionLead[];
   tenantProposals?: TenantEventProposal[];
+  tenantParticipations?: TenantParticipation[];
   /**
    * Jalur dashboard yang boleh dibuka role ini (`getAllowedDashboardPaths`).
    * Bila diberikan, aksi yang menuju jalur di luar daftar tidak dirender —
@@ -103,12 +105,13 @@ export function EventInsightsPanel({
   surveys,
   exhibitionLeads,
   tenantProposals,
+  tenantParticipations,
   allowedPaths,
   onAction,
 }: EventInsightsPanelProps) {
   const { generatedAt, insights } = useMemo(
-    () => buildEventInsights({ events, activeDrafts, registrations: communityRegistrations, areas, surveys, exhibitionLeads, tenantProposals }),
-    [events, activeDrafts, communityRegistrations, areas, surveys, exhibitionLeads, tenantProposals],
+    () => buildEventInsights({ events, activeDrafts, registrations: communityRegistrations, areas, surveys, exhibitionLeads, tenantProposals, tenantParticipations }),
+    [events, activeDrafts, communityRegistrations, areas, surveys, exhibitionLeads, tenantProposals, tenantParticipations],
   );
 
   const [severityFilter, setSeverityFilter] = useState<InsightSeverity | 'Semua'>('Semua');

@@ -141,6 +141,17 @@ export {
   deleteTenantEventProposal,
 } from './api/tenantEventProposalsApi';
 
+export {
+  fetchTenantParticipationEvents,
+  fetchEventTenantParticipations,
+  submitTenantParticipation,
+  fetchTenantParticipationStatus,
+  fetchTenantParticipations,
+  updateTenantParticipation,
+  deleteTenantParticipation,
+  type TenantParticipationPatch,
+} from './api/tenantParticipationsApi';
+
 export type {
   PublicTenantSurveyEventInfo,
   TenantDropdownOption,

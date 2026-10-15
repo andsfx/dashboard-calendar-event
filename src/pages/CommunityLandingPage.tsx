@@ -80,6 +80,7 @@ const NAV_ENTRIES: NavEntry[] = [
       { label: 'Berita', href: '#news' },
       { label: 'Tenant', href: '/tenants', route: true },
       { label: 'Kolaborasi Tenant', href: '/kolaborasi-tenant', route: true },
+      { label: 'Booth & Voucher Tenant', href: '/partisipasi-tenant', route: true },
       { label: 'Pameran', href: '/pameran', route: true },
       { label: 'Sponsor', href: '/sponsor', route: true },
       { label: 'Dokumentasi', href: '/docs', route: true },

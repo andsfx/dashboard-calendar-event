@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { EXHIBITION_ACTION_SCHEMAS } from './exhibitionSchemas.js';
 import { TENANT_PROPOSAL_ACTION_SCHEMAS } from './tenantProposalSchemas.js';
+import { TENANT_PARTICIPATION_ACTION_SCHEMAS } from './tenantParticipationSchemas.js';
 
 const prioritySchema = z.enum(['high', 'medium', 'low']);
 const eventModelSchema = z.enum(['', 'free', 'bayar', 'support']);
@@ -174,6 +175,7 @@ const ACTION_SCHEMAS = {
   }),
   ...EXHIBITION_ACTION_SCHEMAS,
   ...TENANT_PROPOSAL_ACTION_SCHEMAS,
+  ...TENANT_PARTICIPATION_ACTION_SCHEMAS,
 };
 
 /**

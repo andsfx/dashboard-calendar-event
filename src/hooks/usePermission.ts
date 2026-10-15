@@ -51,6 +51,8 @@ export interface Permissions {
   canViewExhibitions: boolean;
   /** Can view pengajuan kolaborasi tenant (antrean review) */
   canViewTenantProposals: boolean;
+  /** Can view pengajuan partisipasi tenant: open booth & voucher (antrean review) */
+  canViewTenantParticipations: boolean;
   /** Can view user management page */
   canViewUsers: boolean;
   /** Can view content settings (landing, albums, areas, letters, news) */
@@ -100,6 +102,7 @@ export function usePermission(user: AuthUser | null): Permissions {
         canViewThemes: false,
         canViewExhibitions: false,
         canViewTenantProposals: false,
+        canViewTenantParticipations: false,
         canViewUsers: false,
         canViewSettings: false,
         canViewSponsorship: false,
@@ -145,6 +148,7 @@ export function usePermission(user: AuthUser | null): Permissions {
       canViewThemes: isAdmin || isDemo,
       canViewExhibitions: isAdmin || isDemo,
       canViewTenantProposals: isAdmin || isViewer || isDemo,
+      canViewTenantParticipations: isAdmin || isViewer || isDemo,
       canViewUsers: isSuperadmin || isDemo,
       canViewSettings: isAdmin || isDemo,
       canViewSponsorship: isAdmin || isDemo,

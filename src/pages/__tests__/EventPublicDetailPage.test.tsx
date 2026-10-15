@@ -19,9 +19,13 @@ import type { EventItem } from '../../types';
 
 const fetchEventByIdMock = vi.hoisted(() => vi.fn());
 const fetchAlbumsMock = vi.hoisted(() => vi.fn(async () => []));
+const fetchEventTenantParticipationsMock = vi.hoisted(() => vi.fn(async () => []));
 vi.mock('../../utils/domainApi', () => ({
   fetchEventById: fetchEventByIdMock,
   fetchAlbums: fetchAlbumsMock,
+  // Section "Tenant di event ini" memanggil endpoint publik ini; default kosong
+  // supaya tes fokus pada halaman detail, bukan pada daftar partisipasi.
+  fetchEventTenantParticipations: fetchEventTenantParticipationsMock,
 }));
 
 function makeEvent(partial: Partial<EventItem> = {}): EventItem {

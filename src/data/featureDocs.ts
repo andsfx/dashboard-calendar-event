@@ -855,6 +855,31 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
           },
           {
+            id: 'partisipasi-tenant',
+            name: 'Booth & Voucher Tenant',
+            path: '/partisipasi-tenant',
+            audience: 'Tenant',
+            summary:
+              'Halaman pengajuan partisipasi tenant pada event yang sudah terjadwal: open booth, voucher untuk pengunjung, atau keduanya, dengan pemantauan status lewat kode pengajuan.',
+            steps: [
+              'Buka /partisipasi-tenant, atau klik "Punya tenant di Metropolitan Mall?" pada halaman detail event (event tujuan langsung terpilih).',
+              'Bagian Event Tujuan: pilih event yang belum berjalan dari daftar.',
+              'Bagian Jenis Partisipasi: pilih Open booth, Voucher, atau Keduanya.',
+              'Bagian Data Tenant: pilih tenant dari daftar master, atau klik "Tenant saya belum ada di daftar" untuk mengisi manual.',
+              'Bagian PIC: isi Nama PIC dan Nomor WhatsApp (wajib) — nomor ini juga dipakai untuk memeriksa status.',
+              'Bila memilih booth: isi Area, Mulai Booth, dan Produk atau Jasa (wajib), lengkapi ukuran, skema, dan kebutuhan fasilitas bila perlu.',
+              'Bila memilih voucher: isi Ketentuan Voucher (wajib), pilih jenis dan format, serta kuota bila dibatasi.',
+              'Klik "Kirim Pengajuan", lalu salin kode pengajuan (format TPR-XXXXXX) yang muncul.',
+              'Pantau statusnya di panel "Cek status pengajuan" dengan kode dan nomor telepon yang sama.',
+            ],
+            notes: [
+              'Pengajuan hanya terbuka untuk event yang belum mulai, dan ditutup paling lambat H-1 sebelum event berjalan.',
+              'Kode pengajuan ditampilkan sekali setelah kirim; simpan atau salin sebelum meninggalkan halaman.',
+              'Partisipasi yang disetujui tampil di halaman detail event publik (booth dan voucher beserta ketentuannya).',
+              'Menyetujui partisipasi tidak membuat event baru — event tujuannya sudah terjadwal sebelumnya.',
+            ],
+          },
+          {
             id: 'survey-publik',
             name: 'Survey Kepuasan',
             path: '/survey/:eventId',
