@@ -1,14 +1,19 @@
 import { useMemo, useState } from 'react';
 import {
-  Building2, CalendarDays, ChevronDown, ChevronUp, Mail, MapPin, Phone, Store, Tag, Users,
+  Building2, CalendarDays, ChevronDown, ChevronUp, Mail, MapPin, Phone, Settings2, Store, Tag, Users,
 } from 'lucide-react';
 import { MdButton, MdChip, MdSelect, MdTextField } from '../md';
 import type {
   TenantParticipation, TenantParticipationKind, TenantParticipationStatus,
-  TenantParticipationVoucherFormat, TenantParticipationVoucherType,
 } from '../../types';
 import { formatDateRange } from '../../utils/eventUtils';
-import type { TenantParticipationPatch } from '../../utils/api/tenantParticipationsApi';
+import {
+  fetchTenantParticipationOptions,
+  TENANT_PARTICIPATION_FALLBACK_OPTIONS,
+  type TenantParticipationPatch,
+} from '../../utils/api/tenantParticipationsApi';
+import type { TenantParticipationOptionPublic } from '../../types';
+import { TenantParticipationOptionsModal } from './TenantParticipationOptionsModal';
 
 const KIND_LABELS: Record<TenantParticipationKind, string> = {
   booth: 'Open booth',
@@ -42,33 +47,16 @@ const TONE_DOTS: Record<string, string> = {
   idle: 'bg-[var(--wf-ink-muted)]',
 };
 
-const VOUCHER_TYPE_LABELS: Record<TenantParticipationVoucherType, string> = {
-  discount_percent: 'Diskon persentase',
-  discount_amount: 'Potongan harga',
-  buy1get1: 'Beli 1 gratis 1',
-  free_item: 'Gratis item',
-  min_spend: 'Diskon minimum belanja',
-  other: 'Lainnya',
-};
+/**
+ * Label nilai opsi dari fallback bawaan (seed DB). Nilai di luar daftar
+ * (opsi custom admin, atau nilai lama yang opsinya sudah dihapus) tampil
+ * apa adanya — bukan hilang.
+ */
+const OPTION_LABELS: Record<string, string> = Object.fromEntries(
+  TENANT_PARTICIPATION_FALLBACK_OPTIONS.map((option) => [option.value, option.label]),
+);
 
-const VOUCHER_FORMAT_LABELS: Record<TenantParticipationVoucherFormat, string> = {
-  digital: 'Digital',
-  fisik: 'Fisik',
-  both: 'Digital & fisik',
-};
-
-const SCHEME_LABELS: Record<TenantParticipation['boothScheme'], string> = {
-  solo: 'Booth sendiri',
-  joint: 'Gabungan tenant',
-  mall_support: 'Butuh dukungan mall',
-};
-
-const VOUCHER_TYPE_OPTIONS = (Object.keys(VOUCHER_TYPE_LABELS) as TenantParticipationVoucherType[])
-  .map((value) => ({ value, label: VOUCHER_TYPE_LABELS[value] }));
-const VOUCHER_FORMAT_OPTIONS = (Object.keys(VOUCHER_FORMAT_LABELS) as TenantParticipationVoucherFormat[])
-  .map((value) => ({ value, label: VOUCHER_FORMAT_LABELS[value] }));
-const SCHEME_OPTIONS = (Object.keys(SCHEME_LABELS) as TenantParticipation['boothScheme'][])
-  .map((value) => ({ value, label: SCHEME_LABELS[value] }));
+const optionLabel = (value: string): string => OPTION_LABELS[value] ?? value;
 
 /**
  * Dua status yang mengubah nasib pengajuan dikonfirmasi; Menghubungi dan
@@ -110,10 +98,10 @@ interface CorrectionDraft {
   boothProducts: string;
   boothScheme: TenantParticipation['boothScheme'];
   boothNeeds: string;
-  voucherType: TenantParticipationVoucherType;
+  voucherType: TenantParticipation['voucherType'];
   voucherTerms: string;
   voucherQuota: string;
-  voucherFormat: TenantParticipationVoucherFormat;
+  voucherFormat: TenantParticipation['voucherFormat'];
 }
 
 function correctionFrom(item: TenantParticipation): CorrectionDraft {
@@ -189,6 +177,19 @@ export function TenantParticipationManager({
   const [notesDraft, setNotesDraft] = useState<Record<string, { value: string; base: string }>>({});
   const [corrections, setCorrections] = useState<Record<string, CorrectionDraft>>({});
   const [busyId, setBusyId] = useState('');
+  // Opsi form dinamis (dikelola admin lewat modal); fallback bawaan dipakai
+  // sampai daftar server tiba atau bila gagal — dropdown koreksi tetap terisi.
+  const [options, setOptions] = useState<TenantParticipationOptionPublic[]>(TENANT_PARTICIPATION_FALLBACK_OPTIONS);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+
+  const loadOptions = async () => {
+    setOptions(await fetchTenantParticipationOptions());
+  };
+
+  const handleOptionsOpen = () => {
+    setOptionsOpen(true);
+    void loadOptions();
+  };
 
   const pendingCount = participations.filter((item) => item.status === 'pending').length;
   const visibleParticipations = useMemo(
@@ -258,15 +259,34 @@ export function TenantParticipationManager({
     }));
   };
 
+  /** Pilihan aktif per grup + nilai sekarang bila tak ada di daftar (opsi mati/hapus). */
+  const optionChoices = (group: TenantParticipationOptionPublic['group'], current: string) => {
+    const active = options
+      .filter((option) => option.group === group)
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
+    if (current !== '' && !active.some((option) => option.value === current)) {
+      return [...active, { group, value: current, label: `${current} (tidak tersedia lagi)`, sortOrder: 0 }];
+    }
+    return active;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 className="font-display text-lg font-bold text-[var(--wf-ink)]">Partisipasi Tenant</h2>
-        <p className="text-xs text-[var(--wf-ink-muted)]">
-          {pendingCount > 0
-            ? `${pendingCount} dari ${participations.length} pengajuan menunggu tinjauan.`
-            : `${participations.length} pengajuan, tidak ada yang menunggu tinjauan.`}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-[var(--wf-ink-muted)]">
+            {pendingCount > 0
+              ? `${pendingCount} dari ${participations.length} pengajuan menunggu tinjauan.`
+              : `${participations.length} pengajuan, tidak ada yang menunggu tinjauan.`}
+          </p>
+          {!readOnly && (
+            <MdButton variant="outlined" onClick={handleOptionsOpen}>
+              <Settings2 className="h-4 w-4" aria-hidden="true" />
+              Kelola opsi
+            </MdButton>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -369,7 +389,7 @@ export function TenantParticipationManager({
                 {showVoucher && (
                   <span className="inline-flex items-center gap-1">
                     <Tag className="h-3.5 w-3.5" aria-hidden="true" />
-                    {VOUCHER_TYPE_LABELS[item.voucherType]}
+                    {optionLabel(item.voucherType)}
                     {item.voucherQuota !== null && ` · ${item.voucherQuota} voucher`}
                   </span>
                 )}
@@ -417,7 +437,7 @@ export function TenantParticipationManager({
                         {item.boothSize && <span className="ml-2 text-xs text-[var(--wf-ink-muted)]">· {item.boothSize}</span>}
                       </p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
-                        Skema: {SCHEME_LABELS[item.boothScheme]}
+                        Skema: {optionLabel(item.boothScheme)}
                         {item.boothNeeds && <span> · Kebutuhan: {item.boothNeeds}</span>}
                       </p>
                     </div>
@@ -427,7 +447,7 @@ export function TenantParticipationManager({
                       <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">Voucher</p>
                       <p className="[overflow-wrap:anywhere]">{item.voucherTerms || '—'}</p>
                       <p className="text-xs text-[var(--wf-ink-muted)]">
-                        {VOUCHER_TYPE_LABELS[item.voucherType]} · {VOUCHER_FORMAT_LABELS[item.voucherFormat]}
+                        {optionLabel(item.voucherType)} · {optionLabel(item.voucherFormat)}
                         {item.voucherQuota !== null && ` · kuota ${item.voucherQuota}`}
                       </p>
                     </div>
@@ -475,10 +495,10 @@ export function TenantParticipationManager({
                                     maxLength={200}
                                     onChange={(value) => setCorrection(item, { boothArea: value })}
                                   />
-                                  <MdTextField
+                                  <MdSelect
                                     label="Ukuran booth"
                                     value={c.boothSize}
-                                    maxLength={100}
+                                    options={optionChoices('booth_size', c.boothSize).map((option) => ({ value: option.value, label: option.label }))}
                                     onChange={(value) => setCorrection(item, { boothSize: value })}
                                   />
                                   <MdTextField
@@ -503,7 +523,7 @@ export function TenantParticipationManager({
                                   <MdSelect
                                     label="Skema booth"
                                     value={c.boothScheme}
-                                    options={SCHEME_OPTIONS}
+                                    options={optionChoices('booth_scheme', c.boothScheme).map((option) => ({ value: option.value, label: option.label }))}
                                     onChange={(value) => setCorrection(item, { boothScheme: value as TenantParticipation['boothScheme'] })}
                                   />
                                   <MdTextField
@@ -519,14 +539,14 @@ export function TenantParticipationManager({
                                   <MdSelect
                                     label="Jenis voucher"
                                     value={c.voucherType}
-                                    options={VOUCHER_TYPE_OPTIONS}
-                                    onChange={(value) => setCorrection(item, { voucherType: value as TenantParticipationVoucherType })}
+                                    options={optionChoices('voucher_type', c.voucherType).map((option) => ({ value: option.value, label: option.label }))}
+                                    onChange={(value) => setCorrection(item, { voucherType: value as TenantParticipation['voucherType'] })}
                                   />
                                   <MdSelect
                                     label="Format voucher"
                                     value={c.voucherFormat}
-                                    options={VOUCHER_FORMAT_OPTIONS}
-                                    onChange={(value) => setCorrection(item, { voucherFormat: value as TenantParticipationVoucherFormat })}
+                                    options={optionChoices('voucher_format', c.voucherFormat).map((option) => ({ value: option.value, label: option.label }))}
+                                    onChange={(value) => setCorrection(item, { voucherFormat: value as TenantParticipation['voucherFormat'] })}
                                   />
                                   <MdTextField
                                     label="Kuota voucher (kosongkan bila tanpa kuota)"
@@ -600,6 +620,14 @@ export function TenantParticipationManager({
           );
         })}
       </ul>
+
+      {!readOnly && (
+        <TenantParticipationOptionsModal
+          isOpen={optionsOpen}
+          onClose={() => setOptionsOpen(false)}
+          onSaved={() => void loadOptions()}
+        />
+      )}
     </div>
   );
 }

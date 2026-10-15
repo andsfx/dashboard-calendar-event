@@ -446,6 +446,32 @@ export interface TenantParticipationStatusResult {
   updatedAt: string;
 }
 
+// ─── Opsi form partisipasi (dikelola admin) ─────────────────────────
+/** Kelompok opsi: skema/ukuran booth, jenis/format voucher. */
+export type TenantParticipationOptionGroup =
+  | 'booth_scheme' | 'booth_size' | 'voucher_type' | 'voucher_format';
+
+/** Satu pilihan di dropdown form partisipasi — baris tenant_participation_options. */
+export interface TenantParticipationOption {
+  id: string;
+  group: TenantParticipationOptionGroup;
+  /** Slug yang tersimpan di tenant_participations (bukan teks bebas). */
+  value: string;
+  label: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Varian publik: hanya opsi aktif, tanpa metadata admin. */
+export interface TenantParticipationOptionPublic {
+  group: TenantParticipationOptionGroup;
+  value: string;
+  label: string;
+  sortOrder: number;
+}
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;

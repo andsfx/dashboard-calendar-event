@@ -4,6 +4,9 @@ import type {
   TenantParticipation,
   TenantParticipationEligibleEvent,
   TenantParticipationInput,
+  TenantParticipationOption,
+  TenantParticipationOptionGroup,
+  TenantParticipationOptionPublic,
   TenantParticipationPublicItem,
   TenantParticipationStatus,
   TenantParticipationStatusResult,
@@ -23,6 +26,31 @@ function num(value: unknown): number | null {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }
+
+/**
+ * Opsi bawaan = seed DB (migrasi 2026-10-15-tenant-participation-options.sql).
+ * Dipakai saat GET /options gagal — form tetap terisi meski endpoint mati.
+ * Jaga sinkron dengan seed; label boleh beda karena hanya fallback sesaat.
+ */
+export const TENANT_PARTICIPATION_FALLBACK_OPTIONS: TenantParticipationOptionPublic[] = [
+  { group: 'booth_scheme', value: 'solo', label: 'Booth sendiri', sortOrder: 10 },
+  { group: 'booth_scheme', value: 'joint', label: 'Gabungan beberapa tenant', sortOrder: 20 },
+  { group: 'booth_scheme', value: 'mall_support', label: 'Butuh dukungan mall (meja, listrik, dsb.)', sortOrder: 30 },
+  { group: 'booth_size', value: '2x2', label: '2 × 2 m', sortOrder: 10 },
+  { group: 'booth_size', value: '3x3', label: '3 × 3 m', sortOrder: 20 },
+  { group: 'booth_size', value: '4x4', label: '4 × 4 m', sortOrder: 30 },
+  { group: 'booth_size', value: 'custom', label: 'Ukuran lain (ditulis di catatan)', sortOrder: 40 },
+  { group: 'voucher_type', value: 'discount_percent', label: 'Diskon persentase (mis. 20%)', sortOrder: 10 },
+  { group: 'voucher_type', value: 'discount_amount', label: 'Potongan harga tetap (mis. Rp20.000)', sortOrder: 20 },
+  { group: 'voucher_type', value: 'buy1get1', label: 'Beli 1 gratis 1', sortOrder: 30 },
+  { group: 'voucher_type', value: 'free_item', label: 'Gratis item atau tambahan', sortOrder: 40 },
+  { group: 'voucher_type', value: 'min_spend', label: 'Diskon minimum belanja', sortOrder: 50 },
+  { group: 'voucher_type', value: 'other', label: 'Lainnya', sortOrder: 60 },
+  { group: 'voucher_format', value: 'digital', label: 'Digital (kode atau QR dari tenant)', sortOrder: 10 },
+  { group: 'voucher_format', value: 'fisik', label: 'Fisik (kupon cetak)', sortOrder: 20 },
+  { group: 'voucher_format', value: 'both', label: 'Digital dan fisik', sortOrder: 30 },
+];
+
 
 function mapPublicItem(row: Record<string, unknown>): TenantParticipationPublicItem {
   return {
@@ -189,4 +217,75 @@ export async function updateTenantParticipation(
 export async function deleteTenantParticipation(id: string): Promise<void> {
   const result = await adminAction<{ success: boolean; error?: string }>('deleteTenantParticipation', { id });
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus pengajuan');
+}
+
+// ─── Opsi form (dikelola admin) ──────────────────────────────────
+
+function mapOption(row: Record<string, unknown>): TenantParticipationOption {
+  return {
+    id: str(row.id),
+    group: (str(row.group) || 'booth_scheme') as TenantParticipationOption['group'],
+    value: str(row.value),
+    label: str(row.label),
+    sortOrder: num(row.sort_order) ?? 0,
+    isActive: row.is_active === true,
+    createdAt: str(row.created_at),
+    updatedAt: str(row.updated_at),
+  };
+}
+
+/**
+ * Opsi form aktif untuk form publik. GAGAL = fallback ke opsi bawaan (lihat
+ * `TENANT_PARTICIPATION_FALLBACK_OPTIONS`): form tidak boleh mati karena
+ * bagian pendukung ini, dan nilai bawaan identik dengan seed DB.
+ */
+export async function fetchTenantParticipationOptions(): Promise<TenantParticipationOptionPublic[]> {
+  try {
+    const rows = await apiGet<Record<string, unknown>[]>('/tenant-participations/options');
+    return (Array.isArray(rows) ? rows : []).map((row) => ({
+      group: (str(row.group) || 'booth_scheme') as TenantParticipationOptionGroup,
+      value: str(row.value),
+      label: str(row.label),
+      sortOrder: num(row.sort_order) ?? 0,
+    }));
+  } catch {
+    return TENANT_PARTICIPATION_FALLBACK_OPTIONS;
+  }
+}
+
+/** Daftar opsi LENGKAP (termasuk nonaktif) untuk panel kelola di dashboard. */
+export async function fetchAllTenantParticipationOptions(): Promise<TenantParticipationOption[]> {
+  const result = await adminAction<{ success: boolean; error?: string; data?: Record<string, unknown>[] }>(
+    'listTenantParticipationOptions', {},
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat opsi form partisipasi');
+  return (result.data || []).map(mapOption);
+}
+
+export async function createTenantParticipationOption(
+  group: TenantParticipationOptionGroup,
+  value: string,
+  label: string,
+  sortOrder = 0,
+): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>(
+    'createTenantParticipationOption', { group, value, label, sortOrder },
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal menambah opsi');
+}
+
+/** Ubah label/urutan/saklar aktif. `value` dan `group` memang tidak bisa diubah. */
+export async function updateTenantParticipationOption(
+  id: string,
+  patch: Partial<{ label: string; sortOrder: number; isActive: boolean }>,
+): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>(
+    'updateTenantParticipationOption', { id, ...patch },
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal memperbarui opsi');
+}
+
+export async function deleteTenantParticipationOption(id: string): Promise<void> {
+  const result = await adminAction<{ success: boolean; error?: string }>('deleteTenantParticipationOption', { id });
+  if (!result.success) throw new ApiError(result.error || 'Gagal menghapus opsi');
 }

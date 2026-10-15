@@ -10,6 +10,12 @@
  * WAJIB ada. `booth` = booth saja; `voucher` = voucher saja; `both` = keduanya.
  * Field kelompok yang tidak dipilih tetap dikirim '' / null oleh klien, dan
  * server mengabaikannya saat INSERT (bukan menyimpan sampah).
+ *
+ * Opsi dinamis: `booth_scheme`, `booth_size`, `voucher_type`, `voucher_format`
+ * tetap divalidasi BENTUKNYA di sini (slug enum), tetapi KEAKTIFANNYA
+ * diverifikasi route submit terhadap tenant_participation_options — opsi yang
+ * dimatikan admin tidak bisa dikirim lagi, sementara pengajuan lama tetap
+ * terbaca. Skema CRUD opsi ada di TENANT_PARTICIPATION_OPTION_ACTION_SCHEMAS.
  */
 import { z } from 'zod';
 
@@ -26,6 +32,54 @@ export const TENANT_PARTICIPATION_VOUCHER_TYPES = [
   'discount_percent', 'discount_amount', 'buy1get1', 'free_item', 'min_spend', 'other',
 ];
 export const TENANT_PARTICIPATION_VOUCHER_FORMATS = ['digital', 'fisik', 'both'];
+
+// ─── Opsi form dikelola admin (tenant_participation_options) ────────
+// Opsi = baris di tabel opsi: pasangan (group, value) dengan label tampil,
+// urutan, dan saklar aktif. Value = slug yang tersimpan di
+// tenant_participations sehingga data lama tetap terbaca saat label berubah.
+
+export const TENANT_PARTICIPATION_OPTION_GROUPS = [
+  'booth_scheme', 'booth_size', 'voucher_type', 'voucher_format',
+];
+
+/** Value = slug: huruf kecil/angka/tanda hubung/garis bawah, 1..50 karakter. */
+const OPTION_VALUE = z.string().trim().toLowerCase()
+  .min(1, 'Value opsi wajib diisi')
+  .max(50, 'Value opsi maksimal 50 karakter')
+  .regex(/^[a-z0-9][a-z0-9_-]*$/, 'Value hanya huruf kecil, angka, tanda hubung, atau garis bawah');
+
+const OPTION_LABEL = z.string().trim()
+  .min(1, 'Label opsi wajib diisi')
+  .max(100, 'Label opsi maksimal 100 karakter');
+
+const OPTION_SORT = z.number().int('Urutan harus bilangan bulat').min(0, 'Urutan tidak boleh negatif').max(9999, 'Urutan maksimal 9999');
+
+/** Aksi admin pengelolaan opsi. */
+export const TENANT_PARTICIPATION_OPTION_ACTION_SCHEMAS = {
+  listTenantParticipationOptions: z.object({ action: z.literal('listTenantParticipationOptions') }),
+  createTenantParticipationOption: z.object({
+    action: z.literal('createTenantParticipationOption'),
+    group: z.enum(TENANT_PARTICIPATION_OPTION_GROUPS),
+    value: OPTION_VALUE,
+    label: OPTION_LABEL,
+    sortOrder: OPTION_SORT.optional().default(0),
+  }),
+  updateTenantParticipationOption: z.object({
+    action: z.literal('updateTenantParticipationOption'),
+    id: z.string().min(1, 'ID opsi wajib diisi'),
+    label: OPTION_LABEL.optional(),
+    sortOrder: OPTION_SORT.optional(),
+    isActive: z.boolean().optional(),
+  }).refine(
+    (v) => v.label !== undefined || v.sortOrder !== undefined || v.isActive !== undefined,
+    { message: 'Tidak ada perubahan' },
+  ),
+  deleteTenantParticipationOption: z.object({
+    action: z.literal('deleteTenantParticipationOption'),
+    id: z.string().min(1, 'ID opsi wajib diisi'),
+  }),
+};
+
 
 /** Kuota voucher opsional: kosong = tanpa kuota. Angka bulat 0..100000. */
 const voucherQuota = z.union([

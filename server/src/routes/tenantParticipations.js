@@ -2,6 +2,7 @@
  * Routes partisipasi tenant (open booth & voucher) — mount di /api/v1.
  *
  *   GET  /tenant-participations/events     publik — event eligible utk dropdown form
+ *   GET  /tenant-participations/options    publik — opsi form aktif (dikelola admin)
  *   GET  /tenant-participations            publik — daftar approved per event (tanpa PII)
  *   POST /tenant-participations            publik — submit pengajuan, balas { success, code }
  *   POST /tenant-participations/status     publik — cek status { code, phone }
@@ -73,6 +74,27 @@ router.get('/tenant-participations/events', async (_req, res, next) => {
   }
 });
 
+// ─── GET /tenant-participations/options — opsi form aktif ───────────
+// Dipakai form publik: daftar skema/ukuran booth, jenis/format voucher yang
+// AKTIF (dikelola admin). Respons kecil dan jarang berubah — cache client 5
+// menit; kalau endpoint gagal, klien fallback ke opsi bawaan agar form tidak
+// pernah mati karena bagian pendukung ini.
+router.get('/tenant-participations/options', async (_req, res, next) => {
+  if (!enforceRateLimit(_req, res, 'tenant-participation-options', 30, 60_000)) return;
+  try {
+    const { rows } = await db.query(
+      `SELECT "group", value, label, sort_order
+       FROM tenant_participation_options
+       WHERE is_active = true
+       ORDER BY "group" ASC, sort_order ASC, label ASC`,
+    );
+    res.set('Cache-Control', 'public, max-age=300');
+    return res.json({ success: true, data: rows });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // ─── GET /tenant-participations?event_id= — daftar approved ─────────
 // Untuk section "Tenant di event ini" pada halaman detail event publik.
 // Kolom aman saja: kontak PIC, kebutuhan fasilitas, skema, dan catatan
@@ -133,6 +155,38 @@ router.post('/tenant-participations', async (req, res, next) => {
         success: false,
         error: 'Pengajuan untuk event ini sudah ditutup (paling lambat H-1 sebelum event mulai).',
       });
+    }
+
+    // Opsi form (skema/ukuran booth, jenis/format voucher) harus MASIH aktif
+    // saat submit. Form bisa saja dibuka sebelum admin mematikan sebuah opsi;
+    // nilai klien tidak dipercaya. Ukuran booth opsional: '' boleh lewat,
+    // tapi nilai terisi harus terdaftar-aktif.
+    const optionRefs = [
+      ['booth_scheme', input.boothScheme, 'Skema booth'],
+      ['booth_size', input.boothSize, 'Ukuran booth'],
+      ['voucher_type', input.voucherType, 'Jenis voucher'],
+      ['voucher_format', input.voucherFormat, 'Format voucher'],
+    ].filter(([, value]) => value !== '');
+
+    if (optionRefs.length > 0) {
+      const { rows: activeOptions } = await db.query(
+        `SELECT "group", value FROM tenant_participation_options
+         WHERE is_active = true
+           AND ("group", value) IN (${optionRefs.map((_, i) => `($${i * 2 + 1}, $${i * 2 + 2})`).join(', ')})`,
+        optionRefs.flatMap(([group, value]) => [group, value]),
+      );
+      const activeKeys = new Set(activeOptions.map((row) => `${row.group}:${row.value}`));
+      const inactive = optionRefs.find(([group, value]) => !activeKeys.has(`${group}:${value}`));
+      if (inactive) {
+        const labels = {
+          booth_scheme: 'Skema booth', booth_size: 'Ukuran booth',
+          voucher_type: 'Jenis voucher', voucher_format: 'Format voucher',
+        };
+        return res.status(400).json({
+          success: false,
+          error: `${labels[inactive[0]]} tidak lagi tersedia. Muat ulang halaman dan pilih yang lain.`,
+        });
+      }
     }
 
     // Kelompok field yang tidak dipilih tidak disimpan — bukan menyimpan sampah

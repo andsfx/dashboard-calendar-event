@@ -149,6 +149,12 @@ export {
   fetchTenantParticipations,
   updateTenantParticipation,
   deleteTenantParticipation,
+  fetchTenantParticipationOptions,
+  fetchAllTenantParticipationOptions,
+  createTenantParticipationOption,
+  updateTenantParticipationOption,
+  deleteTenantParticipationOption,
+  TENANT_PARTICIPATION_FALLBACK_OPTIONS,
   type TenantParticipationPatch,
 } from './api/tenantParticipationsApi';
 

@@ -858,6 +858,28 @@ CREATE TABLE IF NOT EXISTS tenant_participations (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Opsi form partisipasi (skema booth, ukuran, jenis voucher, format voucher)
+-- dikelola admin: tambah/ubah label/matiikan via dashboard. `value` = slug
+-- yang disimpan di tenant_participations. is_active=false menyembunyikan dari
+-- form publik dan menolaknya di submit; data pengajuan lama tidak tersentuh.
+CREATE TABLE IF NOT EXISTS tenant_participation_options (
+  id TEXT PRIMARY KEY DEFAULT ('tpo_' || replace(gen_random_uuid()::text, '-', '')),
+  "group" TEXT NOT NULL
+    CONSTRAINT chk_tpo_group CHECK ("group" IN ('booth_scheme','booth_size','voucher_type','voucher_format')),
+  value TEXT NOT NULL,
+  label TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT uq_tenant_participation_options_group_value UNIQUE ("group", value),
+  CONSTRAINT chk_tenant_participation_options_value CHECK (value <> '' AND length(value) <= 50),
+  CONSTRAINT chk_tenant_participation_options_label CHECK (label <> '' AND length(label) <= 100)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tenant_participation_options_group
+  ON tenant_participation_options ("group", sort_order);
+
 CREATE INDEX IF NOT EXISTS idx_tenant_participations_event ON tenant_participations (event_id, status);
 CREATE INDEX IF NOT EXISTS idx_tenant_participations_status ON tenant_participations (status);
 CREATE INDEX IF NOT EXISTS idx_tenant_participations_created_at ON tenant_participations (created_at DESC);
@@ -873,6 +895,11 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_tenant_participation_options_updated_at ON tenant_participation_options;
+CREATE TRIGGER trg_tenant_participation_options_updated_at
+  BEFORE UPDATE ON tenant_participation_options
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS events_updated_at ON events;
 CREATE TRIGGER events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXECUTE FUNCTION update_updated_at();

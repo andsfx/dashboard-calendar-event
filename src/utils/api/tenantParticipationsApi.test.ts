@@ -7,6 +7,12 @@ import {
   fetchTenantParticipations,
   updateTenantParticipation,
   deleteTenantParticipation,
+  fetchTenantParticipationOptions,
+  fetchAllTenantParticipationOptions,
+  createTenantParticipationOption,
+  updateTenantParticipationOption,
+  deleteTenantParticipationOption,
+  TENANT_PARTICIPATION_FALLBACK_OPTIONS,
 } from './tenantParticipationsApi';
 import type { TenantParticipationInput } from '../../types';
 
@@ -219,5 +225,81 @@ describe('tenantParticipationsApi — admin', () => {
       '/api/v1/admin/deleteTenantParticipation': { body: { success: false, error: 'Pengajuan tidak ditemukan' } },
     });
     await expect(deleteTenantParticipation('tpr-x')).rejects.toThrow('Pengajuan tidak ditemukan');
+  });
+});
+
+describe('tenantParticipationsApi — opsi form (dikelola admin)', () => {
+  it('memetakan opsi publik snake_case → camelCase', async () => {
+    mockFetchRoutes({
+      '/api/v1/tenant-participations/options': {
+        body: {
+          success: true,
+          data: [
+            { group: 'booth_scheme', value: 'solo', label: 'Booth sendiri', sort_order: 10 },
+            { group: 'voucher_type', value: 'outdoor', label: 'Outdoor', sort_order: 70 },
+          ],
+        },
+      },
+    });
+
+    const options = await fetchTenantParticipationOptions();
+    expect(options).toEqual([
+      { group: 'booth_scheme', value: 'solo', label: 'Booth sendiri', sortOrder: 10 },
+      { group: 'voucher_type', value: 'outdoor', label: 'Outdoor', sortOrder: 70 },
+    ]);
+  });
+
+  it('GET /options gagal → fallback opsi bawaan (form tetap terisi)', async () => {
+    mockFetchRoutes({
+      '/api/v1/tenant-participations/options': { status: 500, body: { success: false, error: 'DB down' } },
+    });
+
+    const options = await fetchTenantParticipationOptions();
+    expect(options.length).toBe(TENANT_PARTICIPATION_FALLBACK_OPTIONS.length);
+    expect(options.some((option) => option.group === 'booth_scheme' && option.value === 'solo')).toBe(true);
+  });
+
+  it('memetakan daftar opsi admin lengkap dengan is_active', async () => {
+    mockFetchRoutes({
+      '/api/v1/admin/listTenantParticipationOptions': {
+        body: {
+          success: true,
+          data: [{
+            id: 'tpo-1', group: 'booth_scheme', value: 'solo', label: 'Booth sendiri',
+            sort_order: 10, is_active: false, created_at: '2026-10-15T01:00:00Z', updated_at: '2026-10-15T01:00:00Z',
+          }],
+        },
+      },
+    });
+
+    const rows = await fetchAllTenantParticipationOptions();
+    expect(rows[0]?.id).toBe('tpo-1');
+    expect(rows[0]?.isActive).toBe(false);
+    expect(rows[0]?.sortOrder).toBe(10);
+  });
+
+  it('create/update/delete opsi mengirim payload yang benar', async () => {
+    mockFetchRoutes({
+      '/api/v1/admin/createTenantParticipationOption': { body: { success: true, data: { id: 'tpo-9' } } },
+      '/api/v1/admin/updateTenantParticipationOption': { body: { success: true } },
+      '/api/v1/admin/deleteTenantParticipationOption': { body: { success: true } },
+    });
+
+    await createTenantParticipationOption('booth_size', 'outdoor', 'Outdoor / halaman', 50);
+    await updateTenantParticipationOption('tpo-1', { label: 'Booth mandiri', isActive: false });
+    await deleteTenantParticipationOption('tpo-1');
+
+    const fetchMock = vi.mocked(globalThis.fetch);
+    const bodies = fetchMock.mock.calls.map((call) => JSON.parse(String((call[1] as RequestInit).body)));
+    expect(bodies[0]).toEqual({ action: 'createTenantParticipationOption', group: 'booth_size', value: 'outdoor', label: 'Outdoor / halaman', sortOrder: 50 });
+    expect(bodies[1]).toEqual({ action: 'updateTenantParticipationOption', id: 'tpo-1', label: 'Booth mandiri', isActive: false });
+    expect(bodies[2]).toEqual({ action: 'deleteTenantParticipationOption', id: 'tpo-1' });
+  });
+
+  it('create gagal (value duplikat) → melempar pesan server', async () => {
+    mockFetchRoutes({
+      '/api/v1/admin/createTenantParticipationOption': { body: { success: false, error: 'Opsi dengan value itu sudah ada' } },
+    });
+    await expect(createTenantParticipationOption('booth_scheme', 'solo', 'Duplikat')).rejects.toThrow('Opsi dengan value itu sudah ada');
   });
 });

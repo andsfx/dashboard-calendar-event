@@ -7,16 +7,18 @@ import type {
   TenantParticipationEligibleEvent,
   TenantParticipationInput,
   TenantParticipationKind,
+  TenantParticipationOptionGroup,
+  TenantParticipationOptionPublic,
   TenantParticipationStatus,
   TenantParticipationStatusResult,
-  TenantParticipationVoucherFormat,
-  TenantParticipationVoucherType,
 } from '../types';
 import {
   fetchEventAreas,
   fetchTenantParticipationEvents,
+  fetchTenantParticipationOptions,
   fetchTenantParticipationStatus,
   submitTenantParticipation,
+  TENANT_PARTICIPATION_FALLBACK_OPTIONS,
 } from '../utils/domainApi';
 import { TenantSearchSelect } from '../components/survey/TenantSurveyShared';
 import type { TenantDropdownOption } from '../utils/domainApi';
@@ -35,27 +37,6 @@ const KIND_OPTIONS: { value: TenantParticipationKind; label: string; hint: strin
   { value: 'booth', label: 'Open booth', hint: 'Berjualan atau promosi di area event' },
   { value: 'voucher', label: 'Voucher', hint: 'Diskon atau penawaran khusus untuk pengunjung event' },
   { value: 'both', label: 'Keduanya', hint: 'Booth sekaligus voucher untuk event yang sama' },
-];
-
-const VOUCHER_TYPES: { value: TenantParticipationVoucherType; label: string }[] = [
-  { value: 'discount_percent', label: 'Diskon persentase (mis. 20%)' },
-  { value: 'discount_amount', label: 'Potongan harga tetap (mis. Rp20.000)' },
-  { value: 'buy1get1', label: 'Beli 1 gratis 1' },
-  { value: 'free_item', label: 'Gratis item atau tambahan' },
-  { value: 'min_spend', label: 'Diskon minimum belanja' },
-  { value: 'other', label: 'Lainnya' },
-];
-
-const VOUCHER_FORMATS: { value: TenantParticipationVoucherFormat; label: string }[] = [
-  { value: 'digital', label: 'Digital (kode atau QR dari tenant)' },
-  { value: 'fisik', label: 'Fisik (kupon cetak)' },
-  { value: 'both', label: 'Digital dan fisik' },
-];
-
-const SCHEME_OPTIONS: { value: TenantParticipationInput['boothScheme']; label: string }[] = [
-  { value: 'solo', label: 'Booth sendiri' },
-  { value: 'joint', label: 'Gabungan beberapa tenant' },
-  { value: 'mall_support', label: 'Butuh dukungan mall (meja, listrik, dsb.)' },
 ];
 
 const STATUS_LABELS: Record<TenantParticipationStatus, string> = {
@@ -105,6 +86,9 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
   const [events, setEvents] = useState<TenantParticipationEligibleEvent[]>([]);
   const [eventsFailed, setEventsFailed] = useState(false);
   const [areaOptions, setAreaOptions] = useState<string[]>([]);
+  // Opsi form (skema/ukuran booth, jenis/format voucher) dikelola admin.
+  // Fallback bawaan dipakai sampai daftar dari server tiba (atau bila gagal).
+  const [options, setOptions] = useState<TenantParticipationOptionPublic[]>(TENANT_PARTICIPATION_FALLBACK_OPTIONS);
   const [selectedTenant, setSelectedTenant] = useState<TenantDropdownOption | null>(null);
   const [manualEntry, setManualEntry] = useState(false);
   const [autoFilled, setAutoFilled] = useState({ unitNumber: false, tenantCategory: false });
@@ -154,6 +138,30 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       .catch(() => { if (!cancelled) setAreaOptions([]); });
     return () => { cancelled = true; };
   }, []);
+
+  // Opsi form aktif dari server (dikelola admin). fetchTenantParticipationOptions
+  // sudah fallback ke opsi bawaan saat gagal — tidak perlu state error di sini.
+  useEffect(() => {
+    let cancelled = false;
+    fetchTenantParticipationOptions()
+      .then((rows) => { if (!cancelled && rows.length > 0) setOptions(rows); })
+      .catch(() => { /* fallback bawaan sudah dipakai */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Pilihan terkini per grup, terurut. Nilai form yang tidak ada di daftar
+  // (opsi dimatikan admin di sela pengisian) tetap tampil sebagai opsi tambahan
+  // agar textarea/select tidak "kehilangan" nilai yang sudah dipilih tenant.
+  const optionsFor = (group: TenantParticipationOptionGroup): TenantParticipationOptionPublic[] => {
+    const active = options
+      .filter((option) => option.group === group)
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
+    const current = form[group === 'booth_scheme' ? 'boothScheme' : group === 'booth_size' ? 'boothSize' : group === 'voucher_type' ? 'voucherType' : 'voucherFormat'];
+    if (typeof current === 'string' && current !== '' && !active.some((option) => option.value === current)) {
+      return [...active, { group, value: current, label: `${current} (tidak tersedia lagi)`, sortOrder: 0 }];
+    }
+    return active;
+  };
 
   // Event dari CTA halaman detail (`?event=`) dipilih otomatis bila masih eligible.
   useEffect(() => {
@@ -710,7 +718,28 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                     </div>
                     <div>
                       <label className={labelClass} htmlFor="tp-booth-size">Ukuran booth yang dibutuhkan</label>
-                      <input id="tp-booth-size" className={inputClass} value={form.boothSize} onChange={(e) => setField('boothSize', e.target.value)} maxLength={100} placeholder="Contoh: 2×2 m" />
+                      {optionsFor('booth_size').length > 0 ? (
+                        <select
+                          id="tp-booth-size"
+                          className={inputClass}
+                          value={form.boothSize}
+                          onChange={(e) => setField('boothSize', e.target.value)}
+                        >
+                          <option value="">Pilih ukuran…</option>
+                          {optionsFor('booth_size').map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          id="tp-booth-size"
+                          className={inputClass}
+                          value={form.boothSize}
+                          onChange={(e) => setField('boothSize', e.target.value)}
+                          maxLength={100}
+                          placeholder="Contoh: 2×2 m"
+                        />
+                      )}
                     </div>
                     <div>
                       <label className={labelClass} htmlFor="tp-booth-start">
@@ -763,7 +792,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                     <div>
                       <label className={labelClass} htmlFor="tp-booth-scheme">Skema booth</label>
                       <select id="tp-booth-scheme" className={inputClass} value={form.boothScheme} onChange={(e) => setField('boothScheme', e.target.value as TenantParticipationInput['boothScheme'])}>
-                        {SCHEME_OPTIONS.map((option) => (
+                        {optionsFor('booth_scheme').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
@@ -785,16 +814,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className={labelClass} htmlFor="tp-voucher-type">Jenis voucher</label>
-                      <select id="tp-voucher-type" className={inputClass} value={form.voucherType} onChange={(e) => setField('voucherType', e.target.value as TenantParticipationVoucherType)}>
-                        {VOUCHER_TYPES.map((option) => (
+                      <select id="tp-voucher-type" className={inputClass} value={form.voucherType} onChange={(e) => setField('voucherType', e.target.value as TenantParticipationInput['voucherType'])}>
+                        {optionsFor('voucher_type').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                     </div>
                     <div>
                       <label className={labelClass} htmlFor="tp-voucher-format">Format voucher</label>
-                      <select id="tp-voucher-format" className={inputClass} value={form.voucherFormat} onChange={(e) => setField('voucherFormat', e.target.value as TenantParticipationVoucherFormat)}>
-                        {VOUCHER_FORMATS.map((option) => (
+                      <select id="tp-voucher-format" className={inputClass} value={form.voucherFormat} onChange={(e) => setField('voucherFormat', e.target.value as TenantParticipationInput['voucherFormat'])}>
+                        {optionsFor('voucher_format').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>

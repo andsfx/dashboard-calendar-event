@@ -1278,6 +1278,60 @@ async function switchAction(action, req) {
       return { success: true };
     }
 
+    // ── Opsi form partisipasi (dikelola admin) ──────────────────────
+    // Skema/ukuran booth, jenis/format voucher: tambah, ubah label/urutan,
+    // matikan/nyalakan, hapus. Value = slug yang tersimpan di pengajuan;
+    // menghapus opsi TIDAK menyentuh data pengajuan (nilai lama tetap terbaca).
+    case 'listTenantParticipationOptions': {
+      const { rows } = await db.query(
+        `SELECT id, "group", value, label, sort_order, is_active, created_at, updated_at
+         FROM tenant_participation_options
+         ORDER BY "group" ASC, sort_order ASC, label ASC`,
+      );
+      return { success: true, data: rows };
+    }
+
+    case 'createTenantParticipationOption': {
+      const { rows } = await db.query(
+        `INSERT INTO tenant_participation_options ("group", value, label, sort_order)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, "group", value, label, sort_order, is_active`,
+        [body.group, body.value, body.label, body.sortOrder ?? 0],
+      );
+      logActivity(auth.user, 'create_tenant_participation_option', 'tenant_participation_option', rows[0]?.id, { group: body.group, value: body.value }, req);
+      return { success: true, data: rows[0] };
+    }
+
+    case 'updateTenantParticipationOption': {
+      // SET tetap (whitelist manual) — label, urutan, saklar aktif. `value`
+      // dan `group` sengaja tidak bisa diubah: keduanya tertaut ke data
+      // pengajuan yang sudah tersimpan.
+      const sets = [];
+      const values = [];
+      const push = (column, value) => { values.push(value); sets.push(`${column} = $${values.length}`); };
+      if (body.label !== undefined) push('label', body.label);
+      if (body.sortOrder !== undefined) push('sort_order', body.sortOrder);
+      if (body.isActive !== undefined) push('is_active', body.isActive);
+      if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
+      sets.push('updated_at = NOW()');
+      values.push(body.id);
+
+      const { rowCount } = await db.query(
+        `UPDATE tenant_participation_options SET ${sets.join(', ')} WHERE id = $${values.length}`,
+        values,
+      );
+      if (!rowCount) return { success: false, error: 'Opsi tidak ditemukan' };
+      logActivity(auth.user, 'update_tenant_participation_option', 'tenant_participation_option', body.id, { isActive: body.isActive }, req);
+      return { success: true };
+    }
+
+    case 'deleteTenantParticipationOption': {
+      const { rowCount } = await db.query('DELETE FROM tenant_participation_options WHERE id = $1', [body.id]);
+      if (!rowCount) return { success: false, error: 'Opsi tidak ditemukan' };
+      logActivity(auth.user, 'delete_tenant_participation_option', 'tenant_participation_option', body.id, null, req);
+      return { success: true };
+    }
+
     // ══════════ INSIGHT CERDAS — narasi AI (opsional) ══════════
     case 'getInsightNarrative': {
       if (!isAiEnabled()) {
