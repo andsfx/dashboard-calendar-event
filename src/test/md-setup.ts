@@ -44,6 +44,17 @@ if (typeof customElements !== 'undefined') {
   // bisa mendahuluinya. Modul-modul ini di-preload di sini agar promise-nya sudah
   // selesai saat tes berjalan; efek sampingnya tidak ada (mock `md-*` sudah
   // terdaftar dan modulnya hanya mengembalikan komponen).
-  void import('../components/md/MdDialog');
-  void import('../components/modals/ConfirmDialog');
+  //
+  // DITUNGGU (bukan `void import(...)`): preload yang masih terbang saat berkas
+  // tes selesai akan resolve setelah environment jsdom dibongkar — vitest
+  // melaporkannya sebagai `EnvironmentTeardownError` (unhandled rejection) dan
+  // membuat gerbang CI merah meski semua tes lulus. Rantainya panjang
+  // (`modals/ConfirmDialog.tsx` → `md/index.ts` → 18 modul Md*), jadi berkas tes
+  // pendek (mis. community) paling sering kena.
+  //
+  // Import tetap DINAMIS (bukan statis) karena modul React/MD3 ini tidak boleh
+  // dimuat di tes ber-environment `node` (tes server) — import statis akan
+  // melewati penjaga `customElements` di atas dan menyeretnya ke semua berkas.
+  await import('../components/md/MdDialog');
+  await import('../components/modals/ConfirmDialog');
 }
