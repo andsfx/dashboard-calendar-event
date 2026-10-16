@@ -90,7 +90,7 @@ describe('useEvents', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
+    expect(result.current.error).toBe('Gagal memuat data event. Periksa koneksi, lalu coba lagi.');
     expect(result.current.events).toEqual([]);
   });
 

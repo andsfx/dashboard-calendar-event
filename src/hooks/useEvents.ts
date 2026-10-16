@@ -66,7 +66,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       setHolidays(publicData.holidays);
     } catch (err) {
       console.error('Fetch error:', err);
-      setError('Gagal memuat data event. Periksa koneksi atau konfigurasi proxy publik.');
+      setError('Gagal memuat data event. Periksa koneksi, lalu coba lagi.');
     } finally {
       if (!opts?.silent) setIsLoading(false);
     }
