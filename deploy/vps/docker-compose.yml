@@ -69,7 +69,9 @@ services:
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       # Opsional — 'none' utk frontend cross-site (SPA Vercel → api domain lain).
       COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
-      # Opsional — daftar origin (koma) bila bukan "*" (default server).
+      # Origin diizinkan (koma). Entri ber-'*' = pola glob beranchor
+      # (server/src/lib/corsOrigin.js). Kosong = default-deny untuk request
+      # lintas-origin ber-browser. Daftar produksi: lihat README-DEPLOY.md §3.
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       # Presign media — R2 Cloudflare, bukan storage VPS.
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:?isi R2_ACCOUNT_ID di .env}
