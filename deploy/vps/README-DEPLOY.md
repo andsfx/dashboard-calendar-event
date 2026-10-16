@@ -52,10 +52,20 @@ nano .env        # isi DATABASE_URL, JWT_SECRET, R2_* (lihat komentar di file)
 
 > **Produksi wajib** (SPA Vercel cross-site → API domain lain):
 > `COOKIE_SAMESITE=none` (cookie harus dikirim lintas situs; tanpa ini login
-> gagal senyap), `CORS_ORIGIN=https://www.metmalcommunityspace.web.id`
-> (whitelist origin; origin lain → 403), dan `COOKIE_DOMAIN` hanya bila cookie
-> perlu lintas-subdomain. `JWT_SECRET` + `POSTGRES_PASSWORD` dari
-> `openssl rand -hex 32`.
+> gagal senyap), `CORS_ORIGIN` (whitelist origin; origin lain → 403), dan
+> `COOKIE_DOMAIN` hanya bila cookie perlu lintas-subdomain.
+> `JWT_SECRET` + `POSTGRES_PASSWORD` dari `openssl rand -hex 32`.
+>
+> `CORS_ORIGIN` = daftar dipisah koma; entri ber-`*` adalah pola beranchor
+> (`server/src/lib/corsOrigin.js`). **Setiap origin yang dipakai SPA harus
+> terdaftar** — kalau tidak, browser menolak responsnya (403) dan gejalanya di
+> UI: "Gagal memuat data event. Periksa koneksi, lalu coba lagi." plus dashboard
+> tak bisa login. Isi produksi (2026-10-16):
+> `https://www.metmalcommunityspace.web.id,https://metmalcommunityspace.web.id,http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5198,https://metmal-community-*-andy-safiis-projects.vercel.app`.
+> Dua jebakan yang sudah memakan korban: `localhost` ≠ `127.0.0.1`, dan Vite
+> memindahkan port (5174, 5175, …) saat 5173 terpakai. Pola deployment
+> **wajib** memuat slug tim (`-andy-safiis-projects`) — pola selebar
+> `https://*.vercel.app` membuka API ke project milik akun lain.
 
 > **Opsional — narasi AI panel Insight Cerdas** (`AI_BASE_URL`, `AI_API_KEY`,
 > `AI_MODEL`; lihat komentar di `.env.example`). Bila ketiganya kosong, panel
@@ -86,6 +96,15 @@ npm run build   # menghasilkan dist/ yang di-mount nginx
 > Kalau benar-benar kosong, SPA menembak same-origin `/api/v1` → Vercel balas
 > 404 dan seluruh app rusak. Verifikasi: grep bundle live harus memuat
 > `metmal.metmalcommunityspace.web.id".replace(/\/+$/,"")+"/api/v1"`.
+>
+> **Env Vercel berlaku per-environment** — `VITE_API_URL` untuk **Preview**
+> didaftarkan terpisah. Bila hanya Production yang terisi, build preview
+> memanggang `API_V1_BASE = '/api/v1'`; SPA menembak
+> `<preview>.vercel.app/api/v1/*` yang tidak di-rewrite (`vercel.json`
+> mengecualikan `api`) → 404 di semua panggilan, jadwal gagal, dashboard tak
+> bisa login. Set dan pastikan:
+> `vercel env add VITE_API_URL preview --value https://metmal.metmalcommunityspace.web.id --force --no-sensitive`
+> → `vercel env ls` harus memuat var di **Production dan Preview**.
 
 > 🚨 **JANGAN `scp` hasil `npm run build` lokal ke `dist/` VPS bila SPA juga
 > dilayani Vercel.** `vercel.json` me-rewrite `www/events/:id` ke VPS, dan shell

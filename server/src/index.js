@@ -29,7 +29,9 @@
  *   DATABASE_URL   pg connection string (wajib utk data; boot tanpa ini aman)
  *   JWT_SECRET     tanda tangan JWT (wajib utk auth; boot tanpa ini aman,
  *                  /auth/login + /auth/me akan 503/500 bersih)
- *   CORS_ORIGIN    daftar origin dipisah koma; default '*' (produksi set ini)
+ *   CORS_ORIGIN    daftar origin dipisah koma; entri ber-'*' = pola glob
+ *                  beranchor (lib/corsOrigin.js); kosong = default-deny
+ *                  untuk request lintas-origin ber-browser (produksi set ini)
  *   COOKIE_DOMAIN  opsional; Scope Domain cookie
  */
 import 'dotenv/config';
@@ -48,6 +50,7 @@ import extraRouter from './routes/extra.js';
 import exhibitionsRouter from './routes/exhibitions.js';
 import tenantProposalsRouter from './routes/tenantProposals.js';
 import tenantParticipationsRouter from './routes/tenantParticipations.js';
+import { buildOriginMatcher } from './lib/corsOrigin.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -57,16 +60,16 @@ app.disable('x-powered-by');
 // klien — sumber spoof rate-limit (audit 2026-09-09).
 app.set('trust proxy', ['loopback', '172.19.0.0/16']);
 
+// Whitelist strict (CORS_ORIGIN): entri eksak + pola glob beranchor — aturan
+// `*` ada di lib/corsOrigin.js. Origin tak dikenal → 403, dan gejalanya di UI
+// adalah "Gagal memuat data event" + dashboard tak bisa login, karena browser
+// menolak membaca responsnya. Tanpa konfigurasi → default-deny; tanpa Origin
+// (same-origin, dev server proxy, curl) selalu lolos dan tak terdampak.
+const isAllowedOrigin = buildOriginMatcher(process.env.CORS_ORIGIN);
+
 app.use(cors({
   origin(origin, cb) {
-    // Whitelist strict (CORS_ORIGIN, exact-match). Tanpa konfigurasi →
-    // default-deny untuk request lintas origin ber-browser; same-origin
-    // (dev server proxy / VPS nginx) tidak lewat CORS dan tak terdampak.
-    const allowed = String(process.env.CORS_ORIGIN || '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (!origin || allowed.includes(origin)) return cb(null, true);
+    if (isAllowedOrigin(origin)) return cb(null, true);
     const err = new Error('Origin tidak diizinkan');
     err.status = 403;
     return cb(err);
