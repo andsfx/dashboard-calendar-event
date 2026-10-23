@@ -68,7 +68,7 @@ export const StatCard = memo(function StatCard({ icon, label, value, subtitle, v
           {subtitle && <p className="mt-1 text-[11px] text-[var(--wf-ink-muted)] sm:text-xs">{subtitle}</p>}
           {trend && (
             <div className="mt-2 flex items-center gap-1">
-              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-[var(--wf-live)]' : 'text-red-700 dark:text-red-300'}`}>
+              <span className={`text-xs font-bold ${trend.value >= 0 ? 'text-[var(--wf-live)]' : 'text-[var(--wf-danger)]'}`}>
                 {trend.value >= 0 ? '↑' : '↓'} {Math.abs(trend.value)}
               </span>
               <span className="text-[10px] text-[var(--wf-ink-muted)]">{trend.label}</span>

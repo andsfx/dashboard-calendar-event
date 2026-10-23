@@ -24,7 +24,6 @@ export interface DashboardShellProps {
   onOpenEventAreaManager: () => void;
   onLoginClick: () => void;
   ongoingCount: number;
-  upcomingCount: number;
   publicSectionItems: SectionNavItem[];
   children: ReactNode;
   modals: ReactNode;
@@ -47,7 +46,6 @@ export function DashboardShell({
   onOpenEventAreaManager,
   onLoginClick,
   ongoingCount,
-  upcomingCount,
   publicSectionItems,
   children,
   modals,
@@ -105,19 +103,19 @@ export function DashboardShell({
               {children}
             </div>
 
+            {/* Footer: one line, no counts. The ongoing/upcoming numbers
+                already live in the topbar beacon and in DashboardStats; a third
+                copy down here repeated them at the lowest visual weight, which
+                made the page look like it had three sources of truth.
+                The right-hand label is conditional: this shell also renders the
+                public /tenant-survey-results page, so claiming "Panel Admin"
+                unconditionally would mislabel a visitor-facing surface. */}
             <footer className="mt-2 border-t border-[var(--wf-rule)] pb-4 pt-4">
               <div className="flex flex-col gap-2 text-left text-xs text-[var(--wf-ink-muted)] sm:flex-row sm:items-center sm:justify-between">
                 <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi</p>
-                <div className="flex flex-wrap items-center gap-4 sm:justify-end">
-                  <span className="wf-key wf-key--live wf-key--plain">
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-                    {ongoingCount} berlangsung
-                  </span>
-                  <span className="wf-key wf-key--idle wf-key--plain">
-                    <span className="h-1.5 w-1.5 rounded-full border border-current" aria-hidden="true" />
-                    {upcomingCount} mendatang
-                  </span>
-                </div>
+                <p className="sm:text-right">
+                  {isAdmin ? 'Jadwal Event \u00b7 Panel Admin' : 'Jadwal Event'}
+                </p>
               </div>
             </footer>
           </main>

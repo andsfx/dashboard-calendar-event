@@ -2,6 +2,8 @@
 // Leaf module: diekstrak dari schemas.ts agar import AdminError tidak
 // menyeret zod runtime ke bundle client.
 
+import { ApiError } from './rest';
+
 export type AdminErrorKind =
   | 'Unauthorized'
   | 'Forbidden'
@@ -33,4 +35,29 @@ export class AdminError extends Error {
       default: return new AdminError('Unknown', message, status);
     }
   }
+}
+
+/**
+ * Normalisasi error apa pun dari lapisan REST menjadi {@link AdminError}.
+ *
+ * Tanpa ini setiap kegagalan mutasi jatuh ke `kind: 'Unknown'`: `ApiError`
+ * (dilempar `lib/rest`) BUKAN `AdminError`, sehingga seluruh cabang
+ * `Unauthorized`/`Forbidden`/`Conflict` di hook tidak pernah tercapai dan
+ * sesi yang kedaluwarsa tampil sebagai "Perubahan belum tersimpan. Silakan
+ * coba lagi." — pengguna mengulang terus tanpa tahu harus masuk ulang.
+ *
+ * `ApiError.code` berisi status HTTP sebagai string, atau 'NETWORK' bila
+ * request tidak pernah sampai ke server.
+ */
+export function toAdminError(err: unknown): AdminError {
+  if (err instanceof AdminError) return err;
+  const message = err instanceof Error ? err.message : String(err);
+  if (err instanceof ApiError) {
+    if (err.code === 'NETWORK') return new AdminError('Network', message, 0);
+    const status = Number(err.code);
+    if (Number.isInteger(status) && status >= 400 && status <= 599) {
+      return AdminError.fromHttpStatus(status, message);
+    }
+  }
+  return new AdminError('Unknown', message, 0);
 }

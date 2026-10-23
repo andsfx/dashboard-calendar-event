@@ -41,12 +41,13 @@ Glossary terms in **bold** match `CONTEXT.md`. Code identifiers in `backticks`.
 | Aktor | Auth | Boleh (ringkas) | Tidak |
 |-------|------|-----------------|--------|
 | **superadmin** | login | Semua **admin** + kelola user/permission | — |
-| **admin** | login | CRUD Event/Draft/Tema; review Registration; survey config; settings; activity log; export | User management (kecuali superadmin) |
-| **viewer** | login | Lihat dashboard (registrasi, survey, export); read-only | Edit/delete Event/Draft; manage users/themes/settings |
+| **admin** | login | CRUD Event/Draft/Tema; review Registration; review Kolaborasi & Partisipasi Tenant; kelola opsi form partisipasi; survey config; settings; activity log; export | User management (kecuali superadmin) |
+| **viewer** | login | Lihat dashboard (registrasi, kolaborasi & partisipasi tenant, survey, export); read-only | Edit/delete Event/Draft; manage users/themes/settings |
 | **demo** | login | Lihat SELURUH permukaan dashboard (termasuk users + activity log); read-only | Semua mutasi — ditegakkan backend (`READ_ONLY_ACTIONS`) |
 | **eo_tenant** | login | Surface Evaluasi Tenant / self-assessment terbatas | Operasional Event penuh; TR analytics penuh (kecuali diizinkan permission) |
 | **tenant_relation** | login | Hasil Evaluasi Tenant (analytics/export) | Edit Event/Draft; operasional penuh |
 | **Pendaftar** | non-login | Submit Community Registration | Dashboard; ubah status registration |
+| **Tenant** | non-login | Submit Kolaborasi Tenant (event kerja sama) & Partisipasi Tenant (open booth/voucher); cek status partisipasi lewat kode | Dashboard; antrean pengajuan; ubah status |
 | **Publik** | non-login | Community Hub, gallery, Event publik, isi Survey Kepuasan | Draft; Event status `draft`; admin surfaces |
 
 **Permission source of truth (produk):** capability matrix di spek ini.  
@@ -60,6 +61,10 @@ Glossary terms in **bold** match `CONTEXT.md`. Code identifiers in `backticks`.
 | Edit/delete Event & Draft | ✓ | ✓ | — | — | — |
 | Manage Tema Tahunan | ✓ | ✓ | — | — | — |
 | View/review Registration | ✓ | ✓ | view | — | — |
+| Review Kolaborasi Tenant | ✓ | ✓ | view | — | — |
+| Review Partisipasi Tenant | ✓ | ✓ | view | — | — |
+| Kelola opsi form partisipasi | ✓ | ✓ | — | — | — |
+| Insight Cerdas (`/dashboard/insights`) | ✓ | ✓ | ✓ | — | — |
 | Survey Kepuasan config/results | ✓ | ✓ | view | view* | — |
 | Evaluasi Tenant submit/own | ✓ | ✓ | — | ✓ | — |
 | Evaluasi Tenant results/export | ✓ | ✓ | — | — | ✓ |
@@ -230,6 +235,36 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 - [ ] Admin reject + note tersimpan.
 - [ ] Viewer lihat list tanpa ubah status (bila permission view-only).
 
+### 4.4 Kolaborasi Tenant (pengajuan event oleh tenant)
+
+Tenant penghuni mal mengajukan **event kerja sama** lewat kanal sendiri — berbeda dari Pendaftar (pihak luar).
+
+- Entitas: `tenant_event_proposals` (`tep_*`). Status review sama dengan lead lain: `pending → contacted → approved / rejected`, plus `internal_notes`.
+- Tenant dipilih dari master tenant MID (`tenant_id`); jalur isi manual tetap ada dan ditandai `tenant_id` kosong.
+- Lampiran proposal opsional (PDF/DOC/DOCX/PNG/JPEG, ≤ 20MB), diunggah ke folder `tenant-proposals/` lewat presign publik terbatas yang `Content-Type`-nya ikut ditandatangani.
+- **Menyetujui pengajuan tidak membuat Draft/Event** (ADR 003) dan tidak mengunci area/jadwal.
+- Antrean privat: tidak ada endpoint baca publik untuk pengajuan.
+
+### 4.5 Partisipasi Tenant (open booth & voucher pada event terjadwal)
+
+Kanal kedua: tenant ikut serta pada **event yang sudah terjadwal** — bukan mengajukan event baru.
+
+- Entitas: `tenant_participations` (`tpr_*`). Bentuk: `booth` | `voucher` | `both`.
+- Event tujuan hanya event published yang **belum mulai**; cutoff otomatis H-1 ditegakkan di server dan di query dropdown.
+- Status review: `pending → contacted → approved / rejected` + `internal_notes`.
+- Cek status publik tanpa login memakai **kode pengajuan `TPR-XXXXXX` + nomor telepon**; kode ditampilkan sekali saat submit.
+- Partisipasi `approved` tampil di halaman detail event publik **tanpa PII** (kontak, kebutuhan fasilitas, dan skema booth tidak pernah diseleksi).
+- Pilihan dropdown form (skema/ukuran booth, jenis/format voucher) dikelola admin lewat `tenant_participation_options`; opsi nonaktif ditolak server untuk pengajuan baru, sementara data lama tetap terbaca.
+- **Menyetujui partisipasi tidak membuat Event/Draft** — event tujuannya sudah ada.
+
+### 4.6 Acceptance — Akuisisi Tenant
+
+- [ ] Submit Kolaborasi/Partisipasi tanpa login; data masuk `pending`.
+- [ ] Approve → status berubah saja; jumlah Draft/Event tidak bertambah.
+- [ ] Partisipasi `pending` tidak tampil di halaman publik; `approved` tampil tanpa PII.
+- [ ] Submit partisipasi ke event yang sudah mulai ditolak dengan pesan cutoff.
+- [ ] Opsi form nonaktif tidak bisa dipakai pada pengajuan baru.
+
 ---
 
 ## 5. Context: Feedback
@@ -296,6 +331,8 @@ Lead dari **Pendaftar**. Status: `pending` → `reviewed` → `approved` | `reje
 | `/events/:id` detail event publik (permalink shareable) | Publik |
 | `/daftar` pendaftaran komunitas (form yang sama dengan `#register` di `/`) | Publik |
 | `/ajukan-event` pengajuan event EO/komunitas (masuk antrian draft) | Publik |
+| `/kolaborasi-tenant` pengajuan event kerja sama tenant (masuk antrean Kolaborasi Tenant) | Publik |
+| `/partisipasi-tenant` pengajuan open booth & voucher tenant pada event terjadwal (+ cek status kode) | Publik |
 | `/community` direktori komunitas | Publik |
 | `/tenants` direktori tenant | Publik |
 | `/pameran`, `/pameran/:id` pameran & kolaborasi | Publik |
@@ -333,6 +370,9 @@ Exact path = implementasi; spek jaga **siapa** dan **apa**.
 | **Area** (master lokasi kanonis) | tabel `locations` kedua, “Lokasi” sebagai entitas terpisah |
 | **Lokasi (teks)** | menyebut teks `lokasi` sebagai master; teks itu warisan |
 | **Pemetaan Lokasi** | “auto-mapping”, “pindah lokasi” (itu edit Event) |
+| **Kolaborasi Tenant** (pengajuan event baru) | “Partisipasi Tenant”; “pendaftaran tenant” |
+| **Partisipasi Tenant** (booth/voucher pada event terjadwal) | “Kolaborasi Tenant”; “tiket”; “voucher MID” |
+| **Kode pengajuan (TPR-XXXXXX)** | “ID pengajuan”; “nomor antrean” |
 | admin / viewer / ... | “Staff Mall” |
 
 ### 8.2 Data integrity
@@ -399,3 +439,7 @@ Board: [docs/tickets/README.md](tickets/README.md)
 - [ADR 003 Registration not auto-Draft](adr/003-registration-not-auto-draft.md)
 - [ADR 004 Letter Supabase; kill GAS letter](adr/004-letter-supabase-kill-gas.md)
 - [ADR 005 VPS Postgres platform; lepas Supabase](adr/005-vps-postgres-lepas-supabase.md)
+- [ADR 006 Harness audit dashboard di-commit](adr/006-audit-harness-dashboard-di-commit.md)
+- [ADR 007 Pusat Komando grid kartu modul](adr/007-pusat-komando-grid-kartu-modul.md) — *superseded by ADR 009*
+- [ADR 008 Event status lifecycle-only](adr/008-event-status-lifecycle-only.md)
+- [ADR 009 Pusat Komando papan triage](adr/009-pusat-komando-papan-triage.md)

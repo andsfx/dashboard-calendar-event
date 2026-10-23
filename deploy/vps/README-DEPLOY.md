@@ -76,6 +76,15 @@ nano .env        # isi DATABASE_URL, JWT_SECRET, R2_* (lihat komentar di file)
 > mematikan fitur diam-diam. Ketiga var harus ikut didaftarkan di
 > `docker-compose.yml` (`environment:` api) supaya diteruskan ke container.
 
+> **Opsional — sync Instagram modul Halaman Landing** (`APIFY_API_TOKEN`,
+> token dari https://console.apify.com/account/integrations). Tanpa ini tombol
+> "Sync & Cache Instagram Posts" membalas 500 `APIFY_API_TOKEN belum
+> dikonfigurasi`. Sama seperti var AI: **harus terdaftar di `environment:`
+> service `api`** pada `docker-compose.yml` — menaruhnya hanya di `.env` tidak
+> cukup, karena compose tidak meneruskan env host secara otomatis. Setelah
+> menambah/mengubah nilai: `docker compose up -d --force-recreate api`
+> (restart biasa tidak memuat ulang env).
+
 ### 4. Build frontend (dist/)
 ```bash
 cd ../..

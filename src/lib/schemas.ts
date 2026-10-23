@@ -320,4 +320,4 @@ export const ACTION_SCHEMAS: Record<string, z.ZodType> = {
 
 // ponytail: AdminError dipindah ke ./adminError (leaf module) supaya importer
 // tidak menyeret zod ke bundle client. Re-export dipertahankan untuk parity.
-export { AdminError, type AdminErrorKind } from './adminError';
+export { AdminError, toAdminError, type AdminErrorKind } from './adminError';

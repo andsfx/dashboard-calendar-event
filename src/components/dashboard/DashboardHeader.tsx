@@ -55,6 +55,13 @@ export function DashboardHeader({
   }
 
   const { current } = getWayfindingMap(dashboardPath);
+  // An empty action container is not free: it is a flex item in the parent's
+  // `flex-col gap-3`, so on mobile it still contributes a gap and leaves the
+  // plate looking like it is missing something. Render it only when it has
+  // content. (No `secondaryActions` slot: no route needs one, and a second
+  // action here would reopen the "two paths to one mutation" bug documented
+  // on `primaryAction`.)
+  const hasActions = searchable || Boolean(primaryAction);
 
   return (
     <div className="wf-plate px-4 py-3.5 sm:px-5 sm:py-4">
@@ -66,18 +73,20 @@ export function DashboardHeader({
           <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">{current.description}</p>
         </div>
 
-        <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-          {searchable && (
-            <div className="w-full sm:w-[260px]">
-              <SearchBar value={searchQuery} onChange={onSearchChange} placeholder="Cari acara…" />
-            </div>
-          )}
-          {primaryAction && (
-            <MdButton variant="filled" onClick={primaryAction.onClick} className="shrink-0">
-              <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
-            </MdButton>
-          )}
-        </div>
+        {hasActions && (
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+            {searchable && (
+              <div className="w-full sm:w-[260px]">
+                <SearchBar value={searchQuery} onChange={onSearchChange} placeholder="Cari acara…" />
+              </div>
+            )}
+            {primaryAction && (
+              <MdButton variant="filled" onClick={primaryAction.onClick} className="shrink-0">
+                <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
+              </MdButton>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -105,16 +105,18 @@ export const DOC_SECTIONS: DocSection[] = [
               'Peran Viewer untuk staf yang perlu memantau tanpa mengubah apa pun. Tombol mutasi disembunyikan sepenuhnya, bukan sekadar dinonaktifkan.',
             steps: [
               'Masuk dengan akun berperan Viewer; Anda diarahkan ke Pusat Komando.',
-              'Rail kiri hanya menampilkan: Pusat Komando, Analitik, Jadwal Event, Pendaftaran, dan Survey Kepuasan.',
+              'Rail kiri hanya menampilkan: Pusat Komando, Insight Cerdas, Analitik, Jadwal Event, Pendaftaran, Kolaborasi Tenant, Partisipasi Tenant, dan Survey Kepuasan.',
               'Jadwal Event tampil dalam mode Tabel saja — tab Kalender dan Kanban disembunyikan karena keduanya khusus pengubah event.',
               'Klik baris atau kartu untuk membaca detail; tombol Tambah, Ubah, dan Hapus tidak dirender.',
               'Di Pendaftaran, detail pendaftar bisa dibuka, tetapi tombol Setujui, Tolak, dan Buat Draft tidak ada.',
+              'Di Kolaborasi Tenant dan Partisipasi Tenant, antrean dan kartu pengajuan bisa dibaca lengkap, tetapi tombol status, koreksi isian, dan hapus tidak dirender.',
               'Di Survey Kepuasan, angka dan respons bisa dibaca, tetapi toggle aktif/nonaktif survey tidak tersedia.',
               'Ekspor jadwal ke PDF tetap bisa dilakukan.',
             ],
             notes: [
               'Event berstatus draft tidak ikut tampil di Jadwal Event karena Viewer tidak punya izin jadwal internal.',
               'Menu Antrian Draft, Tema Tahunan, Pameran & Aktivasi, Manajemen Pengguna, Log Aktivitas, dan seluruh grup Konten disembunyikan.',
+              'Server ikut menolak aksi tulis akun baca-saja dengan pesan "Akun baca-saja hanya dapat melihat data (read-only)".',
             ],
           },
           {
@@ -183,6 +185,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Cari tenant di /tenants atau organisasi yang pernah tampil di /community.',
               'Ingin mengadakan acara? Isi pendaftaran di /daftar atau ajukan langsung di /ajukan-event.',
               'Punya brand atau komunitas? Tawarkan dukungan di /sponsor atau ikut kolaborasi di /pameran.',
+              'Punya tenant di mall? Ajukan event kerja sama di /kolaborasi-tenant, atau ikut memeriahkan event yang sudah terjadwal lewat open booth dan voucher di /partisipasi-tenant.',
               'Untuk acara yang sudah lewat, bagikan penilaian lewat survey kepuasan.',
             ],
             notes: [
@@ -195,19 +198,22 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Panduan Cepat Tenant',
             audience: 'Tenant',
             summary:
-              'Sebagai tenant, Anda mengisi self-assessment dampak event terhadap tenant. Bisa dibuka lewat tautan atau QR tanpa login.',
+              'Sebagai tenant, Anda mengisi self-assessment dampak event terhadap tenant, dan punya dua kanal pengajuan: event kerja sama dan partisipasi booth/voucher. Semua bisa dibuka lewat tautan atau QR tanpa login.',
             steps: [
               'Buka /tenant-survey, lalu cari event yang Anda ikuti berdasarkan nama, lokasi, atau penyelenggara.',
               'Klik baris event untuk mulai mengisi.',
               'Bagian 1 — pilih tenant Anda dari daftar (lokasi dan kategori terisi otomatis), lengkapi PIC bila perlu.',
               'Bagian 2 — pilih kenaikan traffic dan penjualan tenant Anda.',
               'Bagian 3 — tulis umpan balik, lalu kirim.',
+              'Ingin mengadakan event kerja sama? Ajukan di /kolaborasi-tenant; lampiran proposal (PDF, Word, atau gambar PNG/JPEG) bersifat opsional.',
+              'Ingin ikut memeriahkan event yang sudah terjadwal? Ajukan open booth dan/atau voucher di /partisipasi-tenant, lalu simpan kode pengajuan (format TPR-XXXXXX) untuk memantau statusnya.',
               'Bila Anda juga menerima tautan hasil, buka /tenant-survey-results untuk membaca agregatnya.',
             ],
             notes: [
               'Nama tenant harus dipilih dari daftar, bukan diketik bebas.',
               'Satu perangkat hanya bisa mengisi sekali per event.',
               'Survey hanya terbuka untuk event yang sudah diaktifkan admin; bila daftar kosong, hubungi tim mall.',
+              'Pengajuan booth/voucher hanya terbuka untuk event yang belum mulai; pengajuan ditutup paling lambat H-1 sebelum event berjalan.',
             ],
           },
         ],
@@ -223,7 +229,7 @@ export const DOC_SECTIONS: DocSection[] = [
       {
         id: 'ringkasan',
         label: 'Ringkasan',
-        description: 'Keadaan hari ini dan hasil evaluasi.',
+        description: 'Keadaan hari ini, analisis otomatis, dan hasil evaluasi.',
         features: [
           {
             id: 'pusat-komando',
@@ -243,6 +249,28 @@ export const DOC_SECTIONS: DocSection[] = [
             notes: [
               'Bila draft gagal dimuat, baris Antrian Draft tampil dengan angka "—" dan pesan galat yang menyebut sebabnya — antrian yang tak terbaca tidak pernah ditampilkan sebagai kosong.',
               'Jumlah antrian hanya ditulis di strip status (total) dan di register "Perlu tindakan" (per modul). Baris direktori tidak membawa angka.',
+            ],
+          },
+          {
+            id: 'insight-cerdas',
+            name: 'Insight Cerdas',
+            path: '/dashboard/insights',
+            audience: 'Admin',
+            summary:
+              'Analisis otomatis dari data event dan modul lain: potensi bentrok jadwal, kelengkapan event terdekat, jeda kosong, lonjakan pendaftaran, tren rating tenant, dan antrian yang menunggu. Tiap insight membawa tombol tindak lanjut ke halaman yang tepat.',
+            steps: [
+              'Buka Insight Cerdas dari grup Ringkasan.',
+              'Baca daftar insight: tiap baris memuat tingkat kepentingan, judul, kalimat penjelas, dan angka pendukungnya bila ada.',
+              'Saring menurut tingkat kepentingan lewat tombol berpenghitung (Semua, dan tingkat di bawahnya); angka di tombol menunjukkan berapa insight pada tingkat itu.',
+              'Klik tombol tindak lanjut pada sebuah insight — Anda berpindah ke halaman modulnya dengan filter yang sudah terpasang.',
+              'Klik "Sembunyikan" pada insight yang tidak relevan; ia tersimpan sebagai tersembunyi di perangkat Anda.',
+              'Klik "Tampilkan N yang disembunyikan" untuk mengembalikannya.',
+              'Klik "Salin ringkasan" untuk menyalin teks siap tempel ke pesan atau rapat.',
+            ],
+            notes: [
+              'Tombol tindak lanjut yang mengarah ke halaman yang tidak boleh Anda buka otomatis tidak ditampilkan.',
+              'Blok "Ringkasan AI" bersifat opsional: bila tidak aktif atau gagal, blok itu hilang tanpa pesan galat dan daftar insight tetap utuh.',
+              'Insight yang tingkatnya tersembunyi tetap bisa dipulihkan; jumlah yang disembunyikan selalu ditulis di tombolnya.',
             ],
           },
           {
@@ -361,7 +389,7 @@ export const DOC_SECTIONS: DocSection[] = [
       {
         id: 'interaksi',
         label: 'Interaksi',
-        description: 'Pendaftaran dan survey dari publik.',
+        description: 'Pendaftaran, pengajuan tenant, dan survey dari publik.',
         features: [
           {
             id: 'pendaftaran',
@@ -417,6 +445,77 @@ export const DOC_SECTIONS: DocSection[] = [
             notes: [
               'Secara bawaan survey tenant nonaktif; nyalakan dulu agar form publik terbuka.',
               'Menu ini disembunyikan untuk peran Tenant Relation.',
+            ],
+          },
+          {
+            id: 'kolaborasi-tenant-admin',
+            name: 'Kolaborasi Tenant',
+            path: '/dashboard/tenant-proposals',
+            audience: 'Admin',
+            summary:
+              'Antrean pengajuan event kerja sama dari tenant: tinjau isian, hubungi tenant, lalu Setujui atau Tolak. Menyetujui tidak membuat event baru.',
+            steps: [
+              'Buka Kolaborasi Tenant dari grup Interaksi.',
+              'Baca baris hitungan di kanan judul: berapa pengajuan yang menunggu tinjauan dari totalnya.',
+              'Saring antrean lewat chip status: Semua, Menunggu, Dihubungi, Disetujui, atau Ditolak. Klik chip yang sedang aktif untuk kembali ke Semua.',
+              'Tiap kartu menampilkan ringkasan dulu — identitas tenant, kunci status, judul dan jenis event, jadwal, area, pengunjung, kontak PIC (tautan telepon dan email), serta lampiran beserta tipe dan ukurannya.',
+              'Klik "Lihat detail lengkap" untuk membuka deskripsi, kebutuhan fasilitas, dan ruang review; klik "Sembunyikan detail" untuk menutupnya lagi.',
+              'Isi "Catatan internal" bila perlu, lalu klik status baru (Menunggu, Dihubungi, Disetujui, atau Ditolak).',
+              'Menyetujui atau menolak lewat dialog konfirmasi; Dihubungi dan kembali ke Menunggu langsung tersimpan tanpa konfirmasi.',
+              'Hapus pengajuan lewat ikon hapus pada kartu bila memang tidak diperlukan lagi.',
+            ],
+            notes: [
+              'Kolom Catatan internal tidak pernah dibaca tenant — hanya untuk tim.',
+              'Pengajuan yang disetujui tidak otomatis menjadi Draft atau Event; buat Draft secara manual bila sudah pasti dijadwalkan.',
+              'Baris hitungan tetap menghitung seluruh pengajuan, bukan hasil saringan, karena angkanya menjawab "berapa pekerjaan yang tersisa".',
+              'Bila gagal memuat, banner galat menyediakan tombol "Coba lagi".',
+              'Akun Viewer dan Demo dapat membuka halaman ini untuk melihat; seluruh tombol yang mengubah data tidak dirender, dan server menolak aksinya.',
+            ],
+          },
+          {
+            id: 'partisipasi-tenant-admin',
+            name: 'Partisipasi Tenant',
+            path: '/dashboard/tenant-participations',
+            audience: 'Admin',
+            summary:
+              'Antrean pengajuan open booth dan voucher tenant untuk event yang sudah terjadwal. Partisipasi yang disetujui tampil di halaman detail event publik.',
+            steps: [
+              'Buka Partisipasi Tenant dari grup Interaksi.',
+              'Baca baris hitungan di kanan judul: berapa pengajuan yang menunggu tinjauan dari totalnya.',
+              'Saring antrean lewat chip status (Semua, Menunggu, Dihubungi, Disetujui, Ditolak). Ikon info di ujung baris chip menjelaskan arti tiap status.',
+              'Tiap kartu menampilkan ringkasan: nama dan unit tenant, kategori, kode pengajuan, asal data tenant (ID gerai atau "diisi manual"), status, judul event beserta pill jenis (Open booth, Voucher, atau Booth + voucher), baris area/booth/voucher, kontak PIC, dan tautan lampiran bila ada.',
+              'Klik "Lihat detail lengkap" untuk membuka isian booth dan voucher, koreksi isian, catatan internal, dan tombol status.',
+              'Bila isian tenant perlu diperbaiki, buka "Koreksi isian tenant": hanya field yang Anda ubah yang dikirim ke server, jadi perubahan staf lain pada field berbeda tidak tertimpa, dan status pengajuan tidak ikut berubah.',
+              'Isi "Catatan internal" bila perlu, lalu klik status baru; menyetujui atau menolak lewat dialog konfirmasi.',
+              'Hapus pengajuan lewat tombol Hapus pada kartu bila memang tidak diperlukan lagi.',
+            ],
+            notes: [
+              'Disetujui berarti booth dan/atau voucher tenant tampil di halaman detail event publik; tenant memantau statusnya sendiri lewat kode pengajuan dan nomor telepon.',
+              'Partisipasi yang disetujui tidak membuat event baru — event tujuannya sudah terjadwal sebelumnya.',
+              'Kebutuhan fasilitas dan skema booth bersifat internal dan tidak pernah tampil di halaman publik.',
+              'Isi dropdown form publik diatur lewat tombol "Kelola opsi" — lihat fitur "Kelola Opsi Form Partisipasi".',
+              'Akun Viewer dan Demo dapat membuka halaman ini untuk melihat; tombol yang mengubah data tidak dirender dan server menolak aksinya.',
+            ],
+          },
+          {
+            id: 'kelola-opsi-partisipasi',
+            name: 'Kelola Opsi Form Partisipasi',
+            path: '/dashboard/tenant-participations',
+            audience: 'Admin',
+            summary:
+              'Mengatur pilihan dropdown yang tersedia di form partisipasi tenant: skema booth, ukuran booth, jenis voucher, dan format voucher.',
+            steps: [
+              'Buka Partisipasi Tenant, lalu klik "Kelola opsi" di kanan judul.',
+              'Telusuri daftar opsi per kelompok; tiap baris menampilkan label, slug, urutan, dan sakelar Aktif.',
+              'Ubah label atau urutan tampil langsung di barisnya, lalu klik "Simpan" pada baris itu — label dan urutan dikirim sebagai satu perubahan.',
+              'Matikan atau nyalakan opsi dengan sakelar; opsi nonaktif tidak lagi muncul untuk pengajuan baru, tetapi pengajuan yang sudah masuk tidak berubah.',
+              'Tambah opsi baru lewat bagian "Tambah opsi": isi Value (slug huruf kecil/angka/tanda hubung/garis bawah) dan Label tampil, lalu simpan.',
+              'Hapus opsi lewat ikon hapus di barisnya, dengan dialog konfirmasi.',
+            ],
+            notes: [
+              'Urutan tampil memakai angka lebih kecil lebih dulu; angka yang sama diurutkan menurut label.',
+              'Nilai lama yang opsinya sudah dimatikan tetap tampil sebagai "(nonaktif)" atau "(tidak tersedia lagi)" di antrean dan halaman publik, jadi data lama tidak pernah tampil kosong.',
+              'Tombol ini hanya untuk akun yang boleh mengubah data; akun baca-saja tetap melihat panduan "Kelola opsi" tetapi tidak tombolnya.',
             ],
           },
         ],
@@ -591,7 +690,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Halaman kampanye utama: menawarkan venue dan fasilitas gratis untuk komunitas, membuktikan lewat event serta galeri, dan mengarahkan ke pendaftaran.',
             steps: [
               'Buka /.',
-              'Gunakan navigasi utama: Event, Program (Keuntungan, Area & Fasilitas, Cara Daftar, FAQ), Jelajahi (Galeri, Berita, Tenant, Pameran, Sponsor, Dokumentasi), dan Kontak.',
+              'Gunakan navigasi utama: Event, Program (Keuntungan, Area & Fasilitas, Cara Daftar, FAQ), Jelajahi (Galeri, Berita, Tenant, Kolaborasi Tenant, Booth & Voucher Tenant, Pameran, Sponsor, Dokumentasi), dan Kontak.',
               'Baca bagian agenda untuk event bulan ini, lalu klik kartu untuk membuka detailnya.',
               'Lihat daftar fasilitas yang disediakan (panggung, sound system 10K watt, lighting, 50 kursi, area lantai 3, meja juri).',
               'Klik kartu area pada bagian "Area di Metropolitan Mall Bekasi" untuk melihat fotonya.',
@@ -630,18 +729,21 @@ export const DOC_SECTIONS: DocSection[] = [
             path: '/events/:id',
             audience: 'Publik',
             summary:
-              'Halaman detail event yang bisa dibagikan, berisi info lengkap, galeri foto, tombol kalender, dan ajakan mengisi survey untuk event yang sudah lewat.',
+              'Halaman detail event yang bisa dibagikan, berisi info lengkap, galeri foto, tombol kalender, section "Tenant di event ini", dan ajakan mengisi survey untuk event yang sudah lewat.',
             steps: [
               'Buka tautan /events/:id.',
               'Baca informasi: tanggal, waktu, lokasi, penyelenggara, dan keterangan.',
               'Klik "Bagikan via WhatsApp" untuk mengirim ke orang lain, atau "Salin link" (tombol berubah menjadi "Link tersalin").',
               'Untuk acara yang belum lewat, klik "Google Calendar" atau "Unduh .ics" untuk menyimpan tanggalnya.',
               'Lihat galeri foto acara bila ada.',
+              'Bila ada tenant yang berpartisipasi, baca section "Tenant di event ini": booth dan voucher yang sudah disetujui beserta ketentuannya.',
               'Untuk event yang sudah lewat, klik "Isi Survey Kepuasan" untuk memberi penilaian.',
             ],
             notes: [
               'Tombol kalender disembunyikan untuk event yang sudah lewat; sebaliknya, ajakan survey hanya muncul untuk event yang sudah lewat.',
               'Event berstatus draft tidak pernah tampil di halaman publik.',
+              'Section "Tenant di event ini" hanya memuat partisipasi yang sudah disetujui tim; kebutuhan fasilitas dan skema booth bersifat internal dan tidak ikut tampil.',
+              'Tenant yang ingin ikut memeriahkan event bisa menekan CTA "Punya tenant di Metropolitan Mall?" di section itu — event tujuannya langsung terpilih di form.',
             ],
           },
           {
@@ -840,7 +942,7 @@ export const DOC_SECTIONS: DocSection[] = [
               'Halaman pengajuan event kerja sama untuk tenant Metropolitan Mall Bekasi, dengan lampiran proposal opsional.',
             steps: [
               'Buka /kolaborasi-tenant.',
-              'Bagian Data Tenant: isi Nama Tenant (wajib), lalu Nomor Unit/Lot dan Kategori Tenant bila ada.',
+              'Bagian Data Tenant: cari Nama Tenant dari daftar master mall (wajib) — nomor unit dan kategori terisi otomatis. Bila tenant Anda belum terdaftar, klik "Tenant saya belum ada di daftar" untuk mengisi manual.',
               'Bagian PIC: isi Nama PIC dan Nomor WhatsApp (wajib), lengkapi Email bila perlu.',
               'Bagian Rencana Event: isi Judul Event, Jenis Kegiatan, Deskripsi Kegiatan (wajib), serta Tanggal Mulai (wajib).',
               'Isi Tanggal Selesai bila kegiatan lebih dari sehari, Area yang diinginkan, Perkiraan Pengunjung, dan Kebutuhan Fasilitas.',
@@ -849,6 +951,7 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
             notes: [
               'Yang wajib: nama tenant, nama PIC, nomor WhatsApp, judul event, deskripsi (minimal 10 karakter), dan tanggal mulai.',
+              'Memilih tenant dari daftar master mall membuat pengajuan bisa ditelusuri ke data gerai yang benar; pengajuan yang diisi manual ditandai "diisi manual" di antrean dashboard.',
               'Tanggal mulai tidak boleh di masa lalu; tanggal selesai tidak boleh sebelum tanggal mulai dan boleh dikosongkan untuk kegiatan sehari.',
               'Ajukan minimal dua pekan sebelum tanggal rencana agar penjadwalan dan perizinan sempat diproses.',
               'Pengajuan ditinjau lewat modul Kolaborasi Tenant di dashboard; menyetujui pengajuan tidak otomatis membuat event.',
@@ -874,6 +977,8 @@ export const DOC_SECTIONS: DocSection[] = [
             ],
             notes: [
               'Pengajuan hanya terbuka untuk event yang belum mulai, dan ditutup paling lambat H-1 sebelum event berjalan.',
+              'Setelah event dipilih, Area booth dan Selesai Booth terisi otomatis dari lokasi dan tanggal event; sesuaikan bila perlu.',
+              'Pilihan pada dropdown (ukuran booth, skema, jenis dan format voucher) diatur tim mall; bila ada opsi yang Anda butuhkan tidak ada, hubungi tim mall.',
               'Kode pengajuan ditampilkan sekali setelah kirim; simpan atau salin sebelum meninggalkan halaman.',
               'Partisipasi yang disetujui tampil di halaman detail event publik (booth dan voucher beserta ketentuannya).',
               'Menyetujui partisipasi tidak membuat event baru — event tujuannya sudah terjadwal sebelumnya.',

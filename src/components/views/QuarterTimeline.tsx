@@ -149,7 +149,7 @@ export function QuarterTimeline({ themes, isAdmin = false, onAddTheme, onEditThe
               {isAdmin && (
                 <div className="absolute right-3 top-3 flex gap-1">
                   {onEditTheme && <MdIconButton variant="outlined" ariaLabel={`Ubah tema ${theme.name}`} onClick={() => onEditTheme(theme)}><Pencil className="h-3.5 w-3.5" aria-hidden /></MdIconButton>}
-                  {onDeleteTheme && <MdIconButton variant="outlined" ariaLabel={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="text-red-700 dark:text-red-300"><Trash2 className="h-3.5 w-3.5" aria-hidden /></MdIconButton>}
+                  {onDeleteTheme && <MdIconButton variant="outlined" ariaLabel={`Hapus tema ${theme.name}`} onClick={() => onDeleteTheme(theme)} className="text-[var(--wf-danger)]"><Trash2 className="h-3.5 w-3.5" aria-hidden /></MdIconButton>}
                 </div>
               )}
 

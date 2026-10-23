@@ -170,7 +170,7 @@ export function DashboardViewsSection(props: Props) {
       {error && (
         <div className="ui-alert-panel flex items-center gap-3 px-5 py-3">
           <span className="text-lg">!</span>
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <p className="text-sm text-[var(--wf-danger)]">{error}</p>
         </div>
       )}
 

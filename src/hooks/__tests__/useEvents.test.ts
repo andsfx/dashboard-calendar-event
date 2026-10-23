@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
 import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent } from '../../utils/domainApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
+import { ApiError } from '../../lib/rest';
 import { EventItem } from '../../types';
 
 // Mock the dependencies
@@ -242,6 +243,44 @@ describe('useEvents', () => {
       await result.current.updateEvent({ ...mockEvents[0]!, status: 'draft' }, 'published');
     });
     expect(result.current.events[0]!.status).toBe('upcoming');
+  });
+
+  it('mutasi yang ditolak 401 memberi tahu sesi berakhir, bukan "coba lagi"', async () => {
+    // Regresi: ApiError dari lib/rest dulu jatuh ke kind 'Unknown', sehingga
+    // cabang Unauthorized di hook tidak pernah tercapai dan sesi kedaluwarsa
+    // tampil sebagai "Perubahan belum tersimpan. Silakan coba lagi." —
+    // pengguna mengulang terus tanpa tahu harus masuk ulang.
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    vi.mocked(updateEvent).mockRejectedValueOnce(
+      new ApiError('Tidak terautentikasi — silakan login', '401'),
+    );
+
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    let success = true;
+    await act(async () => {
+      success = await result.current.updateEvent({ ...mockEvents[0]!, acara: 'Revisi' });
+    });
+
+    expect(success).toBe(false);
+    expect(result.current.lastError?.kind).toBe('Unauthorized');
+    expect(result.current.error).toBe('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
+  });
+
+  it('penolakan 409 tetap diklasifikasikan Conflict (bukan Unknown)', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    vi.mocked(updateEvent).mockRejectedValueOnce(new ApiError('Data sudah ada (duplikat).', '409'));
+
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateEvent({ ...mockEvents[0]!, acara: 'Revisi' });
+    });
+
+    expect(result.current.lastError?.kind).toBe('Conflict');
+    expect(result.current.error).toBe('Data berubah di server. Muat ulang lalu coba lagi.');
   });
 
 });

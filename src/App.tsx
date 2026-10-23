@@ -530,7 +530,6 @@ export default function App() {
             onOpenEventAreaManager={() => navigate(CONTENT_ROUTES['event-areas'])}
             onLoginClick={() => setShowLoginModal(true)}
             ongoingCount={visibleStats.ongoing}
-            upcomingCount={visibleStats.upcoming}
             publicSectionItems={publicSectionItems}
             modals={null}
           >

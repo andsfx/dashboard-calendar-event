@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses, getStatus } from '../utils/eventUtils';
 import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent as apiCreate, updateEvent as apiUpdate, setEventVisibility as apiSetVisibility, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/domainApi';
-import { AdminError } from '../lib/adminError';
+import { AdminError, toAdminError } from '../lib/adminError';
 
 function normalizeEvent(ev: EventItem): EventItem {
   const normalized = recalculateStatuses([ev])[0];
@@ -156,7 +156,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
     } catch (err) {
-      const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+      const ae = toAdminError(err);
       setLastError(ae);
       if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
       else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
@@ -212,7 +212,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
         await apiUpdate(optimisticEvent as EventItem & { id: string }, lifecycle);
         return true;
       } catch (err) {
-        const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+        const ae = toAdminError(err);
         setLastError(ae);
         if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
         else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
@@ -240,7 +240,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await apiSetVisibility(ev.id, hidden);
       return true;
     } catch (err) {
-      const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+      const ae = toAdminError(err);
       setLastError(ae);
       if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
       else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
@@ -259,7 +259,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
         await refreshEvents();
         return true;
       } catch (err) {
-        const ae = err instanceof AdminError ? err : new AdminError('Unknown', err instanceof Error ? err.message : String(err), 0);
+        const ae = toAdminError(err);
         setLastError(ae);
         if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
         else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');

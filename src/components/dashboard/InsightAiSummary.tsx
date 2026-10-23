@@ -63,18 +63,29 @@ export function InsightAiSummary({ insights }: { insights: EventInsight[] }) {
 
   if (status === 'off') return null;
 
+  const loading = status === 'loading' || !summary;
+
   return (
     <div
       role="status"
       aria-live="polite"
+      aria-busy={loading}
       className="rounded-[var(--wf-radius-control)] border border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] px-4 py-3"
     >
-      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--wf-accent)]">
-        <Sparkles className="h-3.5 w-3.5" aria-hidden />
-        Ringkasan AI
-      </p>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--wf-accent)]">
+          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          Ringkasan AI
+        </p>
+        {/* Basis data: ringkasan disusun dari fakta yang sudah dihitung mesin
+            deterministik, bukan teks tempelan. Menyebut jumlahnya membuat blok
+            ini terbaca sebagai hasil hitungan yang bisa dilacak. */}
+        <span className="shrink-0 text-[11px] text-[var(--wf-ink-muted)]">
+          dari {insights.length} insight
+        </span>
+      </div>
       <p className="mt-1 text-sm text-[var(--wf-ink)]">
-        {status === 'loading' || !summary ? 'Menyusun ringkasan…' : summary}
+        {loading ? 'Menyusun ringkasan…' : summary}
       </p>
     </div>
   );

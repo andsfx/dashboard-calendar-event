@@ -34,14 +34,72 @@ Routing (`src/App.tsx`): react-router-dom v7, every route `lazy()` with named-ex
 
 ```bash
 npm run dev            # Vite on :5173
+npm run dev:api        # backend Express di :3001 (butuh DATABASE_URL/JWT_SECRET di env)
 npm run build          # tsc && vite build — run after every change
 npm test               # vitest (watch)
 NODE_ENV=test npx vitest run   # Windows: NODE_ENV leaks from shell; without =test vitest fails ('act(...)' prod-build error)
 npm run test:coverage  # v8, no thresholds
 npm run test:e2e       # Playwright; auto-starts dev server on :5173
+npm run test:a11y      # Playwright + axe (playwright.a11y.config.ts)
+npm run test:audit     # suite audit (playwright.audit.config.ts)
 ```
 
-There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification habit: `npm run build` + targeted vitest file + browser/dev-server smoke; e2e/visual via Playwright when the surface is visual.
+There are **no** `test:unit` / `test:visual` / `test:all` scripts; the completion gate lives in `## Workflow: Audit, Bug, dan Error`.
+
+## Workflow: Audit, Bug, dan Error
+
+Tiga jalur masuk, satu gerbang selesai. Pilih jalur dari **jenis masukannya** (menilai / perilaku salah / gejala rusak), bukan dari besar-kecilnya perubahan.
+
+**Gerbang selesai (wajib untuk ketiganya)** — `npm run build` (tsc ikut) + **seluruh** file vitest yang menyentuh area perubahan (bukan hanya tes yang diharapkan berubah) + smoke nyata pada surface yang berubah (dev server, `curl` endpoint, atau browser). Quirk `NODE_ENV=test` ada di `## Testing & QA`. Perubahan UI dianggap belum terverifikasi sebelum layarnya dilihat.
+
+### A. Audit — permintaan menilai, bukan memperbaiki
+
+Default **read-only**: tidak ada edit kode kecuali diminta eksplisit.
+
+1. **Tetapkan surface** yang diaudit (route/endpoint/role) dan sebutkan batasnya di laporan.
+2. **Telusuri rantai penuh** UI→DB: `src/App.tsx` → `src/pages/` → `src/hooks/` → `src/utils/api/*` → `server/src/routes/*` → `server/src/lib/schemas.js` (`ACTION_SCHEMAS`) → `server/migrations/*` + `server/schema.sql`. Simpul yang dilewati = temuan palsu.
+3. **Periksa setiap dimensi** (semua, bukan yang kebetulan terlihat):
+   - mapper snake_case↔camelCase di `src/utils/api/_shared.ts` — ada field yang bocor/tertinggal?
+   - error ditelan: `catch {}` kosong menyulap kegagalan fetch jadi state "tidak ada data".
+   - otorisasi: `requireRole`, `READ_ONLY_ACTIONS` (role `demo`), matriks di `server/src/routes/tenant.js`. Menyembunyikan tombol di UI bukan enforcement.
+   - validasi: zod `.passthrough()` → whitelist kolom manual di route tetap pertahanan sebenarnya.
+   - PII tidak masuk log/output; `enforceRateLimit` terpasang di endpoint tulis.
+   - a11y & responsive bila surface berupa UI.
+4. **Klasifikasi + bukti**: P0 (data hilang/bocor, auth bypass, 500 di jalur utama) · P1 (perilaku salah, ada workaround) · P2 (kualitas). Tiap temuan wajib `path:line` + kutipan kode/hasil query read-only + dampak ke user.
+5. **Lapor ke user dulu.** Issue GitHub hanya bila diminta — format `docs/agents/issue-tracker.md`, label `docs/agents/triage-labels.md`.
+
+Kriteria selesai: setiap dimensi di langkah 3 punya verdict eksplisit (aman / temuan + P-level); nol temuan tanpa `path:line`.
+
+### B. Bug — perilaku salah yang dilaporkan
+
+Laporan user = ground truth. Jangan minta info yang bisa direproduksi sendiri.
+
+1. **Reproduksi** dengan langkah terkecil (URL, role, payload). Catat status HTTP + body `{success, error}`.
+2. **Lokalisasi layer dari respons**: 401/403 → `server/src/auth.js` (`requireRole`, `token_version`) · 400 → zod `ACTION_SCHEMAS` · 500 + `22P02` → `server/src/lib/pgValues.js` · bentuk data salah → mapper · UI diam → `catch {}` / state hilang.
+3. **Tes merah dulu** di `__tests__/` sebelah source (pola mock fetch per-URL). Bug yang tidak bisa di-unit-test: skrip sekali pakai yang mencetak request/response, dihapus setelah selesai.
+4. **Fix di layer yang benar** — mapper untuk bentuk data, route untuk SQL/whitelist, hook untuk optimistic rollback. Tambalan di UI saat akarnya server = bug yang kembali.
+5. **Gate** di atas + ulangi langkah 1: gejala awal harus hilang.
+
+Kriteria selesai: reproduksi terbukti gagal sebelum dan benar sesudah; tidak ada tes existing yang diubah agar lolos.
+
+### C. Error / insiden — 500, halaman kosong, console error, deploy gagal
+
+Mulai dari gejala, bukan dari file.
+
+| Gejala | Cek pertama |
+|---|---|
+| Semua `/api/v1` 404 di Preview Vercel | `VITE_API_URL` belum diisi untuk environment Preview |
+| CORS 403 di browser | `CORS_ORIGIN` — glob beranchor, harus memuat slug tim Vercel |
+| Login sukses tapi langsung 401 | `COOKIE_SAMESITE=none` + `Secure` (cookie lintas-site) |
+| 401 setelah reset password | `users.token_version` naik → token lama memang dicabut |
+| "Gagal memperbarui — Perubahan belum tersimpan" | `22P02`: `categories` dikirim `JSON.stringify`, harus `toTextArray` |
+| `/instagram-sync` 500 | `APIFY_API_TOKEN` tidak ada di `environment:` service `api` |
+| 429 | `enforceRateLimit`; `clientIp` membaca `X-Real-IP` hasil nginx |
+| 5xx produksi lain | `ssh medprom` → `docker compose -f /opt/metmal/deploy/vps/docker-compose.yml logs --tail=100 api` |
+
+Setelah itu: baca stack trace asli, perbaiki akar, lalu **pasang penangkap kekambuhan** — tes bila deterministik, asersi/smoke bila bergantung lingkungan. Kriteria selesai: akar disebut dengan `path:line`, gejala hilang pada smoke, dan kekambuhan akan gagal lebih dulu.
+
+**Aturan keras**: verifikasi produksi read-only (`docs/agents/vps-db-access.md`) · migrasi SQL dijalankan **sebelum** kode terkait di-deploy · pesan error ke user Bahasa Indonesia · tes/aset verifikasi tidak diubah agar lolos.
 
 ## Code Conventions & Common Patterns
 
@@ -61,7 +119,7 @@ There are **no** `test:unit` / `test:visual` / `test:all` scripts. Verification 
 
 `src/App.tsx` (routes, gating) · `src/types/index.ts` (all domain types; extend `EventBase`, not parallel interfaces) · `src/lib/rest.ts` (apiGet/apiPost) + `src/lib/schemas.ts` (zod client) · `src/utils/api/_shared.ts` (mappers/ADMIN_PROXY_URL) · `src/hooks/useAuth.ts` (session via `/api/v1/auth/me`; dev bypass `VITE_DEV_AUTO_LOGIN`) + `usePermission.ts` · `src/components/dashboard/DashboardPage.tsx` (inner router) + `dashboardNavigation.tsx` · `src/components/survey/rules.md` (**MUST read before touching survey form/API/types/migrations** — anonymous public form, v3 schema, FE/BE enum parity via `src/constants/survey-options.ts`) · `server/src/index.js` + `server/src/auth.js` + `server/src/routes/admin.js` · `server/src/lib/schemas.js` (ACTION_SCHEMAS) + `server/src/routes/tenant.js` (matriks role + MID proxy) · `server/schema.sql` (DDL) · `deploy/vps/docker-compose.yml` + `deploy/vps/nginx.conf` · `vercel.json` (SPA rewrites + OG eksternal ke VPS `/events/:id`, security headers) · `docs/SPEC.md`, `CONTEXT.md` (glossary — pakai kosakatanya), `docs/adr/`.
 
-Env vars — client: `VITE_API_URL` (**required di produksi, dan wajib juga untuk environment Preview Vercel** — env Vercel berlaku per-environment; build preview tanpa var ini menembak same-origin `/api/v1` → 404 di semua panggilan; tidak dipakai lokal bila SPA+backend satu host), `VITE_R2_PUBLIC_URL`, `VITE_DEV_AUTO_LOGIN`. Server-only (di `deploy/vps/.env` di VPS, jangan commit): `DATABASE_URL`, `JWT_SECRET`, `POSTGRES_PASSWORD`, `COOKIE_DOMAIN` (opsi), **`COOKIE_SAMESITE=none`** (wajib cross-site Vercel→VPS), `CORS_ORIGIN` (whitelist origin, exact-match; entri ber-`*` = pola glob beranchor di `server/src/lib/corsOrigin.js` — dipakai untuk hostname deployment Vercel yang berubah tiap push, wajib memuat slug tim), `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL`, `MID_API_KEY` (proxy tenant). **Never expose these values in code, docs, or output**; remote git URL may contain a credential — never copy it.
+Env vars — client: `VITE_API_URL` (**required di produksi, dan wajib juga untuk environment Preview Vercel** — env Vercel berlaku per-environment; build preview tanpa var ini menembak same-origin `/api/v1` → 404 di semua panggilan; tidak dipakai lokal bila SPA+backend satu host), `VITE_R2_PUBLIC_URL`, `VITE_DEV_AUTO_LOGIN`. Server-only (di `deploy/vps/.env` di VPS, jangan commit): `DATABASE_URL`, `JWT_SECRET`, `POSTGRES_PASSWORD`, `COOKIE_DOMAIN` (opsi), **`COOKIE_SAMESITE=none`** (wajib cross-site Vercel→VPS), `CORS_ORIGIN` (whitelist origin, exact-match; entri ber-`*` = pola glob beranchor di `server/src/lib/corsOrigin.js` — dipakai untuk hostname deployment Vercel yang berubah tiap push, wajib memuat slug tim), `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL`, `MID_API_KEY` (proxy tenant), `APIFY_API_TOKEN` (scrape Instagram `/instagram-sync` — **harus juga didaftarkan di `environment:` service `api` pada `deploy/vps/docker-compose.yml`**, karena compose tidak meneruskan env `.env` secara otomatis; tanpa itu nilainya selalu kosong di container dan endpoint membalas 500). **Never expose these values in code, docs, or output**; remote git URL may contain a credential — never copy it.
 
 **Operasional VPS (host `vm-2-245-ubuntu` Tailscale, IP publik `43.134.72.148`, repo `/opt/metmal`)**:
 - Akses SSH — dua jalur, keduanya `User root` dengan kunci `~/.ssh/evonic_local` (tanpa passphrase, untuk otomasi) via alias di `~/.ssh/config`:

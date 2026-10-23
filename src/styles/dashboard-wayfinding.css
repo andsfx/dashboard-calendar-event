@@ -34,6 +34,7 @@
   --wf-board-2: #f2f0e6; /* band reses */
   --wf-rule: rgba(22, 33, 27, 0.14);
   --wf-rule-strong: rgba(22, 33, 27, 0.3);
+  --wf-rule-control: #7d847e; /* 3.73:1 on board — batas kontrol, ambang 3:1 */
   --wf-ink: #16211b;
   --wf-ink-muted: #58645a;
 
@@ -44,6 +45,7 @@
   --wf-accent-soft: #e6f7f6;
   --wf-action: #9a4a06; /* amber gelap · 6.09 on board · 5.48 on board-2 */
   --wf-live: #046a4e; /* emerald gelap · 6.43 on board · 5.79 on board-2 */
+  --wf-danger: #b91c1c; /* merah gelap · 6.29 on board · 5.66 on board-2 */
 
   --wf-radius-board: 0.75rem;
   --wf-radius-control: 0.5rem;
@@ -55,6 +57,7 @@
   --wf-board-2: #121a15;
   --wf-rule: rgba(255, 255, 255, 0.14);
   --wf-rule-strong: rgba(255, 255, 255, 0.3);
+  --wf-rule-control: #969b98; /* 5.87:1 on board */
   --wf-ink: #eef2ea;
   --wf-ink-muted: #a9b4a5;
 
@@ -64,6 +67,7 @@
   --wf-accent-soft: rgba(51, 191, 188, 0.14);
   --wf-action: #fbbf24; /* amber-400 · 9.92:1 */
   --wf-live: #34d399; /* emerald-400 · 8.62:1 */
+  --wf-danger: #fca5a5; /* red-300 · 8.73:1 */
 }
 
 /* ── Rail (navigation panel) ────────────────────────────────────────────── */
@@ -131,6 +135,18 @@
   align-items: center;
   flex-shrink: 0;
   color: var(--wf-action);
+}
+
+/* Destructive rail action (Keluar). Uses the semantic danger token, not a raw
+ * Tailwind red — the same "no raw palette for status" rule the amber/emerald
+ * rows already follow. Hover wash computed from the token so it tracks themes. */
+.wf-rail-row--danger {
+  color: var(--wf-danger);
+}
+
+.wf-rail-row--danger:hover {
+  background: color-mix(in oklab, var(--wf-danger) 10%, transparent);
+  color: var(--wf-danger);
 }
 
 /* ── Topbar (admin) ─────────────────────────────────────────────────────── */
@@ -700,4 +716,15 @@ a.wf-row:hover .wf-row__action-label {
   .wf-btn {
     transition: none;
   }
+}
+
+/* Brand spec: admin icons are monoline at stroke 1.5 (dashboardNavigation.tsx:24).
+ * Apply it to every icon inside a .wf-page (the dashboard chrome and its modals)
+ * so lucide's default stroke 2 falls back to the spec without a per-instance
+ * strokeWidth prop. Scoped to .wf-page so the public site and any icon that
+ * deliberately sets its own width (e.g. a selected-chip check at stroke 3) are
+ * untouched. Colour is still driven by `currentColor` at each site — this only
+ * sets geometry. */
+.wf-page svg {
+  stroke-width: 1.5;
 }

@@ -330,7 +330,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                     <div className="mb-1 flex items-center justify-between">
                       <span className="flex gap-0.5">
                         {dayHolidays.some(h => h.type === 'libur_nasional') && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-hidden="true" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-[var(--wf-danger)]" aria-hidden="true" />
                         )}
                         {dayHolidays.some(h => h.type === 'cuti_bersama') && (
                           <span className="h-1.5 w-1.5 rounded-full bg-[var(--wf-accent)]" aria-hidden="true" />
@@ -442,6 +442,10 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
       )}
 
       {/* ── Linimasa ──────────────────────────────────────────── */}
+      {/* Timeline rail: a bar is correct here — it threads events along a date
+          axis. The banned `border-left` pattern in dashboard-wayfinding.css
+          applies to *navigation* rows, where "you are here" must be a fill,
+          not a stripe. */}
       {mode === 'timeline' && (
         <div className="space-y-0">
           {periodDays.length === 0 ? (

@@ -136,6 +136,7 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 - **React 19** + **TypeScript**
 - **Vite 6** — build tool
 - **Tailwind CSS v4** — styling
+- **Material Web 3** (`@material/web`) — komponen UI dashboard admin (wrapper bertipe di `src/components/md/`); permukaan publik tetap Tailwind
 - **React Router v7** — routing (route lazy per halaman)
 - **Lucide React** — ikon
 - **date-fns** — manipulasi tanggal
@@ -164,6 +165,8 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 - **Galeri** (`/gallery`) — album foto event.
 - **Pendaftaran** (`/daftar`) — form pengajuan event komunitas + upload proposal.
 - **Pengajuan Event** (`/ajukan-event`) — EO/komunitas mengajukan event (masuk antrian draft).
+- **Kolaborasi Tenant** (`/kolaborasi-tenant`) — tenant mengajukan event kerja sama; tenant dipilih dari master tenant MID, lampiran proposal opsional (PDF/Word/PNG/JPEG).
+- **Booth & Voucher Tenant** (`/partisipasi-tenant`) — tenant ikut memeriahkan event terjadwal dengan open booth dan/atau voucher; pemantauan status lewat kode pengajuan (`TPR-XXXXXX`), dan yang disetujui tampil di halaman detail event.
 - **Dokumentasi** (`/docs`).
 
 ### Survey & Evaluasi
@@ -187,7 +190,9 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 - **Dark mode** (deteksi sistem) + toggle manual.
 - **Auto-detect kategori** dari nama event.
 - **Tema Tahunan** — payung visual timeline (rentang tanggal, nama, warna).
-- **Pusat Komando** & **Analitik** — ringkasan operasional.
+- **Pusat Komando** — papan triage: strip status antrian, register "Perlu tindakan", band "Hari ini di mall", dan direktori "Semua modul" (lihat [ADR 009](./docs/adr/009-pusat-komando-papan-triage.md)).
+- **Insight Cerdas** (`/dashboard/insights`) — analisis otomatis dari data event & modul lain, dengan tombol tindak lanjut berfilter, saringan tingkat kepentingan, sembunyikan/pulihkan, dan "Salin ringkasan"; ringkasan AI opsional di atasnya.
+- **Analitik** — tren bulanan, perbandingan tahun, kategori, model event, top lokasi, jam tersibuk.
 - **Manajemen Pengguna** & **Log Aktivitas** (superadmin).
 
 #### Kelola Event
@@ -201,6 +206,8 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 #### Interaksi
 
 - **Pendaftaran komunitas** — list + detail, ubah status + `adminNote`; approve **tidak** auto-buat Draft (CTA manual "Buat Draft dari pendaftaran") — lihat [ADR 003](./docs/adr/003-registration-not-auto-draft.md).
+- **Kolaborasi Tenant** — antrean pengajuan event kerja sama dari tenant: saringan status, kartu ringkas + detail yang bisa dibuka, catatan internal, dan koreksi isian per-field.
+- **Partisipasi Tenant** — antrean open booth & voucher per event: status review (Menunggu/Dihubungi/Disetujui/Ditolak), koreksi isian tenant, serta **Kelola opsi** untuk mengatur pilihan dropdown form publik (skema/ukuran booth, jenis/format voucher).
 - **Survey Kepuasan** — config per event (`is_active`, auto-activate), hasil & analytics.
 - **Evaluasi Tenant** — submit/own (eo_tenant) + results/export (tenant_relation).
 
@@ -217,6 +224,8 @@ Kartu area bisa diklik untuk membuka lightbox galeri foto (navigasi prev/next, t
 - **Event** bisa dikaitkan ke **organisasi terdaftar** (dropdown pencarian EO; nama organisasi terisi otomatis).
 - **Area = master lokasi kanonis** (`event_areas`); Event → Area lewat `areaId` (opsional, `ON DELETE SET NULL`); tanpa `areaId` tetap tampil di bucket "Lokasi Lainnya".
 - **Publish Draft**: buat Event baru, set `sourceDraftId`, set Draft `published=true` — Draft tetap di antrian sebagai arsip.
+- **Kolaborasi Tenant** (`tenant_event_proposals`): pengajuan event kerja sama dari tenant — status `pending → contacted → approved / rejected`; menyetujui **tidak** membuat Event (ADR 003); tenant dipilih dari master tenant MID (`tenant_id`), isian manual ditandai kosong.
+- **Partisipasi Tenant** (`tenant_participations`): pengajuan open booth/voucher pada event terjadwal — satu kode cek status `TPR-XXXXXX` per pengajuan, cutoff otomatis H-1 sebelum event mulai, dan daftar yang disetujui tampil tanpa PII di halaman detail event.
 - **Multi-role**: `superadmin`, `admin`, `viewer`, `demo` (read-only penuh), `eo_tenant`, `tenant_relation` — capability matrix di [docs/SPEC.md](./docs/SPEC.md).
 
 ### Admin Mode
@@ -244,6 +253,17 @@ npm run dev:api
 npm run build
 ```
 
+### Migrasi database
+
+Skema baru ditulis di `server/schema.sql` (untuk DB baru) **dan** sebagai migrasi idempoten di `server/migrations/*.sql` (untuk DB yang sudah jalan). Migrasi dijalankan manual di VPS **sebelum** kode terkait di-deploy:
+
+```bash
+# di VPS, dari /opt/metmal/deploy/vps
+docker compose exec -T postgres psql -U metmal -d metmal < ../../server/migrations/<nama-migrasi>.sql
+```
+
+Migrasi terakhir: `2026-10-15-tenant-participations.sql` dan `2026-10-15-tenant-participation-options.sql` (partisipasi tenant). Daftar lengkap ada di `server/migrations/`.
+
 ## Testing
 
 ```bash
@@ -264,9 +284,13 @@ npm run test:e2e
 
 # Accessibility (Playwright + axe-core)
 npm run test:a11y
+
+# Audit harness dashboard + gate axe admin
+npm run test:audit
+npm run test:audit:a11y
 ```
 
-Unit (vitest) men-cover domain guards: status derive, publish Draft, permission matrix, letter no-GAS, schedule PDF filter, dsb.
+Unit (vitest) men-cover domain guards: status derive, publish Draft, permission matrix, letter no-GAS, schedule PDF filter, mapper REST tenant, dsb. Suite penuh: **118 file / 960 tes** (verifikasi 2026-10-16).
 
 ## Domain docs (bahasa bersama)
 
@@ -274,7 +298,9 @@ Unit (vitest) men-cover domain guards: status derive, publish Draft, permission 
 - [docs/SPEC.md](./docs/SPEC.md) — product behavior
 - [docs/SPEC-hygiene.md](./docs/SPEC-hygiene.md) — repo hygiene + letter cutover
 - [docs/tickets/](./docs/tickets/) — board T-* / H-*
-- [docs/adr/](./docs/adr/) — keputusan keras (Draft/Event, status, registration, letter)
+- [docs/adr/](./docs/adr/) — keputusan keras (Draft/Event, status, registration, letter, VPS, Pusat Komando)
+- [docs/features/](./docs/features/) — brief fitur (`update-fitur-*.md`)
+- [src/data/featureDocs.ts](./src/data/featureDocs.ts) — isi halaman publik `/docs` (tata cara penggunaan tiap fitur)
 
 ## Konfigurasi
 
@@ -296,7 +322,7 @@ DATABASE_URL  POSTGRES_PASSWORD  JWT_SECRET
 COOKIE_DOMAIN COOKIE_SAMESITE  CORS_ORIGIN
 R2_ACCOUNT_ID   R2_ACCESS_KEY_ID   R2_SECRET_ACCESS_KEY
 R2_BUCKET_NAME  R2_PUBLIC_URL
-MID_API_KEY
+MID_API_KEY  APIFY_API_TOKEN
 ```
 
 Stack produksi — SPA deploy ke Vercel (project `metmal-community-hub`); backend: lihat `deploy/vps/README-DEPLOY.md` (docker compose postgres+api+nginx, backup cron, reset password admin).
@@ -307,34 +333,42 @@ Stack produksi — SPA deploy ke Vercel (project `metmal-community-hub`); backen
 src/
 ├── pages/          # Komponen level-route (publik + login), 1 file = 1 rute lazy
 ├── components/     # Komponen — semua berkelompok, tanpa file flat di akar
-│   ├── admin/      # Superadmin (user, activity log, analytics, pameran)
+│   ├── md/         # Wrapper bertipe Material Web 3 (button, dialog, chip, …)
+│   ├── admin/      # Superadmin (user, activity log, analytics, pameran) + antrean tenant
 │   ├── community/  # Community hub + registrasi
-│   ├── dashboard/  # Shell, sidebar, navigasi, modul dashboard
+│   ├── dashboard/  # Shell, sidebar, navigasi, modul dashboard, panel Insight Cerdas
 │   ├── survey/     # Survey kepuasan + evaluasi tenant
 │   ├── modals/     # Dialog/overlay (CRUD, konfirmasi, lightbox modal)
 │   ├── views/      # Mode tampilan: kalender, kanban, timeline
-│   ├── events/     # Widget domain event (tabel, galeri foto, letter)
+│   ├── events/     # Widget domain event (tabel, galeri foto, letter, partisipasi tenant)
 │   ├── drafts/     # Antrian pra-jadwal (queue, history, progress)
 │   ├── media/      # Header galeri + lightbox foto
-│   ├── ui/         # Primitif bersama (badge, search, filter) + index.ts barrel
+│   ├── ui/         # Primitif bersama (badge, search, filter, tooltip) + index.ts barrel
 │   ├── forms/      # Field form event (recurring, multi-day, model)
 │   ├── nav/        # Navigasi dropdown
 │   └── pdf/        # Dokumen PDF (jadwal, surat)
-├── hooks/          # Custom hooks (useEvents, useToast, dll)
+├── hooks/          # Custom hooks (useEvents, useTenantParticipations, useToast, dll)
 ├── utils/          # Utility functions + utils/api/ (modul REST per domain)
+├── data/           # featureDocs.ts — satu sumber isi halaman /docs
+├── lib/            # rest.ts (apiGet/apiPost), schemas.ts (zod), download.ts
+├── constants/      # survey-options.ts — enum survey sumber kebenaran
 ├── styles/         # Tailwind v4 tokens & utilities
-├── types.ts        # TypeScript types (domain)
+├── types/          # TypeScript types (domain)
 ├── App.tsx         # Main app component
 └── main.tsx        # Entry point
 
 server/             # Backend REST (Express + Postgres) — lihat server/src/routes/
+├── src/routes/     # public, auth, admin, survey, tenant, exhibitions, extra,
+│                   # tenantProposals (kolaborasi tenant), tenantParticipations
+├── migrations/     # Migrasi SQL idempoten (dijalankan manual di VPS sebelum deploy)
+└── schema.sql      # DDL untuk DB baru
 docs/
 ├── features/       # Brief fitur (update-fitur-*.md, draft-voucher-tenant.md)
 ├── research/       # Riset platform/venue
 ├── reports/        # Laporan audit (lokal, tidak di-commit)
 ├── adr/            # Keputusan arsitektur
 ├── tickets/        # Board T-* / H-*
-└── agents/         # Panduan alur agent (triage, issue tracker)
+└── agents/         # Panduan alur agent (triage, issue tracker, akses DB VPS)
 public/screenshots/ # Tangkapan layar fitur (README)
 ```
 

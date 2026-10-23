@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 const CONFIG = {
-  high:   { label: 'Prioritas Tinggi', className: 'bg-red-600/10 text-red-700 dark:text-red-300' },
+  high:   { label: 'Prioritas Tinggi', className: 'bg-[var(--wf-danger)]/10 text-[var(--wf-danger)]' },
   medium: { label: 'Sedang',           className: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]' },
   low:    { label: 'Rendah',           className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]' },
 };

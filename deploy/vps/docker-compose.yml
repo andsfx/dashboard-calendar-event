@@ -82,6 +82,11 @@ services:
       # Proxy roster tenant MID (apiloyalty). Kosong = endpoint /tenant/roster
       # fail-closed 500 dengan pesan 'Konfigurasi server tidak lengkap'.
       MID_API_KEY: ${MID_API_KEY:-}
+      # Scrape Instagram (POST /api/v1/instagram-sync, staff). Kosong = 500
+      # 'APIFY_API_TOKEN belum dikonfigurasi'. Wajib diteruskan di sini —
+      # tanpa baris ini nilainya TIDAK pernah sampai ke container, sekalipun
+      # sudah ada di .env.
+      APIFY_API_TOKEN: ${APIFY_API_TOKEN:-}
       # Narasi AI panel Insight Cerdas (opsional). Ketiganya harus terisi agar
       # aktif; kosong = panel tetap deterministik tanpa blok "Ringkasan AI".
       AI_BASE_URL: ${AI_BASE_URL:-}

@@ -292,7 +292,6 @@ export function DashboardPage({
       onOpenLetterPicker={() => navigate(CONTENT_ROUTES['letter'])}
       onLoginClick={() => modalState.setShowLoginModal(true)}
       ongoingCount={events.visibleStats.ongoing}
-      upcomingCount={events.visibleStats.upcoming}
       publicSectionItems={publicSectionItems}
       modals={
         <DashboardModals

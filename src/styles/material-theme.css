@@ -18,8 +18,11 @@
   --md-sys-color-on-surface-variant: var(--wf-ink-muted);
   --md-sys-color-outline: var(--wf-rule-strong);
   --md-sys-color-outline-variant: var(--wf-rule);
-  --md-sys-color-error: #b3261e;
-  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error: var(--wf-danger);                   /* #b91c1c · 6.47:1 with white */
+  --md-sys-color-on-error: var(--wf-accent-ink);            /* #ffffff */
+  /* Container pair stays an MD3 tonal pair, not a brand hex: MD3 expects a
+   * filled error surface with its own on-colour, which the flat `--wf-danger`
+   * cannot supply. Measured: #7a1c16 on #fde7e6 = 8.85:1. */
   --md-sys-color-error-container: #fde7e6;
   --md-sys-color-on-error-container: #7a1c16;
   --md-sys-color-scrim: #000; /* netral md-dialog; fallback md juga #000, dikunci eksplisit bukan hex brand */
@@ -110,8 +113,12 @@ md-text-button[has-icon][trailing-icon] {
   --md-sys-color-on-surface-variant: var(--wf-ink-muted);
   --md-sys-color-outline: var(--wf-rule-strong);
   --md-sys-color-outline-variant: var(--wf-rule);
-  --md-sys-color-error: #f2b8b5;
-  --md-sys-color-on-error: #601410;
+  --md-sys-color-error: var(--wf-danger);            /* #fca5a5 */
+  /* `--wf-ink` in dark is #eef2ea (near-white): white-on-light-red measures
+   * 1.67:1 and fails outright. The dark accent ink (#06120f) is the correct
+   * on-colour for this light fill — 10.05:1. */
+  --md-sys-color-on-error: var(--wf-accent-ink);     /* #06120f · 10.05:1 */
+  /* Dark container pair: #f9dedc on #8c1d18 = 7.17:1. */
   --md-sys-color-error-container: #8c1d18;
   --md-sys-color-on-error-container: #f9dedc;
 }

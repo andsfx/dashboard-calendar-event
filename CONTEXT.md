@@ -42,7 +42,7 @@
 | **Dashboard Group** | Kelompok navigasi admin: Ringkasan · Kelola Event · Interaksi · Sistem · Konten. |
 | **Ringkasan** | Pusat Komando, Insight Cerdas, Analitik, Hasil Evaluasi Tenant. |
 | **Kelola Event** | Jadwal Event, Antrian Draft, Tema Tahunan, Pameran & Aktivasi — tampilan Event Tabel/Kalender/Kanban/Timeline. |
-| **Interaksi** | Pendaftaran, Survey Kepuasan, Evaluasi Tenant. |
+| **Interaksi** | Pendaftaran, Kolaborasi Tenant, Partisipasi Tenant, Survey Kepuasan, Evaluasi Tenant. |
 | **Sistem** | Manajemen Pengguna, Log Aktivitas. |
 | **Konten** | Halaman Landing, Galeri Album, Foto Area Event, Buat Surat, Berita, Sponsorship. |
 | **Publik** | Landing event, Galeri album, Surat, Survey, Pendaftaran Sponsor/Community. |
@@ -56,3 +56,15 @@
 | **Baris Modul** | Satu baris direktori di register "Semua modul" Pusat Komando: nama modul dan satu kalimat "modul ini untuk apa". Tanpa angka. | Panel antrian; baris menu rail; tombol aksi |
 | **Register "Perlu tindakan"** | Daftar di Pusat Komando yang hanya memuat modul yang menunggu keputusan manusia, masing-masing dengan jumlah antrian, keadaannya, dan aksinya. | Register "Semua modul"; bilah peringatan |
 | **Register "Semua modul"** | Direktori tujuan di Pusat Komando, dikelompokkan per Dashboard Group. Hanya memuat modul yang diizinkan Role Akses, dan tidak membawa angka antrian. | Navigasi rail; halaman modul; daftar menu |
+
+### Akuisisi Tenant (dua kanal terpisah)
+
+| Istilah | Arti kanonik | Bukan |
+|---------|--------------|-------|
+| **Kolaborasi Tenant** | Kanal pengajuan **event baru** oleh tenant: halaman publik `/kolaborasi-tenant` → tabel `tenant_event_proposals` → antrean `/dashboard/tenant-proposals`. Menyetujui **tidak** membuat Event/Draft (ADR 003). | Partisipasi Tenant; pameran; pendaftaran komunitas |
+| **Partisipasi Tenant** | Kanal tenant ikut serta pada **event yang sudah terjadwal**: halaman publik `/partisipasi-tenant` → tabel `tenant_participations` → antrean `/dashboard/tenant-participations`. Dua bentuk: open booth dan voucher. | Kolaborasi Tenant; tiket masuk; voucher penukaran |
+| **Open booth** | Bentuk partisipasi: tenant berjualan/promosi di area event pada rentang booth yang disetujui. | Pameran Casual Leasing; penyewaan tenant tetap |
+| **Voucher tenant** | Bentuk partisipasi: penawaran/diskon tenant untuk pengunjung event, dengan ketentuan bebas teks, jenis, format, dan kuota opsional. Pencatatan penukaran **bukan** lingkup sistem ini. | Kode voucher unik sekali pakai; loyalty voucher MID |
+| **Kode pengajuan (TPR)** | Kode `TPR-XXXXXX` yang ditampilkan sekali setelah submit partisipasi; dipakai tenant memeriksa status bersama nomor teleponnya. | ID baris di database; nomor tiket antrean |
+| **Opsi form partisipasi** | Pilihan dropdown form publik (skema booth, ukuran booth, jenis voucher, format voucher) yang dikelola admin lewat modal "Kelola opsi"; opsi nonaktif tidak ditawarkan ke pengajuan baru. | Enum bebas di kode; label form survey |
+| **Insight Cerdas** | Halaman `/dashboard/insights`: analisis otomatis dari data event & modul lain, tiap insight membawa tombol tindak lanjut berfilter. Ringkasan AI opsional di atasnya. | Pusat Komando (triage); Analitik (eksplorasi data) |

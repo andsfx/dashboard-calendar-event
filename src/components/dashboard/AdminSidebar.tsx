@@ -244,10 +244,14 @@ export const AdminSidebar = memo(function AdminSidebar({
             The label reads the REAL role: the rail is rendered for every
             authenticated role (App.tsx `isAdmin = canViewDashboard`), so
             hardcoding a generic admin label told viewers, demo accounts, and
-            tenants they were admins. */}
+            tenants they were admins.
+            Superadmin is the one role that changes what the rest of the rail
+            can do, so its crown sits at full ink while every other role's
+            shield stays muted. That is weight, not a status hue — it keeps the
+            "no legend colour on role identity" rule intact. */}
         <div className="flex items-center gap-2.5 rounded-lg border border-[var(--wf-rail-rule)] px-2.5 py-2.5">
           {user?.role === 'superadmin' ? (
-            <Crown className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
+            <Crown className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink)]" strokeWidth={1.5} aria-hidden />
           ) : (
             <Shield className="h-4 w-4 shrink-0 text-[var(--wf-rail-ink-muted)]" strokeWidth={1.5} aria-hidden />
           )}
@@ -264,7 +268,7 @@ export const AdminSidebar = memo(function AdminSidebar({
         <button
           type="button"
           onClick={onLogout}
-          className="wf-rail-row wf-focus-rail w-full text-red-700 hover:bg-red-600/10 dark:text-red-300 dark:hover:bg-red-500/15"
+          className="wf-rail-row wf-rail-row--danger wf-focus-rail w-full"
         >
           <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
           <span>Keluar</span>
