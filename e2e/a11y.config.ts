@@ -111,7 +111,7 @@ import { setupApiMocks } from './helpers';
  * `e2e/a11y.spec.ts`, which is the pattern for covering any other interactive
  * surface: open it, assert it is really open, then run axe scoped to it.
  *
- * Treat "0 violations" as "the initial, un-interacted state of these 5 routes,
+ * Treat "0 violations" as "the initial, un-interacted state of these 7 routes,
  * in light mode, at 5 viewports, has 0 axe violations". Interactive surfaces are
  * covered only where a spec explicitly opens them.
  */
@@ -173,10 +173,11 @@ export const HERO_CONTENT_MAX_FRACTION = 0.87;
 /**
  * Authoritative public routes of THIS repository (the community repo).
  *
- * The audit lists five community routes as `/`, `/events`, `/gallery`, `/community`,
- * `/daftar`. These are confirmed against src/App.tsx <Routes> — see
- * docs/PLAN_2026-09-18_20-18-audit-uiux.md:241 for the 10-route gate (5 komunitas +
- * 5 medprom); only the 5 komunitas routes exist in this repo.
+ * The audit lists seven community routes as `/`, `/events`, `/gallery`, `/community`,
+ * `/daftar`, `/partisipasi-tenant`, `/docs`. These are confirmed against
+ * src/App.tsx <Routes> — see docs/PLAN_2026-09-18_20-18-audit-uiux.md:241 for the
+ * 10-route gate (5 komunitas + 5 medprom); only the komunitas routes exist in this
+ * repo.
  */
 export const PUBLIC_ROUTES = [
   { path: '/', name: 'beranda' },
@@ -184,6 +185,7 @@ export const PUBLIC_ROUTES = [
   { path: '/gallery', name: 'gallery' },
   { path: '/community', name: 'community' },
   { path: '/daftar', name: 'daftar' },
+  { path: '/partisipasi-tenant', name: 'partisipasi-tenant' },
   { path: '/docs', name: 'docs' },
 ] as const;
 
@@ -354,7 +356,7 @@ const DB_TENANTS = [
 ];
 
 /**
- * Intercept every API call the five public routes make, as an anonymous visitor.
+ * Intercept every API call the seven public routes make, as an anonymous visitor.
  *
  * Built on top of the repo's own e2e/helpers.ts `setupApiMocks` so there is no
  * parallel mocking layer. Two deliberate overrides:
@@ -424,6 +426,21 @@ export async function setupPublicApiMocks(page: Page): Promise<void> {
       ],
     }));
   await page.route('**/api/v1/tenant/directory', (route) => json(route, DB_TENANTS));
+  // Form partisipasi tenant: tanpa mock ini dropdown event kosong dan seluruh
+  // field booth/voucher tidak pernah dirender, sehingga axe hanya mengukur
+  // kerangka halaman.
+  await page.route('**/api/v1/tenant-participations/events', (route) => json(route, DB_EVENTS));
+  await page.route('**/api/v1/tenant-participations/options', (route) =>
+    json(route, [
+      { group: 'booth_scheme', value: 'solo', label: 'Booth sendiri', sort_order: 10 },
+      { group: 'booth_scheme', value: 'joint', label: 'Gabungan beberapa tenant', sort_order: 20 },
+      { group: 'booth_size', value: '2x2', label: '2 × 2 m', sort_order: 10 },
+      { group: 'booth_size', value: '3x3', label: '3 × 3 m', sort_order: 20 },
+      { group: 'voucher_type', value: 'discount_percent', label: 'Diskon persentase (mis. 20%)', sort_order: 10 },
+      { group: 'voucher_type', value: 'other', label: 'Lainnya', sort_order: 60 },
+      { group: 'voucher_format', value: 'digital', label: 'Digital (kode atau QR dari tenant)', sort_order: 10 },
+      { group: 'voucher_format', value: 'both', label: 'Digital dan fisik', sort_order: 30 },
+    ]));
   await page.route('**/api/v1/news', (route) => json(route, []));
   await page.route('**/api/v1/instagram', (route) => json(route, { posts: [] }));
 }

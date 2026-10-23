@@ -1,6 +1,6 @@
 # Update Fitur: Partisipasi Tenant — Open Booth & Voucher per Event
 
-Status: **BRIEF** (disetujui lewat interview 2026-10-15) · Repo: schedule-event-v2 · Stack: Opsi B (Express/Postgres VPS, ADR 005) · 2026-10-15
+Status: **SELESAI** (live: halaman publik `/partisipasi-tenant` di Vercel; API `/api/v1/tenant-participations*` di VPS; tabel `tenant_participations` + `tenant_participation_options` sudah dimigrasi di produksi) · Repo: schedule-event-v2 · Stack: Opsi B (Express/Postgres VPS, ADR 005) · 2026-10-15
 
 Preseden: `update-fitur-kolaborasi-tenant.md` (halaman publik + form + antrean review), `docs/features/draft-voucher-tenant.md` (konsep program voucher, open item #5/#6 diputuskan di sini), `update-fitur-sponsorship.md` (tata letak antrean lead).
 
@@ -106,7 +106,7 @@ Kolom non-skalar: **tidak ada** → tidak butuh `pgValues`. Migrasi dijalankan m
   - `POST /tenant-participations/status` — cek status `{code, phone}`.
 - **`server/src/lib/tenantParticipationSchemas.js`** (baru) — `tenantParticipationSchema` (submit) + `TENANT_PARTICIPATION_ACTION_SCHEMAS` (list/update/delete); di-spread di `ACTION_SCHEMAS` (`server/src/lib/schemas.js`).
 - **`server/src/routes/admin.js`** — case `listTenantParticipations` / `updateTenantParticipation` / `deleteTenantParticipation` + `logActivity`; demo PII masking.
-- **`server/src/auth.js`** — `READ_ONLY_ACTIONS` += `listTenantParticipations`.
+- **`server/src/auth.js`** — `READ_ONLY_ACTIONS` += `listTenantParticipations` dan `listTenantParticipationOptions` (aksi baca opsi form; UI menyembunyikan modal kelola untuk role baca-saja, tetapi allowlist membuat panggilan langsung ke API juga berhasil).
 
 ## 5. Client
 
@@ -124,4 +124,23 @@ Kolom non-skalar: **tidak ada** → tidak butuh `pgValues`. Migrasi dijalankan m
 3. Smoke end-to-end di **Postgres asli (PGlite/WASM)** + Express nyata (23/23 lulus): migrasi idempoten dijalankan 2x; `GET /tenant-participations/events` hanya memuat event published yang belum mulai (event hari ini dan draft tersaring oleh `notStartedOn`); submit valid → `201` + kode format `TPR-XXXXXX` tanpa echo PII; submit ke event yang sedang berjalan → `400` + pesan H-1; baris `pending` tidak tampil di daftar publik, `approved` tampil **tanpa** kolom kontak/kebutuhan/catatan; cek status cocok → `approved`, normalisasi `+62` cocok, nomor salah dan kode salah → `404`; `kind: 'booth'` menyimpan `voucher_terms = ''` dan `voucher_quota = NULL`; rate limit submit menolak setelah kuota; semua kode unik.
 4. Smoke UI browser (Chromium, REST diarahkan ke backend smoke): `/partisipasi-tenant` render dengan dropdown event terisi ("Bazar Kopi Nusantara — 4 November 2026"); cek status kode+telepon benar menampilkan blok "Disetujui"; nomor salah menampilkan "Pengajuan tidak ditemukan…"; `/events/evt_future` menampilkan section "Tenant di event ini" dengan booth + voucher dan CTA bertaut `/partisipasi-tenant?event=evt_future`.
    - Catatan harness: shim `pg` untuk smoke **wajib** menghormati `pg.types.setTypeParser(1082)` seperti `server/src/db.js`; tanpa itu DATE keluar sebagai objek `Date` (`2026-11-04T00:00:00.000Z`) dan memunculkan bug palsu pada `formatDateRange`.
-5. Produksi: **belum dijalankan** — migrasi + deploy menunggu keputusan Andy (langkah berikutnya).
+5. **Produksi: LIVE.** Migrasi `2026-10-15-tenant-participations.sql` dan `2026-10-15-tenant-participation-options.sql` sudah dijalankan di VPS; API `/api/v1/tenant-participations*` dan halaman `/partisipasi-tenant` melayani 200. Verifikasi produksi bersifat read-only: `GET /tenant-participations/events` → 200, `GET /tenant-participations/options` → 200 berisi 16 opsi (skema/ukuran booth, jenis/format voucher), submit `{}` → 400 tanpa tulis, cek status kode asing → 404, `count` baris tetap 0, `EXPLAIN` valid terhadap skema produksi.
+
+## 7. Lanjutan: opsi form dikelola admin (2026-10-15, commit `293404a`, `d782767`, `ca137ce`)
+
+Dropdown form publik awalnya memakai enum di kode. Kini pilihan itu **dikelola admin** lewat modal "Kelola opsi" di header antrean:
+
+- **Tabel `tenant_participation_options`** (migrasi `2026-10-15-tenant-participation-options.sql`, idempoten, seed 16 opsi) dengan empat kelompok: `booth_scheme`, `booth_size`, `voucher_type`, `voucher_format`. Kolom: `id`, `group`, `value` (slug), `label`, `sort_order`, `is_active`; UNIQUE per (`group`, `value`).
+- **`GET /tenant-participations/options` publik** (cache 5 menit) mengembalikan hanya opsi aktif; submit divalidasi **terhadap opsi aktif** — nilai nonaktif ditolak 400, bukan cuma disembunyikan dari dropdown.
+- **Aksi admin** `listTenantParticipationOptions` / `createTenantParticipationOption` / `updateTenantParticipationOption` / `deleteTenantParticipationOption` (staff-only lewat `requireRole`; list masuk `READ_ONLY_ACTIONS` untuk demo).
+- **Fallback yang jujur di klien.** Form publik dan dropdown koreksi di antrean memakai daftar dinamis dengan fallback bawaan bila endpoint gagal; nilai lama yang opsinya sudah dimatikan tetap tampil sebagai `(nonaktif)` / `(tidak tersedia lagi)`, jadi data lama tidak pernah tampil kosong. Label terpusat di helper `tenantParticipationOptionLabel` (dinamis → fallback → humanize) yang dipakai section publik, antrean admin, dan panel cek status.
+- **Auto-isi area.** Memilih event (termasuk lewat CTA `?event=`) mengisi **Area booth** dari lokasi event dan **Selesai Booth** dari tanggal event, dengan hint "Terisi otomatis…" dan tanpa menimpa ketikan manual. Panel cek status juga menampilkan jenis dan format voucher.
+- **Batas domain opsi (2026-10-23).** `booth_size` bebas diketik, tetapi `booth_scheme`, `voucher_type`, dan `voucher_format` hanya boleh berisi nilai yang dikenal jalur tulis (`z.enum` + CHECK tabel `tenant_participations`). Form tambah di modal kini memilih dari sisa nilai enum untuk tiga grup itu, dan server menolak value di luarnya dengan pesan yang menyebut daftar yang sah — sebelumnya opsi karangan tampil di form publik lalu selalu ditolak 400 saat submit.
+- **Validasi opsi mengikuti `kind`.** Pemeriksaan "opsi masih aktif" hanya menyentuh kelompok yang dipakai pengajuan: mematikan skema booth tidak lagi menutup pengajuan voucher-only, dan sebaliknya.
+- Verifikasi: `tsc` 0 error; build hijau; smoke produksi `GET /tenant-participations/options` → 200; modal diukur ulang di 390–430px (pill jenis tidak lagi terbelah, hanya daftar yang menggulung).
+
+## 8. Aksesibilitas & panduan (2026-10-15, commit `ca137ce`, `b22b746`)
+
+- **Primitif `InfoTip`** (`src/components/ui/InfoTip.tsx`) dipasang di tujuh titik antrean dan modal kelola opsi: alur tinjauan, status pengajuan, "Kelola opsi", sub-judul Booth/Voucher, "Koreksi isian tenant", dan empat kontrol form tambah. Kontrak: pemicu `<button type="button">` ber-`aria-label`, `aria-describedby` hanya saat terbuka, gelembung `role="tooltip"` yang tidak masuk urutan Tab, `Escape` menutup tanpa ikut menutup dialog induk, dan registry kepemilikan tunggal (hanya satu gelembung tampil pada satu waktu).
+- **Koreksi isian per-field**: hanya field yang benar-benar diubah yang dikirim ke server, sehingga perubahan staf lain pada field berbeda tidak tertimpa dan status pengajuan tidak ikut berubah.
+- Kontras gelembung terukur 16,12:1 (terang) dan 14,62:1 (gelap); tanpa animasi loop atau glow.

@@ -70,6 +70,10 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
           </div>
 
           {/* Events for this month */}
+          {/* Timeline rail: a bar is correct here — it threads events along a
+              date axis. The banned `border-left` pattern in
+              dashboard-wayfinding.css applies to *navigation* rows, where
+              "you are here" must be a fill, not a stripe. */}
           <div className="relative ml-2 space-y-4 border-l-2 border-[var(--wf-rule)] pl-4 sm:ml-4 sm:pl-6">
             {monthEvs.map((ev, idx) => (
               <div key={ev.id} className="relative">
@@ -84,7 +88,11 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                   onClick={() => onDetail(ev)}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
+                  onKeyDown={(e) => {
+                    // Enter/Space pada tombol aksi di dalam kartu milik tombol itu, bukan kartu.
+                    if (e.target !== e.currentTarget) return;
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); }
+                  }}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

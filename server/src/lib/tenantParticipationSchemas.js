@@ -23,7 +23,24 @@ const PHONE_REGEX = /^(\+62|62|0)8[0-9]{8,12}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const isoDateOptional = z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD').or(z.literal('')).optional().default('');
+/**
+ * Tanggal kalender yang benar-benar ada. Regex saja meloloskan `2026-02-31`,
+ * yang baru ditolak Postgres saat di-bind ke kolom DATE (22008) — pengguna
+ * anonim menerima 500, bukan pesan validasi.
+ */
+export function isRealDate(value) {
+  if (!ISO_DATE.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year
+    && parsed.getUTCMonth() === month - 1
+    && parsed.getUTCDate() === day;
+}
+
+const isoDate = z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD')
+  .refine(isRealDate, 'Tanggal tidak valid');
+
+const isoDateOptional = isoDate.or(z.literal('')).optional().default('');
 
 export const TENANT_PARTICIPATION_KINDS = ['booth', 'voucher', 'both'];
 export const TENANT_PARTICIPATION_STATUSES = ['pending', 'contacted', 'approved', 'rejected'];
@@ -54,16 +71,42 @@ const OPTION_LABEL = z.string().trim()
 
 const OPTION_SORT = z.number().int('Urutan harus bilangan bulat').min(0, 'Urutan tidak boleh negatif').max(9999, 'Urutan maksimal 9999');
 
+/**
+ * Grup yang domain nilainya TERTUTUP. `booth_size` sengaja tidak ada di sini:
+ * kolomnya TEXT tanpa constraint dan memang tempat ukuran custom.
+ *
+ * Tanpa batas ini admin bisa membuat opsi yang form-nya tampil tetapi selalu
+ * ditolak saat submit, karena jalur tulis memakai z.enum + CHECK di tabel
+ * tenant_participations.
+ */
+const OPTION_VALUE_DOMAIN = {
+  booth_scheme: TENANT_PARTICIPATION_SCHEMES,
+  voucher_type: TENANT_PARTICIPATION_VOUCHER_TYPES,
+  voucher_format: TENANT_PARTICIPATION_VOUCHER_FORMATS,
+};
+
+function restrictOptionValue(schema) {
+  return schema.superRefine((value, ctx) => {
+    const allowed = OPTION_VALUE_DOMAIN[value.group];
+    if (!allowed || allowed.includes(value.value)) return;
+    ctx.addIssue({
+      code: 'custom',
+      path: ['value'],
+      message: `Value untuk grup ini harus salah satu dari: ${allowed.join(', ')}.`,
+    });
+  });
+}
+
 /** Aksi admin pengelolaan opsi. */
 export const TENANT_PARTICIPATION_OPTION_ACTION_SCHEMAS = {
   listTenantParticipationOptions: z.object({ action: z.literal('listTenantParticipationOptions') }),
-  createTenantParticipationOption: z.object({
+  createTenantParticipationOption: restrictOptionValue(z.object({
     action: z.literal('createTenantParticipationOption'),
     group: z.enum(TENANT_PARTICIPATION_OPTION_GROUPS),
     value: OPTION_VALUE,
     label: OPTION_LABEL,
     sortOrder: OPTION_SORT.optional().default(0),
-  }),
+  })),
   updateTenantParticipationOption: z.object({
     action: z.literal('updateTenantParticipationOption'),
     id: z.string().min(1, 'ID opsi wajib diisi'),
@@ -156,8 +199,8 @@ export const TENANT_PARTICIPATION_ACTION_SCHEMAS = {
     internalNotes: z.string().max(2000, 'Catatan maksimal 2000 karakter').optional(),
     // Koreksi isian (K10)
     boothArea: z.string().trim().max(200, 'Area maksimal 200 karakter').optional(),
-    boothStart: z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD').or(z.literal('')).optional(),
-    boothEnd: z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD').or(z.literal('')).optional(),
+    boothStart: isoDate.or(z.literal('')).optional(),
+    boothEnd: isoDate.or(z.literal('')).optional(),
     boothSize: z.string().trim().max(100, 'Ukuran booth maksimal 100 karakter').optional(),
     boothProducts: z.string().trim().max(1000, 'Produk maksimal 1000 karakter').optional(),
     boothScheme: z.enum(TENANT_PARTICIPATION_SCHEMES).optional(),

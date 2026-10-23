@@ -34,6 +34,16 @@ const GROUP_ORDER: TenantParticipationOptionGroup[] = [
 /** Slug yang boleh diketik admin — sama seperti validasi server. */
 const VALUE_RE = /^[a-z0-9][a-z0-9_-]*$/;
 
+/**
+ * Grup yang nilainya dikunci enum server: value di luar daftar ini ditolak.
+ * Ukuran booth sengaja tidak ada di sini — bebas diketik.
+ */
+const FIXED_GROUP_VALUES: Partial<Record<TenantParticipationOptionGroup, readonly string[]>> = {
+  booth_scheme: ['solo', 'joint', 'mall_support'],
+  voucher_type: ['discount_percent', 'discount_amount', 'buy1get1', 'free_item', 'min_spend', 'other'],
+  voucher_format: ['digital', 'fisik', 'both'],
+};
+
 /** Batas urutan yang diterima server (0–9999, bilangan bulat). */
 const SORT_MIN = 0;
 const SORT_MAX = 9999;
@@ -53,7 +63,7 @@ const SORT_MAX = 9999;
  * `width`, jadi yang menang adalah urutan di CSS hasil build, bukan urutan di
  * atribut class. Tiap pemakai menambahkan tepat satu kelas lebar.
  */
-const rowInputClass = 'rounded-[var(--wf-radius-control)] border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] px-2.5 py-1.5 text-sm text-[var(--wf-ink)] outline-none transition placeholder:text-[var(--wf-ink-muted)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] disabled:opacity-60';
+const rowInputClass = 'rounded-[var(--wf-radius-control)] border border-[var(--wf-rule-control)] bg-[var(--wf-board)] px-2.5 py-1.5 text-sm text-[var(--wf-ink)] outline-none transition placeholder:text-[var(--wf-ink-muted)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] disabled:opacity-60';
 
 /**
  * Badge keadaan saklar — titik penuh (aktif) vs titik kosong, jadi bukan warna saja.
@@ -136,6 +146,28 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
   }, [options]);
 
   const labelFor = (option: TenantParticipationOption) => labelDrafts[option.id] ?? option.label;
+
+  /**
+   * Nilai enum yang BELUM terdaftar untuk grup terkunci. Server menolak value
+   * di luar enum, jadi pilihan di form tambah dibatasi ke sisa nilai ini —
+   * menawarkan input bebas hanya akan berakhir 400.
+   */
+  const lockedValueChoices = useMemo(() => {
+    const allowed = FIXED_GROUP_VALUES[newGroup];
+    if (!allowed) return [];
+    const taken = new Set(grouped[newGroup].map((option) => option.value));
+    return allowed.filter((value) => !taken.has(value));
+  }, [newGroup, grouped]);
+
+  // Ganti grup → nilai terpilih harus ikut grup baru. Grup terkunci memilih
+  // sisa nilai enum pertama; grup bebas dikosongkan supaya slug grup
+  // sebelumnya ('joint') tidak ikut terkirim sebagai ukuran booth.
+  useEffect(() => {
+    setNewValue((prev) => {
+      if (!FIXED_GROUP_VALUES[newGroup]) return '';
+      return lockedValueChoices.includes(prev) ? prev : lockedValueChoices[0] ?? '';
+    });
+  }, [newGroup, lockedValueChoices]);
 
   /** Draft label dibandingkan setelah trim — spasi di ujung tidak dianggap perubahan. */
   const labelDirty = (option: TenantParticipationOption) => {
@@ -431,21 +463,43 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
               onChange={(next) => setNewGroup(next as TenantParticipationOptionGroup)}
               options={GROUP_ORDER.map((group) => ({ value: group, label: GROUP_LABELS[group] }))}
             />
-            <div className="flex items-center gap-1.5">
-              <MdTextField
-                id="opt-new-value"
-                label="Value (slug)"
-                value={newValue}
-                maxLength={50}
-                disabled={isSubmitting}
-                placeholder="mis. outdoor"
-                className="min-w-0 flex-1"
-                onChange={setNewValue}
-              />
-              <InfoTip
-                label="Penjelasan value"
-                content="Kode internal yang disimpan di data pengajuan. Huruf kecil, angka, tanda hubung, atau garis bawah. Tidak tampil ke tenant."
-              />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                {FIXED_GROUP_VALUES[newGroup] ? (
+                  // Grup terkunci: pilih dari sisa nilai yang dikenal sistem.
+                  // Input bebas di sini hanya akan berakhir 400 di server, jadi
+                  // kontrolnya tidak boleh menawarkan yang mustahil.
+                  <MdSelect
+                    id="opt-new-value"
+                    label="Value (slug)"
+                    value={newValue}
+                    disabled={isSubmitting}
+                    className="min-w-0 flex-1"
+                    onChange={setNewValue}
+                    options={lockedValueChoices.map((value) => ({ value, label: value }))}
+                  />
+                ) : (
+                  <MdTextField
+                    id="opt-new-value"
+                    label="Value (slug)"
+                    value={newValue}
+                    maxLength={50}
+                    disabled={isSubmitting}
+                    placeholder="mis. 5x5"
+                    className="min-w-0 flex-1"
+                    onChange={setNewValue}
+                  />
+                )}
+                <InfoTip
+                  label="Penjelasan value"
+                  content="Kode internal yang disimpan di data pengajuan. Tidak tampil ke tenant. Untuk skema booth, jenis voucher, dan format voucher nilainya sudah ditentukan sistem sehingga tinggal dipilih; hanya ukuran booth yang bebas diisi."
+                />
+              </div>
+              {FIXED_GROUP_VALUES[newGroup] && lockedValueChoices.length === 0 && (
+                <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">
+                  Semua nilai untuk grup ini sudah terdaftar. Ubah label atau urutan pada baris di atas.
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <MdTextField

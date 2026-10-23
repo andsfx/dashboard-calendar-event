@@ -289,6 +289,10 @@ export default function TenantSurveyList({
               value={search}
               onChange={setSearch}
               placeholder="Cari tenant, event, PIC, kategori…"
+              // Placeholder hilang saat diketik dan bukan nama aksesibel
+              // (axe: label-title-only). Label visual tidak ditambahkan karena
+              // ikon kaca pembesar + placeholder sudah menandai fungsinya.
+              ariaLabel="Cari tenant, event, PIC, kategori"
               className="w-full"
             />
           </div>

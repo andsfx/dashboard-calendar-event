@@ -64,8 +64,8 @@ const EMPTY_FORM: TenantParticipationInput = {
   voucherType: 'discount_percent', voucherTerms: '', voucherQuota: '', voucherFormat: 'both',
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-400 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-300';
-const tenantFieldClass = 'rounded-md border-slate-400 py-3 dark:border-slate-400 dark:bg-slate-800 dark:placeholder:text-slate-300';
+const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-500 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-300';
+const tenantFieldClass = 'rounded-md border-slate-500 py-3 dark:border-slate-500 dark:bg-slate-800 dark:placeholder:text-slate-300';
 const labelClass = 'mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300';
 const focusRing = 'ui-focus-ring';
 
@@ -563,7 +563,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                         className={`flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border px-4 py-3 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-tosca)] ${
                           selected
                             ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
-                            : 'border-slate-300 bg-white hover:border-slate-400 dark:border-slate-600 dark:bg-slate-800/60 dark:hover:border-slate-500'
+                            : 'border-slate-300 bg-white hover:border-slate-500 dark:border-slate-600 dark:bg-slate-800/60 dark:hover:border-slate-500'
                         }`}
                       >
                         <input
@@ -948,6 +948,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                 maxLength={30}
                 placeholder="TPR-XXXXXX"
                 autoComplete="off"
+                aria-invalid={Boolean(statusError)}
+                aria-describedby={statusError ? 'tp-status-error' : undefined}
               />
             </div>
             <div>
@@ -959,6 +961,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                 onChange={(e) => setStatusPhone(e.target.value)}
                 placeholder="08xxxxxxxxxx"
                 autoComplete="tel"
+                aria-invalid={Boolean(statusError)}
+                aria-describedby={statusError ? 'tp-status-error' : undefined}
               />
             </div>
             <button
@@ -972,11 +976,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           </form>
 
           {statusError && (
-            <p role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-400">{statusError}</p>
+            <p id="tp-status-error" role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-400">{statusError}</p>
           )}
 
           {statusResult && (
-            <div className={`mt-4 rounded-[var(--radius-card)] border p-4 text-sm ${STATUS_TONE[statusResult.status]}`}>
+            <div
+              role="status"
+              aria-live="polite"
+              aria-busy={statusChecking}
+              className={`mt-4 rounded-[var(--radius-card)] border p-4 text-sm ${STATUS_TONE[statusResult.status]}`}
+            >
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-bold">{STATUS_LABELS[statusResult.status]}</span>
                 <span className="opacity-70">·</span>

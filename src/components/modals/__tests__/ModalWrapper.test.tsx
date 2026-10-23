@@ -35,6 +35,21 @@ describe('ModalWrapper (adapter md-dialog)', () => {
     expect(screen.getByText('Judul')).toBeInTheDocument();
   });
 
+  it('memberi nama aksesibel dari judul yang terlihat, bukan "Dialog" generik', async () => {
+    // md-dialog merender <dialog> di shadow root dan hanya memakai
+    // aria-labelledby bila ada konten di slot `headline`; judul kita ada di
+    // slot `content`, jadi aria-labelledby saja diabaikan dan pembaca layar
+    // mengumumkan label generik. MdDialog menurunkan teks judul ke aria-label
+    // pada host (mixinDelegatesAria meneruskannya ke shadow).
+    render(
+      <ModalWrapper isOpen onClose={() => {}} ariaLabelledBy="nama-modal">
+        <h2 id="nama-modal">Kelola opsi form partisipasi</h2>
+      </ModalWrapper>,
+    );
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-label', 'Kelola opsi form partisipasi');
+  });
+
   it('Escape hanya menutup dialog konfirmasi teratas, modal parent tetap terbuka', async () => {
     const onCloseOuter = vi.fn();
     const onCloseConfirm = vi.fn();

@@ -80,6 +80,18 @@ export function MdDialog({
     else el.removeAttribute('type');
   }, [ref, labelledBy, alert]);
 
+  // Nama aksesibel ditulis di HOST, bukan di `<dialog>` shadow root:
+  // `mixinDelegatesAria` meneruskan `aria-label` host ke elemen shadow, tapi
+  // tidak mendukung ID-reference — jadi `aria-labelledby` saja diabaikan.
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || !open) return;
+    const title = labelledBy ? document.getElementById(labelledBy)?.textContent?.trim() ?? '' : '';
+    if (title) el.setAttribute('aria-label', title);
+    else if (ariaLabel) el.setAttribute('aria-label', ariaLabel);
+    else el.removeAttribute('aria-label');
+  }, [ref, open, labelledBy, ariaLabel]);
+
   const handleClosed = React.useCallback(() => {
     // Sudah tertutup; penutupan dari prop `open` tidak boleh memicu `onClose`.
     if (suppressClosed.current) {

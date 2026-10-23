@@ -111,10 +111,16 @@ app.use((_req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   const status = err?.status || err?.statusCode || 500;
+  const isServerError = status >= 500;
+  // 4xx = pesan yang memang disusun untuk pengguna. 5xx = pesan internal
+  // (termasuk teks Postgres seperti "date/time field value out of range")
+  // yang tidak boleh keluar ke klien, apalagi klien anonim.
   const message = err?.code === 'DB_UNAVAILABLE'
     ? (err.message || 'Database tidak tersedia')
-    : (err?.message || 'Terjadi kesalahan server');
-  if (status >= 500) console.error('[api] error:', err?.stack || err);
+    : isServerError
+      ? 'Terjadi kesalahan server. Coba lagi.'
+      : (err?.message || 'Terjadi kesalahan server');
+  if (isServerError) console.error('[api] error:', err?.stack || err);
   res.status(status).json({ success: false, error: message });
 });
 

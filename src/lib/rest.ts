@@ -69,9 +69,13 @@ async function request<T>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (err) {
+    // Pesan fetch mentah berbahasa Inggris ("Failed to fetch") dan tidak
+    // informatif; setiap konsumen meneruskan err.message apa adanya ke UI.
+    // Teks asli disimpan di payload untuk diagnosa, bukan untuk ditampilkan.
     throw new ApiError(
-      err instanceof Error ? err.message : 'Gagal terhubung ke server',
+      'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.',
       'NETWORK',
+      { detail: err instanceof Error ? err.message : String(err) },
     );
   }
 

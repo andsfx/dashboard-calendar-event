@@ -27,6 +27,7 @@ export const AUDIT_ROUTES = [
   '/dashboard/exhibitions',
   '/dashboard/registrations',
   '/dashboard/tenant-proposals',
+  '/dashboard/tenant-participations',
   '/dashboard/survey',
   '/dashboard/tenant-surveys',
   '/dashboard/users',
@@ -192,6 +193,54 @@ const TENANT_PROPOSALS = [
   },
 ];
 
+const TENANT_PARTICIPATIONS = [
+  {
+    id: 'tpr_1', code: 'TPR-5LWXXA', tenant_id: '180102223', tenant_name: 'Kopi Kenangan', unit_number: 'GF-12',
+    tenant_category: 'FOOD & BEVERAGE', tenant_logo: '', contact_name: 'Rani Putri',
+    phone: '081234567890', email: 'rani@kopikenangan.example',
+    event_id: 'evt_3', event_title: 'Bazaar Jajanan Pasar Akhir Pekan', event_date: '2026-11-01',
+    kind: 'both', booth_area: 'Atrium Utama', booth_start: '2026-11-01', booth_end: '2026-11-02',
+    booth_size: '2x2', booth_products: 'Aneka kopi kemasan dan merchandise', booth_scheme: 'solo',
+    booth_needs: 'Listrik 1 titik, 2 meja',
+    voucher_type: 'discount_percent', voucher_terms: 'Diskon 20% untuk semua menu kopi selama event.',
+    voucher_quota: 200, voucher_format: 'both',
+    status: 'pending', internal_notes: '', created_at: '2026-10-18T02:00:00Z', updated_at: '2026-10-18T02:00:00Z',
+  },
+  {
+    id: 'tpr_2', code: 'TPR-8KQ2MN', tenant_id: '180102777', tenant_name: 'Batik Nusantara', unit_number: 'LT2-08',
+    tenant_category: 'FASHION & AKSESORIS', tenant_logo: '', contact_name: 'Dimas Aryo',
+    phone: '081298765432', email: 'dimas@batiknusantara.example',
+    event_id: 'evt_3', event_title: 'Bazaar Jajanan Pasar Akhir Pekan', event_date: '2026-11-01',
+    kind: 'booth', booth_area: 'Panggung Lt. Dasar', booth_start: '2026-11-01', booth_end: '',
+    booth_size: 'custom', booth_products: 'Kain batik tulis dan aksesoris', booth_scheme: 'joint',
+    booth_needs: 'Rak display, pencahayaan tambahan',
+    voucher_type: 'other', voucher_terms: '', voucher_quota: null, voucher_format: 'both',
+    status: 'approved', internal_notes: 'Sudah dikoordinasikan dengan Marcomm.', created_at: '2026-10-16T04:30:00Z', updated_at: '2026-10-17T01:00:00Z',
+  },
+  {
+    id: 'tpr_3', code: 'TPR-3XP7RT', tenant_id: '', tenant_name: 'Kedai Teh Wangi', unit_number: 'GF-21',
+    tenant_category: 'FOOD & BEVERAGE', tenant_logo: '', contact_name: 'Bagas Prakoso',
+    phone: '081355667788', email: 'bagas@tehwangi.example',
+    event_id: 'evt_3', event_title: 'Bazaar Jajanan Pasar Akhir Pekan', event_date: '2026-11-01',
+    kind: 'voucher', booth_area: '', booth_start: '', booth_end: '',
+    booth_size: '', booth_products: '', booth_scheme: 'solo', booth_needs: '',
+    voucher_type: 'buy1get1', voucher_terms: 'Beli 1 gratis 1 untuk semua varian teh seri baru.',
+    voucher_quota: null, voucher_format: 'digital',
+    status: 'rejected', internal_notes: 'Kuota voucher event ini sudah terpenuhi.', created_at: '2026-10-15T07:15:00Z', updated_at: '2026-10-16T09:00:00Z',
+  },
+];
+
+const PARTICIPATION_OPTIONS = [
+  { group: 'booth_scheme', value: 'solo', label: 'Booth sendiri', sort_order: 10, is_active: true, id: 'opt_1' },
+  { group: 'booth_scheme', value: 'joint', label: 'Gabungan beberapa tenant', sort_order: 20, is_active: true, id: 'opt_2' },
+  { group: 'booth_size', value: '2x2', label: '2 × 2 m', sort_order: 10, is_active: true, id: 'opt_3' },
+  { group: 'booth_size', value: '3x3', label: '3 × 3 m', sort_order: 20, is_active: true, id: 'opt_4' },
+  { group: 'voucher_type', value: 'discount_percent', label: 'Diskon persentase (mis. 20%)', sort_order: 10, is_active: true, id: 'opt_5' },
+  { group: 'voucher_type', value: 'buy1get1', label: 'Beli 1 gratis 1', sort_order: 30, is_active: true, id: 'opt_6' },
+  { group: 'voucher_format', value: 'digital', label: 'Digital (kode atau QR dari tenant)', sort_order: 10, is_active: true, id: 'opt_7' },
+  { group: 'voucher_format', value: 'both', label: 'Digital dan fisik', sort_order: 30, is_active: true, id: 'opt_8' },
+];
+
 const USERS = [
   { id: 'usr_1', email: 'superadmin@metmal.test', display_name: 'Dev superadmin', role: 'superadmin', is_active: true, created_at: '2026-01-01T00:00:00Z' },
   { id: 'usr_2', email: 'admin@metmal.test', display_name: 'Admin Operasional', role: 'admin', is_active: true, created_at: '2026-02-01T00:00:00Z' },
@@ -329,6 +378,8 @@ export async function installDashboardMocks(
         readDrafts: DRAFTS,
         readRegistrations: REGISTRATIONS,
         listTenantEventProposals: TENANT_PROPOSALS,
+        listTenantParticipations: TENANT_PARTICIPATIONS,
+        listTenantParticipationOptions: PARTICIPATION_OPTIONS,
         listExhibitions: EXHIBITIONS,
         listExhibitionLeads: EXH_LEADS,
         listExhibitionActivations: [{ event_id: 'evt_1', exhibition_id: 'exh_1', acara: 'Pameran Otomotif Bekasi 2026', date_str: '2026-07-15', date_end: null, jam: '10:00 - 22:00', lokasi: 'Atrium Utama', eo: 'PT Otomotif Indonesia' }],
@@ -352,6 +403,10 @@ export async function installDashboardMocks(
     if (p.startsWith('/areas')) return ok(route, mode === 'empty' ? { areas: [], photos: [] } : AREAS_RESP);
     if (p.startsWith('/news')) return ok(route, collection(NEWS));
     if (p.startsWith('/sponsor/events')) return ok(route, collection(SPONSOR_EVENTS));
+    // Partisipasi tenant: dropdown event + opsi form + daftar approved.
+    if (p.startsWith('/tenant-participations/options')) return ok(route, PARTICIPATION_OPTIONS);
+    if (p.startsWith('/tenant-participations/events')) return ok(route, collection(EVENTS));
+    if (p.startsWith('/tenant-participations')) return ok(route, collection(TENANT_PARTICIPATIONS));
     if (p.startsWith('/sponsor-leads')) return ok(route, collection([{ id: 'spl_1', event_id: 'evt_3', name: 'Brand X', email: 'brand@example.com', phone: '0812', message: 'Tertarik support', status: 'pending', created_at: '2026-09-20T08:00:00Z' }]));
     if (p.startsWith('/exhibition-leads')) return ok(route, collection(EXH_LEADS));
     if (p.startsWith('/exhibitions')) return ok(route, collection(EXHIBITIONS));

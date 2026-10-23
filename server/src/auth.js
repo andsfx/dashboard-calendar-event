@@ -87,6 +87,7 @@ export const READ_ONLY_ACTIONS = new Set([
   'listExhibitionActivations',
   'listTenantEventProposals',
   'listTenantParticipations',
+  'listTenantParticipationOptions',
 ]);
 
 /** Boleh tidak role ini menjalankan aksi admin tersebut? (role baca-saja = baca saja) */

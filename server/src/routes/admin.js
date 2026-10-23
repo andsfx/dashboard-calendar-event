@@ -77,7 +77,8 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
       return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak: melanggar periode pameran.' });
     }
     console.error(`[admin/${action}]`, err);
-    res.status(500).json({ success: false, error: err?.message || 'Terjadi kesalahan server' });
+    // Pesan internal (termasuk teks Postgres) tidak dikirim ke klien.
+    res.status(500).json({ success: false, error: 'Terjadi kesalahan server. Coba lagi.' });
   }
 });
 
@@ -1231,6 +1232,9 @@ async function switchAction(action, req) {
         `SELECT * FROM tenant_participations ORDER BY created_at DESC`,
       );
       // Demo = read-only, tapi PII tetap disamarkan (pola listTenantEventProposals).
+      // Sengaja HANYA demo: `viewer` adalah staf mall yang memantau antrean
+      // (AGENTS.md), jadi kontak tenant justru dibutuhkan untuk ditindaklanjuti.
+      // Demo adalah akun pameran, bukan staf.
       const isDemo = req.auth?.user?.role === DEMO_ROLE;
       const data = isDemo
         ? rows.map(r => ({ ...r, contact_name: maskName(r.contact_name), phone: maskPhone(r.phone), email: maskEmail(r.email) }))

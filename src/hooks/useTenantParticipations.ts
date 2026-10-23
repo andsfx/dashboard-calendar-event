@@ -17,13 +17,15 @@ export function useTenantParticipations(enabled: boolean) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
       setParticipations(await fetchTenantParticipations());
       setError('');
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat pengajuan partisipasi tenant');
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -37,12 +39,14 @@ export function useTenantParticipations(enabled: boolean) {
   const runMutation = useCallback(async (mutate: () => Promise<void>): Promise<boolean> => {
     try {
       await mutate();
-      await reload();
-      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal menyimpan perubahan');
       return false;
     }
+    // Mutasi berhasil, tapi daftar bisa gagal dimuat ulang. Melaporkan `true`
+    // di sini membuat pemanggil membuang draft lokal padahal baris di layar
+    // masih versi lama — jadi hasil reload yang menentukan.
+    return reload();
   }, [reload]);
 
   const reviewParticipation = useCallback(

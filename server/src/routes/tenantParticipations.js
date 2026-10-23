@@ -27,6 +27,7 @@ import { jakartaToday, notStartedOn } from '../lib/eventWindow.js';
 import {
   tenantParticipationSchema,
   TENANT_PARTICIPATION_STATUS_SCHEMA,
+  isRealDate,
 } from '../lib/tenantParticipationSchemas.js';
 
 const router = Router();
@@ -148,7 +149,7 @@ router.post('/tenant-participations', async (req, res, next) => {
     }
     const today = jakartaToday();
     const eventStart = String(event.date_str || '');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(eventStart) || eventStart <= today) {
+    if (!isRealDate(eventStart) || eventStart <= today) {
       // H-1: pengajuan hanya untuk event yang belum mulai. Event yang mulai
       // HARI INI pun sudah lewat batas — cutoff-nya sehari sebelum tanggal mulai.
       return res.status(400).json({
@@ -161,11 +162,22 @@ router.post('/tenant-participations', async (req, res, next) => {
     // saat submit. Form bisa saja dibuka sebelum admin mematikan sebuah opsi;
     // nilai klien tidak dipercaya. Ukuran booth opsional: '' boleh lewat,
     // tapi nilai terisi harus terdaftar-aktif.
+    //
+    // Hanya grup yang DIPAKAI `kind` yang diperiksa: field kelompok lain
+    // selalu membawa nilai default form ('solo'/'other'/'both'), sehingga
+    // memeriksanya akan memblokir pengajuan yang tidak memakai field itu
+    // (mis. mematikan skema booth ikut menutup semua pengajuan voucher-only).
+    const includeBooth = input.kind !== 'voucher';
+    const includeVoucher = input.kind !== 'booth';
     const optionRefs = [
-      ['booth_scheme', input.boothScheme, 'Skema booth'],
-      ['booth_size', input.boothSize, 'Ukuran booth'],
-      ['voucher_type', input.voucherType, 'Jenis voucher'],
-      ['voucher_format', input.voucherFormat, 'Format voucher'],
+      ...(includeBooth ? [
+        ['booth_scheme', input.boothScheme, 'Skema booth'],
+        ['booth_size', input.boothSize, 'Ukuran booth'],
+      ] : []),
+      ...(includeVoucher ? [
+        ['voucher_type', input.voucherType, 'Jenis voucher'],
+        ['voucher_format', input.voucherFormat, 'Format voucher'],
+      ] : []),
     ].filter(([, value]) => value !== '');
 
     if (optionRefs.length > 0) {
@@ -190,9 +202,8 @@ router.post('/tenant-participations', async (req, res, next) => {
     }
 
     // Kelompok field yang tidak dipilih tidak disimpan — bukan menyimpan sampah
-    // yang bisa membingungkan review.
-    const includeBooth = input.kind !== 'voucher';
-    const includeVoucher = input.kind !== 'booth';
+    // yang bisa membingungkan review. (`includeBooth`/`includeVoucher` sudah
+    // dihitung di atas, sebelum validasi opsi.)
 
     // Kode unik dengan retry tabrakan UNIQUE (23505) — ruang 32^6 cukup lebar,
     // tapi dua submit berbarengan tetap mungkin; retry 5x sebelum menyerah.
