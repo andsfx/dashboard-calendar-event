@@ -1196,6 +1196,62 @@ function readShellHtml() {
   }
 }
 
+/**
+ * Shell SPA yang sedang LIVE (hasil build Vercel), bukan `dist/index.html` lokal.
+ *
+ * Masalah nyata: shell di `/opt/metmal/dist` hanya disegarkan saat ada deploy API,
+ * sedangkan aset ber-hash dirotasi oleh build frontend. Begitu build baru naik,
+ * shell lama menunjuk `/assets/index-<hash>.css` yang sudah dipangkas → halaman
+ * `/events/:id` tampil tanpa CSS (404 pada stylesheet).
+ *
+ * Sumber kebenaran shell adalah situs SPA itu sendiri. Ambil dari sana (cache
+ * 60 detik agar tidak memanggil Vercel tiap request crawler), lalu verifikasi
+ * bentuknya sebelum dipakai; kegagalan apa pun jatuh ke `dist/index.html` lokal
+ * (fail-open — halaman tetap 200, tidak pernah kosong).
+ */
+const SPA_SHELL_URL = process.env.SPA_SHELL_URL || 'https://www.metmalcommunityspace.web.id/';
+const SHELL_CACHE_TTL_MS = 60_000;
+const shellCache = { html: '', at: 0 };
+
+function isUsableShell(html) {
+  return typeof html === 'string' && html.includes('id="root"') && html.includes('</head>');
+}
+
+/** @returns {Promise<string>} shell live bila valid, selain itu shell lokal. */
+export async function getShellHtml() {
+  const now = Date.now();
+  if (shellCache.html && now - shellCache.at < SHELL_CACHE_TTL_MS) return shellCache.html;
+
+  try {
+    const resp = await fetch(SPA_SHELL_URL, {
+      headers: { Accept: 'text/html' },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (resp.ok) {
+      const html = await resp.text();
+      if (isUsableShell(html)) {
+        shellCache.html = html;
+        shellCache.at = now;
+        return html;
+      }
+      console.error('[event-og] shell live tidak valid (tanpa id="root"/</head>) — pakai dist lokal');
+    } else {
+      console.error('[event-og] shell live HTTP', resp.status, '— pakai dist lokal');
+    }
+  } catch (err) {
+    // Jaringan/timeout → fail-open ke dist lokal; jangan cache kegagalan.
+    console.error('[event-og] shell live gagal:', err?.message);
+  }
+
+  return readShellHtml();
+}
+
+/** Reset cache antar-tes (bukan dipakai di runtime). */
+export function resetShellCacheForTests() {
+  shellCache.html = '';
+  shellCache.at = 0;
+}
+
 router.get('/event-og', async (req, res) => {
   const id = String(req.query?.id || '').trim();
   // Tanpa id → shell polos (fail-open).
@@ -1242,7 +1298,9 @@ router.get('/event-og', async (req, res) => {
   // Shell membawa referensi aset relatif-root (`/assets/...`) — JANGAN
   // diabsolutkan: respons yang sama disajikan ke host publik (www) lewat proxy,
   // dan URL absolut ke host API akan membuat module script cross-origin.
-  const html = stripDefaultMeta(readShellHtml());
+  // Shell live (Vercel) dipakai agar aset ber-hash selalu yang terbaru; bila
+  // pengambilan gagal, getShellHtml() mengembalikan dist lokal.
+  const html = stripDefaultMeta(await getShellHtml());
   const injected = buildMetaBlock({ title, description, pageUrl, ogImage, origin, event });
   const finalHtml = html.replace('</head>', `${injected}\n</head>`);
 
