@@ -24,7 +24,7 @@ vi.stubEnv('SPA_SHELL_URL', 'not a valid url');
 vi.stubGlobal('fetch', vi.fn(async () => ({
   ok: true,
   status: 200,
-  text: async () => '<!doctype html><html><head><title>x</title></head><body><div id="root"></div></body></html>',
+  text: async () => '<!doctype html><html><head><title>x</title><link rel="stylesheet" href="/assets/rel.css"></head><body><div id="root"></div><script src="/assets/rel.js"></script></body></html>',
 })));
 
 describe('GET /event-og — origin fallback saat SPA_SHELL_URL tidak valid', () => {
@@ -64,5 +64,9 @@ describe('GET /event-og — origin fallback saat SPA_SHELL_URL tidak valid', () 
 
     expect(res.statusCode).toBe(200);
     expect(res._body).toContain('content="https://api.internal:8080/events/evt_1"');
+    // Tanpa origin kanonik (URL SPA tidak valid) aset TIDAK diabsolutkan.
+    expect(res._body).toContain('src="/assets/rel.js"');
+    expect(res._body).toContain('href="/assets/rel.css"');
+    expect(res._body).not.toContain('https://api.internal:8080/assets/');
   });
 });

@@ -20,7 +20,8 @@ vi.mock('../../db.js', () => ({
 }));
 
 const LIVE_MARKER = 'LIVE-SHELL-MARKER';
-const LIVE_HTML = `<!doctype html><html><head><title>live</title></head><body><div id="root"></div><script src="/assets/index-live1.js"></script></body></html><!--${LIVE_MARKER}-->`;
+const LIVE_HTML = `<!doctype html><html><head><title>live</title><link rel="stylesheet" href="/assets/index-live1.css"><link rel="icon" href="/favicon.ico"></head><body><div id="root"></div><script type="module" src="/assets/index-live1.js"></script></body></html><!--${LIVE_MARKER}-->`;
+const CANON = 'https://www.metmalcommunityspace.web.id';
 const INVALID_HTML = '<!doctype html><html><head><title>x</title></head><body><div id="root"></div></body></html>'.replace('</head>', '');
 
 const { getShellHtml, resetShellCacheForTests } = await import('../extra.js');
@@ -31,14 +32,19 @@ beforeEach(() => {
 });
 
 describe('getShellHtml — shell live dengan fallback lokal', () => {
-  it('memakai HTML live bila berbentuk shell SPA yang valid', async () => {
+  it('memakai HTML live bila berbentuk shell SPA yang valid, dengan aset absolut', async () => {
     const fetchMock = vi.fn(async () => ({ ok: true, status: 200, text: async () => LIVE_HTML }));
     vi.stubGlobal('fetch', fetchMock);
 
     const html = await getShellHtml();
 
-    expect(html).toBe(LIVE_HTML);
     expect(html).toContain(LIVE_MARKER);
+    // Aset root-relative → absolut ke origin kanonik SPA.
+    expect(html).toContain(`src="${CANON}/assets/index-live1.js"`);
+    expect(html).toContain(`href="${CANON}/assets/index-live1.css"`);
+    // Link non-aset tidak disentuh.
+    expect(html).toContain('href="/favicon.ico"');
+    expect(html).not.toContain(`src="/assets/`);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     // Hanya HTML (bukan API) dan dengan Accept text/html.
     const [url, opts] = fetchMock.mock.calls[0];
@@ -68,6 +74,33 @@ describe('getShellHtml — shell live dengan fallback lokal', () => {
     // Kegagalan tidak di-cache: panggilan berikutnya mencoba fetch lagi.
     await getShellHtml();
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('fallback dist lokal juga diabsolutkan (fixture cwd terisolasi)', async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+
+    const origin = process.cwd();
+    const dir = mkdtempSync(join(tmpdir(), 'og-shell-'));
+    mkdirSync(join(dir, 'dist'), { recursive: true });
+    writeFileSync(
+      join(dir, 'dist', 'index.html'),
+      '<!doctype html><html><head><link rel="stylesheet" href="/assets/rel.css"></head><body><div id="root"></div><script src="/assets/rel.js"></script><a href="/kontak">k</a></body></html>',
+    );
+    process.chdir(dir);
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline'); }));
+
+    try {
+      const html = await getShellHtml();
+      expect(html).toContain(`href="${CANON}/assets/rel.css"`);
+      expect(html).toContain(`src="${CANON}/assets/rel.js"`);
+      // Link non-aset tetap relatif.
+      expect(html).toContain('href="/kontak"');
+    } finally {
+      process.chdir(origin);
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('fallback bila respons tidak ok', async () => {
@@ -154,6 +187,9 @@ describe('GET /event-og — jendela cache shell', () => {
     // req.headers.host sengaja 'metmal.example'; origin kanonik menang.
     expect(body).toContain('content="https://www.metmalcommunityspace.web.id/events/evt_1"');
     expect(body).not.toContain('metmal.example');
+    // Aset di shell juga absolut ke origin kanonik.
+    expect(body).toContain(`src="${CANON}/assets/index-live1.js"`);
+    expect(body).toContain(`href="${CANON}/assets/index-live1.css"`);
   });
 
   it('404 (event tidak ada) memakai jendela yang sama', async () => {

@@ -1242,6 +1242,26 @@ function isUsableShell(html) {
   return typeof html === 'string' && html.includes('id="root"') && html.includes('</head>');
 }
 
+/**
+ * Absolutkan referensi aset root-relative di shell (`/assets/...`) ke origin
+ * kanonik SPA.
+ *
+ * Kenapa: shell hasil build memakai path root (`/assets/index-<hash>.js`).
+ * Bila HTML yang sama disajikan dari origin API (rewrite `/events/:id`), browser
+ * meminta `/assets/...` ke origin API — yang hanya punya dist VPS dan bisa
+ * tertinggal dari build frontend. URL absolut ke origin SPA selalu menunjuk
+ * build aktif, jadi deploy frontend tidak lagi menuntut sinkronisasi dist VPS
+ * untuk halaman event. Aset www mengirim `Access-Control-Allow-Origin: *`,
+ * cukup untuk `<script type="module">` (fetch CORS tanpa kredensial).
+ *
+ * Hanya `/assets/…` yang disentuh (`src`/`href`); link lain (favicon, manifest,
+ * canonical) dibiarkan apa adanya. Tanpa origin → HTML tidak diubah.
+ */
+function absolutizeAssetUrls(html, origin) {
+  if (!origin || typeof html !== 'string') return html;
+  return html.replace(/(\b(?:src|href)=")\/(assets\/[^"]+)"/g, `$1${origin}/$2"`);
+}
+
 /** @returns {Promise<string>} shell live bila valid, selain itu shell lokal. */
 export async function getShellHtml() {
   const now = Date.now();
@@ -1253,8 +1273,10 @@ export async function getShellHtml() {
       signal: AbortSignal.timeout(3000),
     });
     if (resp.ok) {
-      const html = await resp.text();
-      if (isUsableShell(html)) {
+      const raw = await resp.text();
+      // Validasi pada HTML mentah (sebelum rewrite) — bentuk shell tidak berubah.
+      if (isUsableShell(raw)) {
+        const html = absolutizeAssetUrls(raw, SPA_ORIGIN);
         shellCache.html = html;
         shellCache.at = now;
         return html;
@@ -1268,7 +1290,7 @@ export async function getShellHtml() {
     console.error('[event-og] shell live gagal:', err?.message);
   }
 
-  return readShellHtml();
+  return absolutizeAssetUrls(readShellHtml(), SPA_ORIGIN);
 }
 
 /** Reset cache antar-tes (bukan dipakai di runtime). */
@@ -1323,11 +1345,11 @@ router.get('/event-og', async (req, res) => {
     ? (String(event.poster_url).startsWith('http') ? event.poster_url : `${origin}${event.poster_url}`)
     : `${origin}${DEFAULT_OG_IMAGE_PATH}`;
 
-  // Shell membawa referensi aset relatif-root (`/assets/...`) — JANGAN
-  // diabsolutkan: respons yang sama disajikan ke host publik (www) lewat proxy,
-  // dan URL absolut ke host API akan membuat module script cross-origin.
-  // Shell live (Vercel) dipakai agar aset ber-hash selalu yang terbaru; bila
-  // pengambilan gagal, getShellHtml() mengembalikan dist lokal.
+  // Shell diambil dari SPA live (Vercel) dan asetnya sudah diabsolutkan ke
+  // origin kanonik oleh getShellHtml(): `/assets/...` → `https://<spa-origin>/assets/...`
+  // supaya browser tidak meminta aset ber-hash ke origin API (dist VPS bisa
+  // tertinggal dari build frontend). Bila pengambilan gagal, getShellHtml()
+  // mengembalikan dist lokal (juga sudah diabsolutkan).
   const html = stripDefaultMeta(await getShellHtml());
   const injected = buildMetaBlock({ title, description, pageUrl, ogImage, origin, event });
   const finalHtml = html.replace('</head>', `${injected}\n</head>`);
