@@ -148,6 +148,14 @@ describe('GET /event-og — jendela cache shell', () => {
     expect(body).toContain(LIVE_MARKER);
   });
 
+  it('og:url memakai origin SPA kanonik, bukan Host request (host API dari rewrite)', async () => {
+    const { body } = await callEventOg('evt_1');
+
+    // req.headers.host sengaja 'metmal.example'; origin kanonik menang.
+    expect(body).toContain('content="https://www.metmalcommunityspace.web.id/events/evt_1"');
+    expect(body).not.toContain('metmal.example');
+  });
+
   it('404 (event tidak ada) memakai jendela yang sama', async () => {
     dbState.rows = [];
     const { status, headers } = await callEventOg('evt_missing');

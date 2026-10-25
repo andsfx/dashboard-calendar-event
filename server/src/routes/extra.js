@@ -1221,6 +1221,20 @@ function readShellHtml() {
  * (fail-open — halaman tetap 200, tidak pernah kosong).
  */
 const SPA_SHELL_URL = process.env.SPA_SHELL_URL || 'https://www.metmalcommunityspace.web.id/';
+/**
+ * Origin kanonik SPA (dari SPA_SHELL_URL). Dipakai untuk `og:url`/`og:image`
+ * relatif karena `req.headers.host` BUKAN host publik: rewrite Vercel
+ * `www/events/:id → api/events/:id` mengganti Host menjadi host API, sehingga
+ * URL request-derived menunjuk origin API — bukan halaman yang dibagikan.
+ * Kosong bila SPA_SHELL_URL tidak valid → pemanggil memakai fallback request.
+ */
+const SPA_ORIGIN = (() => {
+  try {
+    return new URL(SPA_SHELL_URL).origin;
+  } catch {
+    return '';
+  }
+})();
 const SHELL_CACHE_TTL_MS = 60_000;
 const shellCache = { html: '', at: 0 };
 
@@ -1293,7 +1307,10 @@ router.get('/event-og', async (req, res) => {
 
   const proto = String(req.headers['x-forwarded-proto'] || 'https');
   const host = req.headers.host || '';
-  const origin = `${proto}://${host}`;
+  // Fallback request-derived (perilaku lama). Origin kanonik diutamakan:
+  // request lewat rewrite www→api membawa Host API, padahal halaman yang
+  // dibagikan/diindeks adalah URL www.
+  const origin = SPA_ORIGIN || `${proto}://${host}`;
   const pageUrl = `${origin}/events/${event.id}`;
 
   const dateLabel = buildDateLabel(event);
