@@ -76,7 +76,13 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '5mb' }));
+// `inflate: false` menolak body ber-`Content-Encoding` (415) alih-alih
+// mengembanginya. Mitigasi GHSA-27r3-jxmh-p828: body-parser 1.20.x rentan DoS
+// lewat byte sisa setelah body terkompresi — kita tidak pernah butuh body
+// terkompresi (SPA mengirim JSON polos tanpa Content-Encoding), jadi jalur itu
+// ditutup tanpa mengubah parsing JSON biasa. Advisory terkait:
+// https://github.com/advisories/GHSA-27r3-jxmh-p828
+app.use(express.json({ limit: '5mb', inflate: false }));
 app.use(cookieParser());
 
 // Middleware: semua request yang menyentuh DB mendapat status DB terkini.
