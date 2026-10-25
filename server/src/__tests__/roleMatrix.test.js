@@ -49,6 +49,10 @@ const VIEWER_DENIED_READS = [
   'listLetters',
   'listExhibitions',
   'listExhibitionLeads',
+  // Permukaan ADMIN untuk konten/area: `listNewsArticles` mengembalikan draft,
+  // `listEventAreas` menyertakan area non-aktif → over-read untuk viewer.
+  'listNewsArticles',
+  'listEventAreas',
 ];
 
 describe('viewer — allowlist sempit', () => {

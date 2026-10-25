@@ -92,17 +92,22 @@ export const DEMO_READ_ACTIONS = new Set([
 
 /**
  * Aksi admin yang AMAN dibaca role `viewer`. Jauh lebih sempit dari demo:
- * SPEC.md §2 hanya memberi viewer "view" pada registrasi komunitas dan
- * kolaborasi tenant. Event, draft, surat, sponsor, pameran, dan pemetaan
- * lokasi tetap tertutup untuknya.
+ * SPEC.md §2 hanya memberi viewer "view" pada registrasi komunitas, kolaborasi
+ * & partisipasi tenant, plus Insight Cerdas. Event, draft, surat, sponsor,
+ * pameran, dan pemetaan lokasi tetap tertutup untuknya.
+ *
+ * `listNewsArticles` dan `listEventAreas` SENGAJA tidak ada: keduanya
+ * permukaan admin, bukan publik — `listNewsArticles` mengembalikan SEMUA status
+ * (termasuk draft yang belum terbit) dan `listEventAreas` menyertakan area
+ * non-aktif. Viewer tidak punya `canViewSettings`/modul konten, jadi membaca
+ * keduanya adalah over-read. Padanan publiknya (`GET /news`, `GET /areas`)
+ * tetap tersedia tanpa login dan sudah tersaring.
  */
 export const VIEWER_READ_ACTIONS = new Set([
   'readRegistrations',
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',
-  'listNewsArticles',
-  'listEventAreas',
   'getInsightNarrative',
 ]);
 

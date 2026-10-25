@@ -6,8 +6,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  *
  * Dua role baca-saja punya allowlist BERBEDA (lihat auth.js):
  *   - `demo`   → akun peragaan: seluruh 15 aksi baca, PII disamarkan handler.
- *   - `viewer` → SPEC.md §2: hanya registrasi komunitas + kolaborasi tenant
- *                (+ berita/area/narasi sebagai pendukung halaman itu).
+ *   - `viewer` → SPEC.md §2: hanya registrasi komunitas, kolaborasi &
+ *                partisipasi tenant, dan Insight Cerdas. Permukaan konten/area
+ *                versi ADMIN (draft ikut / area non-aktif ikut) tetap tertutup.
  *
  * Kontrak yang dikunci di sini:
  *   - viewer  → aksi baca yang diizinkan 200; aksi baca lain 403; tulis 403
@@ -89,21 +90,26 @@ const VIEWER_READ_ACTIONS = [
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',
-  'listNewsArticles',
-  'listEventAreas',
   'getInsightNarrative',
 ];
 
-/** Aksi baca demo-only — viewer TIDAK boleh (event memuat draft + PIC). */
+/** Aksi baca demo-only — viewer TIDAK boleh. */
 const VIEWER_DENIED_READ_ACTIONS = [
+  // Event memuat draft + PIC.
   'listEvents',
   'readDrafts',
   'listSponsorLeads',
   'listLetters',
+  // Pameran + pemetaan lokasi = permukaan admin.
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',
   'getLocationMapping',
+  // Konten: admin mengembalikan SEMUA status (draft ikut), padanan publiknya
+  // `/news` hanya published dan tidak butuh login.
+  'listNewsArticles',
+  // Area admin menyertakan area non-aktif; padanan publik `/areas` tersaring.
+  'listEventAreas',
 ];
 
 /** Seluruh aksi baca (demo boleh semuanya). */
