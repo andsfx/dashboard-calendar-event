@@ -27,7 +27,11 @@ type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
 function PageShell({ children, onBack }: { children: ReactNode; onBack: () => void }) {
   return (
-    <div className="min-h-dvh scroll-smooth bg-slate-50 dark:bg-slate-950">
+    <main
+      id="konten-utama"
+      tabIndex={-1}
+      className="min-h-dvh scroll-smooth bg-slate-50 outline-none dark:bg-slate-950"
+    >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
@@ -44,7 +48,7 @@ function PageShell({ children, onBack }: { children: ReactNode; onBack: () => vo
         </div>
         {children}
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -111,8 +115,6 @@ export default function TenantSurveyPublicPage() {
       nama_gerai: tenant.name,
       lokasi_zona: zona || prev.lokasi_zona,
       kategori: kat || prev.kategori,
-      pic_name: tenant.pic || prev.pic_name,
-      pic_phone: tenant.picTelp || prev.pic_phone,
     }));
     setAutoFilled({ lokasi_zona: !!zona, kategori: !!kat });
   }, []);
@@ -408,7 +410,11 @@ export default function TenantSurveyPublicPage() {
   })();
 
   return (
-    <div className="min-h-dvh scroll-smooth bg-slate-50 dark:bg-slate-950">
+    <main
+      id="konten-utama"
+      tabIndex={-1}
+      className="min-h-dvh scroll-smooth bg-slate-50 outline-none dark:bg-slate-950"
+    >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
@@ -767,6 +773,6 @@ export default function TenantSurveyPublicPage() {
         </p>
       </form>
       </div>
-    </div>
+    </main>
   );
 }

@@ -4,16 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * Gate role router aksi admin: siapa yang boleh MEMBACA dan siapa yang boleh
  * MENULIS.
  *
- * Sebelum perbaikan, gate router memakai `DEMO_READ_ROLES` = staff + demo,
- * sehingga `viewer` ditolak 403 di gate untuk SEMUA aksi — padahal klien
- * menampilkan halaman itu kepadanya (`canViewTenantProposals` /
- * `canViewRegistrations` = isViewer) dan SPEC.md §2 memberinya hak "view" pada
- * registrasi. Akibatnya akun viewer melihat banner 403 permanen tanpa retry.
+ * Dua role baca-saja punya allowlist BERBEDA (lihat auth.js):
+ *   - `demo`   → akun peragaan: seluruh 15 aksi baca, PII disamarkan handler.
+ *   - `viewer` → SPEC.md §2: hanya registrasi komunitas + kolaborasi tenant
+ *                (+ berita/area/narasi sebagai pendukung halaman itu).
  *
  * Kontrak yang dikunci di sini:
- *   - viewer  → aksi BACA 200, aksi TULIS 403 (pesan baca-saja)
- *   - demo    → perilaku lama tidak berubah (baca 200, tulis 403)
- *   - eo_tenant / tenant_relation → tetap 403 (SPEC tidak memberi mereka akses)
+ *   - viewer  → aksi baca yang diizinkan 200; aksi baca lain 403; tulis 403
+ *   - demo    → seluruh aksi baca 200, tulis 403
+ *   - eo_tenant / tenant_relation → tetap 403 (SPEC tidak memberi akses admin)
  *   - staff   → lolos gate (400 dari zod = sudah masuk handler, bukan ditolak)
  *
  * `auth.js` sengaja TIDAK di-mock: gate yang diuji adalah `requireRole` asli
@@ -48,7 +47,10 @@ async function callAs(role, action) {
   const req = {
     method: 'POST',
     url: `/${action}`,
-    body: { action },
+    // `getInsightNarrative` punya schema wajib `insights`; aksi lain cukup action.
+    body: action === 'getInsightNarrative'
+      ? { action, insights: [{ severity: 'info', title: 'Judul', body: 'Detail' }] }
+      : { action },
     headers: { cookie: `sb-access-token=${token}` },
     cookies: { 'sb-access-token': token },
     ip: '127.0.0.1',
@@ -81,7 +83,31 @@ async function callAs(role, action) {
   return { status: res.statusCode, error: res._body?.error };
 }
 
-const READ_ACTIONS = ['readRegistrations', 'listTenantEventProposals', 'listEvents', 'readDrafts'];
+/** Aksi baca yang SPEC.md §2 berikan ke viewer. */
+const VIEWER_READ_ACTIONS = [
+  'readRegistrations',
+  'listTenantEventProposals',
+  'listTenantParticipations',
+  'listTenantParticipationOptions',
+  'listNewsArticles',
+  'listEventAreas',
+  'getInsightNarrative',
+];
+
+/** Aksi baca demo-only — viewer TIDAK boleh (event memuat draft + PIC). */
+const VIEWER_DENIED_READ_ACTIONS = [
+  'listEvents',
+  'readDrafts',
+  'listSponsorLeads',
+  'listLetters',
+  'listExhibitions',
+  'listExhibitionLeads',
+  'listExhibitionActivations',
+  'getLocationMapping',
+];
+
+/** Seluruh aksi baca (demo boleh semuanya). */
+const READ_ACTIONS = [...VIEWER_READ_ACTIONS, ...VIEWER_DENIED_READ_ACTIONS];
 const WRITE_ACTIONS = ['updateTenantEventProposal', 'deleteTenantEventProposal', 'updateRegistrationStatus'];
 const READ_ONLY_MESSAGE = 'Akun baca-saja hanya dapat melihat data (read-only).';
 
@@ -105,11 +131,21 @@ describe('daftar role gate router admin', () => {
   });
 });
 
-describe('viewer — baca boleh, tulis ditolak', () => {
-  it('bisa membaca seluruh aksi baca yang dibutuhkan halamannya', async () => {
-    for (const action of READ_ACTIONS) {
+describe('viewer — baca terbatas, tulis ditolak', () => {
+  it('bisa membaca aksi baca yang menjadi haknya', async () => {
+    for (const action of VIEWER_READ_ACTIONS) {
       const { status } = await callAs('viewer', action);
       expect(status, `viewer ${action}`).toBe(200);
+    }
+  });
+
+  it('ditolak 403 pada aksi baca yang bukan haknya', async () => {
+    // listEvents memuat draft + PIC, jadi viewer tidak boleh — bukan sekadar
+    // "belum diizinkan".
+    for (const action of VIEWER_DENIED_READ_ACTIONS) {
+      const { status, error } = await callAs('viewer', action);
+      expect(status, `viewer ${action}`).toBe(403);
+      expect(error, `viewer ${action}`).toBe(READ_ONLY_MESSAGE);
     }
   });
 

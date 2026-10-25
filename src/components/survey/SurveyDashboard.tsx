@@ -59,9 +59,11 @@ interface SurveyDashboardProps {
   events: Array<{ id: string; acara: string; status: string }>;
   /** Akun demo: hanya melihat. Toggle aktif/nonaktif survey disembunyikan. */
   readOnly?: boolean;
+  /** Boleh unduh CSV (`/survey/export`): staff + viewer + eo_tenant. Demo tidak. */
+  canExport?: boolean;
 }
 
-export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardProps) {
+export function SurveyDashboard({ events, readOnly = false, canExport = false }: SurveyDashboardProps) {
   const [stats, setStats] = useState<SurveyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -221,6 +223,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
           configLoading={configLoading}
           activeConfigs={activeConfigs}
           readOnly={readOnly}
+          canExport={canExport}
         />
       </div>
     );
@@ -436,6 +439,7 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
         configLoading={configLoading}
         activeConfigs={activeConfigs}
         readOnly={readOnly}
+        canExport={canExport}
       />
     </div>
   );
@@ -444,13 +448,14 @@ export function SurveyDashboard({ events, readOnly = false }: SurveyDashboardPro
 
 /* ─── Event Management Section ─────────────────────────────────── */
 
-function EventManagementSection({ events, copiedId, onCopyLink, onExport, onToggleConfig, configLoading, activeConfigs, readOnly = false }: {
+function EventManagementSection({ events, copiedId, onCopyLink, onExport, onToggleConfig, configLoading, activeConfigs, readOnly = false, canExport = false }: {
   events: Array<{ id: string; acara: string; status: string }>;
   copiedId: string;
   onCopyLink: (id: string) => void;
   onExport: (id: string) => void;
   onToggleConfig: (id: string, active: boolean) => void;
   readOnly?: boolean;
+  canExport?: boolean;
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
 }) {
@@ -469,7 +474,7 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
     <div className="ui-dashboard-surface">
       <div className="border-b border-[var(--wf-rule)] px-4 py-3">
         <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Kelola Survey per Event</h3>
-        <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan, atau export data</p>
+        <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan{canExport ? ', atau export data' : ''}</p>
         <div className="relative mt-2">
           <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
           <MdTextField
@@ -528,15 +533,17 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
                 {isCopied ? 'Tersalin!' : 'Link'}
               </MdButton>
 
-              {/* Export */}
-              <MdButton
-                variant="text"
-                onClick={() => onExport(ev.id)}
-                ariaLabel={`Unduh CSV survey ${ev.acara}`}
-              >
-                <Download className="h-3 w-3" />
-                CSV
-              </MdButton>
+              {/* Export — backend menolak demo; tombol disembunyikan agar tak 403 */}
+              {canExport && (
+                <MdButton
+                  variant="text"
+                  onClick={() => onExport(ev.id)}
+                  ariaLabel={`Unduh CSV survey ${ev.acara}`}
+                >
+                  <Download className="h-3 w-3" />
+                  CSV
+                </MdButton>
+              )}
             </div>
           );
         })}

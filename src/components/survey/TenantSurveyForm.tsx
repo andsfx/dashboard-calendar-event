@@ -116,8 +116,6 @@ export default function TenantSurveyForm({
       nama_gerai: tenant.name,
       lokasi_zona: zona || prev.lokasi_zona,
       kategori: kat || prev.kategori,
-      pic_name: tenant.pic || prev.pic_name,
-      pic_phone: tenant.picTelp || prev.pic_phone,
     }));
     setAutoFilled({ lokasi_zona: !!zona, kategori: !!kat });
   }, []);

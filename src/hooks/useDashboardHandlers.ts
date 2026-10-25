@@ -13,7 +13,7 @@ type ShowToast = (type: ToastMessage['type'], title: string, message: string) =>
 
 export type DashboardHandlersDeps = {
   showToast: ShowToast;
-  logout: () => Promise<void> | void;
+  logout: () => Promise<{ ok: boolean; error?: string } | void> | void;
   events: EventItem[];
   addEvent: (event: EventItem) => Promise<boolean>;
   updateEvent: (event: EventItem, lifecycle?: 'draft' | 'published') => Promise<boolean>;

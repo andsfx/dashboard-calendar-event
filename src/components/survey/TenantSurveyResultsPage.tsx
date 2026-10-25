@@ -63,6 +63,13 @@ interface Props {
   canExport?: boolean;
   /** Use rate-limited public APIs (no login). Default true for standalone page. */
   publicMode?: boolean;
+  /**
+   * True hanya bila komponen ini adalah root halaman sendiri (tanpa
+   * `DashboardShell`). Menentukan landmark: `main#konten-utama` vs `div`.
+   * Di dalam shell (mis. rute `/tenant-survey-results`) shell sudah punya
+   * `<main>`, jadi biarkan false agar tidak ada main bersarang.
+   */
+  standalone?: boolean;
 }
 
 type RosterTab = 'all' | 'done' | 'pending';
@@ -71,6 +78,7 @@ export default function TenantSurveyResultsPage({
   events,
   canExport = false,
   publicMode = true,
+  standalone = false,
 }: Props) {
   usePageMeta({
     title: 'Hasil Survey Tenant - Metropolitan Mall Bekasi',
@@ -362,8 +370,17 @@ export default function TenantSurveyResultsPage({
     (filter.kategori !== 'all' ? 1 : 0) +
     (filter.status !== 'all' ? 1 : 0);
 
+  // Landmark hanya bila halaman ini berdiri sendiri (`standalone`), BUKAN
+  // berdasarkan `publicMode`: rute `/tenant-survey-results` memakai
+  // publicMode untuk sumber data tetapi dirender di dalam DashboardShell yang
+  // sudah punya <main>. `standalone=true` hanya untuk root di luar shell.
+  const Root = standalone ? 'main' : 'div';
+  const rootLandmarkProps = standalone
+    ? { id: 'konten-utama', tabIndex: -1, role: 'main' as const }
+    : {};
+
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <Root {...rootLandmarkProps} className="space-y-3 sm:space-y-4">
       {/* Report header — compact */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
@@ -1238,6 +1255,6 @@ export default function TenantSurveyResultsPage({
           />
         </Suspense>
       )}
-    </div>
+    </Root>
   );
 }

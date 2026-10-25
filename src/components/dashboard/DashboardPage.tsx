@@ -250,6 +250,21 @@ export function DashboardPage({
   const allowedInsightPaths = useMemo(() => getAllowedDashboardPaths(permissions), [permissions]);
 
   /**
+   * Daftar event untuk modul Survey Kepuasan.
+   *
+   * `eo_tenant` hanya boleh melihat event yang ditugaskan padanya
+   * (`assigned_events` dari `/auth/me`), bukan seluruh event mall. Staf dan
+   * viewer tetap melihat semuanya. Tombol CSV tidak dirender untuk eo karena
+   * ekspor global bukan haknya (lihat `canExportSurvey`).
+   */
+  const surveyEvents = useMemo(() => {
+    const base = events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }));
+    if (auth.user?.role !== 'eo_tenant') return base;
+    const assigned = new Set(auth.user.assigned_events ?? []);
+    return base.filter(e => assigned.has(e.id));
+  }, [events.events, auth.user]);
+
+  /**
    * Agenda band reads the FULL event set, not the filter pipeline.
    *
    * `events.ongoingEvents` / `events.upcomingEvents` come from `filteredEvents`,
@@ -418,6 +433,14 @@ export function DashboardPage({
           "Ringkasan" dan register "Semua modul" di Pusat Komando. */}
       {isAdmin && dashboardPath === '/insights' && (
         <section id="insights" className="scroll-mt-20">
+          {insightContext.error && (
+            <div
+              role="alert"
+              className="mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300"
+            >
+              <span className="flex-1">{insightContext.error}</span>
+            </div>
+          )}
           <EventInsightsPanel
             events={events.events}
             activeDrafts={drafts.activeDrafts}
@@ -676,7 +699,11 @@ export function DashboardPage({
       {permissions.canViewSurvey && dashboardPath === '/survey' && (
         <section id="survey-section" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <SurveyDashboard events={events.events.map(e => ({ id: e.id, acara: e.acara, status: e.status }))} readOnly={!permissions.canManageSurvey} />
+            <SurveyDashboard
+              events={surveyEvents}
+              readOnly={!permissions.canManageSurvey}
+              canExport={permissions.canExportSurvey}
+            />
           </Suspense>
         </section>
       )}
@@ -685,7 +712,11 @@ export function DashboardPage({
       {permissions.canViewTenantSurveys && dashboardPath === '/tenant-surveys' && (
         <section id="tenant-surveys-section" className="scroll-mt-20">
           <Suspense fallback={<SectionFallback height="h-48" />}>
-            <TenantSurveyPage events={events.events} isAdmin={permissions.canEditEvents} />
+            <TenantSurveyPage
+              events={events.events}
+              isAdmin={permissions.canEditEvents}
+              canExportCsv={permissions.canExportTenantSurveyCsv}
+            />
           </Suspense>
         </section>
       )}

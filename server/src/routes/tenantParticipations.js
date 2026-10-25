@@ -261,7 +261,7 @@ router.post('/tenant-participations', async (req, res, next) => {
     }
     return res.status(500).json({ success: false, error: 'Gagal membuat kode pengajuan. Coba kirim ulang.' });
   } catch (err) {
-    console.error('[tenant-participations] Database error:', err);
+    console.error('[tenant-participations] Database error:', err?.code, err?.message);
     return next(err);
   }
 });

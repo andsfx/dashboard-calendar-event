@@ -280,6 +280,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
+      setLastError(toAdminError(err));
       console.error('Error deleting recurring series:', err);
       setEvents(prev => sortEvents([...prev, ...targets]));
       return false;
@@ -297,6 +298,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
+      setLastError(toAdminError(err));
       console.error('Error adding annual theme:', err);
       return false;
     }
@@ -309,6 +311,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
+      setLastError(toAdminError(err));
       console.error('Error updating annual theme:', err);
       return false;
     }
@@ -324,6 +327,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
+      setLastError(toAdminError(err));
       console.error('Error deleting annual theme:', err);
       return false;
     }

@@ -38,6 +38,9 @@ function connectionStringMissing() {
     async query() {
       throw new DbUnavailableError('Database belum dikonfigurasi (DATABASE_URL kosong)');
     },
+    async withTransaction() {
+      throw new DbUnavailableError('Database belum dikonfigurasi (DATABASE_URL kosong)');
+    },
     async end() {},
   };
 }
@@ -102,6 +105,51 @@ function createPool() {
     },
     async end() {
       await pool.end();
+    },
+
+    /**
+     * Jalankan `fn(client)` dalam satu transaksi Postgres.
+     *
+     * Semua pernyataan di dalam callback WAJIB memakai `client`, bukan `db`
+     * (pool lain = koneksi lain = di luar transaksi). Commit bila callback
+     * selesai normal, rollback bila melempar; client selalu dikembalikan ke
+     * pool lewat `finally`.
+     *
+     * @template T
+     * @param {(client: import('pg').PoolClient) => Promise<T>} fn
+     * @returns {Promise<T>} nilai kembalian callback (setelah COMMIT)
+     */
+    async withTransaction(fn) {
+      if (!verified) {
+        const ok = await verify();
+        if (!ok) {
+          throw new DbUnavailableError(`Database tidak tersedia: ${tagged.lastError || 'unknown'}`);
+        }
+      }
+      const client = await pool.connect();
+      let broken = null;
+      try {
+        await client.query('BEGIN');
+        const result = await fn(client);
+        await client.query('COMMIT');
+        tagged.ready = true;
+        return result;
+      } catch (err) {
+        try {
+          await client.query('ROLLBACK');
+        } catch (rollbackErr) {
+          // Transaksi sudah rusak — jangan menutupi error asli.
+          console.error('[db] ROLLBACK gagal:', rollbackErr.message);
+        }
+        if (String(err?.code || '').startsWith('08')) {
+          verified = false;
+          tagged.ready = false;
+          broken = err;
+        }
+        throw err;
+      } finally {
+        client.release(broken);
+      }
     },
   };
 

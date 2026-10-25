@@ -4,11 +4,11 @@
  * Pengganti api/tenant-survey.js (?mode=...&action=...) di VPS.
  *
  * Publik (tanpa auth):
- *   GET  /events             event past+ongoing dgn config is_active=true
- *   GET  /event-info         detail event + status survey aktif
- *   GET  /tenants            cari tenant MID aktif (query >= 2 char; tanpa PIC)
- *   GET  /tenant-detail      detail tenant tertentu (PIC hanya utk tenant ini)
- *   GET  /check              cek duplikat perangkat (fingerprint)
+ *   GET  /events             event past+ongoing dgn config is_active=true (60/mnt)
+ *   GET  /event-info         detail event (bukan draft) + status survey aktif (60/mnt)
+ *   GET  /tenants            cari tenant MID aktif (query >= 2 char; tanpa PIC; 30/mnt)
+ *   GET  /tenant-detail      id+nama tenant saja (TANPA PIC; 30/mnt)
+ *   GET  /check              cek duplikat perangkat (fingerprint; 30/mnt)
  *   POST /submit             submit publik anonim (15 / 15 mnt / IP)
  *   GET  /results-list       hasil submitted+reviewed, PII stripped (40 / mnt)
  *   GET  /results-analytics  agregat analitik publik (40 / mnt)
@@ -16,9 +16,11 @@
  *   GET  /directory          direktori tenant MID aktif (12 / mnt)
  *
  * Auth (role matrix):
- *   STAFF=[superadmin,admin] → CRUD, review, config, export, delete
+ *   STAFF=[superadmin,admin] → CRUD, review, config, export (CSV+PIC), delete
  *   ANALYTICS_READ=+tenant_relation → analytics, summary, roster
- *   LIST_READ=+eo_tenant → list, get (row milik sendiri; TR PII stripped)
+ *   LIST_READ=+eo_tenant → list, get (row milik sendiri; TR & demo PII stripped)
+ *   demo → baca seluruh daftar (tanpa tulis), PII disamarkan; TIDAK boleh export
+ *   viewer → tidak termasuk permukaan tenant (role survey dibaca di routes/survey.js)
  *
  * Boundary: server kembalikan row mentah snake_case; pemetaan camelCase
  * hanya di src/utils/api/* (client). Envelope GET publik/staff:
@@ -32,10 +34,12 @@ import {
   STAFF_ROLES,
   ANALYTICS_READ_ROLES_WITH_DEMO,
   LIST_READ_ROLES_WITH_DEMO,
-  DEMO_READ_ROLES,
+  DEMO_ROLE,
+  TENANT_EXPORT_ROLES,
 } from '../auth.js';
 import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
 import { jakartaToday, startedOnOrBefore, startedStatusCase } from '../lib/eventWindow.js';
+import { csvEscape } from '../lib/csv.js';
 
 const router = Router();
 
@@ -237,7 +241,11 @@ async function tenantSurveyActive(eventId) {
   return rows[0]?.is_active === true;
 }
 
-/** PII strip utk tenant_relation — null/'' utk field kontak. */
+/**
+ * PII strip utk tenant_relation & demo — null/'' utk field kontak, plus
+ * metadata perangkat: `ip_address`, `user_agent`, `device_fingerprint` cukup
+ * untuk melacak perangkat fisik satu orang, jadi tidak ikut keluar.
+ */
 function stripSurveyPii(row) {
   if (!row || typeof row !== 'object') return row;
   const out = { ...row };
@@ -245,27 +253,27 @@ function stripSurveyPii(row) {
   out.pic_phone = null;
   out.tenant_email = '';
   out.tenant_phone = '';
+  out.ip_address = null;
+  out.user_agent = null;
+  out.device_fingerprint = null;
   return out;
 }
 
-/** Peta row sesuai role: tenant_relation → PII stripped. */
+/** Peta row sesuai role: tenant_relation & demo → PII stripped. */
 function mapRowsForRole(rows, role) {
-  if (role !== 'tenant_relation') return rows;
+  if (role !== 'tenant_relation' && role !== DEMO_ROLE) return rows;
   return (rows || []).map(stripSurveyPii);
 }
 
-/** UID scope utk tenant (bukan superset staff): hanya milik sendiri. */
+/**
+ * UID scope utk tenant (bukan superset staff): hanya milik sendiri.
+ * Demo BUKAN tenant — ia boleh melihat seluruh permukaan (read-only), jadi
+ * tidak boleh jatuh ke cabang "hanya baris milik sendiri" (dulu True → semua
+ * row tersaring habis dan demo melihat daftar kosong).
+ */
 function isScopedTenant(role) {
+  if (role === DEMO_ROLE) return false;
   return !STAFF_ROLES.includes(role) && role !== 'tenant_relation';
-}
-
-function csvEscape(val) {
-  if (!val) return '';
-  const str = String(val);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -280,7 +288,9 @@ function csvEscape(val) {
 // `status IN ('past','ongoing')` hanya mengembalikan 1 dari 5 event aktif.
 // Kolom `status` kini hanya dibaca untuk menyingkirkan draft (gerbang
 // visibilitas publik), bukan untuk menentukan waktu.
-router.get('/events', async (_req, res, next) => {
+router.get('/events', async (req, res, next) => {
+  // 60 / menit — endpoint publik yang dipanggil tiap muat halaman survey.
+  if (!enforceRateLimit(req, res, 'tenant-events', 60, 60_000)) return;
   try {
     const { rows: configs } = await db.query(
       'SELECT event_id FROM tenant_survey_config WHERE is_active = true',
@@ -308,12 +318,15 @@ router.get('/events', async (_req, res, next) => {
 
 // ─── GET /event-info ───────────────────────────────────────────────
 router.get('/event-info', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'tenant-event-info', 60, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 
   try {
+    // Draft tidak pernah publik: tanpa guard ini siapa pun yang menebak/melihat
+    // id draft bisa membaca detail event yang belum terbit.
     const { rows } = await db.query(
-      'SELECT id, acara, tanggal, lokasi, eo, status FROM events WHERE id = $1 LIMIT 1',
+      "SELECT id, acara, tanggal, lokasi, eo, status FROM events WHERE id = $1 AND status <> 'draft' LIMIT 1",
       [eventId],
     );
     if (!rows[0]) return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
@@ -326,6 +339,8 @@ router.get('/event-info', async (req, res, next) => {
 
 // ─── GET /tenants — pencarian tenant MID (tanpa PIC) ───────────────
 router.get('/tenants', async (req, res, next) => {
+  // 30 / menit — endpoint ini memanggil API upline MID, jadi lebih ketat.
+  if (!enforceRateLimit(req, res, 'tenant-list', 30, 60_000)) return;
   const q = String(req.query?.q || '').trim().toLowerCase();
   if (q.length < 2) {
     return res.status(400).json({
@@ -356,8 +371,12 @@ router.get('/tenants', async (req, res, next) => {
   }
 });
 
-// ─── GET /tenant-detail — PIC hanya utk tenant yang dipilih ─────────
+// ─── GET /tenant-detail — nama tenant publik (TANPA PIC) ────────────
+// Endpoint ini publik: siapa pun bisa memanggilnya tanpa auth. Karena itu
+// hanya `{ id, name }` yang boleh keluar — PIC dan nomor teleponnya adalah
+// data pribadi tenant, bukan bagian dari konfirmasi "tenant ini siapa".
 router.get('/tenant-detail', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'tenant-detail', 30, 60_000)) return;
   const id = String(req.query?.id || '').trim();
   if (!id) return res.status(400).json({ success: false, error: 'ID wajib diisi.' });
   if (!midConfigured()) return res.status(500).json({ success: false, error: 'Konfigurasi server tidak lengkap' });
@@ -378,8 +397,6 @@ router.get('/tenant-detail', async (req, res, next) => {
       data: {
         id: String(t.TENANT_ID ?? ''),
         name: String(t.TENANT_NAME ?? '').trim(),
-        pic: String(t.PIC_NAME ?? '').trim(),
-        picTelp: String(t.PIC_Telp ?? '').trim(),
       },
     });
   } catch (err) {
@@ -390,6 +407,9 @@ router.get('/tenant-detail', async (req, res, next) => {
 
 // ─── GET /check — duplikat perangkat (publik) ──────────────────────
 router.get('/check', async (req, res, next) => {
+  // 30 / menit — dipanggil sebelum submit; tanpa batas ini fingerprint bisa
+  // dienumerasi (respons mengungkap device mana yang sudah mengisi).
+  if (!enforceRateLimit(req, res, 'tenant-check', 30, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
   const fingerprint = String(req.query?.fingerprint || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
@@ -727,14 +747,17 @@ router.get('/get', requireRole(LIST_READ_ROLES_WITH_DEMO), async (req, res, next
     const row = rows[0] || null;
     if (!row) return res.status(404).json({ success: false, error: 'Survey tidak ditemukan.' });
 
-    const canSeeAll = STAFF_ROLES.includes(role) || role === 'tenant_relation';
+    // Demo = akun peragaan: boleh melihat baris siapa pun (read-only), dengan
+    // PII disamarkan seperti tenant_relation.
+    const canSeeAll = STAFF_ROLES.includes(role) || role === 'tenant_relation' || role === DEMO_ROLE;
     if (!canSeeAll && row.tenant_user_id !== user.id) {
       return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
     }
     if (role === 'tenant_relation' && row.status === 'draft') {
       return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey ini.' });
     }
-    return res.json({ success: true, data: role === 'tenant_relation' ? stripSurveyPii(row) : row });
+    const masked = role === 'tenant_relation' || role === DEMO_ROLE;
+    return res.json({ success: true, data: masked ? stripSurveyPii(row) : row });
   } catch (err) {
     return next(err);
   }
@@ -934,21 +957,16 @@ router.get('/analytics', requireRole(ANALYTICS_READ_ROLES_WITH_DEMO), async (req
   const allowedGroups = new Set(['tenant', 'event', 'month']);
   const groupBy = allowedGroups.has(group) ? group : 'tenant';
 
-  const isAdminScope = ANALYTICS_READ_ROLES_WITH_DEMO.includes(req.auth.user?.role);
-  const tenantUserId = isAdminScope ? null : req.auth.user?.id || null;
-
+  // Gate di atas sudah membatasi ke ANALYTICS_READ_ROLES_WITH_DEMO — himpunan
+  // yang sama dengan yang dulu dipakai `isAdminScope`. Karena itu cabang
+  // "hanya row tenant sendiri" tidak pernah tercapai; seluruh pemanggil memakai
+  // cakupan penuh (filter event opsional).
   try {
     const where = [`status IN ('submitted', 'reviewed')`];
     const params = [];
-    if (!tenantUserId) {
-      // cakupan penuh — filter event opsional
-      if (eventId) {
-        params.push(eventId);
-        where.push(`event_id = $${params.length}`);
-      }
-    } else {
-      params.push(tenantUserId);
-      where.push(`tenant_user_id = $${params.length}`);
+    if (eventId) {
+      params.push(eventId);
+      where.push(`event_id = $${params.length}`);
     }
     const whereSql = where.join(' AND ');
 
@@ -1157,8 +1175,11 @@ router.post('/config-set', requireRole(STAFF_ROLES), async (req, res, next) => {
   }
 });
 
-// ─── GET /export — staff (CSV dengan PIC) ─────────────────────────
-router.get('/export', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
+// ─── GET /export — staff saja (CSV dengan PIC mentah) ─────────────
+// CSV ini memuat PIC + telepon apa adanya dan tidak bisa disamarkan setelah
+// diunduh, jadi demo ditutup. tenant_relation memakai alur PDF di klien,
+// bukan endpoint ini.
+router.get('/export', requireRole(TENANT_EXPORT_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'ID event wajib diisi.' });
 

@@ -12,11 +12,15 @@ KEEP=14
 mkdir -p "$BACKUP_DIR"
 ts="$(date +%Y%m%d_%H%M%S)"
 out="$BACKUP_DIR/metmal_${ts}.sql.gz"
+# pg_dump/gzip gagal di tengah jalan tidak boleh meninggalkan file parsial.
+trap 'rm -f "$out.tmp.gz"' ERR
 
 docker compose -f "$COMPOSE_DIR/docker-compose.yml" exec -T postgres \
   pg_dump -U metmal -d metmal --no-owner --no-privileges \
   | gzip -9 > "$out.tmp.gz"
 mv "$out.tmp.gz" "$out"
+# Arsip sudah final; kegagalan validasi/rotasi di bawah tak perlu menghapus apa pun.
+trap - ERR
 
 # Validitas arsip (gzip rusak → gagal)
 gunzip -t "$out"

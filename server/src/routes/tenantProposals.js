@@ -108,7 +108,7 @@ router.post('/tenant-event-proposals/attachment', async (req, res, next) => {
 
     return res.json({ success: true, uploadUrl: safe.uploadUrl, publicUrl: safe.publicUrl, fileName: safe.key });
   } catch (err) {
-    console.error('[tenant-event-proposals] presign error:', err);
+    console.error('[tenant-event-proposals] presign error:', err?.code || err?.message);
     return next(err);
   }
 });
@@ -172,7 +172,7 @@ router.post('/tenant-event-proposals', async (req, res, next) => {
     // Tanpa echo data: submit anonim tidak boleh mengembalikan PII apa pun.
     return res.status(201).json({ success: true, id: rows[0]?.id || '' });
   } catch (err) {
-    console.error('[tenant-event-proposals] Database error:', err);
+    console.error('[tenant-event-proposals] Database error:', err?.code, err?.message);
     return next(err);
   }
 });

@@ -589,7 +589,8 @@ test.describe('event detail page — /events/:id + EventPhotoGallery lightbox', 
       // ── Non-vacuity gate 2: the EventPhotoGallery grid must render ──
       const galleryHeading = main.getByRole('heading', { name: 'Dokumentasi Foto' });
       const galleryHeadingVisible = await galleryHeading.isVisible().catch(() => false);
-      const tiles = main.locator('img.cursor-pointer');
+      // EventPhotoGallery renders each tile as a <button data-gallery-thumb> with cursor-pointer; the <img> is object-cover.
+      const tiles = main.locator('button[data-gallery-thumb]');
       const tileCount = await tiles.count();
 
       if (

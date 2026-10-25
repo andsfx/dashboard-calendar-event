@@ -5,6 +5,12 @@ export interface AuthUser {
   email: string;
   display_name: string;
   role: UserRole;
+  /**
+   * ID event yang ditugaskan ke akun `eo_tenant` (dari `/auth/me`).
+   * Dipakai untuk membatasi daftar event per-event di dashboard; akun staf
+   * tidak memakai field ini. Tidak ada = tidak ada penugasan.
+   */
+  assigned_events?: string[];
 }
 
 export interface AuthState {

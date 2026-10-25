@@ -239,6 +239,7 @@ export function RegistrationForm() {
         proposalFileUrl: proposal?.fileUrl,
         proposalFileName: proposal?.fileName,
         proposalFileSize: proposal?.fileSize,
+        proposalMimeType: proposal?.mimeType,
       });
       setSubmitted(true);
     } catch (err) {

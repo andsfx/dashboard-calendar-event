@@ -30,6 +30,10 @@ export interface Permissions {
   canViewActivityLog: boolean;
   /** Can export data */
   canExport: boolean;
+  /** Can export survey CSV (`/survey/export`): staff + viewer. eo_tenant/demo TIDAK. */
+  canExportSurvey: boolean;
+  /** Can export tenant survey CSV (`/tenant/export`): admin only (demo/eo/TR disembunyikan) */
+  canExportTenantSurveyCsv: boolean;
   /** Is read-only mode (viewer, demo) */
   isReadOnly: boolean;
   /** Is EO/Tenant with limited view */
@@ -94,6 +98,8 @@ export function usePermission(user: AuthUser | null): Permissions {
         canManageUsers: false,
         canViewActivityLog: false,
         canExport: false,
+        canExportSurvey: false,
+        canExportTenantSurveyCsv: false,
         isReadOnly: false,
         isEoTenant: false,
         isTenantRelation: false,
@@ -138,6 +144,13 @@ export function usePermission(user: AuthUser | null): Permissions {
       canManageUsers: isSuperadmin,
       canViewActivityLog: isAdmin || isDemo,
       canExport: isAdmin || isViewer || isDemo,
+      // CSV export visitor survey — hanya staff + viewer. eo_tenant dibatasi
+      // ke event yang ditugaskan dan tidak boleh menarik CSV global; demo tidak
+      // boleh export sama sekali (PII dimasker server-side).
+      canExportSurvey: isAdmin || isViewer,
+      // CSV export tenant self-assessment — halaman ini tidak dibuka untuk
+      // viewer/tenant_relation, dan demo/eo tidak boleh export. Admin saja.
+      canExportTenantSurveyCsv: isAdmin,
       isReadOnly: isViewer || isTenantRelation || isDemo,
       isEoTenant,
       isTenantRelation,

@@ -19,6 +19,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const query = vi.fn();
 const requireRole = vi.fn(() => (_req, _res, next) => next());
 
+// `/tenant-detail` butuh MID_API_KEY; nilainya dibaca SAAT modul dievaluasi, jadi
+// harus sudah ada sebelum `import('../tenant.js')` pertama.
+process.env.MID_API_KEY = process.env.MID_API_KEY || 'test-mid-key';
+
 vi.mock('../../db.js', () => ({
   db: { query: (...args) => query(...args) },
 }));
@@ -30,6 +34,8 @@ vi.mock('../../auth.js', () => ({
   ANALYTICS_READ_ROLES_WITH_DEMO: ['superadmin', 'admin', 'tenant_relation', 'demo'],
   LIST_READ_ROLES_WITH_DEMO: ['superadmin', 'admin', 'eo_tenant', 'demo'],
   DEMO_READ_ROLES: ['superadmin', 'admin', 'demo'],
+  DEMO_ROLE: 'demo',
+  TENANT_EXPORT_ROLES: ['superadmin', 'admin'],
 }));
 
 /**
@@ -41,7 +47,7 @@ vi.mock('../../auth.js', () => ({
  * `/create` tidak pernah jalan, tidak ada query ke DB, dan test terlihat
  * "hijau" tanpa menguji apa pun.
  */
-async function call(method, path, { body = {}, user = { id: 'u1' }, headers = {} } = {}) {
+async function call(method, path, { body = {}, user = { id: 'u1' }, headers = {}, queryParams = {} } = {}) {
   const { default: router } = await import('../tenant.js');
   const req = {
     method,
@@ -51,7 +57,7 @@ async function call(method, path, { body = {}, user = { id: 'u1' }, headers = {}
     ip: '127.0.0.1',
     socket: {},
     params: {},
-    query: {},
+    query: queryParams,
     auth: { user },
   };
   let settle;
@@ -63,6 +69,8 @@ async function call(method, path, { body = {}, user = { id: 'u1' }, headers = {}
     // request dianggap selesai.
     status(code) { this.statusCode = code; return this; },
     json(payload) { this._body = payload; settle.resolve(); return this; },
+    setHeader() { return this; },
+    getHeader() { return undefined; },
   };
   const layer = router.stack.find(
     l => l.route && l.route.path === path && l.route.methods[method.toLowerCase()],
@@ -258,5 +266,101 @@ describe('POST /tenant/create — kolom yang sebelumnya dibuang', () => {
     // status di-sisipkan sebagai literal 'draft', sisanya placeholder.
     expect(cols.length).toBe(vals.length);
     expect(vals[vals.length - 1]).toBe("'draft'");
+  });
+});
+// ═══════════════════════════════════════════════════════════════════
+// GET publik + role matrix baca (audit 2026-10-24)
+// ═══════════════════════════════════════════════════════════════════
+
+describe('GET /event-info — draft tidak publik', () => {
+  beforeEach(() => {
+    query.mockReset();
+  });
+
+  it('menyaring draft di query dan membalas 404 bila tidak ada', async () => {
+    query.mockResolvedValue({ rows: [], rowCount: 0 });
+
+    const { status } = await call('GET', '/event-info', { queryParams: { event_id: 'evt_draft' } });
+
+    expect(status).toBe(404);
+    expect(query.mock.calls[0][0]).toContain("status <> 'draft'");
+  });
+});
+
+describe('GET /tenant-detail — tanpa PIC', () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    query.mockReset();
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  it('hanya mengembalikan id + name', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [{ TENANT_ID: 'T1', TENANT_NAME: 'Toko A', PIC_NAME: 'Budi Santoso', PIC_Telp: '081234567890' }],
+      }),
+    });
+
+    const { status, body } = await call('GET', '/tenant-detail', { queryParams: { id: 'T1' } });
+
+    expect(status).toBe(200);
+    expect(body.data).toEqual({ id: 'T1', name: 'Toko A' });
+    expect(body.data).not.toHaveProperty('pic');
+    expect(body.data).not.toHaveProperty('picTelp');
+  });
+});
+
+describe('role baca pada /list dan /get', () => {
+  const ROW = {
+    id: 'tsv_1',
+    tenant_user_id: 'u_lain',
+    pic_name: 'Budi Santoso',
+    pic_phone: '081234567890',
+    tenant_email: 'budi@example.com',
+    tenant_phone: '081298765432',
+    ip_address: '203.0.113.9',
+    user_agent: 'Mozilla/5.0',
+    device_fingerprint: 'fp-123',
+    status: 'submitted',
+  };
+
+  beforeEach(() => {
+    query.mockReset();
+    query.mockResolvedValue({ rows: [{ ...ROW }], rowCount: 1 });
+  });
+
+  it('/list demo tidak dibatasi tenant_user_id dan PII disamarkan', async () => {
+    const { status, body } = await call('GET', '/list', { user: { id: 'u_demo', role: 'demo' } });
+
+    expect(status).toBe(200);
+    const [sql] = query.mock.calls[0];
+    expect(sql).not.toContain('tenant_user_id =');
+    const row = body.data[0];
+    expect(row.pic_name).toBeNull();
+    expect(row.pic_phone).toBeNull();
+    expect(row.tenant_email).toBe('');
+    expect(row.ip_address).toBeNull();
+    expect(row.user_agent).toBeNull();
+    expect(row.device_fingerprint).toBeNull();
+  });
+
+  it('/list staff tetap menerima PII utuh', async () => {
+    const { body } = await call('GET', '/list', { user: { id: 'u_admin', role: 'admin' } });
+    expect(body.data[0].pic_name).toBe('Budi Santoso');
+    expect(body.data[0].device_fingerprint).toBe('fp-123');
+  });
+
+  it('/get demo boleh membaca baris milik user lain (PII tersamar)', async () => {
+    const { status, body } = await call('GET', '/get', {
+      user: { id: 'u_demo', role: 'demo' },
+      queryParams: { id: 'tsv_1' },
+    });
+
+    expect(status).toBe(200);
+    expect(body.data.pic_name).toBeNull();
+    expect(body.data.device_fingerprint).toBeNull();
   });
 });

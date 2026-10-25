@@ -100,7 +100,7 @@ export function PublicLetterViewer() {
     : letter.pdfUrl;
 
   return (
-    <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+    <main id="konten-utama" tabIndex={-1} className="min-h-screen bg-[var(--brand-paper)] outline-none dark:bg-slate-950">
       <header className="ui-dashboard-chrome sticky top-0 z-10 border-b shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -164,6 +164,6 @@ export function PublicLetterViewer() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

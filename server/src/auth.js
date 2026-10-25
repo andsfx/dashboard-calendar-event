@@ -60,19 +60,19 @@ export const READ_ONLY_ROLES = [DEMO_ROLE, VIEWER_ROLE];
  * Sebelumnya daftar ini hanya `DEMO_READ_ROLES`, sehingga `viewer` ditolak 403
  * di gate router padahal klien menampilkan halaman itu kepadanya
  * (`canViewTenantProposals`/`canViewRegistrations` = isViewer). Aksi tulis tetap
- * staff-only lewat `READ_ONLY_ACTIONS` di bawah.
+ * staff-only lewat `DEMO_READ_ACTIONS` / `VIEWER_READ_ACTIONS` di bawah.
  */
 export const ADMIN_READ_ROLES = [...STAFF_ROLES, ...READ_ONLY_ROLES];
 
 /**
- * Aksi admin yang AMAN dibaca role baca-saja (`demo`, `viewer`). Semua aksi
- * lain dianggap tulis dan ditolak 403 untuk mereka.
+ * Aksi admin yang AMAN dibaca role `demo`. Demo adalah akun peragaan: seluruh
+ * permukaan dashboard boleh dilihat (dengan PII disamarkan di handler).
  *
  * Sengaja allowlist (bukan blocklist): aksi baru otomatis TERTUTUP untuk role
  * baca-saja. Lupa menambahkannya berarti mereka tidak bisa membacanya — bukan
  * berarti mereka bisa menulisnya.
  */
-export const READ_ONLY_ACTIONS = new Set([
+export const DEMO_READ_ACTIONS = new Set([
   'listEvents',
   'readDrafts',
   'readRegistrations',
@@ -90,11 +90,72 @@ export const READ_ONLY_ACTIONS = new Set([
   'listTenantParticipationOptions',
 ]);
 
+/**
+ * Aksi admin yang AMAN dibaca role `viewer`. Jauh lebih sempit dari demo:
+ * SPEC.md §2 hanya memberi viewer "view" pada registrasi komunitas dan
+ * kolaborasi tenant. Event, draft, surat, sponsor, pameran, dan pemetaan
+ * lokasi tetap tertutup untuknya.
+ */
+export const VIEWER_READ_ACTIONS = new Set([
+  'readRegistrations',
+  'listTenantEventProposals',
+  'listTenantParticipations',
+  'listTenantParticipationOptions',
+  'listNewsArticles',
+  'listEventAreas',
+  'getInsightNarrative',
+]);
+
+/** Alias lama — perilaku identik dengan {@link DEMO_READ_ACTIONS}. */
+export const READ_ONLY_ACTIONS = DEMO_READ_ACTIONS;
+
 /** Boleh tidak role ini menjalankan aksi admin tersebut? (role baca-saja = baca saja) */
 export function canPerformAdminAction(role, action) {
-  if (!READ_ONLY_ROLES.includes(role)) return true; // staff diatur requireRole
-  return READ_ONLY_ACTIONS.has(action);
+  if (role === DEMO_ROLE) return DEMO_READ_ACTIONS.has(action);
+  if (role === VIEWER_ROLE) return VIEWER_READ_ACTIONS.has(action);
+  return true; // staff diatur requireRole
 }
+
+/**
+ * Role yang boleh MEMBACA hasil survey (termasuk demo — dengan masking PII).
+ * `eo_tenant` ikut karena ia mengelola event yang ia selenggarakan.
+ */
+export const SURVEY_READ_ROLES = [...STAFF_ROLES, VIEWER_ROLE, 'eo_tenant', DEMO_ROLE];
+
+/**
+ * Role yang boleh MENGEKSPOR CSV survey — tanpa demo (PII mentah) dan tanpa
+ * `eo_tenant`: EO hanya boleh melihat event yang ditugaskan kepadanya
+ * (`assigned_events`), sedangkan CSV memuat SATU event per panggilan tanpa
+ * batas baris — lebih aman ditutup daripada bergantung pada pemetaan event.
+ */
+export const SURVEY_EXPORT_ROLES = [...STAFF_ROLES, VIEWER_ROLE];
+
+/**
+ * Boleh tidak user ini membaca data survey event tersebut?
+ *
+ * `eo_tenant` HANYA event yang ada di `users.assigned_events`; role lain yang
+ * lolos gate route (staff/viewer/demo) boleh semua event. Dipakai route survey
+ * sebagai penentu akhir — menyembunyikan pilihan event di UI tidak cukup.
+ *
+ * @param {{role?: string, assigned_events?: unknown}|null|undefined} user
+ * @param {string} eventId
+ * @returns {boolean}
+ */
+export function canAccessSurveyEvent(user, eventId) {
+  if (!eventId) return false;
+  const role = user?.role;
+  if (role === 'eo_tenant') {
+    return Array.isArray(user.assigned_events) && user.assigned_events.includes(eventId);
+  }
+  return ['superadmin', 'admin', 'viewer', DEMO_ROLE].includes(role);
+}
+
+/**
+ * Role yang boleh MENGEKSPOR CSV tenant (`GET /tenant/export`) — staff saja.
+ * Demo ditutup (PII mentah), dan tenant_relation memakai alur PDF di klien,
+ * bukan endpoint CSV mentah ini.
+ */
+export const TENANT_EXPORT_ROLES = [...STAFF_ROLES];
 
 function secretKey() {
   const secret = process.env.JWT_SECRET || '';
@@ -155,6 +216,9 @@ export function publicUser(row) {
     email: row.email,
     display_name: row.display_name,
     role: row.role,
+    // `eo_tenant` memakai daftar ini untuk memfilter halaman survey-nya di klien;
+    // server tetap penentu akhir (lihat canAccessSurveyEvent).
+    assigned_events: Array.isArray(row.assigned_events) ? row.assigned_events : [],
   };
 }
 
@@ -209,7 +273,7 @@ async function verifyToken(token, expectedTyp) {
 
 async function loadUser(id) {
   const result = await db.query(
-    'SELECT id, email, display_name, role, is_active, token_version FROM users WHERE id = $1',
+    'SELECT id, email, display_name, role, is_active, token_version, assigned_events FROM users WHERE id = $1',
     [id],
   );
   return result.rows[0] || null;
@@ -348,6 +412,60 @@ export function stripPii(row, fields = ['pic', 'phone', 'pic_name', 'pic_phone',
   if (!row || typeof row !== 'object') return row;
   const out = { ...row };
   for (const f of fields) delete out[f];
+  return out;
+}
+
+/**
+ * Kunci yang nilainya dianggap NAMA orang (disamarkan `maskName`). Ancore ketat
+ * (`^…$`) supaya tidak over-mask: `nama` dan seluruh `nama_*` (mis.
+ * `nama_pic`), plus varian kontak orang.
+ *
+ * Varian huruf kecil dari kunci `LetterRequestItem` (payload surat di klien)
+ * ikut didaftarkan karena pencocokan memakai flag `/i`: `namaEO` → `namaeo`,
+ * `penanggungJawab` → `penanggungjawab`.
+ */
+const PII_NAME_KEY = /^(pic|contact|contact_name|pic_name|leasing_pic|marcomm_pic|respondent_name|nama|nama_.*|kontak|penanggungjawab|penanggung_jawab|nama_eo|namaeo)$/i;
+/** Kunci nomor telepon (disamarkan `maskPhone`). */
+const PII_PHONE_KEY = /^(phone|pic_phone|tenant_phone|respondent_phone|telepon|telp|hp|no_hp|nomortelepon|nomor_telepon|notelp)$/i;
+/** Kunci email (disamarkan `maskEmail`). */
+const PII_EMAIL_KEY = /^(email|tenant_email|respondent_email)$/i;
+/**
+ * Kunci alamat (disamarkan TOTAL jadi `***`). Alamat jalan + nomor tidak bisa
+ * disamarkan sebagian tanpa masih menunjuk satu lokasi; beda dengan nama,
+ * strukturnya tidak dibutuhkan untuk memahami isi surat.
+ */
+const PII_ADDRESS_KEY = /^(alamat|alamateo|alamat_eo)$/i;
+
+/** Nilai pengganti untuk field alamat pada payload demo. */
+const MASKED_ADDRESS = '***';
+
+/**
+ * Samarkan PII secara rekursif — untuk payload bersarang seperti
+ * `generated_letters.letter_data` (JSONB) yang memuat blok PIC/tenant di
+ * kedalaman tak tentu.
+ *
+ * Objek/array ditelusuri; setiap kunci yang cocok salah satu pola di atas
+ * nilainya diganti versi tersamar (string saja — nilai non-string dibiarkan
+ * agar tipe data tidak berubah diam-diam). Salinan baru dibuat, argumen tidak
+ * dimutasi.
+ *
+ * @param {unknown} value
+ * @returns {unknown} salinan dengan PII tersamar
+ */
+export function maskPiiDeep(value) {
+  if (Array.isArray(value)) return value.map(maskPiiDeep);
+  if (!value || typeof value !== 'object') return value;
+
+  const out = {};
+  for (const [key, val] of Object.entries(value)) {
+    if (typeof val === 'string' && val !== '') {
+      if (PII_ADDRESS_KEY.test(key)) { out[key] = MASKED_ADDRESS; continue; }
+      if (PII_EMAIL_KEY.test(key)) { out[key] = maskEmail(val); continue; }
+      if (PII_PHONE_KEY.test(key)) { out[key] = maskPhone(val); continue; }
+      if (PII_NAME_KEY.test(key)) { out[key] = maskName(val); continue; }
+    }
+    out[key] = maskPiiDeep(val);
+  }
   return out;
 }
 

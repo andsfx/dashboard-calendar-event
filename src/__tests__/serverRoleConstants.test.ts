@@ -31,8 +31,15 @@ const ROLE_CONSTANTS = [
   'READ_ONLY_ROLES',
   'ADMIN_READ_ROLES',
   'READ_ONLY_ACTIONS',
+  'DEMO_READ_ACTIONS',
+  'VIEWER_READ_ACTIONS',
+  'SURVEY_READ_ROLES',
+  'SURVEY_EXPORT_ROLES',
+  'TENANT_EXPORT_ROLES',
   'canPerformAdminAction',
+  'canAccessSurveyEvent',
   'maskEmail',
+  'maskPiiDeep',
 ];
 
 function serverFiles(): string[] {

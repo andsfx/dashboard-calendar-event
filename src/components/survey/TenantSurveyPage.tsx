@@ -32,9 +32,11 @@ type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 interface TenantSurveyPageProps {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'tanggal' | 'dateStr' | 'lokasi' | 'eo' | 'status'>>;
   isAdmin?: boolean;
+  /** Boleh unduh CSV (`/tenant/export`): admin saja. Demo/eo/TR disembunyikan. */
+  canExportCsv?: boolean;
 }
 
-export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurveyPageProps) {
+export default function TenantSurveyPage({ events, isAdmin = false, canExportCsv = false }: TenantSurveyPageProps) {
   // ─── View State ────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<TabKey>('list');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -341,6 +343,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
   }, []);
 
   const handleExport = useCallback(async (eventId: string) => {
+    if (!canExportCsv) return;
     setActionError(null);
     try {
       // GET /api/v1/tenant/export — CSV blob; cookie via credentials include.
@@ -356,7 +359,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
     } catch {
       setActionError('Gagal mengunduh CSV. Coba lagi atau periksa koneksi Anda.');
     }
-  }, []);
+  }, [canExportCsv]);
 
   // ─── Derived ───────────────────────────────────────────────────
   const selectedEvent = events.find(e => e.id === selectedEventId) ?? null;
@@ -452,6 +455,7 @@ export default function TenantSurveyPage({ events, isAdmin = false }: TenantSurv
           configLoading={configLoading}
           activeConfigs={activeConfigs}
           readOnly={!isAdmin}
+          canExportCsv={canExportCsv}
         />
       </div>
     );
@@ -874,6 +878,7 @@ function TenantSurveyEventRow({
   configLoading,
   activeConfigs,
   readOnly = false,
+  canExportCsv = false,
 }: {
   event: Pick<EventItem, 'id' | 'acara' | 'status'>;
   copiedId: string;
@@ -883,6 +888,7 @@ function TenantSurveyEventRow({
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
   readOnly?: boolean;
+  canExportCsv?: boolean;
 }) {
   const [showQR, setShowQR] = useState(false);
   const isActive = activeConfigs[event.id] === true;
@@ -930,15 +936,17 @@ function TenantSurveyEventRow({
           {isCopied ? 'Tersalin!' : 'Link'}
         </MdButton>
 
-        <MdButton
-          variant="text"
-          className="shrink-0"
-          title="Export CSV"
-          onClick={() => onExport(event.id)}
-        >
-          <Download className="h-3 w-3" />
-          CSV
-        </MdButton>
+        {canExportCsv && (
+          <MdButton
+            variant="text"
+            className="shrink-0"
+            title="Export CSV"
+            onClick={() => onExport(event.id)}
+          >
+            <Download className="h-3 w-3" />
+            CSV
+          </MdButton>
+        )}
 
         <MdButton
           variant="text"
@@ -979,6 +987,7 @@ function TenantSurveyManagementSection({
   configLoading,
   activeConfigs,
   readOnly = false,
+  canExportCsv = false,
 }: {
   events: Array<Pick<EventItem, 'id' | 'acara' | 'status'>>;
   copiedId: string;
@@ -988,6 +997,7 @@ function TenantSurveyManagementSection({
   configLoading: string | null;
   activeConfigs: Record<string, boolean>;
   readOnly?: boolean;
+  canExportCsv?: boolean;
 }) {
   const [query, setQuery] = useState('');
   // Collapsed by default so list tab stays primary focus
@@ -1044,7 +1054,7 @@ function TenantSurveyManagementSection({
             Kelola Self-Assessment per Event
           </h2>
           <p className="text-[10px] text-[var(--wf-ink-muted)]">
-            {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR, export
+            {activeCount} aktif · {surveyableEvents.length} event (ongoing + past) · toggle, link, QR{canExportCsv ? ', export' : ''}
           </p>
         </div>
         {open
@@ -1090,6 +1100,7 @@ function TenantSurveyManagementSection({
                   configLoading={configLoading}
                   activeConfigs={activeConfigs}
                   readOnly={readOnly}
+                  canExportCsv={canExportCsv}
                 />
               ))
             )}

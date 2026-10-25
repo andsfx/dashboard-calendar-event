@@ -21,14 +21,18 @@ export interface InsightContext {
   exhibitionLeads: ExhibitionLead[];
   tenantProposals: TenantEventProposal[];
   tenantParticipations: TenantParticipation[];
+  /** Pesan bila satu atau lebih sumber gagal dimuat; array sumber yang gagal
+   *  tetap kosong agar panel tidak ikut jatuh (degradasi), tapi pengguna tahu. */
+  error: string | null;
 }
 
 /**
  * Data lintas-modul untuk panel Insight Cerdas: survey kepuasan tenant,
  * pengajuan pameran, dan pengajuan kolaborasi tenant. Semuanya dimuat **sekali**
- * saat panel aktif (bukan ikut polling event) dan **gagal senyap** — kegagalan
- * satu sumber tidak boleh menjatuhkan panel, apalagi halaman. Yang gagal cukup
- * dikosongkan sehingga mesin insight tidak menghasilkan insight dari sumber itu.
+ * saat panel aktif (bukan ikut polling event) dan gagal **terisolasi** —
+ * kegagalan satu sumber tidak boleh menjatuhkan panel, apalagi halaman. Sumber
+ * yang gagal dikosongkan (mesin insight tidak menghasilkan insight darinya),
+ * tetapi kegagalannya dilaporkan lewat `error` supaya UI tidak tampak normal.
  *
  * Izin tetap ditegakkan pemanggil (`permissions.*`): hook ini hanya tahu
  * "muat atau tidak", bukan siapa yang boleh melihat.
@@ -43,38 +47,47 @@ export function useInsightContext({
   const [leadRows, setLeadRows] = useState<ExhibitionLead[]>([]);
   const [proposalRows, setProposalRows] = useState<TenantEventProposal[]>([]);
   const [participationRows, setParticipationRows] = useState<TenantParticipation[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!surveys && !exhibitionLeads && !tenantProposals && !tenantParticipations) return;
     let cancelled = false;
+    const failures: string[] = [];
+
+    const fail = (source: string, err: unknown) => {
+      if (cancelled) return;
+      console.error(`Insight context gagal memuat ${source}:`, err);
+      failures.push(source);
+      setError(`Sebagian data insight gagal dimuat (${failures.join(', ')}). Insight mungkin belum lengkap.`);
+    };
 
     const tasks: Promise<void>[] = [];
     if (surveys) {
       tasks.push(
         fetchTenantSurveys()
           .then((rows) => { if (!cancelled) setSurveyRows(rows); })
-          .catch(() => { if (!cancelled) setSurveyRows([]); }),
+          .catch((err) => { if (!cancelled) setSurveyRows([]); fail('survey tenant', err); }),
       );
     }
     if (exhibitionLeads) {
       tasks.push(
         fetchExhibitionLeads()
           .then((rows) => { if (!cancelled) setLeadRows(rows); })
-          .catch(() => { if (!cancelled) setLeadRows([]); }),
+          .catch((err) => { if (!cancelled) setLeadRows([]); fail('pengajuan pameran', err); }),
       );
     }
     if (tenantProposals) {
       tasks.push(
         fetchTenantEventProposals()
           .then((rows) => { if (!cancelled) setProposalRows(rows); })
-          .catch(() => { if (!cancelled) setProposalRows([]); }),
+          .catch((err) => { if (!cancelled) setProposalRows([]); fail('pengajuan kolaborasi', err); }),
       );
     }
     if (tenantParticipations) {
       tasks.push(
         fetchTenantParticipations()
           .then((rows) => { if (!cancelled) setParticipationRows(rows); })
-          .catch(() => { if (!cancelled) setParticipationRows([]); }),
+          .catch((err) => { if (!cancelled) setParticipationRows([]); fail('pengajuan partisipasi', err); }),
       );
     }
     void Promise.all(tasks);
@@ -87,5 +100,6 @@ export function useInsightContext({
     exhibitionLeads: leadRows,
     tenantProposals: proposalRows,
     tenantParticipations: participationRows,
+    error,
   };
 }

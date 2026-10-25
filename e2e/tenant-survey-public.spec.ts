@@ -100,7 +100,15 @@ test.describe('Tenant Survey — Public Flow', () => {
     await expect(page.getByText('100% selesai')).toBeVisible();
   });
 
-  test('TenantSearchSelect — search + auto-fill lokasi and kategori', async ({ page }) => {
+  test('TenantSearchSelect — search + auto-fill lokasi and kategori, PIC manual', async ({ page }) => {
+    // PIC TIDAK boleh di-auto-fill: backend /tenant/tenant-detail tidak lagi
+    // mengirim pic/picTelp (P0 anti-PII). Form juga tidak boleh memanggil
+    // endpoint itu saat tenant dipilih.
+    const detailRequests: string[] = [];
+    page.on('request', (req) => {
+      if (req.url().includes('/tenant/tenant-detail')) detailRequests.push(req.url());
+    });
+
     await page.goto(`/tenant-survey/${MOCK_EVENT.id}`);
     await expect(page.getByRole('heading', { name: MOCK_EVENT.acara })).toBeVisible();
 
@@ -121,9 +129,18 @@ test.describe('Tenant Survey — Public Flow', () => {
     // Auto-fill: kategori should be checked
     await expect(page.locator('input[type="radio"][value="Food & Beverage (F&B)"]')).toBeChecked();
 
-    // PIC auto-fill: detail-by-id returns PIC for the selected tenant
+    // PIC tetap KOSONG setelah memilih tenant — tidak ada detail fetch/autofill.
     const picName = page.locator('#tenant-survey-pic-name');
-    await expect(picName).toHaveValue('Budi Santoso', { timeout: 3000 });
-    await expect(page.locator('#tenant-survey-pic-phone')).toHaveValue('081234567890', { timeout: 3000 });
+    const picPhone = page.locator('#tenant-survey-pic-phone');
+    await expect(picName).toHaveValue('');
+    await expect(picPhone).toHaveValue('');
+    expect(detailRequests).toHaveLength(0);
+
+    // Manual entry tetap bisa dipakai dan nilainya bertahan.
+    await picName.fill('Budi Santoso');
+    await picPhone.fill('081234567890');
+    await expect(picName).toHaveValue('Budi Santoso');
+    await expect(picPhone).toHaveValue('081234567890');
+    expect(detailRequests).toHaveLength(0);
   });
 });

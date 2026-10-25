@@ -20,8 +20,10 @@ export const MOCK_TENANTS = [
     floor: 'LTB',
     lot: 'A-12',
     category: 'Food & Beverage',
-    pic: 'Budi Santoso',
-    picTelp: '081234567890',
+    // `/tenant/tenants` tidak lagi mengirim PIC (anti mass PII dump);
+    // PIC diisi manual oleh tenant di form.
+    pic: '',
+    picTelp: '',
     logo: '',
     status: 'active',
     participantEvoucher: 'Yes',
@@ -32,8 +34,8 @@ export const MOCK_TENANTS = [
     floor: 'LT1',
     lot: 'B-05',
     category: 'Fashion',
-    pic: 'Sari Dewi',
-    picTelp: '089876543210',
+    pic: '',
+    picTelp: '',
     logo: '',
     status: 'active',
     participantEvoucher: 'No',
@@ -197,8 +199,8 @@ export async function setupSurveyApiMocks(
     const id = new URL(route.request().url()).searchParams.get('id') || '';
     const t = MOCK_TENANTS.find((x) => x.id === id);
     if (!t) return json(route, { success: false, error: 'Tenant tidak ditemukan' }, 404);
-    // Hanya field PIC (mirror backend secure — tanpa mass PII dump)
-    return json(route, { success: true, data: { id: t.id, name: t.name, pic: t.pic, picTelp: t.picTelp } });
+    // Kontrak baru: hanya { id, name } — PIC tidak lagi dikirim endpoint ini.
+    return json(route, { success: true, data: { id: t.id, name: t.name } });
   });
 
   await page.route('**/api/v1/tenant/check*', (route) =>

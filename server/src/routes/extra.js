@@ -5,6 +5,7 @@
  * public/admin/tenant/survey:
  *
  *   POST /registrations        publik — community registration (10 / 15 mnt, CORS *)
+ *   POST /registrations/attachment publik — presign lampiran (folder registrations/, 10 / 15 mnt)
  *   GET  /directory            publik — direktori organisasi approved (60 / mnt, cache header)
  *   GET  /sponsor/events       publik — event upcoming + proposal (60 / mnt, tanpa PII)
  *   POST /sponsor-leads        publik — minat support (zod, 10 / 15 mnt)
@@ -32,6 +33,15 @@ import { db } from '../db.js';
 import { requireRole, logActivity, STAFF_ROLES, DEMO_ROLE, DEMO_READ_ROLES, maskEmail } from '../auth.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 import { jakartaToday, notStartedOn } from '../lib/eventWindow.js';
+import {
+  createPresignedUpload,
+  deleteR2File,
+  headR2File,
+  MAX_PROPOSAL_BYTES,
+  r2Ready,
+  verifyMimeMagicBytes,
+  R2_PUBLIC_URL,
+} from '../r2.js';
 
 const router = Router();
 
@@ -121,6 +131,119 @@ function validateOptionalText(value, maxLen, label) {
   return { valid: true, value: sanitizeString(value, maxLen) };
 }
 
+// ─── Lampiran pendaftaran komunitas (folder R2 `registrations/`) ─────
+// Presign publik terbatas, pola sama dengan /tenant-event-proposals/attachment:
+// folder dipaksa, tipe dibatasi, dan isi file diverifikasi ulang saat submit.
+const REGISTRATION_ATTACHMENT_FOLDER = 'registrations/';
+
+/** Lampiran pendaftaran: dokumen (PDF/Word) atau materi gambar (PNG/JPEG). */
+const REGISTRATION_ATTACHMENT_MIME = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
+  'image/jpeg',
+]);
+
+const MIME_BY_EXTENSION = {
+  pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+};
+
+/**
+ * Tebak MIME dari ekstensi nama file — HANYA fallback bila klien tidak
+ * mengirim `proposal_mime_type`. Ekstensi bisa dipalsukan, jadi tipe hasil
+ * tebakan tetap harus lolos verifikasi magic bytes.
+ */
+function mimeFromFileName(name) {
+  const ext = String(name || '').split('.').pop().toLowerCase();
+  return MIME_BY_EXTENSION[ext] || '';
+}
+
+/**
+ * Verifikasi lampiran yang diklaim sudah terunggah.
+ *
+ * `ownObject` menandai objek yang memang berada di folder `registrations/`;
+ * hanya objek itu yang boleh dihapus saat verifikasi gagal. Tanpa penanda ini
+ * pengaju bisa mengirim URL objek lain milik situs (mis. poster event) dan
+ * memicu penghapusannya lewat request publik.
+ *
+ * @returns {Promise<{ok:true,contentLength:number} | {ok:false,error:string,ownObject:boolean}>}
+ */
+async function verifyRegistrationAttachment(url, mimeType) {
+  const prefix = `${R2_PUBLIC_URL}/`;
+  const key = String(url || '').slice(prefix.length);
+  const ownObject = Boolean(R2_PUBLIC_URL) && String(url || '').startsWith(prefix);
+  if (!ownObject) {
+    return { ok: false, ownObject: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
+  }
+  if (!key.startsWith(REGISTRATION_ATTACHMENT_FOLDER)) {
+    return { ok: false, ownObject: false, error: 'Lampiran tidak valid. Unggah ulang file Anda.' };
+  }
+
+  const ct = String(mimeType || '').toLowerCase();
+  if (!REGISTRATION_ATTACHMENT_MIME.has(ct)) {
+    return { ok: false, ownObject: true, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' };
+  }
+
+  const head = await headR2File(url);
+  if (!head.ok) return { ok: false, ownObject: true, error: head.error };
+  if (head.contentLength > MAX_PROPOSAL_BYTES) {
+    return { ok: false, ownObject: true, error: 'Lampiran melebihi 20MB.' };
+  }
+
+  const magic = await verifyMimeMagicBytes(url, ct);
+  if (!magic.ok) return { ok: false, ownObject: true, error: magic.error };
+
+  return { ok: true, contentLength: head.contentLength };
+}
+
+// ─── POST /registrations/attachment — presign publik terbatas ────────
+// Folder dipaksa `registrations/` dan tipe dibatasi, jadi route tanpa sesi ini
+// tidak bisa dipakai menulis tipe/folder lain ke bucket.
+router.post('/registrations/attachment', async (req, res, next) => {
+  // 10 unggahan / 15 menit per IP — sejajar submit pendaftaran.
+  if (!enforceRateLimit(req, res, 'registration-attachment', 10, 15 * 60 * 1000)) return;
+  if (!r2Ready) {
+    return res.status(503).json({ success: false, error: 'Layanan upload sedang tidak tersedia.' });
+  }
+
+  const body = req.body || {};
+  const contentType = String(body.contentType || '').split(';')[0].trim().toLowerCase();
+  if (!REGISTRATION_ATTACHMENT_MIME.has(contentType)) {
+    return res.status(400).json({ success: false, error: 'Lampiran harus PDF, Word (DOC/DOCX), PNG, atau JPEG.' });
+  }
+
+  const originalName = sanitizeString(body.originalName || '', 255);
+  if (!originalName) {
+    return res.status(400).json({ success: false, error: 'Nama file tidak valid.' });
+  }
+
+  try {
+    const safe = await createPresignedUpload({
+      folder: REGISTRATION_ATTACHMENT_FOLDER,
+      originalName,
+      contentType,
+    });
+    if (!safe.ok) return res.status(400).json({ success: false, error: safe.error });
+
+    return res.json({
+      success: true,
+      uploadUrl: safe.uploadUrl,
+      publicUrl: safe.publicUrl,
+      fileName: safe.key,
+      contentType: safe.contentType,
+    });
+  } catch (err) {
+    console.error('[registrations] presign error:', err?.code || err?.message);
+    return next(err);
+  }
+});
+
 // ─── POST /registrations — publik ──────────────────────────────────
 // CORS ditangani middleware cors() global (whitelist CORS_ORIGIN +
 // credentials) — JANGAN set ACAO '*' manual: fetch SPA memakai
@@ -169,11 +292,40 @@ router.post('/registrations', async (req, res) => {
     : {};
   const proposalFileUrl = sanitizeString(body.proposal_file_url || '', 2048);
   const proposalFileName = sanitizeString(body.proposal_file_name || '', 255);
+  const proposalMimeType = sanitizeString(body.proposal_mime_type || '', 150).toLowerCase();
   const proposalFileSize = Number.isFinite(Number(body.proposal_file_size))
     ? Math.max(0, Math.floor(Number(body.proposal_file_size)))
     : 0;
 
   try {
+    // Lampiran opsional, tapi bila ada harus benar-benar objek kita, ≤20MB, dan
+    // isinya cocok dengan tipe yang diklaim. Tipe diutamakan dari
+    // `proposal_mime_type` (dikirim frontend); ekstensi nama file hanya
+    // fallback — dan hasil tebakan tetap diverifikasi magic bytes.
+    let verifiedFileSize = proposalFileSize;
+    if (proposalFileUrl) {
+      const mimeType = proposalMimeType || mimeFromFileName(proposalFileName);
+      if (!mimeType) {
+        return res.status(400).json({
+          success: false,
+          error: 'Tipe lampiran tidak dikenali. Unggah ulang file Anda.',
+          details: { proposal_file_url: 'Tipe lampiran tidak dikenali' },
+        });
+      }
+      const verification = await verifyRegistrationAttachment(proposalFileUrl, mimeType);
+      if (!verification.ok) {
+        // Buang objek yang gagal verifikasi — hanya bila objek itu milik folder
+        // kita (jangan pernah menghapus aset lain yang URL-nya dipinjam).
+        if (verification.ownObject) await deleteR2File(proposalFileUrl);
+        return res.status(400).json({
+          success: false,
+          error: verification.error,
+          details: { proposal_file_url: verification.error },
+        });
+      }
+      verifiedFileSize = verification.contentLength;
+    }
+
     const { rows } = await db.query(
       `INSERT INTO community_registrations
         (organization_type, organization_name, pic, phone, email, instagram, description,
@@ -195,7 +347,7 @@ router.post('/registrations', async (req, res) => {
         JSON.stringify(typeSpecificData),
         proposalFileUrl,
         proposalFileName,
-        proposalFileSize,
+        verifiedFileSize,
       ],
     );
     return res.status(200).json({
@@ -204,7 +356,9 @@ router.post('/registrations', async (req, res) => {
       message: 'Pendaftaran berhasil disimpan.',
     });
   } catch (err) {
-    console.error('[registrations] Database error:', err);
+    // Jangan log objek error Postgres utuh: `detail` memuat nilai kolom
+    // (email/telepon) yang dikirim klien.
+    console.error('[registrations] Database error:', err?.code, err?.message);
     if (String(err?.code) === '23505') {
       return res.status(409).json({
         success: false,
@@ -483,7 +637,7 @@ router.post('/sponsor-leads', async (req, res) => {
     );
     return res.status(200).json({ success: true, id: rows[0]?.id || '' });
   } catch (err) {
-    console.error('[sponsor-leads] Database error:', err);
+    console.error('[sponsor-leads] Database error:', err?.code, err?.message);
     if (String(err?.code) === '23503') {
       // FK event_id tidak ada.
       return res.status(400).json({ success: false, error: 'Event tidak ditemukan. Pilih event lain.' });
@@ -690,8 +844,14 @@ router.post('/users-update', requireRole(['superadmin']), async (req, res, next)
     const sets = keys.map((k, i) => `${k} = $${i + 1}`);
     const values = keys.map((k) => updates[k]);
     values.push(userId);
+    // Reset password WAJIB mencabut token lama: tanpa bump `token_version`,
+    // refresh token 30 hari milik penyerang (atau sesi di perangkat lain) tetap
+    // bisa menukar access token baru setelah password diganti — persis celah
+    // yang ditutup logout (lihat tokenRevocation.test.js). Ditulis sebagai SQL,
+    // bukan parameter, supaya nilainya selalu naik dari nilai di DB.
+    const bumpTokenVersion = 'password_hash' in updates ? ', token_version = token_version + 1' : '';
     const { rowCount } = await db.query(
-      `UPDATE users SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${values.length}`,
+      `UPDATE users SET ${sets.join(', ')}${bumpTokenVersion}, updated_at = NOW() WHERE id = $${values.length}`,
       values,
     );
     if (rowCount === 0) return res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan' });
@@ -813,8 +973,9 @@ router.get('/instagram', async (_req, res, next) => {
 });
 
 // ─── POST /instagram-sync — staff: scrape Apify + simpan cache ─────
+// R2_PUBLIC_URL dipakai bersama dari ../r2.js (satu sumber untuk prefix URL
+// media; sebelumnya dideklarasikan ulang di sini).
 const R2_BUCKET = process.env.R2_BUCKET_NAME || 'metmal-gallery';
-const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').replace(/\/+$/, '');
 const R2_READY = Boolean(
   process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY,
 );

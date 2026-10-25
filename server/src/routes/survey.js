@@ -6,21 +6,37 @@
  *   POST publik      → { success: true, id, created_at } (flat, mirror legacy)
  *
  * Endpoint:
- *   POST /submit                publik — 20 submit / 15 mnt / IP
- *   GET  /check?event_id&fingerprint    — cek duplikat perangkat (publik)
- *   GET  /summary?event_id      publik — agregat rating (SQL, ganti RPC get_survey_summary)
- *   GET  /responses             staff — daftar respons ter-paginate
- *   GET  /config?event_id       staff — konfigurasi survey per event
- *   GET  /stats                 staff — analitik menyeluruh
- *   GET  /export?event_id       staff — CSV UTF-8 (BOM Excel)
+ *   POST /submit                publik — 20 submit / 15 mnt / IP (event harus ada)
+ *   GET  /check?event_id&fingerprint    — cek duplikat perangkat (60/mnt)
+ *   GET  /summary?event_id      publik — agregat rating (60/mnt)
+ *   GET  /responses             SURVEY_READ_ROLES — daftar respons ter-paginate
+ *   GET  /config?event_id       SURVEY_READ_ROLES — konfigurasi survey per event
+ *   GET  /stats                 SURVEY_READ_ROLES — analitik menyeluruh
+ *   GET  /export?event_id       SURVEY_EXPORT_ROLES (tanpa demo) — CSV UTF-8
+ *
+ * SURVEY_READ_ROLES = staff + viewer + eo_tenant + demo; demo menerima PII
+ * tersamar, dan `eo_tenant` hanya event di `users.assigned_events`
+ * (canAccessSurveyEvent → 403 untuk event lain). SURVEY_EXPORT_ROLES =
+ * staff + viewer (tanpa demo dan tanpa eo_tenant).
  *
  * Boundary: server mengembalikan row mentah snake_case; mapping ke camelCase
  * hanya di src/utils/api/* (client).
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity, DEMO_READ_ROLES } from '../auth.js';
+import {
+  requireRole,
+  logActivity,
+  DEMO_ROLE,
+  SURVEY_READ_ROLES,
+  SURVEY_EXPORT_ROLES,
+  canAccessSurveyEvent,
+  maskEmail,
+  maskName,
+  maskPhone,
+} from '../auth.js';
 import { enforceRateLimit, clientIp } from '../lib/rateLimit.js';
+import { csvEscape } from '../lib/csv.js';
 
 const router = Router();
 
@@ -65,13 +81,25 @@ function validateSubmission(body) {
   return errors;
 }
 
-function csvEscape(val) {
-  if (!val) return '';
-  const str = String(val);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
+/**
+ * Samarkan identitas responden — untuk role `demo`. Data rating/komentar tetap
+ * utuh (itulah yang didemokan), hanya orangnya yang tidak bisa diidentifikasi.
+ * Metadata perangkat ikut dikosongkan: `ip_address` + `user_agent` +
+ * `device_fingerprint` bersama-sama cukup untuk melacak satu perangkat fisik.
+ * @param {object} row
+ */
+function maskResponsePii(row) {
+  if (!row || typeof row !== 'object') return row;
+  return {
+    ...row,
+    respondent_name: maskName(row.respondent_name),
+    respondent_email: maskEmail(row.respondent_email),
+    respondent_phone: maskPhone(row.respondent_phone),
+    respondent_organization: maskName(row.respondent_organization),
+    ip_address: null,
+    user_agent: null,
+    device_fingerprint: null,
+  };
 }
 
 // ─── POST /submit — publik ─────────────────────────────────────────
@@ -101,6 +129,16 @@ router.post('/submit', async (req, res, next) => {
   const eventId = sanitize(body.event_id, 200);
 
   try {
+    // Event harus benar-benar ada. Tanpa ini publik bisa menyuntik respons
+    // untuk id sembarang (mengotori analitik per-event dan membuat survey
+    // "hantu" yang tidak bisa dibuka dari dashboard mana pun).
+    // Sengaja TIDAK mensyaratkan survey_config aktif: tautan lama yang sudah
+    // dibagikan harus tetap bisa diisi.
+    const { rows: eventRows } = await db.query('SELECT id FROM events WHERE id = $1 LIMIT 1', [eventId]);
+    if (!eventRows[0]) {
+      return res.status(404).json({ success: false, error: 'Event tidak ditemukan' });
+    }
+
     // Duplikat (soft limit) — device fingerprint per event.
     if (fingerprint) {
       const { rows } = await db.query(
@@ -157,6 +195,7 @@ router.post('/submit', async (req, res, next) => {
 
 // ─── GET /check — publik ───────────────────────────────────────────
 router.get('/check', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'survey-check', 60, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
   const fingerprint = String(req.query?.fingerprint || '').trim();
 
@@ -179,6 +218,7 @@ router.get('/check', async (req, res, next) => {
 
 // ─── GET /summary — publik (SQL agregat ganti RPC get_survey_summary) ──
 router.get('/summary', async (req, res, next) => {
+  if (!enforceRateLimit(req, res, 'survey-summary', 60, 60_000)) return;
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
 
@@ -245,10 +285,16 @@ router.get('/summary', async (req, res, next) => {
   }
 });
 
-// ─── GET /responses — staff (paginated) ────────────────────────────
-router.get('/responses', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
+// ─── GET /responses — staff/viewer/eo_tenant (paginated) ───────────
+router.get('/responses', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  // `eo_tenant` hanya event yang ditugaskan: id event bukan rahasia (tampil di
+  // URL publik), jadi tanpa guard ini EO mana pun bisa membaca respons event
+  // milik EO lain hanya dengan menebak/menyalin id.
+  if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
+    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey event ini.' });
+  }
 
   const page = Math.max(1, parseInt(req.query?.page || '1', 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query?.limit || '20', 10) || 20));
@@ -270,9 +316,12 @@ router.get('/responses', requireRole(DEMO_READ_ROLES), async (req, res, next) =>
       ),
     ]);
 
+    const isDemo = req.auth?.user?.role === DEMO_ROLE;
     return res.json({
       success: true,
-      data: rows,
+      data: isDemo
+        ? rows.map(maskResponsePii)
+        : rows,
       total: countRows[0]?.total || 0,
       page,
       limit,
@@ -282,10 +331,13 @@ router.get('/responses', requireRole(DEMO_READ_ROLES), async (req, res, next) =>
   }
 });
 
-// ─── GET /config — staff ───────────────────────────────────────────
-router.get('/config', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
+// ─── GET /config — staff/viewer/eo_tenant ──────────────────────────
+router.get('/config', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
+    return res.status(403).json({ success: false, error: 'Tidak berhak melihat survey event ini.' });
+  }
 
   try {
     const { rows } = await db.query('SELECT * FROM survey_config WHERE event_id = $1 LIMIT 1', [eventId]);
@@ -333,8 +385,36 @@ router.post('/config-set', requireRole(['superadmin', 'admin']), async (req, res
   }
 });
 
-// ─── GET /stats — staff ────────────────────────────────────────────
-router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
+// ─── GET /stats — staff/viewer/eo_tenant ───────────────────────────
+router.get('/stats', requireRole(SURVEY_READ_ROLES), async (req, res, next) => {
+  const { user } = req.auth;
+
+  // `eo_tenant` hanya melihat agregat event yang ditugaskan (`assigned_events`).
+  // Tanpa penugasan = tidak ada data — JANGAN fallback ke seluruh tabel, karena
+  // itu persis kebocoran yang ditutup di sini.
+  const assignedEvents = user?.role === 'eo_tenant'
+    ? (Array.isArray(user.assigned_events) ? user.assigned_events.map(String) : [])
+    : null;
+
+  if (assignedEvents && assignedEvents.length === 0) {
+    return res.json({
+      success: true,
+      data: {
+        total_responses: 0,
+        organizer_responses: 0,
+        public_responses: 0,
+        unique_events: 0,
+        mall_avg: null,
+        eo_avg: null,
+        nps_score: null,
+        recent: [],
+      },
+    });
+  }
+
+  const scopeSql = assignedEvents ? ' WHERE event_id = ANY($1::text[])' : '';
+  const scopeParams = assignedEvents ? [assignedEvents] : [];
+
   try {
     const [{ rows }, { rows: recent }] = await Promise.all([
       db.query(
@@ -355,16 +435,18 @@ router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
            COUNT(*) FILTER (WHERE survey_type = 'public' AND eo_recommendation >= 9)::int AS nps_promoters,
            COUNT(*) FILTER (WHERE survey_type = 'public' AND eo_recommendation <= 6)::int AS nps_detractors,
            COUNT(*) FILTER (WHERE survey_type = 'public' AND eo_recommendation IS NOT NULL)::int AS nps_base
-         FROM survey_responses`,
+         FROM survey_responses${scopeSql}`,
+        scopeParams,
       ),
       db.query(
         `SELECT id, event_id, survey_type, mall_cleanliness, mall_staff_service, mall_coordination,
                 mall_security, eo_event_quality, eo_organization, eo_committee_service,
                 eo_promotion_accuracy, eo_recommendation, respondent_name, respondent_email,
                 mall_comment, eo_comment, general_comment, created_at
-         FROM survey_responses
+         FROM survey_responses${scopeSql}
          ORDER BY created_at DESC
          LIMIT 20`,
+        scopeParams,
       ),
     ]);
 
@@ -401,6 +483,7 @@ router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
       ? Math.round(((a.nps_promoters - a.nps_detractors) / a.nps_base) * 100)
       : null;
 
+    const isDemo = req.auth?.user?.role === DEMO_ROLE;
     return res.json({
       success: true,
       data: {
@@ -411,7 +494,10 @@ router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
         mall_avg: mallAvg,
         eo_avg: eoAvg,
         nps_score: npsScore,
-        recent: recent,
+        // Demo: dua puluh respons terakhir memuat nama + email responden.
+        recent: isDemo
+          ? recent.map(r => ({ ...r, respondent_name: maskName(r.respondent_name), respondent_email: maskEmail(r.respondent_email) }))
+          : recent,
       },
     });
   } catch (err) {
@@ -419,10 +505,17 @@ router.get('/stats', requireRole(DEMO_READ_ROLES), async (_req, res, next) => {
   }
 });
 
-// ─── GET /export — staff (CSV UTF-8 + BOM) ─────────────────────────
-router.get('/export', requireRole(DEMO_READ_ROLES), async (req, res, next) => {
+// ─── GET /export — staff/viewer (CSV UTF-8 + BOM) ──────────────────
+// Demo TIDAK termasuk (PII mentah tidak bisa disamarkan setelah diunduh) dan
+// `eo_tenant` juga tidak: CSV memuat satu event penuh tanpa batas cakupan.
+router.get('/export', requireRole(SURVEY_EXPORT_ROLES), async (req, res, next) => {
   const eventId = String(req.query?.event_id || '').trim();
   if (!eventId) return res.status(400).json({ success: false, error: 'event_id wajib diisi' });
+  // Penjaga kedua: kalau daftar role ekspor melebar lagi, EO tetap terkurung
+  // pada event yang ditugaskan.
+  if (!canAccessSurveyEvent(req.auth?.user, eventId)) {
+    return res.status(403).json({ success: false, error: 'Tidak berhak mengekspor survey event ini.' });
+  }
 
   try {
     const { rows } = await db.query(

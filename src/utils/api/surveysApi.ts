@@ -1,6 +1,5 @@
 import { apiGet, apiPost, ApiError } from '../../lib/rest';
 import { adminAction } from './_shared';
-import { uploadToR2 } from './albumsApi';
 import type {
   CommunityRegistration, TenantEventSurvey, TenantSurveyFormData,
   LetterRequestItem, GeneratedLetter,
@@ -61,21 +60,47 @@ export interface RegistrationProposalUpload {
   fileUrl: string;
   fileName: string;
   fileSize: number;
+  /** MIME asli file — dipakai backend untuk verifikasi magic-byte. */
+  mimeType: string;
 }
 
 /**
  * Presign + PUT a registration proposal / company profile straight to R2.
- * Only metadata passes through the backend REST.
+ * Hanya metadata yang lewat REST; file biner langsung ke presigned URL.
  *
- * TODO (backend): route presign publik untuk registrasi (legacy
- * mode='presign-registration-file' di api/community-registration.js) BELUM ada
- * di extra.js. /r2/presign VPS saat ini staff-only — form publik tanpa sesi
- * akan gagal 401 sampai route publik tersedia. Upload via uploadToR2 (REST)
- * supaya kontraknya sama saat route publik dibuka.
+ * `POST /registrations/attachment` { originalName, contentType } →
+ * `{ success, uploadUrl, publicUrl, fileName }`, lalu PUT file ke `uploadUrl`.
+ * Route ini publik (form pendaftaran tanpa sesi), berbeda dari `/r2/presign`
+ * yang staff-only.
  */
 export async function uploadRegistrationAttachment(file: File): Promise<RegistrationProposalUpload> {
-  const fileUrl = await uploadToR2(file, 'registrations/');
-  return { fileUrl, fileName: file.name, fileSize: file.size };
+  let presign: { success: boolean; error?: string; uploadUrl?: string; publicUrl?: string; fileName?: string };
+  try {
+    presign = await apiPost('/registrations/attachment', {
+      originalName: file.name,
+      contentType: file.type,
+      proposalMimeType: file.type,
+    });
+  } catch (err) {
+    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal menyiapkan unggahan berkas');
+    throw new ApiError('Gagal menyiapkan unggahan berkas. Periksa koneksi Anda.');
+  }
+  if (!presign.success) throw new ApiError(presign.error || 'Gagal menyiapkan unggahan berkas');
+  if (!presign.uploadUrl || !presign.publicUrl) throw new ApiError('Gagal menyiapkan unggahan berkas');
+
+  const uploadRes = await fetch(presign.uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+  if (!uploadRes.ok) throw new ApiError('Gagal mengunggah berkas. Coba lagi.');
+
+  return {
+    fileUrl: presign.publicUrl,
+    fileName: presign.fileName || file.name,
+    fileSize: file.size,
+    mimeType: file.type,
+  };
 }
 
 export async function updateRegistrationStatus(id: string, status: string, adminNote: string): Promise<void> {
@@ -100,6 +125,7 @@ export async function submitCommunityRegistration(data: {
   organizationType?: string; organizationName?: string;
   typeSpecificData?: Record<string, string | number>;
   proposalFileUrl?: string; proposalFileName?: string; proposalFileSize?: number;
+  proposalMimeType?: string;
 }): Promise<{ id: string }> {
   try {
     const result = await apiPost<{ success: boolean; error?: string; id?: string }>('/registrations', {
@@ -113,6 +139,7 @@ export async function submitCommunityRegistration(data: {
       proposal_file_url: data.proposalFileUrl || '',
       proposal_file_name: data.proposalFileName || '',
       proposal_file_size: data.proposalFileSize || 0,
+      proposal_mime_type: data.proposalMimeType || '',
     });
     if (!result.success) throw new ApiError(result.error || 'Gagal mendaftar');
     return { id: result.id || '' };
@@ -142,17 +169,12 @@ function dbGeneratedLetterToGeneratedLetter(row: DbGeneratedLetter): GeneratedLe
 }
 
 export async function fetchGeneratedLetters(eventId?: string, draftEventId?: string): Promise<GeneratedLetter[]> {
-  try {
-    const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>(
-      'listLetters',
-      { eventId, draftEventId },
-    );
-    if (!result.success) return [];
-    return (result.data || []).map(row => dbGeneratedLetterToGeneratedLetter(row as DbGeneratedLetter));
-  } catch {
-    // degradasi: kosong (route mungkin belum tersedia)
-    return [];
-  }
+  const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>(
+    'listLetters',
+    { eventId, draftEventId },
+  );
+  if (!result.success) throw new ApiError(result.error || 'Gagal memuat surat');
+  return (result.data || []).map(row => dbGeneratedLetterToGeneratedLetter(row as DbGeneratedLetter));
 }
 
 export async function createGeneratedLetter(params: {
@@ -443,38 +465,30 @@ export interface TenantDropdownOption {
   pic: string; picTelp: string; logo: string; status: string; participantEvoucher: string;
 }
 
-export async function fetchTenantDetail(id: string): Promise<{ id: string; name: string; pic: string; picTelp: string } | null> {
+export async function fetchTenantDetail(id: string): Promise<{ id: string; name: string } | null> {
   const tid = (id || '').trim(); if (!tid) return null;
   try {
-    const data = await apiGet<{ id: string; name: string; pic: string; picTelp: string }>(`/tenant/tenant-detail?id=${encodeURIComponent(tid)}`);
+    const data = await apiGet<{ id: string; name: string }>(`/tenant/tenant-detail?id=${encodeURIComponent(tid)}`);
     return data || null;
   } catch (err) {
-    if (err instanceof ApiError) return null;
+    // Hanya 404 (tenant tidak ada) yang berarti "tidak ditemukan"; error lain
+    // (rate limit 429, 5xx, jaringan) harus sampai ke pemanggil.
+    if (err instanceof ApiError && Number(err.code) === 404) return null;
     throw err;
   }
 }
 
 export async function fetchActiveTenants(query?: string): Promise<TenantDropdownOption[]> {
   const q = (query || '').trim(); if (q.length < 2) return [];
-  try {
-    const data = await apiGet<unknown>(`/tenant/tenants?q=${encodeURIComponent(q)}`);
-    return Array.isArray(data) ? data as TenantDropdownOption[] : [];
-  } catch (err) {
-    if (err instanceof ApiError) return [];
-    throw err;
-  }
+  const data = await apiGet<unknown>(`/tenant/tenants?q=${encodeURIComponent(q)}`);
+  return Array.isArray(data) ? data as TenantDropdownOption[] : [];
 }
 
 export interface TenantRosterItem { id: string; name: string; floor: string; lot: string; category: string; logo: string; }
 
 export async function fetchTenantRoster(): Promise<TenantRosterItem[]> {
-  try {
-    const data = await apiGet<unknown>('/tenant/roster');
-    return Array.isArray(data) ? data as TenantRosterItem[] : [];
-  } catch (err) {
-    if (err instanceof ApiError) return [];
-    throw err;
-  }
+  const data = await apiGet<unknown>('/tenant/roster');
+  return Array.isArray(data) ? data as TenantRosterItem[] : [];
 }
 
 export async function fetchPublicTenantRoster(): Promise<TenantRosterItem[]> {

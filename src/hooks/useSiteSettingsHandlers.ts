@@ -6,7 +6,7 @@ type ShowToast = (type: ToastMessage['type'], title: string, message: string) =>
 
 export type SiteSettingsHandlersDeps = {
   showToast: ShowToast;
-  logout: () => Promise<void> | void;
+  logout: () => Promise<{ ok: boolean; error?: string } | void> | void;
 };
 
 export interface SiteSettingsHandlersResult {
@@ -90,7 +90,11 @@ export function useSiteSettingsHandlers(deps: SiteSettingsHandlersDeps): SiteSet
   }, [showToast]);
 
   const handleLogout = useCallback(async () => {
-    await logout();
+    const result = await logout();
+    if (result && !result.ok) {
+      showToast('error', 'Gagal keluar', result.error || 'Sesi mungkin masih aktif di server. Coba lagi.');
+      return;
+    }
     showToast('info', 'Keluar', 'Mode admin dinonaktifkan.');
   }, [logout, showToast]);
 

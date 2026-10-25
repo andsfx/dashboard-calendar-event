@@ -111,3 +111,42 @@ describe('usePermission matrix (SPEC §2.1 / T-004)', () => {
     expect(result.current.isReadOnly).toBe(true);
   });
 });
+
+describe('usePermission — izin export CSV', () => {
+  it('unauth: keduanya false', () => {
+    const { result } = renderHook(() => usePermission(null));
+    expect(result.current.canExportSurvey).toBe(false);
+    expect(result.current.canExportTenantSurveyCsv).toBe(false);
+  });
+
+  it.each(['admin', 'superadmin'] as const)('%s boleh export survey + tenant CSV', (role) => {
+    const { result } = renderHook(() => usePermission(user(role)));
+    expect(result.current.canExportSurvey).toBe(true);
+    expect(result.current.canExportTenantSurveyCsv).toBe(true);
+  });
+
+  it('viewer: boleh export survey, TIDAK tenant CSV', () => {
+    const { result } = renderHook(() => usePermission(user('viewer')));
+    expect(result.current.canExportSurvey).toBe(true);
+    expect(result.current.canExportTenantSurveyCsv).toBe(false);
+  });
+
+  it('eo_tenant: TIDAK boleh export survey (hanya event yang ditugaskan), TIDAK tenant CSV', () => {
+    const { result } = renderHook(() => usePermission(user('eo_tenant')));
+    expect(result.current.canViewSurvey).toBe(true);
+    expect(result.current.canExportSurvey).toBe(false);
+    expect(result.current.canExportTenantSurveyCsv).toBe(false);
+  });
+
+  it('tenant_relation: tidak boleh export survey maupun tenant CSV', () => {
+    const { result } = renderHook(() => usePermission(user('tenant_relation')));
+    expect(result.current.canExportSurvey).toBe(false);
+    expect(result.current.canExportTenantSurveyCsv).toBe(false);
+  });
+
+  it('demo: tidak boleh export apa pun (PII dimasker server-side)', () => {
+    const { result } = renderHook(() => usePermission(user('demo')));
+    expect(result.current.canExportSurvey).toBe(false);
+    expect(result.current.canExportTenantSurveyCsv).toBe(false);
+  });
+});

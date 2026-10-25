@@ -97,18 +97,27 @@ export function useAuth() {
   }, []);
 
   // ─── Logout ─────────────────────────────────────────────────────
-  const logout = useCallback(async () => {
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const logout = useCallback(async (): Promise<{ ok: boolean; error?: string }> => {
     if (DEV_AUTO_LOGIN) {
       // Dev mode: re-login as dev user (logout = reset state)
       setUser(devUser());
-      return;
+      return { ok: true };
     }
 
+    setLogoutError(null);
     try {
       // POST /auth/logout — server membersihkan cookie sb-access-token.
       await apiPost('/auth/logout');
-    } catch {
-      // ignore — state di-reset apa adanya.
+      return { ok: true };
+    } catch (err) {
+      // State lokal tetap di-reset (user mengira sudah keluar), tapi kegagalan
+      // permukaan tidak boleh disembunyikan: cookie server bisa jadi masih
+      // hidup, dan pemanggil perlu memberi tahu pengguna.
+      const message = err instanceof Error ? err.message : 'Gagal keluar dari sesi';
+      console.error('Error logging out:', err);
+      setLogoutError(message);
+      return { ok: false, error: message };
     } finally {
       setUser(null);
     }
@@ -127,5 +136,6 @@ export function useAuth() {
     ...state,
     login,
     logout,
+    logoutError,
   };
 }

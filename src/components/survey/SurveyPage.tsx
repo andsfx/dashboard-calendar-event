@@ -448,7 +448,7 @@ className="touch-target relative flex h-8 w-8 shrink-0 items-center justify-cent
       </header>
 
       {/* Content */}
-      <main className="mx-auto max-w-xl space-y-6 px-4 py-6">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-xl space-y-6 px-4 py-6 outline-none">
         {children}
       </main>
 

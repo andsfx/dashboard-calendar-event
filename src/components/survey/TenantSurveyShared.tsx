@@ -4,7 +4,6 @@ import {
 } from 'lucide-react';
 import {
   fetchActiveTenants,
-  fetchTenantDetail,
   type TenantDropdownOption,
 } from '../../utils/domainApi';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
@@ -127,6 +126,8 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   const [open, setOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantDropdownOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const [retryTick, setRetryTick] = useState(0);
   const [highlighted, setHighlighted] = useState(-1);
   const listboxId = `${id}-listbox`;
 
@@ -147,20 +148,28 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
     const q = query.trim();
     if (q.length < 2) {
       setTenants([]);
+      setSearchError('');
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
+    setSearchError('');
     const t = setTimeout(async () => {
-      const result = await fetchActiveTenants(q);
-      if (!cancelled) {
+      try {
+        const result = await fetchActiveTenants(q);
+        if (cancelled) return;
         setTenants(result);
-        setLoading(false);
+      } catch {
+        if (cancelled) return;
+        setTenants([]);
+        setSearchError('Gagal memuat daftar tenant. Periksa koneksi lalu coba lagi.');
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [query, disabled]);
+  }, [query, disabled, retryTick]);
 
   useEffect(() => {
     if (!open) return;
@@ -190,19 +199,10 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
     setQuery(t.name);
     setOpen(false);
     setHighlighted(-1);
-    // Instant auto-fill (nama/lokasi/kategori) from list option
+    // Instant auto-fill (nama/lokasi/kategori) from list option.
+    // PIC TIDAK di-auto-fill: /tenant/tenants sengaja mengosongkan pic/picTelp
+    // dan /tenant/tenant-detail tidak lagi mengembalikan PIC (anti PII dump).
     onTenantSelect?.(t);
-    // PIC auto-fill: list strips PIC (no mass PII dump) → fetch detail by id
-    void fetchTenantDetail(t.id).then((detail) => {
-      if (!detail) return;
-      // Guard: selection may have changed while detail was loading
-      if (selectedIdRef.current !== t.id) return;
-      onTenantSelect?.({
-        ...t,
-        pic: detail.pic,
-        picTelp: detail.picTelp,
-      });
-    });
   }
 
   function handleInputChange(next: string) {
@@ -279,6 +279,18 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
             <div className="flex items-center justify-center px-4 py-3 text-xs ui-text-muted">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
               Memuat tenant…
+            </div>
+          ) : searchError ? (
+            <div className="flex items-start gap-2 px-4 py-3 text-xs text-red-600 dark:text-red-400" role="alert">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span className="flex-1">{searchError}</span>
+              <button
+                type="button"
+                onClick={() => setRetryTick((n) => n + 1)}
+                className="font-medium underline underline-offset-2 hover:no-underline"
+              >
+                Coba lagi
+              </button>
             </div>
           ) : tenants.length === 0 ? (
             <div className="px-4 py-3 text-xs ui-text-muted">

@@ -48,7 +48,7 @@ router.post('/login', async (req, res, next) => {
 
   try {
     const { rows } = await db.query(
-      'SELECT id, email, display_name, role, is_active, password_hash, token_version FROM users WHERE lower(email) = $1 LIMIT 1',
+      'SELECT id, email, display_name, role, is_active, password_hash, token_version, assigned_events FROM users WHERE lower(email) = $1 LIMIT 1',
       [email],
     );
     const userRow = rows[0] || null;

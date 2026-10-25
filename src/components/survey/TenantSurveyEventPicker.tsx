@@ -99,7 +99,7 @@ export default function TenantSurveyEventPicker() {
   }
 
   return (
-    <div className="space-y-6">
+    <main id="konten-utama" tabIndex={-1} className="space-y-6 outline-none">
       {/* Header description */}
       <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
         Pilih event untuk menilai perubahan traffic dan penjualan tenant Anda.
@@ -198,6 +198,6 @@ export default function TenantSurveyEventPicker() {
           </button>
         </div>
       )}
-    </div>
+    </main>
   );
 }

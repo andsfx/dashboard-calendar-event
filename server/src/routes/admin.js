@@ -18,11 +18,12 @@
  */
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireRole, logActivity, DEMO_ROLE, ADMIN_READ_ROLES, canPerformAdminAction, maskEmail, maskName, maskPhone } from '../auth.js';
+import { requireRole, logActivity, DEMO_ROLE, ADMIN_READ_ROLES, canPerformAdminAction, maskEmail, maskName, maskPhone, maskPiiDeep } from '../auth.js';
 import { validateAction } from '../lib/schemas.js';
 import { isAiEnabled, generateInsightNarrative } from '../lib/ai.js';
 import { toTextArray, toJsonb } from '../lib/pgValues.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
+import { safeDate } from '../lib/eventWindow.js';
 import {
   deleteR2File,
   deleteR2FileOrThrow,
@@ -64,6 +65,11 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
   try {
     const result = await switchAction(action, req);
     if (result === undefined) return; // handler sudah kirim respons
+    // Handler boleh menandai kode HTTP eksplisit (mis. validasi 400). Tanpa
+    // penanda ini respons tetap 200 + { success: false } seperti biasa.
+    if (result?.status === 400) {
+      return res.status(400).json({ success: false, error: result.error });
+    }
     res.json(result);
   } catch (err) {
     if (err?.code === 'DB_UNAVAILABLE') return next(err);
@@ -219,29 +225,37 @@ async function switchAction(action, req) {
     case 'batchCreateEvents': {
       const rows = body.data;
       if (!Array.isArray(rows) || rows.length === 0) return { success: false, error: 'Data event tidak tersedia' };
-      const ids = [];
-      for (const data of rows) {
-        const { rows: [created] } = await db.query(
-          `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
-                               keterangan, month, status, category, categories, priority, event_model, event_nominal,
-                               event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
-                               recurrence_group_id, is_recurring, poster_url, organization_id)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
-           RETURNING id`,
-          [
-            data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
-            data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
-            data.phone ?? '', data.keterangan ?? '', data.month ?? '',
-            data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
-            data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
-            data.source_draft_id ?? '', data.is_multi_day ?? false,
-            data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
-            data.event_type ?? 'single', data.recurrence_group_id ?? '', data.is_recurring ?? false,
-            data.poster_url ?? null, data.organization_id ?? null,
-          ],
-        );
-        if (created) ids.push(created.id);
-      }
+
+      // Satu transaksi untuk SELURUH batch: kegagalan di baris ke-n tidak
+      // boleh menyisakan separuh event terbit (dulu tiap INSERT berdiri sendiri,
+      // jadi batch 20 yang gagal di baris 15 meninggalkan 14 event produksi).
+      const ids = await db.withTransaction(async (client) => {
+        const createdIds = [];
+        for (const data of rows) {
+          const { rows: [created] } = await client.query(
+            `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
+                                 keterangan, month, status, category, categories, priority, event_model, event_nominal,
+                                 event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
+                                 recurrence_group_id, is_recurring, poster_url, organization_id)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+             RETURNING id`,
+            [
+              data.date_str, data.date_end ?? null, data.day ?? '', data.tanggal ?? '', data.jam ?? '',
+              data.lokasi ?? '', data.area_id ?? null, data.acara, data.eo ?? '', data.pic ?? '',
+              data.phone ?? '', data.keterangan ?? '', data.month ?? '',
+              data.category ?? 'Umum', toTextArray(data.categories ?? []), data.priority ?? 'medium',
+              data.event_model ?? '', data.event_nominal ?? '', data.event_model_notes ?? '',
+              data.source_draft_id ?? '', data.is_multi_day ?? false,
+              data.day_time_slots ? JSON.stringify(data.day_time_slots) : null,
+              data.event_type ?? 'single', data.recurrence_group_id ?? '', data.is_recurring ?? false,
+              data.poster_url ?? null, data.organization_id ?? null,
+            ],
+          );
+          if (created) createdIds.push(created.id);
+        }
+        return createdIds;
+      });
+
       logActivity(auth.user, 'batch_create_events', 'event', null, { count: ids.length }, req);
       return { success: true, results: ids.map((id) => ({ id })), count: ids.length };
     }
@@ -297,6 +311,13 @@ async function switchAction(action, req) {
       const { rows } = await db.query(
         `SELECT * FROM draft_events WHERE deleted = false ORDER BY date_str ASC`,
       );
+      // Demo = read-only: struktur draft boleh dilihat, identitas PIC tidak.
+      if (req.auth?.user?.role === DEMO_ROLE) {
+        return {
+          success: true,
+          data: rows.map(r => ({ ...r, pic: maskName(r.pic), phone: maskPhone(r.phone) })),
+        };
+      }
       return { success: true, data: rows };
     }
 
@@ -556,12 +577,16 @@ async function switchAction(action, req) {
     case 'updateEventPhotoOrder': {
       const updates = body.data;
       if (!Array.isArray(updates)) return { success: false, error: 'Data tidak valid' };
-      await Promise.all(
-        updates.map((item) => db.query(
-          'UPDATE event_photos SET sort_order = $1 WHERE id = $2',
-          [item.sortOrder, item.id],
-        )),
-      );
+      // Satu transaksi: urutan antar-foto saling bergantung, separuh tersimpan
+      // berarti urutan tampilan rusak/duplikat sampai ada simpan berikutnya.
+      await db.withTransaction(async (client) => {
+        for (const item of updates) {
+          await client.query(
+            'UPDATE event_photos SET sort_order = $1 WHERE id = $2',
+            [item.sortOrder, item.id],
+          );
+        }
+      });
       logActivity(auth.user, 'update_event_photo_order', 'photo', null, { count: updates.length }, req);
       return { success: true };
     }
@@ -667,12 +692,14 @@ async function switchAction(action, req) {
     case 'updateAreaPhotoOrder': {
       const updates = body.data;
       if (!Array.isArray(updates)) return { success: false, error: 'Data tidak valid' };
-      await Promise.all(
-        updates.map((item) => db.query(
-          'UPDATE area_photos SET sort_order = $1 WHERE id = $2',
-          [item.sortOrder, item.id],
-        )),
-      );
+      await db.withTransaction(async (client) => {
+        for (const item of updates) {
+          await client.query(
+            'UPDATE area_photos SET sort_order = $1 WHERE id = $2',
+            [item.sortOrder, item.id],
+          );
+        }
+      });
       logActivity(auth.user, 'update_area_photo_order', 'photo', null, { count: updates.length }, req);
       return { success: true };
     }
@@ -714,41 +741,50 @@ async function switchAction(action, req) {
       if (!Array.isArray(mappings) || mappings.length === 0) return { success: false, error: 'Data pemetaan tidak valid' };
       let updated = 0;
       let renamed = 0;
-      for (const m of mappings) {
-        if (!m.lokasi) continue;
-        // 1) Set area_id untuk SEMUA baris berteks lokasi itu.
-        //    Panel Pemetaan adalah tempat mengedit lokasi→area: baris yang sudah
-        //    dipetakan pun ikut ditulis, agar memilih area lain benar-benar
-        //    memindahkannya. Sebelumnya ada guard `area_id IS NULL` sehingga
-        //    memilih area lain mengembalikan updated:0 (diam-diam tidak tersimpan) —
-        //    persis keluhan "edit lokasi tidak bisa disave". Memindahkan satu event
-        //    saja tetap lewat form edit event.
-        if (m.areaId) {
-          const { rowCount: eCount } = await db.query(
-            'UPDATE events SET area_id = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
-            [m.areaId, m.lokasi],
-          );
-          const { rowCount: dCount } = await db.query(
-            'UPDATE draft_events SET area_id = $1 WHERE trim(lokasi) = $2',
-            [m.areaId, m.lokasi],
-          );
-          updated += (eCount || 0) + (dCount || 0);
+
+      // Satu transaksi untuk SEMUA mapping: panel ini menyimpan satu klik
+      // pengguna yang bisa menyentuh puluhan baris events + draft_events. Bila
+      // baris ke-n gagal, pemetaan sebelumnya tidak boleh tertinggal setengah
+      // jadi (area event berubah tapi teks lokasi belum seragam).
+      await db.withTransaction(async (client) => {
+        for (const m of mappings) {
+          if (!m.lokasi) continue;
+          // 1) Set area_id untuk SEMUA baris berteks lokasi itu.
+          //    Panel Pemetaan adalah tempat mengedit lokasi→area: baris yang sudah
+          //    dipetakan pun ikut ditulis, agar memilih area lain benar-benar
+          //    memindahkannya. Sebelumnya ada guard `area_id IS NULL` sehingga
+          //    memilih area lain mengembalikan updated:0 (diam-diam tidak tersimpan) —
+          //    persis keluhan "edit lokasi tidak bisa disave". Memindahkan satu event
+          //    saja tetap lewat form edit event.
+          if (m.areaId) {
+            const { rowCount: eCount } = await client.query(
+              'UPDATE events SET area_id = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
+              [m.areaId, m.lokasi],
+            );
+            const { rowCount: dCount } = await client.query(
+              'UPDATE draft_events SET area_id = $1 WHERE trim(lokasi) = $2',
+              [m.areaId, m.lokasi],
+            );
+            updated += (eCount || 0) + (dCount || 0);
+          }
+          // 2) Seragamkan teks lokasi (opsional). Menerapkan ke SEMUA baris dengan teks itu,
+          //    termasuk yang sudah punya area_id — tujuannya memang menyeragamkan tampilan.
+          const target = typeof m.targetLokasi === 'string' ? m.targetLokasi.trim() : '';
+          if (target && target !== m.lokasi.trim()) {
+            const { rowCount: eRename } = await client.query(
+              'UPDATE events SET lokasi = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
+              [target, m.lokasi],
+            );
+            const { rowCount: dRename } = await client.query(
+              'UPDATE draft_events SET lokasi = $1 WHERE trim(lokasi) = $2',
+              [target, m.lokasi],
+            );
+            renamed += (eRename || 0) + (dRename || 0);
+          }
         }
-        // 2) Seragamkan teks lokasi (opsional). Menerapkan ke SEMUA baris dengan teks itu,
-        //    termasuk yang sudah punya area_id — tujuannya memang menyeragamkan tampilan.
-        const target = typeof m.targetLokasi === 'string' ? m.targetLokasi.trim() : '';
-        if (target && target !== m.lokasi.trim()) {
-          const { rowCount: eRename } = await db.query(
-            'UPDATE events SET lokasi = $1, updated_at = NOW() WHERE trim(lokasi) = $2',
-            [target, m.lokasi],
-          );
-          const { rowCount: dRename } = await db.query(
-            'UPDATE draft_events SET lokasi = $1 WHERE trim(lokasi) = $2',
-            [target, m.lokasi],
-          );
-          renamed += (eRename || 0) + (dRename || 0);
-        }
-      }
+      });
+
+      // Log setelah COMMIT — jangan mencatat perubahan yang di-rollback.
       logActivity(auth.user, 'apply_location_mapping', 'event', null, { updated, renamed, mappings: mappings.map(m => ({ l: m.lokasi, a: m.areaId, t: m.targetLokasi })) }, req);
       return { success: true, updated, renamed };
     }
@@ -979,11 +1015,26 @@ async function switchAction(action, req) {
         `SELECT * FROM generated_letters WHERE ${conds.join(' AND ')} ORDER BY created_at DESC`,
         params,
       );
+      // Demo: PDF mentah tidak dikirim (isinya identik dengan letter_data tapi
+      // tidak bisa disamarkan), dan PII di dalam letter_data — termasuk blok
+      // bersarang — disamarkan rekursif.
+      if (req.auth?.user?.role === DEMO_ROLE) {
+        return {
+          success: true,
+          data: rows.map(r => ({
+            ...r,
+            pdf_base64: null,
+            letter_data: maskPiiDeep(r.letter_data),
+          })),
+        };
+      }
       return { success: true, data: rows };
     }
 
     case 'createLetter': {
-      const createdBy = body.createdBy || auth.user?.id || null;
+      // Atribusi TIDAK boleh datang dari body: klien yang mengirim createdBy
+      // milik user lain akan memalsukan jejak audit. Sumber tunggal = sesi.
+      const createdBy = auth.user?.id || null;
       const { rows } = await db.query(
         `INSERT INTO generated_letters (event_id, draft_event_id, letter_data, pdf_base64, pdf_url, created_by)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -1041,6 +1092,14 @@ async function switchAction(action, req) {
          ) a ON a.exhibition_id = e.id
          ORDER BY e.date_start DESC`,
       );
+      // Demo: nama PIC leasing/marcomm disamarkan (bukan dihapus — struktur
+      // tetap terbaca, identitas tidak).
+      if (req.auth?.user?.role === DEMO_ROLE) {
+        return {
+          success: true,
+          data: rows.map(r => ({ ...r, leasing_pic: maskName(r.leasing_pic), marcomm_pic: maskName(r.marcomm_pic) })),
+        };
+      }
       return { success: true, data: rows };
     }
 
@@ -1080,7 +1139,7 @@ async function switchAction(action, req) {
          FROM exhibition_activations ea
          JOIN events e ON e.id = ea.event_id
          WHERE ea.exhibition_id = $1
-           AND (e.date_str::date < $2::date OR COALESCE(e.date_end, e.date_str::date) > $3::date)`,
+           AND (${safeDate('e.date_str')} < $2::date OR COALESCE(${safeDate('e.date_end::text')}, ${safeDate('e.date_str')}) > $3::date)`,
         [body.id, d.dateStart, d.dateEnd],
       );
       if ((outside[0]?.total || 0) > 0) {
@@ -1125,6 +1184,18 @@ async function switchAction(action, req) {
         `SELECT * FROM exhibition_leads ${where} ORDER BY created_at DESC`,
         params,
       );
+      // Demo: kontak pemohon disamarkan (pola readRegistrations/listSponsorLeads).
+      if (req.auth?.user?.role === DEMO_ROLE) {
+        return {
+          success: true,
+          data: rows.map(r => ({
+            ...r,
+            contact_name: maskName(r.contact_name),
+            phone: maskPhone(r.phone),
+            email: maskEmail(r.email),
+          })),
+        };
+      }
       return { success: true, data: rows };
     }
 
@@ -1143,14 +1214,17 @@ async function switchAction(action, req) {
     case 'linkExhibitionActivation': {
       const { rows } = await db.query(
         `SELECT x.date_start, x.date_end, e.id AS event_id, e.acara,
-                e.date_str::date AS event_start,
-                COALESCE(e.date_end, e.date_str::date) AS event_end
+                ${safeDate('e.date_str')} AS event_start,
+                COALESCE(${safeDate('e.date_end::text')}, ${safeDate('e.date_str')}) AS event_end
          FROM exhibitions x, events e
          WHERE x.id = $1 AND e.id = $2`,
         [body.exhibitionId, body.eventId],
       );
       const pair = rows[0];
       if (!pair) return { success: false, error: 'Pameran atau event tidak ditemukan' };
+      // Tanggal event tak bisa di-cast (bukan YYYY-MM-DD) → tolak eksplisit,
+      // bukan membandingkan null (yang dulu berarti lolos dari guard).
+      if (pair.event_start == null) return { success: false, status: 400, error: 'Tanggal event tidak valid' };
       if (String(pair.event_start) < String(pair.date_start) || String(pair.event_end) > String(pair.date_end)) {
         return { success: false, error: 'Tanggal event berada di luar periode pameran' };
       }

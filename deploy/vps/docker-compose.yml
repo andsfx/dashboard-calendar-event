@@ -67,8 +67,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:?isi JWT_SECRET di .env}
       # Opsional — hanya jika cookie lintas-subdomain (mis. api.domain.com):
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
-      # Opsional — 'none' utk frontend cross-site (SPA Vercel → api domain lain).
-      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      # 'none' = frontend cross-site (SPA Vercel → api domain lain); wajib
+      # berpasangan dengan Secure. SPA satu origin (nginx proxy /api/v1)
+      # cukup memakai 'lax'.
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-none}
+      # Secure flag cookie. Default true (produksi di balik TLS Caddy).
+      # Compose lokal via HTTP polos WAJIB set COOKIE_SECURE=false, kalau tidak
+      # browser membuang cookie dan login tampak "berhasil" tapi sesi hilang.
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       # Origin diizinkan (koma). Entri ber-'*' = pola glob beranchor
       # (server/src/lib/corsOrigin.js). Kosong = default-deny untuk request
       # lintas-origin ber-browser. Daftar produksi: lihat README-DEPLOY.md §3.

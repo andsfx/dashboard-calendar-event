@@ -84,3 +84,26 @@ describe('TenantSurveyResultsPage — ekspor PDF', () => {
     expect(screen.getByRole('button', { name: /Unduh PDF/ })).toBeInTheDocument();
   });
 });
+
+describe('TenantSurveyResultsPage — landmark main', () => {
+  it('TIDAK merender <main> saat dipakai di dalam DashboardShell (publicMode, standalone=false)', () => {
+    surveyHook.surveys = SURVEYS;
+    const { container } = render(<TenantSurveyResultsPage events={EVENTS} publicMode />);
+
+    // Rute /tenant-survey-results sudah dibungkus DashboardShell yang punya
+    // <main>; root komponen ini harus tetap <div> agar tidak nested main.
+    expect(container.querySelector('main')).toBeNull();
+    expect(container.firstElementChild?.tagName).toBe('DIV');
+  });
+
+  it('memakai <main id="konten-utama"> hanya bila standalone', () => {
+    surveyHook.surveys = SURVEYS;
+    const { container } = render(<TenantSurveyResultsPage events={EVENTS} standalone />);
+
+    const main = container.querySelector('main');
+    expect(main).not.toBeNull();
+    expect(main).toHaveAttribute('id', 'konten-utama');
+    expect(main).toHaveAttribute('tabindex', '-1');
+    expect(container.querySelectorAll('main')).toHaveLength(1);
+  });
+});
