@@ -1165,14 +1165,25 @@ function stripDefaultMeta(html) {
     .replace(/<meta\s+(?:property|name)="(?:og:[^"]*|twitter:[^"]*|description)"[^>]*>\s*/gi, '');
 }
 
+/**
+ * Kirim HTML dengan header cache yang disengaja.
+ *
+ * Jendela cache shell sengaja SAMA dengan 404 (`s-maxage=60`, SWR 120): shell
+ * memuat referensi aset ber-hash yang dirotasi tiap build frontend. Selama edge
+ * masih menyajikan shell lama, stylesheet/js lama bisa sudah dipangkas Vercel →
+ * halaman detail tampil tanpa CSS sampai cache kedaluwarsa (bug produksi
+ * 2026-10-25: `index-DSxJX16i.css` 404). 60 detik cukup menahan trafik crawler
+ * tanpa memperpanjang jendela basi itu; respons per-event tetap dihasilkan dari
+ * shell live (getShellHtml) sehingga aset yang dirujuk selalu dari build aktif
+ * pada saat respons dibuat.
+ */
 function sendHtml(res, html, { noIndex = false, notFound = false, noStore = false } = {}) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   if (noStore) {
     res.setHeader('Cache-Control', 'private, no-store');
-  } else if (notFound) {
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
   } else {
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    // Shell valid & 404 memakai jendela yang sama (lihat komentar di atas).
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
   }
   if (noIndex) res.setHeader('X-Robots-Tag', 'noindex');
   return res.status(notFound ? 404 : 200).send(html);
