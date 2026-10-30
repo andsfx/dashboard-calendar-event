@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react';
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/domainApi';
-import { GalleryHeader } from '../components/media/GalleryHeader';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { usePageMeta } from '../utils/pageMeta';
 import { PhotoLightbox } from '../components/media/PhotoLightbox';
 import { gridUrl } from '../utils/imageOptim';
@@ -15,7 +15,6 @@ interface Props {
 }
 
 export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
-  const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
   const [album, setAlbum] = useState<PhotoAlbum | null>(null);
@@ -79,17 +78,17 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
       >
         Langsung ke konten
       </a>
-      <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Back button */}
-        <button
-          onClick={() => navigate('/gallery')}
-className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
+        <Link
+          to="/gallery"
+          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Galeri
-        </button>
+        </Link>
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -139,13 +138,13 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
               Album yang kamu cari tidak tersedia atau sudah dihapus.
             </p>
-            <button
-              onClick={() => navigate('/gallery')}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+            <Link
+              to="/gallery"
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
             >
               <ArrowLeft className="h-4 w-4" />
               Kembali ke Galeri
-            </button>
+            </Link>
           </div>
         )}
 
@@ -154,10 +153,7 @@ className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted
           <>
             {/* Album header */}
             <div className="mb-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">
-                Album
-              </p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 {album.name}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ui-text-muted">

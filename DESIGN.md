@@ -272,7 +272,7 @@ Sticky bottom CTAs on mobile must clear overlays: the toast stack is lifted abov
 
 `communityStats.ts` owns the label vocabulary (`COMMUNITY_STAT_LABELS`); `countFormat.ts` owns the display rule (`formatStat`). Hero, the trust band, and `/events` all read from them.
 
-A zero metric renders as `—`, never `0+`. "0+" reads as zero social proof; the hero badge previously showed `0+ Event Terlaksana` while the band below showed `-` for the same metric — two representations of one state.
+A zero metric renders as a plain `0`, never `0+`. "0+" reads as zero social proof; the hero badge previously showed `0+ Event Terlaksana` while the band below showed `-` for the same metric: two representations of one state.
 
 ### Feature detection
 
@@ -357,6 +357,8 @@ Avoid:
 - `Looking for Sponsor & Support`
 - `Lihat Benefits`
 - excessive slang in formal sections
+
+Status labels on the public schedule use the `StatusBadge` vocabulary: `Berlangsung`, `Mendatang`, `Selesai`; do not use `Live` or `Segera Hadir` as status labels.
 
 ## QA Checklist
 

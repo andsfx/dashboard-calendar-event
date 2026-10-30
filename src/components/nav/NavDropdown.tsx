@@ -19,12 +19,21 @@ export interface NavDropdownItem {
   href: string;
   /** true → navigasi react-router `<Link>` (mis. `/tenants`), false → anchor in-page (`#...`). */
   route?: boolean;
+  /** Item menunjuk rute yang sedang dibuka: diberi `aria-current="page"` dan warna aktif. */
+  active?: boolean;
 }
 
 export interface NavDropdownProps {
   /** Label trigger, sekaligus nama aksesibel panel. */
   label: string;
   items: readonly NavDropdownItem[];
+  /**
+   * Salah satu item sedang aktif. Trigger ikut diberi warna aktif supaya
+   * pengunjung di rute sekunder tetap melihat di mana posisinya saat panel
+   * tertutup; tanpa ini `/sponsor`, `/docs`, dan `/community` tidak punya
+   * penanda lokasi di bar desktop.
+   */
+  active?: boolean;
   /** Status header: `true` = pinned (slate), `false` = transparan di atas hero (putih). */
   pinned: boolean;
   /** State terkontrol — parent memegang satu `openMenu` agar hanya satu dropdown terbuka. */
@@ -52,7 +61,7 @@ export interface NavDropdownProps {
  * Tutup: Escape (fokus balik ke trigger), klik di luar, fokus keluar container
  * (Tab), dan setelah item dipilih.
  */
-export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDropdownProps) {
+export function NavDropdown({ label, items, pinned, active, open, onOpenChange }: NavDropdownProps) {
   const panelId = useId();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -238,7 +247,17 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
     onOpenChange(false);
   };
 
-  const itemClass = `flex items-center rounded-xl px-3 py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] hover:text-[var(--brand-tosca-600)] focus-visible:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-[var(--brand-tosca-soft)] ${focusRing}`;
+  const itemBaseClass = `flex items-center rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] hover:text-[var(--brand-tosca-600)] focus-visible:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:hover:bg-slate-800 dark:hover:text-[var(--brand-tosca-soft)] ${focusRing}`;
+  const itemIdleClass = 'text-slate-700 dark:text-slate-200';
+  const itemActiveClass = 'text-[var(--brand-tosca-600)] dark:text-[var(--brand-tosca-soft)]';
+  const itemClassFor = (isActive: boolean) =>
+    `${itemBaseClass} ${isActive ? itemActiveClass : itemIdleClass}`;
+  const triggerActive = active === true || open;
+  const triggerClass = pinned
+    ? triggerActive
+      ? 'text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]'
+      : 'text-slate-700 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]'
+    : 'text-white/90 hover:text-white';
 
   return (
     <div
@@ -256,11 +275,7 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
         onClick={() => onOpenChange(!open)}
         aria-expanded={open}
         aria-controls={panelId}
-        className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 transition-colors ${focusRing} ${
-          pinned
-            ? 'text-slate-700 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]'
-            : 'text-white/90 hover:text-white'
-        }${open && pinned ? ' text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]' : ''}`}
+        className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 transition-colors ${focusRing} ${triggerClass}`}
       >
         {label}
         <ChevronDown
@@ -284,7 +299,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
                 to={item.href}
                 ref={(el) => { itemRefs.current[index] = el; }}
                 onClick={() => onItemActivate(item)}
-                className={itemClass}
+                aria-current={item.active ? 'page' : undefined}
+                className={itemClassFor(item.active === true)}
               >
                 {item.label}
               </Link>
@@ -294,7 +310,8 @@ export function NavDropdown({ label, items, pinned, open, onOpenChange }: NavDro
                 href={item.href}
                 ref={(el) => { itemRefs.current[index] = el; }}
                 onClick={() => onItemActivate(item)}
-                className={itemClass}
+                aria-current={item.active ? 'page' : undefined}
+                className={itemClassFor(item.active === true)}
               >
                 {item.label}
               </a>

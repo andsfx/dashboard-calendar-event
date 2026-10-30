@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { downloadBlob } from '../lib/download';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap, SunMedium, Moon } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CalendarPlus, Check, Download, Link2, MapPin, MessageCircle, RefreshCw, Zap } from 'lucide-react';
 import { buildGoogleCalendarUrl, buildIcsBlob, icsFileName } from '../utils/calendarLinks';
 import { EventPhotoGallery } from '../components/events/EventPhotoGallery';
 import { EventDetailContent, getEventAccentColor } from '../components/events/EventDetailContent';
@@ -14,6 +14,7 @@ import type { EventItem, PhotoAlbum } from '../types';
 import { fetchEventById, fetchAlbums } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 
 interface Props {
   isDark: boolean;
@@ -117,22 +118,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
-          <Link to="/events" className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring" aria-label="Kembali ke Jadwal Event">
-            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Jadwal Event</span>
-          </Link>
-          <button
-            type="button"
-            onClick={onToggleDark}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ui-focus-ring"
-            aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-          >
-            {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Loading skeleton */}
@@ -182,7 +168,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700 ui-focus-ring"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Lihat semua event
+              Jadwal Event
             </Link>
           </div>
         )}
@@ -312,7 +298,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Lihat semua event
+                Jadwal Event
               </Link>
             </div>
           </article>

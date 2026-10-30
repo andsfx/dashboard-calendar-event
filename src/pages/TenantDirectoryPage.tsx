@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Moon, RefreshCw, Search, Store, SunMedium } from 'lucide-react';
+import { MapPin, RefreshCw, Search, Store } from 'lucide-react';
 import { fetchPublicTenantDirectory } from '../utils/domainApi';
 import type { TenantRosterItem } from '../utils/api/surveysApi';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -19,7 +18,6 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
     description: 'Direktori tenant resmi di Metropolitan Mall Bekasi.',
   });
 
-  const navigate = useNavigate();
   const [tenants, setTenants] = useState<TenantRosterItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -83,38 +81,12 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Direktori Tenant</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            >
-              <ArrowLeft className="h-4 w-4" />Kembali
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
         <div className="mb-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Direktori Tenant</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
           <p className="mt-2 text-base ui-text-muted">Jelajahi tenant yang tersedia di Metropolitan Mall Bekasi</p>
           {!isLoading && !fetchError && (
             <div className="mt-6 flex flex-wrap gap-3">

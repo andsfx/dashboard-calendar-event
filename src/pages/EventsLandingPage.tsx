@@ -12,16 +12,13 @@ import {
   Clock3,
   Download,
   MapPin,
-  Moon,
   Radio,
   RefreshCw,
-  SunMedium,
   Timer,
   X,
   Zap,
 } from 'lucide-react';
 import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { resolveEventPoster } from '../utils/eventPoster';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
@@ -47,6 +44,13 @@ import { SCHEDULE_SECTION_OPTIONS } from '../components/pdf/pdfSectionOptions';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { CalendarView } from '../components/views/CalendarView';
 import { CommunityEyebrow } from '../components/community/CommunityRevealPrimitives';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+
+/** Anchor milik halaman ini; label dan tujuan tidak ditulis ulang di header. */
+const EVENTS_SECTION_LINKS = [
+  { label: 'Sorotan', href: '#featured' },
+  { label: 'Kalender', href: '#calendar' },
+] as const;
 
 interface Props {
   isDark: boolean;
@@ -215,7 +219,7 @@ function HighlightEventCard({
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: catColor }} />
               </span>
             )}
-            {isLive ? 'Sedang Berlangsung' : 'Segera Hadir'}
+            {isLive ? 'Berlangsung' : 'Mendatang'}
           </span>
           <CategoryBadges categories={event.categories} maxVisible={2} />
         </div>
@@ -320,7 +324,7 @@ function EventRailCard({
     <button
       type="button"
       onClick={() => onDetail(event)}
-      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-white text-left shadow-[0_4px_12px_rgba(15,23,42,0.02)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-soft)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
+      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-white text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
       {posterUrl && <EventPosterBanner src={posterUrl} alt={event.acara} />}
       <div className="flex w-full min-w-0 flex-col items-start gap-4 p-5">
@@ -339,7 +343,7 @@ function EventRailCard({
           {isLive ? (
             <>
               <Radio className="h-3 w-3 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
-              Live
+              Berlangsung
             </>
           ) : (
             <>
@@ -548,51 +552,11 @@ export function EventsLandingPage({
         Langsung ke kalender
       </a>
 
-      <header className="sticky top-0 z-50 h-16 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96 sm:h-20">
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <Link
-            to="/"
-            className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring"
-            aria-label="Kembali ke Komunitas"
-          >
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto sm:h-10" />
-          </Link>
-
-          <nav className="hidden items-center gap-6 text-[13px] font-medium text-slate-600 dark:text-slate-300 md:flex" aria-label="Navigasi jadwal">
-            <a href="#featured" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Sorotan
-            </a>
-            <a href="#calendar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Kalender
-            </a>
-            <Link to="/ajukan-event" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Ajukan Event
-            </Link>
-            <Link to="/sponsor" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Sponsor
-            </Link>
-            <Link to="/daftar" className="transition hover:text-[var(--brand-tosca)] dark:hover:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm">
-              Daftar
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ui-focus-ring"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3.5 py-2.5 text-[13px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 ui-focus-ring"
-            >
-              Komunitas
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader
+        isDark={isDark}
+        onToggleDark={onToggleDark}
+        sectionLinks={EVENTS_SECTION_LINKS}
+      />
 
       <main id="konten-utama" tabIndex={-1} className="outline-none">
         {/* Split Studio hero */}
@@ -614,13 +578,13 @@ export function EventsLandingPage({
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{events.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Live</dt>
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Berlangsung</dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300 sm:text-2xl">{ongoing.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-2.5 py-3 sm:px-3 dark:border-amber-800/50 dark:bg-amber-950/30">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-400">
-                      <span className="sm:hidden">Segera</span>
-                      <span className="hidden sm:inline">Segera Hadir</span>
+                      <span className="sm:hidden">Mendatang</span>
+                      <span className="hidden sm:inline">Mendatang</span>
                     </dt>
                     <dd className="font-display mt-1 text-xl font-bold tabular-nums text-amber-700 dark:text-amber-300 sm:text-2xl">{upcoming.length}</dd>
                   </div>
@@ -671,7 +635,19 @@ export function EventsLandingPage({
                   to="/daftar"
                   className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
                 >
-                  Daftar
+                  Daftar Event
+                </Link>
+                <Link
+                  to="/ajukan-event"
+                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
+                >
+                  Ajukan Event
+                </Link>
+                <Link
+                  to="/sponsor"
+                  className="inline-flex min-h-11 items-center rounded-full border border-black/8 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 ui-focus-ring"
+                >
+                  Sponsor
                 </Link>
               </nav>
             </div>
@@ -705,7 +681,7 @@ export function EventsLandingPage({
         </section>
 
         {/* Filter URL-shareable — preset waktu + kategori (riset Skedda "today/this weekend") */}
-        <section id="filter" aria-label="Filter jadwal event" className="border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
+        <section id="filter" aria-label="Filter jadwal event" className="scroll-mt-28 border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
               {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
@@ -732,7 +708,7 @@ export function EventsLandingPage({
                   aria-pressed={!kategori}
                   className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
                     !kategori
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                      ? 'bg-[var(--brand-tosca-600)] text-white'
                       : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -746,7 +722,7 @@ export function EventsLandingPage({
                     aria-pressed={kategori === cat}
                     className={`rounded-full px-3.5 py-1 text-[11px] font-semibold transition ui-focus-ring ${
                       kategori === cat
-                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                        ? 'bg-[var(--brand-tosca-600)] text-white'
                         : 'border border-black/10 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -852,7 +828,7 @@ export function EventsLandingPage({
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-                      Akan Datang & Berlangsung
+                      Mendatang & Berlangsung
                     </h2>
                   </div>
                   <p className="text-sm ui-text-muted">
@@ -929,7 +905,7 @@ export function EventsLandingPage({
               to="/daftar"
               className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
             >
-              Isi Form Pendaftaran
+              Daftar Event
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -964,7 +940,7 @@ export function EventsLandingPage({
               Ajukan Event
             </Link>
             <Link to="/daftar" className="transition hover:text-white ui-focus-ring rounded-sm">
-              Daftar
+              Daftar Event
             </Link>
           </div>
         </div>

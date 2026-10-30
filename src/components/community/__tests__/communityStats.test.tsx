@@ -100,7 +100,11 @@ describe('label statistik komunitas (C2)', () => {
   });
 
   it('hero memakai label `completed`, bukan label `total`', () => {
-    render(<CommunityHero stats={{ completed: 232 }} />);
+    render(
+      <MemoryRouter>
+        <CommunityHero stats={{ completed: 232 }} />
+      </MemoryRouter>,
+    );
     // Scoped to the hero stat badge by its own class: the hero also renders a
     // "Daftar Event" CTA (matches a bare /Event/ query) and the badge no longer
     // carries `aria-live` (the live region lives on CommunitySocialProof, which

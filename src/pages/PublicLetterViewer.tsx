@@ -4,13 +4,19 @@ import { Download, ArrowLeft, AlertCircle, FileText } from 'lucide-react';
 import { GeneratedLetter, LetterRequestItem } from '../types';
 import { apiGet } from '../lib/rest';
 import { downloadLetterPdf } from '../utils/letterPdfExport';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+
+interface Props {
+  isDark: boolean;
+  onToggleDark: () => void;
+}
 
 /**
  * Public viewer page for shared generated letters.
  * Accessible via /letter/:id
  * Shows the PDF inline with a download button.
  */
-export function PublicLetterViewer() {
+export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [letter, setLetter] = useState<GeneratedLetter | null>(null);
@@ -73,24 +79,27 @@ export function PublicLetterViewer() {
 
   if (error || !letter) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--brand-paper)] p-4 dark:bg-slate-950">
-        <div className="max-w-md rounded-2xl border border-red-200 bg-[var(--brand-card-light)] p-6 text-center shadow-[var(--shadow-card-soft)] dark:border-red-800 dark:bg-slate-800">
-          <AlertCircle size={48} className="mx-auto mb-4 text-red-500" />
-          <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
-            Surat Tidak Ditemukan
-          </h1>
-          <p className="mb-4 text-slate-600 dark:text-slate-300">
-            {error || 'Surat yang Anda cari tidak tersedia.'}
-          </p>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
-          >
-            <ArrowLeft size={16} aria-hidden />
-            Kembali ke Beranda
-          </button>
-        </div>
+      <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+        <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
+        <main id="konten-utama" tabIndex={-1} className="flex justify-center p-4 outline-none">
+          <div className="mt-12 max-w-md rounded-2xl border border-red-200 bg-[var(--brand-card-light)] p-6 text-center shadow-[var(--shadow-card-soft)] dark:border-red-800 dark:bg-slate-800">
+            <AlertCircle size={48} className="mx-auto mb-4 text-red-500" aria-hidden />
+            <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
+              Surat Tidak Ditemukan
+            </h1>
+            <p className="mb-4 text-slate-600 dark:text-slate-300">
+              {error || 'Surat yang Anda cari tidak tersedia.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+            >
+              <ArrowLeft size={16} aria-hidden />
+              Kembali ke Beranda
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
@@ -100,33 +109,11 @@ export function PublicLetterViewer() {
     : letter.pdfUrl;
 
   return (
-    <main id="konten-utama" tabIndex={-1} className="min-h-screen bg-[var(--brand-paper)] outline-none dark:bg-slate-950">
-      <header className="ui-dashboard-chrome sticky top-0 z-10 border-b shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="ui-focus-ring rounded-full p-2 ui-text-muted transition hover:bg-[var(--brand-card)] hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-300"
-              aria-label="Kembali"
-            >
-              <ArrowLeft size={20} aria-hidden />
-            </button>
-            <div className="min-w-0">
-              <h1 className="truncate text-lg font-bold text-slate-900 dark:text-white">
-                Surat Konfirmasi Event
-              </h1>
-              <p className="truncate text-xs text-slate-600 dark:text-slate-300">
-                {letter.letterData.namaEvent || 'Tanpa Judul'} ·
-                Dibuat {new Date(letter.createdAt).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </p>
-            </div>
-          </div>
-
+    <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+      <PublicSiteHeader
+        isDark={isDark}
+        onToggleDark={onToggleDark}
+        actions={
           <button
             type="button"
             onClick={handleDownload}
@@ -135,21 +122,38 @@ export function PublicLetterViewer() {
             <Download size={16} aria-hidden />
             Unduh PDF
           </button>
-        </div>
-      </header>
+        }
+      />
 
-      <div className="mx-auto max-w-7xl p-4">
+      <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 pt-6 pb-4 outline-none sm:px-6">
+        <div className="mb-4">
+          <h1 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
+            Surat Konfirmasi Event
+          </h1>
+          <p className="text-xs text-slate-600 dark:text-slate-300">
+            {letter.letterData.namaEvent || 'Tanpa Judul'} &middot;
+            Dibuat {new Date(letter.createdAt).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })}
+          </p>
+        </div>
+
         {pdfSrc ? (
           <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-white shadow-[var(--shadow-card-soft)] dark:border-slate-700">
+            {/* Ruang non-PDF: header 64 px + pt-6 24 px + pb-4 16 px + judul dan
+                subjudul 44 px + mb-4 16 px = 164 px, dibulatkan ke 168 px
+                (`10.5rem`) supaya tidak ada scroll halaman. */}
             <iframe
               src={pdfSrc}
-              className="h-[calc(100vh-120px)] w-full"
+              className="h-[calc(100dvh-10.5rem)] w-full"
               title={`Surat - ${letter.letterData.namaEvent}`}
             />
           </div>
         ) : (
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-8 text-center shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800">
-            <FileText size={48} className="mx-auto mb-4 text-slate-500" />
+            <FileText size={48} className="mx-auto mb-4 text-slate-500" aria-hidden />
             <p className="text-slate-600 dark:text-slate-300">
               PDF tidak tersedia untuk surat ini.
             </p>
@@ -163,7 +167,7 @@ export function PublicLetterViewer() {
             </button>
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

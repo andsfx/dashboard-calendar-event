@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Moon, Newspaper, RefreshCw, SunMedium } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Newspaper, RefreshCw } from 'lucide-react';
 import { NewsArticle } from '../types';
 import { fetchNewsArticles } from '../utils/domainApi';
 import { thumbUrl } from '../utils/imageOptim';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { usePageMeta } from '../utils/pageMeta';
 
 function formatNewsDate(value?: string): string {
@@ -23,7 +23,6 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
     description: 'Berita terbaru dan pengumuman resmi dari Metropolitan Mall Bekasi.',
   });
 
-  const navigate = useNavigate();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -54,38 +53,12 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Berita</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            >
-              <ArrowLeft className="h-4 w-4" />Kembali
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Page title */}
         <div className="mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Berita</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Berita</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Berita</h1>
           <p className="mt-2 text-base ui-text-muted">Kabar dan informasi terbaru dari Metropolitan Mall Bekasi</p>
         </div>
 

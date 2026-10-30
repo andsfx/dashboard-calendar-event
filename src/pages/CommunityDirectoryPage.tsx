@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, CalendarDays, Moon, Search, Sparkles, SunMedium } from 'lucide-react';
+import { Building2, CalendarDays, Search, Sparkles } from 'lucide-react';
 import { fetchPublicCommunityDirectory } from '../utils/domainApi';
 import type { CommunityDirectoryOrganization, OrganizationType } from '../types';
 import { ORG_TYPE_LABELS } from '../components/community/organizationTypeLabels';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -50,7 +49,6 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
     description: 'Direktori komunitas aktif yang bekerja sama dengan Metropolitan Mall Bekasi.',
   });
 
-  const navigate = useNavigate();
   const [organizations, setOrganizations] = useState<CommunityDirectoryOrganization[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -130,38 +128,12 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="ui-dashboard-chrome sticky top-0 z-40">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Komunitas</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggleDark}
-              className="ui-focus-ring inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/70 text-slate-600 shadow-sm transition hover:bg-white dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-800"
-              aria-label="Toggle dark mode"
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-white dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-              <ArrowLeft className="h-4 w-4" />Kembali
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 outline-none">
         {/* Hero */}
         <div className="mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">Komunitas</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Komunitas Metropolitan Mall Bekasi</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Komunitas Metropolitan Mall Bekasi</h1>
           <p className="mt-1 max-w-2xl text-sm ui-text-muted">EO, sekolah, dan komunitas yang pernah mengadakan acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
             <div className="mt-4 grid max-w-xl grid-cols-3 gap-1">

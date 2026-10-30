@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, Suspense, lazy, type ComponentProps } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { ScrollToTop } from './components/nav/ScrollToTop';
 import { DashboardSkeleton } from './components/ui/DashboardSkeleton';
 import { ToastContainer } from './components/ui/ToastContainer';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageTenantProposals, DashboardPageTenantParticipations, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
@@ -325,6 +326,7 @@ export default function App() {
   const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, refreshEventAreas };
   return (
     <>
+    <ScrollToTop />
     <Routes>
       {/* Community Landing Page */}
       <Route path="/" element={
@@ -332,7 +334,6 @@ export default function App() {
           <CommunityLandingPage
             isDark={isDark}
             onToggleDark={toggleDark}
-            onBack={() => navigate('/events')}
             instagramPosts={instagramPosts}
             events={publicEvents}
             onEventDetail={handleDetailClick}
@@ -481,9 +482,9 @@ export default function App() {
                   <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
                   <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Evaluasi Tenant</span>
                 </div>
-                <button type="button" onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/')} className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-300 dark:hover:text-brand-primary-400">
-                  <ArrowLeft className="h-4 w-4" />Kembali
-                </button>
+                <Link to="/" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-300 dark:hover:text-brand-primary-400">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />Kembali ke Beranda
+                </Link>
               </div>
               <div className="ui-dashboard-surface overflow-hidden">
                 <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
@@ -506,7 +507,7 @@ export default function App() {
       {/* Public Letter Viewer */}
       <Route path="/letter/:id" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <PublicLetterViewer />
+          <PublicLetterViewer isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
 

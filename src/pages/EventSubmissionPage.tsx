@@ -4,12 +4,13 @@
 // via createDraftEvent(payload, 'public') — TANPA service role, sesuai boundary SPEC §7.2.
 // Anti-spam v1: honeypot + validasi client. Tanpa rate limit server (batas 12 function Vercel).
 import { useState, type FormEvent } from 'react';
-import { ArrowLeft, CalendarPlus, CheckCircle2, Moon, SunMedium } from 'lucide-react';
+import { CalendarPlus, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createDraftEvent } from '../utils/domainApi';
 import { validatePhone } from '../utils/validation';
 import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 
 interface Props {
@@ -154,22 +155,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-black/6 bg-[var(--color-neutral-page)]/96 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/96">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
-          <Link to="/events" className="flex shrink-0 items-center gap-2 rounded-lg outline-none ui-focus-ring" aria-label="Kembali ke Jadwal Event">
-            <ArrowLeft className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Jadwal Event</span>
-          </Link>
-          <button
-            type="button"
-            onClick={onToggleDark}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ui-focus-ring"
-            aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-          >
-            {isDark ? <SunMedium className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-          </button>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {submitted ? (
@@ -201,7 +187,7 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 to="/events"
                 className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
               >
-                Lihat jadwal event
+                Jadwal Event
               </Link>
             </div>
           </div>

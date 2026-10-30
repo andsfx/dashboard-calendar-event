@@ -1,18 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-  ArrowLeft,
   ArrowUpRight,
   BookOpen,
   ChevronRight,
-  Moon,
   Search,
-  SunMedium,
   Wrench,
 } from 'lucide-react';
 import { DOC_SECTIONS, type DocFeature } from '../data/featureDocs';
 import { usePageMeta } from '../utils/pageMeta';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 
 interface Props {
   isDark: boolean;
@@ -92,7 +89,6 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
       'Panduan lengkap fitur dan tutorial singkat dashboard event Metropolitan Mall Bekasi, untuk admin, tenant, dan pengunjung.',
   });
 
-  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [audience, setAudience] = useState('semua');
 
@@ -128,43 +124,13 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">
-              Dokumentasi
-            </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggleDark}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => (window.history.length > 1 ? window.history.back() : navigate('/'))}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-            >
-              <ArrowLeft className="h-4 w-4" />Kembali
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 outline-none sm:px-6 sm:py-12">
         <div className="mb-8 max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">
-            Dokumentasi
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
-            Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi — dari mencari jadwal event
+            Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi: dari mencari jadwal event
             dan mendaftar sebagai komunitas, sampai mengelola dashboard sebagai admin. Pilih "Saya melihat sebagai"
             untuk menyaring sesuai peran Anda, atau cari langsung nama fiturnya.
           </p>

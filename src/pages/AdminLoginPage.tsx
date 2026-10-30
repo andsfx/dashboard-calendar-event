@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import type { LoginResult } from '../types/auth';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
@@ -52,14 +53,13 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
               <p className="text-[10px] text-slate-500 dark:text-slate-300">Metropolitan Mall Bekasi</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => history.back()}
-            className="ui-focus-ring flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-[var(--brand-card)] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          <Link
+            to="/"
+            className="ui-focus-ring flex min-h-11 items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-[var(--brand-card)] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Kembali
-          </button>
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            Kembali ke Beranda
+          </Link>
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   Send, ArrowLeft, MapPin, Calendar, User,
@@ -25,7 +25,7 @@ import {
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate';
 
-function PageShell({ children, onBack }: { children: ReactNode; onBack: () => void }) {
+function PageShell({ children }: { children: ReactNode }) {
   return (
     <main
       id="konten-utama"
@@ -34,14 +34,13 @@ function PageShell({ children, onBack }: { children: ReactNode; onBack: () => vo
     >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          <Link
+            to="/tenant-survey"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Kembali
-          </button>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Kembali ke Pilih Event
+          </Link>
           <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
             Metropolitan Mall Bekasi
           </span>
@@ -219,14 +218,6 @@ export default function TenantSurveyPublicPage() {
     }
   }, [eventId, event, formData, selectedTenant]);
 
-  const goBack = useCallback(() => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
   const handleRetry = useCallback(() => {
     setFormStatus('idle');
     setSubmitError('');
@@ -235,7 +226,7 @@ export default function TenantSurveyPublicPage() {
 
   if (loading) {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
           <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
           <p className="mt-3 text-sm ui-text-muted">Memuat survey…</p>
@@ -246,7 +237,7 @@ export default function TenantSurveyPublicPage() {
 
   if (error || !event) {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -270,7 +261,7 @@ export default function TenantSurveyPublicPage() {
 
   if (surveyClosed) {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
             <Shield className="h-8 w-8 text-slate-500" />
@@ -298,7 +289,7 @@ export default function TenantSurveyPublicPage() {
 
   if (alreadySubmitted || formStatus === 'duplicate') {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800 dark:bg-amber-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
             <CheckCircle2 className="h-8 w-8 text-amber-500" />
@@ -323,7 +314,7 @@ export default function TenantSurveyPublicPage() {
 
   if (formStatus === 'success') {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
@@ -353,7 +344,7 @@ export default function TenantSurveyPublicPage() {
 
   if (formStatus === 'error') {
     return (
-      <PageShell onBack={goBack}>
+      <PageShell>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-950/30">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -417,14 +408,13 @@ export default function TenantSurveyPublicPage() {
     >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={goBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+          <Link
+            to="/tenant-survey"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Kembali
-          </button>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Kembali ke Pilih Event
+          </Link>
           <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
             Metropolitan Mall Bekasi
           </span>
@@ -741,7 +731,7 @@ export default function TenantSurveyPublicPage() {
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={goBack}
+              onClick={() => navigate('/tenant-survey')}
               disabled={formStatus === 'submitting'}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
             >

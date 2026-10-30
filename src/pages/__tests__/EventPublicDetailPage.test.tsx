@@ -9,7 +9,7 @@
  * - document.title di-set per event dan di-restore saat unmount.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EventPublicDetailPage } from '../EventPublicDetailPage';
@@ -113,7 +113,11 @@ describe('EventPublicDetailPage', () => {
     fetchEventByIdMock.mockResolvedValueOnce(null);
     renderAt('/events/evt_missing');
     await waitFor(() => expect(screen.getByText('Event tidak ditemukan')).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /Lihat semua event/i })).toBeInTheDocument();
+    // Label CTA disamakan dengan tujuan `/events` (satu intent, satu label), dan
+    // dicari di dalam `main` karena header global juga memuat tautan yang sama.
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: 'Jadwal Event' }),
+    ).toHaveAttribute('href', '/events');
   });
 
   it('fetch gagal → state error + coba lagi mem-fetch ulang', async () => {

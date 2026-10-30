@@ -52,9 +52,7 @@ export function CommunityNews() {
   }, []);
 
   return (
-    <RevealSection
-      id="news"
-      className="border-b border-black/5 bg-white px-4 py-16 dark:border-slate-800 dark:bg-slate-950 sm:px-6 sm:py-24 lg:py-32"
+    <RevealSection id="news" className="scroll-mt-28 border-b border-black/5 bg-white px-4 py-16 dark:border-slate-800 dark:bg-slate-950 sm:px-6 sm:py-24 lg:py-32"
       skeleton={<SkeletonNews />}
       isLoading={isLoading}
     >

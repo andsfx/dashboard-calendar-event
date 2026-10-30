@@ -16,9 +16,9 @@ describe('CommunitySocialProof', () => {
     expect(screen.getByText('1.234+')).toBeInTheDocument()
   })
 
-  it('renders an em-dash when a metric is zero (never "0+")', () => {
+  it('renders a plain "0" when a metric is zero (never "0+")', () => {
     render(<CommunitySocialProof totalCompleted={0} totalOrganizers={0} totalEvents={0} />)
-    expect(screen.getAllByText('—')).toHaveLength(3)
+    expect(screen.getAllByText('0')).toHaveLength(3)
     expect(screen.queryByText('0+')).not.toBeInTheDocument()
   })
 

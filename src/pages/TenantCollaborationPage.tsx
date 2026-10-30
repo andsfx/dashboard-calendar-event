@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, CalendarDays, CheckCircle2, FileText, Handshake, Moon, Paperclip, Send, SunMedium, X,
+  CalendarDays, CheckCircle2, FileText, Handshake, Paperclip, Send, X,
 } from 'lucide-react';
 import type { TenantEventProposalInput, TenantEventProposalType } from '../types';
 import { fetchEventAreas, submitTenantEventProposal, uploadTenantProposalAttachment, type TenantDropdownOption } from '../utils/domainApi';
@@ -10,7 +9,7 @@ import { getTodayIsoLocal } from '../utils/eventDateTime';
 import { validateEmail, validatePhone } from '../utils/validation';
 import { usePageMeta } from '../utils/pageMeta';
 import { ApiError } from '../lib/rest';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 
 interface Props {
   isDark: boolean;
@@ -275,28 +274,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
         Langsung ke konten
       </a>
 
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Kolaborasi Tenant</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Link to="/" className={`${focusRing} inline-flex min-h-11 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:text-[var(--brand-tosca-600)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]`}>
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Beranda
-            </Link>
-            <button
-              type="button"
-              onClick={onToggleDark}
-              aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-              className={`${focusRing} inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600`}
-            >
-              {isDark ? <SunMedium className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
         <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">

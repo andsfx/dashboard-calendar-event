@@ -74,7 +74,6 @@ function renderLanding(events: EventItem[], albums: PhotoAlbum[] = []) {
       <CommunityLandingPage
         isDark={false}
         onToggleDark={() => {}}
-        onBack={() => {}}
         events={events}
         albums={albums}
         stats={{ completed: 1, total: 4, organizers: 1 }}

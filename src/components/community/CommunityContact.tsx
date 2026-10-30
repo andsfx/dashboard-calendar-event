@@ -29,7 +29,7 @@ const CONTACTS = [
 
 export function CommunityContact() {
   return (
-    <RevealSection id="contact" variant="dark-tosca" className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="contact" variant="dark-tosca" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4">
           <h2 className="max-w-xl text-4xl font-bold leading-tight text-white sm:text-5xl">

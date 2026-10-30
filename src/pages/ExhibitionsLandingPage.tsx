@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Handshake, MapPin, Moon, RefreshCw, SunMedium } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Handshake, MapPin, RefreshCw } from 'lucide-react';
 import type { Exhibition, ExhibitionActivation, ExhibitionLeadInput } from '../types';
 import { fetchPublicExhibitions, fetchPublicExhibition, submitExhibitionLead } from '../utils/domainApi';
 import { formatDateRange } from '../utils/eventUtils';
 import { validateEmail, validatePhone } from '../utils/validation';
-import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -106,23 +106,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
       >
         Langsung ke konten
       </a>
-      <header className="ui-dashboard-chrome sticky top-0 z-40 border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto shrink-0" />
-            <div className="hidden h-7 w-px shrink-0 bg-slate-200 dark:bg-slate-700 sm:block" />
-            <span className="hidden truncate text-[11px] font-bold uppercase tracking-widest ui-text-muted sm:inline">Pameran &amp; Kolaborasi</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Link to="/" className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-700 dark:text-slate-300 dark:hover:text-brand-primary-300">
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Beranda
-            </Link>
-            <button type="button" onClick={onToggleDark} aria-label={isDark ? 'Mode terang' : 'Mode gelap'} className="ui-focus-ring rounded-lg border border-slate-200 p-2 dark:border-slate-600">
-              {isDark ? <SunMedium className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-            </button>
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 outline-none">
         {isLoading && <p className="text-sm text-slate-600 dark:text-slate-300">Memuat pameran…</p>}

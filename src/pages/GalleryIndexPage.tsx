@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lucide-react';
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/domainApi';
-import { GalleryHeader } from '../components/media/GalleryHeader';
+import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 // Modal ekspor dimuat malas: ia memakai ModalWrapper → md-dialog (Material Web
 // + Lit). Impor statis akan menarik MD3 ke halaman PUBLIK ini pada initial load,
 // padahal scope migrasi hanya dashboard admin. Dimuat hanya saat dibuka.
@@ -35,7 +35,6 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
     description: 'Galeri foto momen dan kegiatan event di Metropolitan Mall Bekasi.',
   });
 
-  const navigate = useNavigate();
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [themes, setThemes] = useState<AnnualTheme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,25 +103,22 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
       >
         Langsung ke konten
       </a>
-      <GalleryHeader isDark={isDark} onToggleDark={onToggleDark} />
+      <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Back button */}
-        <button
-          onClick={() => navigate('/')}
-className="mb-6 inline-flex items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
+        <Link
+          to="/"
+          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Kembali ke Komunitas
-        </button>
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Kembali ke Beranda
+        </Link>
 
         {/* Page title */}
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-300">
-              Galeri
-            </p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Galeri Event
             </h1>
             <p className="mt-2 text-base ui-text-muted">

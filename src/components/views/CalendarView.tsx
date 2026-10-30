@@ -21,9 +21,9 @@ const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_FULL = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2, draft: 3 };
 const STATUS_GROUPS = [
-  { key: 'ongoing' as const, label: 'Sedang Berlangsung', dot: 'bg-emerald-500' },
-  { key: 'upcoming' as const, label: 'Akan Datang', dot: 'bg-amber-400' },
-  { key: 'past' as const, label: 'Sudah Selesai', dot: 'bg-slate-400' },
+  { key: 'ongoing' as const, label: 'Berlangsung', dot: 'bg-emerald-500' },
+  { key: 'upcoming' as const, label: 'Mendatang', dot: 'bg-amber-400' },
+  { key: 'past' as const, label: 'Selesai', dot: 'bg-slate-400' },
 ];
 
 function getTimeSortValue(jam: string) {
