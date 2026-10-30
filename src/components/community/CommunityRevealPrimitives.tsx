@@ -5,7 +5,6 @@ type RevealSectionProps<T extends ElementType = 'section'> = {
   as?: T;
   children: ReactNode;
   className?: string;
-  intensity?: 'default' | 'strong';
   variant?: 'dark-tosca';
   skeleton?: ReactNode;
   isLoading?: boolean;
@@ -16,13 +15,12 @@ export function RevealSection<T extends ElementType = 'section'>({
   as,
   children,
   className = '',
-  intensity = 'default',
   variant,
   skeleton,
   isLoading = false,
   ...rest
 }: RevealSectionProps<T>) {
-  const { ref, isVisible } = useScrollReveal();
+  const { ref, isVisible } = useScrollReveal(isLoading);
   const Tag = as ?? 'section';
 
   const isDark = variant === 'dark-tosca';
@@ -32,7 +30,7 @@ export function RevealSection<T extends ElementType = 'section'>({
   return (
     <Tag
       ref={ref as never}
-      className={`reveal-on-scroll ${intensity === 'strong' ? 'reveal-strong' : ''} ${isVisible ? 'reveal-visible' : ''} ${variantClass} ${className}`}
+      className={`reveal-on-scroll ${isVisible ? 'reveal-visible' : ''} ${variantClass} ${className}`}
       {...rest}
     >
       {isDark && (
@@ -56,7 +54,7 @@ type CommunityEyebrowProps = {
 /* Eyebrow tunggal untuk repo: `text-[11px]`, `tracking-[0.3em]`, tosca-700.
  *
  * Sebelumnya komponen ini memakai `--brand-tosca-dark` sementara `.ui-eyebrow`
- * (typography.css) dan `eyebrow()` (PublicShared.tsx) memakai
+ * (typography.css) dan `eyebrow()` (dulu di PublicShared.tsx) memakai
  * `brand-primary-700`. Satu peran, tiga nada. Sekarang semuanya ke
  * `brand-primary-700` (6.71:1 di kertas, 7.01:1 di kartu hangat — lolos AA) dan
  * `brand-primary-400` di gelap (8.95:1 di slate-950).

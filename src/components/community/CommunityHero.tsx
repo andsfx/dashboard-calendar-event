@@ -1,13 +1,12 @@
-import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarDays, CheckCircle2, Music, Users } from 'lucide-react';
 import heroFallbackImage from '../../assets/landing/hero-fallback.webp';
 import heroFallbackImageSm from '../../assets/landing/hero-fallback-800.webp';
 import { imgUrl } from '../../utils/imageOptim';
 import { formatDateRange } from '../../utils/eventUtils';
 import type { EventItem } from '../../types';
-import { formatCount, formatStat } from './countFormat';
+import { formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
-import { useCommunityHeroMotion } from './useCommunityHeroMotion';
 
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3
  * redesign: solid brand CTA, honest badge, LCP static hero — no invented metrics
@@ -37,8 +36,6 @@ interface CommunityHeroProps {
 }
 
 export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = false }: CommunityHeroProps) {
-  const heroRef = useRef<HTMLElement>(null);
-  useCommunityHeroMotion(heroRef);
   const completed = stats?.completed ?? 0;
   const loading = isLoading || stats === undefined;
   // M7 (skill 4.8): the `hero_image` site setting defaults to ''
@@ -89,7 +86,6 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
   return (
     <>
       <section
-        ref={heroRef}
         id="hero"
         className="relative isolate flex min-h-[100svh] items-center overflow-hidden"
       >
@@ -149,13 +145,13 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             </p>
 
             <div className="community-hero-in community-hero-in-d3 mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
-              <a
-                href="/daftar"
+              <Link
+                to="/daftar"
                 className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
               >
                 Daftar Event
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
-              </a>
+              </Link>
               <a
                 href="#upcoming-events"
                 className={`inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-7 py-3.5 text-base font-semibold text-white transition hover:border-white/40 hover:bg-white/15 ${focusRing}`}
@@ -187,7 +183,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                     <span className="block h-7 w-12 animate-pulse rounded-md bg-white/25 motion-reduce:animate-none" aria-hidden="true" />
                   ) : (
                     <p className="font-display text-2xl font-extrabold leading-none tabular-nums text-white">
-                      {metric.value > 0 ? formatCount(metric.value) : '—'}
+                      {formatStat(metric.value)}
                     </p>
                   )}
                   <p className="mt-2 text-[11px] font-semibold leading-tight text-white/70">{metric.label}</p>
@@ -234,7 +230,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 </ul>
               ) : (
                 <p className="mt-3 text-sm text-white/70">
-                  Belum ada agenda terjadwal — ajukan eventmu dan jadi yang pertama.
+                  Belum ada agenda terjadwal. Ajukan eventmu dan jadi yang pertama.
                 </p>
               )}
             </div>

@@ -9,7 +9,7 @@ const STEPS: Array<{ num: string; title: string; desc: string }> = [
 
 export function CommunitySteps() {
   return (
-    <RevealSection id="how" intensity="strong" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="how" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">

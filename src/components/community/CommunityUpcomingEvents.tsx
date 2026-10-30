@@ -73,7 +73,7 @@ interface Props {
 
 function UpcomingEventsSkeleton() {
   return (
-    <RevealSection id="upcoming-events" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
           Agenda event
@@ -113,7 +113,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   }
   if (!mainEvent) {
     return (
-      <RevealSection id="upcoming-events" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+      <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
             Agenda event
@@ -137,7 +137,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   const promoImageUrl = resolveEventPoster(mainEvent, albums);
 
   return (
-    <RevealSection id="upcoming-events" intensity="strong" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}

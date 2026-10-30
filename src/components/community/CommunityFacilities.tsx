@@ -21,7 +21,7 @@ const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
    text/level and the section anchor are unchanged. */
 export function CommunityFacilities() {
   return (
-    <RevealSection id="facilities" intensity="strong" className="border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="facilities" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5">
           <div className="max-w-2xl">

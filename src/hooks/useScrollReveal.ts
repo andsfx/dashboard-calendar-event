@@ -1,22 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Reveal saat section masuk viewport. ScrollTrigger (chunk GSAP yang sama
- * dengan entrance hero) menggerakkan `.reveal-stage > *`; class
- * `reveal-visible` tetap dipasang supaya fallback CSS di motion.css dan
- * pemilih tes tidak berubah. `once` — tidak diulang saat scroll balik.
+ * Reveal saat section masuk viewport.
+ *
+ * Satu sistem gerak: motion.css memegang jarak, durasi, dan easing (lewat token
+ * `--ease-out-expo`), class `reveal-visible` yang memicunya. ScrollTrigger hanya
+ * mendeteksi bahwa section sudah masuk viewport, bukan menggerakkan apa pun,
+ * supaya tidak ada dua animasi yang menumpuk pada simpul yang sama.
+ *
+ * `once`: tidak diulang saat scroll balik. `refreshKey`: pemanggil yang
+ * kontennya datang belakangan (skeleton diganti data) mengirim nilai yang
+ * berubah saat data tiba; posisi trigger dihitung ulang saat itu juga, karena
+ * refresh bawaan GSAP hanya jalan pada load, resize, dan visibilitychange.
  */
-export function useScrollReveal() {
+export function useScrollReveal(refreshKey?: unknown) {
   const ref = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const lastRefreshKey = useRef(refreshKey);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const target = ref.current;
     if (!target) return;
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setIsVisible(true);
       return;
     }
@@ -24,8 +31,9 @@ export function useScrollReveal() {
     let cancelled = false;
     let kill: (() => void) | undefined;
 
-    // Import dinamis: GSAP + ScrollTrigger hanya boleh ikut chunk halaman yang
-    // memakai reveal, bukan bundle boot. Lihat manualChunks di vite.config.ts.
+    // Import dinamis: ScrollTrigger hanya ikut chunk halaman yang memakai
+    // reveal, bukan bundle boot. Statis tidak bisa dipakai di sini tanpa ikut
+    // menarik plugin ke entry. Lihat manualChunks di vite.config.ts.
     void import('gsap')
       .then(async ({ default: gsap }) => {
         if (cancelled) return;
@@ -33,32 +41,16 @@ export function useScrollReveal() {
         if (cancelled) return;
         gsap.registerPlugin(ScrollTrigger);
 
-        const items = target.querySelectorAll<HTMLElement>('.reveal-stage > *');
-        const tweened = items.length > 0 ? items : [target];
-        gsap.set(tweened, { animation: 'none', transition: 'none' });
-
-        const tween = gsap.fromTo(
-          tweened,
-          { autoAlpha: 0, y: 16 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.55,
-            ease: 'power3.out',
-            stagger: 0.06,
-            overwrite: 'auto',
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: target,
-              start: 'top 84%',
-              once: true,
-              onEnter: () => setIsVisible(true),
-            },
-          },
-        );
-        kill = () => tween.kill();
+        const trigger = ScrollTrigger.create({
+          trigger: target,
+          start: 'top 84%',
+          once: true,
+          onEnter: () => setIsVisible(true),
+        });
+        kill = () => trigger.kill();
       })
       .catch(() => {
+        // Chunk gagal dimuat: tampilkan seksi tanpa menunggu trigger.
         if (!cancelled) setIsVisible(true);
       });
 
@@ -67,6 +59,24 @@ export function useScrollReveal() {
       kill?.();
     };
   }, []);
+
+  // Refresh posisi trigger setelah tinggi section berubah (skeleton ke data).
+  // Gagal memuat ScrollTrigger di sini tidak fatal: trigger yang sudah ada
+  // tetap bekerja dengan posisi lama.
+  useEffect(() => {
+    if (refreshKey === lastRefreshKey.current) return;
+    lastRefreshKey.current = refreshKey;
+    let cancelled = false;
+    // Import dinamis dengan alasan yang sama: chunk GSAP tidak boleh masuk boot.
+    void import('gsap/ScrollTrigger')
+      .then(({ ScrollTrigger }) => {
+        if (!cancelled) ScrollTrigger.refresh();
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshKey]);
 
   return { ref, isVisible };
 }

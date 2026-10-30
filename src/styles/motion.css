@@ -5,15 +5,18 @@
 
 .reveal-stage {
   opacity: 0;
-  transform: translateY(var(--reveal-distance));
+  transform: translateY(var(--reveal-distance, 16px));
   transition:
     opacity 240ms var(--ease-out-expo),
     transform 240ms var(--ease-out-expo);
 }
 
+/* Satu sumber gerak untuk reveal: jarak, durasi, dan easing di sini; class
+   `reveal-visible` (dipasang useScrollReveal) yang memicunya. Jangan tambahkan
+   tween GSAP pada simpul yang sama. */
 .reveal-stage > * {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(var(--reveal-distance, 16px));
   transition:
     opacity 220ms var(--ease-out-expo),
     transform 220ms var(--ease-out-expo);
@@ -26,6 +29,9 @@
   transform: translateY(0);
 }
 
+/* Stagger bertahap untuk stage berisi banyak anak. Semua section sekarang hanya
+   punya satu anak, jadi praktis tidak ada pergeseran; blok ini tetap dipertahankan
+   sebagai perilaku resmi `.reveal-stage`. */
 .reveal-visible .reveal-stage > *:nth-child(1) { transition-delay: calc(var(--reveal-stagger-step) * 1); }
 .reveal-visible .reveal-stage > *:nth-child(2) { transition-delay: calc(var(--reveal-stagger-step) * 2); }
 .reveal-visible .reveal-stage > *:nth-child(3) { transition-delay: calc(var(--reveal-stagger-step) * 3); }
@@ -36,26 +42,6 @@
 .reveal-visible .reveal-stage > *:nth-child(8) { transition-delay: calc(var(--reveal-stagger-step) * 8); }
 .reveal-visible .reveal-stage > *:nth-child(9) { transition-delay: calc(var(--reveal-stagger-step) * 9); }
 .reveal-visible .reveal-stage > *:nth-child(10) { transition-delay: calc(var(--reveal-stagger-step) * 10); }
-
-/* Keep class for intensity="strong" API — timings match default after Path A retime */
-.reveal-strong {
-  --reveal-distance: 16px;
-  --reveal-stagger-step: 50ms;
-}
-
-.reveal-strong .reveal-stage {
-  transform: translateY(var(--reveal-distance));
-  transition:
-    opacity 240ms var(--ease-out-expo),
-    transform 240ms var(--ease-out-expo);
-}
-
-.reveal-strong .reveal-stage > * {
-  transform: translateY(12px);
-  transition:
-    opacity 220ms var(--ease-out-expo),
-    transform 220ms var(--ease-out-expo);
-}
 
 .reveal-cluster > * {
   opacity: 0;

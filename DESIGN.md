@@ -179,9 +179,9 @@ Display: Bricolage Grotesque via `--font-display`. Body: Geist via `--font-body`
 Shared landing reveal primitive. It should:
 
 - preserve `reveal-on-scroll`, `reveal-visible`, `reveal-stage`
-- support `intensity="default" | "strong"`
 - support custom tag via `as`
 - support skeleton fallback when needed
+- keep motion in `src/styles/motion.css` only: duration, easing, and distance come from `--ease-out-expo` and `--reveal-distance`. ScrollTrigger only adds `reveal-visible` when the section enters the viewport; it must not tween the same nodes, or the section moves twice
 - respect reduced-motion global CSS
 
 ### CommunityEyebrow
@@ -189,7 +189,7 @@ Shared landing reveal primitive. It should:
 Section eyebrow, still used outside the landing page (`/events`, `/sponsor`):
 
 - uppercase
-- `brand-primary-700` (light) / `brand-primary-400` (dark) — 6.71:1 on paper, 8.95:1 on slate-950. This single tone is shared with the `.ui-eyebrow` utility and `eyebrow()` in `PublicShared.tsx`; the three were previously three different colours for one role.
+- `brand-primary-700` (light) / `brand-primary-400` (dark) — 6.71:1 on paper, 8.95:1 on slate-950. This single tone is shared with the `.ui-eyebrow` utility; the `eyebrow()` helper that duplicated it was removed together with `src/components/shared/PublicShared.tsx`.
 - `text-[11px]`, `tracking-[0.3em]`
 - concise label only
 

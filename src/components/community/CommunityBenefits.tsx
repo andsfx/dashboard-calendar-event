@@ -29,7 +29,7 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
    and the `/sponsor` CTA target are unchanged. */
 export function CommunityBenefits() {
   return (
-    <RevealSection id="benefits" intensity="strong" className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="benefits" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-8">
           <div>
