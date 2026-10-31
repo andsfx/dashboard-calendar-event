@@ -311,8 +311,15 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
           </p>
         </RevealSection>
 
-        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
-          <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
+        {/* Isi formulir sengaja DI LUAR `RevealSection`: wrapper itu memindahkan
+            subtree-nya saat tween GSAP mulai, dan pemindahan DOM mencabut fokus
+            elemen yang sedang diketik (input tenant kehilangan sisa ketikan di
+            lingkungan tes yang menjadwalkan tween di tengah `user.type`).
+            Judul tetap dianimasikan. */}
+        <section aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+          <RevealSection as="div">
+            <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
+          </RevealSection>
 
           {submitted ? (
             <div ref={successRef} tabIndex={-1} className="mt-4 flex items-start gap-3 rounded-[var(--radius-card)] bg-emerald-50 p-4 text-sm text-emerald-800 outline-none dark:bg-emerald-950/40 dark:text-emerald-200">
@@ -593,7 +600,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
               </div>
             </form>
           )}
-        </RevealSection>
+        </section>
       </main>
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs ui-text-muted dark:border-slate-800">

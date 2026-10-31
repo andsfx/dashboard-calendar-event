@@ -59,6 +59,30 @@ const ASYNC_TIMEOUT = 4_000;
 const geraiPicker = () => screen.getByRole('combobox', { name: /Nama tenant/ });
 
 describe('TenantCollaborationPage — pemilihan tenant', () => {
+  it('form interaktif berada di luar subtree animasi reveal', async () => {
+    const user = userEvent.setup();
+    mockFetchRoutes({
+      ...areasRoute,
+      '/api/v1/tenant/tenants?q=kopi': { body: { success: true, data: [MID_TENANT] } },
+    });
+    renderPage();
+
+    // Regresi CI: `RevealSection` memindahkan subtree-nya saat tween GSAP mulai
+    // (remove + insert node). Pemindahan itu mencabut fokus input yang sedang
+    // diketik tanpa memicu `blur`, jadi sisa ketikan hilang dan opsi tenant
+    // tidak pernah dimuat — 4 detik timeout pun tidak menolong. Form interaktif
+    // karena itu harus di luar `.reveal-stage`; hanya judul yang dianimasikan.
+    const picker = geraiPicker();
+    expect(picker.closest('.reveal-stage')).toBeNull();
+    expect(document.querySelector('form')?.closest('.reveal-stage')).toBeNull();
+
+    // Perilaku normal tetap: ketik → opsi tenant muncul.
+    await user.type(picker, 'kopi');
+    expect(
+      await screen.findByRole('option', { name: /Kopi Kenangan/ }, { timeout: ASYNC_TIMEOUT }),
+    ).toBeInTheDocument();
+  });
+
   it('mengisi nama, unit, dan kategori dari master MID saat tenant dipilih', async () => {
     const user = userEvent.setup();
     mockFetchRoutes({

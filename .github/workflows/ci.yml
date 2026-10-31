@@ -11,20 +11,22 @@
 #                                — unit test (jsdom + beberapa file env `node`)
 #   3. `npm run build`           — tsc + vite build produksi
 #
-# `--maxWorkers=2` WAJIB, bukan optimasi: suite ini banyak tes berbasis
-# timer/debounce, dan worker paralel penuh (default = jumlah CPU runner)
-# membuat tes saling berebut CPU sampai penantiannya habis. Gejalanya kegagalan
-# yang berpindah-pindah berkas, bukan satu tes yang konsisten rusak. Bukti:
-#   - CI 41184717951 (a747a3c) dan 41186190463 (b17720b): merah di Unit tests,
-#     tetapi berkas yang gagal berbeda antar-run dan sama-sama hijau di lokal.
-#   - Lokal dengan perintah CI yang sama tanpa `--maxWorkers`: 142/143 berkas,
-#     kali ini `EventsLandingPage.export.test.tsx` (`Unable to find role="dialog"`)
-#     yang jatuh — berkas yang sama lolos 20/20 saat dijalankan sendiri.
-#   - AGENTS.md mencatat kontensi worker sebagai sumber kegagalan suite di mesin
-#     ini (`Test timed out in 5000ms`), dan `--maxWorkers=2` sebagai mode
-#     verifikasi resmi repo ini.
-# Menaikkan timeout per-tes TIDAK memperbaiki ini (1 s → 4 s tetap merah); yang
-# perlu dibatasi adalah jumlah worker, bukan durasi tunggu.
+# `--maxWorkers=2` dipertahankan sebagai mode verifikasi repo ini: worker
+# paralel penuh (default = jumlah CPU runner) membuat tes berbasis
+# timer/debounce saling berebut CPU, dan AGENTS.md mencatat kontensi itu
+# (`Test timed out in 5000ms`, kegagalan berpindah antar-berkas) sebagai sumber
+# kegagalan suite di mesin dev. Namun BUKAN ini penyebab merahnya unit test di
+# CI 2026-10-31.
+#
+# Akar flake tenant picker (3 run CI merah identik, hanya tes pertama di
+# `TenantCollaborationPage.test.tsx`): `RevealSection` memindahkan subtree-nya
+# saat tween GSAP mulai (`remove` + `insert` node `.reveal-stage`). Pemindahan
+# itu mencabut fokus elemen yang sedang diketik tanpa memicu `blur`, sehingga
+# `userEvent.type` kehilangan sisa ketikan dan opsi tenant tidak pernah dimuat
+# (menaikkan timeout 1 s → 4 s tidak menolong). Diperbaiki dengan memindahkan
+# form ke luar subtree animasi di `src/pages/TenantCollaborationPage.tsx`
+# (hanya judul yang dianimasikan) + tes regresi yang menegaskan form interaktif
+# tidak berada di dalam `.reveal-stage`.
 #
 # Catatan: `NODE_ENV=test` WAJIB untuk vitest. Tanpa itu, React memakai build
 # produksi dan tes yang menyentuh `act()` gagal dengan pesan menyesatkan.
@@ -61,10 +63,10 @@ jobs:
       - name: Typecheck (SPA)
         run: npx tsc --noEmit
 
-      # `--maxWorkers=2`: suite ini punya banyak tes berbasis timer/debounce;
-      # worker paralel penuh di runner 2 vCPU membuat penantian habis karena
-      # kontensi, dan kegagalannya berpindah antar-berkas (bukan satu tes yang
-      # rusak). 2 worker = mode verifikasi repo ini, hasil deterministik.
+      # `--maxWorkers=2`: mode verifikasi repo ini (mengurangi kontensi worker
+      # antar-tes berbasis timer/debounce). Bukan penyebab flake tenant picker di
+      # CI — akar sebenarnya subtree reveal memindahkan node interaktif, diperbaiki
+      # di `src/pages/TenantCollaborationPage.tsx`.
       - name: Unit tests
         run: npx vitest run --reporter=dot --maxWorkers=2
         env:
