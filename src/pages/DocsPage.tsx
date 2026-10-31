@@ -240,8 +240,8 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                   className="scroll-mt-24"
                   refreshKey={`${filtered.length}:${filtered[0]?.id ?? ''}`}
                 >
-                  <h2 className="text-2xl font-bold tracking-tight">{section.label}</h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 ui-text-muted">{section.intro}</p>
+                  <h2 data-reveal-item className="text-2xl font-bold tracking-tight">{section.label}</h2>
+                  <p data-reveal-item className="mt-2 max-w-3xl text-sm leading-6 ui-text-muted">{section.intro}</p>
 
                   <div className="mt-6 space-y-10">
                     {section.groups.map(group => (
