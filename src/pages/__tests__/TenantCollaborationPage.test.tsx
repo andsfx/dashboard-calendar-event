@@ -47,6 +47,14 @@ function renderPage() {
 
 const areasRoute = { '/api/v1/areas': { body: { success: true, data: { areas: [], photos: [] } } } };
 
+/**
+ * `TenantSearchSelect` men-debounce 250 ms sebelum fetch + render opsi, sementara
+ * default `findBy*`/`waitFor` hanya 1 000 ms. Di CI (143 berkas jsdom paralel)
+ * jendela itu kalah sehingga suite merah padahal bersih di lokal. Batas tunggu
+ * dinaikkan per penantian — asersi (role + name) tidak diubah.
+ */
+const ASYNC_TIMEOUT = 4_000;
+
 /** Combobox "Nama tenant" — halaman juga punya <select> jenis kegiatan. */
 const geraiPicker = () => screen.getByRole('combobox', { name: /Nama tenant/ });
 
@@ -61,10 +69,10 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
 
     await user.type(geraiPicker(), 'kopi');
 
-    const option = await screen.findByRole('option', { name: /Kopi Kenangan/ });
+    const option = await screen.findByRole('option', { name: /Kopi Kenangan/ }, { timeout: ASYNC_TIMEOUT });
     await user.click(option);
 
-    await waitFor(() => expect(geraiPicker()).toHaveValue('Kopi Kenangan'));
+    await waitFor(() => expect(geraiPicker()).toHaveValue('Kopi Kenangan'), { timeout: ASYNC_TIMEOUT });
     expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('16 II');
     expect(screen.getByLabelText(/Kategori tenant/)).toHaveValue('FOOD & BEVERAGE');
     expect(screen.getByText(/FOOD & BEVERAGE · LT2 · Lot 16 II/)).toBeInTheDocument();
@@ -77,7 +85,7 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
 
     await user.click(screen.getByRole('button', { name: /Kirim Pengajuan/ }));
 
-    expect(await screen.findByText('Pilih tenant dari daftar, atau isi manual.')).toBeInTheDocument();
+    expect(await screen.findByText('Pilih tenant dari daftar, atau isi manual.', undefined, { timeout: ASYNC_TIMEOUT })).toBeInTheDocument();
   });
 
   it('tidak meninggalkan unit/kategori tenant sebelumnya saat beralih ke isi manual', async () => {
@@ -89,8 +97,8 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
     renderPage();
 
     await user.type(geraiPicker(), 'kopi');
-    await user.click(await screen.findByRole('option', { name: /Kopi Kenangan/ }));
-    await waitFor(() => expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('16 II'));
+    await user.click(await screen.findByRole('option', { name: /Kopi Kenangan/ }, { timeout: ASYNC_TIMEOUT }));
+    await waitFor(() => expect(screen.getByLabelText(/Nomor unit atau lot/)).toHaveValue('16 II'), { timeout: ASYNC_TIMEOUT });
 
     await user.click(screen.getByRole('button', { name: 'Tenant saya belum ada di daftar' }));
 
@@ -108,7 +116,7 @@ describe('TenantCollaborationPage — pemilihan tenant', () => {
     renderPage();
 
     await user.type(geraiPicker(), 'kopi');
-    await user.click(await screen.findByRole('option', { name: /Kopi Kenangan/ }));
+    await user.click(await screen.findByRole('option', { name: /Kopi Kenangan/ }, { timeout: ASYNC_TIMEOUT }));
 
     const unit = screen.getByLabelText(/Nomor unit atau lot/);
     await user.clear(unit);
