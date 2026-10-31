@@ -7,8 +7,24 @@
 #
 # Job ini menjalankan tiga gerbang yang sama dengan verifikasi manual:
 #   1. `npx tsc --noEmit`        — tipe SPA (server/ adalah JS, tidak dicek tsc)
-#   2. `npx vitest run`          — unit test (jsdom + beberapa file env `node`)
+#   2. `npx vitest run --maxWorkers=2`
+#                                — unit test (jsdom + beberapa file env `node`)
 #   3. `npm run build`           — tsc + vite build produksi
+#
+# `--maxWorkers=2` WAJIB, bukan optimasi: suite ini banyak tes berbasis
+# timer/debounce, dan worker paralel penuh (default = jumlah CPU runner)
+# membuat tes saling berebut CPU sampai penantiannya habis. Gejalanya kegagalan
+# yang berpindah-pindah berkas, bukan satu tes yang konsisten rusak. Bukti:
+#   - CI 41184717951 (a747a3c) dan 41186190463 (b17720b): merah di Unit tests,
+#     tetapi berkas yang gagal berbeda antar-run dan sama-sama hijau di lokal.
+#   - Lokal dengan perintah CI yang sama tanpa `--maxWorkers`: 142/143 berkas,
+#     kali ini `EventsLandingPage.export.test.tsx` (`Unable to find role="dialog"`)
+#     yang jatuh — berkas yang sama lolos 20/20 saat dijalankan sendiri.
+#   - AGENTS.md mencatat kontensi worker sebagai sumber kegagalan suite di mesin
+#     ini (`Test timed out in 5000ms`), dan `--maxWorkers=2` sebagai mode
+#     verifikasi resmi repo ini.
+# Menaikkan timeout per-tes TIDAK memperbaiki ini (1 s → 4 s tetap merah); yang
+# perlu dibatasi adalah jumlah worker, bukan durasi tunggu.
 #
 # Catatan: `NODE_ENV=test` WAJIB untuk vitest. Tanpa itu, React memakai build
 # produksi dan tes yang menyentuh `act()` gagal dengan pesan menyesatkan.
@@ -45,8 +61,12 @@ jobs:
       - name: Typecheck (SPA)
         run: npx tsc --noEmit
 
+      # `--maxWorkers=2`: suite ini punya banyak tes berbasis timer/debounce;
+      # worker paralel penuh di runner 2 vCPU membuat penantian habis karena
+      # kontensi, dan kegagalannya berpindah antar-berkas (bukan satu tes yang
+      # rusak). 2 worker = mode verifikasi repo ini, hasil deterministik.
       - name: Unit tests
-        run: npx vitest run --reporter=dot
+        run: npx vitest run --reporter=dot --maxWorkers=2
         env:
           NODE_ENV: test
 
