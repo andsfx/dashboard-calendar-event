@@ -5,6 +5,7 @@ import { fetchSponsorEventsWithProposals, submitSponsorLead } from '../utils/dom
 import { ApiError } from '../lib/rest';
 import { validateEmail, validatePhone } from '../utils/validation';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 function formatEventDate(value?: string): string {
@@ -132,12 +133,12 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
-        <div className="mb-10 max-w-3xl">
+        <RevealSection as="div" className="mb-10 max-w-3xl" refreshKey={eventsWithProposals.length}>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Dukungan Sponsorship</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
             Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.
           </p>
-        </div>
+        </RevealSection>
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -183,9 +184,10 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
 
         {/* Event grid */}
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
+          <RevealSection as="div" refreshKey={`${eventsWithProposals.length}:${eventsWithProposals[0]?.event.id ?? ''}`}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {eventsWithProposals.map(({ event, proposal }) => (
-              <div key={event.id} className="flex flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-lg dark:bg-slate-800">
+              <div key={event.id} data-reveal-item className="flex flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-lg dark:bg-slate-800">
                 <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-300">
                   <CalendarDays className="h-3.5 w-3.5 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
                   {formatEventDate(event.dateStr)}
@@ -218,11 +220,12 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
               </div>
             ))}
           </div>
+          </RevealSection>
         )}
 
         {/* Form */}
         {!isLoading && !fetchError && eventsWithProposals.length > 0 && (
-          <div id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
+          <RevealSection as="div" id="sponsor-form" className="mx-auto mt-14 max-w-2xl scroll-mt-24">
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Tertarik Support Event?</h2>
               <p className="mt-2 text-sm leading-6 ui-text-muted">
@@ -378,7 +381,7 @@ export function SponsorLandingPage({ isDark, onToggleDark }: Props) {
                 </div>
               </form>
             )}
-          </div>
+          </RevealSection>
         )}
       </main>
 

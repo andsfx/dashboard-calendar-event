@@ -55,6 +55,7 @@ export function CommunityNews() {
     <RevealSection id="news" className="scroll-mt-28 border-b border-black/5 bg-white px-4 py-16 dark:border-slate-800 dark:bg-slate-950 sm:px-6 sm:py-24 lg:py-32"
       skeleton={<SkeletonNews />}
       isLoading={isLoading}
+      refreshKey={articles.length}
     >
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
@@ -73,7 +74,8 @@ export function CommunityNews() {
                 <Link
                   key={article.id}
                   to={`/news/${article.slug}`}
-                  className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
+                  data-reveal-item
+                  className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
                     {article.coverImageUrl ? (

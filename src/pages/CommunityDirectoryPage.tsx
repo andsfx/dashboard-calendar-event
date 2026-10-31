@@ -4,6 +4,7 @@ import { fetchPublicCommunityDirectory } from '../utils/domainApi';
 import type { CommunityDirectoryOrganization, OrganizationType } from '../types';
 import { ORG_TYPE_LABELS } from '../components/community/organizationTypeLabels';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -132,7 +133,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 outline-none">
         {/* Hero */}
-        <div className="mb-5">
+        <RevealSection as="div" className="mb-5" refreshKey={organizations.length}>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Komunitas Metropolitan Mall Bekasi</h1>
           <p className="mt-1 max-w-2xl text-sm ui-text-muted">EO, sekolah, dan komunitas yang pernah mengadakan acara di Metropolitan Mall Bekasi.</p>
           {!isLoading && !fetchError && (
@@ -151,7 +152,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
               </div>
             </div>
           )}
-        </div>
+        </RevealSection>
 
         {/* Loading / error / empty */}
         {isLoading && (
@@ -221,7 +222,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
 
         {/* Grouped listing */}
         {grouped.map(([type, orgs]) => (
-          <section key={type} className="mb-6">
+          <RevealSection key={type} className="mb-6" refreshKey={`${orgs.length}:${orgs[0]?.id ?? ''}`}>
             <div className="mb-2 flex items-center gap-2">
               <Building2 className="h-4 w-4 text-brand-primary-500" aria-hidden />
               <h2 className="text-lg font-bold tracking-tight">
@@ -233,6 +234,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
               {orgs.map((org) => (
                 <div
                   key={org.id}
+                  data-reveal-item
                   className="group flex flex-col rounded-xl bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800"
                 >
                   <div className="flex items-start gap-3">
@@ -276,7 +278,7 @@ export function CommunityDirectoryPage({ isDark, onToggleDark }: Props) {
                 </div>
               ))}
             </div>
-          </section>
+          </RevealSection>
         ))}
       </main>
     </div>

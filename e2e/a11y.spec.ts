@@ -377,16 +377,25 @@ test.describe('audit claims — direct measurement', () => {
   });
 
   /**
-   * Guards the motion token, not the motion.
+   * Guards the new reveal contract: GSAP owns the motion, CSS owns only the
+   * pre-state and the fallback end state.
    *
-   * `--ease-out-expo` is consumed 19x in `src/styles/motion.css` but was never
-   * defined, so every `var()` fell back to an invalid value and the whole motion
-   * layer silently resolved to `transition-duration: 0s` / `animation-name: none`.
-   * The axe sweep above cannot see this: it asserts content is not hidden, and a
-   * page with no animation passes that trivially. This asserts the token resolves
-   * and the reveal actually has a duration, so the regression fails loudly.
+   * Two things must stay true, and neither is visible to the axe sweep above
+   * (which only asserts content is not hidden, and a page with no animation
+   * passes that trivially):
+   *
+   *   1. `.reveal-stage` must NOT carry a CSS transition. GSAP writes inline
+   *      opacity/transform every frame; a CSS transition on those same
+   *      properties restarts on each write and fights the tween.
+   *   2. Once the section has been revealed, its computed opacity must be > 0
+   *      from CSS alone — a pre-state that never lifts is the failure mode that
+   *      makes a section permanently blank.
+   *
+   * The measurement scrolls to the bottom first so every reveal trigger has
+   * fired (`once: true` keeps them revealed), then waits for the first stage to
+   * reach its end state.
    */
-  test('motion token resolves — reveal-stage has a non-zero transition', async ({ page }, testInfo) => {
+  test('motion contract — reveal-stage has no CSS transition and ends readable', async ({ page }, testInfo) => {
     test.setTimeout(180_000);
 
     const report: Record<string, unknown> = {};
@@ -398,19 +407,35 @@ test.describe('audit claims — direct measurement', () => {
       await page.setViewportSize({ width: 1280, height: VIEWPORT_HEIGHT });
       await page.goto(route.path);
       await settle(page);
+      // `behavior: 'instant'` because `html { scroll-behavior: smooth }` would
+      // otherwise animate the jump and never reach the bottom in time.
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+      await page
+        .waitForFunction(
+          () => {
+            const stage = document.querySelector('.reveal-stage');
+            return !stage || parseFloat(getComputedStyle(stage).opacity) > 0.9;
+          },
+          null,
+          { timeout: 8000 },
+        )
+        .catch(() => {});
 
       const measured = await page.evaluate(() => {
         const root = getComputedStyle(document.documentElement);
         const token = root.getPropertyValue('--ease-out-expo').trim();
         const stage = document.querySelector('.reveal-stage');
-        if (!stage) return { token, tokenDefined: token.length > 0, hasReveal: false, duration: null, timing: null };
+        if (!stage) {
+          return { token, tokenDefined: token.length > 0, hasReveal: false, property: null, duration: null, opacity: null };
+        }
         const cs = getComputedStyle(stage);
         return {
           token,
           tokenDefined: token.length > 0,
           hasReveal: true,
+          property: cs.transitionProperty,
           duration: cs.transitionDuration,
-          timing: cs.transitionTimingFunction,
+          opacity: cs.opacity,
         };
       });
 
@@ -418,15 +443,20 @@ test.describe('audit claims — direct measurement', () => {
 
       if (measured.hasReveal) {
         routesWithReveal.add(route.path);
-        // A defined token that still resolves to 0s means the consumer is broken.
-        const allZero = String(measured.duration)
-          .split(',')
-          .every((d) => parseFloat(d.trim()) === 0);
         if (!measured.tokenDefined) {
           failures.push(`${route.path}: --ease-out-expo is empty (token undefined)`);
         }
-        if (allZero) {
-          failures.push(`${route.path}: .reveal-stage transitionDuration is ${measured.duration} (expected > 0s)`);
+        // `transition: none` computes to `transitionProperty: all` with a 0s
+        // duration, so either form counts as "no transition".
+        const durations = String(measured.duration).split(',').map((d) => parseFloat(d.trim()));
+        const noTransition = measured.property === 'none' || durations.every((d) => d === 0);
+        if (!noTransition) {
+          failures.push(
+            `${route.path}: .reveal-stage still has a CSS transition (property ${measured.property}, duration ${measured.duration}) — GSAP owns reveal motion`,
+          );
+        }
+        if (!(parseFloat(String(measured.opacity)) > 0)) {
+          failures.push(`${route.path}: .reveal-stage opacity is ${measured.opacity} after reveal (content unreadable)`);
         }
       }
     }

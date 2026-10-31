@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/domainApi';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 import { PhotoLightbox } from '../components/media/PhotoLightbox';
 import { gridUrl } from '../utils/imageOptim';
@@ -150,7 +151,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
 
         {/* Album detail */}
         {!isLoading && album && (
-          <>
+          <RevealSection as="div" refreshKey={`${album.id}:${photos.length}`}>
             {/* Album header */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -196,6 +197,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                     key={photo.id}
                     type="button"
                     onClick={() => setLightboxIndex(idx)}
+                    data-reveal-item
                     className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-slate-200 bg-white text-left dark:border-slate-700 dark:bg-slate-800"
                   >
                     <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-slate-200 dark:bg-slate-700">
@@ -217,7 +219,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                 ))}
               </div>
             )}
-          </>
+          </RevealSection>
         )}
       </main>
 

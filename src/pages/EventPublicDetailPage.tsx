@@ -15,6 +15,7 @@ import { fetchEventById, fetchAlbums } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
   isDark: boolean;
@@ -175,6 +176,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
 
         {/* Event detail */}
         {!isLoading && event && (
+          <RevealSection as="div" refreshKey={`${event.id}:${event.status}`}>
           <article className="space-y-6">
             {/* Header card */}
             <div
@@ -302,6 +304,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
               </Link>
             </div>
           </article>
+          </RevealSection>
         )}
       </main>
     </div>

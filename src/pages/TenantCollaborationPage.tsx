@@ -10,6 +10,7 @@ import { validateEmail, validatePhone } from '../utils/validation';
 import { usePageMeta } from '../utils/pageMeta';
 import { ApiError } from '../lib/rest';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
   isDark: boolean;
@@ -277,16 +278,18 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Ajukan Event Bersama Metropolitan Mall Bekasi
-        </h1>
-        <p className="mt-3 text-sm leading-7 ui-text-secondary">
-          Halaman ini untuk tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
-          baik sebagai promo, workshop, pameran produk, pertunjukan, maupun peluncuran produk. Isi formulir di bawah,
-          tim Marcomm dan Casual Leasing akan meninjau pengajuan Anda.
-        </p>
+        <RevealSection as="div">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Ajukan Event Bersama Metropolitan Mall Bekasi
+          </h1>
+          <p className="mt-3 text-sm leading-7 ui-text-secondary">
+            Halaman ini untuk tenant Metropolitan Mall Bekasi yang ingin mengadakan kegiatan di area mall,
+            baik sebagai promo, workshop, pameran produk, pertunjukan, maupun peluncuran produk. Isi formulir di bawah,
+            tim Marcomm dan Casual Leasing akan meninjau pengajuan Anda.
+          </p>
+        </RevealSection>
 
-        <section aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
           <h2 id="alur-title" className="font-display text-lg font-bold">Alur pengajuan</h2>
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
@@ -306,9 +309,9 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
             <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             Siapkan perkiraan tanggal dan area yang diinginkan. Ajukan minimal dua pekan sebelum tanggal rencana agar penjadwalan dan perizinan sempat diproses.
           </p>
-        </section>
+        </RevealSection>
 
-        <section aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
           <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
 
           {submitted ? (
@@ -590,7 +593,7 @@ export function TenantCollaborationPage({ isDark, onToggleDark }: Props) {
               </div>
             </form>
           )}
-        </section>
+        </RevealSection>
       </main>
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs ui-text-muted dark:border-slate-800">

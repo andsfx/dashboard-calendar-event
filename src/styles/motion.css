@@ -1,73 +1,68 @@
+/* ═══ Reveal — GSAP yang menggerakkan, CSS hanya pre-state + end state ═══
+   Tidak ada `transition` maupun `@keyframes` untuk reveal di sini. Tween-nya
+   milik `useScrollReveal` (satu timeline: stage lalu anak-anaknya). Yang
+   tersisa di file ini cuma dua: (a) pre-state sebelum tween berjalan, dan
+   (b) end state untuk jalur fail-open (reduced motion, chunk gagal, chunk
+   menggantung) lewat class `reveal-fallback`.
+
+   Kalau sebuah `transition` ditambahkan di sini, GSAP dan CSS akan berebut
+   properti yang sama: GSAP menulis inline style tiap frame, transisi CSS
+   memulai ulang animasi pada tiap tulisan itu. */
 .reveal-on-scroll {
   --reveal-distance: 16px;
-  --reveal-stagger-step: 50ms;
 }
 
 .reveal-stage {
   opacity: 0;
   transform: translateY(var(--reveal-distance, 16px));
-  transition:
-    opacity 240ms var(--ease-out-expo),
-    transform 240ms var(--ease-out-expo);
 }
 
-/* Satu sumber gerak untuk reveal: jarak, durasi, dan easing di sini; class
-   `reveal-visible` (dipasang useScrollReveal) yang memicunya. Jangan tambahkan
-   tween GSAP pada simpul yang sama. */
-.reveal-stage > * {
+/* Anak yang di-tween GSAP. Dua mode yang saling eksklusif, cermin dari
+   `animatedChildren()` di useScrollReveal:
+   - stage dengan item bertanda `[data-reveal-item]` → hanya item itu;
+   - stage tanpa item → semua anak langsung.
+   `:has()` mencegah wrapper yang membungkus item (mis. grid berita) ikut
+   disembunyikan, karena wrapper itu tidak pernah di-tween GSAP. Kalau `:has()`
+   tidak didukung, aturan ini tidak berlaku — konten tampil lebih dulu lalu
+   GSAP men-tween dari nilai awalnya; gagal ke arah terbaca, bukan tersembunyi. */
+.reveal-stage [data-reveal-item] {
   opacity: 0;
   transform: translateY(var(--reveal-distance, 16px));
-  transition:
-    opacity 220ms var(--ease-out-expo),
-    transform 220ms var(--ease-out-expo);
 }
 
-.reveal-on-scroll.reveal-visible .reveal-stage,
-.reveal-on-scroll.reveal-visible .reveal-stage > *,
-.reveal-on-scroll.reveal-visible .reveal-cluster > * {
+.reveal-stage > *:not(:has([data-reveal-item])) {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance, 16px));
+}
+
+/* End state jalur fail-open. `reveal-fallback` dipasang useScrollReveal saat
+   reduced motion aktif, chunk GSAP gagal dimuat, atau belum termuat setelah
+   2,5 detik. Tidak ada tween di jalur ini, jadi end state ini yang terakhir. */
+.reveal-fallback .reveal-stage,
+.reveal-fallback .reveal-stage > *,
+.reveal-fallback .reveal-stage [data-reveal-item] {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
-/* Stagger bertahap untuk stage berisi banyak anak. Semua section sekarang hanya
-   punya satu anak, jadi praktis tidak ada pergeseran; blok ini tetap dipertahankan
-   sebagai perilaku resmi `.reveal-stage`. */
-.reveal-visible .reveal-stage > *:nth-child(1) { transition-delay: calc(var(--reveal-stagger-step) * 1); }
-.reveal-visible .reveal-stage > *:nth-child(2) { transition-delay: calc(var(--reveal-stagger-step) * 2); }
-.reveal-visible .reveal-stage > *:nth-child(3) { transition-delay: calc(var(--reveal-stagger-step) * 3); }
-.reveal-visible .reveal-stage > *:nth-child(4) { transition-delay: calc(var(--reveal-stagger-step) * 4); }
-.reveal-visible .reveal-stage > *:nth-child(5) { transition-delay: calc(var(--reveal-stagger-step) * 5); }
-.reveal-visible .reveal-stage > *:nth-child(6) { transition-delay: calc(var(--reveal-stagger-step) * 6); }
-.reveal-visible .reveal-stage > *:nth-child(7) { transition-delay: calc(var(--reveal-stagger-step) * 7); }
-.reveal-visible .reveal-stage > *:nth-child(8) { transition-delay: calc(var(--reveal-stagger-step) * 8); }
-.reveal-visible .reveal-stage > *:nth-child(9) { transition-delay: calc(var(--reveal-stagger-step) * 9); }
-.reveal-visible .reveal-stage > *:nth-child(10) { transition-delay: calc(var(--reveal-stagger-step) * 10); }
-
-.reveal-cluster > * {
+/* ═══ Hero — entrance milik GSAP (useHeroParallax) ═══
+   CSS hanya memegang pre-state: hero masuk lewat timeline opacity + y, bukan
+   `animation`. `[data-hero-copy]` ikut di-pre-hide supaya kolom teks tidak
+   sempat tampil penuh satu frame sebelum tween mengambil alih. */
+.community-hero-in,
+[data-hero-copy] {
   opacity: 0;
   transform: translateY(12px);
-  transition:
-    opacity 220ms var(--ease-out-expo),
-    transform 220ms var(--ease-out-expo);
 }
 
-.reveal-visible .reveal-cluster > *:nth-child(1) { transition-delay: 50ms; }
-.reveal-visible .reveal-cluster > *:nth-child(2) { transition-delay: 100ms; }
-.reveal-visible .reveal-cluster > *:nth-child(3) { transition-delay: 150ms; }
-.reveal-visible .reveal-cluster > *:nth-child(4) { transition-delay: 200ms; }
-
-/* Community hero entrance — copy column only; image stays static */
-@keyframes community-hero-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Jalur fail-open hero: reduced motion, chunk gagal, atau chunk belum termuat
+   setelah 2,5 detik. Pre-state dilepas supaya teks hero tidak pernah tertahan
+   tak terlihat; tanpa gerak. */
+.community-hero-static .community-hero-in,
+.community-hero-static [data-hero-copy] {
+  opacity: 1;
+  transform: none;
 }
-.community-hero-in {
-  animation: community-hero-in 240ms var(--ease-out-expo) both;
-}
-.community-hero-in-d1 { animation-delay: 40ms; }
-.community-hero-in-d2 { animation-delay: 90ms; }
-.community-hero-in-d3 { animation-delay: 140ms; }
-.community-hero-in-d4 { animation-delay: 180ms; }
 
 @keyframes modal-backdrop-in {
   from { opacity: 0; }
@@ -281,12 +276,9 @@
   .reveal-on-scroll,
   .reveal-stage,
   .reveal-stage > *,
-  .reveal-cluster > *,
+  .reveal-stage [data-reveal-item],
   .community-hero-in,
-  .community-hero-in-d1,
-  .community-hero-in-d2,
-  .community-hero-in-d3,
-  .community-hero-in-d4,
+  [data-hero-copy],
   .fade-up,
   .fade-in,
   .dashboard-fade,

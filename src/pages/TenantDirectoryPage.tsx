@@ -3,6 +3,7 @@ import { MapPin, RefreshCw, Search, Store } from 'lucide-react';
 import { fetchPublicTenantDirectory } from '../utils/domainApi';
 import type { TenantRosterItem } from '../utils/api/surveysApi';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -85,7 +86,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Hero */}
-        <div className="mb-8">
+        <RevealSection as="div" className="mb-8" refreshKey={tenants.length}>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Direktori Tenant Metropolitan Mall Bekasi</h1>
           <p className="mt-2 text-base ui-text-muted">Jelajahi tenant yang tersedia di Metropolitan Mall Bekasi</p>
           {!isLoading && !fetchError && (
@@ -100,7 +101,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
               </div>
             </div>
           )}
-        </div>
+        </RevealSection>
 
         {/* Toolbar: search + category pills */}
         {!isLoading && !fetchError && tenants.length > 0 && (
@@ -190,9 +191,10 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
 
         {/* Tenant grid */}
         {!isLoading && !fetchError && filtered.length > 0 && (
+          <RevealSection as="div" refreshKey={`${filtered.length}:${filtered[0]?.id ?? ''}`}>
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             {filtered.map((t) => (
-              <div key={t.id} className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800">
+              <div key={t.id} data-reveal-item className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800">
                 <div className="flex h-32 items-center justify-center bg-slate-50 p-4 dark:bg-slate-700/40">
                   {t.logo && !brokenLogos.has(t.id) ? (
                     <img
@@ -223,6 +225,7 @@ export function TenantDirectoryPage({ isDark, onToggleDark }: Props) {
               </div>
             ))}
           </div>
+          </RevealSection>
         )}
       </main>
 

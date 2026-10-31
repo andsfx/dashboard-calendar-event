@@ -5,6 +5,7 @@ import { NewsArticle } from '../types';
 import { fetchNewsArticleBySlug } from '../utils/domainApi';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 function formatNewsDate(value?: string): string {
   if (!value) return '';
@@ -102,7 +103,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
 
         {/* Article */}
         {!isLoading && article && (
-          <article>
+          <RevealSection as="article" refreshKey={`${article.id}:${article.slug}`}>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{article.title}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-300">
               {article.author && <span className="font-medium text-slate-700 dark:text-slate-300">{article.author}</span>}
@@ -133,7 +134,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
                 Kembali ke Berita
               </Link>
             </div>
-          </article>
+          </RevealSection>
         )}
       </main>
 

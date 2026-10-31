@@ -28,6 +28,7 @@ import { usePageMeta } from '../utils/pageMeta';
 import { formatDateRange } from '../utils/eventUtils';
 import { ApiError } from '../lib/rest';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
   isDark: boolean;
@@ -401,16 +402,18 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 pt-10 outline-none sm:px-6">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Ikut Event sebagai Tenant
-        </h1>
-        <p className="mt-3 text-sm leading-7 ui-text-secondary">
-          Ajukan <strong>open booth</strong> untuk berjualan atau promosi di area event, dan/atau{' '}
-          <strong>voucher</strong> untuk menarik pengunjung datang ke tenant Anda. Pengajuan ditinjau tim Marcomm;
-          yang disetujui tampil di halaman detail event.
-        </p>
+        <RevealSection as="div">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Ikut Event sebagai Tenant
+          </h1>
+          <p className="mt-3 text-sm leading-7 ui-text-secondary">
+            Ajukan <strong>open booth</strong> untuk berjualan atau promosi di area event, dan/atau{' '}
+            <strong>voucher</strong> untuk menarik pengunjung datang ke tenant Anda. Pengajuan ditinjau tim Marcomm;
+            yang disetujui tampil di halaman detail event.
+          </p>
+        </RevealSection>
 
-        <section aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
           <h2 id="alur-title" className="font-display text-lg font-bold">Alur pengajuan</h2>
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
@@ -426,9 +429,9 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               <span>Bila disetujui, booth dan voucher Anda tampil di halaman event dan tim menghubungi PIC lewat nomor yang dicantumkan.</span>
             </li>
           </ol>
-        </section>
+        </RevealSection>
 
-        <section aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
           <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
 
           {submittedCode ? (
@@ -906,10 +909,10 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               </div>
             </form>
           )}
-        </section>
+        </RevealSection>
 
         {/* ── Cek status ── */}
-        <section aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
           <h2 id="status-title" className="flex items-center gap-2 font-display text-lg font-bold">
             <ClipboardCheck className="h-5 w-5" aria-hidden="true" /> Cek status pengajuan
           </h2>
@@ -1000,7 +1003,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               )}
             </div>
           )}
-        </section>
+        </RevealSection>
       </main>
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs ui-text-muted dark:border-slate-800">

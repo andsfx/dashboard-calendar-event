@@ -113,9 +113,9 @@ Campaign cards: `var(--radius-campaign-card)` (equiv. `rounded-[2rem]` / `rounde
 | `--ease-out-expo` | `cubic-bezier(0.22, 1, 0.36, 1)` (`tokens.css`) | Reveals, hero entrance, modal panel, toast, nav dropdown, FAQ accordion |
 | `--transition-timing-function-ease-out-expo` | same value (`theme.css` `@theme`) | Tailwind-side alias |
 
-Both names must stay in sync. `motion.css` consumes `--ease-out-expo` 19 times; when it was undefined, every `var()` fallback collapsed to `transition-duration: 0s` / `animation-name: none` and the entire motion layer silently died. `e2e/a11y.spec.ts` asserts the token resolves and `.reveal-stage` has a non-zero duration.
+Both names must stay in sync. `motion.css` consumes `--ease-out-expo` for the non-reveal animations that still live in CSS (modal panel, toast, nav dropdown, FAQ accordion). Reveal and hero entrance no longer read it — GSAP uses `CustomEase` `metmal-out-expo` with the identical `0.22,1,0.36,1` curve. When the token was undefined, every `var()` fallback collapsed to `transition-duration: 0s` / `animation-name: none` and the whole motion layer silently died. `e2e/a11y.spec.ts` asserts the token resolves, `.reveal-stage` carries no CSS transition, and it ends at a non-zero opacity.
 
-**Keyframes live in `motion.css`.** Every `animate-[<name>_…]` reference must resolve to a `@keyframes` there, or the class is a silent no-op. Current set: `community-hero-in`, `modal-panel-in/out`, `toast-in/out/progress`, `count-up`, `fade-up`, `fade-in`, `fade-in-up`, `shake`, `scale-in`, `slide-up`, `mobile-nav-in`, `nav-dropdown-in`, `card-hover-lift`, `shimmer`, `live-pulse`, `vt-fade-in`. Named utilities without a Tailwind `--animate-*` theme entry (`.animate-fade-in-up`) are declared in `motion.css` directly.
+**Keyframes live in `motion.css`.** Every `animate-[<name>_…]` reference must resolve to a `@keyframes` there, or the class is a silent no-op. Current set: `modal-panel-in/out`, `toast-in/out/progress`, `count-up`, `fade-up`, `fade-in`, `fade-in-up`, `shake`, `scale-in`, `slide-up`, `mobile-nav-in`, `nav-dropdown-in`, `card-hover-lift`, `shimmer`, `live-pulse`, `vt-fade-in`. Named utilities without a Tailwind `--animate-*` theme entry (`.animate-fade-in-up`) are declared in `motion.css` directly. `community-hero-in` was a keyframe until GSAP took the hero entrance over; the class survives as a CSS pre-state marker only.
 
 `animations.css`, `mobile.css`, and `performance.css` were removed — they were never imported by `src/index.css` and every class they defined was dead (`.touch-target` is owned by `accessibility.css`). `useAnimation.ts` was removed with them: it was the only consumer of those classes and had zero importers.
 
@@ -178,11 +178,13 @@ Display: Bricolage Grotesque via `--font-display`. Body: Geist via `--font-body`
 
 Shared landing reveal primitive. It should:
 
-- preserve `reveal-on-scroll`, `reveal-visible`, `reveal-stage`
+- preserve `reveal-on-scroll`, `reveal-visible`, `reveal-stage`, `reveal-fallback`
 - support custom tag via `as`
 - support skeleton fallback when needed
-- keep motion in `src/styles/motion.css` only: duration, easing, and distance come from `--ease-out-expo` and `--reveal-distance`. ScrollTrigger only adds `reveal-visible` when the section enters the viewport; it must not tween the same nodes, or the section moves twice
-- respect reduced-motion global CSS
+- GSAP adalah satu-satunya penggerak reveal: `useScrollReveal` memutar satu timeline (`opacity` + `y`, durasi 0,5 s, stagger 0,06 s, easing `metmal-out-expo`) untuk `.reveal-stage` lalu anak-anaknya. Tidak ada opt-in: item yang ingin distagger sendiri cukup ditandai `data-reveal-item`, tanpa tanda itu semua anak langsung stage yang di-tween
+- `motion.css` hanya memegang pre-state dan end state jalur gagal. Tidak boleh ada `transition` atau `@keyframes` untuk reveal/entrance; transisi CSS pada properti yang sama dengan tween akan memulai ulang animasi tiap frame GSAP menulis inline style
+- `reveal-visible` hanya penanda bahwa trigger sudah menyala; end state CSS dipakai `reveal-fallback` (reduced motion, chunk gagal, atau chunk belum termuat setelah 2,5 s)
+- reduced motion meninggalkan semuanya di end state tanpa tween
 
 ### CommunityEyebrow
 
@@ -245,16 +247,13 @@ Option cards acting as single-choice controls should use real radio semantics or
 
 Motion should support orientation and hierarchy, not distract.
 
-Use:
+Contract (2026-10-30, product decision — supersedes the old CSS-first motion rule):
 
-- reveal-on-scroll for section entrance (`--ease-out-expo`)
-- small hover translations for cards/buttons
-- subtle icon movement on CTA hover
-
-Rules:
-
-- Always support `prefers-reduced-motion: reduce`.
-- Use Tailwind `motion-reduce:*` on local transitions/transforms.
+- GSAP owns **all** motion on public routes: section reveal (`useScrollReveal`) and hero entrance + parallax (`useHeroParallax`). It is loaded through dynamic `import()` only, never statically, so it stays out of the boot bundle.
+- CSS exists only as (a) the pre-state before GSAP takes over and (b) the end state for the fallback paths. No `transition` or `@keyframes` may implement a reveal or an entrance; delete it rather than leaving a parallel CSS animation.
+- Fallback paths (reduced motion, chunk failed, chunk stalled > 2,5 s) end in the CSS end state with no tween. Content is never permanently invisible: `reveal-fallback` and `.community-hero-static` lift the pre-state.
+- `active:scale-[0.98]`, `hover:` colour/translate and other interactive-state transitions are not reveals; they stay in CSS and keep `motion-reduce:*` guards.
+- Always support `prefers-reduced-motion: reduce` — end state, no tween.
 - Avoid large continuous animation on mobile.
 - Heavy blur/glow decoration should be hidden or reduced on small screens.
 

@@ -41,9 +41,9 @@ export function CommunityBenefits() {
             </p>
           </div>
 
-          <div className="reveal-cluster flex flex-col gap-10 sm:gap-14">
+          <div className="flex flex-col gap-10 sm:gap-14">
             {/* CTA sponsorship — link ke halaman /sponsor */}
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+            <div data-reveal-item className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_22%,black)]">
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
@@ -60,7 +60,7 @@ export function CommunityBenefits() {
             </div>
 
             {BENEFITS.map((b) => (
-              <div key={b.title} className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+              <div key={b.title} data-reveal-item className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_22%,black)] dark:text-[var(--brand-tosca-soft)]">
                   {b.icon}
                 </span>

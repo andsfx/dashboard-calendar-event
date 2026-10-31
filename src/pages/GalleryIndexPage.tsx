@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lu
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/domainApi';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 // Modal ekspor dimuat malas: ia memakai ModalWrapper → md-dialog (Material Web
 // + Lit). Impor statis akan menarik MD3 ke halaman PUBLIK ini pada initial load,
 // padahal scope migrasi hanya dashboard admin. Dimuat hanya saat dibuka.
@@ -116,26 +117,28 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         </Link>
 
         {/* Page title */}
-        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Galeri Event
-            </h1>
-            <p className="mt-2 text-base ui-text-muted">
-              Dokumentasi event di Metropolitan Mall Bekasi
-            </p>
+        <RevealSection as="div" className="mb-10" refreshKey={albums.length}>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Galeri Event
+              </h1>
+              <p className="mt-2 text-base ui-text-muted">
+                Dokumentasi event di Metropolitan Mall Bekasi
+              </p>
+            </div>
+            {albums.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowExportModal(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
+              >
+                <FileDown className="h-4 w-4" />
+                Export PDF
+              </button>
+            )}
           </div>
-          {albums.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowExportModal(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
-            >
-              <FileDown className="h-4 w-4" />
-              Export PDF
-            </button>
-          )}
-        </div>
+        </RevealSection>
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -193,7 +196,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         {!isLoading && albums.length > 0 && (
           <div className="space-y-12">
             {groupedByTheme.map(({ theme, albums: groupAlbums }) => (
-              <section key={theme?.id || 'other'}>
+              <RevealSection key={theme?.id || 'other'} refreshKey={`${groupAlbums.length}:${groupAlbums[0]?.id ?? ''}`}>
                 {/* Theme header */}
                 <div
                   className="mb-6 rounded-xl border-l-4 px-5 py-4"
@@ -220,6 +223,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                     <Link
                       key={album.id}
                       to={`/gallery/${album.slug}`}
+                      data-reveal-item
                       className="group cursor-pointer overflow-hidden rounded-2xl bg-white text-left shadow-sm transition hover:shadow-lg dark:bg-slate-800"
                     >
                       {/* Cover image */}
@@ -269,7 +273,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                     </Link>
                   ))}
                 </div>
-              </section>
+              </RevealSection>
             ))}
           </div>
         )}

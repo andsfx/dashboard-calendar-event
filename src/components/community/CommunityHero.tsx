@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarDays, CheckCircle2, Music, Users } from 'lucide-react';
 import heroFallbackImage from '../../assets/landing/hero-fallback.webp';
@@ -7,6 +8,7 @@ import { formatDateRange } from '../../utils/eventUtils';
 import type { EventItem } from '../../types';
 import { formatStat } from './countFormat';
 import { COMMUNITY_STAT_LABELS } from './communityStats';
+import { useHeroParallax } from './useHeroParallax';
 
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3
  * redesign: solid brand CTA, honest badge, LCP static hero — no invented metrics
@@ -36,6 +38,8 @@ interface CommunityHeroProps {
 }
 
 export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = false }: CommunityHeroProps) {
+  const heroRef = useRef<HTMLElement>(null);
+  const { isStatic: isHeroStatic } = useHeroParallax(heroRef);
   const completed = stats?.completed ?? 0;
   const loading = isLoading || stats === undefined;
   // M7 (skill 4.8): the `hero_image` site setting defaults to ''
@@ -87,7 +91,8 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
     <>
       <section
         id="hero"
-        className="relative isolate flex min-h-[100svh] items-center overflow-hidden"
+        ref={heroRef}
+        className={`relative isolate flex min-h-[100svh] items-center overflow-hidden${isHeroStatic ? ' community-hero-static' : ''}`}
       >
         {/* Layer 1: gradient bg */}
         <div aria-hidden="true" className="absolute inset-0 bg-gradient-hero-tosca" />
@@ -97,7 +102,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
 
         {/* Layer 3: hero image (configured URL wins; bundled fallback otherwise) */}
         {resolvedHeroImage && (
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
+          <div aria-hidden="true" data-hero-media className="pointer-events-none absolute inset-x-0 -inset-y-16 z-[1]">
             <img
               {...heroImgProps}
               alt="Suasana event komunitas di Metropolitan Mall Bekasi"
@@ -116,7 +121,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             melewati ~87% tinggi kotak akan turun ke pita transisi gradient,
             dan gate a11y mengukur fraksi itu secara langsung. */}
         <div className="relative z-10 mx-auto grid w-full max-w-7xl items-start gap-8 px-4 pt-20 pb-16 sm:px-6 sm:pt-24 sm:pb-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
-          <div className="mx-auto max-w-2xl text-center lg:mx-0">
+          <div data-hero-copy className="mx-auto max-w-2xl text-center lg:mx-0">
             {/* Badge ini duplikat metrik yang sama dengan CommunitySocialProof
                 tepat di bawahnya. Hanya band yang jadi live region; kalau dua-duanya
                 `aria-live`, satu pembaruan diumumkan dua kali. */}
@@ -135,16 +140,16 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                 Jangan naikkan lagi ke 80px: gate `hero copy stays above the 87%
                 line` mengukur tinggi konten hero, dan headline 4 baris akan
                 mendorongnya ke pita transisi gradient. */}
-            <h1 className="community-hero-in community-hero-in-d1 mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl">
+            <h1 className="community-hero-in mt-6 text-[2.5rem] font-extrabold leading-[1.05] text-white sm:text-6xl">
               Panggung <strong className="text-brand-primary-300">Gratis</strong> untuk Komunitas Bekasi
             </h1>
 
             {/* M2: three subtext paragraphs (30 words / 5 lines) collapsed to one (12 words). */}
-            <p className="community-hero-in community-hero-in-d2 mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
+            <p className="community-hero-in mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/80 sm:text-xl">
               Venue, sound system, dan lighting sudah lengkap. Kamu tinggal bawa konsep acaranya.
             </p>
 
-            <div className="community-hero-in community-hero-in-d3 mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
+            <div className="community-hero-in mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
               <Link
                 to="/daftar"
                 className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
@@ -164,7 +169,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
           {/* Papan data realtime — mengisi ruang kanan hero, bukan tumpukan bawah */}
           <aside
             aria-label="Data komunitas terkini"
-            className="community-hero-in community-hero-in-d2 w-full rounded-[var(--radius-campaign-card)] border border-white/15 bg-white/10 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-6"
+            className="community-hero-in w-full rounded-[var(--radius-campaign-card)] border border-white/15 bg-white/10 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-6"
           >
             <div className="flex items-center justify-between gap-3">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">
@@ -186,7 +191,10 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
                       {formatStat(metric.value)}
                     </p>
                   )}
-                  <p className="mt-2 text-[11px] font-semibold leading-tight text-white/70">{metric.label}</p>
+                  {/* /70 terukur 4,24:1 di kartu ketiga (bg terang dari foto hero)
+                      — di bawah AA 4,5:1. /80 menaikkannya ke 4,97:1 tanpa
+                      mengubah teks atau tata letak. */}
+                  <p className="mt-2 text-[11px] font-semibold leading-tight text-white/80">{metric.label}</p>
                 </div>
               ))}
             </div>

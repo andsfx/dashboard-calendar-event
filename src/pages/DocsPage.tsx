@@ -10,6 +10,7 @@ import {
 import { DOC_SECTIONS, type DocFeature } from '../data/featureDocs';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
   isDark: boolean;
@@ -127,18 +128,18 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 outline-none sm:px-6 sm:py-12">
-        <div className="mb-8 max-w-3xl">
+        <RevealSection as="div" className="mb-8 max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
           <p className="mt-3 text-base leading-7 ui-text-muted">
             Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi: dari mencari jadwal event
             dan mendaftar sebagai komunitas, sampai mengelola dashboard sebagai admin. Pilih "Saya melihat sebagai"
             untuk menyaring sesuai peran Anda, atau cari langsung nama fiturnya.
           </p>
-        </div>
+        </RevealSection>
 
         <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
           {/* Daftar isi */}
-          <aside className="lg:sticky lg:top-20 lg:self-start">
+          <RevealSection as="aside" className="lg:sticky lg:top-20 lg:self-start">
             <nav aria-label="Daftar isi dokumentasi" className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 dark:border-slate-700 dark:bg-slate-900">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider ui-text-muted">
                 <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
@@ -170,7 +171,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                 ))}
               </ul>
             </nav>
-          </aside>
+          </RevealSection>
 
           <div className="min-w-0">
             {/* Saringan audiens */}
@@ -233,7 +234,12 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
 
             <div className="space-y-12">
               {filtered.map(section => (
-                <section key={section.id} id={section.id} className="scroll-mt-24">
+                <RevealSection
+                  key={section.id}
+                  id={section.id}
+                  className="scroll-mt-24"
+                  refreshKey={`${filtered.length}:${filtered[0]?.id ?? ''}`}
+                >
                   <h2 className="text-2xl font-bold tracking-tight">{section.label}</h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 ui-text-muted">{section.intro}</p>
 
@@ -248,6 +254,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                             <article
                               key={feature.id}
                               id={feature.id}
+                              data-reveal-item
                               className="scroll-mt-24 rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-5 shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900 sm:p-6"
                             >
                               <div className="flex flex-wrap items-center gap-2">
@@ -315,7 +322,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                       </div>
                     ))}
                   </div>
-                </section>
+                </RevealSection>
               ))}
             </div>
           </div>

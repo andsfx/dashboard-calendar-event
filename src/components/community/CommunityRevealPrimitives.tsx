@@ -8,9 +8,24 @@ type RevealSectionProps<T extends ElementType = 'section'> = {
   variant?: 'dark-tosca';
   skeleton?: ReactNode;
   isLoading?: boolean;
+  /**
+   * Nilai yang berubah saat konten section berganti (mis. jumlah artikel dari
+   * `0` ke `3`). Posisi trigger dihitung ulang, dan simpul yang baru mount ikut
+   * di-tween walau trigger `once` sudah menyala. Default mengikuti `isLoading`.
+   */
+  refreshKey?: unknown;
 } & Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
-/** Fast community reveal — useScrollReveal + motion.css (Path A). */
+/**
+ * Reveal komunitas. Semua section memakai GSAP — tidak ada lagi opt-in:
+ * `useScrollReveal` memutar satu timeline untuk `.reveal-stage` lalu
+ * anak-anaknya. Item yang ingin distagger sendiri cukup ditandai
+ * `data-reveal-item`; tanpa tanda itu, anak langsung stage yang distagger.
+ *
+ * `motion.css` hanya memegang pre-state (stage dan anak-anaknya transparan
+ * sebelum tween) dan end state jalur gagal (`reveal-fallback`). Tidak ada
+ * transisi atau keyframe CSS yang ikut menggerakkan simpul ini.
+ */
 export function RevealSection<T extends ElementType = 'section'>({
   as,
   children,
@@ -18,9 +33,10 @@ export function RevealSection<T extends ElementType = 'section'>({
   variant,
   skeleton,
   isLoading = false,
+  refreshKey,
   ...rest
 }: RevealSectionProps<T>) {
-  const { ref, isVisible } = useScrollReveal(isLoading);
+  const { ref, isVisible, isFallback } = useScrollReveal(refreshKey ?? isLoading);
   const Tag = as ?? 'section';
 
   const isDark = variant === 'dark-tosca';
@@ -30,7 +46,7 @@ export function RevealSection<T extends ElementType = 'section'>({
   return (
     <Tag
       ref={ref as never}
-      className={`reveal-on-scroll ${isVisible ? 'reveal-visible' : ''} ${variantClass} ${className}`}
+      className={`reveal-on-scroll ${isFallback ? 'reveal-fallback' : ''} ${isVisible ? 'reveal-visible' : ''} ${variantClass} ${className}`}
       {...rest}
     >
       {isDark && (

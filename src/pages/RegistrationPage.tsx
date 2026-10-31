@@ -1,5 +1,6 @@
 import { RegistrationForm } from '../components/community/CommunityRegistrationForm';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -29,16 +30,16 @@ export function RegistrationPage({ isDark, onToggleDark }: Props) {
 
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 outline-none">
-        <div className="pt-10">
+        <RevealSection as="div" className="pt-10">
           <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Daftarkan Event Komunitas di Metropolitan Mall Bekasi</h1>
           <p className="mt-3 text-sm leading-7 ui-text-secondary">
             Terbuka untuk semua jenis komunitas yang ingin mengadakan event di Metropolitan Mall Bekasi. Isi datanya, pendaftaran kamu akan kami review secepatnya. Tim kami yang akan menghubungi kamu untuk langkah selanjutnya.
           </p>
-        </div>
+        </RevealSection>
 
-        <div className="mt-8">
+        <RevealSection as="div" className="mt-8">
           <RegistrationForm />
-        </div>
+        </RevealSection>
       </main>
 
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">

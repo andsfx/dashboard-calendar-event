@@ -5,6 +5,7 @@ import { NewsArticle } from '../types';
 import { fetchNewsArticles } from '../utils/domainApi';
 import { thumbUrl } from '../utils/imageOptim';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 function formatNewsDate(value?: string): string {
@@ -57,10 +58,12 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {/* Page title */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Berita</h1>
-          <p className="mt-2 text-base ui-text-muted">Kabar dan informasi terbaru dari Metropolitan Mall Bekasi</p>
-        </div>
+        <RevealSection as="div" className="mb-10" refreshKey={articles.length}>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Berita</h1>
+            <p className="mt-2 text-base ui-text-muted">Kabar dan informasi terbaru dari Metropolitan Mall Bekasi</p>
+          </div>
+        </RevealSection>
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -108,11 +111,13 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
 
         {/* Article grid */}
         {!isLoading && !fetchError && articles.length > 0 && (
+          <RevealSection as="div" refreshKey={`${articles.length}:${articles[0]?.id ?? ''}`}>
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
             {articles.map((article) => (
               <Link
                 key={article.id}
                 to={`/news/${article.slug}`}
+                data-reveal-item
                 className="group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800"
               >
                 <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
@@ -143,6 +148,7 @@ export function NewsIndexPage({ isDark, onToggleDark }: Props) {
               </Link>
             ))}
           </div>
+          </RevealSection>
         )}
       </main>
 
