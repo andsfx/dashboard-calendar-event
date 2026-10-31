@@ -27,16 +27,17 @@ vi.mock('../../db.js', () => ({
   db: { query: (...args) => query(...args) },
 }));
 
-vi.mock('../../auth.js', () => ({
-  requireRole: (...args) => requireRole(...args),
-  logActivity: vi.fn(),
-  STAFF_ROLES: ['superadmin', 'admin'],
-  ANALYTICS_READ_ROLES_WITH_DEMO: ['superadmin', 'admin', 'tenant_relation', 'demo'],
-  LIST_READ_ROLES_WITH_DEMO: ['superadmin', 'admin', 'eo_tenant', 'demo'],
-  DEMO_READ_ROLES: ['superadmin', 'admin', 'demo'],
-  DEMO_ROLE: 'demo',
-  TENANT_EXPORT_ROLES: ['superadmin', 'admin'],
-}));
+vi.mock('../../auth.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    // Gate role/DB tidak relevan di sini; helper murni (canAccessSurveyEvent,
+    // maskEmail, …) dipakai versi ASLI supaya semantik `assigned_events` yang
+    // diuji memang implementasi produksi, bukan salinan di dalam tes.
+    requireRole: (...args) => requireRole(...args),
+    logActivity: vi.fn(),
+  };
+});
 
 /**
  * Dispatch request ke router Express dan kembalikan { status, body }.
@@ -47,7 +48,7 @@ vi.mock('../../auth.js', () => ({
  * `/create` tidak pernah jalan, tidak ada query ke DB, dan test terlihat
  * "hijau" tanpa menguji apa pun.
  */
-async function call(method, path, { body = {}, user = { id: 'u1' }, headers = {}, queryParams = {} } = {}) {
+async function call(method, path, { body = {}, user = { id: 'u1', role: 'admin', email: 'admin@example.com' }, headers = {}, queryParams = {} } = {}) {
   const { default: router } = await import('../tenant.js');
   const req = {
     method,
@@ -362,5 +363,139 @@ describe('role baca pada /list dan /get', () => {
     expect(status).toBe(200);
     expect(body.data.pic_name).toBeNull();
     expect(body.data.device_fingerprint).toBeNull();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// assigned_events eo_tenant (audit 2026-10-31)
+// ═══════════════════════════════════════════════════════════════════
+
+describe('POST /tenant/create — eo_tenant hanya event yang ditugaskan', () => {
+  beforeEach(() => {
+    query.mockReset();
+    query.mockResolvedValue({ rows: [{ id: 'sv1' }], rowCount: 1 });
+  });
+
+  it('menolak 403 bila event_id di luar assigned_events', async () => {
+    const { status, body } = await call('POST', '/create', {
+      body: { event_id: 'evt_lain' },
+      user: { id: 'u_eo', role: 'eo_tenant', assigned_events: ['evt_1'] },
+    });
+
+    expect(status).toBe(403);
+    expect(body.success).toBe(false);
+    expect(body.error).toContain('akses');
+    // Tidak boleh ada INSERT sama sekali.
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('menolak 403 bila eo_tenant belum punya assigned_events', async () => {
+    const { status } = await call('POST', '/create', {
+      body: { event_id: 'evt_1' },
+      user: { id: 'u_eo', role: 'eo_tenant' },
+    });
+    expect(status).toBe(403);
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('mengizinkan event yang ditugaskan', async () => {
+    const { status } = await call('POST', '/create', {
+      body: { event_id: 'evt_1' },
+      user: { id: 'u_eo', role: 'eo_tenant', assigned_events: ['evt_1', 'evt_2'] },
+    });
+    expect(status).toBe(201);
+  });
+
+  it('staff bebas membuat survey event mana pun', async () => {
+    const { status } = await call('POST', '/create', {
+      body: { event_id: 'evt_mana_pun' },
+      user: { id: 'u_admin', role: 'admin' },
+    });
+    expect(status).toBe(201);
+  });
+});
+
+describe('POST /tenant/update — eo_tenant hanya event yang ditugaskan', () => {
+  const EXISTING = {
+    id: 'tsv_1',
+    tenant_user_id: 'u_eo',
+    status: 'draft',
+    event_id: 'evt_1',
+  };
+
+  beforeEach(() => {
+    query.mockReset();
+    query.mockImplementation(async (sql) => {
+      if (String(sql).startsWith('SELECT')) return { rows: [{ ...EXISTING }], rowCount: 1 };
+      if (String(sql).startsWith('UPDATE')) return { rows: [{ ...EXISTING }], rowCount: 1 };
+      return { rows: [], rowCount: 0 };
+    });
+  });
+
+  it('menolak 403 bila event baris tidak ada di assigned_events', async () => {
+    const { status, body } = await call('POST', '/update', {
+      body: { id: 'tsv_1', tenant_name: 'Toko A' },
+      user: { id: 'u_eo', role: 'eo_tenant', assigned_events: ['evt_lain'] },
+    });
+
+    expect(status).toBe(403);
+    expect(body.error).toContain('akses');
+    const wrote = query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE'));
+    expect(wrote).toBe(false);
+  });
+
+  it('mengizinkan bila event ditugaskan dan mencatat log tanpa nilai PII', async () => {
+    const { logActivity } = await import('../../auth.js');
+    logActivity.mockClear();
+    const { status } = await call('POST', '/update', {
+      body: { id: 'tsv_1', tenant_name: 'Toko Rahasia', pic_phone: '081234567890' },
+      user: { id: 'u_eo', role: 'eo_tenant', assigned_events: ['evt_1'] },
+    });
+
+    expect(status).toBe(200);
+    expect(logActivity).toHaveBeenCalledTimes(1);
+    const [, action, resourceType, resourceId, details] = logActivity.mock.calls[0];
+    expect(action).toBe('update_tenant_survey');
+    expect(resourceType).toBe('tenant_survey');
+    expect(resourceId).toBe('tsv_1');
+    // Hanya NAMA kolom; nilai isian (PII tenant) tidak pernah masuk log.
+    expect(details).toEqual({ fields: ['tenant_name', 'pic_phone'] });
+    expect(JSON.stringify(details)).not.toContain('081234567890');
+    expect(JSON.stringify(details)).not.toContain('Toko Rahasia');
+  });
+});
+
+describe('SQLSTATE input klien → 400 (bukan 500)', () => {
+  beforeEach(() => {
+    query.mockReset();
+  });
+
+  it('22P02 pada /create dipetakan ke 400 dengan pesan Indonesia', async () => {
+    query.mockRejectedValue(Object.assign(
+      new Error('invalid input syntax for type integer: "abc"'),
+      { code: '22P02' },
+    ));
+
+    const { status, body } = await call('POST', '/create', { body: { event_id: 'evt_1' } });
+
+    expect(status).toBe(400);
+    expect(body.error).toContain('Format nilai tidak valid');
+    expect(body.error).not.toContain('invalid input syntax');
+  });
+
+  it('22008 pada /update dipetakan ke 400, bukan 500', async () => {
+    query.mockImplementation(async (sql) => {
+      if (String(sql).startsWith('SELECT')) {
+        return { rows: [{ id: 'tsv_1', tenant_user_id: 'u_admin', status: 'draft', event_id: 'evt_1' }], rowCount: 1 };
+      }
+      throw Object.assign(new Error('date/time field value out of range'), { code: '22008' });
+    });
+
+    const { status, body } = await call('POST', '/update', {
+      body: { id: 'tsv_1', tenant_name: 'Toko A' },
+    });
+
+    expect(status).toBe(400);
+    expect(body.error).toContain('di luar jangkauan');
   });
 });

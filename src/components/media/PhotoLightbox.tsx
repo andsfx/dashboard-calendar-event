@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { lightboxUrl } from '../../utils/imageOptim';
+import { useBackgroundInert } from './overlayLayer';
 
 /** Shape minimal foto lightbox — struktural cocok untuk EventPhoto & AreaPhoto. */
 export interface LightboxPhoto {
@@ -23,6 +25,24 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
 }) {
   const photo = photos[currentIndex];
   const lightboxRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+
+  // Simpan elemen pembuka saat dialog dibuka. Pengembalian fokus ada di efek
+  // terpisah SESUDAH `useBackgroundInert`: cleanup berjalan sesuai urutan
+  // deklarasi, jadi `#root` harus dilepas dari `inert` lebih dulu — `focus()`
+  // pada elemen di dalam subtree `inert` diabaikan browser dan fokus jatuh ke
+  // `<body>`.
+  useEffect(() => {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  }, []);
+
+  useBackgroundInert(Boolean(photo));
+
+  // Kembalikan fokus ke pembuka saat dialog ditutup (termasuk lewat Escape).
+  useEffect(() => () => {
+    const opener = openerRef.current;
+    if (opener?.isConnected) opener.focus();
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -64,7 +84,9 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
 
   if (!photo) return null;
 
-  return (
+  // Portal ke `document.body`: overlay `fixed` tidak boleh terjebak di dalam
+  // ancestor ber-`transform` (RevealSection) dan latar `#root` bisa di-`inert`.
+  return createPortal(
     <div
       ref={lightboxRef}
       className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/85"
@@ -121,6 +143,7 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
           <p className="text-xs text-white/70">{currentIndex + 1} / {photos.length}</p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

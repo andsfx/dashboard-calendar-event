@@ -30,7 +30,7 @@ import { z } from 'zod';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { db } from '../db.js';
-import { requireRole, logActivity, STAFF_ROLES, DEMO_ROLE, DEMO_READ_ROLES, maskEmail } from '../auth.js';
+import { requireRole, logActivity, STAFF_ROLES, DEMO_ROLE, DEMO_READ_ROLES, maskEmail, maskPiiDeep } from '../auth.js';
 import { enforceRateLimit } from '../lib/rateLimit.js';
 import { jakartaToday, notStartedOn } from '../lib/eventWindow.js';
 import {
@@ -228,6 +228,10 @@ router.post('/registrations/attachment', async (req, res, next) => {
       folder: REGISTRATION_ATTACHMENT_FOLDER,
       originalName,
       contentType,
+      maxBytes: MAX_PROPOSAL_BYTES,
+      // Ukuran yang dideklarasikan klien ikut ditandatangani → objek tidak bisa
+      // diunggah lebih besar dari batas 20MB yang berlaku saat submit.
+      contentLength: body.size,
     });
     if (!safe.ok) return res.status(400).json({ success: false, error: safe.error });
 
@@ -946,9 +950,21 @@ router.get('/activity-log', requireRole(DEMO_READ_ROLES), async (req, res, next)
       ),
     ]);
 
+    // Demo = akun peragaan dengan akses baca penuh, jadi log mentah tidak boleh
+    // keluar apa adanya: `user_email` adalah PII, `details` (JSONB) memuat blok
+    // PIC/kontak bersarang, dan `ip_address` tidak perlu sama sekali.
+    const logs = req.auth?.user?.role === DEMO_ROLE
+      ? rows.map((row) => ({
+        ...row,
+        user_email: maskEmail(row.user_email),
+        details: maskPiiDeep(row.details),
+        ip_address: '',
+      }))
+      : rows;
+
     return res.json({
       success: true,
-      data: { logs: rows, total: countRows[0]?.total || 0, page, limit },
+      data: { logs, total: countRows[0]?.total || 0, page, limit },
     });
   } catch (err) {
     return next(err);

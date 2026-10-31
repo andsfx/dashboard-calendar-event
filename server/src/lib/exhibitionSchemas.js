@@ -4,11 +4,16 @@
  */
 import { z } from 'zod';
 
+// Tanggal nyata, bukan sekadar regex: `2027-02-31` lolos regex lalu ditolak
+// Postgres (22008) sebagai 500. Aturan ini dipakai bersama pengajuan tenant.
+import { isRealDate } from './tenantParticipationSchemas.js';
+
 const PHONE_REGEX = /^(\+62|62|0)8[0-9]{8,12}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const isoDate = z.string().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD');
+const isoDate = z.string().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD')
+  .refine(isRealDate, 'Tanggal tidak valid (mis. 31 Februari). Periksa kembali.');
 
 export const exhibitionDataSchema = z.object({
   title: z.string().trim().min(3, 'Nama pameran minimal 3 karakter').max(200, 'Nama pameran maksimal 200 karakter'),

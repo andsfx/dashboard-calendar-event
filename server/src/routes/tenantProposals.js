@@ -11,11 +11,13 @@
  * dengan tipe yang diklaim (magic bytes) — presign publik tidak boleh jadi celah
  * unggah sembarangan ke bucket.
  *
- * Presign di route ini publik dan tanpa sesi, jadi tiga lapis yang menahannya: folder
+ * Presign di route ini publik dan tanpa sesi, jadi empat lapis yang menahannya: folder
  * dipaksa `tenant-proposals/` (agar tidak bisa menulis ke folder lain), `ContentType`
  * ikut ditandatangani (`signableHeaders` di r2.js, agar tipe tersimpan tidak bisa
- * ditukar pengunggah), dan verifikasi magic bytes saat submit. Folder pin saja tidak
- * cukup: ia hanya mengatur LOKASI, bukan tipe objek yang akhirnya disimpan.
+ * ditukar pengunggah), `ContentLength` ikut ditandatangani bila klien mengirim `size`
+ * (agar objek > 20MB tidak bisa diunggah), dan verifikasi magic bytes saat submit.
+ * Folder pin saja tidak cukup: ia hanya mengatur LOKASI, bukan tipe objek yang akhirnya
+ * disimpan.
  *
  * Respons submit: { success, id } — tanpa echo PII.
  */
@@ -103,6 +105,10 @@ router.post('/tenant-event-proposals/attachment', async (req, res, next) => {
       folder: ATTACHMENT_FOLDER,
       originalName,
       contentType,
+      maxBytes: MAX_PROPOSAL_BYTES,
+      // Ukuran deklarasi klien ditandatangani; objek > 20MB tidak bisa masuk
+      // ke folder ini lewat presign (submit juga memverifikasi via HEAD).
+      contentLength: body.size,
     });
     if (!safe.ok) return res.status(400).json({ success: false, error: safe.error });
 

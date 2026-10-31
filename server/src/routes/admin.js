@@ -82,21 +82,94 @@ router.post('/:action', requireRole(ADMIN_READ_ROLES), async (req, res, next) =>
     if (String(err?.code) === '23514') {
       return res.status(409).json({ success: false, error: err?.message || 'Perubahan ditolak: melanggar periode pameran.' });
     }
+    // SQLSTATE dari INPUT pengguna → 400 dengan pesan yang bisa ditindaklanjuti.
+    // Sebelumnya 22P02/22008/23503 jatuh ke 500 "Terjadi kesalahan server",
+    // padahal user bisa memperbaiki sendiri isiannya.
+    const inputError = PG_INPUT_ERRORS.get(String(err?.code));
+    if (inputError) {
+      return res.status(400).json({ success: false, error: inputError });
+    }
     console.error(`[admin/${action}]`, err);
     // Pesan internal (termasuk teks Postgres) tidak dikirim ke klien.
     res.status(500).json({ success: false, error: 'Terjadi kesalahan server. Coba lagi.' });
   }
 });
 
+/**
+ * SQLSTATE yang berasal dari nilai kiriman klien, bukan kegagalan server.
+ * Pesannya sengaja GENERIK: teks mentah Postgres bisa memuat nama kolom/nilai
+ * baris lain, jadi tidak pernah diteruskan ke respons.
+ *
+ *   22007 tanggal/jam tidak valid       22008 datetime field overflow
+ *   22P02  literal tidak valid (enum, angka, array)
+ *   23503 foreign key tidak ada / masih dipakai
+ */
+const PG_INPUT_ERRORS = new Map([
+  ['22007', 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.'],
+  ['22008', 'Tanggal atau waktu di luar jangkauan yang didukung.'],
+  ['22P02', 'Format nilai tidak valid. Periksa kembali isian Anda.'],
+  ['23503', 'Data terkait tidak ditemukan atau masih dipakai data lain.'],
+]);
+
 // ─── Kolom yang boleh di-insert/update via payload passthrough (hindari
 // overwrite PK/timestamp; mirror whitelist updateEvent/updateTheme). ───────
+// Flag lifecycle (`published`/`published_at`/`deleted`/`deleted_at`) SENGAJA
+// tidak ada di sini: hanya `publishDraft`/`deleteDraft`/`restoreDraft` yang
+// boleh menulisnya. Kalau ikut whitelist, payload passthrough bisa menerbitkan
+// draft tanpa INSERT event — draft berstatus terbit tapi tak pernah tampil di
+// halaman publik (baris yatim; dipulihkan migrasi 2026-10-31).
 const DRAFT_COLUMNS = new Set([
   'date_str', 'date_end', 'day', 'tanggal', 'jam', 'acara', 'lokasi', 'area_id', 'eo',
   'pic', 'phone', 'keterangan', 'internal_note', 'month', 'category', 'categories',
   'priority', 'event_model', 'event_nominal', 'event_model_notes', 'progress',
-  'published', 'published_at', 'deleted', 'deleted_at', 'is_multi_day',
+  'is_multi_day',
   'day_time_slots', 'event_type', 'recurrence_group_id', 'is_recurring',
 ]);
+
+/** Kolom lifecycle draft — ditolak eksplisit, bukan diabaikan diam-diam. */
+const DRAFT_LIFECYCLE_COLUMNS = ['published', 'published_at', 'deleted', 'deleted_at'];
+
+/** Nilai default kolom lifecycle — dipakai untuk membandingkan `createDraft`. */
+const DRAFT_LIFECYCLE_DEFAULTS = {
+  published: false,
+  published_at: null,
+  deleted: false,
+  deleted_at: null,
+};
+
+/**
+ * Kontrak "tolak hanya bila berubah".
+ *
+ * SPA yang masih ter-deploy mengirim KEEMPAT kolom lifecycle di setiap
+ * `updateDraft` dengan nilai dari state lokal (termasuk saat hanya mengubah
+ * `progress`). Menolak begitu saja membuat setiap edit draft gagal 400 di
+ * produksi selama API dan SPA tidak dirilis bersamaan. Jadi payload hanya
+ * ditolak kalau nilainya BERBEDA dari baris saat ini; nilai yang sama adalah
+ * no-op dan tidak masuk SET.
+ *
+ * @param {string} column
+ * @param {unknown} incoming nilai dari payload
+ * @param {unknown} current  nilai kolom saat ini (atau default saat create)
+ * @returns {boolean} true = perubahan nyata (harus ditolak)
+ */
+function lifecycleValueChanged(column, incoming, current) {
+  if (column === 'published' || column === 'deleted') {
+    let wanted;
+    if (typeof incoming === 'boolean') wanted = incoming;
+    else if (incoming === 'true') wanted = true;
+    else if (incoming === 'false') wanted = false;
+    else return true; // tipe tak bisa dibandingkan → anggap perubahan
+    return wanted !== Boolean(current);
+  }
+  const toMs = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const ms = value instanceof Date ? value.getTime() : Date.parse(String(value));
+    return Number.isFinite(ms) ? ms : NaN;
+  };
+  const wanted = toMs(incoming);
+  if (Number.isNaN(wanted)) return true;
+  return wanted !== toMs(current);
+}
 
 const AREA_COLUMNS = new Set(['name', 'description', 'cover_photo_url', 'sort_order', 'is_active']);
 
@@ -332,30 +405,52 @@ async function switchAction(action, req) {
       if (draft.deleted) return { success: false, error: 'Draft sudah dihapus' };
       if (draft.progress !== 'confirm') return { success: false, error: 'Draft harus berstatus Konfirmasi sebelum diterbitkan' };
 
-      // Idempotency: event mungkin sudah ada dari percobaan sebelumnya.
-      const { rows: existing } = await db.query('SELECT id FROM events WHERE source_draft_id = $1 LIMIT 1', [draftId]);
-      if (!existing[0]) {
-        await db.query(
-          `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
-                               keterangan, month, status, category, categories, priority, event_model, event_nominal,
-                               event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
-                               recurrence_group_id, is_recurring)
-           -- 'published' eksplisit: event hasil terbit adalah live (bukan draft).
-           -- Kolom status sebelumnya diisi DEFAULT 'upcoming', yang karena tidak
-           -- pernah diperbarui membuat semua 258 event produksi terkunci di sana.
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
-          [
-            draft.date_str, draft.date_end, draft.day, draft.tanggal, draft.jam, draft.lokasi,
-            draft.area_id, draft.acara, draft.eo, draft.pic, draft.phone, draft.keterangan,
-            draft.month, draft.category, toTextArray(draft.categories || []), draft.priority,
-            draft.event_model, draft.event_nominal, draft.event_model_notes, draftId,
-            draft.is_multi_day, draft.day_time_slots ? JSON.stringify(draft.day_time_slots) : null,
-            draft.event_type, draft.recurrence_group_id, draft.is_recurring,
-          ],
+      // INSERT event + tandai draft terbit HARUS satu transaksi. Sebelumnya dua
+      // `db.query` terpisah: kalau UPDATE gagal setelah INSERT sukses, event
+      // live sudah tampil sementara draft masih "belum terbit" → klik terbit
+      // kedua membuat event duplikat.
+      const didPublish = await db.withTransaction(async (client) => {
+        // Kunci baris draft: tidak ada unique index pada events.source_draft_id,
+        // jadi dua permintaan bersamaan harus diserialkan di sini.
+        const { rows: locked } = await client.query(
+          'SELECT published, deleted, progress FROM draft_events WHERE id = $1 FOR UPDATE',
+          [draftId],
         );
-      }
+        const current = locked[0];
+        if (!current || current.published || current.deleted || current.progress !== 'confirm') {
+          return false;
+        }
 
-      await db.query('UPDATE draft_events SET published = true, published_at = NOW(), progress = $1 WHERE id = $2', ['confirm', draftId]);
+        // Idempotency: event mungkin sudah ada dari percobaan sebelumnya.
+        const { rows: existing } = await client.query('SELECT id FROM events WHERE source_draft_id = $1 LIMIT 1', [draftId]);
+        if (!existing[0]) {
+          await client.query(
+            `INSERT INTO events (date_str, date_end, day, tanggal, jam, lokasi, area_id, acara, eo, pic, phone,
+                                 keterangan, month, status, category, categories, priority, event_model, event_nominal,
+                                 event_model_notes, source_draft_id, is_multi_day, day_time_slots, event_type,
+                                 recurrence_group_id, is_recurring)
+             -- 'published' eksplisit: event hasil terbit adalah live (bukan draft).
+             -- Kolom status sebelumnya diisi DEFAULT 'upcoming', yang karena tidak
+             -- pernah diperbarui membuat semua 258 event produksi terkunci di sana.
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'published',$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+            [
+              draft.date_str, draft.date_end, draft.day, draft.tanggal, draft.jam, draft.lokasi,
+              draft.area_id, draft.acara, draft.eo, draft.pic, draft.phone, draft.keterangan,
+              draft.month, draft.category, toTextArray(draft.categories || []), draft.priority,
+              draft.event_model, draft.event_nominal, draft.event_model_notes, draftId,
+              draft.is_multi_day, draft.day_time_slots ? JSON.stringify(draft.day_time_slots) : null,
+              draft.event_type, draft.recurrence_group_id, draft.is_recurring,
+            ],
+          );
+        }
+
+        await client.query('UPDATE draft_events SET published = true, published_at = NOW(), progress = $1 WHERE id = $2', ['confirm', draftId]);
+        return true;
+      });
+
+      if (!didPublish) {
+        return { success: false, error: 'Draft sudah diterbitkan atau statusnya berubah. Muat ulang daftar draft.' };
+      }
       logActivity(auth.user, 'publish_draft', 'draft', draftId, { acara: draft.acara }, req);
       return { success: true };
     }
@@ -383,6 +478,19 @@ async function switchAction(action, req) {
     // ══════════ DRAFT EVENTS (tulis) ══════════
     case 'createDraft': {
       const data = body.data || {};
+      // `createDraft` adalah INSERT baru: nilai lifecycle yang sama dengan
+      // DEFAULT kolom hanyalah sisa mapper klien (no-op), bukan percobaan
+      // menulis flag. Yang berbeda (mis. `published: true`) tetap ditolak.
+      const lifecycle = DRAFT_LIFECYCLE_COLUMNS.filter(
+        (key) => key in data && lifecycleValueChanged(key, data[key], DRAFT_LIFECYCLE_DEFAULTS[key]),
+      );
+      if (lifecycle.length > 0) {
+        return {
+          success: false,
+          status: 400,
+          error: `Kolom ${lifecycle.join(', ')} hanya boleh diubah lewat aksi terbit/hapus/pulihkan draft.`,
+        };
+      }
       const columns = [];
       const values = [];
       for (const key of Object.keys(data)) {
@@ -409,6 +517,30 @@ async function switchAction(action, req) {
     case 'updateDraft': {
       if (!body.id) return { success: false, error: 'ID draft wajib diisi' };
       const data = body.data || {};
+      // Kontrak "tolak hanya bila berubah" — lihat lifecycleValueChanged.
+      // Nilai lifecycle yang sama dengan baris saat ini diabaikan (bukan masuk
+      // SET); yang berbeda ditolak 400 supaya draft tidak pernah "terbit" tanpa
+      // baris `events`. Satu SELECT tambahan hanya terjadi bila payload memang
+      // membawa kolom lifecycle (kasus SPA lama).
+      const lifecycleKeys = DRAFT_LIFECYCLE_COLUMNS.filter((key) => key in data);
+      if (lifecycleKeys.length > 0) {
+        const { rows } = await db.query(
+          'SELECT published, published_at, deleted, deleted_at FROM draft_events WHERE id = $1 LIMIT 1',
+          [body.id],
+        );
+        const current = rows[0];
+        if (!current) return { success: false, error: 'Draft tidak ditemukan' };
+        const changed = lifecycleKeys.filter(
+          (key) => lifecycleValueChanged(key, data[key], current[key]),
+        );
+        if (changed.length > 0) {
+          return {
+            success: false,
+            status: 400,
+            error: `Kolom ${changed.join(', ')} hanya boleh diubah lewat aksi terbit/hapus/pulihkan draft.`,
+          };
+        }
+      }
       const sets = [];
       const values = [];
       for (const key of Object.keys(data)) {
@@ -423,7 +555,11 @@ async function switchAction(action, req) {
       if (sets.length === 0) return { success: false, error: 'Tidak ada perubahan' };
       values.push(body.id);
       await db.query(`UPDATE draft_events SET ${sets.join(', ')} WHERE id = $${values.length}`, values);
-      logActivity(auth.user, 'update_draft', 'draft', body.id, { fields: Object.keys(data) }, req);
+      // Hanya kolom yang benar-benar masuk SET — flag lifecycle no-op dari SPA
+      // lama tidak ikut tercatat sebagai "perubahan".
+      logActivity(auth.user, 'update_draft', 'draft', body.id, {
+        fields: sets.map((set) => set.split(' = ')[0]),
+      }, req);
       return { success: true };
     }
 
@@ -465,17 +601,23 @@ async function switchAction(action, req) {
 
     case 'deleteAlbum': {
       if (!body.id) return { success: false, error: 'ID album wajib diisi' };
-      // Kumpulkan URL foto album dulu, hapus baris DB, baru hapus file R2
-      // (best-effort per file — mirror api/supabase-admin.js).
-      const { rows: photos } = await db.query(
-        'SELECT url FROM event_photos WHERE album_id = $1',
-        [body.id],
-      );
-      await db.query('DELETE FROM event_photos WHERE album_id = $1', [body.id]);
+      // Baris DB dulu, SATU transaksi: foto + album. File R2 baru dihapus
+      // setelah commit sukses (pola deleteNewsArticle). Urutan sebaliknya
+      // meninggalkan file yatim setiap kali DELETE gagal, dan di sini
+      // sebelumnya R2 dihapus di antara dua DELETE — album yang gagal dihapus
+      // jadi rusak permanen (fotonya hilang dari storage, barisnya tetap ada).
+      const photos = await db.withTransaction(async (client) => {
+        const { rows } = await client.query(
+          'SELECT url FROM event_photos WHERE album_id = $1',
+          [body.id],
+        );
+        await client.query('DELETE FROM event_photos WHERE album_id = $1', [body.id]);
+        await client.query('DELETE FROM photo_albums WHERE id = $1', [body.id]);
+        return rows;
+      });
       if (photos.length > 0) {
         await Promise.all(photos.map((p) => deleteR2File(p.url)));
       }
-      await db.query('DELETE FROM photo_albums WHERE id = $1', [body.id]);
       logActivity(auth.user, 'delete_album', 'album', body.id, null, req);
       return { success: true };
     }
@@ -644,17 +786,21 @@ async function switchAction(action, req) {
 
     case 'deleteEventArea': {
       if (!body.id) return { success: false, error: 'ID area wajib diisi' };
-      // Kumpulkan URL foto area dulu, hapus baris DB (area_photos punya FK
-      // CASCADE), baru hapus file R2 best-effort.
-      const { rows: photos } = await db.query(
-        'SELECT url FROM area_photos WHERE area_id = $1',
-        [body.id],
-      );
-      await db.query('DELETE FROM area_photos WHERE area_id = $1', [body.id]);
+      // Sama seperti deleteAlbum: hapus baris (foto + area) dalam satu
+      // transaksi, file R2 hanya setelah commit. area_photos punya FK CASCADE,
+      // tapi URL-nya harus dibaca SEBELUM barisnya hilang.
+      const photos = await db.withTransaction(async (client) => {
+        const { rows } = await client.query(
+          'SELECT url FROM area_photos WHERE area_id = $1',
+          [body.id],
+        );
+        await client.query('DELETE FROM area_photos WHERE area_id = $1', [body.id]);
+        await client.query('DELETE FROM event_areas WHERE id = $1', [body.id]);
+        return rows;
+      });
       if (photos.length > 0) {
         await Promise.all(photos.map((p) => deleteR2File(p.url)));
       }
-      await db.query('DELETE FROM event_areas WHERE id = $1', [body.id]);
       logActivity(auth.user, 'delete_event_area', 'event_area', body.id, null, req);
       return { success: true };
     }
@@ -997,10 +1143,18 @@ async function switchAction(action, req) {
         `SELECT * FROM community_registrations ORDER BY created_at DESC`,
       );
       // Sama seperti listSponsorLeads: demo = read-only, tapi PII tetap
-      // disamarkan (pic/phone/email) alih-alih dikirim mentah.
+      // disamarkan (pic/phone/email) alih-alih dikirim mentah. Payload
+      // `type_specific_data` (JSONB) memuat blok kontak bersarang per jenis
+      // pendaftar → disamarkan rekursif, bukan hanya kolom datar.
       const isDemo = req.auth?.user?.role === DEMO_ROLE;
       const data = isDemo
-        ? rows.map(r => ({ ...r, pic: maskName(r.pic), phone: maskPhone(r.phone), email: maskEmail(r.email) }))
+        ? rows.map(r => ({
+          ...r,
+          pic: maskName(r.pic),
+          phone: maskPhone(r.phone),
+          email: maskEmail(r.email),
+          type_specific_data: maskPiiDeep(r.type_specific_data),
+        }))
         : rows;
       return { success: true, data };
     }

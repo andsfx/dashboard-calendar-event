@@ -31,6 +31,7 @@ import { db } from '../db.js';
 import {
   requireRole,
   logActivity,
+  canAccessSurveyEvent,
   STAFF_ROLES,
   ANALYTICS_READ_ROLES_WITH_DEMO,
   LIST_READ_ROLES_WITH_DEMO,
@@ -42,6 +43,28 @@ import { jakartaToday, startedOnOrBefore, startedStatusCase } from '../lib/event
 import { csvEscape } from '../lib/csv.js';
 
 const router = Router();
+
+/**
+ * SQLSTATE yang berasal dari nilai kiriman klien → status + pesan Indonesia.
+ * Sebelumnya hanya 23505 yang dipetakan; 22P02/22008/23503 jatuh ke 500
+ * "Terjadi kesalahan server" padahal user bisa memperbaiki sendiri isiannya.
+ *
+ * Pesan sengaja generik: teks mentah Postgres bisa memuat nama kolom/nilai
+ * baris lain, jadi tidak pernah diteruskan ke respons. Peta ini kembar dengan
+ * `PG_INPUT_ERRORS` di routes/admin.js — ubah keduanya bersamaan.
+ */
+const PG_INPUT_ERRORS = new Map([
+  ['22007', 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.'],
+  ['22008', 'Tanggal atau waktu di luar jangkauan yang didukung.'],
+  ['22P02', 'Format nilai tidak valid. Periksa kembali isian Anda.'],
+  ['23503', 'Data terkait tidak ditemukan atau masih dipakai data lain.'],
+]);
+
+/** @returns {{status:number,error:string}|null} null = bukan error input klien */
+function mapPgInputError(err) {
+  const error = PG_INPUT_ERRORS.get(String(err?.code));
+  return error ? { status: 400, error } : null;
+}
 
 // ─── Konfigurasi ───────────────────────────────────────────────────
 const MID_API_KEY = process.env.MID_API_KEY || '';
@@ -771,6 +794,17 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   const errors = validateDraftSubmission(body);
   if (errors.length > 0) return res.status(400).json({ success: false, errors });
 
+  // `eo_tenant` hanya boleh membuat survey untuk event yang ditugaskan
+  // (`users.assigned_events`). Staff bebas. Tanpa ini role EO bisa menyisipkan
+  // survey ke event mana pun portal dengan mengirim event_id tebakan.
+  const eventId = sanitize(body.event_id, 200);
+  if (!canAccessSurveyEvent(user, eventId)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Anda tidak memiliki akses ke event ini. Minta admin menambahkan event tersebut ke akun Anda.',
+    });
+  }
+
   try {
     const { rows } = await db.query(
       `INSERT INTO tenant_event_surveys
@@ -783,7 +817,7 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,'draft')
        RETURNING *`,
       [
-        sanitize(body.event_id, 200),
+        eventId,
         user.id,
         sanitize(body.tenant_name || '', 100),
         sanitize(body.tenant_organization || '', 200),
@@ -814,8 +848,16 @@ router.post('/create', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
         sanitize(body.pic_phone || '', 20),
       ],
     );
-    return res.status(201).json({ success: true, data: rows[0] || null });
+    const created = rows[0] || null;
+    // Hanya NAMA kolom yang dicatat — nilai bisa memuat PII tenant.
+    await logActivity(user, 'create_tenant_survey', 'tenant_survey', created?.id || null, {
+      event_id: eventId,
+      fields: ['tenant_name', 'tenant_organization', 'ratings', 'feedback', 'nama_gerai', 'business_category', 'lift_pct', 'pic'],
+    }, req);
+    return res.status(201).json({ success: true, data: created });
   } catch (err) {
+    const mapped = mapPgInputError(err);
+    if (mapped) return res.status(mapped.status).json({ success: false, error: mapped.error });
     return next(err);
   }
 });
@@ -830,7 +872,7 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
   const role = user?.role;
   try {
     const { rows } = await db.query(
-      'SELECT id, tenant_user_id, status FROM tenant_event_surveys WHERE id = $1 LIMIT 1',
+      'SELECT id, tenant_user_id, status, event_id FROM tenant_event_surveys WHERE id = $1 LIMIT 1',
       [id],
     );
     const existing = rows[0] || null;
@@ -839,6 +881,15 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
     const isStaff = STAFF_ROLES.includes(role);
     if (!isStaff && existing.tenant_user_id !== user.id) {
       return res.status(403).json({ success: false, error: 'Tidak berhak melakukan aksi ini.' });
+    }
+    // Event juga harus ditugaskan ke EO ini (`users.assigned_events`). Baris
+    // miliknya sendiri tidak cukup: survey lama bisa menunjuk event yang sudah
+    // dicabut dari akunnya, dan update tetap akan menulis ke sana.
+    if (!canAccessSurveyEvent(user, existing.event_id)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Anda tidak memiliki akses ke event survey ini. Minta admin menambahkan event tersebut ke akun Anda.',
+      });
     }
     if (!isStaff && existing.status !== 'draft') {
       return res.status(400).json({ success: false, error: 'Hanya survey berstatus draft yang bisa diperbarui.' });
@@ -895,11 +946,16 @@ router.post('/update', requireRole([...STAFF_ROLES, 'eo_tenant']), async (req, r
       `UPDATE tenant_event_surveys SET ${sets.join(', ')} WHERE id = $${values.length} RETURNING *`,
       values,
     );
+    // Nama kolom saja — nilai isian memuat PII tenant dan tidak boleh masuk log.
+    const changedFields = sets.map((set) => set.split(' = ')[0]);
+    await logActivity(user, 'update_tenant_survey', 'tenant_survey', id, { fields: changedFields }, req);
     return res.json({ success: true, data: updated[0] || null });
   } catch (err) {
     if (String(err?.code) === '23505') {
       return res.status(409).json({ success: false, error: 'Survey sudah pernah dikirim untuk event ini.' });
     }
+    const mapped = mapPgInputError(err);
+    if (mapped) return res.status(mapped.status).json({ success: false, error: mapped.error });
     return next(err);
   }
 });

@@ -31,7 +31,7 @@ export function DraftQueueTable({ drafts, onEdit, onDelete, onPublish, onProgres
           <thead>
             <tr className="border-b border-[var(--wf-rule)] bg-[var(--wf-board-2)]">
               {['Tanggal', 'Event', 'Jam', 'EO', 'PIC', 'No. Telepon', 'Lokasi', 'Progress', 'Aksi'].map(label => (
-                <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{label}</th>
+                <th key={label} scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{label}</th>
               ))}
             </tr>
           </thead>

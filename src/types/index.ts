@@ -193,7 +193,8 @@ export interface NewsArticle {
   content: string;
   coverImageUrl: string;
   author: string;
-  status: 'draft' | 'published';
+  /** Hanya ada bila server mengirimnya (endpoint admin). SELECT publik tidak memuat kolom ini. */
+  status?: 'draft' | 'published';
   publishedAt?: string;
   createdAt: string;
   updatedAt?: string;
@@ -594,7 +595,12 @@ export interface TenantEventSurvey extends TenantSurveyRatings {
   tenant_organization: string;
   tenant_email: string;
   tenant_phone: string;
-  business_category: 'fnb' | 'retail' | 'jasa' | 'other';
+  /**
+   * `null` = server tidak mengirim kolom ini (SELECT publik `/tenant/results-list`
+   * memang tidak memuatnya) atau nilainya kosong di DB. Jangan diisi 'other'
+   * di mapper — itu nilai karangan.
+   */
+  business_category: 'fnb' | 'retail' | 'jasa' | 'other' | null;
   business_subcategory: string;
   sales_lift_pct?: number | null;
   traffic_lift_pct?: number | null;

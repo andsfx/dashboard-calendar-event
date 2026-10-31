@@ -2,7 +2,7 @@ import {
   adminAction,
   draftItemToDbRow,
 } from './_shared';
-import { apiPost, ApiError } from '../../lib/rest';
+import { apiPost, ApiError, rewrapApiError } from '../../lib/rest';
 import type { DraftEventItem } from '../../types';
 
 export async function createDraftEvent(
@@ -16,10 +16,7 @@ export async function createDraftEvent(
     try {
       await apiPost<{ success: boolean; error?: string }>('/drafts', { data: draftItemToDbRow(draftData) });
     } catch (err) {
-      if (err instanceof ApiError) {
-        throw new ApiError(err.message ?? 'Gagal membuat draft');
-      }
-      throw err;
+      throw rewrapApiError(err, 'Gagal membuat draft');
     }
     return { row: 0, id: '' };
   }

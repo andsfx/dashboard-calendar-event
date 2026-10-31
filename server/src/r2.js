@@ -111,6 +111,11 @@ function validateExistingKey(fileName) {
   return { ok: true, key };
 }
 
+/** Format batas ukuran untuk pesan pengguna ("20 MB"). */
+function formatMegabytes(bytes) {
+  return `${Math.round(bytes / (1024 * 1024))} MB`;
+}
+
 /**
  * Presign PUT ke R2 untuk folder yang diizinkan.
  *
@@ -118,25 +123,63 @@ function validateExistingKey(fileName) {
  * tenant) supaya aturan key/tipe hanya hidup di satu tempat — bukan dua salinan
  * yang bisa menyimpang. Pemanggil wajib memeriksa `r2Ready` lebih dulu.
  *
- * @returns {{ok:false,error:string} | {ok:true,uploadUrl:string,publicUrl:string,key:string,contentType:string}}
+ * `contentLength` = ukuran objek yang AKAN diunggah (klien mengirim
+ * `file.size`). Kalau diisi, ukuran itu ikut ditandatangani
+ * (`signableHeaders: content-length`) sehingga R2 menolak body dengan panjang
+ * berbeda — upload raksasa tanpa pernah submit jadi tidak mungkin. Nilainya
+ * wajib ≤ `maxBytes` (batas milik route pemanggil), jadi batas itu tidak bisa
+ * dilewati dengan mengaku "kecil" lalu mengirim besar: panjang body harus
+ * PERSIS sama dengan yang ditandatangani.
+ *
+ * Catatan: presigned PUT tidak punya rentang ukuran (itu fitur POST policy),
+ * jadi menandatangani `maxBytes` justru memaksa SEMUA upload berukuran tepat
+ * batas maksimum. Karena itu yang ditandatangani adalah ukuran deklarasi yang
+ * sudah divalidasi, bukan batasnya.
+ *
+ * @param {{folder?: string, originalName?: string, contentType?: string,
+ *          maxBytes?: number, contentLength?: number|string|null}} params
+ * @returns {{ok:false,error:string} | {ok:true,uploadUrl:string,publicUrl:string,key:string,contentType:string,signedContentLength:number|null}}
  */
-export async function createPresignedUpload({ folder, originalName, contentType }) {
+export async function createPresignedUpload({
+  folder,
+  originalName,
+  contentType,
+  maxBytes = MAX_PROPOSAL_BYTES,
+  contentLength,
+}) {
   const safe = buildSafeObjectKey({ folder, originalName, contentType });
   if (!safe.ok) return safe;
+
+  let signedContentLength = null;
+  if (contentLength !== undefined && contentLength !== null && contentLength !== '') {
+    const declared = Number(contentLength);
+    if (!Number.isSafeInteger(declared) || declared <= 0) {
+      return { ok: false, error: 'Ukuran file tidak valid.' };
+    }
+    if (declared > maxBytes) {
+      return { ok: false, error: `Ukuran file melebihi batas ${formatMegabytes(maxBytes)}.` };
+    }
+    signedContentLength = declared;
+  }
 
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET,
     Key: safe.key,
     ContentType: safe.contentType,
+    ...(signedContentLength === null ? {} : { ContentLength: signedContentLength }),
   });
   // `signableHeaders` WAJIB: tanpa ini `ContentType` di atas tidak ikut ditandatangani,
   // sehingga tipe objek yang tersimpan adalah apa pun yang dikirim pengunggah. Siapa pun
   // yang memegang URL presign bisa mengunggah body HTML dengan header `text/html`, lolos
   // dari `validateContentType`, lalu objeknya disajikan sebagai HTML dari origin media
   // publik. Dengan pin ini tipe tersimpan hanya bisa salah satu nilai di ALLOWED_MIME.
+  // `content-length` ikut ditandatangani bila ukurannya dideklarasikan (lihat atas).
+  const signableHeaders = signedContentLength === null
+    ? new Set(['content-type'])
+    : new Set(['content-type', 'content-length']);
   const uploadUrl = await getSignedUrl(R2, command, {
     expiresIn: 300,
-    signableHeaders: new Set(['content-type']),
+    signableHeaders,
   });
 
   return {
@@ -145,6 +188,7 @@ export async function createPresignedUpload({ folder, originalName, contentType 
     publicUrl: `${R2_PUBLIC_URL}/${safe.key}`,
     key: safe.key,
     contentType: safe.contentType,
+    signedContentLength,
   };
 }
 
@@ -216,8 +260,9 @@ export async function verifyMimeMagicBytes(url, mimeType) {
 
 /**
  * HEAD object R2 dari public URL — verifikasi keberadaan + ContentLength
- * (setEventProposal: cap 20MB; ContentLength TIDAK ditandatangani saat
- * presign, jadi dicek post-upload via HEAD).
+ * (setEventProposal: cap 20MB). Sejak presign menandatangani `content-length`
+ * bila klien mendeklarasikan ukuran, HEAD tetap dipakai sebagai otoritas
+ * akhir: klien tanpa deklarasi ukuran masih bisa mengunggah objek besar.
  * @returns {{ ok: true, contentLength: number } | { ok: false, notFound?: boolean, error: string }}
  */
 export async function headR2File(url) {
@@ -249,7 +294,7 @@ router.use((_req, res, next) => {
 // ─── POST /r2/presign ────────────────────────────────────────────
 router.post('/presign', requireRole(['superadmin', 'admin']), async (req, res, next) => {
   try {
-    const { fileName, contentType, folder, originalName } = req.body || {};
+    const { fileName, contentType, folder, originalName, size } = req.body || {};
 
     let folderHint = folder;
     if (!folderHint && fileName) {
@@ -258,10 +303,15 @@ router.post('/presign', requireRole(['superadmin', 'admin']), async (req, res, n
       folderHint = idx > 0 ? raw.slice(0, idx + 1) : 'gallery/';
     }
 
+    // `size` = file.size dari klien. Ikut ditandatangani supaya objek yang
+    // diunggah tidak bisa lebih besar dari yang disetujui server (batas 20MB,
+    // sama dengan cap proposal).
     const safe = await createPresignedUpload({
       folder: folderHint,
       originalName: originalName || (fileName ? String(fileName).split('/').pop() : ''),
       contentType,
+      maxBytes: MAX_PROPOSAL_BYTES,
+      contentLength: size,
     });
     if (!safe.ok) return res.status(400).json({ success: false, error: safe.error });
 
@@ -270,7 +320,13 @@ router.post('/presign', requireRole(['superadmin', 'admin']), async (req, res, n
       contentType: safe.contentType,
     }, req);
 
-    res.json({ success: true, uploadUrl: safe.uploadUrl, publicUrl: safe.publicUrl, fileName: safe.key });
+    res.json({
+      success: true,
+      uploadUrl: safe.uploadUrl,
+      publicUrl: safe.publicUrl,
+      fileName: safe.key,
+      maxBytes: MAX_PROPOSAL_BYTES,
+    });
   } catch (error) {
     console.error('R2 presign error:', error);
     next(error);

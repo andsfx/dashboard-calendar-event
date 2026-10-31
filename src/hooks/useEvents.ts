@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { EventItem, EventStatus, AnnualTheme, HolidayItem } from '../types';
 import { sortEvents, recalculateStatuses, getStatus } from '../utils/eventUtils';
 import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent as apiCreate, updateEvent as apiUpdate, setEventVisibility as apiSetVisibility, deleteEvent as apiDelete, createAnnualTheme as apiCreateTheme, updateAnnualTheme as apiUpdateTheme, deleteAnnualTheme as apiDeleteTheme, batchCreateEvents as apiBatchCreate, deleteRecurringSeries as apiDeleteSeries } from '../utils/domainApi';
@@ -34,9 +34,33 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
   const [activeMonth, setActiveMonth] = useState('Semua');
   const [lastError, setLastError] = useState<AdminError | null>(null);
   const clearLastError = useCallback(() => setLastError(null), []);
+  // Data lokal mungkin sudah tidak sinkron setelah refresh gagal (mis. mutasi
+  // sukses 200 tetapi daftar tidak bisa dimuat ulang). Dipakai UI untuk
+  // menampilkan ajakan "muat ulang", bukan untuk rollback.
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  // Epoch request: respons lama (polling/visibility) tidak boleh menimpa data
+  // dari request yang lebih baru.
+  const requestEpochRef = useRef(0);
+
+  /**
+   * Permukaan error tunggal untuk kegagalan muat/mutasi. `lastError.message`
+   * adalah pesan server apa adanya (mis. 400 validasi, 500) — tanpa ini toast
+   * pemanggil hanya berkata "Perubahan belum tersimpan" dan penyebabnya hilang.
+   */
+  const reportError = useCallback((err: unknown, context: string) => {
+    const ae = toAdminError(err);
+    setLastError(ae);
+    if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
+    else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
+    else if (ae.kind === 'Network') setError('Gagal terhubung ke server. Periksa koneksi lalu coba lagi.');
+    else setError(ae.message || 'Perubahan belum tersimpan. Silakan coba lagi.');
+    console.error(context, err);
+  }, []);
 
   const refreshEvents = useCallback(async (opts?: { silent?: boolean }) => {
     if (!enabled) return;
+    requestEpochRef.current += 1;
+    const epoch = requestEpochRef.current;
     if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
@@ -48,11 +72,32 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
             fetchAdminEvents(),
             fetchThemesAndHolidays(),
           ]);
+          if (epoch !== requestEpochRef.current) return;
           setEvents(recalculateStatuses(adminEvents));
           setThemes(meta.themes);
           setHolidays(meta.holidays);
+          setNeedsRefresh(false);
           return;
         } catch (err) {
+          if (epoch !== requestEpochRef.current) return;
+          const ae = toAdminError(err);
+          // Fallback ke kanal publik HANYA untuk kegagalan bentuk kontrak
+          // (aksi `listEvents` belum ada di API lama, 404, dsb). 401/403 =
+          // sesi bermasalah → serahkan ke penanganan sesi (`useAuth` lewat
+          // `onUnauthorized`), dan 5xx/jaringan = server bermasalah → tampilkan
+          // error. Menelan keduanya membuat dashboard tampil "seperti publik".
+          if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') {
+            setLastError(ae);
+            setError('Sesi berakhir. Masuk ulang untuk melihat jadwal internal.');
+            return;
+          }
+          if (ae.kind === 'ServerError' || ae.kind === 'Network') {
+            setLastError(ae);
+            setError(ae.kind === 'Network'
+              ? 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.'
+              : 'Gagal memuat jadwal internal. Coba lagi beberapa saat lagi.');
+            return;
+          }
           // SPA (Vercel, auto-deploy) dan API (VPS, deploy manual) berversi
           // independen: API yang belum punya aksi `listEvents` membalas error.
           // Jangan biarkan dashboard kosong — turun ke kanal publik (tanpa
@@ -61,14 +106,18 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
         }
       }
       const publicData = await fetchEvents();
+      if (epoch !== requestEpochRef.current) return;
       setEvents(recalculateStatuses(publicData.events));
       setThemes(publicData.themes);
       setHolidays(publicData.holidays);
+      setNeedsRefresh(false);
     } catch (err) {
+      if (epoch !== requestEpochRef.current) return;
       console.error('Fetch error:', err);
       setError('Gagal memuat data event. Periksa koneksi, lalu coba lagi.');
+      setNeedsRefresh(true);
     } finally {
-      if (!opts?.silent) setIsLoading(false);
+      if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
     }
   }, [includeHidden, enabled]);
 
@@ -95,11 +144,21 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       }, 400);
     };
 
+    // Interval tetap 30 s (jangan diubah). Saat tab kembali terlihat, polling
+    // berikutnya bisa masih jauh — refresh sekali di titik itu supaya data
+    // tidak basi setelah pengguna berpindah tab. Epoch guard di `refreshEvents`
+    // memastikan respons lama tidak menimpa hasil yang lebih baru.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshEvents({ silent: true });
+    };
+
     const intervalId = setInterval(scheduleRefresh, 30_000);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       clearTimeout(timer);
       clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [refreshEvents, realtimeEnabled]);
 
@@ -156,15 +215,11 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: created.id || tempId, sheetRow: created.row } : e));
       return true;
     } catch (err) {
-      const ae = toAdminError(err);
-      setLastError(ae);
-      if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
-      else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
-      console.error('Error adding event:', err);
+      reportError(err, 'Error adding event:');
       setEvents(prev => prev.filter(e => e.id !== tempId));
       return false;
     }
-  }, []);
+  }, [reportError]);
 
   const addRecurringEvents = useCallback(async (evs: EventItem[]): Promise<boolean> => {
     if (evs.length === 0) return false;
@@ -186,11 +241,11 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       }));
       return true;
     } catch (err) {
-      console.error('Error adding recurring events:', err);
+      reportError(err, 'Error adding recurring events:');
       setEvents(prev => prev.filter(e => !tempIds.includes(e.id)));
       return false;
     }
-  }, []);
+  }, [reportError]);
 
   const updateEvent = useCallback(async (ev: EventItem, lifecycle?: 'draft' | 'published'): Promise<boolean> => {
     const prevEvent = events.find(e => e.id === ev.id);
@@ -212,17 +267,13 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
         await apiUpdate(optimisticEvent as EventItem & { id: string }, lifecycle);
         return true;
       } catch (err) {
-        const ae = toAdminError(err);
-        setLastError(ae);
-        if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
-        else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
-        console.error('Error updating event:', err);
+        reportError(err, 'Error updating event:');
         if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
         return false;
       }
     }
     return true;
-  }, [events]);
+  }, [events, reportError]);
 
   /**
    * Sembunyikan/tampilkan event di halaman publik. Jalur eksplisit
@@ -240,52 +291,50 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await apiSetVisibility(ev.id, hidden);
       return true;
     } catch (err) {
-      const ae = toAdminError(err);
-      setLastError(ae);
-      if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
-      else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
-      console.error('Error setting event visibility:', err);
+      reportError(err, 'Error setting event visibility:');
       if (prevEvent) setEvents(prev => prev.map(e => e.id === ev.id ? prevEvent : e));
       return false;
     }
-  }, [events]);
+  }, [events, reportError]);
 
   const deleteEvent = useCallback(async (id: string): Promise<boolean> => {
     const target = events.find(e => e.id === id);
     setEvents(prev => prev.filter(e => e.id !== id));
-    if (target?.id) {
-      try {
-        await apiDelete(target.id);
-        await refreshEvents();
-        return true;
-      } catch (err) {
-        const ae = toAdminError(err);
-        setLastError(ae);
-        if (ae.kind === 'Conflict') setError('Data berubah di server. Muat ulang lalu coba lagi.');
-        else if (ae.kind === 'Unauthorized' || ae.kind === 'Forbidden') setError('Sesi berakhir. Masuk ulang untuk menyimpan perubahan.');
-        console.error('Error deleting event:', err);
-        if (target) setEvents(prev => sortEvents([...prev, target]));
-        return false;
-      }
+    if (!target?.id) return true;
+
+    // Tahap 1 — mutasi. Hanya kegagalan DI SINI yang boleh rollback.
+    try {
+      await apiDelete(target.id);
+    } catch (err) {
+      reportError(err, 'Error deleting event:');
+      setEvents(prev => sortEvents([...prev, target]));
+      return false;
     }
+
+    // Tahap 2 — sinkronisasi daftar. Baris sudah hilang di server (200); kalau
+    // refresh gagal, JANGAN rollback (itu menghidupkan kembali baris yang sudah
+    // terhapus dan memunculkan "Gagal menghapus"). `refreshEvents` menandai
+    // `needsRefresh` saat fetch-nya gagal.
+    await refreshEvents({ silent: true });
     return true;
-  }, [events, refreshEvents]);
+  }, [events, refreshEvents, reportError]);
 
   const deleteRecurringSeries = useCallback(async (groupId: string): Promise<boolean> => {
     const targets = events.filter(e => e.recurrenceGroupId === groupId);
-    const targetIds = targets.map(e => e.id);
     setEvents(prev => prev.filter(e => e.recurrenceGroupId !== groupId));
+
+    // Sama seperti deleteEvent: rollback hanya untuk kegagalan mutasi.
     try {
       await apiDeleteSeries(groupId);
-      await refreshEvents();
-      return true;
     } catch (err) {
-      setLastError(toAdminError(err));
-      console.error('Error deleting recurring series:', err);
+      reportError(err, 'Error deleting recurring series:');
       setEvents(prev => sortEvents([...prev, ...targets]));
       return false;
     }
-  }, [events, refreshEvents]);
+
+    await refreshEvents({ silent: true });
+    return true;
+  }, [events, refreshEvents, reportError]);
 
   const addTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
     try {
@@ -298,11 +347,10 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
-      setLastError(toAdminError(err));
-      console.error('Error adding annual theme:', err);
+      reportError(err, 'Error adding annual theme:');
       return false;
     }
-  }, [refreshEvents]);
+  }, [refreshEvents, reportError]);
 
   const updateTheme = useCallback(async (theme: AnnualTheme): Promise<boolean> => {
     if (!theme.id) return false;
@@ -311,11 +359,10 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
-      setLastError(toAdminError(err));
-      console.error('Error updating annual theme:', err);
+      reportError(err, 'Error updating annual theme:');
       return false;
     }
-  }, [refreshEvents]);
+  }, [refreshEvents, reportError]);
 
   const deleteTheme = useCallback(async (themeRef: string | number): Promise<boolean> => {
     try {
@@ -327,11 +374,10 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
       await refreshEvents();
       return true;
     } catch (err) {
-      setLastError(toAdminError(err));
-      console.error('Error deleting annual theme:', err);
+      reportError(err, 'Error deleting annual theme:');
       return false;
     }
-  }, [annualThemes, refreshEvents]);
+  }, [annualThemes, refreshEvents, reportError]);
 
   return {
     events,
@@ -345,6 +391,7 @@ export function useEvents(options?: { realtime?: boolean; includeHidden?: boolea
     error,
     lastError,
     clearLastError,
+    needsRefresh,
     searchQuery, setSearchQuery,
     activeFilter, setActiveFilter,
     activeCategory, setActiveCategory,

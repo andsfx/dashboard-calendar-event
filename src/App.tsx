@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { ScrollToTop } from './components/nav/ScrollToTop';
 import { DashboardSkeleton } from './components/ui/DashboardSkeleton';
 import { ToastContainer } from './components/ui/ToastContainer';
+import type { SectionNavItem } from './components/ui/SectionNav';
 import type { DashboardPageAuth, DashboardPageEvents, DashboardPageDrafts, DashboardPageExhibitions, DashboardPageTenantProposals, DashboardPageTenantParticipations, DashboardPageFilters, DashboardPageView, DashboardPageHandlers, DashboardPageModalState, DashboardPageModalData, DashboardPageRegistrations, DashboardPageSiteSettings } from './components/dashboard/DashboardPage';
 import { getAllowedDashboardPaths, getDefaultDashboardPath, getDefaultAppPath, CONTENT_ROUTES } from './components/dashboard/dashboardNavigation';
 import { DashboardShell } from './components/dashboard/DashboardShell';
@@ -60,6 +61,12 @@ const NewsIndexPage = lazy(() => import('./pages/NewsIndexPage').then(m => ({ de
 const NewsArticlePage = lazy(() => import('./pages/NewsArticlePage').then(m => ({ default: m.NewsArticlePage })));
 const SponsorLandingPage = lazy(() => import('./pages/SponsorLandingPage').then(m => ({ default: m.SponsorLandingPage })));
 const DocsPage = lazy(() => import('./pages/DocsPage').then(m => ({ default: m.DocsPage })));
+// Lab motion: bench GSAP, sengaja tidak ditautkan dari nav mana pun dan hanya
+// ada di build dev. `vite build` meng-inline `import.meta.env.DEV` jadi false,
+// sehingga lazy import halaman ini ikut dibuang dari bundle produksi.
+const MotionLabPage = import.meta.env.DEV
+  ? lazy(() => import('./pages/MotionLabPage').then(m => ({ default: m.MotionLabPage })))
+  : null;
 const TenantDirectoryPage = lazy(() => import('./pages/TenantDirectoryPage').then(m => ({ default: m.TenantDirectoryPage })));
 const CommunityDirectoryPage = lazy(() => import('./pages/CommunityDirectoryPage').then(m => ({ default: m.CommunityDirectoryPage })));
 const ExhibitionsLandingPage = lazy(() => import('./pages/ExhibitionsLandingPage').then(m => ({ default: m.ExhibitionsLandingPage })));
@@ -74,6 +81,16 @@ const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSur
 function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
 }
+
+/**
+ * `/tenant-survey-results` tidak punya section `featured/summary/calendar/views/themes`
+ * (itu milik halaman Event). Sebelumnya daftar yang sama dikirim ke rute ini,
+ * jadi lima tab di rail tidak melakukan apa-apa. `SectionNav` menyembunyikan
+ * dirinya saat daftar kosong — chrome shell tetap, tanpa tab mati. Konstanta
+ * modul (bukan literal `[]`) menjaga referensi stabil agar efek observer
+ * `SectionNav` tidak dipasang ulang tiap render.
+ */
+const TENANT_SURVEY_SECTION_ITEMS: SectionNavItem[] = [];
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -262,7 +279,6 @@ export default function App() {
   ], [ongoingEvents.length, upcomingEvents.length]);
   const allowedDashboardPaths = useMemo(() => new Set(getAllowedDashboardPaths(permissions)), [permissions]);
   const defaultDashboardPath = useMemo(() => getDefaultDashboardPath(permissions), [permissions]);
-
   useEffect(() => { if (!canSeeInternalSchedule && activeFilter === 'draft') setActiveFilter('Semua'); }, [canSeeInternalSchedule, activeFilter, setActiveFilter]);
   useEffect(() => { if (!permissions.canEditEvents && (viewMode === 'calendar' || viewMode === 'kanban')) setViewMode('table'); }, [permissions.canEditEvents, viewMode]);
   useEffect(() => { if (!isAdmin && activePriority !== 'Semua') setActivePriority('Semua'); }, [isAdmin, activePriority, setActivePriority]);
@@ -418,6 +434,14 @@ export default function App() {
           <DocsPage isDark={isDark} onToggleDark={toggleDark} />
         </Suspense>
       } />
+      {/* Lab motion — bench prototipe, hanya di build dev */}
+      {import.meta.env.DEV && MotionLabPage && (
+        <Route path="/motion-lab" element={
+          <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+            <MotionLabPage isDark={isDark} onToggleDark={toggleDark} />
+          </Suspense>
+        } />
+      )}
       {/* Pameran & kolaborasi — publik */}
       <Route path="/pameran" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
@@ -531,7 +555,7 @@ export default function App() {
             onOpenEventAreaManager={() => navigate(CONTENT_ROUTES['event-areas'])}
             onLoginClick={() => setShowLoginModal(true)}
             ongoingCount={visibleStats.ongoing}
-            publicSectionItems={publicSectionItems}
+            publicSectionItems={TENANT_SURVEY_SECTION_ITEMS}
             modals={null}
           >
             <TenantSurveyResultsPage events={events} canExport={permissions.canExportTenantSurveyAnalytics} publicMode />

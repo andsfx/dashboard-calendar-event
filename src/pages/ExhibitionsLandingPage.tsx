@@ -6,6 +6,7 @@ import { fetchPublicExhibitions, fetchPublicExhibition, submitExhibitionLead } f
 import { formatDateRange } from '../utils/eventUtils';
 import { validateEmail, validatePhone } from '../utils/validation';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 
 interface Props {
@@ -113,7 +114,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
         {!isLoading && loadError && (
           <div className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 p-5 dark:border-red-800 dark:bg-red-950/40">
-            <p className="text-sm text-red-600 dark:text-red-400">{loadError}</p>
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400">{loadError}</p>
             <button type="button" onClick={() => setRetryCount(c => c + 1)} className="mt-3 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-4 py-2 text-sm font-bold text-white">
               <RefreshCw className="h-4 w-4" aria-hidden="true" /> Coba lagi
             </button>
@@ -121,7 +122,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
         )}
 
         {!isLoading && !loadError && !id && (
-          <>
+          <RevealSection as="div" refreshKey={`${list.length}:${list[0]?.id ?? ''}`}>
             <h1 className="font-display text-3xl font-extrabold sm:text-4xl">Kolaborasi Pameran</h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
               Metropolitan Mall Bekasi mengajak brand dan event organizer mengisi pameran bersama tim Casual Leasing dan Marcomm, baik sebagai peserta booth maupun pengisi aktivasi.
@@ -133,7 +134,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
 
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {list.map(item => (
-                <li key={item.id} className="rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-5 dark:border-slate-700 dark:bg-slate-900">
+                <li key={item.id} data-reveal-item className="rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-5 dark:border-slate-700 dark:bg-slate-900">
                   <h2 className="font-display text-xl font-bold">{item.title}</h2>
                   {item.theme && <p className="mt-1 text-sm font-medium text-brand-primary-700 dark:text-brand-primary-300">{item.theme}</p>}
                   <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
@@ -154,11 +155,12 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                 Saat ini belum ada pameran yang membuka pengajuan kolaborasi baru.
               </p>
             )}
-          </>
+          </RevealSection>
         )}
 
         {!isLoading && !loadError && id && exhibition && (
           <>
+            <RevealSection as="div" refreshKey={`${exhibition.id}:${detail?.activations.length ?? 0}`}>
             <Link to="/pameran" className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Semua pameran
             </Link>
@@ -169,15 +171,16 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
               {exhibition.location && <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" aria-hidden="true" />{exhibition.location}</span>}
             </p>
             {exhibition.description && <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">{exhibition.description}</p>}
+            </RevealSection>
 
             {exhibition.collaborationBrief && (
-              <section className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-5 dark:border-slate-700 dark:bg-slate-900">
+              <RevealSection className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-5 dark:border-slate-700 dark:bg-slate-900">
                 <h2 className="font-display text-lg font-bold">Yang Kami Cari</h2>
                 <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">{exhibition.collaborationBrief}</p>
-              </section>
+              </RevealSection>
             )}
 
-            <section className="mt-8">
+            <RevealSection className="mt-8" refreshKey={detail?.activations.length ?? 0}>
               <h2 className="font-display text-lg font-bold">Agenda Aktivasi</h2>
               {detail && detail.activations.length === 0 && (
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -196,10 +199,12 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                   </li>
                 ))}
               </ul>
-            </section>
+            </RevealSection>
 
             <section id="ajukan" className="mt-10 rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--brand-card)] p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
-              <h2 className="font-display text-lg font-bold">Ajukan Kolaborasi</h2>
+              <RevealSection as="div">
+                <h2 className="font-display text-lg font-bold">Ajukan Kolaborasi</h2>
+              </RevealSection>
 
               {!exhibition.acceptingApplications && (
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -221,7 +226,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                       Nama brand / EO <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input id="lead-org" className={inputClass} value={form.organizationName} onChange={e => setForm({ ...form, organizationName: e.target.value })} aria-invalid={!!fieldErrors.organizationName} aria-describedby={fieldErrors.organizationName ? 'lead-org-err' : undefined} />
-                    {fieldErrors.organizationName && <p id="lead-org-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.organizationName}</p>}
+                    {fieldErrors.organizationName && <p id="lead-org-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.organizationName}</p>}
                   </div>
 
                   <div>
@@ -246,7 +251,7 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                       Nama PIC <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input id="lead-contact" className={inputClass} value={form.contactName} onChange={e => setForm({ ...form, contactName: e.target.value })} aria-invalid={!!fieldErrors.contactName} aria-describedby={fieldErrors.contactName ? 'lead-contact-err' : undefined} />
-                    {fieldErrors.contactName && <p id="lead-contact-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.contactName}</p>}
+                    {fieldErrors.contactName && <p id="lead-contact-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.contactName}</p>}
                   </div>
 
                   <div>
@@ -254,22 +259,22 @@ export function ExhibitionsLandingPage({ isDark, onToggleDark }: Props) {
                       Nomor WhatsApp <span className="text-rose-600" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                     </label>
                     <input id="lead-phone" className={inputClass} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="08xxxxxxxxxx" aria-invalid={!!fieldErrors.phone} aria-describedby={fieldErrors.phone ? 'lead-phone-err' : undefined} />
-                    {fieldErrors.phone && <p id="lead-phone-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.phone}</p>}
+                    {fieldErrors.phone && <p id="lead-phone-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.phone}</p>}
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className={labelClass} htmlFor="lead-email">Email</label>
                     <input id="lead-email" className={inputClass} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email ? 'lead-email-err' : undefined} />
-                    {fieldErrors.email && <p id="lead-email-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
+                    {fieldErrors.email && <p id="lead-email-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.email}</p>}
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className={labelClass} htmlFor="lead-proposal">Konsep kontribusi</label>
                     <textarea id="lead-proposal" rows={4} className={inputClass} value={form.proposal} onChange={e => setForm({ ...form, proposal: e.target.value })} placeholder="Contoh: beauty class 60 menit untuk 30 peserta." aria-invalid={!!fieldErrors.proposal} aria-describedby={fieldErrors.proposal ? 'lead-proposal-err' : undefined} />
-                    {fieldErrors.proposal && <p id="lead-proposal-err" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.proposal}</p>}
+                    {fieldErrors.proposal && <p id="lead-proposal-err" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.proposal}</p>}
                   </div>
 
-                  {submitError && <p className="sm:col-span-2 text-sm text-red-600 dark:text-red-400">{submitError}</p>}
+                  {submitError && <p role="alert" className="sm:col-span-2 text-sm text-red-600 dark:text-red-400">{submitError}</p>}
 
                   <div className="sm:col-span-2">
                     <button type="submit" disabled={submitting} className="inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60">

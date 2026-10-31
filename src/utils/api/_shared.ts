@@ -177,6 +177,16 @@ export function dbDraftToDraftItem(row: DbDraft, index: number): DraftEventItem 
   };
 }
 
+/**
+ * Draft (camelCase) → baris DB (snake_case). HANYA kolom konten.
+ *
+ * Flag lifecycle (`published`/`published_at`/`deleted`/`deleted_at`) SENGAJA
+ * tidak dipetakan: satu-satunya jalur yang boleh mengubahnya adalah aksi
+ * eksplisit `publishDraft`/`deleteDraft`/`restoreDraft`, yang juga menjaga
+ * `events` tetap konsisten. Dulu `updateDraft` ikut mengirim flag dari state
+ * klien sehingga simpan progres bisa menghidupkan/mematikan draft tanpa aksi.
+ * Pemetaan BACA (`dbDraftToDraftItem`) tetap membawa keempatnya.
+ */
 export function draftItemToDbRow(draft: Partial<DraftEventItem>): Record<string, unknown> {
   const row: Record<string, unknown> = {};
   if (draft.dateStr !== undefined) row.date_str = draft.dateStr;
@@ -200,10 +210,6 @@ export function draftItemToDbRow(draft: Partial<DraftEventItem>): Record<string,
   if (draft.eventNominal !== undefined) row.event_nominal = draft.eventNominal;
   if (draft.eventModelNotes !== undefined) row.event_model_notes = draft.eventModelNotes;
   if (draft.progress !== undefined) row.progress = draft.progress;
-  if (draft.published !== undefined) row.published = draft.published;
-  if (draft.publishedAt !== undefined) row.published_at = draft.publishedAt || null;
-  if (draft.deleted !== undefined) row.deleted = draft.deleted;
-  if (draft.deletedAt !== undefined) row.deleted_at = draft.deletedAt || null;
   if (draft.isMultiDay !== undefined) row.is_multi_day = draft.isMultiDay;
   if (draft.dayTimeSlots !== undefined) row.day_time_slots = draft.dayTimeSlots;
   if (draft.eventType !== undefined) row.event_type = draft.eventType;

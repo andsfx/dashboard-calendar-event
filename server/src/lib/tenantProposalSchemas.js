@@ -10,12 +10,17 @@
 import { z } from 'zod';
 
 import { jakartaToday } from './eventWindow.js';
+// Satu-satunya sumber aturan "tanggal nyata": regex YYYY-MM-DD saja meloloskan
+// 2027-02-31, yang baru ditolak Postgres saat di-bind ke kolom DATE (22008) —
+// pengguna anonim menerima 500 padahal isiannya bisa diperbaiki sendiri.
+import { isRealDate } from './tenantParticipationSchemas.js';
 
 const PHONE_REGEX = /^(\+62|62|0)8[0-9]{8,12}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const isoDate = z.string().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD');
+const isoDate = z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD')
+  .refine(isRealDate, 'Tanggal tidak valid (mis. 31 Februari). Periksa kembali.');
 
 /** Jenis kegiatan yang bisa diajukan tenant. `other` = tidak masuk daftar. */
 export const TENANT_EVENT_TYPES = ['promo', 'workshop', 'exhibition', 'performance', 'launching', 'other'];
@@ -35,7 +40,7 @@ export const tenantEventProposalSchema = z.object({
   eventType: z.enum(TENANT_EVENT_TYPES, { message: 'Pilih jenis event' }).optional().default('other'),
   eventDescription: z.string().trim().min(10, 'Deskripsi event minimal 10 karakter').max(4000, 'Deskripsi maksimal 4000 karakter'),
   proposedStart: isoDate,
-  proposedEnd: z.string().trim().regex(ISO_DATE, 'Format tanggal harus YYYY-MM-DD').or(z.literal('')).optional().default(''),
+  proposedEnd: isoDate.or(z.literal('')).optional().default(''),
   preferredArea: z.string().trim().max(200, 'Area maksimal 200 karakter').optional().default(''),
   expectedVisitors: z.string().trim().max(100, 'Perkiraan pengunjung maksimal 100 karakter').optional().default(''),
   needs: z.string().trim().max(2000, 'Kebutuhan fasilitas maksimal 2000 karakter').optional().default(''),

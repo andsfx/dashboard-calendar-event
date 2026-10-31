@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useEvents } from '../useEvents';
-import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent } from '../../utils/domainApi';
+import { fetchEvents, fetchAdminEvents, fetchThemesAndHolidays, createEvent, updateEvent, deleteEvent } from '../../utils/domainApi';
 import { recalculateStatuses } from '../../utils/eventUtils';
 import { ApiError } from '../../lib/rest';
 import { EventItem } from '../../types';
@@ -283,4 +283,99 @@ describe('useEvents', () => {
     expect(result.current.error).toBe('Data berubah di server. Muat ulang lalu coba lagi.');
   });
 
+  it('kegagalan validasi 400 menampilkan pesan server, bukan hanya "belum tersimpan"', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    vi.mocked(updateEvent).mockRejectedValueOnce(
+      new ApiError('Kategori tidak dikenali', '400'),
+    );
+
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateEvent({ ...mockEvents[0]!, acara: 'Revisi' });
+    });
+
+    expect(result.current.lastError?.message).toBe('Kategori tidak dikenali');
+    expect(result.current.error).toBe('Kategori tidak dikenali');
+  });
+
+  // ─── Sesi & kanal ──────────────────────────────────────────────
+  it('401 pada kanal admin TIDAK fallback ke kanal publik', async () => {
+    vi.mocked(fetchAdminEvents).mockRejectedValueOnce(
+      new ApiError('Tidak terautentikasi', '401'),
+    );
+    vi.mocked(fetchThemesAndHolidays).mockResolvedValueOnce({ themes: [], holidays: [] });
+
+    const { result } = renderHook(() => useEvents({ includeHidden: true }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(fetchEvents).not.toHaveBeenCalled();
+    expect(result.current.events).toEqual([]);
+    expect(result.current.lastError?.kind).toBe('Unauthorized');
+    expect(result.current.error).toBe('Sesi berakhir. Masuk ulang untuk melihat jadwal internal.');
+  });
+
+  it('5xx pada kanal admin TIDAK fallback ke kanal publik', async () => {
+    vi.mocked(fetchAdminEvents).mockRejectedValueOnce(
+      new ApiError('Terjadi kesalahan server. Coba lagi.', '500'),
+    );
+    vi.mocked(fetchThemesAndHolidays).mockResolvedValueOnce({ themes: [], holidays: [] });
+
+    const { result } = renderHook(() => useEvents({ includeHidden: true }));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(fetchEvents).not.toHaveBeenCalled();
+    expect(result.current.error).toBe('Gagal memuat jadwal internal. Coba lagi beberapa saat lagi.');
+  });
+
+  // ─── Hapus: mutasi vs refresh ──────────────────────────────────
+  it('hapus sukses + refresh gagal TIDAK menghidupkan kembali baris', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    vi.mocked(deleteEvent).mockResolvedValueOnce(undefined);
+    // Refresh setelah DELETE sukses gagal (server/jaringan).
+    vi.mocked(fetchEvents).mockRejectedValueOnce(new Error('refresh down'));
+
+    let success = false;
+    await act(async () => { success = await result.current.deleteEvent('1'); });
+
+    expect(success).toBe(true);
+    expect(result.current.events).toEqual([]);
+    expect(result.current.needsRefresh).toBe(true);
+    expect(result.current.lastError).toBeNull();
+  });
+
+  it('hapus yang gagal di server mengembalikan baris dan lapor error', async () => {
+    vi.mocked(fetchEvents).mockResolvedValueOnce({ events: mockEvents, themes: [], holidays: [] });
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    vi.mocked(deleteEvent).mockRejectedValueOnce(new ApiError('Gagal menghapus event', '500'));
+
+    let success = true;
+    await act(async () => { success = await result.current.deleteEvent('1'); });
+
+    expect(success).toBe(false);
+    expect(result.current.events).toHaveLength(1);
+    expect(result.current.lastError?.message).toBe('Gagal menghapus event');
+  });
+
+  // ─── Polling & visibility ──────────────────────────────────────
+  it('visibilitychange saat tab kembali terlihat memicu refresh silent', async () => {
+    vi.mocked(fetchEvents).mockResolvedValue({ events: [], themes: [], holidays: [] });
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(fetchEvents).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await waitFor(() => expect(fetchEvents).toHaveBeenCalledTimes(2));
+    // Silent: skeleton tidak berkedip.
+    expect(result.current.isLoading).toBe(false);
+  });
 });

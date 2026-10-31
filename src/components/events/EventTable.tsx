@@ -286,22 +286,22 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
           <caption className="sr-only">Tabel jadwal event</caption>
           <thead className="sticky top-0 z-10 bg-[var(--wf-board-2)]">
             <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
-              <th className="px-4 py-3 text-left">
+              <th scope="col" className="px-4 py-3 text-left">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
                   <ArrowUpDown className="h-3 w-3" aria-hidden="true" /> Tanggal
                 </span>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</th>
-              {isAdmin && <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</th>}
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</th>
+              {isAdmin && <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</th>}
+              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
               {/* `sticky right-0`: kolom Aksi dipin di kanan supaya tombol
                   Sembunyikan/Ubah/Hapus SELALU terlihat tanpa perlu menggeser
                   tabel ke kanan. `z-20` agar berada di atas sel-sel lain. */}
-              <th className="sticky right-0 z-20 border-l border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
+              <th scope="col" className="sticky right-0 z-20 border-l border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--wf-rule)]">

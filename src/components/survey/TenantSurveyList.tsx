@@ -543,12 +543,12 @@ export default function TenantSurveyList({
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
 <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
-                    <th className="px-4 py-3">Tenant</th>
-                    <th className="px-4 py-3">Event</th>
-                    <th className="px-4 py-3">Impact</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Tanggal</th>
-                    <th className="px-4 py-3 text-right">Aksi</th>
+                    <th scope="col" className="px-4 py-3">Tenant</th>
+                    <th scope="col" className="px-4 py-3">Event</th>
+                    <th scope="col" className="px-4 py-3">Dampak</th>
+                    <th scope="col" className="px-4 py-3">Status</th>
+                    <th scope="col" className="px-4 py-3">Tanggal</th>
+                    <th scope="col" className="px-4 py-3 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--wf-rule)]">

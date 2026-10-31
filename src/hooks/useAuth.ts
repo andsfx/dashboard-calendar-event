@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AuthUser, AuthState, LoginResult } from '../types/auth';
-import { apiGet, apiPost } from '../lib/rest';
+import { apiGet, apiPost, setUnauthorizedHandler } from '../lib/rest';
 
 /**
  * useAuth — manages authentication state (Opsi B: REST + cookie HttpOnly).
@@ -71,6 +71,20 @@ export function useAuth() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // ─── Sesi kedaluwarsa di tengah pemakaian ───────────────────────
+  // `/auth/me` hanya dicek saat mount. Tanpa listener ini, aksi admin yang
+  // dibalas 401 (token dicabut `users.token_version`, cookie kedaluwarsa)
+  // membiarkan `user` lama hidup: `/dashboard` tetap dirender tanpa data,
+  // dan pengguna melihat dashboard kosong, bukan form login.
+  useEffect(() => {
+    if (DEV_AUTO_LOGIN) return;
+    setUnauthorizedHandler(() => {
+      setUser(null);
+      setIsLoading(false);
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   // ─── Login with email + password ────────────────────────────────

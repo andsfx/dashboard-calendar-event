@@ -6,11 +6,15 @@ import type { NewsArticle } from '../../types';
 // ─── News / Blog ─────────────────────────────────────────────────
 
 function mapRow(row: Record<string, unknown>): NewsArticle {
+  // SELECT publik (`GET /news`, `/news/:slug`) memang tidak memuat `status` —
+  // nilainya hanya ada di daftar admin. Jangan mengarang 'draft': berita yang
+  // tampil di halaman publik bukan draft, dan admin butuh status asli.
+  const status = row.status === 'published' || row.status === 'draft' ? row.status : undefined;
   return {
     id: String(row.id), title: String(row.title), slug: String(row.slug),
     excerpt: String(row.excerpt || ''), content: String(row.content || ''),
     coverImageUrl: String(row.cover_image_url || ''), author: String(row.author || ''),
-    status: row.status === 'published' ? 'published' : 'draft',
+    ...(status ? { status } : {}),
     publishedAt: row.published_at ? String(row.published_at) : undefined,
     createdAt: String(row.created_at), updatedAt: row.updated_at ? String(row.updated_at) : undefined,
   };

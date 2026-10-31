@@ -137,7 +137,7 @@ export function getDashboardNavGroups(
       label: 'Ringkasan',
       items: [
         ...(!isTrOnly ? [{ id: 'overview', label: 'Pusat Komando', icon: <LayoutDashboard className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard' }] : []),
-        ...(!isTrOnly ? [{ id: 'insights', label: 'Insight Cerdas', icon: <Sparkles className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/insights' }] : []),
+        ...(!isTrOnly && !permissions.isDemo ? [{ id: 'insights', label: 'Insight Cerdas', icon: <Sparkles className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/insights' }] : []),
         ...(permissions.canViewSurvey ? [{ id: 'analytics', label: 'Analitik', icon: <BarChart3 className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/dashboard/analytics' }] : []),
         ...(permissions.canViewTenantSurveyResults ? [{ id: 'tenant-survey-results', label: 'Hasil Evaluasi Tenant', icon: <TrendingUp className={NAV} strokeWidth={sw} />, action: 'route' as const, route: '/tenant-survey-results' }] : []),
       ],
@@ -426,7 +426,7 @@ export function getCommandCenterCards({
       route: '/dashboard/analytics',
       group: 'Ringkasan' as const,
     }] : []),
-    ...(!isTrOnly ? [{
+    ...(!isTrOnly && !permissions.isDemo ? [{
       id: 'insights',
       title: 'Insight Cerdas',
       subtitle: MODULE_PURPOSE['/insights'] ?? 'Analisis otomatis dan rekomendasi tindakan',

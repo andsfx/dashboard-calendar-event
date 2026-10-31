@@ -92,8 +92,13 @@ export function useDraftEvents(enabled = false) {
     setDraftEvents(prev => prev.map(item => item.id === draft.id ? draft : item));
     if (!draft.id) return true;
 
+    // Flag lifecycle hanya boleh berubah lewat publish/delete/restore. Buang
+    // di sini juga (bukan hanya di mapper) supaya objek apa pun yang disebar
+    // pemanggil — mis. `{ ...draft, progress }` — tidak mengirimnya walau
+    // suatu saat mapper berubah. State lokal tetap memakai objek penuh.
+    const { published: _published, publishedAt: _publishedAt, deleted: _deleted, deletedAt: _deletedAt, ...content } = draft;
     try {
-      await apiUpdateDraft(draft as DraftEventItem & { id: string });
+      await apiUpdateDraft(content as DraftEventItem & { id: string });
       return true;
     } catch (err) {
       console.error('Error updating draft:', err);

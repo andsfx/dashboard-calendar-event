@@ -255,7 +255,7 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
   const triggerActive = active === true || open;
   const triggerClass = pinned
     ? triggerActive
-      ? 'text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]'
+      ? 'text-[var(--brand-tosca-600)] dark:text-[var(--brand-tosca-soft)]'
       : 'text-slate-700 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]'
     : 'text-white/90 hover:text-white';
 

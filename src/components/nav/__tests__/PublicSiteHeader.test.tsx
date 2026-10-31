@@ -212,12 +212,7 @@ describe('PublicSiteHeader', () => {
     // Bar desktop: tidak ada link primer yang aktif, jadi lokasi harus terbaca
     // dari trigger `Jelajahi`.
     const trigger = screen.getByRole('button', { name: /Jelajahi/ });
-    // Kelas aktif harus EKSKLUSIF: dulu trigger merangkai `text-slate-700` dan
-    // `text-[var(--brand-tosca)]` sekaligus sehingga urutan CSS menentukan
-    // pemenangnya dan warna aktif tidak pernah terlihat. jsdom tidak punya
-    // CSS engine, jadi computed color tidak bisa dipakai di sini.
-    expect(trigger.className).toContain('text-[var(--brand-tosca)]');
-    expect(trigger.className).not.toContain('text-slate-700');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(
       within(screen.getByRole('navigation', { name: 'Navigasi utama' }))
         .getAllByRole('link')
@@ -225,6 +220,7 @@ describe('PublicSiteHeader', () => {
     ).toHaveLength(0);
 
     await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
     const group = screen.getByRole('group', { name: 'Jelajahi' });
     expect(within(group).getByRole('link', { name: 'Sponsor' })).toHaveAttribute(
@@ -234,6 +230,12 @@ describe('PublicSiteHeader', () => {
     expect(within(group).getByRole('link', { name: 'Dokumentasi' })).not.toHaveAttribute(
       'aria-current',
     );
+
+    // Escape menutup panel dan mengembalikan fokus ke trigger.
+    await user.keyboard('{Escape}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveFocus();
+    expect(screen.queryByRole('group', { name: 'Jelajahi' })).not.toBeInTheDocument();
   });
 
   it('tidak memuat em dash atau en dash di teks header', async () => {

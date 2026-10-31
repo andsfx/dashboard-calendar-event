@@ -23,7 +23,8 @@ import {
   publicUser,
 } from '../auth.js';
 
-/** 15 aksi baca yang memang dibuka untuk demo (perilaku lama, tidak berubah). */
+/** Aksi baca demo-only (bukan diizinkan viewer). Demo = 14 aksi total setelah
+ *  `getInsightNarrative` dikecualikan (akun peragaan yang dibagikan). */
 const DEMO_ONLY_READ_ACTIONS = [
   'listEvents',
   'readDrafts',
@@ -40,6 +41,8 @@ const VIEWER_ALLOWED = [
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',
+  // SPEC.md §2: viewer (staf read-only) tetap punya Insight Cerdas.
+  'getInsightNarrative',
 ];
 
 const VIEWER_DENIED_READS = [
@@ -75,12 +78,23 @@ describe('viewer — allowlist sempit', () => {
   });
 });
 
-describe('demo — seluruh aksi baca terbuka', () => {
-  it('mengizinkan ke-15 aksi baca', () => {
-    expect(DEMO_READ_ACTIONS.size).toBe(15);
+describe('demo — baca terbuka kecuali aksi berbiaya AI', () => {
+  it('mengizinkan aksi baca yang tersisa', () => {
+    // 15 → 14: `getInsightNarrative` dikeluarkan dari allowlist DEMO saja
+    // (audit 2026-10-31): akun peragaan dibagikan, sedangkan handler memanggil
+    // API AI berbayar + INSERT log. Viewer tetap memilikinya (SPEC.md §2).
+    expect(DEMO_READ_ACTIONS.size).toBe(14);
     for (const action of DEMO_READ_ACTIONS) {
       expect(canPerformAdminAction('demo', action), action).toBe(true);
     }
+  });
+
+  it('menolak aksi yang menagih biaya AI untuk akun bersama (demo) saja', () => {
+    // `demo` = akun peragaan yang dibagikan: API AI berbayar per panggilan +
+    // INSERT activity_logs. Viewer adalah staf read-only yang menurut SPEC.md §2
+    // memang berhak Insight Cerdas → tetap diizinkan.
+    expect(canPerformAdminAction('demo', 'getInsightNarrative')).toBe(false);
+    expect(canPerformAdminAction('viewer', 'getInsightNarrative')).toBe(true);
   });
 
   it('tetap menolak aksi tulis', () => {

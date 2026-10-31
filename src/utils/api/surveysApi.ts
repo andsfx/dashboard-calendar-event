@@ -1,4 +1,4 @@
-import { apiGet, apiPost, ApiError } from '../../lib/rest';
+import { apiGet, apiPost, ApiError, rewrapApiError } from '../../lib/rest';
 import { adminAction } from './_shared';
 import type {
   CommunityRegistration, TenantEventSurvey, TenantSurveyFormData,
@@ -68,7 +68,7 @@ export interface RegistrationProposalUpload {
  * Presign + PUT a registration proposal / company profile straight to R2.
  * Hanya metadata yang lewat REST; file biner langsung ke presigned URL.
  *
- * `POST /registrations/attachment` { originalName, contentType } →
+ * `POST /registrations/attachment` { originalName, contentType, size } →
  * `{ success, uploadUrl, publicUrl, fileName }`, lalu PUT file ke `uploadUrl`.
  * Route ini publik (form pendaftaran tanpa sesi), berbeda dari `/r2/presign`
  * yang staff-only.
@@ -80,10 +80,12 @@ export async function uploadRegistrationAttachment(file: File): Promise<Registra
       originalName: file.name,
       contentType: file.type,
       proposalMimeType: file.type,
+      // `size` dibaca server (`extra.js` → contentLength: body.size) dan ikut
+      // ditandatangani; tanpa ini batas 20 MB tidak ditegakkan di presign.
+      size: file.size,
     });
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal menyiapkan unggahan berkas');
-    throw new ApiError('Gagal menyiapkan unggahan berkas. Periksa koneksi Anda.');
+    throw rewrapApiError(err, 'Gagal menyiapkan unggahan berkas');
   }
   if (!presign.success) throw new ApiError(presign.error || 'Gagal menyiapkan unggahan berkas');
   if (!presign.uploadUrl || !presign.publicUrl) throw new ApiError('Gagal menyiapkan unggahan berkas');
@@ -144,8 +146,7 @@ export async function submitCommunityRegistration(data: {
     if (!result.success) throw new ApiError(result.error || 'Gagal mendaftar');
     return { id: result.id || '' };
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mendaftar');
-    throw err;
+    throw rewrapApiError(err, 'Gagal mendaftar');
   }
 }
 
@@ -214,7 +215,9 @@ export async function deleteGeneratedLetter(id: string): Promise<void> {
 interface DbTenantSurvey {
   id: string; event_id: string; tenant_user_id: string | null; tenant_name: string;
   tenant_organization: string; tenant_email: string; tenant_phone: string;
-  business_category: 'fnb' | 'retail' | 'jasa' | 'other'; business_subcategory: string;
+  // Kolom ini TIDAK ada di SELECT publik (`/tenant/results-list`) dan boleh
+  // NULL di DB — mapper tidak boleh mengarang nilai.
+  business_category: 'fnb' | 'retail' | 'jasa' | 'other' | null; business_subcategory: string;
   sales_lift_pct: number | null; traffic_lift_pct: number | null;
   venue_rating: number | null; management_rating: number | null;
   event_organization_rating: number | null; booth_facility_rating: number | null;
@@ -232,8 +235,8 @@ function dbTenantSurveyToTenantSurvey(row: DbTenantSurvey): TenantEventSurvey {
     id: row.id, event_id: row.event_id, tenant_user_id: row.tenant_user_id,
     tenant_name: row.tenant_name || '', tenant_organization: row.tenant_organization || '',
     tenant_email: row.tenant_email || '', tenant_phone: row.tenant_phone || '',
-    business_category: row.business_category || 'other', business_subcategory: row.business_subcategory || '',
-    sales_lift_pct: row.sales_lift_pct || 0, traffic_lift_pct: row.traffic_lift_pct || 0,
+    business_category: row.business_category ?? null, business_subcategory: row.business_subcategory || '',
+    sales_lift_pct: row.sales_lift_pct ?? null, traffic_lift_pct: row.traffic_lift_pct ?? null,
     venue_rating: row.venue_rating, management_rating: row.management_rating,
     event_organization_rating: row.event_organization_rating,
     booth_facility_rating: row.booth_facility_rating, overall_rating: row.overall_rating,
@@ -292,8 +295,7 @@ export async function fetchTenantSurveyById(id: string): Promise<TenantEventSurv
     if (!data) throw new ApiError('Survey tidak ditemukan');
     return dbTenantSurveyToTenantSurvey(data as DbTenantSurvey);
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Survey tidak ditemukan');
-    throw err;
+    throw rewrapApiError(err, 'Survey tidak ditemukan');
   }
 }
 
@@ -325,8 +327,8 @@ export async function createTenantSurvey(formData: TenantSurveyFormData): Promis
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
     if (err instanceof ApiError) {
-      if (err.code === '409') throw new ApiError('Anda sudah pernah mengirimkan survey untuk event ini.');
-      throw new ApiError(apiErrorMessage(err, 'Gagal membuat survey'));
+      if (err.code === '409') throw new ApiError('Anda sudah pernah mengirimkan survey untuk event ini.', err.code, err.payload);
+      throw new ApiError(apiErrorMessage(err, 'Gagal membuat survey'), err.code, err.payload);
     }
     throw err;
   }
@@ -351,8 +353,8 @@ export async function updateTenantSurvey(id: string, updates: Partial<TenantSurv
   } catch (err) {
     if (err instanceof ApiError) {
       // 23505 (unique event+user) — server kirim 409 dengan pesan ramah.
-      if (err.code === '409') throw new ApiError('Survey sudah pernah dikirim untuk event ini.');
-      throw new ApiError(apiErrorMessage(err, 'Gagal memperbarui survey'));
+      if (err.code === '409') throw new ApiError('Survey sudah pernah dikirim untuk event ini.', err.code, err.payload);
+      throw new ApiError(apiErrorMessage(err, 'Gagal memperbarui survey'), err.code, err.payload);
     }
     throw err;
   }
@@ -368,8 +370,7 @@ export async function reviewTenantSurvey(id: string, reviewNotes = ''): Promise<
     if (!result.success) throw new ApiError(result.error || 'Gagal me-review survey');
     return dbTenantSurveyToTenantSurvey(result.data as DbTenantSurvey);
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal me-review survey');
-    throw err;
+    throw rewrapApiError(err, 'Gagal me-review survey');
   }
 }
 
@@ -378,8 +379,7 @@ export async function deleteTenantSurvey(id: string): Promise<void> {
     const result = await apiPost<{ success: boolean; error?: string }>('/tenant/delete', { id });
     if (!result.success) throw new ApiError(result.error || 'Gagal menghapus survey');
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal menghapus survey');
-    throw err;
+    throw rewrapApiError(err, 'Gagal menghapus survey');
   }
 }
 
@@ -420,8 +420,7 @@ export async function fetchPublicTenantSurveyMonthlyTrend(eventId?: string): Pro
     const data = await apiGet<unknown>(`/tenant/results-analytics?${params.toString()}`);
     return Array.isArray(data) ? data as TenantSurveyMonthlyTrend[] : [];
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal memuat trend bulanan');
-    throw err;
+    throw rewrapApiError(err, 'Gagal memuat trend bulanan');
   }
 }
 
@@ -442,8 +441,10 @@ export async function fetchPublicTenantSurveyEvent(eventId: string): Promise<Pub
     const data = await apiGet<PublicTenantSurveyEventInfo & { is_active?: boolean }>(`/tenant/event-info?event_id=${encodeURIComponent(eventId)}`);
     return data || null;
   } catch (err) {
-    // 404 event tak ada / error lain — null (mirror fallback legacy).
-    if (err instanceof ApiError) return null;
+    // Hanya 404 yang berarti "event tidak ada/berakhir". 429 (rate limit) dan
+    // 5xx HARUS dilempar supaya halaman menampilkan "coba lagi", bukan
+    // "event tidak ditemukan" yang menyesatkan.
+    if (err instanceof ApiError && Number(err.code) === 404) return null;
     throw err;
   }
 }
@@ -525,7 +526,10 @@ export async function checkPublicTenantSurveyDuplicate(eventId: string, deviceFi
     const data = await apiGet<{ submitted?: boolean }>(`/tenant/check?event_id=${encodeURIComponent(eventId)}&fingerprint=${encodeURIComponent(deviceFingerprint)}`);
     return data?.submitted === true;
   } catch (err) {
-    if (err instanceof ApiError) return false;
+    // Jangan fail-open untuk 429/5xx: menganggap "belum submit" saat server
+    // sedang bermasalah membuat responden bisa mengisi ulang lalu ditolak 409.
+    // Hanya 404 (endpoint/event tak ada) yang berarti "belum ada data".
+    if (err instanceof ApiError && Number(err.code) === 404) return false;
     throw err;
   }
 }

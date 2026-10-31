@@ -65,8 +65,11 @@ export const READ_ONLY_ROLES = [DEMO_ROLE, VIEWER_ROLE];
 export const ADMIN_READ_ROLES = [...STAFF_ROLES, ...READ_ONLY_ROLES];
 
 /**
- * Aksi admin yang AMAN dibaca role `demo`. Demo adalah akun peragaan: seluruh
- * permukaan dashboard boleh dilihat (dengan PII disamarkan di handler).
+ * Aksi admin yang AMAN dibaca role `demo`. Demo adalah akun peragaan yang
+ * dibagikan: seluruh permukaan dashboard boleh dilihat (dengan PII disamarkan
+ * di handler), KECUALI `getInsightNarrative` — aksi itu memanggil API AI
+ * berbayar per panggilan dan menulis `activity_logs`, biaya/jejak yang tidak
+ * boleh dipicu akun bersama. `viewer` tetap memilikinya (SPEC.md §2).
  *
  * Sengaja allowlist (bukan blocklist): aksi baru otomatis TERTUTUP untuk role
  * baca-saja. Lupa menambahkannya berarti mereka tidak bisa membacanya — bukan
@@ -81,7 +84,11 @@ export const DEMO_READ_ACTIONS = new Set([
   'listSponsorLeads',
   'getLocationMapping',
   'listEventAreas',
-  'getInsightNarrative',
+  // `getInsightNarrative` SENGAJA tidak ada: `demo` adalah akun peragaan yang
+  // dibagikan, sedangkan handler ini memanggil API AI berbayar per panggilan
+  // DAN menulis baris `activity_logs`. Akun bersama tidak boleh membakar biaya
+  // atau meninggalkan jejak tulis. `viewer` (staf read-only) tetap boleh,
+  // sesuai SPEC.md §2.
   'listExhibitions',
   'listExhibitionLeads',
   'listExhibitionActivations',
@@ -108,6 +115,8 @@ export const VIEWER_READ_ACTIONS = new Set([
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',
+  // SPEC.md §2 memberi viewer "Insight Cerdas" — dipertahankan. yang
+  // dikecualikan hanya `demo` (lihat DEMO_READ_ACTIONS).
   'getInsightNarrative',
 ]);
 
@@ -264,12 +273,22 @@ function tokenVersionOf(user) {
   return normalizeTokenVersion(user?.token_version);
 }
 
+/**
+ * Verifikasi JWT: algoritma DIPIN ke HS256 dan `typ` WAJIB cocok persis.
+ *
+ * Tanpa `algorithms`, `jose` menerima algoritma apa pun yang didukung kunci
+ * (mis. `HS384`/`HS512` dengan secret yang sama) — permukaan serangan yang
+ * tidak kita butuhkan karena kita hanya menerbitkan HS256. Dan `typ` tidak
+ * boleh dicek dengan guard truthy (`payload.typ && ...`): token yang tidak
+ * membawa `typ` sama sekali lolos ke jalur itu. Di sini `typ` yang hilang
+ * otomatis tidak cocok, jadi ditolak.
+ */
 async function verifyToken(token, expectedTyp) {
   const key = secretKey();
   if (!key || !token) return null;
   try {
-    const { payload } = await jwtVerify(token, key);
-    if (payload.typ && payload.typ !== expectedTyp) return null;
+    const { payload } = await jwtVerify(token, key, { algorithms: ['HS256'] });
+    if (payload.typ !== expectedTyp) return null;
     return payload;
   } catch {
     return null;

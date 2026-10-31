@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getCommandCenterCards, getAllowedDashboardPaths, getWayfindingMap } from '../dashboardNavigation';
+import {
+  getCommandCenterCards,
+  getAllowedDashboardPaths,
+  getDashboardNavGroups,
+  getDefaultAppPath,
+  getDefaultDashboardPath,
+  getWayfindingMap,
+} from '../dashboardNavigation';
 import type { Permissions } from '../../../hooks/usePermission';
 
 const adminPermissions: Permissions = {
@@ -68,6 +75,81 @@ describe('rute /insights: Insight Cerdas pindah ke halaman sendiri', () => {
 
     expect(getAllowedDashboardPaths(trPermissions)).not.toContain('/insights');
     expect(getCommandCenterCards({ ...baseParams, permissions: trPermissions }).find(item => item.id === 'insights')).toBeUndefined();
+  });
+});
+
+describe('Insight Cerdas vs role: demo disembunyikan, viewer & admin tetap', () => {
+  // `demo` = akun peragaan bersama. Backend menolak `getInsightNarrative` untuk
+  // role ini (endpoint AI berbayar + menulis log), sementara view flag demo
+  // menyalakan hampir semua permukaan lain. Viewer TIDAK dibatasi (SPEC §2).
+  const demoPermissions: Permissions = {
+    ...adminPermissions,
+    canEditEvents: false,
+    canDeleteEvents: false,
+    canManageThemes: false,
+    canManageSurvey: false,
+    canManageSponsorship: false,
+    canManageSettings: false,
+    canManageUsers: false,
+    canExportSurvey: false,
+    canExportTenantSurveyCsv: false,
+    isReadOnly: true,
+    isDemo: true,
+    role: 'demo',
+  };
+
+  const viewerPermissions: Permissions = {
+    ...adminPermissions,
+    canEditEvents: false,
+    canDeleteEvents: false,
+    canManageThemes: false,
+    canManageSurvey: false,
+    canManageSponsorship: false,
+    canManageSettings: false,
+    canManageUsers: false,
+    canViewUsers: false,
+    canViewSettings: false,
+    canViewSponsorship: false,
+    canViewDrafts: false,
+    canViewThemes: false,
+    canViewExhibitions: false,
+    canViewTenantSurveys: false,
+    canViewInternalSchedule: false,
+    canViewActivityLog: false,
+    canViewTenantSurveyResults: false,
+    isReadOnly: true,
+    role: 'viewer',
+  };
+
+  const navItemIds = (permissions: Permissions) =>
+    getDashboardNavGroups(permissions, {
+      onOpenInstagramSettings: () => undefined,
+      onOpenAlbumManager: () => undefined,
+      onOpenLetterPicker: () => undefined,
+      onOpenNewsManager: () => undefined,
+      onOpenSponsorManager: () => undefined,
+      onOpenEventAreaManager: () => undefined,
+    }).flatMap(group => group.items.map(item => item.id));
+
+  it('demo: tidak ada entri insight di rail maupun register, dan default path-nya bukan insight', () => {
+    expect(navItemIds(demoPermissions)).not.toContain('insights');
+    expect(getCommandCenterCards({ ...baseParams, permissions: demoPermissions }).map(card => card.id)).not.toContain('insights');
+    expect(getAllowedDashboardPaths(demoPermissions)).not.toContain('/insights');
+    // Default harus Pusat Komando, bukan halaman yang endpoint-nya menolak demo.
+    expect(getDefaultDashboardPath(demoPermissions)).toBe('/');
+    expect(getDefaultAppPath(demoPermissions)).toBe('/dashboard');
+  });
+
+  it('viewer: entri insight tetap tersedia', () => {
+    expect(navItemIds(viewerPermissions)).toContain('insights');
+    expect(getCommandCenterCards({ ...baseParams, permissions: viewerPermissions }).map(card => card.id)).toContain('insights');
+    expect(getAllowedDashboardPaths(viewerPermissions)).toContain('/insights');
+  });
+
+  it('admin: entri insight tetap tersedia', () => {
+    expect(navItemIds(adminPermissions)).toContain('insights');
+    expect(getCommandCenterCards({ ...baseParams }).map(card => card.id)).toContain('insights');
+    expect(getAllowedDashboardPaths(adminPermissions)).toContain('/insights');
   });
 });
 

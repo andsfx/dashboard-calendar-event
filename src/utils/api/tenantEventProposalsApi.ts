@@ -79,7 +79,9 @@ function toDbRow(input: TenantEventProposalInput): Record<string, unknown> {
 export async function uploadTenantProposalAttachment(file: File): Promise<TenantProposalUpload> {
   const presign = await apiPost<{ success: boolean; error?: string; uploadUrl?: string; publicUrl?: string }>(
     '/tenant-event-proposals/attachment',
-    { originalName: file.name, contentType: file.type },
+    // `size` dibaca server (`tenantProposals.js` → contentLength: body.size)
+    // dan ikut ditandatangani, sehingga lampiran > 20 MB ditolak saat presign.
+    { originalName: file.name, contentType: file.type, size: file.size },
     { errorMessageFallback: () => 'Gagal menyiapkan unggahan lampiran' },
   );
   if (!presign.success) throw new ApiError(presign.error || 'Gagal menyiapkan unggahan lampiran');

@@ -1,6 +1,6 @@
 import { adminAction } from './_shared';
 import { uploadToR2 } from './albumsApi';
-import { apiGet, apiPost, ApiError } from '../../lib/rest';
+import { apiGet, apiPost, ApiError, rewrapApiError } from '../../lib/rest';
 import type { SponsorLead, SponsorLeadInput, SponsorLeadStatus, EventProposalEvent } from '../../types';
 import { getTodayIsoLocal } from '../eventDateTime';
 
@@ -66,8 +66,7 @@ export async function submitSponsorLead(data: SponsorLeadInput): Promise<void> {
     });
     if (!result.success) throw new ApiError(result.error || 'Gagal mengirim minat support');
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message || 'Gagal mengirim minat support');
-    throw err;
+    throw rewrapApiError(err, 'Gagal mengirim minat support');
   }
 }
 

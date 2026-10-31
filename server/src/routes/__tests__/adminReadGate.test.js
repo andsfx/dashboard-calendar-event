@@ -5,14 +5,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * MENULIS.
  *
  * Dua role baca-saja punya allowlist BERBEDA (lihat auth.js):
- *   - `demo`   → akun peragaan: seluruh 15 aksi baca, PII disamarkan handler.
- *   - `viewer` → SPEC.md §2: hanya registrasi komunitas, kolaborasi &
- *                partisipasi tenant, dan Insight Cerdas. Permukaan konten/area
- *                versi ADMIN (draft ikut / area non-aktif ikut) tetap tertutup.
+ *   - `demo`   → akun peragaan: aksi baca, PII disamarkan handler.
+ *   - `viewer` → SPEC.md §2: hanya registrasi komunitas dan kolaborasi &
+ *                partisipasi tenant. Permukaan konten/area versi ADMIN (draft
+ *                ikut / area non-aktif ikut) tetap tertutup.
  *
  * Kontrak yang dikunci di sini:
  *   - viewer  → aksi baca yang diizinkan 200; aksi baca lain 403; tulis 403
- *   - demo    → seluruh aksi baca 200, tulis 403
+ *   - demo    → aksi baca 200 (PII disamarkan handler), tulis 403
+ *   - demo    → `getInsightNarrative` DITOLAK: akun peragaan yang dibagikan,
+ *                sedangkan handler memanggil API AI berbayar + INSERT log
+ *   - viewer  → `getInsightNarrative` TETAP 200 (SPEC.md §2: Insight Cerdas)
  *   - eo_tenant / tenant_relation → tetap 403 (SPEC tidak memberi akses admin)
  *   - staff   → lolos gate (400 dari zod = sudah masuk handler, bukan ditolak)
  *
@@ -90,8 +93,16 @@ const VIEWER_READ_ACTIONS = [
   'listTenantEventProposals',
   'listTenantParticipations',
   'listTenantParticipationOptions',
+  // SPEC.md §2: Insight Cerdas tetap milik viewer.
   'getInsightNarrative',
 ];
+
+/**
+ * Dikecualikan HANYA untuk `demo`: akun peragaan yang dibagikan. Handler-nya
+ * memanggil API AI berbayar per panggilan dan menulis `activity_logs`, jadi
+ * akun bersama tidak boleh memicunya. Viewer (staf read-only) tetap boleh.
+ */
+const DEMO_EXCLUDED_ACTIONS = ['getInsightNarrative'];
 
 /** Aksi baca demo-only — viewer TIDAK boleh. */
 const VIEWER_DENIED_READ_ACTIONS = [
@@ -112,8 +123,10 @@ const VIEWER_DENIED_READ_ACTIONS = [
   'listEventAreas',
 ];
 
-/** Seluruh aksi baca (demo boleh semuanya). */
+/** Seluruh aksi baca (demo boleh semuanya KECUALI yang dikecualikan di atas). */
 const READ_ACTIONS = [...VIEWER_READ_ACTIONS, ...VIEWER_DENIED_READ_ACTIONS];
+/** Permukaan baca yang benar-benar dibuka untuk demo. */
+const DEMO_READ_SURFACE = READ_ACTIONS.filter((action) => !DEMO_EXCLUDED_ACTIONS.includes(action));
 const WRITE_ACTIONS = ['updateTenantEventProposal', 'deleteTenantEventProposal', 'updateRegistrationStatus'];
 const READ_ONLY_MESSAGE = 'Akun baca-saja hanya dapat melihat data (read-only).';
 
@@ -162,14 +175,27 @@ describe('viewer — baca terbatas, tulis ditolak', () => {
       expect(error, `viewer ${action}`).toBe(READ_ONLY_MESSAGE);
     }
   });
+
+  it('tetap boleh Insight Cerdas (SPEC.md §2)', async () => {
+    const { status } = await callAs('viewer', 'getInsightNarrative');
+    expect(status).toBe(200);
+  });
 });
 
 describe('demo — perilaku lama tidak berubah', () => {
   it('masih bisa membaca dan masih ditolak saat menulis', async () => {
-    for (const action of READ_ACTIONS) {
+    for (const action of DEMO_READ_SURFACE) {
       expect((await callAs('demo', action)).status, `demo ${action}`).toBe(200);
     }
     for (const action of WRITE_ACTIONS) {
+      const { status, error } = await callAs('demo', action);
+      expect(status, `demo ${action}`).toBe(403);
+      expect(error, `demo ${action}`).toBe(READ_ONLY_MESSAGE);
+    }
+  });
+
+  it('ditolak 403 pada aksi yang menagih biaya AI (akun peragaan bersama)', async () => {
+    for (const action of DEMO_EXCLUDED_ACTIONS) {
       const { status, error } = await callAs('demo', action);
       expect(status, `demo ${action}`).toBe(403);
       expect(error, `demo ${action}`).toBe(READ_ONLY_MESSAGE);

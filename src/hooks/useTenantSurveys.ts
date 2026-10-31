@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   TenantEventSurvey,
   TenantSurveyFormData,
@@ -40,17 +40,24 @@ export function useTenantSurveys(
   const [surveys, setSurveys] = useState<TenantEventSurvey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Epoch request: polling/visibility refresh yang lebih baru menang, respons
+  // lama dibuang agar tidak menimpa data terbaru.
+  const requestEpochRef = useRef(0);
 
   // ─── Fetch surveys ─────────────────────────────────────────────
   const refreshSurveys = useCallback(async (opts?: { silent?: boolean }) => {
+    requestEpochRef.current += 1;
+    const epoch = requestEpochRef.current;
     if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const data = publicMode
         ? await fetchPublicTenantSurveyResults(eventId)
         : await fetchTenantSurveys(eventId);
+      if (epoch !== requestEpochRef.current) return;
       setSurveys(data);
     } catch (err) {
+      if (epoch !== requestEpochRef.current) return;
       console.error('Fetch tenant surveys error:', err);
       setError(
         err instanceof Error && err.message
@@ -58,7 +65,7 @@ export function useTenantSurveys(
           : 'Gagal memuat survey tenant.',
       );
     } finally {
-      if (!opts?.silent) setIsLoading(false);
+      if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
     }
   }, [eventId, publicMode]);
 
@@ -74,8 +81,16 @@ export function useTenantSurveys(
       refreshSurveys({ silent: true });
     }, 60_000);
 
+    // Interval tetap 60 s; saat tab kembali terlihat, jangan tunggu tick —
+    // sekali refresh agar daftar tidak basi.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshSurveys({ silent: true });
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
       clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [refreshSurveys, publicMode]);
 
@@ -138,20 +153,25 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
   const [analytics, setAnalytics] = useState<TenantSurveyAnalytics[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestEpochRef = useRef(0);
 
   const refreshAnalytics = useCallback(async (opts?: { silent?: boolean }) => {
+    requestEpochRef.current += 1;
+    const epoch = requestEpochRef.current;
     if (!opts?.silent) setIsLoading(true);
     setError(null);
     try {
       const data = await fetchTenantSurveyAnalytics(
         eventId ? { eventId } : {},
       );
+      if (epoch !== requestEpochRef.current) return;
       setAnalytics(data as TenantSurveyAnalytics[]);
     } catch (err) {
+      if (epoch !== requestEpochRef.current) return;
       console.error('Fetch tenant analytics error:', err);
       setError('Gagal memuat analytics tenant.');
     } finally {
-      if (!opts?.silent) setIsLoading(false);
+      if (!opts?.silent && epoch === requestEpochRef.current) setIsLoading(false);
     }
   }, [eventId]);
 
@@ -166,8 +186,14 @@ export function useTenantSurveyAnalytics(eventId?: string | null) {
       refreshAnalytics({ silent: true });
     }, 60_000);
 
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshAnalytics({ silent: true });
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
       clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [refreshAnalytics]);
 

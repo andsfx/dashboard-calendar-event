@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, Upload, Trash2, Loader2, X, ImagePlus, Link2, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
 import {
@@ -10,6 +11,7 @@ import {
 } from '../../utils/domainApi';
 import type { PhotoAlbum } from '../../types';
 import { useConfirmDialog } from '../modals/useConfirmDialog';
+import { useBackgroundInert } from '../media/overlayLayer';
 
 interface EventPhoto {
   id: string;
@@ -366,12 +368,18 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
 
   // Simpan pembuka untuk pengembalian fokus saat dialog ditutup.
   // Kembali ke thumbnail posisi terakhir (bukan selalu pembuka awal).
+  // Pengembaliannya di efek terpisah SESUDAH `useBackgroundInert` — cleanup
+  // berjalan sesuai urutan deklarasi, jadi `#root` harus dilepas dari `inert`
+  // lebih dulu; `focus()` di dalam subtree `inert` diabaikan browser.
   useEffect(() => {
     openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    return () => {
-      const current = document.querySelector<HTMLElement>(`[data-gallery-thumb="${idxRef.current}"]`);
-      (current ?? openerRef.current)?.focus();
-    };
+  }, []);
+
+  useBackgroundInert(Boolean(photo));
+
+  useEffect(() => () => {
+    const current = document.querySelector<HTMLElement>(`[data-gallery-thumb="${idxRef.current}"]`);
+    (current ?? openerRef.current)?.focus();
   }, []);
 
   // Tutup via Escape, navigasi via panah kiri/kanan.
@@ -411,9 +419,13 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
     return () => document.removeEventListener('keydown', handleTab);
   }, [photo]);
 
+  useBackgroundInert(Boolean(photo));
+
   if (!photo) return null;
 
-  return (
+  // Portal ke `document.body`: latar `#root` bisa di-`inert`, dan overlay
+  // `fixed` tidak terjebak di ancestor ber-`transform`.
+  return createPortal(
     <div
       ref={dialogRef}
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90"
@@ -464,7 +476,8 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs text-white">
         {currentIdx + 1} / {photos.length}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

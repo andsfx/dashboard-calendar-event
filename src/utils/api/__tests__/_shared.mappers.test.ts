@@ -8,7 +8,7 @@
  * - Default aman: is_recurring=false/null → isRecurring=false (bukan undefined).
  */
 import { describe, it, expect } from 'vitest';
-import { dbEventToEventItem, type DbEvent } from '../_shared';
+import { draftItemToDbRow, dbEventToEventItem, type DbEvent } from '../_shared';
 
 function makeDbRow(partial: Partial<DbEvent> = {}): DbEvent {
   return {
@@ -69,5 +69,36 @@ describe('dbEventToEventItem — isRecurring/recurrenceGroupId', () => {
   it('recurrence_group_id kosong → ""', () => {
     const ev = dbEventToEventItem(makeDbRow({ recurrence_group_id: '' }), 0);
     expect(ev.recurrenceGroupId).toBe('');
+  });
+});
+
+describe('draftItemToDbRow — flag lifecycle tidak ikut ditulis', () => {
+  it('tidak mengirim published/published_at/deleted/deleted_at ke payload', () => {
+    const row = draftItemToDbRow({
+      acara: 'Bazar Ramadan',
+      progress: 'confirm',
+      published: true,
+      publishedAt: '2026-01-01T00:00:00.000Z',
+      deleted: true,
+      deletedAt: '2026-01-02T00:00:00.000Z',
+    });
+
+    // Flag lifecycle hanya boleh berubah lewat publishDraft/deleteDraft/restoreDraft.
+    expect(row).not.toHaveProperty('published');
+    expect(row).not.toHaveProperty('published_at');
+    expect(row).not.toHaveProperty('deleted');
+    expect(row).not.toHaveProperty('deleted_at');
+    // Kolom konten tetap terpetakan.
+    expect(row.acara).toBe('Bazar Ramadan');
+    expect(row.progress).toBe('confirm');
+  });
+
+  it('objek draft utuh (hasil spread pemanggil) juga tidak membawa flag', () => {
+    const draft = {
+      id: 'd1', rowIndex: 1, acara: 'Workshop', progress: 'draft' as const,
+      published: false, publishedAt: '', deleted: false, deletedAt: '',
+    };
+    const row = draftItemToDbRow({ ...draft, progress: 'confirm' });
+    expect(Object.keys(row).sort()).toEqual(['acara', 'progress']);
   });
 });

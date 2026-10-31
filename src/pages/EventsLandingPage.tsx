@@ -43,7 +43,7 @@ import { useExportScope } from '../components/pdf/useExportScope';
 import { SCHEDULE_SECTION_OPTIONS } from '../components/pdf/pdfSectionOptions';
 import { CategoryBadges } from '../components/ui/CategoryBadges';
 import { CalendarView } from '../components/views/CalendarView';
-import { CommunityEyebrow } from '../components/community/CommunityRevealPrimitives';
+import { CommunityEyebrow, RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 
 /** Anchor milik halaman ini; label dan tujuan tidak ditulis ulang di header. */
@@ -324,6 +324,7 @@ function EventRailCard({
     <button
       type="button"
       onClick={() => onDetail(event)}
+      data-reveal-item
       className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-white text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
       {posterUrl && <EventPosterBanner src={posterUrl} alt={event.acara} />}
@@ -560,7 +561,10 @@ export function EventsLandingPage({
 
       <main id="konten-utama" tabIndex={-1} className="outline-none">
         {/* Split Studio hero */}
-        <section className="border-b border-black/5 dark:border-slate-800">
+        <RevealSection
+          className="border-b border-black/5 dark:border-slate-800"
+          refreshKey={isLoading ? 'loading' : highlight?.id ?? 'empty'}
+        >
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch lg:gap-10 lg:py-24">
             <div className="flex min-w-0 flex-col justify-center">
               <CommunityEyebrow>Metropolitan Mall Bekasi</CommunityEyebrow>
@@ -678,10 +682,10 @@ export function EventsLandingPage({
               )}
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* Filter URL-shareable — preset waktu + kategori (riset Skedda "today/this weekend") */}
-        <section id="filter" aria-label="Filter jadwal event" className="scroll-mt-28 border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
+        <RevealSection id="filter" aria-label="Filter jadwal event" className="scroll-mt-28 border-t border-black/5 px-4 py-8 dark:border-slate-800 sm:px-6">
           <div className="mx-auto flex max-w-7xl flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter waktu">
               {([['', 'Semua'], ['hari-ini', 'Hari Ini'], ['besok', 'Besok'], ['akhir-pekan', 'Akhir Pekan Ini']] as const).map(([value, label]) => (
@@ -732,10 +736,10 @@ export function EventsLandingPage({
               </div>
             )}
           </div>
-        </section>
+        </RevealSection>
 
         {/* Event rail */}
-        <section id="featured" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+        <RevealSection id="featured" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:py-32" refreshKey={`${events.length}:${filteredEvents.length}`}>
           <div className="mx-auto max-w-7xl">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -777,7 +781,7 @@ export function EventsLandingPage({
                     <button
                       type="button"
                       onClick={resetFilter}
-                      className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                      className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                     >
                       Tampilkan semua event
                     </button>
@@ -844,7 +848,7 @@ export function EventsLandingPage({
                   <div className="mt-6 text-center">
                     <a
                       href="#calendar"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] transition hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] transition hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                     >
                       +{railOverflow} event lain di kalender
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -859,17 +863,17 @@ export function EventsLandingPage({
                 </p>
                 <a
                   href="#calendar"
-                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-tosca-600)] hover:text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)] ui-focus-ring rounded-sm"
                 >
                   Lihat Kalender <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             )}
           </div>
-        </section>
+        </RevealSection>
 
         {/* Calendar */}
-        <section id="calendar" tabIndex={-1} className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 outline-none dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32">
+        <RevealSection id="calendar" tabIndex={-1} className="scroll-mt-28 border-t border-black/5 bg-white/50 px-4 py-16 outline-none dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24 lg:py-32" refreshKey={events.length}>
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="max-w-2xl">
               <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
@@ -890,10 +894,10 @@ export function EventsLandingPage({
               <CalendarView events={events} holidays={holidays} onDetail={onDetail} variant="public" />
             )}
           </div>
-        </section>
+        </RevealSection>
 
         {/* Pendaftaran organisasi — halaman khusus */}
-        <section className="border-t border-black/5 py-14 sm:py-16 dark:border-slate-800">
+        <RevealSection className="border-t border-black/5 py-14 sm:py-16 dark:border-slate-800">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center">
             <div className="max-w-xl">
               <h2 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">Mau mengadakan event di Metmal?</h2>
@@ -909,7 +913,7 @@ export function EventsLandingPage({
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-        </section>
+        </RevealSection>
       </main>
 
       <footer className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-18">

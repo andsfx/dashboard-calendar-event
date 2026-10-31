@@ -466,7 +466,56 @@ export async function detectRenderFailure(page: Page): Promise<string | null> {
   });
 }
 
-/** Wait for the app to settle: network idle + fonts + a paint frame. */
+/**
+ * Upper bound on the wait for entrance animations in `settle()`.
+ *
+ * The longest reveal is ~0.5 s plus a staggered tail, and the GSAP chunk's own
+ * fail-open timer is 2.5 s, so 8 s is generous. The bound exists so a stuck
+ * tween degrades to a warning instead of hanging the suite.
+ */
+export const MOTION_SETTLE_TIMEOUT = 8_000;
+
+/** Opacity within this distance of 1 counts as the animation's end state. */
+export const MOTION_OPACITY_EPSILON = 0.001;
+
+/**
+ * Where `ScrollTrigger` starts a reveal: `start: 'top 84%'` in
+ * `useScrollReveal`, as a fraction of the viewport height.
+ */
+export const REVEAL_START_FRACTION = 0.84;
+
+export interface MotionSettleReport {
+  /** How long the wait for entrance animations actually took. */
+  waitedMs: number;
+  /** Nodes/conditions still not at their end state when the wait gave up. */
+  pending: string[];
+}
+
+/**
+ * Wait for the app to settle: network idle + fonts + a paint frame + entrance
+ * animations at their END state.
+ *
+ * Why the animation wait is part of MEASUREMENT, not cosmetics: GSAP tweens
+ * reveal sections from `opacity: 0` (pre-state in `src/styles/motion.css`).
+ * axe's `color-contrast` composites the glyph colour against whatever is behind
+ * it at the instant it samples, so a section caught mid-tween reports a blended
+ * foreground/background pair — pixel-dependent, viewport-dependent, and having
+ * nothing to do with the design tokens. Reproduced 2026-10-31 with a probe that
+ * ran axe at the old measurement window: `/docs` `.ui-text-muted` reported
+ * `#9da199` at 2.51:1 while the reveal stage was at opacity 0.285, whereas its
+ * token pair (`#626b60` on `#fbfaf4`) measures 5.30:1. The same page after the
+ * wait below: 0 violations, stage opacity 1, computed colour `#626b60`. Waiting
+ * for the end state makes the gate measure the colours the app actually ships.
+ *
+ * A section below the trigger line has NOT been asked to reveal; its pre-state
+ * `opacity: 0` is its correct resting state (and axe cannot sample it), so it is
+ * intentionally not awaited — only sections ScrollTrigger has entered, plus the
+ * hero entrance (which runs on load, not on scroll).
+ *
+ * GSAP is dynamically imported and deliberately not exposed on `window`, so
+ * "is a tween running" is observed through its observable end state (computed
+ * opacity + the reveal marker classes) rather than an internal timeline.
+ */
 export async function settle(page: Page): Promise<void> {
   await page.waitForLoadState('domcontentloaded');
   // Network idle can hang on long-lived connections; bound it and continue.
@@ -477,6 +526,105 @@ export async function settle(page: Page): Promise<void> {
     requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)));
     return promise;
   });
+
+  const motion = await page.evaluate(
+    async ({ timeoutMs, epsilon, startFraction }): Promise<MotionSettleReport> => {
+      const isElement = (node: Element | null): node is HTMLElement => node instanceof HTMLElement;
+
+      const label = (el: Element): string => {
+        const cls = (el.getAttribute('class') ?? '').trim().split(/\s+/).filter(Boolean).slice(0, 3);
+        return `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${cls.length ? `.${cls.join('.')}` : ''}`;
+      };
+
+      const opacityOf = (el: HTMLElement): number => {
+        const value = Number.parseFloat(window.getComputedStyle(el).opacity);
+        return Number.isFinite(value) ? value : 1;
+      };
+
+      /**
+       * The same target rule as `animatedChildren()` in `useScrollReveal.ts`:
+       * tagged items when a stage has any, otherwise direct children.
+       */
+      const animatedChildren = (stage: HTMLElement): HTMLElement[] => {
+        const tagged = Array.from(stage.querySelectorAll<HTMLElement>('[data-reveal-item]'));
+        if (tagged.length > 0) return tagged;
+        return Array.from(stage.children).filter(isElement);
+      };
+
+      const unfinished = (): string[] => {
+        const pending: string[] = [];
+        const startLine = window.innerHeight * startFraction;
+
+        for (const section of Array.from(document.querySelectorAll<HTMLElement>('.reveal-on-scroll'))) {
+          const rect = section.getBoundingClientRect();
+          // Not laid out (display:none ancestor) → nothing for axe to measure.
+          if (rect.width === 0 && rect.height === 0) continue;
+          // Below the trigger line: pre-state opacity 0 is the correct resting
+          // state, not an animation in flight.
+          if (rect.top > startLine) continue;
+
+          const triggered = section.classList.contains('reveal-visible')
+            || section.classList.contains('reveal-fallback');
+          if (!triggered) {
+            pending.push(`${label(section)}: awaiting reveal trigger`);
+            continue;
+          }
+
+          const stage = section.querySelector<HTMLElement>(':scope > .reveal-stage');
+          if (!stage) continue;
+
+          const stageOpacity = opacityOf(stage);
+          if (stageOpacity < 1 - epsilon) {
+            pending.push(`${label(stage)}: opacity ${stageOpacity.toFixed(3)}`);
+          }
+          for (const child of animatedChildren(stage)) {
+            const opacity = opacityOf(child);
+            if (opacity < 1 - epsilon) pending.push(`${label(child)}: opacity ${opacity.toFixed(3)}`);
+          }
+        }
+
+        // Hero entrance (`useHeroParallax`) runs on load rather than on scroll
+        // and owns the same pre-state opacity, so its end state is awaited too.
+        for (const node of Array.from(
+          document.querySelectorAll<HTMLElement>('[data-hero-copy], .community-hero-in'),
+        )) {
+          const opacity = opacityOf(node);
+          if (opacity < 1 - epsilon) pending.push(`hero ${label(node)}: opacity ${opacity.toFixed(3)}`);
+        }
+
+        return pending;
+      };
+
+      const startedAt = performance.now();
+      let pending = unfinished();
+      while (pending.length > 0 && performance.now() - startedAt < timeoutMs) {
+        const { promise, resolve } = Promise.withResolvers<void>();
+        requestAnimationFrame(() => resolve());
+        await promise;
+        pending = unfinished();
+      }
+
+      return {
+        waitedMs: Math.round(performance.now() - startedAt),
+        pending: pending.slice(0, 8),
+      };
+    },
+    {
+      timeoutMs: MOTION_SETTLE_TIMEOUT,
+      epsilon: MOTION_OPACITY_EPSILON,
+      startFraction: REVEAL_START_FRACTION,
+    },
+  );
+
+  if (motion.pending.length > 0) {
+    // Continue instead of failing: a hung animation must not turn a contrast
+    // gate into a timeout. The warning names what was still moving so the
+    // resulting measurement can be read with the doubt it deserves.
+    console.warn(
+      `[a11y] settle(): entrance animation still in flight after ${motion.waitedMs}ms `
+        + `(${motion.pending.length} condition(s) shown, max 8); measuring anyway: ${motion.pending.join('; ')}`,
+    );
+  }
 }
 
 // ─── Measurement primitives (Deliverable 3) ──────────────────────

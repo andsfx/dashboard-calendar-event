@@ -299,7 +299,9 @@ export default function SurveyPage() {
               ))}
             </div>
             {/* Mall comment */}
+            <label htmlFor="survey-mall-comment" className="sr-only">Komentar untuk pengelola tempat</label>
             <textarea
+              id="survey-mall-comment"
               placeholder="Komentar untuk pengelola tempat (opsional)"
               value={comments.mall}
               onChange={(e) => setComments(prev => ({ ...prev, mall: e.target.value }))}
@@ -334,7 +336,9 @@ export default function SurveyPage() {
                 ))}
               </div>
               {/* EO comment */}
+              <label htmlFor="survey-eo-comment" className="sr-only">Komentar untuk penyelenggara event</label>
               <textarea
+                id="survey-eo-comment"
                 placeholder="Komentar untuk penyelenggara event (opsional)"
                 value={comments.eo}
                 onChange={(e) => setComments(prev => ({ ...prev, eo: e.target.value }))}
@@ -372,14 +376,14 @@ export default function SurveyPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <InputField icon={<User className="h-4 w-4" />} placeholder="Nama" value={identity.name}
+              <InputField id="survey-name" label="Nama" icon={<User className="h-4 w-4" />} placeholder="Nama" value={identity.name}
                 onChange={(v) => setIdentity(prev => ({ ...prev, name: v }))} maxLength={100} />
-              <InputField icon={<Mail className="h-4 w-4" />} placeholder="Email" type="email" value={identity.email}
+              <InputField id="survey-email" label="Email" icon={<Mail className="h-4 w-4" />} placeholder="Email" type="email" value={identity.email}
                 onChange={(v) => setIdentity(prev => ({ ...prev, email: v }))} maxLength={254} />
-              <InputField icon={<Phone className="h-4 w-4" />} placeholder="No. Telepon" type="tel" value={identity.phone}
+              <InputField id="survey-phone" label="No. Telepon" icon={<Phone className="h-4 w-4" />} placeholder="No. Telepon" type="tel" value={identity.phone}
                 onChange={(v) => setIdentity(prev => ({ ...prev, phone: v }))} maxLength={20} />
               {surveyType === 'organizer' && (
-                <InputField icon={<Briefcase className="h-4 w-4" />} placeholder="Nama Organisasi" value={identity.organization}
+                <InputField id="survey-organization" label="Nama Organisasi" icon={<Briefcase className="h-4 w-4" />} placeholder="Nama Organisasi" value={identity.organization}
                   onChange={(v) => setIdentity(prev => ({ ...prev, organization: v }))} maxLength={200} />
               )}
             </div>
@@ -473,14 +477,18 @@ function TypeCard({ title, desc, icon, onClick }: { title: string; desc: string;
 
 /* ─── Input field ──────────────────────────────────────────────── */
 
-function InputField({ icon, placeholder, value, onChange, type = 'text', maxLength }: {
+function InputField({ id, label, icon, placeholder, value, onChange, type = 'text', maxLength }: {
+  id: string; label: string;
   icon: React.ReactNode; placeholder: string; value: string;
   onChange: (v: string) => void; type?: string; maxLength?: number;
 }) {
   return (
     <div className="relative">
+      {/* Placeholder bukan label: pembaca layar butuh nama field yang stabil. */}
+      <label htmlFor={id} className="sr-only">{label}</label>
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">{icon}</span>
       <input
+        id={id}
         type={type}
         placeholder={placeholder}
         value={value}

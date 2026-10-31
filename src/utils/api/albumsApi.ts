@@ -1,5 +1,5 @@
 import { adminAction, slugify } from './_shared';
-import { apiGet, apiPost, ApiError } from '../../lib/rest';
+import { apiGet, apiPost, ApiError, rewrapApiError } from '../../lib/rest';
 import type { AreaPhoto, EventArea, EventPhoto, PhotoAlbum } from '../../types';
 
 // Row mentah snake_case dari backend REST (server whitelist kolom, BUKAN mapping —
@@ -121,12 +121,19 @@ export async function setAlbumCover(albumId: string, coverPhotoUrl: string): Pro
 
 export async function uploadToR2(file: File, folder = 'gallery/'): Promise<string> {
   // POST /api/v1/r2/presign — auth via cookie sb-access-token (apiPost kirim credentials).
+  // `size` = file.size: server menandatangani `content-length` dari nilai ini
+  // (`server/src/r2.js` → createPresignedUpload), sehingga objek lebih besar
+  // dari yang disetujui (cap 20 MB) ditolak R2. Tanpa field ini mitigasi mati.
   let presignResult: { success: boolean; error?: string; uploadUrl?: string; publicUrl?: string };
   try {
-    presignResult = await apiPost('/r2/presign', { folder, originalName: file.name, contentType: file.type });
+    presignResult = await apiPost('/r2/presign', {
+      folder,
+      originalName: file.name,
+      contentType: file.type,
+      size: file.size,
+    });
   } catch (err) {
-    if (err instanceof ApiError) throw new ApiError(err.message ?? 'Gagal menyiapkan upload');
-    throw err;
+    throw rewrapApiError(err, 'Gagal menyiapkan upload');
   }
   if (!presignResult.success) throw new ApiError(presignResult.error || 'Gagal menyiapkan upload');
   if (!presignResult.uploadUrl || !presignResult.publicUrl) throw new ApiError('Gagal menyiapkan upload');
@@ -148,10 +155,7 @@ export async function deleteFromR2(url: string): Promise<void> {
       throw new ApiError(result.error || 'Gagal menghapus file');
     }
   } catch (err) {
-    if (err instanceof ApiError) {
-      throw new ApiError(err.message ?? 'Gagal menghapus file');
-    }
-    throw err;
+    throw rewrapApiError(err, 'Gagal menghapus file');
   }
 }
 
@@ -166,9 +170,16 @@ export async function uploadAlbumPhoto(albumId: string, file: File, caption?: st
 }
 
 export async function deleteAlbumPhoto(id: string, url: string): Promise<void> {
-  await deleteFromR2(url);
+  // Baris DB dulu: kalau DB gagal, file R2 jangan sudah dihapus (akan jadi
+  // foto "hantu" yang tidak bisa dipulihkan). Server juga membersihkan R2
+  // setelah DELETE sukses — panggilan klien di bawah best-effort untuk API lama.
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAlbumPhoto', { id });
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus foto');
+  try {
+    if (url) await deleteFromR2(url);
+  } catch (err) {
+    console.warn('Baris foto album terhapus, objek R2 gagal dibersihkan.', err);
+  }
 }
 
 // ─── Foto Area Event ──────────────────────────────────────────────
@@ -320,9 +331,14 @@ export async function uploadAreaPhoto(areaId: string, file: File, caption?: stri
 }
 
 export async function deleteAreaPhoto(id: string, url: string): Promise<void> {
-  await deleteFromR2(url);
+  // Urutan sama dengan deleteAlbumPhoto: DB dulu, R2 best-effort setelahnya.
   const result = await adminAction<{ success: boolean; error?: string }>('deleteAreaPhoto', { id });
   if (!result.success) throw new ApiError(result.error || 'Gagal menghapus foto area');
+  try {
+    if (url) await deleteFromR2(url);
+  } catch (err) {
+    console.warn('Baris foto area terhapus, objek R2 gagal dibersihkan.', err);
+  }
 }
 
 export async function updateAreaPhotoOrder(photos: Array<{ id: string; sortOrder: number }>): Promise<void> {

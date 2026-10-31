@@ -12,8 +12,10 @@ vi.mock('../../../lib/rest', async (importOriginal) => {
 
 // Import setelah mock agar binding-nya memakai versi mock.
 import {
+  checkPublicTenantSurveyDuplicate,
   fetchActiveTenants,
   fetchGeneratedLetters,
+  fetchPublicTenantSurveyEvent,
   fetchTenantDetail,
   fetchTenantRoster,
   submitCommunityRegistration,
@@ -50,6 +52,9 @@ describe('surveysApi — registrasi komunitas', () => {
       originalName: 'proposal.pdf',
       contentType: 'application/pdf',
       proposalMimeType: 'application/pdf',
+      // Server menandatangani content-length dari `size`; tanpa field ini
+      // batas 20 MB tidak berlaku saat upload.
+      size: file.size,
     });
     expect(put).toHaveBeenCalledWith('https://r2.example.com/presigned', expect.objectContaining({
       method: 'PUT',
@@ -155,5 +160,32 @@ describe('surveysApi — error tidak lagi ditelan', () => {
     get.mockRejectedValueOnce(new ApiError('Gagal memuat roster', '500'));
 
     await expect(fetchTenantRoster()).rejects.toThrow('Gagal memuat roster');
+  });
+
+  it('fetchPublicTenantSurveyEvent: hanya 404 yang menjadi null', async () => {
+    get.mockRejectedValueOnce(new ApiError('Event tidak ditemukan', '404'));
+    await expect(fetchPublicTenantSurveyEvent('evt_1')).resolves.toBeNull();
+
+    get.mockRejectedValueOnce(new ApiError('Terlalu banyak permintaan', '429'));
+    await expect(fetchPublicTenantSurveyEvent('evt_1')).rejects.toMatchObject({ code: '429' });
+
+    get.mockRejectedValueOnce(new ApiError('Terjadi kesalahan server', '500'));
+    await expect(fetchPublicTenantSurveyEvent('evt_1')).rejects.toMatchObject({ code: '500' });
+  });
+
+  it('fetchPublicTenantSurveyEvent mengembalikan info event saat 200', async () => {
+    get.mockResolvedValueOnce({ id: 'evt_1', acara: 'Bazar', tanggal: '1 Mei 2026', lokasi: 'Atrium', eo: 'EO', status: 'upcoming', is_active: true });
+    await expect(fetchPublicTenantSurveyEvent('evt_1')).resolves.toMatchObject({ id: 'evt_1', acara: 'Bazar' });
+  });
+
+  it('checkPublicTenantSurveyDuplicate tidak fail-open untuk 429/5xx', async () => {
+    get.mockRejectedValueOnce(new ApiError('Terlalu banyak permintaan', '429'));
+    await expect(checkPublicTenantSurveyDuplicate('evt_1', 'fp')).rejects.toMatchObject({ code: '429' });
+
+    get.mockRejectedValueOnce(new ApiError('Terjadi kesalahan server', '500'));
+    await expect(checkPublicTenantSurveyDuplicate('evt_1', 'fp')).rejects.toMatchObject({ code: '500' });
+
+    get.mockRejectedValueOnce(new ApiError('Tidak ditemukan', '404'));
+    await expect(checkPublicTenantSurveyDuplicate('evt_1', 'fp')).resolves.toBe(false);
   });
 });
