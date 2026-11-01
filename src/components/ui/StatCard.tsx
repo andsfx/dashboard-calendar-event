@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { useGsapEntrance } from './useGsapEntrance';
 
 type StatCardVariant = 'primary' | 'slate' | 'emerald' | 'amber';
 
@@ -55,11 +56,30 @@ function useCountUp(target: number, duration = 800, delay = 0) {
 export const StatCard = memo(function StatCard({ icon, label, value, subtitle, variant, delay = 0, pulse = false, trend }: StatCardProps) {
   const displayed = useCountUp(value, 900, delay);
   const chipClass = CHIP_CLASSES[variant];
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  // `.fade-up` dulu CSS animation; kini pre-state + GSAP entrance sekali saat mount.
+  useGsapEntrance(cardRef, {
+    staticClass: 'fade-up-static',
+    build: ({ gsap, outExpo }, card) =>
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 12 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          delay: delay / 1000,
+          ease: outExpo,
+          immediateRender: true,
+        },
+      ),
+  });
 
   return (
     <div
+      ref={cardRef}
       className="fade-up rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3.5 transition duration-200 sm:p-5"
-      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useGsapEntrance } from '../ui/useGsapEntrance';
 
 const focusRing = 'ui-focus-ring';
 /** Hover-intent delay: menghindari hover-open ikut terpicu oleh klik/tap cepat. */
@@ -65,6 +66,7 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
   const panelId = useId();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Array<HTMLElement | null>>([]);
   const hoverTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
@@ -75,6 +77,18 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
   // yang sudah tersalip dropdown lain tidak menutup dropdown yang sedang aktif.
   const openRef = useRef(open);
   openRef.current = open;
+
+  // Reveal panel via GSAP; aria/keyboard/outside-click tidak tersentuh.
+  useGsapEntrance(panelRef, {
+    staticClass: 'nav-dropdown-static',
+    refreshKey: open,
+    build: ({ gsap, outExpo }, panel) =>
+      gsap.fromTo(
+        panel,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.15, ease: outExpo, immediateRender: true, overwrite: 'auto' },
+      ),
+  });
 
   const clearHoverTimer = useCallback(() => {
     if (hoverTimer.current !== null) {
@@ -288,6 +302,7 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
       {open && (
         <div
           id={panelId}
+          ref={panelRef}
           role="group"
           aria-label={label}
           className="nav-dropdown-panel absolute left-1/2 top-full z-50 mt-2 w-60 -translate-x-1/2 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)] dark:border-slate-700 dark:bg-slate-900"

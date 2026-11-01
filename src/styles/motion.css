@@ -104,9 +104,22 @@
   to { width: 0%; }
 }
 
-.toast-enter { animation: toast-in 0.35s var(--ease-out-expo) forwards; }
-.toast-exit { animation: toast-out 0.28s ease forwards; }
-.toast-progress { animation: toast-progress linear forwards; }
+/* @keyframes toast-* di atas kini tidak dipakai komponen: ToastContainer sudah
+   menggerakkan enter/exit/progress dengan GSAP. Dibawah ini cuma (a) pre-state
+   sebelum tween menulis nilai awal, dan (b) end-state untuk jalur fail-open
+   (reduced motion / chunk gagal) lewat `.toast-static`.
+
+   PENTING: pre-state TIDAK memakai `transform`. Dulu `.toast-enter` memuat
+   `translateX(110%)`, dan GSAP membacanya sebagai kanal piksel `x` (352px pada
+   toast 320px) yang persisten; tween lalu menginterpolasi kanal `xPercent`
+   terpisah, sehingga toast berakhir di `translate(352px,0)` — di luar viewport.
+   Satu offset, dua kanal unit = bug. Sekarang offset hanya milik GSAP
+   (`xPercent`), CSS hanya memegang opacity. */
+.toast-enter { opacity: 0; }
+/* End state fail-open. Tanpa `!important`: `.toast-static` datang sesudah
+   `.toast-enter` di berkas ini, jadi menang atas pre-state, sementara inline
+   style GSAP tetap menang atas keduanya saat exit berjalan. */
+.toast-static { opacity: 1; transform: none; }
 
 @keyframes count-up {
   from { opacity: 0; transform: translateY(6px); }
@@ -156,9 +169,12 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.fade-up { animation: fade-up 0.4s ease forwards; }
-.fade-in { animation: fade-in 0.3s ease forwards; }
-.dashboard-fade { animation: fade-in 150ms ease-out; }
+.fade-up { opacity: 0; transform: translateY(12px); }
+.fade-up-static { opacity: 1; transform: none; }
+.dashboard-section { opacity: 0; transform: translateY(12px); }
+.dashboard-section-static { opacity: 1; transform: none; }
+.view-switch { opacity: 0; transform: translateY(10px); }
+.view-switch-static { opacity: 1; transform: none; }
 
 /* Named utility used by FeaturedEventCard / AnnualTimeline. No Tailwind
    `--animate-*` theme entry exists for it, so it must be declared here or the
@@ -182,9 +198,16 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Pre-state panel NavDropdown (diputar GSAP saat dibuka): `transform` — bukan
+   `translate` — agar tidak menimpa `-translate-x-1/2` Tailwind v4 (properti
+   `translate` terpisah). End state untuk reduced-motion/fail-open di
+   `.nav-dropdown-static`. */
 .nav-dropdown-panel {
-  animation: nav-dropdown-in 150ms var(--ease-out-expo);
+  opacity: 0;
+  transform: translateY(-4px);
 }
+
+.nav-dropdown-static { opacity: 1; transform: none; }
 
 .delay-50 { animation-delay: 50ms; animation-fill-mode: both; }
 .delay-100 { animation-delay: 100ms; animation-fill-mode: both; }
@@ -220,26 +243,19 @@
 
 .live-dot { animation: live-pulse 2s infinite; }
 
-/* FAQ accordion — smooth expand/collapse (max-height + opacity + visibility) */
+/* FAQ accordion — GSAP que menggerakkan tinggi/opacity; CSS hanya pre-state
+   (tertutup) dan end-state (terbuka) untuk reduced motion / chunk gagal. */
 .faq-panel {
-  max-height: 0;
+  height: 0;
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
-  transition:
-    max-height 300ms var(--ease-out-expo),
-    opacity 220ms var(--ease-out-expo),
-    visibility 0s 300ms;
 }
 
 .faq-panel-open {
-  max-height: 360px;
+  height: auto;
   opacity: 1;
   visibility: visible;
-  transition:
-    max-height 300ms var(--ease-out-expo),
-    opacity 260ms var(--ease-out-expo),
-    visibility 0s 0s;
 }
 
 /* Dark / light mode crossfade (opt-in via document.startViewTransition) */
@@ -280,17 +296,13 @@
   .community-hero-in,
   [data-hero-copy],
   .fade-up,
-  .fade-in,
-  .dashboard-fade,
-  .count-up,
+  .dashboard-section,
+  .view-switch,
   .nav-dropdown-panel,
   .faq-panel,
-  .faq-panel-open,
   .modal-backdrop,
   .modal-panel,
   .toast-enter,
-  .toast-exit,
-  .toast-progress,
   .live-dot,
   .shimmer,
   .animate-pulse,

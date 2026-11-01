@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { RevealSection } from './CommunityRevealPrimitives';
+import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
 
 const FAQS: Array<[string, string]> = [
   ['Benar gratis? Ada biaya tersembunyi?', 'Benar 100% gratis. Panggung, sound system, lighting, dan kursi disediakan tanpa biaya. Kamu cukup siapkan konsep acara dan kebutuhan komunitas.'],
@@ -12,6 +13,137 @@ const FAQS: Array<[string, string]> = [
 ];
 
 const focusRing = 'ui-focus-ring';
+
+/** Durasi buka/tutup akordeon (GSAP; CSS `.faq-panel` hanya pre-state + end-state). */
+const FAQ_DURATION_MS = 300;
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function FaqItem({
+  question,
+  answer,
+  index,
+  isOpen,
+  onToggle,
+}: {
+  question: string;
+  answer: string;
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const prevOpen = useRef<boolean | null>(null);
+
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    // Mount pertama: keadaan terbuka awal tidak dianimasikan (end state CSS langsung).
+    if (prevOpen.current === null) {
+      prevOpen.current = isOpen;
+      return;
+    }
+    if (prevOpen.current === isOpen) return;
+    prevOpen.current = isOpen;
+
+    // Reduced motion / chunk belum termuat: class `.faq-panel-open` sudah memberi
+    // end state; tanpa tween.
+    if (prefersReducedMotion() || !isGsapMotionLoaded()) return;
+
+    let cancelled = false;
+    let tween: { kill: () => void } | undefined;
+
+    void loadGsapMotion()
+      .then(({ gsap, outExpo }) => {
+        if (cancelled || !panel.isConnected) return;
+        const content = panel.firstElementChild as HTMLElement | null;
+        if (!content) return;
+
+        // Guard tinggi nol (jsdom / konten belum ter-layout): tanpa nilai ukur,
+        // tween height akan macet di 0 dan panel tertahan tertutup. Lewati tween
+        // dan serahkan end state ke class `.faq-panel-open`/tertutup.
+        if (content.scrollHeight === 0) return;
+
+        if (isOpen) {
+          const openHeight = content.scrollHeight;
+          panel.style.visibility = 'visible';
+          tween = gsap.fromTo(
+            panel,
+            { height: 0, opacity: 0 },
+            {
+              height: openHeight,
+              opacity: 1,
+              duration: FAQ_DURATION_MS / 1000,
+              ease: outExpo,
+              immediateRender: true,
+              onComplete: () => {
+                panel.style.height = 'auto';
+              },
+            },
+          );
+        } else {
+          // Panel sudah dibalik ke `height:0` oleh class tertutup; ukur isi
+          // (scrollHeight) sebagai titik awal, bukan offsetHeight panel.
+          const closedHeight = content.scrollHeight;
+          tween = gsap.fromTo(
+            panel,
+            { height: closedHeight, opacity: 1 },
+            {
+              height: 0,
+              opacity: 0,
+              duration: FAQ_DURATION_MS / 1000,
+              ease: outExpo,
+              immediateRender: true,
+              onComplete: () => {
+                panel.style.visibility = 'hidden';
+              },
+            },
+          );
+        }
+      })
+      .catch(() => {
+        // Chunk gagal: class end-state CSS tetap berlaku.
+      });
+
+    return () => {
+      cancelled = true;
+      tween?.kill();
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="ui-campaign-card overflow-hidden">
+      <button
+        type="button"
+        id={`community-faq-trigger-${index}`}
+        onClick={onToggle}
+        className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? `community-faq-${index}` : undefined}
+      >
+        <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
+        <ChevronDown
+          className={`h-5 w-5 shrink-0 text-[var(--brand-tosca)] transition motion-reduce:transition-none dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
+      </button>
+      <div
+        id={`community-faq-${index}`}
+        ref={panelRef}
+        role="region"
+        aria-labelledby={`community-faq-trigger-${index}`}
+        className={`faq-panel ${isOpen ? 'faq-panel-open' : ''}`}
+      >
+        <div className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-300 sm:px-6">
+          {answer}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
@@ -28,32 +160,14 @@ export function CommunityFAQ() {
           {FAQS.map(([question, answer], index) => {
             const isOpen = openFaq === index;
             return (
-              <div key={question} className="ui-campaign-card overflow-hidden">
-                <button
-                  type="button"
-                  id={`community-faq-trigger-${index}`}
-                  onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                  className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
-                  aria-expanded={isOpen}
-                  aria-controls={isOpen ? `community-faq-${index}` : undefined}
-                >
-                  <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
-                  <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-[var(--brand-tosca)] transition motion-reduce:transition-none dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`}
-                    aria-hidden="true"
-                  />
-                </button>
-                <div
-                  id={`community-faq-${index}`}
-                  role="region"
-                  aria-labelledby={`community-faq-trigger-${index}`}
-                  className={`faq-panel ${isOpen ? 'faq-panel-open' : ''}`}
-                >
-                  <div className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-300 sm:px-6">
-                    {answer}
-                  </div>
-                </div>
-              </div>
+              <FaqItem
+                key={question}
+                question={question}
+                answer={answer}
+                index={index}
+                isOpen={isOpen}
+                onToggle={() => setOpenFaq(isOpen ? -1 : index)}
+              />
             );
           })}
         </div>

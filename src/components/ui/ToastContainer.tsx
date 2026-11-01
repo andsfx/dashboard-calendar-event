@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { ToastMessage } from '../../types';
+import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
 
 const CONFIG = {
   // Ikon pakai shade 700: tint `bg-*-50` dirender `opacity-40` di atas kartu putih,
@@ -15,34 +16,147 @@ const CONFIG = {
 };
 
 const DURATION = 4000;
+/** Durasi exit; sama dengan `.toast-exit` yang digantikan. */
+const EXIT_MS = 280;
+/** Batas tunggu chunk GSAP sebelum toast tampil apa adanya (jauh lebih pendek dari
+ *  reveal publik 2,5 s: usia toast hanya 4 s, menahannya separuh hidupnya adalah bug). */
+const FALLBACK_MS = 500;
+
+const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia(REDUCE_QUERY).matches;
+}
 
 function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) => void }) {
   const [exiting, setExiting] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const barRef = useRef<HTMLDivElement | null>(null);
   const cfg = CONFIG[t.type];
 
+  /**
+   * Hapus toast. Bila GSAP siap & gerak diizinkan, exit memakai tween singkat
+   * lalu `onRemove`; selain itu (reduced motion / chunk gagal) langsung hapus
+   * tanpa menunggu — "instant end state".
+   */
   const dismiss = () => {
+    if (exiting) return;
     setExiting(true);
-    setTimeout(() => onRemove(t.id), 280);
+
+    if (prefersReducedMotion() || !isGsapMotionLoaded()) {
+      onRemove(t.id);
+      return;
+    }
+
+    const root = rootRef.current;
+    if (!root) {
+      onRemove(t.id);
+      return;
+    }
+
+    void loadGsapMotion()
+      .then(({ gsap, outExpo }) => {
+        // Reduced motion bisa berubah sejak mount; hormati keadaan saat ini.
+        if (prefersReducedMotion()) {
+          onRemove(t.id);
+          return;
+        }
+        gsap.to(root, {
+          autoAlpha: 0,
+          xPercent: 110,
+          x: 0,
+          duration: EXIT_MS / 1000,
+          ease: outExpo,
+          onComplete: () => onRemove(t.id),
+        });
+      })
+      .catch(() => onRemove(t.id));
   };
 
+  // Auto-dismiss: timing identik dengan sebelumnya (DURATION ms, lalu exit singkat).
   useEffect(() => {
     const timer = setTimeout(() => dismiss(), DURATION);
     return () => clearTimeout(timer);
+    // dismiss ditutup per-item; hanya jalankan sekali pada mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Enter + progress bar (GSAP; sekali pada mount).
+  useEffect(() => {
+    const root = rootRef.current;
+    const bar = barRef.current;
+    if (!root) return;
+
+    const release = () => root.classList.add('toast-static');
+
+    // Reduced motion: tampil langsung di end state, tanpa tween.
+    if (prefersReducedMotion()) {
+      release();
+      return;
+    }
+
+    let cancelled = false;
+    let tweens: Array<{ kill: () => void }> = [];
+
+    // Fail-open: chunk yang menggantung tidak boleh menahan toast lebih dari
+    // separuh hidupnya. Berakhir di end state via `toast-static` (sudah tercakup
+    // juga oleh blok reduced-motion global di motion.css untuk tween yang datang).
+    const timer = setTimeout(() => {
+      if (cancelled || isGsapMotionLoaded()) return;
+      release();
+    }, FALLBACK_MS);
+
+    void loadGsapMotion()
+      .then(({ gsap, outExpo }) => {
+        window.clearTimeout(timer);
+        if (cancelled || !root.isConnected) return;
+        // Chunk sempat menggantung lalu tiba di bawah reduced motion: tetaplah end state.
+        if (prefersReducedMotion() || root.classList.contains('toast-static')) {
+          release();
+          return;
+        }
+        const enter = gsap.fromTo(
+          root,
+          { autoAlpha: 0, xPercent: 110, x: 0 },
+          { autoAlpha: 1, xPercent: 0, x: 0, duration: 0.35, ease: outExpo, immediateRender: true },
+        );
+        const progress = gsap.fromTo(
+          bar,
+          { scaleX: 1 },
+          {
+            scaleX: 0,
+            duration: DURATION / 1000,
+            ease: 'none',
+            transformOrigin: 'left center',
+            immediateRender: true,
+          },
+        );
+        tweens = [enter, progress];
+      })
+      .catch(() => {
+        window.clearTimeout(timer);
+        if (!cancelled) release();
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      tweens.forEach((tween) => tween.kill());
+    };
   }, []);
 
   return (
     <div
-      className={`relative flex w-full max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 shadow-lg dark:shadow-slate-900/50 sm:w-80 sm:max-w-sm ${exiting ? 'toast-exit' : 'toast-enter'}`}
+      ref={rootRef}
+      data-toast
+      className={`toast-enter relative flex w-full max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 shadow-lg dark:shadow-slate-900/50 sm:w-80 sm:max-w-sm`}
     >
       {/* Tinted background */}
       <div className={`absolute inset-0 opacity-40 ${cfg.bg}`} />
 
       {/* Progress bar */}
       <div className="absolute bottom-0 left-0 h-0.5 w-full bg-[var(--wf-board-2)]">
-        <div
-          className={`h-full ${cfg.bar} toast-progress`}
-          style={{ animationDuration: `${DURATION}ms` }}
-        />
+        <div ref={barRef} className={`h-full ${cfg.bar}`} />
       </div>
 
       <div className={`relative mt-0.5 shrink-0 ${cfg.iconColor}`}>{cfg.icon}</div>

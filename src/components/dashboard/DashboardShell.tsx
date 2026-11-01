@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Navbar } from '../ui/Navbar';
 import { DashboardSkeleton } from '../ui/DashboardSkeleton';
@@ -7,6 +7,7 @@ import type { SectionNavItem } from '../ui/SectionNav';
 import { AdminSidebar } from './AdminSidebar';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
+import { useGsapEntrance } from '../ui/useGsapEntrance';
 
 export interface DashboardShellProps {
   isAdmin: boolean;
@@ -51,6 +52,20 @@ export function DashboardShell({
   modals,
 }: DashboardShellProps) {
   const { pathname } = useLocation();
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+
+  // Satu entrance per pergantian section (key=pathname me-remount wrapper div).
+  useGsapEntrance(sectionRef, {
+    staticClass: 'dashboard-section-static',
+    refreshKey: pathname,
+    build: ({ gsap, outExpo }, section) =>
+      gsap.fromTo(
+        section,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.35, ease: outExpo, immediateRender: true, overwrite: 'auto' },
+      ),
+  });
+
   return (
     <div className="ui-dashboard-page wf-page min-h-dvh transition-colors duration-300">
       <a
@@ -99,7 +114,7 @@ export function DashboardShell({
                 <main>'s only child, so the sections inside it would otherwise
                 have no gap between them. Admin only — public sections already
                 carry their own spacing. */}
-            <div key={pathname} className={`dashboard-fade ${isAdmin ? 'space-y-6' : ''}`}>
+            <div key={pathname} ref={sectionRef} className={`dashboard-section ${isAdmin ? 'space-y-6' : ''}`}>
               {children}
             </div>
 

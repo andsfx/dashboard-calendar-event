@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Download, RefreshCw, SearchX } from 'lucide-react';
 import { EventItem, ViewMode, EventStatus, HolidayItem, EventArea } from '../../types';
 import { SearchBar } from '../ui/SearchBar';
@@ -7,6 +7,7 @@ import { EventTable } from '../events/EventTable';
 import { DashboardCalendarView } from '../dashboard/DashboardCalendarView';
 import { KanbanView } from './KanbanView';
 import { TimelineView } from './TimelineView';
+import { useGsapEntrance } from '../ui/useGsapEntrance';
 import { renderEventsSchedulePdfResult, filterScheduleEventsForPdf } from '../../utils/eventsSchedulePdf';
 import { formatIsoId } from '../../utils/exportDateRange';
 import type { SchedulePdfSection } from '../pdf/buildSchedulePdf';
@@ -81,6 +82,19 @@ export function DashboardViewsSection(props: Props) {
   } = props;
 
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
+  const viewRef = useRef<HTMLDivElement | null>(null);
+
+  // Entrance view masuk (tabel/kalender/kanban/timeline) — satu tween per ganti view.
+  useGsapEntrance(viewRef, {
+    staticClass: 'view-switch-static',
+    refreshKey: viewMode,
+    build: ({ gsap, outExpo }, view) =>
+      gsap.fromTo(
+        view,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.25, ease: outExpo, immediateRender: true, overwrite: 'auto' },
+      ),
+  });
 
   // PDF jadwal tidak pernah memuat draft (lihat renderEventsSchedulePdfBlob),
   // jadi pemilih pun hanya menawarkan event yang benar-benar akan tercetak.
@@ -187,7 +201,7 @@ export function DashboardViewsSection(props: Props) {
               </MdButton>
             </div>
           ) : (
-            <>
+            <div ref={viewRef} className="view-switch">
               {viewMode === 'table' && (
                 <EventTable
                   events={visibleEvents}
@@ -215,7 +229,7 @@ export function DashboardViewsSection(props: Props) {
               {viewMode === 'timeline' && (
                 <TimelineView events={visibleEvents} isAdmin={isAdmin} onEdit={onEdit} onDelete={onDelete} onDetail={onDetail} />
               )}
-            </>
+            </div>
           )}
         </section>
       )}
