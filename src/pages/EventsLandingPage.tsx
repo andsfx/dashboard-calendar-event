@@ -14,12 +14,13 @@ import {
   MapPin,
   Radio,
   RefreshCw,
+  Repeat,
   Timer,
   X,
   Zap,
 } from 'lucide-react';
 import { countdownLabel, eventOverlapsWindow, getTodayIsoLocal, getTomorrowIsoLocal, getWeekendWindow, relativeDayLabel } from '../utils/eventDateTime';
-import { CATEGORY_COLORS } from '../utils/eventUtils';
+import { CATEGORY_COLORS, collapseRecurringSeries, isRecurringEvent, recurringScheduleLabel } from '../utils/eventUtils';
 import { resolveEventPoster } from '../utils/eventPoster';
 import { EventPosterBanner } from '../components/events/EventPosterBanner';
 import { groupEventsByArea, resolveAreaDisplay } from '../utils/areaGrouping';
@@ -172,6 +173,7 @@ function HighlightEventCard({
   const catColor = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
   const countdown = getCountdown(event.dateStr, now);
   const isLive = event.status === 'ongoing';
+  const isRecurring = isRecurringEvent(event);
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
@@ -230,8 +232,12 @@ function HighlightEventCard({
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-3.5 py-2 dark:border-slate-600 dark:bg-slate-800/70">
-            <CalendarDays className="h-4 w-4 shrink-0" style={{ color: catColor }} aria-hidden="true" />
-            {event.tanggal}
+            {isRecurring ? (
+              <Repeat className="h-4 w-4 shrink-0" style={{ color: catColor }} aria-hidden="true" />
+            ) : (
+              <CalendarDays className="h-4 w-4 shrink-0" style={{ color: catColor }} aria-hidden="true" />
+            )}
+            {isRecurring ? recurringScheduleLabel(event) : event.tanggal}
           </span>
           {event.jam && (
             <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-3.5 py-2 dark:border-slate-600 dark:bg-slate-800/70">
@@ -261,7 +267,7 @@ function HighlightEventCard({
             tepi tombol (terukur gap 0px di 768–1440px). `items-start` menjaga
             tombol tetap selebar kontennya, tidak melar penuh. */}
         <div className="flex flex-col items-start gap-4">
-          {!isLive && (
+          {!isLive && !isRecurring && (
             <>
               <p
                 className="text-xs font-bold tracking-wide"
@@ -316,8 +322,9 @@ function EventRailCard({
   const cat = (event.categories?.length ? event.categories[0] : event.category) || 'Umum';
   const color = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Umum ?? '#00918e';
   const isLive = event.status === 'ongoing';
-  const relLabel = event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
-  const cdLabel = event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
+  const isRecurring = isRecurringEvent(event);
+  const relLabel = !isRecurring && event.status === 'upcoming' ? relativeDayLabel(event.dateStr) : null;
+  const cdLabel = !isRecurring && event.status === 'upcoming' && !relLabel ? countdownLabel(event.dateStr, event.jam) : null;
   const posterUrl = resolveEventPoster(event, albums);
 
   return (
@@ -345,6 +352,11 @@ function EventRailCard({
             <>
               <Radio className="h-3 w-3 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
               Berlangsung
+            </>
+          ) : isRecurring ? (
+            <>
+              <Repeat className="h-3 w-3" aria-hidden="true" />
+              {recurringScheduleLabel(event)}
             </>
           ) : (
             <>
@@ -434,20 +446,24 @@ export function EventsLandingPage({
     title: 'Jadwal Event - Metropolitan Mall Bekasi',
     description: 'Jadwal event yang sedang berlangsung dan akan datang di Metropolitan Mall Bekasi.',
   });
+  // Rangkaian reguler dirangkum jadi satu entri per seri: kartu jadwal publik
+  // tidak membanjir dengan satu kartu per kemunculan. Kalender bulanan tetap
+  // memakai `events` asli supaya tiap tanggal kemunculan tetap tampil.
+  const displayEvents = useMemo(() => collapseRecurringSeries(events), [events]);
   const ongoing = useMemo(
-    () => sortHighlightCandidates(events.filter(e => e.status === 'ongoing')),
-    [events],
+    () => sortHighlightCandidates(displayEvents.filter(e => e.status === 'ongoing')),
+    [displayEvents],
   );
   const upcoming = useMemo(
     () =>
-      events
+      displayEvents
         .filter(e => e.status === 'upcoming')
         .sort((a, b) => {
           const byPriority = (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9);
           if (byPriority !== 0) return byPriority;
           return a.dateStr.localeCompare(b.dateStr);
         }),
-    [events],
+    [displayEvents],
   );
 
   const highlight = useMemo(() => {
@@ -503,6 +519,12 @@ export function EventsLandingPage({
       return true;
     }).sort((a, b) => a.dateStr.localeCompare(b.dateStr));
   }, [events, waktu, kategori]);
+  // Filter menjaga semantik tanggal (seri reguler cocok bila salah satu
+  // kemunculannya masuk window), lalu dirangkum untuk tampilan.
+  const displayFilteredEvents = useMemo(
+    () => collapseRecurringSeries(filteredEvents),
+    [filteredEvents],
+  );
 
   const isFilterActive = Boolean(waktu || kategori);
 
@@ -579,7 +601,7 @@ export function EventsLandingPage({
                 <dl className="mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
                   <div className="rounded-2xl border border-[var(--border-subtle)] bg-white px-2.5 py-3 sm:px-3 dark:border-slate-700 dark:bg-slate-900">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] ui-text-muted">Total Event</dt>
-                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{events.length}</dd>
+                    <dd className="font-display mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white sm:text-2xl">{displayEvents.length}</dd>
                   </div>
                   <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 px-2.5 py-3 sm:px-3 dark:border-emerald-800/50 dark:bg-emerald-950/30">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-400">Berlangsung</dt>
@@ -756,7 +778,7 @@ export function EventsLandingPage({
                 <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                      {filteredEvents.length} acara ditemukan
+                      {displayFilteredEvents.length} acara ditemukan
                     </h2>
                   </div>
                   <button
@@ -767,9 +789,9 @@ export function EventsLandingPage({
                     <X className="h-3.5 w-3.5" aria-hidden="true" /> Reset filter
                   </button>
                 </div>
-                {filteredEvents.length > 0 ? (
+                {displayFilteredEvents.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {filteredEvents.map(ev => (
+                    {displayFilteredEvents.map(ev => (
                       <EventRailCard key={ev.id} event={ev} areas={areas} albums={albums} onDetail={onDetail} />
                     ))}
                   </div>

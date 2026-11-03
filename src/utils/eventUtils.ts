@@ -372,6 +372,77 @@ export function getRecurringSeries(events: EventItem[], groupId: string): EventI
   return events.filter(e => e.recurrenceGroupId === groupId);
 }
 
+export const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+/**
+ * Pilih satu kemunculan yang mewakili rangkaian reguler untuk tampilan
+ * ringkas: utamakan yang sedang berlangsung, lalu yang akan datang paling
+ * awal, lalu kemunculan paling awal (tie-break: id) agar deterministik.
+ */
+function pickSeriesRepresentative(members: EventItem[]): EventItem | null {
+  const sorted = [...members].sort(
+    (a, b) => a.dateStr.localeCompare(b.dateStr) || a.id.localeCompare(b.id),
+  );
+  return (
+    sorted.find(e => e.status === 'ongoing') ??
+    sorted.find(e => e.status === 'upcoming') ??
+    sorted[0] ??
+    null
+  );
+}
+
+/**
+ * Rangkum rangkaian reguler (berbagi `recurrenceGroupId`) menjadi satu entri
+ * per seri supaya jadwal publik tidak membanjir dengan kartu per kemunculan.
+ * Wakil seri diletakkan pada indeks kemunculan pertamanya sehingga urutan
+ * input (termasuk daftar terurut tanggal) tetap terjaga.
+ */
+export function collapseRecurringSeries(events: EventItem[]): EventItem[] {
+  const groups = new Map<string, EventItem[]>();
+  for (const ev of events) {
+    const isSeries = ev.isRecurring === true && !!ev.recurrenceGroupId;
+    if (!isSeries) continue;
+    const group = groups.get(ev.recurrenceGroupId!);
+    if (group) group.push(ev);
+    else groups.set(ev.recurrenceGroupId!, [ev]);
+  }
+
+  const repFor = new Map<string, EventItem | null>();
+  for (const [gid, members] of groups) {
+    repFor.set(gid, pickSeriesRepresentative(members));
+  }
+
+  const emitted = new Set<string>();
+  const result: EventItem[] = [];
+  for (const ev of events) {
+    const isSeries = ev.isRecurring === true && !!ev.recurrenceGroupId;
+    if (!isSeries) {
+      result.push(ev);
+      continue;
+    }
+    const gid = ev.recurrenceGroupId!;
+    if (emitted.has(gid)) continue;
+    emitted.add(gid);
+    const rep = repFor.get(gid);
+    if (rep) result.push(rep);
+  }
+  return result;
+}
+
+/**
+ * Label jadwal untuk kartu rangkaian reguler, mis. "Setiap hari Selasa".
+ * Nama hari diambil dari `day` (kolom tersimpan), lalu jatuh ke `dateStr`.
+ */
+export function recurringScheduleLabel(event: EventItem): string {
+  const dayName =
+    event.day ||
+    (() => {
+      const d = parseDateStrLocal(event.dateStr);
+      return d ? DAY_NAMES[d.getDay()] : '';
+    })();
+  return dayName ? `Setiap hari ${dayName}` : 'Event reguler';
+}
+
 /**
  * Generate array tanggal berdasarkan recurrence rule.
  * @param startDate - tanggal mulai (ISO string "YYYY-MM-DD")

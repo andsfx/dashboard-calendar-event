@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { sortEvents, recalculateStatuses, parseDateStrLocal, generateRecurringDates, getStatus } from '../eventUtils'
+import { sortEvents, recalculateStatuses, parseDateStrLocal, generateRecurringDates, getStatus, collapseRecurringSeries, recurringScheduleLabel } from '../eventUtils'
 import type { EventItem, RecurrenceRule } from '../../types'
 
 describe('eventUtils', () => {
@@ -165,6 +165,83 @@ describe('eventUtils', () => {
       expect(status).toBe('upcoming')
       
       vi.useRealTimers()
+    })
+  })
+
+  describe('collapseRecurringSeries & recurringScheduleLabel', () => {
+    function ev(partial: Partial<EventItem>): EventItem {
+      return {
+        id: 'e', dateStr: '2026-01-01', day: 'Kamis', jam: '', acara: 'A', lokasi: '',
+        eo: '', pic: '', phone: '', keterangan: '', month: '', category: 'Umum',
+        categories: [], priority: 'medium', eventModel: '', eventNominal: '',
+        eventModelNotes: '', status: 'upcoming',
+        ...partial,
+      } as EventItem
+    }
+
+    it('merangkum satu seri reguler menjadi satu entri', () => {
+      const events = [
+        ev({ id: 'a1', dateStr: '2026-11-03', day: 'Selasa', isRecurring: true, recurrenceGroupId: 'rg-1' }),
+        ev({ id: 'a2', dateStr: '2026-11-10', day: 'Selasa', isRecurring: true, recurrenceGroupId: 'rg-1' }),
+        ev({ id: 'a3', dateStr: '2026-11-17', day: 'Selasa', isRecurring: true, recurrenceGroupId: 'rg-1' }),
+      ]
+      const result = collapseRecurringSeries(events)
+      expect(result).toHaveLength(1)
+      expect(result[0]?.id).toBe('a1')
+    })
+
+    it('memilih kemunculan "berlangsung" sebagai wakil', () => {
+      const events = [
+        ev({ id: 'p', dateStr: '2026-10-27', isRecurring: true, recurrenceGroupId: 'rg-1', status: 'past' }),
+        ev({ id: 'n', dateStr: '2026-11-03', isRecurring: true, recurrenceGroupId: 'rg-1', status: 'upcoming' }),
+        ev({ id: 'o', dateStr: '2026-10-20', isRecurring: true, recurrenceGroupId: 'rg-1', status: 'ongoing' }),
+      ]
+      const result = collapseRecurringSeries(events)
+      expect(result).toHaveLength(1)
+      expect(result[0]?.id).toBe('o')
+    })
+
+    it('membiarkan event non-recurring apa adanya', () => {
+      const events = [
+        ev({ id: 'x', status: 'upcoming' }),
+        ev({ id: 'y', status: 'ongoing' }),
+      ]
+      const result = collapseRecurringSeries(events)
+      expect(result.map(e => e.id)).toEqual(['x', 'y'])
+    })
+
+    it('tidak merangkum isRecurring tanpa groupId', () => {
+      const events = [
+        ev({ id: 's1', isRecurring: true, recurrenceGroupId: '' }),
+        ev({ id: 's2', isRecurring: true, recurrenceGroupId: '' }),
+      ]
+      expect(collapseRecurringSeries(events)).toHaveLength(2)
+    })
+
+    it('mempertahankan posisi seri pada indeks kemunculan pertamanya', () => {
+      const events = [
+        ev({ id: 's0', dateStr: '2026-11-01', acara: 'A' }),
+        ev({ id: 'a1', dateStr: '2026-11-03', acara: 'Angklung', isRecurring: true, recurrenceGroupId: 'rg-a' }),
+        ev({ id: 's1', dateStr: '2026-11-05', acara: 'B' }),
+        ev({ id: 'a2', dateStr: '2026-11-10', acara: 'Angklung', isRecurring: true, recurrenceGroupId: 'rg-a' }),
+      ]
+      const result = collapseRecurringSeries(events)
+      // Wakil seri (a1 = kemunculan tercepat) duduk di antara s0 dan s1,
+      // bukan dipindah ke akhir daftar.
+      expect(result.map(e => e.id)).toEqual(['s0', 'a1', 's1'])
+    })
+
+    it('recurringScheduleLabel merangkai nama hari dari event.day', () => {
+      expect(recurringScheduleLabel(ev({ day: 'Selasa' }))).toBe('Setiap hari Selasa')
+    })
+
+    it('recurringScheduleLabel jatuh ke dateStr bila day kosong', () => {
+      // 2026-11-03 adalah hari Selasa.
+      expect(recurringScheduleLabel(ev({ day: '', dateStr: '2026-11-03' }))).toBe('Setiap hari Selasa')
+    })
+
+    it('recurringScheduleLabel aman tanpa tanggal valid', () => {
+      expect(recurringScheduleLabel(ev({ day: '', dateStr: 'invalid' }))).toBe('Event reguler')
     })
   })
 })
