@@ -77,6 +77,7 @@ const SurveyPage = lazy(() => import('./components/survey/SurveyPage'));
 const PublicLetterViewer = lazy(() => import('./pages/PublicLetterViewer').then(m => ({ default: m.PublicLetterViewer })));
 const TenantSurveyPublicPage = lazy(() => import('./components/survey/TenantSurveyPublicPage'));
 const TenantSurveyEventPicker = lazy(() => import('./components/survey/TenantSurveyEventPicker'));
+const DigitalPosterPage = lazy(() => import('./pages/DigitalPosterPage').then(m => ({ default: m.DigitalPosterPage })));
 const TenantSurveyResultsPage = lazy(() => import('./components/survey/TenantSurveyResultsPage'));
 function RedirectToTenantSurveyResults() {
   return <Navigate to="/tenant-survey-results" replace />;
@@ -527,6 +528,12 @@ export default function App() {
           <TenantSurveyPublicPage />
         </Suspense>
       } />
+      {/* Poster digital — tampilan kios layar penuh (tanpa header navigasi) */}
+      <Route path="/digitalposter" element={
+        <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
+          <DigitalPosterPage />
+        </Suspense>
+      } />
 
       {/* Public Letter Viewer */}
       <Route path="/letter/:id" element={
@@ -612,12 +619,16 @@ export default function App() {
         </Suspense>
       } />
     </Routes>
-    <ToastContainer
-      toasts={toasts}
-      onRemove={removeToast}
-      // Landing has a sticky bottom CTA on mobile; lift toasts clear of it.
-      bottomOffsetClass={location.pathname === '/' ? 'bottom-24' : 'bottom-4'}
-    />
+    {/* Kios poster digital memakai iframe layar penuh — toast error dari hook
+        global (useAuth/useEvents) tidak boleh menimpa poster. */}
+    {location.pathname !== '/digitalposter' && (
+      <ToastContainer
+        toasts={toasts}
+        onRemove={removeToast}
+        // Landing has a sticky bottom CTA on mobile; lift toasts clear of it.
+        bottomOffsetClass={location.pathname === '/' ? 'bottom-24' : 'bottom-4'}
+      />
+    )}
     </>
   );
 }
