@@ -176,7 +176,7 @@ function HighlightEventCard({
   const isRecurring = isRecurringEvent(event);
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
+    <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--brand-card)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900">
       {promoImageUrl && (
         <div className="relative">
           <EventPosterBanner
@@ -332,7 +332,7 @@ function EventRailCard({
       type="button"
       onClick={() => onDetail(event)}
       data-reveal-item
-      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-white text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
+      className="group flex min-w-0 flex-col items-start overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white text-left shadow-[var(--shadow-card-soft)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-raised)] ui-focus-ring motion-reduce:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-900"
     >
       {posterUrl && <EventPosterBanner src={posterUrl} alt={event.acara} />}
       <div className="flex w-full min-w-0 flex-col items-start gap-4 p-5">
@@ -620,7 +620,7 @@ export function EventsLandingPage({
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
                   href="#featured"
-                  className="group inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                  className="group inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
                 >
                   Sorotan
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
@@ -680,9 +680,9 @@ export function EventsLandingPage({
 
             <div className="min-w-0">
               {isLoading ? (
-                <div className="h-full min-h-[22rem] animate-pulse rounded-[2rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+                <div className="h-full min-h-[22rem] animate-pulse rounded-[var(--radius-campaign-card)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
               ) : error ? (
-                <div className="flex h-full min-h-[22rem] flex-col items-center justify-center rounded-[2rem] border border-red-200 bg-white/70 px-6 py-12 text-center dark:border-red-800 dark:bg-slate-900/50">
+                <div className="flex h-full min-h-[22rem] flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border border-red-200 bg-white/70 px-6 py-12 text-center dark:border-red-800 dark:bg-slate-900/50">
                   <EventsErrorState message={error} onRetry={onRetry} />
                 </div>
               ) : highlight ? (
@@ -692,7 +692,7 @@ export function EventsLandingPage({
                   onDetail={onDetail}
                 />
               ) : (
-                <div className="flex h-full min-h-[22rem] flex-col items-center justify-center rounded-[2rem] border border-dashed border-slate-300 bg-white/70 px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900/50">
+                <div className="flex h-full min-h-[22rem] flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border border-dashed border-slate-300 bg-white/70 px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900/50">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_22%,black)]">
                     <CalendarDays className="h-7 w-7 text-[var(--brand-tosca)]" aria-hidden="true" />
                   </div>
@@ -766,11 +766,11 @@ export function EventsLandingPage({
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="h-36 animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+                  <div key={i} className="h-36 animate-pulse rounded-[var(--radius-card-lg)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
                 ))}
               </div>
             ) : error ? (
-              <div className="rounded-[1.5rem] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
+              <div className="rounded-[var(--radius-card-lg)] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
                 <EventsErrorState message={error} onRetry={onRetry} />
               </div>
             ) : isFilterActive ? (
@@ -796,7 +796,7 @@ export function EventsLandingPage({
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
+                  <div className="rounded-[var(--radius-card-lg)] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                     <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                       Tidak ada acara yang cocok dengan filter ini.
                     </p>
@@ -879,7 +879,7 @@ export function EventsLandingPage({
                 )}
               </>
             ) : !highlight ? null : (
-              <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
+              <div className="rounded-[var(--radius-card-lg)] border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                   Lihat kalender untuk jadwal lengkap.
                 </p>
@@ -907,9 +907,9 @@ export function EventsLandingPage({
             </div>
 
             {isLoading ? (
-              <div className="h-[28rem] animate-pulse rounded-[1.5rem] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+              <div className="h-[28rem] animate-pulse rounded-[var(--radius-card-lg)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
             ) : error ? (
-              <div className="rounded-[1.5rem] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
+              <div className="rounded-[var(--radius-card-lg)] border border-red-200 bg-white/60 px-6 py-10 dark:border-red-800 dark:bg-slate-900/40">
                 <EventsErrorState message={error} onRetry={onRetry} />
               </div>
             ) : (
