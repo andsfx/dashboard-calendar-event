@@ -26,13 +26,27 @@ import { enforceRateLimit } from '../lib/rateLimit.js';
 
 const router = Router();
 
-/** Runtime key mapping (snake_case DB → camelCase client). */
+/**
+ * Kolom untuk KANAL PUBLIK. Dipangkas 2026-11-07: sebelumnya `event_model`,
+ * `event_nominal`, `event_model_notes`, `source_draft_id`, dan
+ * `organization_id` ikut terkirim padahal tidak dibaca satu pun permukaan
+ * publik — field komersial/relasi internal itu hanya dipakai dashboard
+ * (`fetchAdminEvents`), yang punya SELECT-nya sendiri. Payload `/events`
+ * turun ~32 kB raw (196 kB → 164 kB; ~1,4 kB br — kecil, tapi kolom itu memang
+ * tak pernah dibaca kanal publik).
+ *
+ * Field yang WAJIB tetap ada (dipakai halaman publik):
+ *   - `day_time_slots`, `is_multi_day` → status temporal + jam per hari
+ *     (EventDetailContent, getStatus)
+ *   - `poster_url`, `recurrence_group_id`, `is_recurring` → banner poster dan
+ *     penggabungan seri berulang (collapseRecurringSeries)
+ *   - `categories`, `priority`, `keterangan` → filter dan detail
+ */
 const EVENT_SELECT = `
   id, date_str, date_end, day, tanggal, jam, acara, lokasi, area_id, eo,
-  keterangan, month, status, category, categories, priority, event_model,
-  event_nominal, event_model_notes, source_draft_id, is_multi_day,
-  day_time_slots, event_type, recurrence_group_id, is_recurring,
-  poster_url, organization_id
+  keterangan, month, status, category, categories, priority,
+  is_multi_day, day_time_slots, event_type, recurrence_group_id, is_recurring,
+  poster_url
 `;
 
 // ─── GET /events ─────────────────────────────────────────────────
