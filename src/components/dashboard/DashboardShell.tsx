@@ -55,9 +55,14 @@ export function DashboardShell({
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   // Satu entrance per pergantian section (key=pathname me-remount wrapper div).
+  // `isLoading` ikut jadi refreshKey: `<main>` belum ada selama `/auth/me`
+  // berjalan, jadi effect pertama menemukan ref kosong. Tanpa dependency ini
+  // entrance hanya berjalan bila pathname kebetulan berubah (2026-11-11:
+  // `/tenant-survey-results` tampak kosong karena pre-state `opacity: 0` dari
+  // `motion.css` tidak pernah dilepas).
   useGsapEntrance(sectionRef, {
     staticClass: 'dashboard-section-static',
-    refreshKey: pathname,
+    refreshKey: `${pathname}|${isLoading ? 'loading' : 'ready'}`,
     build: ({ gsap, outExpo }, section) =>
       gsap.fromTo(
         section,
