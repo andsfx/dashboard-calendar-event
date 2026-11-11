@@ -16,16 +16,20 @@ function TrendBar({
   v3: number;
   maxTotal: number;
 }) {
+  // `period` datang dari kolom hasil SQL (`to_char(DATE_TRUNC(...))`), sehingga
+  // bisa null bila `created_at` dan `submitted_at` sama-sama kosong. Tipe prop
+  // string tidak menolong: nilainya hanya di-cast dari respons JSON.
+  const safeLabel = typeof label === 'string' ? label : '';
   const barH = maxTotal > 0 ? (total / maxTotal) * 100 : 0;
   const v2H = total > 0 ? (v2 / total) * barH : 0;
   const v3H = total > 0 ? (v3 / total) * barH : 0;
-  const shortLabel = label.replace(/^\d{4}-(\d{2})$/, (_, m) => {
+  const shortLabel = safeLabel.replace(/^\d{4}-(\d{2})$/, (_, m) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     return months[parseInt(m, 10) - 1] || m;
   });
 
   return (
-    <div className="flex flex-col items-center gap-1" title={`${label}: ${total} submissions`}>
+    <div className="flex flex-col items-center gap-1" title={`${safeLabel}: ${total} submissions`}>
       <div className="flex items-end" style={{ height: '140px' }}>
         <div
           className="flex w-8 flex-col-reverse overflow-hidden rounded-t-md transition-[height] duration-500"
