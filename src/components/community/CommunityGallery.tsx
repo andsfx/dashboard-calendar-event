@@ -166,7 +166,7 @@ function InstagramFallbackCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(22,33,27,0.06)] transition hover:shadow-lg  "
+      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board-2)] p-8 text-center shadow-[0_12px_32px_rgba(22,33,27,0.06)] transition hover:shadow-lg  "
     >
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />

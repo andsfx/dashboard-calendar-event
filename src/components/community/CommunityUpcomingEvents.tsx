@@ -79,7 +79,7 @@ function UpcomingEventsSkeleton() {
         <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
           Agenda event
         </h2>
-        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100  " aria-hidden="true">
+        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-[var(--wf-board-2)]  " aria-hidden="true">
           <div className="p-6 sm:p-10 lg:p-12">
             <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-[var(--wf-rule)] motion-reduce:animate-none" />
             <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-[var(--wf-rule)] motion-reduce:animate-none" />
@@ -146,7 +146,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             type="button"
             variant="ghost"
             onClick={() => onDetail?.(mainEvent)}
-            className="group flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-[var(--radius-campaign-card)]! border border-[var(--border-subtle)]! bg-neutral-100 p-0! text-left! whitespace-normal! font-normal! shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow! hover:bg-neutral-100! dark:hover:bg-neutral-100! hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] lg:justify-between focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
+            className="group flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-[var(--radius-campaign-card)]! border border-[var(--border-subtle)]! bg-[var(--wf-board-2)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow! hover:bg-[var(--wf-board-2)]! dark:hover:bg-[var(--wf-board-2)]! hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] lg:justify-between focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
           >
             <div className="p-6 sm:p-10 lg:p-12">
               <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--wf-ink)]" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>

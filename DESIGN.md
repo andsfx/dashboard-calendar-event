@@ -413,7 +413,7 @@ Layer token shadcn juga membawa blok override `.dark` di `shadcn-theme.css` yang
 | `--background` | `#f8f7f0` | slate-50 warm paper (`theme.css`) |
 | `--foreground` | `#16211b` | slate-900 ink (`theme.css`) |
 | `--card` / `--popover` | `#fdfcf6` | slate-100 (`theme.css`) |
-| `--primary` | `#00918e` | tosca 500 (`theme.css`/`tokens.css`); foreground `#ffffff` |
+| `--primary` | `var(--wf-accent)` | light `#00706e` (terang) / `#33bfbc` (gelap); foreground `var(--wf-accent-ink)` (`#ffffff`/`#06120f`, 5.85:1 & 7.88:1). **Bukan** tosca 500 `#00918e` — putih di atasnya hanya 3.85:1 (lihat `shadcn-theme.css:22-28`) |
 | `--secondary` / `--accent` | `#e6f7f6` | tosca 50; foreground `#007a78` (tosca 600, AA) |
 | `--muted` / `--border` | `#edeee2` | slate-200 (`theme.css`) |
 | `--input` | `#7d847e` / dark `#969b98` | `--wf-rule-control` (`dashboard-wayfinding.css`, 3.73:1 & 5.87:1 — batas kontrol, ambang 3:1) |
@@ -423,11 +423,11 @@ Layer token shadcn juga membawa blok override `.dark` di `shadcn-theme.css` yang
 
 ### Pola komponen dashboard
 
-Impor selalu dari `@/components/shadcn` (bukan `@/components/ui`):
+Impor selalu relatif dari `../shadcn/<prim>` (di `src/pages/*` menjadi `../components/shadcn/<prim>`) — bukan alias `@/` (lihat AGENTS.md aturan 1):
 
 ```tsx
 // KPI — Card + CardHeader + CardTitle + CardDescription + CardContent
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 
 <Card>
   <CardHeader>
@@ -440,7 +440,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ca
 
 ```tsx
 // Navigasi tab — Tabs terkontrol; state tetap milik halaman
-import { Tabs, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../shadcn/tabs";
 
 <Tabs value={view} onValueChange={(next) => setView(next as ViewMode)}>
   <TabsList>
@@ -452,8 +452,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 
 ```tsx
 // Daftar data — Table primitif + Badge untuk status
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
-import { Badge } from "@/components/shadcn/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../shadcn/table";
+import { Badge } from "../shadcn/badge";
 
 <Table>
   <TableHeader>
@@ -475,13 +475,13 @@ import { Badge } from "@/components/shadcn/badge";
 
 ```tsx
 // Modal — Dialog; DialogTitle wajib (boleh sr-only bila judul visual dirender sendiri)
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../shadcn/dialog";
 ```
 
 ```tsx
 // Form & filter — Input / Textarea / NativeSelect / Checkbox + Label
-import { Label } from "@/components/shadcn/label";
-import { NativeSelect } from "@/components/shadcn/native-select";
+import { Label } from "../shadcn/label";
+import { NativeSelect } from "../shadcn/native-select";
 
 <div>
   <Label htmlFor="f-status" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Status</Label>
@@ -493,7 +493,7 @@ import { NativeSelect } from "@/components/shadcn/native-select";
 
 ```tsx
 // Loading — Skeleton, bukan div animate-pulse manual
-import { Skeleton } from "@/components/shadcn/skeleton";
+import { Skeleton } from "../shadcn/skeleton";
 <Skeleton className="h-24 w-full" />
 ```
 
@@ -501,7 +501,7 @@ import { Skeleton } from "@/components/shadcn/skeleton";
 // Keadaan kosong — Empty; panel `ui-empty-panel` tetap pembungkus luar agar
 // garis/permukaan `--wf-*` tidak berubah. `Empty` sendiri tidak boleh
 // menggambar border/background baru: matikan dengan `border-0 bg-transparent`.
-import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/shadcn/empty";
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from "../shadcn/empty";
 import { CalendarDays } from "lucide-react";
 
 <div className="ui-empty-panel" role="status" aria-live="polite">

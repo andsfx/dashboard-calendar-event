@@ -1,11 +1,9 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Wrench } from 'lucide-react';
 import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { DASHBOARD_GROUP_ORDER, getCommandCenterCards } from './dashboardNavigation';
 import { Button } from '../shadcn/button';
-import { Badge } from '../shadcn/badge';
 
 interface CommandCenterDirectoryProps {
   activeDrafts: DraftEventItem[];
@@ -113,16 +111,6 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
                       <span className="wf-dot wf-dot--action" title="Menunggu keputusan manusia">
                         <span className="sr-only">Menunggu keputusan manusia</span>
                       </span>
-                    )}
-                    {card.maintenance && (
-                      <Badge
-                        variant="outline"
-                        className="wf-key wf-key--action h-auto rounded-full border-0 bg-transparent px-0 py-0 font-normal"
-                        title="Sedang diperbaiki"
-                      >
-                        <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
-                        Sedang diperbaiki
-                      </Badge>
                     )}
                   </Link>
                 </Button>
