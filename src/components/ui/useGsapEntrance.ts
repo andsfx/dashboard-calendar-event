@@ -6,6 +6,9 @@ import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
 /** Batas tunggu chunk GSAP sebelum jalur fail-open dipakai. */
 const FALLBACK_DELAY = 2500;
 
+/** Batas tunggu simpul `ref` — dihitung frame supaya tab latar tidak menghabiskan jatah. */
+const MAX_WAIT_FRAMES = 150;
+
 export interface GsapMotionContext {
   gsap: typeof GsapValue;
   /** Easing JS `metmal-out-expo`, sama dengan token CSS `--ease-out-expo`. */
@@ -32,9 +35,9 @@ export interface GsapEntranceOptions {
  *
  * Simpul boleh belum terpasang saat effect pertama jalan — `DashboardShell`
  * baru merender `<main>` setelah `/auth/me` selesai. Hook menunggu `ref` terisi
- * (maksimal `FALLBACK_DELAY`) sebelum memutuskan; sebelumnya ia menyerah diam-diam
- * sehingga pre-state CSS `opacity: 0` tertinggal permanen dan halaman tampak
- * kosong (2026-11-11, `/tenant-survey-results`).
+ * (maksimal `MAX_WAIT_FRAMES` frame) sebelum memutuskan; sebelumnya ia menyerah
+ * diam-diam sehingga pre-state CSS `opacity: 0` tertinggal permanen dan halaman
+ * tampak kosong (2026-11-11, `/tenant-survey-results`).
  */
 export function useGsapEntrance(
   ref: RefObject<HTMLElement | null>,
@@ -90,7 +93,12 @@ export function useGsapEntrance(
         });
     };
 
-    const deadline = performance.now() + FALLBACK_DELAY;
+    // Batas menunggu dihitung dalam FRAME, bukan waktu dinding: tab latar
+    // menghentikan `requestAnimationFrame` sementara `performance.now()` terus
+    // berjalan. Dengan deadline waktu, tautan yang dibuka di tab latar >2,5 dtk
+    // membuat callback pertama langsung melewati batas dan pre-state `opacity: 0`
+    // tertinggal — blank lagi. ~150 frame ≈ 2,5 dtk pada 60 fps normal.
+    let framesLeft = MAX_WAIT_FRAMES;
     let raf = 0;
     const waitForTarget = () => {
       const target = ref.current;
@@ -100,7 +108,8 @@ export function useGsapEntrance(
       }
       // Simpul tidak pernah muncul (mis. route berpindah sebelum siap): tidak ada
       // pre-state yang perlu dilepas, jadi berhenti tanpa memasang end-state.
-      if (cancelled || performance.now() >= deadline) return;
+      if (cancelled || framesLeft <= 0) return;
+      framesLeft -= 1;
       raf = window.requestAnimationFrame(waitForTarget);
     };
     waitForTarget();

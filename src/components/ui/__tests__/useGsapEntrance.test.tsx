@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, cleanup, waitFor } from '@testing-library/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 // Chunk GSAP digagalkan supaya jalur fail-open yang dipakai: end-state wajib
 // dilepas lewat `staticClass`. Yang diuji adalah perilaku "simpul muncul
@@ -19,8 +19,15 @@ function DelayedTarget({ ready }: { ready: boolean }) {
   return ready ? <div ref={ref} className="section" /> : <div className="skeleton" />;
 }
 
+const staticClassOf = (container: HTMLElement) =>
+  container.querySelector('.section')?.className ?? '';
+
 describe('useGsapEntrance — simpul muncul setelah effect pertama', () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
 
   it('melepas pre-state saat simpul baru terpasang setelah loading selesai', async () => {
     const { rerender, container } = render(<DelayedTarget ready={false} />);
@@ -29,7 +36,33 @@ describe('useGsapEntrance — simpul muncul setelah effect pertama', () => {
     rerender(<DelayedTarget ready />);
 
     await waitFor(() => {
-      expect(container.querySelector('.section')?.className).toContain('section-static');
+      expect(staticClassOf(container)).toContain('section-static');
+    });
+  });
+
+  it('tetap melepas pre-state setelah tab lama tersembunyi (rAF berhenti, waktu jalan)', async () => {
+    // Simulasi tab latar: frame tidak pernah datang, jam dinding tetap maju.
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+      frames.push(cb);
+      return frames.length;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
+
+    const { rerender, container } = render(<DelayedTarget ready={false} />);
+    // Jauh melewati anggaran lama (2,5 dtk) tanpa satu frame pun.
+    await new Promise((resolve) => setTimeout(resolve, 2600));
+
+    // Tab kembali aktif TAPI simpul belum ada (mis. `/auth/me` masih berjalan).
+    // Deadline berbasis jam dinding akan menyerah di sini dan berhenti memantau.
+    frames.shift()?.(16);
+
+    rerender(<DelayedTarget ready />);
+    // Frame berikutnya baru bisa melihat simpul yang kini terpasang.
+    frames.shift()?.(32);
+
+    await waitFor(() => {
+      expect(staticClassOf(container)).toContain('section-static');
     });
   });
 
@@ -48,7 +81,7 @@ describe('useGsapEntrance — simpul muncul setelah effect pertama', () => {
 
     try {
       const { container } = render(<DelayedTarget ready />);
-      expect(container.querySelector('.section')?.className).toContain('section-static');
+      expect(staticClassOf(container)).toContain('section-static');
     } finally {
       window.matchMedia = original;
     }
