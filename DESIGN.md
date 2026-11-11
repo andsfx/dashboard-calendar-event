@@ -408,6 +408,8 @@ Semantic token shadcn dipetakan ke palet asli di `src/styles/shadcn-theme.css` (
 
 Layer token shadcn juga membawa blok override `.dark` di `shadcn-theme.css` yang dipetakan ke palet gelap wf (board `#16211b` / tosca-400 `#33bfbc` / ink `#eef2ea`, bersumber dari `.dark` di `dashboard-wayfinding.css`) agar Card/Button/Tabs/Dialog tetap on-brand di dark mode; nilai light tidak berubah.
 
+Registry shadcn menulis varian `data-horizontal:*` / `data-vertical:*`, sedangkan Radix memancarkan `data-orientation="horizontal|vertical"`. `src/index.css` mendefinisikan keduanya sebagai `@custom-variant` (setelah `@variant dark`); tanpa itu semua kelas tersebut jadi selector mati — root `Tabs` tetap `flex` baris sehingga `TabsList` dan `TabsContent` berbagi satu baris dan panel Analytics terjepit selebar daftar tab (`/dashboard/tenant-surveys`, 2026-11-11).
+
 | Token shadcn | Nilai | Sumber |
 |---|---|---|
 | `--background` | `#f8f7f0` | slate-50 warm paper (`theme.css`) |
