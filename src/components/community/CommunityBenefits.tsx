@@ -29,11 +29,11 @@ const BENEFITS: Array<{ icon: ReactNode; title: string; desc: string }> = [
    and the `/sponsor` CTA target are unchanged. */
 export function CommunityBenefits() {
   return (
-    <RevealSection id="benefits" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="benefits" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-8">
           <div>
-            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
               Bukan cuma dikasih tempat.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
@@ -48,11 +48,11 @@ export function CommunityBenefits() {
                 <HandCoins className="h-6 w-6 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-xl font-bold leading-tight text-slate-950 dark:text-white">Dukungan Sponsorship</h3>
+                <h3 className="text-xl font-bold leading-tight text-[var(--wf-ink)]">Dukungan Sponsorship</h3>
                 <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">Dapatkan dukungan sponsorship untuk event komunitasmu. Kami bantu hubungkan dengan brand dan tenant yang relevan.</p>
                 <Link
                   to="/sponsor"
-                  className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-tosca-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                  className="mt-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-page)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2"
                 >
                   Lihat Peluang Sponsor
                 </Link>
@@ -65,7 +65,7 @@ export function CommunityBenefits() {
                   {b.icon}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{b.title}</h3>
+                  <h3 className="text-xl font-bold text-[var(--wf-ink)]">{b.title}</h3>
                   <p className="mt-2 max-w-[65ch] text-base leading-7 ui-text-secondary">{b.desc}</p>
                 </div>
               </div>

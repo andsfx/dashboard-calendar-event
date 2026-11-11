@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { Button } from '../shadcn/button';
 
 interface Props {
   children: ReactNode;
@@ -36,23 +37,24 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="ui-dashboard-page min-h-screen dark:bg-slate-950 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md w-full shadow-xl text-center">
+        <div className="ui-dashboard-page min-h-screen bg-[var(--wf-board)] flex items-center justify-center p-4">
+          <div className="bg-[var(--wf-board)] rounded-2xl p-8 max-w-md w-full shadow-xl text-center">
             <div className="w-16 h-16 mx-auto bg-[var(--wf-danger)]/10 rounded-full flex items-center justify-center mb-4">
               <span className="text-3xl">⚠️</span>
             </div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+            <h2 className="text-xl font-bold text-[var(--wf-ink)] mb-2">
               Terjadi Kesalahan
             </h2>
-            <p className="ui-text-muted text-sm mb-6">
+            <p className="text-[var(--wf-ink-muted)] text-sm mb-6">
               Maaf, aplikasi mengalami masalah. Silakan muat ulang halaman.
             </p>
-            <button
+            <Button
+              variant="default"
               onClick={this.handleReset}
-              className="px-6 py-2.5 bg-brand-primary-600 hover:bg-brand-primary-700 text-white rounded-xl font-medium transition-colors"
+              className="h-auto! rounded-xl border-0 bg-[var(--wf-accent)] px-6 py-2.5 text-[1rem] text-[var(--wf-accent-ink)] transition-colors hover:bg-primary active:translate-y-0!"
             >
               Coba Lagi
-            </button>
+            </Button>
           </div>
         </div>
       );

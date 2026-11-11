@@ -5,42 +5,47 @@ import {
   LINE_RATIO,
   PDF_BRAND,
   PDF_LOGO_DATA_URL,
-  drawPdfFooter,
-  formatDateId,
-  ensureSpace,
 } from './pdfTheme';
+import { formatTanggalSurat } from '../letters/letterDates';
+import {
+  LETTER_LABEL_W_PT,
+  LETTER_LABEL_GAP_PT,
+  LETTER_VALUE_W_PT,
+} from './letterLayout';
 
 // ============================================================
-// Surat Konfirmasi Event — A4 portrait, helvetica base-14, unit pt.
+// Surat Konfirmasi Event — format resmi MMB (PERBANDINGAN-FORMAT-RESMI.md §2).
 //
-// Catatan riwayat: dokumen ini dulu tidak pernah `addPage`, dan helper
-// `line()` mengembalikan `size ?? 11 * 1.35` — precedence-nya salah
-// sehingga tinggi baris yang dikembalikan hanya sebesar font size
-// (11 pt, bukan 14.85 pt). Ritme baris jadi tidak teratur dan blok tanda
-// tangan bisa keluar halaman tanpa peringatan. Sekarang tinggi baris
-// dihitung dari satu rumus (`LINE_RATIO`) dan tiap blok melewati
-// `ensureSpace` sebelum digambar.
+// Struktur (A1–A14): kop logo saja; meta tempat/tanggal + "No." tanpa label
+// dan tanpa Perihal (A3/A4); tujuan tanpa `u.p.`/telepon (A5); kalimat
+// pembuka dinamis menyebut nama EO + nama event (A6); tabel 3 baris tanpa
+// latar berwarna (A7/A8/A14); penutup tunggal (A9); DUA kolom tanda tangan
+// mall + EO (A10/A11); TANPA jadwal loading (A12 — milik SIK); footer blok
+// identitas PT + pita hijau (A2). Margin 72 pt (1 inci) sesuai dokumen resmi.
+//
+// Ritme baris tetap dihitung dari satu rumus (`LINE_RATIO`) dan tiap blok
+// melewati `ensureSpace` sebelum digambar (lihat catatan riwayat di bawah).
 // ============================================================
 
-const FONT = 'helvetica';
-const MARGIN_X = 60;
-const MARGIN_TOP = 50;
+const FONT = 'times';
+/** Margin resmi 72 pt = 1 inci — BUKAN LETTER_MARGIN_MM (20 mm, dipakai SIK). */
+const MARGIN_X = 72;
+const MARGIN_TOP = 72;
 const CONTENT_W = A4.w - MARGIN_X * 2;
+
+/** Cadangan bawah untuk footer identitas PT (A2) sebelum page-break. */
+const FOOTER_RESERVE = 110;
 
 interface TextOptions {
   size?: number;
   style?: 'normal' | 'bold';
   color?: string;
   maxWidth?: number;
-  charSpace?: number;
-  align?: 'left' | 'center' | 'right';
 }
 
 /**
  * Gambar satu blok teks pada baseline `y` dan kembalikan Y berikutnya.
- *
- * `leading` = `size * LINE_RATIO`; nilai balik selalu tinggi blok
- * (`jumlah baris × leading`), bukan ukuran font.
+ * Tinggi balik = jumlah baris × `size × LINE_RATIO`.
  */
 function drawBlock(doc: jsPDF, text: string, x: number, y: number, options: TextOptions = {}): number {
   const size = options.size ?? 11;
@@ -50,7 +55,7 @@ function drawBlock(doc: jsPDF, text: string, x: number, y: number, options: Text
   doc.setTextColor(options.color ?? PDF_BRAND.text);
 
   const lines = options.maxWidth ? doc.splitTextToSize(text, options.maxWidth) : [text];
-  doc.text(lines, x, y, { charSpace: options.charSpace, align: options.align });
+  doc.text(lines, x, y);
   return y + lines.length * lineHeight;
 }
 
@@ -73,19 +78,83 @@ function drawFieldRow(
   labelW: number,
   valueW: number,
 ): number {
-  const lineHeight = 10 * LINE_RATIO;
+  const lineHeight = 11 * LINE_RATIO;
   doc.setFont(FONT, 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(PDF_BRAND.muted);
+  doc.setFontSize(11);
+  doc.setTextColor(PDF_BRAND.text);
   doc.text(label, x, y);
   doc.text(':', x + labelW, y);
-
-  doc.setFont(FONT, 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(PDF_BRAND.text);
   const valueLines = doc.splitTextToSize(value || '-', valueW);
-  doc.text(valueLines, x + labelW + 8, y);
+  doc.text(valueLines, x + labelW + LETTER_LABEL_GAP_PT, y);
   return y + Math.max(lineHeight, valueLines.length * lineHeight);
+}
+
+interface RichSegment {
+  text: string;
+  bold?: boolean;
+}
+
+/**
+ * Satu paragraf dengan segmen tebal di tengahnya (kalimat pembuka A6:
+ * nama EO + nama event dicetak tebal seperti dokumen resmi). Wrapping kata
+ * manual memakai `getTextWidth` karena jsPDF tidak bisa mencampur gaya di
+ * dalam satu panggilan `text()`. Mengembalikan Y berikutnya.
+ */
+function drawRichParagraph(doc: jsPDF, segments: RichSegment[], x: number, y: number, maxWidth: number): number {
+  const size = 11;
+  const lineHeight = size * LINE_RATIO;
+  const spaceW = doc.getTextWidth(' ');
+  const lines: Array<Array<{ text: string; style: 'normal' | 'bold' }>> = [[]];
+  let lineW = 0;
+
+  for (const segment of segments) {
+    const style = segment.bold ? 'bold' : 'normal';
+    doc.setFont(FONT, style);
+    doc.setFontSize(size);
+    for (const word of segment.text.split(/\s+/).filter(Boolean)) {
+      const wordW = doc.getTextWidth(word);
+      if (lineW > 0 && lineW + spaceW + wordW > maxWidth) {
+        lines.push([]);
+        lineW = 0;
+      }
+      if (lineW > 0) lineW += spaceW;
+      lineW += wordW;
+      lines.at(-1)?.push({ text: word, style });
+    }
+  }
+
+  let by = y;
+  for (const line of lines) {
+    if (!line.length) continue;
+    let bx = x;
+    for (const word of line) {
+      doc.setFont(FONT, word.style);
+      doc.setFontSize(size);
+      doc.setTextColor(PDF_BRAND.text);
+      doc.text(word.text, bx, by);
+      doc.setFont(FONT, word.style);
+      bx += doc.getTextWidth(word.text) + spaceW;
+    }
+    by += lineHeight;
+  }
+  return by;
+}
+
+/** Nilai biaya + suffix PPN resmi, tanpa menggandakan bila sudah tertulis. */
+function biayaDenganPpn(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  return /PPN/i.test(trimmed) ? trimmed : `${trimmed} (Exclude PPN)`;
+}
+
+/** Baris varian berbayar yang benar-benar tercetak (kosong = dilewati). */
+function paidRows(letter: LetterRequestItem): Array<[string, string]> {
+  const rows: Array<[string, string]> = [];
+  const biaya = biayaDenganPpn(letter.biayaKebersihan ?? '');
+  if (biaya) rows.push(['Biaya Kebersihan', biaya]);
+  const va = (letter.vaBank ?? '').trim();
+  if (va) rows.push(['No. VA / Bank', va]);
+  return rows;
 }
 
 export interface LetterPdfPayload {
@@ -103,209 +172,221 @@ export function buildLetterPdf(letter: LetterRequestItem, logoDataUrl = PDF_LOGO
     creator: 'Dashboard Event System',
   });
 
-  const tanggalFormatted = formatDateId(letter.tanggalSurat);
+  const tanggalFormatted = formatTanggalSurat(letter.tanggalSurat);
   let y = MARGIN_TOP;
 
-  // ── Kop surat ─────────────────────────────────────────────
-  const logoH = 46;
-  let kopTextX = MARGIN_X;
+  // ── A1 — kop: logo saja, tanpa nama mall/divisi/alamat di badan ──
+  const logoH = 32;
+  let kopDrawn = false;
   if (logoDataUrl) {
     const logoW = logoH * (1000 / 289);
     try {
       doc.addImage(logoDataUrl, 'JPEG', MARGIN_X, y, logoW, logoH);
-      kopTextX = MARGIN_X + logoW + 16;
+      kopDrawn = true;
     } catch {
-      kopTextX = MARGIN_X;
+      kopDrawn = false;
     }
   }
-
-  if (kopTextX === MARGIN_X) {
-    // Tanpa logo: kop berbasis teks agar surat tetap berkop.
+  if (!kopDrawn) {
     doc.setFont(FONT, 'bold');
-    doc.setFontSize(16);
+    doc.setFontSize(20);
     doc.setTextColor(PDF_BRAND.primaryDark);
-    doc.text('METROPOLITAN MALL BEKASI', kopTextX, y + 16, { charSpace: 0.5 });
-    kopTextX = MARGIN_X;
+    doc.text('Metland', MARGIN_X, y + 20);
   }
+  y += logoH + 24;
 
-  doc.setFont(FONT, 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor(PDF_BRAND.text);
-  doc.text('Marketing & Tenant Relations Division', kopTextX, y + 16);
+  // ── A3 — meta kiri atas tanpa label, tanpa Perihal (A4) ──
+  const tempat = (letter.tempatSurat ?? '').trim();
+  const metaDate = tempat && tanggalFormatted ? `${tempat}, ${tanggalFormatted}` : tempat || tanggalFormatted;
+  y = drawBlock(doc, metaDate || '-', MARGIN_X, y) + 2;
+  y = drawBlock(doc, `No. ${letter.nomorSurat || '-'}`, MARGIN_X, y);
+  y += 18;
 
-  doc.setFont(FONT, 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(PDF_BRAND.muted);
-  const addressLines = doc.splitTextToSize(
-    'Jl. KH. Noer Ali No.1, Pekayon Jaya, Bekasi Selatan\nTelp. (021) 8243 7000 · www.metropolitanmallbekasi.co.id',
-    A4.w - MARGIN_X - kopTextX,
-  );
-  doc.text(addressLines, kopTextX, y + 28);
-
-  const kopBottom = Math.max(y + logoH, y + 28 + addressLines.length * 10) + 10;
-  doc.setDrawColor(PDF_BRAND.primary);
-  doc.setLineWidth(2);
-  doc.line(MARGIN_X, kopBottom, A4.w - MARGIN_X, kopBottom);
-  y = kopBottom + 26;
-
-  // ── Metadata surat ────────────────────────────────────────
-  const metaRows: Array<[string, string]> = [
-    ['Nomor', letter.nomorSurat || '-'],
-    ['Tanggal', tanggalFormatted || '-'],
-    ['Perihal', 'Konfirmasi Pelaksanaan Event'],
-  ];
-  for (const [label, value] of metaRows) {
-    y = drawFieldRow(doc, label, value, MARGIN_X, y, 80, CONTENT_W - 88) + 6;
-  }
-  y += 12;
-
-  // ── Tujuan surat ──────────────────────────────────────────
-  y = drawBlock(doc, 'Kepada Yth.', MARGIN_X, y, { size: 11, style: 'bold' }) + 2;
+  // ── A5 — tujuan: nama EO + alamat, tanpa `u.p.` dan tanpa telepon ──
+  y = drawBlock(doc, 'Kepada Yth,', MARGIN_X, y) + 2;
   y = drawBlock(doc, letter.namaEO || '-', MARGIN_X, y, {
-    size: 11,
     style: 'bold',
     maxWidth: CONTENT_W,
   });
-  if (letter.penanggungJawab) {
-    y = drawBlock(doc, `u.p. ${letter.penanggungJawab}`, MARGIN_X, y, {
-      size: 10,
-      color: PDF_BRAND.muted,
-      maxWidth: CONTENT_W,
-    });
-  }
   if (letter.alamatEO) {
-    y = drawBlock(doc, letter.alamatEO, MARGIN_X, y, {
-      size: 10,
-      color: PDF_BRAND.muted,
-      maxWidth: CONTENT_W,
-    });
-  }
-  if (letter.nomorTelepon) {
-    y = drawBlock(doc, `Telp. ${letter.nomorTelepon}`, MARGIN_X, y, {
-      size: 10,
-      color: PDF_BRAND.muted,
-    });
+    y = drawBlock(doc, letter.alamatEO, MARGIN_X, y, { maxWidth: CONTENT_W });
   }
   y += 14;
 
-  // ── Pembuka ───────────────────────────────────────────────
-  const intro = 'Melalui surat ini kami sampaikan konfirmasi pelaksanaan event yang akan diselenggarakan di Metropolitan Mall Bekasi dengan rincian sebagai berikut:';
-  const introHeight = measureBlock(doc, intro, { size: 11, maxWidth: CONTENT_W });
-  y = ensureSpace(doc, y, 20 + introHeight, {});
-  y = drawBlock(doc, 'Dengan hormat,', MARGIN_X, y, { size: 11 }) + 4;
-  y = drawBlock(doc, intro, MARGIN_X, y, { size: 11, maxWidth: CONTENT_W }) + 16;
-
-  // ── Blok data event ───────────────────────────────────────
-  const eventRows: Array<[string, string]> = [
-    ['Nama Event', letter.namaEvent || '-'],
-    ['Lokasi', letter.lokasi || '-'],
-    ['Hari/Tanggal', letter.hariTanggalPelaksanaan || '-'],
-    ['Waktu', letter.waktuPelaksanaan || '-'],
+  // ── A6 — salam + kalimat pembuka dinamis (nama EO + event dicetak tebal) ──
+  const introSegments: RichSegment[] = [
+    { text: 'Bersama ini kami sampaikan konfirmasi ' },
+    { text: letter.namaEO || '……', bold: true },
+    { text: ' untuk mengadakan ' },
+    { text: letter.namaEvent || '……', bold: true },
+    { text: ' di Metropolitan Mall Bekasi sebagai berikut :' },
   ];
-  const loadingRows: Array<[string, string]> = [];
-  if (letter.hariTanggalLoading) loadingRows.push(['Hari/Tanggal', letter.hariTanggalLoading]);
-  if (letter.waktuLoading) loadingRows.push(['Waktu', letter.waktuLoading]);
+  const introHeight = measureRichParagraph(doc, introSegments, CONTENT_W);
+  y = ensureSpaceLocal(doc, y, 16 + introHeight + 16);
+  y = drawBlock(doc, 'Dengan hormat,', MARGIN_X, y) + 2;
+  y = drawRichParagraph(doc, introSegments, MARGIN_X, y, CONTENT_W);
+  y += 14;
 
-  const labelW = 150;
-  const valueW = CONTENT_W - 26 - labelW - 8;
-  const fieldGap = 10 * LINE_RATIO + 5;
+  // ── A7/A8 — tabel 3 baris (tanpa Nama Event — sudah di kalimat pembuka),
+  //     tanpa latar berwarna (A14), plus varian berbayar bila diisi ──
+  const tableRows: Array<[string, string]> = [
+    ['Lokasi', letter.lokasi || '-'],
+    ['Hari / Tanggal Pelaksanaan', letter.hariTanggalPelaksanaan || '-'],
+    ['Waktu Pelaksanaan', letter.waktuPelaksanaan || '-'],
+    ...paidRows(letter),
+  ];
 
-  // Ukur dulu supaya blok tidak pernah terbelah dua halaman.
-  let measured = 24 + 16;
-  for (const [, value] of [...eventRows, ...loadingRows]) {
-    doc.setFont(FONT, 'bold');
-    doc.setFontSize(10);
-    measured += Math.max(fieldGap, doc.splitTextToSize(value || '-', valueW).length * 10 * LINE_RATIO + 5);
+  const labelW = LETTER_LABEL_W_PT;
+  const valueW = LETTER_VALUE_W_PT;
+  const lineHeight = 11 * LINE_RATIO;
+  let measured = 0;
+  doc.setFont(FONT, 'normal');
+  doc.setFontSize(11);
+  for (const [, value] of tableRows) {
+    measured += Math.max(lineHeight, doc.splitTextToSize(value || '-', valueW).length * lineHeight);
   }
-  if (loadingRows.length) measured += 24;
+  y = ensureSpaceLocal(doc, y, measured + 8);
+  for (const [label, value] of tableRows) {
+    y = drawFieldRow(doc, label, value, MARGIN_X, y, labelW, valueW) + 6;
+  }
+  y += 6;
 
-  y = ensureSpace(doc, y, measured + 16, {});
+  // ── A9 — penutup resmi tunggal ──
+  const closing = 'Demikian kami sampaikan, atas perhatian dan kerjasamanya kami ucapkan terima kasih.';
+  const closingHeight = measureBlock(doc, closing, { maxWidth: CONTENT_W });
+  y = ensureSpaceLocal(doc, y, closingHeight + 8);
+  y = drawBlock(doc, closing, MARGIN_X, y, { maxWidth: CONTENT_W }) + 34;
 
-  const blockY = y;
-  const blockHeight = measured;
-  doc.setFillColor(PDF_BRAND.primaryWash);
-  doc.rect(MARGIN_X, blockY, CONTENT_W, blockHeight, 'F');
+  // ── A10/A11 — dua kolom tanda tangan: mall kiri (`Pimpinan Unit`),
+  //     EO kanan (`Menyetujui,` + nama + organisasi) ──
+  const signatureHeight = 14 * LINE_RATIO * 2 + 20;
+  y = ensureSpaceLocal(doc, y, signatureHeight);
+
+  const leftX = MARGIN_X;
+  const rightX = MARGIN_X + CONTENT_W / 2;
+
+  doc.setFont(FONT, 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(PDF_BRAND.text);
+  doc.text('Hormat kami,', leftX, y);
+  doc.text('Menyetujui,', rightX, y);
+  y += 14 * LINE_RATIO + 16;
+
+  if (letter.penandatanganNama) {
+    doc.setFont(FONT, 'bold');
+    doc.text(letter.penandatanganNama, leftX, y, { maxWidth: CONTENT_W / 2 - 16 });
+  }
+  if (letter.menyetujuiNama) {
+    doc.setFont(FONT, 'bold');
+    doc.text(letter.menyetujuiNama, rightX, y, { maxWidth: CONTENT_W / 2 - 16 });
+  }
+  y += 14 * LINE_RATIO + 4;
+
+  doc.setFont(FONT, 'normal');
+  if (letter.penandatanganJabatan) {
+    doc.text(letter.penandatanganJabatan, leftX, y, { maxWidth: CONTENT_W / 2 - 16 });
+  }
+  if (letter.menyetujuiOrg) {
+    doc.text(letter.menyetujuiOrg, rightX, y, { maxWidth: CONTENT_W / 2 - 16 });
+  }
+
+  drawIdentityFooter(doc, logoDataUrl);
+  return doc;
+}
+
+/** `ensureSpace` dengan margin & cadangan footer resmi surat ini. */
+function ensureSpaceLocal(doc: jsPDF, y: number, needed: number): number {
+  if (y + needed <= A4.h - FOOTER_RESERVE) return y;
+  doc.addPage();
+  return MARGIN_TOP;
+}
+
+/** Tinggi paragraf rich tanpa menggambar — parametri identik `drawRichParagraph`. */
+function measureRichParagraph(doc: jsPDF, segments: RichSegment[], maxWidth: number): number {
+  const size = 11;
+  const spaceW = doc.getTextWidth(' ');
+  let lines = 1;
+  let lineW = 0;
+  for (const segment of segments) {
+    doc.setFont(FONT, segment.bold ? 'bold' : 'normal');
+    doc.setFontSize(size);
+    for (const word of segment.text.split(/\s+/).filter(Boolean)) {
+      const wordW = doc.getTextWidth(word);
+      if (lineW > 0 && lineW + spaceW + wordW > maxWidth) {
+        lines += 1;
+        lineW = 0;
+      }
+      lineW += (lineW > 0 ? spaceW : 0) + wordW;
+    }
+  }
+  return lines * size * LINE_RATIO;
+}
+
+// ── A2 — footer blok identitas PT (dari scan reference-01) ──
+// Logo mall + baris sertifikasi ISO/UNAS + alamat kantor pusat + alamat
+// operasional + telp/fax/website, ditutup pita hijau di tepi bawah halaman.
+
+const PT_HQ_LINES = [
+  'PT. Metropolitan Land Tbk.',
+  'M Gold Tower Office Wing suite ABCGH Lt. 12',
+  '& A-H lt. 15, Jl. Letkol M. Moeffreni Moe\u2019min,',
+  'Kel. Pekayon Jaya, Kec. Bekasi Selatan, Kota Bekasi 17148',
+  'Tel : +6221 2808 7777  Fax : +6221 2808 5555',
+  'Website : www.metropolitanland.com',
+];
+
+const PT_OPS_LINES = [
+  'Kantor Operasional',
+  'Metropolitan Mall Bekasi Lt.3',
+  'Jl. Letkol M. Moeffreni Moe\u2019min, Kel. Pekayon Jaya',
+  'Kec. Bekasi Selatan, Kota Bekasi 17148',
+  'Tel : +6221 885 5555  Fax : +6221 884 0283',
+  'Website : www.malmetropolitan.com',
+];
+
+const UNAS_LINE = 'UNAS is a member of Registrar of Standards (Woldingham) Ltd';
+
+function drawIdentityFooter(doc: jsPDF, logoDataUrl: string | undefined): void {
+  const pageW = A4.w;
+  const pageH = A4.h;
+  const bandH = 12;
+  const topY = pageH - FOOTER_RESERVE;
+
+  // Pita hijau di tepi paling bawah halaman.
   doc.setFillColor(PDF_BRAND.primary);
-  doc.rect(MARGIN_X, blockY, 3, blockHeight, 'F');
+  doc.rect(0, pageH - bandH, pageW, bandH, 'F');
 
-  let by = blockY + 20;
-  doc.setFont(FONT, 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(PDF_BRAND.primaryDeep);
-  doc.text('DATA EVENT', MARGIN_X + 16, by, { charSpace: 0.3 });
-  by += 16;
-  for (const [label, value] of eventRows) {
-    by = drawFieldRow(doc, label, value, MARGIN_X + 16, by, labelW, valueW) + 5;
-  }
-
-  if (loadingRows.length) {
-    by += 4;
-    doc.setDrawColor(PDF_BRAND.border);
-    doc.setLineWidth(0.5);
-    doc.line(MARGIN_X + 16, by - 4, A4.w - MARGIN_X - 16, by - 4);
-    by += 16;
-    doc.setFont(FONT, 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(PDF_BRAND.primaryDeep);
-    doc.text('JADWAL LOADING', MARGIN_X + 16, by, { charSpace: 0.3 });
-    by += 16;
-    for (const [label, value] of loadingRows) {
-      by = drawFieldRow(doc, label, value, MARGIN_X + 16, by, labelW, valueW) + 5;
+  let footerY = topY + 10;
+  const logoH = 26;
+  const logoW = logoH * (1000 / 289);
+  let textX = MARGIN_X;
+  if (logoDataUrl) {
+    try {
+      doc.addImage(logoDataUrl, 'JPEG', MARGIN_X, footerY, logoW, logoH);
+      textX = MARGIN_X + logoW + 14;
+    } catch {
+      textX = MARGIN_X;
     }
   }
 
-  y = blockY + blockHeight + 18;
-
-  // ── Penutup ───────────────────────────────────────────────
-  const closing =
-    'Demikian surat konfirmasi ini kami sampaikan. Mohon agar seluruh persiapan dilakukan sesuai jadwal yang telah disepakati. Untuk koordinasi teknis lebih lanjut, dapat menghubungi Marketing Metropolitan Mall Bekasi pada nomor yang tertera di kop surat.';
-  const thanks = 'Demikian, atas perhatian dan kerja samanya kami ucapkan terima kasih.';
-  const closingHeight =
-    measureBlock(doc, closing, { size: 11, maxWidth: CONTENT_W }) +
-    measureBlock(doc, thanks, { size: 11, maxWidth: CONTENT_W }) +
-    30;
-  y = ensureSpace(doc, y, closingHeight, {});
-  y = drawBlock(doc, closing, MARGIN_X, y, { size: 11, maxWidth: CONTENT_W }) + 14;
-  y = drawBlock(doc, thanks, MARGIN_X, y, { size: 11, maxWidth: CONTENT_W }) + 30;
-
-  // ── Tanda tangan ──────────────────────────────────────────
-  // Blok tanda tangan tidak boleh terbelah: ukur seluruh tingginya lebih
-  // dahulu (Hormat kami → ruang tanda tangan → garis → nama → jabatan).
-  const signatureHeight = 100;
-  y = ensureSpace(doc, y, signatureHeight, {});
-
-  const signerName = letter.penanggungJawab || '';
+  const colW = (pageW - MARGIN_X - textX) / 2 - 10;
   doc.setFont(FONT, 'normal');
-  doc.setFontSize(10);
+  doc.setFontSize(7);
   doc.setTextColor(PDF_BRAND.muted);
-  doc.text('Hormat kami,', A4.w - MARGIN_X, y, { align: 'right' });
-  doc.setFontSize(9);
-  doc.text('Marketing Manager', A4.w - MARGIN_X, y + 13, { align: 'right' });
-
-  const ruleY = y + 54;
-  doc.setDrawColor(PDF_BRAND.ink);
-  doc.setLineWidth(0.8);
-  doc.line(A4.w - MARGIN_X - 170, ruleY, A4.w - MARGIN_X, ruleY);
-
-  if (signerName) {
-    doc.setFont(FONT, 'bold');
-    doc.setFontSize(11);
-    doc.setTextColor(PDF_BRAND.text);
-    doc.text(signerName, A4.w - MARGIN_X - 85, ruleY + 15, { align: 'center', maxWidth: 170 });
-  } else {
-    doc.setFont(FONT, 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(PDF_BRAND.faint);
-    doc.text('( ____________________ )', A4.w - MARGIN_X - 85, ruleY + 15, { align: 'center' });
+  for (let i = 0; i < PT_HQ_LINES.length; i++) {
+    const line = PT_HQ_LINES[i] ?? '';
+    doc.setFont(FONT, i === 0 ? 'bold' : 'normal');
+    doc.text(doc.splitTextToSize(line, colW), textX, footerY + i * 9);
   }
-  doc.setFont(FONT, 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(PDF_BRAND.muted);
-  doc.text('Metropolitan Mall Bekasi', A4.w - MARGIN_X - 85, ruleY + 29, { align: 'center' });
+  const opsX = textX + colW + 20;
+  for (let i = 0; i < PT_OPS_LINES.length; i++) {
+    const line = PT_OPS_LINES[i] ?? '';
+    doc.setFont(FONT, i === 0 ? 'bold' : 'normal');
+    doc.text(doc.splitTextToSize(line, colW), opsX, footerY + i * 9);
+  }
 
-  drawPdfFooter(doc, {
-    label: 'Surat Konfirmasi Event · Metropolitan Mall Bekasi',
-    margin: MARGIN_X,
-  });
-  return doc;
+  doc.setFont(FONT, 'normal');
+  doc.setFontSize(6);
+  doc.setTextColor(PDF_BRAND.faint);
+  doc.text(UNAS_LINE, MARGIN_X, pageH - bandH - 6);
 }

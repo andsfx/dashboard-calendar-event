@@ -21,11 +21,11 @@ const FACILITIES: Array<{ icon: ReactNode; title: string; detail: string }> = [
    text/level and the section anchor are unchanged. */
 export function CommunityFacilities() {
   return (
-    <RevealSection id="facilities" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="facilities" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-5">
           <div className="max-w-2xl">
-            <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+            <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
               Semua udah disiapin.
             </h2>
             <p className="mt-4 max-w-[65ch] text-base leading-7 ui-text-secondary">
@@ -40,13 +40,13 @@ export function CommunityFacilities() {
         <div className="mt-10 grid gap-x-10 gap-y-8 sm:mt-14 sm:grid-cols-[minmax(0,15rem)_1fr] lg:mt-16">
           {FACILITIES.map((f) => (
             <Fragment key={f.title}>
-              <h3 className="flex items-start gap-3 text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="flex items-start gap-3 text-lg font-bold text-[var(--wf-ink)]">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                   {f.icon}
                 </span>
                 <span className="mt-1.5">{f.title}</span>
               </h3>
-              <p className="max-w-[65ch] text-sm leading-6 ui-text-muted sm:mt-2.5">{f.detail}</p>
+              <p className="max-w-[65ch] text-sm leading-6 text-[var(--wf-ink-muted)] sm:mt-2.5">{f.detail}</p>
             </Fragment>
           ))}
         </div>

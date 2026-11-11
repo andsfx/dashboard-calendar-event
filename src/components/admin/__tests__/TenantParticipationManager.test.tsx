@@ -72,7 +72,9 @@ describe('TenantParticipationManager — jenis partisipasi menentukan blok data'
       participations={[makeParticipation({ kind: 'voucher', boothArea: '', boothProducts: '' })]}
     />);
     await expandCard(user);
-    expect(screen.getByText('Diskon 20% semua menu')).toBeInTheDocument();
+    // Formulir koreksi merender nilai yang sama di dalam <textarea>, jadi
+    // query teks tanpa selector menjadi ambigu. Batasi ke paragraf tampilan.
+    expect(screen.getByText('Diskon 20% semua menu', { selector: 'p' })).toBeInTheDocument();
     expect(screen.queryByText(/Skema:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Kebutuhan:/)).not.toBeInTheDocument();
   });
@@ -84,7 +86,7 @@ describe('TenantParticipationManager — jenis partisipasi menentukan blok data'
       participations={[makeParticipation({ kind: 'booth', voucherTerms: '' })]}
     />);
     await expandCard(user);
-    expect(screen.getByText(/Kopi kemasan 200gr/)).toBeInTheDocument();
+    expect(screen.getByText(/Kopi kemasan 200gr/, { selector: 'p' })).toBeInTheDocument();
     expect(screen.queryByText(/Diskon 20%/)).not.toBeInTheDocument();
   });
 });

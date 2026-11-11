@@ -15,7 +15,8 @@ import { SCHEDULE_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import { PdfExportOptionsModal } from '../pdf/PdfExportOptionsModal';
 import { ExportScopePicker } from '../pdf/ExportScopePicker';
 import { useExportScope } from '../pdf/useExportScope';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 interface Props {
   viewMode: ViewMode;
@@ -160,20 +161,22 @@ export function DashboardViewsSection(props: Props) {
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {hasActiveFilters && (
-              <MdButton variant="text" onClick={resetFilters}>
+              <Button type="button" variant="ghost" size="sm" onClick={resetFilters} className="text-[var(--wf-accent)]">
                 <RefreshCw className="h-3 w-3" /> Reset {activeFilterCount} filter
-              </MdButton>
+              </Button>
             )}
             {canExportSchedulePdf && (
-              <MdButton
-                variant="outlined"
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setIsExportOptionsOpen(true)}
                 disabled={visibleEvents.length === 0}
-                ariaLabel="Unduh jadwal event sebagai PDF"
+                aria-label="Unduh jadwal event sebagai PDF"
               >
                 <Download className="h-3.5 w-3.5" aria-hidden />
                 Unduh PDF
-              </MdButton>
+              </Button>
             )}
           </div>
         </div>
@@ -192,13 +195,19 @@ export function DashboardViewsSection(props: Props) {
       {!error && (
         <section id={panelId} role="tabpanel" aria-labelledby={`dashboard-tab-${viewMode}`} tabIndex={0} className="ui-focus-ring-panel">
           {visibleEvents.length === 0 && visibleStats.total > 0 ? (
-            <div className="ui-empty-panel flex flex-col items-center gap-3 py-16" role="status" aria-live="polite">
-              <SearchX className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
-              <p className="font-semibold text-[var(--wf-ink)]">Tidak ada acara yang cocok</p>
-              <p className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</p>
-              <MdButton variant="filled" className="mt-1" onClick={resetFilters}>
-                Reset Filter
-              </MdButton>
+            <div className="ui-empty-panel" role="status" aria-live="polite">
+              <Empty className="border-0 bg-transparent py-16">
+                <EmptyMedia>
+                  <SearchX className="h-10 w-10 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                </EmptyMedia>
+                <EmptyHeader>
+                  <EmptyTitle className="font-semibold text-[var(--wf-ink)]">Tidak ada acara yang cocok</EmptyTitle>
+                  <EmptyDescription className="text-sm text-[var(--wf-ink-muted)]">Coba ubah atau reset filter.</EmptyDescription>
+                </EmptyHeader>
+                <Button type="button" onClick={resetFilters}>
+                  Reset Filter
+                </Button>
+              </Empty>
             </div>
           ) : (
             <div ref={viewRef} className="view-switch">

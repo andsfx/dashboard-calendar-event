@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ClipboardCheck, X, Star } from 'lucide-react';
+import { Button } from '../shadcn/button';
 import type { EventItem } from '../../types';
 
 interface SurveyPopupProps {
@@ -104,6 +105,9 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
     navigate(`/survey/${targetEvent.id}`);
   };
 
+  /* Catatan konversi: sufiks `!` pada className menaklukkan default primitif
+     (h-8/px-2.5/border-transparent/bg-primary/hover:bg-muted) yang urutannya
+     lebih akhir di CSS; warna --wf-* asli tetap dipakai apa adanya. */
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
       {/* Backdrop */}
@@ -115,51 +119,53 @@ export default function SurveyPopup({ pastEvents }: SurveyPopupProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="survey-popup-title"
-        className="relative mx-4 mb-4 w-full max-w-sm animate-[slide-up_0.3s_ease-out] rounded-2xl border border-slate-200 bg-[var(--brand-card-light)] p-5 shadow-2xl sm:mb-0 dark:border-slate-700 dark:bg-slate-800"
+ className="relative mx-4 mb-4 w-full max-w-sm animate-[slide-up_0.3s_ease-out] rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 shadow-2xl sm:mb-0"
       >
         {/* Close */}
-        <button
+        <Button
           ref={closeRef}
           type="button"
+          variant="ghost"
           onClick={handleDismiss}
-          className="touch-target-hit ui-focus-ring absolute right-3 top-3 flex items-center justify-center rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          className="touch-target-hit ui-focus-ring absolute right-3 top-3 flex! h-auto items-center justify-center rounded-lg p-1! text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! dark:hover:bg-[var(--wf-board-2)]!"
           aria-label="Tutup"
         >
           <X className="h-4 w-4" />
-        </button>
+        </Button>
 
         {/* Content */}
         <div className="flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary-100 dark:bg-brand-primary-900/40">
-            <Star className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--wf-accent-soft)] ">
+            <Star className="h-6 w-6 text-[var(--wf-accent)] " />
           </div>
 
-          <h3 id="survey-popup-title" className="mb-1 text-base font-bold text-slate-900 dark:text-white">
+          <h3 id="survey-popup-title" className="mb-1 text-base font-bold text-[var(--wf-ink)] ">
             Bagaimana Pengalaman Anda?
           </h3>
-          <p className="mb-1 text-sm text-slate-600 dark:text-slate-300">
-            Event <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">"{targetEvent.acara}"</span> telah selesai.
+          <p className="mb-1 text-sm text-[var(--wf-ink-muted)] ">
+            Event <span className="font-semibold text-[var(--wf-accent)] ">"{targetEvent.acara}"</span> telah selesai.
           </p>
-          <p className="mb-5 text-xs ui-text-muted">
+          <p className="mb-5 text-xs text-[var(--wf-ink-muted)]">
             Bantu kami meningkatkan kualitas layanan dengan mengisi survey singkat.
           </p>
 
           <div className="flex w-full gap-3">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={handleDismiss}
-              className="ui-focus-ring min-h-[44px] flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="ui-focus-ring h-auto min-h-[44px] flex-1 rounded-xl border border-[var(--wf-rule)]! px-4 py-2.5 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! dark:hover:bg-[var(--wf-board-2)]!"
             >
               Nanti Saja
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={handleOpen}
-              className="ui-focus-ring flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-700"
+              className="ui-focus-ring flex! h-auto min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-accent)]!"
             >
               <ClipboardCheck className="h-4 w-4" />
               Isi Survey
-            </button>
+            </Button>
           </div>
         </div>
       </div>

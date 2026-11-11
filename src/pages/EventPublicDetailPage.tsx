@@ -15,6 +15,7 @@ import { fetchEventById, fetchAlbums } from '../utils/domainApi';
 import { isMultiDayEvent, getEventDuration, isRecurringEvent } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
@@ -110,11 +111,11 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
   const posterUrl = resolveEventPoster(event, albums);
 
   return (
-    <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="events-landing min-h-screen overflow-x-clip bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       {/* Header — konsisten EventsLandingPage */}
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -126,13 +127,13 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
         {isLoading && (
           <div className="animate-pulse" aria-label="Memuat detail event">
             <div className="mb-3 flex gap-2">
-              <div className="h-6 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
-              <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="h-6 w-24 rounded-full bg-[var(--wf-rule)]" />
+              <div className="h-6 w-20 rounded-full bg-[var(--wf-rule)]" />
             </div>
-            <div className="mb-6 h-9 w-3/4 rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div className="mb-6 h-9 w-3/4 rounded-xl bg-[var(--wf-rule)]" />
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className="h-20 rounded-xl bg-slate-100 dark:bg-slate-700/60" />
+                <div key={i} className="h-20 rounded-xl bg-[var(--wf-board-2)]" />
               ))}
             </div>
           </div>
@@ -144,29 +145,31 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" aria-hidden="true" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Gagal memuat event</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.</p>
-            <button
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Gagal memuat event</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.</p>
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => setRetryCount(c => c + 1)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700 ui-focus-ring"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]! ui-focus-ring h-auto border-0 rounded-full! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
             >
-              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              <RefreshCw className="size-4" aria-hidden="true" />
               Coba lagi
-            </button>
+            </Button>
           </div>
         )}
 
         {/* 404 state — termasuk draft/internal (fetch sudah exclude) */}
         {!isLoading && !fetchError && !event && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <CalendarDays className="h-7 w-7 text-slate-500 dark:text-slate-300" aria-hidden="true" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
+              <CalendarDays className="h-7 w-7 text-[var(--wf-ink-muted)]" aria-hidden="true" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Event tidak ditemukan</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Event yang kamu cari tidak tersedia atau sudah dihapus.</p>
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Event tidak ditemukan</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Event yang kamu cari tidak tersedia atau sudah dihapus.</p>
             <Link
               to="/events"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700 ui-focus-ring"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)] ui-focus-ring"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               Jadwal Event
@@ -180,7 +183,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
           <article className="space-y-6">
             {/* Header card */}
             <div
-              className="relative overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-white px-5 pb-6 pt-7 shadow-[var(--shadow-card-soft)] sm:px-8 dark:border-slate-700 dark:bg-slate-900"
+              className="relative overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--wf-board)] px-5 pb-6 pt-7 shadow-[var(--shadow-card-soft)] sm:px-8  "
               style={{ '--event-color': accent } as React.CSSProperties}
             >
               <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${accent}, ${accent}44)` }} />
@@ -201,21 +204,21 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                   </span>
                 )}
                 {isMultiDay && (
-                  <span className="flex items-center gap-1 rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                  <span className="flex items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2.5 py-1 text-xs font-bold text-[var(--wf-accent)]">
                     <CalendarDays className="h-3 w-3" aria-hidden="true" /> Rangkaian {getEventDuration(event.dateStr, event.dateEnd)} hari
                   </span>
                 )}
                 {isRecurring && (
-                  <span className="rounded-full bg-brand-primary-100 px-2.5 py-1 text-xs font-bold text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300">
+                  <span className="rounded-full bg-[var(--wf-accent-soft)] px-2.5 py-1 text-xs font-bold text-[var(--wf-accent)]">
                     Event reguler
                   </span>
                 )}
               </div>
-              <h1 className="relative font-display text-2xl font-bold leading-tight text-slate-900 sm:text-3xl dark:text-white">
+              <h1 className="relative font-display text-2xl font-bold leading-tight text-[var(--wf-ink)] sm:text-3xl">
                 {event.acara}
               </h1>
               {event.lokasi && (
-                <p className="relative mt-2 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-300">
+                <p className="relative mt-2 flex items-center gap-1.5 text-sm text-[var(--wf-ink-muted)]">
                   <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
                   {event.lokasi}
                 </p>
@@ -238,14 +241,15 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                   Bagikan via WhatsApp
                 </a>
               )}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={handleCopyLink}
-                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! active:scale-95 ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
               >
-                {copied ? <Check className="h-4 w-4 text-emerald-500" aria-hidden="true" /> : <Link2 className="h-4 w-4" aria-hidden="true" />}
+                {copied ? <Check className="size-4 text-emerald-500" aria-hidden="true" /> : <Link2 className="size-4" aria-hidden="true" />}
                 {copied ? 'Link tersalin' : 'Salin link'}
-              </button>
+              </Button>
               {googleCalendarUrl && (
                 <a
                   href={googleCalendarUrl}
@@ -258,14 +262,15 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
                 </a>
               )}
               {icsBlobAvailable && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={handleDownloadIcs}
-                  className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                  className="inline-flex items-center gap-2 rounded-full border border-black/10! bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! active:scale-95 ui-focus-ring h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
                 >
-                  <Download className="h-4 w-4" aria-hidden="true" />
+                  <Download className="size-4" aria-hidden="true" />
                   Unduh .ics
-                </button>
+                </Button>
               )}
             </div>
 
@@ -273,21 +278,21 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             {event.status === 'past' && (
               <a
                 href={`/survey/${event.id}`}
-                className="flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3.5 transition hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40"
+                className="flex items-center gap-3 rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3.5 transition hover:bg-[var(--wf-accent-soft)]"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
-                  <Check className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)]">
+                  <Check className="h-4 w-4 text-[var(--wf-accent)]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Isi Survey Kepuasan</p>
-                  <p className="text-[11px] text-brand-primary-700 dark:text-brand-primary-400">Bantu kami meningkatkan kualitas layanan</p>
+                  <p className="text-sm font-semibold text-[var(--wf-accent)]">Isi Survey Kepuasan</p>
+                  <p className="text-[11px] text-[var(--wf-accent)]">Bantu kami meningkatkan kualitas layanan</p>
                 </div>
-                <span className="shrink-0 rounded-lg bg-brand-primary-600 px-3 py-1.5 text-xs font-semibold text-white">Isi Survey</span>
+                <span className="shrink-0 rounded-lg bg-[var(--wf-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-accent-ink)]">Isi Survey</span>
               </a>
             )}
 
             {/* Foto event (read-only) */}
-            <div className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+            <div className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-4  ">
               <EventPhotoGallery eventId={event.id} eventName={event.acara} canUpload={false} />
             </div>
 
@@ -297,7 +302,7 @@ export function EventPublicDetailPage({ isDark, onToggleDark }: Props) {
             <div className="flex justify-center pt-2">
               <Link
                 to="/events"
-                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 Jadwal Event

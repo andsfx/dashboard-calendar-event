@@ -1,5 +1,7 @@
 import { EventModel } from '../../types';
-import { MdSelect, MdTextField } from '../md';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
 
 const EVENT_MODELS: Array<{ value: EventModel; label: string }> = [
   { value: '', label: 'Pilih model' },
@@ -28,43 +30,50 @@ export function EventFormModelFields({
   return (
     <>
       <div>
-        <MdSelect
+        <Label htmlFor="event-model" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Model Event</Label>
+        <NativeSelect
           id="event-model"
           value={eventModel}
-          onChange={v => onFieldChange('eventModel', v)}
-          label="Model Event"
-          options={EVENT_MODELS.map(option => ({ value: option.value, label: option.label }))}
+          onChange={e => onFieldChange('eventModel', e.target.value)}
           className="w-full"
-        />
+        >
+          {EVENT_MODELS.map(option => <option key={option.value || 'none'} value={option.value}>{option.label}</option>)}
+        </NativeSelect>
       </div>
 
       {showModelDetails && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <MdTextField
+            <Label htmlFor="event-nominal" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+              Nominal <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+            </Label>
+            <Input
               id="event-nominal"
-              value={eventNominal}
-              onChange={v => onFieldChange('eventNominal', v)}
-              label="Nominal"
               required
-              error={!!errors.eventNominal}
-              errorText={errors.eventNominal}
+              value={eventNominal}
+              onChange={e => onFieldChange('eventNominal', e.target.value)}
+              aria-invalid={!!errors.eventNominal}
+              aria-describedby={errors.eventNominal ? 'event-nominal-error' : undefined}
               placeholder="Contoh: 5000000"
               className="w-full"
             />
+            {errors.eventNominal && <p id="event-nominal-error" className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.eventNominal}</p>}
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="event-model-notes" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+              Keterangan Model Event <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+            </Label>
+            <Input
               id="event-model-notes"
-              value={eventModelNotes}
-              onChange={v => onFieldChange('eventModelNotes', v)}
-              label="Keterangan Model Event"
               required
-              error={!!errors.eventModelNotes}
-              errorText={errors.eventModelNotes}
+              value={eventModelNotes}
+              onChange={e => onFieldChange('eventModelNotes', e.target.value)}
+              aria-invalid={!!errors.eventModelNotes}
+              aria-describedby={errors.eventModelNotes ? 'event-model-notes-error' : undefined}
               placeholder="Contoh: sharing revenue / disupport internal"
               className="w-full"
             />
+            {errors.eventModelNotes && <p id="event-model-notes-error" className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.eventModelNotes}</p>}
           </div>
         </div>
       )}

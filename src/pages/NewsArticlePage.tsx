@@ -5,6 +5,7 @@ import { NewsArticle } from '../types';
 import { fetchNewsArticleBySlug } from '../utils/domainApi';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 function formatNewsDate(value?: string): string {
@@ -50,11 +51,11 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
   }, [slug, retryCount]);
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       {/* Header */}
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -65,37 +66,39 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         {/* Loading skeleton */}
         {isLoading && (
           <div className="animate-pulse">
-            <div className="h-4 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="mt-4 h-9 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="mt-3 h-4 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
-            <div className="mt-8 aspect-[16/9] rounded-2xl bg-slate-200 dark:bg-slate-700" />
+            <div className="h-4 w-24 rounded bg-[var(--wf-rule)]" />
+            <div className="mt-4 h-9 w-3/4 rounded bg-[var(--wf-rule)]" />
+            <div className="mt-3 h-4 w-1/2 rounded bg-[var(--wf-board-2)]" />
+            <div className="mt-8 aspect-[16/9] rounded-2xl bg-[var(--wf-rule)]" />
           </div>
         )}
 
         {/* Error / not found */}
         {!isLoading && (fetchError || !article) && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Newspaper className="h-7 w-7 text-slate-500 dark:text-slate-300" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
+              <Newspaper className="h-7 w-7 text-[var(--wf-ink-muted)]" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">Berita tidak ditemukan.</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">Artikel mungkin sudah dihapus atau belum diterbitkan.</p>
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">Berita tidak ditemukan.</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Artikel mungkin sudah dihapus atau belum diterbitkan.</p>
             <div className="mt-6 flex items-center gap-3">
               <Link
                 to="/news"
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Kembali ke Berita
               </Link>
               {fetchError && (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => setRetryCount(c => c + 1)}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)]! px-5 py-2.5 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! h-auto rounded-full! active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className="size-4" />
                   Coba lagi
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -105,8 +108,8 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         {!isLoading && article && (
           <RevealSection as="article" refreshKey={`${article.id}:${article.slug}`}>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{article.title}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-300">
-              {article.author && <span className="font-medium text-slate-700 dark:text-slate-300">{article.author}</span>}
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
+              {article.author && <span className="font-medium text-[var(--wf-ink-muted)]">{article.author}</span>}
               {article.author && (article.publishedAt || article.createdAt) && <span>·</span>}
               <span>{formatNewsDate(article.publishedAt || article.createdAt)}</span>
             </div>
@@ -120,15 +123,15 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
             )}
 
             {article.content && (
-              <div className="mt-8 whitespace-pre-wrap text-base leading-relaxed text-slate-700 dark:text-slate-300">
+              <div className="mt-8 whitespace-pre-wrap text-base leading-relaxed text-[var(--wf-ink-muted)]">
                 {article.content}
               </div>
             )}
 
-            <div className="mt-12 border-t border-slate-200 pt-6 dark:border-slate-800">
+            <div className="mt-12 border-t border-[var(--wf-rule)] pt-6">
               <Link
                 to="/news"
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Kembali ke Berita
@@ -138,7 +141,7 @@ export function NewsArticlePage({ isDark, onToggleDark }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-[var(--wf-rule)] py-8 text-center text-xs text-[var(--wf-ink-muted)]">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>

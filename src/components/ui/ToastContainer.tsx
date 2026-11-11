@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { ToastMessage } from '../../types';
 import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
+import { Button } from '../shadcn/button';
 
 const CONFIG = {
   // Ikon pakai shade 700: tint `bg-*-50` dirender `opacity-40` di atas kartu putih,
@@ -166,13 +167,16 @@ function ToastItem({ t, onRemove }: { t: ToastMessage; onRemove: (id: string) =>
         {t.message && <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)] leading-relaxed">{t.message}</p>}
       </div>
 
-      <button
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
         onClick={dismiss}
-        className="relative -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
+        className="relative -mr-1 h-11 w-11 shrink-0 rounded-lg text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]"
         aria-label="Tutup notifikasi"
       >
         <X className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   );
 }

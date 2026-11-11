@@ -3,7 +3,8 @@ import { EventItem } from '../../types';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
-import { MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 import { formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../../utils/eventUtils';
 
 interface Props {
@@ -32,11 +33,23 @@ const DOT_COLOR: Record<string, string> = {
   past:     'bg-[var(--wf-rule-strong)] ring-[var(--wf-rule)]',
 };
 
+/**
+ * Kartu timeline adalah kontrol penuh (dulu `div` dengan peran button + tabIndex), sekarang
+ * `Button` shadcn. Primitive membawa tinggi/padding/radius/translate-press/
+ * ukuran teks sendiri; kelas di bawah menetralkannya supaya geometri kartu
+ * asli bertahan (`p-4!` menyelesaikan padding asli di kelas elemennya).
+ */
+const CARD_BUTTON_RESET =
+  'h-auto! w-full! flex! flex-col! items-stretch! justify-start! gap-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0!';
+
 const CARD_ACCENT: Record<string, string> = {
-  draft:    'border-[var(--wf-rule)] bg-[var(--wf-accent-soft)]',
-  ongoing:  'border-[var(--wf-rule)] bg-[var(--wf-live)]/10',
-  upcoming: 'border-[var(--wf-rule)] bg-[var(--wf-action)]/10',
-  past:     'border-[var(--wf-rule)] bg-[var(--wf-board-2)]',
+  // Hanya nada latar: warna garis sudah dibawa kelas kartu. Nada diulang di
+  // `hover:` karena `Button variant="ghost"` membawa `hover:bg-muted`,
+  // sedangkan kartu ini tidak berubah latar saat hover.
+  draft:    'bg-[var(--wf-accent-soft)] hover:bg-[var(--wf-accent-soft)]!',
+  ongoing:  'bg-[var(--wf-live)]/10 hover:bg-[var(--wf-live)]/10!',
+  upcoming: 'bg-[var(--wf-action)]/10 hover:bg-[var(--wf-action)]/10!',
+  past:     'bg-[var(--wf-board-2)] hover:bg-[var(--wf-board-2)]!',
 };
 
 export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Props) {
@@ -49,9 +62,15 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
         aria-live="polite"
         role="status"
       >
-        <CalendarDays className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
-        <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
-        <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
+        <Empty className="border-0 bg-transparent p-0">
+          <EmptyMedia className="mb-3">
+            <CalendarDays className="h-10 w-10 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle className="text-sm font-medium">Tidak ada acara ditemukan</EmptyTitle>
+            <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
     );
   }
@@ -83,11 +102,11 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                 />
 
                 {/* Card */}
-                <div
-                  className={`group cursor-pointer rounded-[var(--wf-radius-board)] border p-4 transition ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''}`}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={`group cursor-pointer rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! p-4! transition ui-focus-ring ${CARD_ACCENT[ev.status] ?? CARD_ACCENT['past']} ${ev.status === 'past' ? 'opacity-80' : ''} ${CARD_BUTTON_RESET}`}
                   onClick={() => onDetail(ev)}
-                  role="button"
-                  tabIndex={0}
                   onKeyDown={(e) => {
                     // Enter/Space pada tombol aksi di dalam kartu milik tombol itu, bukan kartu.
                     if (e.target !== e.currentTarget) return;
@@ -126,32 +145,38 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                         className="flex items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                         onClick={e => e.stopPropagation()}
                       >
-                        <MdIconButton
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => onDetail(ev)}
-                          ariaLabel="Lihat detail"
-                          className="min-h-[36px] min-w-[36px]"
+                          aria-label="Lihat detail"
+                          className="min-h-[36px] min-w-[36px] active:translate-y-0"
                         >
-                          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                        </MdIconButton>
+                          <ExternalLink className="size-3.5" aria-hidden="true" />
+                        </Button>
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (
-                            <MdIconButton
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               onClick={() => onEdit(ev)}
-                              ariaLabel='Ubah acara'
-                              className="min-h-[36px] min-w-[36px]"
+                              aria-label="Ubah acara"
+                              className="min-h-[36px] min-w-[36px] active:translate-y-0"
                             >
-                              <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </MdIconButton>
+                              <Edit2 className="size-3.5" aria-hidden="true" />
+                            </Button>
                             )}
                             {onDelete && (
-                            <MdIconButton
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               onClick={() => onDelete(ev)}
-                              ariaLabel="Hapus acara"
-                              className="min-h-[36px] min-w-[36px]"
+                              aria-label="Hapus acara"
+                              className="min-h-[36px] min-w-[36px] active:translate-y-0"
                             >
-                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </MdIconButton>
+                              <Trash2 className="size-3.5" aria-hidden="true" />
+                            </Button>
                             )}
                           </>
                         )}
@@ -168,7 +193,7 @@ export function TimelineView({ events, isAdmin, onEdit, onDelete, onDetail }: Pr
                       )}
                       {ev.eo && <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> {ev.eo}</span>}
                     </div>
-                </div>
+                </Button>
               </div>
             ))}
           </div>

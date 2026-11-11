@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { CalendarDays, Link2, Plus, Trash2, Unlink, Users } from 'lucide-react';
-import { MdButton, MdCheckbox, MdIconButton, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Checkbox } from '../shadcn/checkbox';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
+import { Textarea } from '../shadcn/textarea';
 import type { EventItem, Exhibition, ExhibitionActivation, ExhibitionInput, ExhibitionLead } from '../../types';
 import type { AdminExhibition } from '../../utils/api/exhibitionsApi';
 import { formatDateRange } from '../../utils/eventUtils';
@@ -34,7 +39,7 @@ const EMPTY_FORM: ExhibitionInput = {
   leasingPic: '', marcommPic: '', publication: 'draft', acceptingApplications: false,
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]';
+const inputClass = 'w-full rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)]';
 const labelClass = 'mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]';
 
 interface Props {
@@ -154,130 +159,131 @@ export function ExhibitionManager({
             {editingId ? 'Ubah Pameran' : 'Pameran Baru'}
           </h2>
           {editingId && (
-            <MdButton variant="text" onClick={startCreate}>
+            <Button variant="ghost" size="sm" onClick={startCreate}>
               Buat pameran baru
-            </MdButton>
+            </Button>
           )}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <MdTextField
+            <Label htmlFor="exh-title" className={labelClass}>
+              Nama pameran <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+            </Label>
+            <Input
               id="exh-title"
-              value={form.title}
-              onChange={v => setForm({ ...form, title: v })}
-              label="Nama pameran"
               required
+              value={form.title}
+              onChange={e => setForm({ ...form, title: e.target.value })}
               placeholder="Beauty Fair"
-              className="w-full"
+              className={inputClass}
             />
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="exh-theme" className={labelClass}>Tema</Label>
+            <Input
               id="exh-theme"
               value={form.theme}
-              onChange={v => setForm({ ...form, theme: v })}
-              label="Tema"
+              onChange={e => setForm({ ...form, theme: e.target.value })}
               placeholder="Kecantikan & perawatan diri"
-              className="w-full"
+              className={inputClass}
             />
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="exh-location" className={labelClass}>Lokasi</Label>
+            <Input
               id="exh-location"
               value={form.location}
-              onChange={v => setForm({ ...form, location: v })}
-              label="Lokasi"
+              onChange={e => setForm({ ...form, location: e.target.value })}
               placeholder="Atrium Lt. 1"
-              className="w-full"
+              className={inputClass}
             />
           </div>
-          {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
           <div>
-            <label className={labelClass} htmlFor="exh-start">
+            <Label className={labelClass} htmlFor="exh-start">
               Mulai <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-            </label>
-            <input id="exh-start" type="date" className={inputClass} value={form.dateStart} onChange={e => setForm({ ...form, dateStart: e.target.value })} />
+            </Label>
+            <Input id="exh-start" type="date" className={inputClass} value={form.dateStart} onChange={e => setForm({ ...form, dateStart: e.target.value })} />
           </div>
-          {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
           <div>
-            <label className={labelClass} htmlFor="exh-end">
+            <Label className={labelClass} htmlFor="exh-end">
               Selesai <span className="text-[var(--wf-action)]" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-            </label>
-            <input id="exh-end" type="date" className={inputClass} value={form.dateEnd} onChange={e => setForm({ ...form, dateEnd: e.target.value })} />
+            </Label>
+            <Input id="exh-end" type="date" className={inputClass} value={form.dateEnd} onChange={e => setForm({ ...form, dateEnd: e.target.value })} />
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="exh-leasing" className={labelClass}>PIC Casual Leasing</Label>
+            <Input
               id="exh-leasing"
               value={form.leasingPic}
-              onChange={v => setForm({ ...form, leasingPic: v })}
-              label="PIC Casual Leasing"
-              className="w-full"
+              onChange={e => setForm({ ...form, leasingPic: e.target.value })}
+              className={inputClass}
             />
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="exh-marcomm" className={labelClass}>PIC Marcomm</Label>
+            <Input
               id="exh-marcomm"
               value={form.marcommPic}
-              onChange={v => setForm({ ...form, marcommPic: v })}
-              label="PIC Marcomm"
-              className="w-full"
+              onChange={e => setForm({ ...form, marcommPic: e.target.value })}
+              className={inputClass}
             />
           </div>
           <div className="sm:col-span-2">
-            <MdTextField
+            <Label htmlFor="exh-brief" className={labelClass}>Kebutuhan kolaborasi brand/EO</Label>
+            <Textarea
               id="exh-brief"
-              type="textarea"
               rows={3}
               value={form.collaborationBrief}
-              onChange={v => setForm({ ...form, collaborationBrief: v })}
-              label="Kebutuhan kolaborasi brand/EO"
+              onChange={e => setForm({ ...form, collaborationBrief: e.target.value })}
               placeholder="Contoh: brand kecantikan untuk booth, EO untuk beauty class dan talkshow."
-              className="w-full"
+              className={inputClass}
             />
           </div>
           <div className="sm:col-span-2">
-            <MdTextField
+            <Label htmlFor="exh-description" className={labelClass}>Deskripsi publik</Label>
+            <Textarea
               id="exh-description"
-              type="textarea"
               rows={3}
               value={form.description}
-              onChange={v => setForm({ ...form, description: v })}
-              label="Deskripsi publik"
-              className="w-full"
+              onChange={e => setForm({ ...form, description: e.target.value })}
+              className={inputClass}
             />
           </div>
           <div>
-            <MdSelect
+            <Label htmlFor="exh-publication" className={labelClass}>Publikasi</Label>
+            <NativeSelect
               id="exh-publication"
               value={form.publication}
-              onChange={next => {
+              onChange={e => {
                 // Validasi runtime terhadap sumber kebenaran (bukan `as` buta):
                 // nilai di luar daftar diabaikan, bukan dipaksa ke tipe.
+                const next = e.target.value;
                 if (next in PUBLICATION_LABELS) {
                   setForm({ ...form, publication: next as Exhibition['publication'] });
                 }
               }}
-              label="Publikasi"
-              options={Object.entries(PUBLICATION_LABELS).map(([value, label]) => ({ value, label }))}
               className="w-full"
-            />
+            >
+              {Object.entries(PUBLICATION_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </NativeSelect>
           </div>
-          <label className="flex items-center gap-2 self-end text-sm text-[var(--wf-ink)]">
-            <MdCheckbox
+          <Label className="flex items-center gap-2 self-end text-sm text-[var(--wf-ink)]">
+            <Checkbox
               checked={form.acceptingApplications}
-              onChange={checked => setForm({ ...form, acceptingApplications: checked })}
+              onCheckedChange={checked => setForm({ ...form, acceptingApplications: checked === true })}
+              aria-label="Terima pengajuan kolaborasi"
             />
             Terima pengajuan kolaborasi
-          </label>
+          </Label>
         </div>
 
         {formError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{formError}</p>}
 
-        <MdButton type="submit" disabled={isSubmitting}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
+        <Button type="submit" disabled={isSubmitting}>
+          <Plus className="size-4" aria-hidden="true" />
           {isSubmitting ? 'Menyimpan…' : editingId ? 'Simpan perubahan' : 'Simpan pameran'}
-        </MdButton>
+        </Button>
       </form>}
 
       <section className="ui-dashboard-surface p-5">
@@ -317,16 +323,16 @@ export function ExhibitionManager({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MdButton variant="outlined" onClick={() => setSelectedId(exhibition.id === selectedId ? '' : exhibition.id)}>
+                  <Button variant="outline" size="sm" onClick={() => setSelectedId(exhibition.id === selectedId ? '' : exhibition.id)}>
                     {exhibition.id === selectedId ? 'Tutup' : 'Kelola'}
-                  </MdButton>
-                  {!readOnly && <MdButton variant="outlined" onClick={() => startEdit(exhibition)}>
+                  </Button>
+                  {!readOnly && <Button variant="outline" size="sm" onClick={() => startEdit(exhibition)}>
                     Ubah
-                  </MdButton>}
+                  </Button>}
                   {canDelete && (
-                    <MdIconButton ariaLabel={`Hapus ${exhibition.title}`} variant="outlined" onClick={() => handleDelete(exhibition)}>
-                      <Trash2 className="h-4 w-4" aria-hidden="true" />
-                    </MdIconButton>
+                    <Button variant="outline" size="icon-sm" aria-label={`Hapus ${exhibition.title}`} onClick={() => handleDelete(exhibition)} className="active:translate-y-0">
+                      <Trash2 className="size-4" aria-hidden="true" />
+                    </Button>
                   )}
                 </div>
               </div>
@@ -349,36 +355,34 @@ export function ExhibitionManager({
                             {item.title} · {formatDateRange(item.dateStart, item.dateEnd)}
                             {item.time && ` · ${item.time}`}
                           </span>
-                          {!readOnly && <MdButton variant="text" danger onClick={() => handleUnlink(item.eventId, item.title)}>
-                            <Unlink className="h-3.5 w-3.5" aria-hidden="true" /> Lepas
-                          </MdButton>}
+                          {!readOnly && <Button variant="ghost" size="sm" onClick={() => handleUnlink(item.eventId, item.title)} className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]">
+                            <Unlink className="size-3.5" aria-hidden="true" /> Lepas
+                          </Button>}
                         </li>
                       ))}
                     </ul>
                     {!readOnly && <div className="mt-3 flex flex-wrap items-end gap-2">
                       <div className="min-w-[220px] flex-1">
-                        <MdSelect
+                        <Label htmlFor={`exh-link-${exhibition.id}`} className={labelClass}>Tautkan event dalam periode pameran</Label>
+                        <NativeSelect
                           id={`exh-link-${exhibition.id}`}
                           value={linkEventId}
-                          onChange={v => setLinkEventId(v)}
-                          label="Tautkan event dalam periode pameran"
-                          options={[
-                            { value: '', label: 'Pilih event…' },
-                            ...eligibleEvents.map(ev => ({ value: ev.id, label: `${ev.acara} - ${ev.dateStr}` })),
-                          ]}
+                          onChange={e => setLinkEventId(e.target.value)}
                           className="w-full"
-                        />
+                        >
+                          <option value="">Pilih event…</option>
+                          {eligibleEvents.map(ev => <option key={ev.id} value={ev.id}>{`${ev.acara} - ${ev.dateStr}`}</option>)}
+                        </NativeSelect>
                       </div>
-                      <MdButton
-                        variant="filled"
+                      <Button
                         disabled={!linkEventId}
                         onClick={async () => {
                           const ok = await onLinkActivation(exhibition.id, linkEventId);
                           if (ok) setLinkEventId('');
                         }}
                       >
-                        <Link2 className="h-4 w-4" aria-hidden="true" /> Tautkan
-                      </MdButton>
+                        <Link2 className="size-4" aria-hidden="true" /> Tautkan
+                      </Button>
                     </div>}
                   </div>
 
@@ -405,9 +409,9 @@ export function ExhibitionManager({
                             {!readOnly && LEAD_STATUSES
                               .filter(status => status !== lead.status)
                               .map(status => (
-                                <MdButton key={status} variant="outlined" onClick={() => onReviewLead(lead.id, status)}>
+                                <Button key={status} variant="outline" size="sm" onClick={() => onReviewLead(lead.id, status)}>
                                   {LEAD_STATUS_LABELS[status]}
-                                </MdButton>
+                                </Button>
                               ))}
                           </div>
                           <p className="mt-2 text-[11px] text-[var(--wf-ink-muted)]">

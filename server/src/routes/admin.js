@@ -1161,12 +1161,21 @@ async function switchAction(action, req) {
 
     // ══════════ GENERATED LETTERS ══════════
     case 'listLetters': {
-      const conds = [`status = 'active'`];
+      const conds = body.includeArchived
+        ? [`status IN ('active','archived')`]
+        : [`status = 'active'`];
       const params = [];
       if (body.eventId) { params.push(body.eventId); conds.push(`event_id = $${params.length}`); }
       if (body.draftEventId) { params.push(body.draftEventId); conds.push(`draft_event_id = $${params.length}`); }
+      // `docType` hidup di JSONB, bukan kolom: filter memakai ->>. Baris lama
+      // tanpa kunci itu dianggap 'ske' lewat COALESCE (back-compat tanpa DDL).
+      if (body.docType) {
+        params.push(body.docType);
+        conds.push(`COALESCE(letter_data->>'docType', 'ske') = $${params.length}`);
+      }
       const { rows } = await db.query(
-        `SELECT * FROM generated_letters WHERE ${conds.join(' AND ')} ORDER BY created_at DESC`,
+        `SELECT id, event_id, draft_event_id, letter_data, pdf_url, created_at, created_by, status
+         FROM generated_letters WHERE ${conds.join(' AND ')} ORDER BY created_at DESC`,
         params,
       );
       // Demo: PDF mentah tidak dikirim (isinya identik dengan letter_data tapi

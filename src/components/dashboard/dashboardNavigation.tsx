@@ -175,7 +175,7 @@ export function getDashboardNavGroups(
           { id: 'landing-page', label: 'Halaman Landing', icon: <Globe className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['landing-page'] },
           { id: 'album-gallery', label: 'Galeri Album', icon: <Images className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['album-gallery'] },
           { id: 'event-areas', label: 'Foto Area Event', icon: <MapPin className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['event-areas'] },
-          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['letter'], maintenance: true },
+          { id: 'letter', label: 'Buat Surat', icon: <FileText className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['letter'] },
           { id: 'news', label: 'Berita', icon: <Newspaper className={NAV} strokeWidth={sw} />, action: 'route' as const, route: CONTENT_ROUTES['news'] },
         ] : []),
         ...(permissions.canViewSponsorship ? [
@@ -233,7 +233,7 @@ const WAYFINDING: WayfindingEntry[] = [
   { path: '/content/landing', label: 'Halaman Landing', description: 'Gambar hero dan feed Instagram halaman landing' },
   { path: '/content/galeri', label: 'Galeri Album', description: 'Album foto yang tampil di halaman galeri publik' },
   { path: '/content/foto-area', label: 'Foto Area Event', description: 'Area event dan foto representatifnya' },
-  { path: '/content/surat', label: 'Buat Surat', description: 'Sedang diperbaiki: generator surat ditutup sementara' },
+  { path: '/content/surat', label: 'Buat Surat', description: 'Generator surat lokal: buka langsung, isi, terbitkan, bagikan' },
   { path: '/content/berita', label: 'Berita', description: 'Artikel berita yang tampil di situs publik' },
   { path: '/content/sponsorship', label: 'Sponsorship', description: 'Sponsor, status penawaran, dan kerja sama' },
 ];
@@ -481,11 +481,10 @@ export function getCommandCenterCards({
       {
         id: 'content-surat',
         title: 'Buat Surat',
-        subtitle: 'Generator ditutup sementara',
+        subtitle: MODULE_PURPOSE[CONTENT_ROUTES.letter] ?? 'Generator surat lokal: buka langsung, isi, terbitkan, bagikan',
         icon: <FileText className={CARD} strokeWidth={sw} />,
         route: CONTENT_ROUTES.letter,
         group: 'Konten' as const,
-        maintenance: true,
       },
       {
         id: 'content-berita',

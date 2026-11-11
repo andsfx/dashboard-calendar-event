@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { X, Check, Loader2, KeyRound, Mail, Shield } from 'lucide-react';
 import { ModalWrapper } from '../modals/ModalWrapper';
 import { apiPost, ApiError } from '../../lib/rest';
-import { MdButton, MdIconButton, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
 
 export interface EditableUser {
   id: string;
@@ -111,55 +114,55 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
             <h3 id="user-edit-title" className="text-base font-bold text-[var(--wf-ink)]">Edit Pengguna</h3>
             <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{user.display_name || user.email}</p>
           </div>
-          <MdIconButton
-            ariaLabel="Tutup"
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Tutup"
             onClick={onClose}
             disabled={isSubmitting}
-            className="touch-target-hit relative"
+            className="touch-target-hit relative active:translate-y-0"
           >
-            <X className="h-4 w-4" />
-          </MdIconButton>
+            <X className="size-4" />
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 px-5 pb-5">
           <div>
-            <label htmlFor="ue-email" className={labelClass}>
+            <Label htmlFor="ue-email" className={labelClass}>
               <Mail className="mr-1 inline h-3 w-3" aria-hidden="true" />Email
-            </label>
-            <MdTextField
+            </Label>
+            <Input
               id="ue-email"
               type="email"
               value={email}
-              onChange={setEmail}
-              ariaLabel="Email"
+              onChange={e => setEmail(e.target.value)}
               className="w-full"
             />
           </div>
 
           <div>
-            <label htmlFor="ue-name" className={labelClass}>Nama Tampilan</label>
-            <MdTextField
+            <Label htmlFor="ue-name" className={labelClass}>Nama Tampilan</Label>
+            <Input
               id="ue-name"
               value={displayName}
-              onChange={setDisplayName}
-              ariaLabel="Nama Tampilan"
+              onChange={e => setDisplayName(e.target.value)}
               className="w-full"
             />
           </div>
 
           <div>
-            <label htmlFor="ue-role" className={labelClass}>
+            <Label htmlFor="ue-role" className={labelClass}>
               <Shield className="mr-1 inline h-3 w-3" aria-hidden="true" />Role
-            </label>
-            <MdSelect
+            </Label>
+            <NativeSelect
               id="ue-role"
               value={role}
-              onChange={setRole}
+              onChange={e => setRole(e.target.value)}
               disabled={isSelf}
-              ariaLabel="Role"
-              options={ROLE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
               className="w-full"
-            />
+            >
+              {ROLE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </NativeSelect>
             {isSelf && (
               <p className="mt-1 text-[11px] text-[var(--wf-action)]">
                 Role akun sendiri tidak bisa diubah.
@@ -168,16 +171,15 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
           </div>
 
           <div>
-            <label htmlFor="ue-password" className={labelClass}>
+            <Label htmlFor="ue-password" className={labelClass}>
               <KeyRound className="mr-1 inline h-3 w-3" aria-hidden="true" />Password Baru
-            </label>
-            <MdTextField
+            </Label>
+            <Input
               id="ue-password"
               type="password"
               value={password}
-              onChange={setPassword}
+              onChange={e => setPassword(e.target.value)}
               placeholder={`Kosongkan bila tidak diubah (min. ${MIN_PASSWORD})`}
-              ariaLabel="Password Baru"
               className="w-full"
             />
           </div>
@@ -189,22 +191,22 @@ export function UserEditModal({ isOpen, user, currentUserId, onClose, onSaved }:
           )}
 
           <div className="flex gap-2 pt-1">
-            <MdButton
-              variant="outlined"
+            <Button
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
               className="flex-1"
             >
               Batal
-            </MdButton>
-            <MdButton
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting}
               className="flex-1"
             >
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
               {isSubmitting ? 'Menyimpan…' : 'Simpan'}
-            </MdButton>
+            </Button>
           </div>
         </form>
       </div>

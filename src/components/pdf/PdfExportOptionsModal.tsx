@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Download, Loader2, X } from 'lucide-react';
 import { downloadBlob } from '../../lib/download';
-import { MdButton, MdCheckbox, MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Checkbox } from '../shadcn/checkbox';
+import { Label } from '../shadcn/label';
 import { ModalWrapper } from '../modals/ModalWrapper';
 
 // ============================================================
@@ -139,39 +141,41 @@ export function PdfExportOptionsModal({
       maxWidth={isPreviewStage ? 'max-w-6xl' : 'max-w-xl'}
       ariaLabelledBy="pdf-export-options-title"
     >
-      <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+ <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--wf-board)] text-[var(--wf-ink)] shadow-2xl ">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--wf-rule)] px-6 py-5 ">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--wf-accent)] ">
               Laporan PDF
             </p>
             <h2 id="pdf-export-options-title" className="mt-1 text-xl font-bold tracking-tight">
               {isPreviewStage ? 'Pratinjau PDF' : title}
             </h2>
-            <p className="mt-1 text-sm ui-text-muted">
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
               {isPreviewStage
                 ? `Cek dulu hasilnya sebelum diunduh — ${preview.fileName}`
                 : description}
             </p>
           </div>
-          <MdIconButton
-            ariaLabel="Tutup"
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Tutup"
             onClick={onClose}
             disabled={isGenerating}
-            className="shrink-0 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="shrink-0 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
           >
             <X className="h-5 w-5" />
-          </MdIconButton>
+          </Button>
         </div>
 
         {/* Body yang menggulir, bukan seluruh panel: footer tetap terlihat
             sehingga tombol aksi selalu terjangkau tanpa menggulir dulu. */}
         {isPreviewStage ? (
-          <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--wf-board)] p-3">
             <iframe
               src={previewUrl ?? undefined}
               title="Pratinjau PDF"
-              className="h-[70vh] w-full rounded-2xl border border-slate-200 bg-white shadow-inner dark:border-slate-800"
+              className="h-[70vh] w-full rounded-2xl border border-[var(--wf-rule)] bg-white shadow-inner "
             />
           </div>
         ) : (
@@ -181,15 +185,15 @@ export function PdfExportOptionsModal({
             <fieldset disabled={isGenerating} className="min-w-0 space-y-2">
               <legend className="sr-only">Bagian yang diekspor</legend>
               <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-1">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                <span className="text-sm font-medium text-[var(--wf-ink-muted)] ">
                   Bagian yang diekspor
                 </span>
-                <MdButton
-                  variant="text"
+                <Button
+                  variant="ghost"
                   onClick={() => setSelected(allSelected ? [...requiredSections] : sections.map((section) => section.id))}
                 >
                   {allSelected ? 'Kosongkan' : 'Pilih semua'}
-                </MdButton>
+                </Button>
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
@@ -197,35 +201,35 @@ export function PdfExportOptionsModal({
                   const isRequired = requiredSections.includes(section.id);
                   const isChecked = selected.includes(section.id);
                   return (
-                    <label
+                    <Label
                       key={section.id}
                       className={`flex items-start gap-3 rounded-2xl border p-3 transition ${
                         isRequired
-                          ? 'cursor-not-allowed border-slate-200 bg-slate-100 opacity-70 dark:border-slate-800 dark:bg-slate-950'
+                          ? 'cursor-not-allowed border-[var(--wf-rule)] bg-[var(--wf-board-2)] opacity-70'
                           : 'cursor-pointer'
                       } ${
                         isChecked && !isRequired
-                          ? 'border-brand-primary-500 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-500/15'
+                          ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
                           : !isRequired
-                            ? 'border-slate-200 bg-[var(--brand-card)] hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950'
+ ? 'border-[var(--wf-rule)] bg-[var(--wf-board)] hover:border-[var(--wf-rule-strong)]'
                             : ''
                       }`}
                     >
-                      <MdCheckbox
+                      <Checkbox
                         checked={isChecked}
                         disabled={isRequired}
-                        onChange={() => toggle(section.id)}
+                        onCheckedChange={() => toggle(section.id)}
                         className="mt-0.5 shrink-0"
                       />
                       <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-slate-900 dark:text-white">
+                        <span className="block text-sm font-semibold text-[var(--wf-ink)] ">
                           {section.label}
                         </span>
-                        <span className="mt-0.5 block text-xs ui-text-muted">
+                        <span className="mt-0.5 block text-xs text-[var(--wf-ink-muted)]">
                           {isRequired ? 'Selalu disertakan' : section.hint}
                         </span>
                       </span>
-                    </label>
+                    </Label>
                   );
                 })}
               </div>
@@ -239,27 +243,27 @@ export function PdfExportOptionsModal({
           </div>
         )}
 
-        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-[var(--wf-rule)] px-6 py-5 sm:flex-row sm:justify-end ">
           {isPreviewStage ? (
             <>
-              <MdButton key="preview-back" variant="text" onClick={() => setPreview(null)}>
+              <Button key="preview-back" variant="ghost" onClick={() => setPreview(null)}>
                 <ArrowLeft className="h-4 w-4" />
                 Kembali
-              </MdButton>
-              <MdButton key="preview-download" variant="filled" onClick={handleDownload}>
+              </Button>
+              <Button key="preview-download" onClick={handleDownload}>
                 <Download className="h-4 w-4" />
                 Unduh PDF
-              </MdButton>
+              </Button>
             </>
           ) : (
             <>
-              <MdButton key="select-cancel" variant="text" onClick={onClose} disabled={isGenerating}>
+              <Button key="select-cancel" variant="ghost" onClick={onClose} disabled={isGenerating}>
                 Batal
-              </MdButton>
-              <MdButton key="select-generate" variant="filled" onClick={handleGenerate} disabled={!canGenerate}>
+              </Button>
+              <Button key="select-generate" onClick={handleGenerate} disabled={!canGenerate}>
                 {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 {isGenerating ? 'Menyiapkan…' : generateLabel}
-              </MdButton>
+              </Button>
             </>
           )}
         </div>

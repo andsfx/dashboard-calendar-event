@@ -10,7 +10,8 @@ import {
   deleteEventProposal,
 } from '../../utils/domainApi';
 import { useConfirmDialog } from './useConfirmDialog';
-import { MdButton, MdSelect } from '../md';
+import { Button } from '../shadcn/button';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -88,6 +89,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
       if (fileInputRefs.current[eventId]) fileInputRefs.current[eventId]!.value = '';
     }
   };
+
   const handleDeleteProposal = async (item: EventProposalEvent) => {
     const ok = await confirm({
       title: 'Hapus proposal?',
@@ -161,20 +163,22 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
         <div className="space-y-3 px-4 py-4 sm:px-6">
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto rounded-xl bg-[var(--wf-board-2)] p-1">
-            <MdButton
-              variant={tab === 'proposals' ? 'filled' : 'text'}
+            <Button
+              variant={tab === 'proposals' ? 'default' : 'ghost'}
+              type="button"
               onClick={() => { setTab('proposals'); setError(''); setSuccess(''); }}
               className="flex-1 whitespace-nowrap px-3 py-2"
             >
               Proposal Event
-            </MdButton>
-            <MdButton
-              variant={tab === 'leads' ? 'filled' : 'text'}
+            </Button>
+            <Button
+              variant={tab === 'leads' ? 'default' : 'ghost'}
+              type="button"
               onClick={() => { setTab('leads'); setError(''); setSuccess(''); }}
               className="flex-1 whitespace-nowrap px-3 py-2"
             >
               Minat Support ({leads.length})
-            </MdButton>
+            </Button>
           </div>
 
           {/* Error message */}
@@ -183,10 +187,10 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <p>{error}</p>
-                <MdButton variant="text" onClick={loadData} className="mt-2 underline underline-offset-2">
+                <Button variant="ghost" type="button" onClick={loadData} className="mt-2 underline underline-offset-2">
                   <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                   Coba lagi
-                </MdButton>
+                </Button>
               </div>
             </div>
           )}
@@ -238,14 +242,14 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                         </a>
                         {!readOnly && (<>
                         <span className="text-[var(--wf-ink-muted)]">·</span>
-                        <MdButton
-                          variant="text"
-                          danger
+                        <Button
+                          variant="destructive"
+                          type="button"
                           onClick={() => handleDeleteProposal(item)}
                           className="!min-w-0 px-0"
                         >
                           Hapus
-                        </MdButton>
+                        </Button>
                         </>)}
                       </div>
                     ) : (
@@ -261,7 +265,8 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                       id={`proposal-file-${item.event.id}`}
                       onChange={(e) => handleProposalSelect(item.event.id, e.target.files?.[0])}
                     />)}
-                    {!readOnly && (<MdButton
+                    {!readOnly && (<Button
+                      type="button"
                       onClick={() => document.getElementById(`proposal-file-${item.event.id}`)?.click()}
                       disabled={isUploading}
                       className="px-3.5 py-1.5 text-xs"
@@ -277,7 +282,7 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                           {item.proposal.fileUrl ? 'Ganti' : 'Upload'}
                         </>
                       )}
-                    </MdButton>)}
+                    </Button>)}
                   </div>
                 </div>
               ))}
@@ -336,20 +341,25 @@ export function SponsorManagerModal({ readOnly = false }: Props) {
                         </span>
                       ) : (
                         <>
-                          <MdSelect
+                          <NativeSelect
                             value={lead.status}
-                            onChange={value => handleStatusChange(lead, value as SponsorLeadStatus)}
-                            ariaLabel={`Status lead ${lead.companyName}`}
-                            options={statusOptions.map(s => ({ value: s, label: STATUS_LABELS[s] }))}
-                          />
-                          <MdButton
-                            variant="text"
-                            danger
+                            onChange={(e) => handleStatusChange(lead, e.target.value as SponsorLeadStatus)}
+                            aria-label={`Status lead ${lead.companyName}`}
+                          >
+                            {statusOptions.map((s) => (
+                              <NativeSelectOption key={s} value={s}>
+                                {STATUS_LABELS[s]}
+                              </NativeSelectOption>
+                            ))}
+                          </NativeSelect>
+                          <Button
+                            variant="destructive"
+                            type="button"
                             onClick={() => handleDeleteLead(lead)}
                             className="!min-w-0 px-0 text-xs"
                           >
                             <Trash2 className="h-3 w-3" /> Hapus
-                          </MdButton>
+                          </Button>
                         </>
                       )}
                     </div>

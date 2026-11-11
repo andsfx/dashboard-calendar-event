@@ -1,8 +1,16 @@
 import { Moon, Sun, CalendarDays, Shield, Users } from 'lucide-react';
+import { Button } from '../shadcn/button';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)]';
 const focusRingPylon = 'wf-focus-rail focus-visible:outline-none';
 
+// shadcn Button base adds its own focus ring (ring-3 / border-ring) and a
+// press translate; the className overrides below (ring-0 / explicit
+// focus-visible:border-*, active:translate-y-0, h-auto / px-0) restore the
+// exact pre-migration visual contract. Variant ghost is used everywhere and
+// every original class is carried on className, so the visible output is
+// unchanged. shadcn Button is a plain React component with no runtime cost, so
+// there is no chunk-weight reason to defer it.
 interface Props {
   isDark: boolean;
   onToggleDark: () => void;
@@ -31,22 +39,25 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <a
-              href="/"
-              title="Ruang Komunitas"
-              className={`wf-btn wf-btn--quiet border-[var(--wf-rail-rule)] text-[var(--wf-rail-ink)] hover:bg-[var(--wf-rail-2)] ${focusRingPylon}`}
+            <Button
+              asChild
+              variant="ghost"
+              className={`wf-btn wf-btn--quiet border-[var(--wf-rail-rule)] text-[var(--wf-rail-ink)] hover:bg-[var(--wf-rail-2)] h-auto focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0 ${focusRingPylon}`}
             >
-              <Users className="h-3.5 w-3.5" aria-hidden />
-              <span className="hidden sm:inline">Komunitas</span>
-            </a>
+              <a href="/" title="Ruang Komunitas">
+                <Users className="h-3.5 w-3.5" aria-hidden />
+                <span className="hidden sm:inline">Komunitas</span>
+              </a>
+            </Button>
 
-            <button
+            <Button
+              variant="ghost"
               onClick={onToggleDark}
-              className={`flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] ${focusRingPylon}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-lg px-0 text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0 ${focusRingPylon}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
-            </button>
+            </Button>
           </div>
         </div>
       </nav>
@@ -75,51 +86,56 @@ export function Navbar({ isDark, onToggleDark, isAdmin, onLoginClick, ongoingCou
 
         {/* Right actions */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-          <button
+          <Button
+            variant="ghost"
             onClick={onLoginClick}
             title="Masuk sebagai admin"
-            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] sm:px-3 ${focusRing}`}
+            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] px-2.5 py-1.5 text-xs font-medium text-[var(--wf-ink-muted)] transition hover:border-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)] hover:text-[var(--wf-accent)] sm:px-3 focus-visible:border-[var(--wf-rule)] active:translate-y-0 ${focusRing}`}
           >
             <Shield className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Admin</span>
-          </button>
+          </Button>
 
-          <a
-            href="/"
-            title="Ruang Komunitas"
-            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-accent)] transition hover:bg-[var(--wf-board-2)] sm:px-3 ${focusRing}`}
+          <Button
+            asChild
+            variant="ghost"
+            className={`flex h-9 items-center gap-1.5 rounded-xl border border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] px-2.5 py-1.5 text-xs font-semibold text-[var(--wf-accent)] transition hover:bg-[var(--wf-board-2)] sm:px-3 focus-visible:border-[var(--wf-accent)] active:translate-y-0 ${focusRing}`}
           >
-            <Users className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Komunitas</span>
-          </a>
+            <a href="/" title="Ruang Komunitas">
+              <Users className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Komunitas</span>
+            </a>
+          </Button>
 
           {/* Divider */}
           <div className="mx-0.5 h-5 w-px bg-[var(--wf-rule)]" />
 
           {/* Dark mode toggle */}
           <div className="tooltip-parent hidden sm:block">
-            <button
+            <Button
+              variant="ghost"
               onClick={onToggleDark}
-              className={`flex h-9 w-9 items-center justify-center rounded-xl text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl px-0 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] focus-visible:border-transparent active:translate-y-0 ${focusRing}`}
               aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
             >
               {isDark
                 ? <Sun className="h-4 w-4" />
                 : <Moon className="h-4 w-4" />
               }
-            </button>
+            </Button>
             <span className="tooltip-box">{isDark ? 'Mode terang' : 'Mode gelap'}</span>
           </div>
-          <button
+          <Button
+            variant="ghost"
             onClick={onToggleDark}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] sm:hidden ${focusRing}`}
+            className={`flex h-9 w-9 items-center justify-center rounded-xl px-0 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] focus-visible:border-transparent active:translate-y-0 sm:hidden ${focusRing}`}
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
           >
             {isDark
               ? <Sun className="h-4 w-4" />
               : <Moon className="h-4 w-4" />
             }
-          </button>
+          </Button>
         </div>
       </div>
     </nav>

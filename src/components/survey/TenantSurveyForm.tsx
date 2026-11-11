@@ -15,7 +15,12 @@ import {
   TRAFFIC_LABELS,
 } from './TenantSurveyShared';
 import type { TenantDropdownOption } from '../../utils/domainApi';
-import { MdButton, MdLinearProgress, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
+import { Progress } from '../shadcn/progress';
+import { Textarea } from '../shadcn/textarea';
 
 // ─── Main Form Component ─────────────────────────────────────────
 
@@ -280,11 +285,11 @@ export default function TenantSurveyForm({
         <div className="space-y-4">
           {/* Tenant search */}
           <div>
-            <label htmlFor="ts-form-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+            <Label htmlFor="ts-form-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
               <Building2 className="h-3.5 w-3.5" />
               Nama Tenant
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-            </label>
+            </Label>
             <TenantSearchSelect
               id="ts-form-tenant"
               value={selectedTenant?.name || formData.nama_gerai}
@@ -333,29 +338,34 @@ export default function TenantSurveyForm({
 
           {/* Lokasi / Zona */}
           <div className="relative">
-            <label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+            <Label htmlFor="ts-form-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
               <MapPin className="h-3.5 w-3.5" />
               Lokasi / Zona
               <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
               {autoFilled.lokasi_zona && (
                 <span className="ml-1 rounded-full bg-[var(--wf-live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--wf-live)] ring-1 ring-[var(--wf-rule)]">Auto</span>
               )}
-            </label>
-            <MdSelect
+            </Label>
+            <NativeSelect
               id="ts-form-lokasi"
               value={formData.lokasi_zona}
-              onChange={updateField('lokasi_zona')}
+              onChange={(e) => updateField('lokasi_zona')(e.target.value)}
               disabled={disabled}
               required
-              ariaLabel="Lokasi / Zona"
-              error={!!fieldLevelErrors.lokasi_zona}
-              errorText={fieldLevelErrors.lokasi_zona}
-              options={[
-                { value: '', label: 'Pilih lokasi / zona' },
-                ...SURVEY_OPTIONS.lokasi_zona.map((z) => ({ value: z, label: z })),
-              ]}
+              aria-label="Lokasi / Zona"
+              aria-invalid={!!fieldLevelErrors.lokasi_zona || undefined}
               className="w-full"
-            />
+            >
+              <option value="">Pilih lokasi / zona</option>
+              {SURVEY_OPTIONS.lokasi_zona.map((z) => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </NativeSelect>
+            {fieldLevelErrors.lokasi_zona && (
+              <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {fieldLevelErrors.lokasi_zona}
+              </p>
+            )}
           </div>
 
           {/* Kategori */}
@@ -418,36 +428,36 @@ export default function TenantSurveyForm({
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+              <Label htmlFor="ts-form-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama PIC
-              </label>
-              <MdTextField
+              </Label>
+              <Input
                 id="ts-form-pic-name"
                 type="text"
                 value={formData.pic_name}
-                onChange={updateField('pic_name')}
+                onChange={(e) => updateField('pic_name')(e.target.value)}
                 placeholder="Nama penanggung jawab"
                 maxLength={100}
                 disabled={disabled}
-                ariaLabel="Nama PIC"
+                aria-label="Nama PIC"
                 className="w-full"
               />
             </div>
             <div>
-              <label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+              <Label htmlFor="ts-form-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium leading-normal text-[var(--wf-ink-muted)]">
                 <Phone className="h-3.5 w-3.5" />
                 No. Telepon PIC
-              </label>
-              <MdTextField
+              </Label>
+              <Input
                 id="ts-form-pic-phone"
                 type="tel"
                 value={formData.pic_phone}
-                onChange={updateField('pic_phone')}
+                onChange={(e) => updateField('pic_phone')(e.target.value)}
                 placeholder="08xxx"
                 maxLength={20}
                 disabled={disabled}
-                ariaLabel="No. Telepon PIC"
+                aria-label="No. Telepon PIC"
                 className="w-full"
               />
             </div>
@@ -460,11 +470,10 @@ export default function TenantSurveyForm({
             Umpan Balik (Opsional)
           </h3>
           <div>
-            <MdTextField
-              type="textarea"
-              ariaLabel="Masukan / Feedback"
+            <Textarea
+              aria-label="Masukan / Feedback"
               value={formData.feedback_teks}
-              onChange={updateField('feedback_teks')}
+              onChange={(e) => updateField('feedback_teks')(e.target.value)}
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
@@ -480,7 +489,8 @@ export default function TenantSurveyForm({
 
       {/* Progress indicator */}
       <div className="space-y-1.5">
-        <MdLinearProgress value={progress / 100} ariaLabel={`Progres pengisian ${progress}%`} />
+        {/* Progress shadcn memakai skala 0..100 (bukan 0..1). */}
+        <Progress value={progress} aria-label={`Progres pengisian ${progress}%`} />
         <div className="flex items-center justify-between text-[10px] text-[var(--wf-ink-muted)]">
           <span role="status" aria-live="polite">{progress}% selesai</span>
           <span>{filledCount} dari {requiredCount} bagian wajib terisi</span>
@@ -489,22 +499,22 @@ export default function TenantSurveyForm({
 
       {/* Actions */}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <MdButton variant="outlined" onClick={onCancel} disabled={isSubmitting}>
-          <ChevronLeft className="h-4 w-4" />
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          <ChevronLeft className="size-4" />
           Batal
-        </MdButton>
-        <MdButton variant="outlined" onClick={() => handleSubmit(true)} disabled={isSubmitting || disabled}>
-          <Save className="h-4 w-4" />
+        </Button>
+        <Button type="button" variant="outline" onClick={() => handleSubmit(true)} disabled={isSubmitting || disabled}>
+          <Save className="size-4" />
           Simpan Draft
-        </MdButton>
-        <MdButton type="submit" variant="filled" disabled={isSubmitting || disabled}>
+        </Button>
+        <Button type="submit" disabled={isSubmitting || disabled}>
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="size-4" />
           )}
           Kirim Survey
-        </MdButton>
+        </Button>
       </div>
     </form>
   );
@@ -534,10 +544,10 @@ export function TenantSurveySuccess({
       <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
         Masukan Anda sangat berharga untuk meningkatkan kualitas kerjasama dan pelayanan kami.
       </p>
-      <MdButton variant="filled" className="mt-6" onClick={onBack}>
-        <ChevronLeft className="h-4 w-4" />
+      <Button className="mt-6" onClick={onBack}>
+        <ChevronLeft className="size-4" />
         Kembali ke Dashboard
-      </MdButton>
+      </Button>
     </div>
   );
 }
@@ -568,14 +578,14 @@ export function TenantSurveyDuplicate({
       </p>
       <div className="mt-6 flex gap-3">
         {onViewExisting && (
-          <MdButton variant="outlined" onClick={onViewExisting}>
+          <Button variant="outline" onClick={onViewExisting}>
             Lihat Survey
-          </MdButton>
+          </Button>
         )}
-        <MdButton variant="filled" onClick={onBack}>
-          <ChevronLeft className="h-4 w-4" />
+        <Button onClick={onBack}>
+          <ChevronLeft className="size-4" />
           Kembali
-        </MdButton>
+        </Button>
       </div>
     </div>
   );
@@ -601,16 +611,16 @@ export function TenantSurveyError({
       </p>
       <div className="mt-6 flex gap-3">
         {onRetry && (
-          <MdButton variant="outlined" onClick={onRetry}>
-            <RefreshCw className="h-4 w-4" />
+          <Button variant="outline" onClick={onRetry}>
+            <RefreshCw className="size-4" />
             Coba Lagi
-          </MdButton>
+          </Button>
         )}
         {onBack && (
-          <MdButton variant="filled" onClick={onBack}>
-            <ChevronLeft className="h-4 w-4" />
+          <Button onClick={onBack}>
+            <ChevronLeft className="size-4" />
             Kembali
-          </MdButton>
+          </Button>
         )}
       </div>
     </div>

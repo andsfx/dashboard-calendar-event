@@ -29,7 +29,7 @@ export function EventPosterBanner({
   return (
     <div
       data-event-poster
-      className={`relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 ${className}`}
+      className={`relative aspect-[4/3] w-full overflow-hidden bg-[var(--wf-board-2)] ${className}`}
     >
       <img
         src={posterThumbUrl(src)}

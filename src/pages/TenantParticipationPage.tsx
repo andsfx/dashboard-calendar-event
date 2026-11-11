@@ -28,6 +28,11 @@ import { usePageMeta } from '../utils/pageMeta';
 import { formatDateRange } from '../utils/eventUtils';
 import { ApiError } from '../lib/rest';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
+import { Input } from '../components/shadcn/input';
+import { Label } from '../components/shadcn/label';
+import { NativeSelect } from '../components/shadcn/native-select';
+import { Textarea } from '../components/shadcn/textarea';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
@@ -65,9 +70,22 @@ const EMPTY_FORM: TenantParticipationInput = {
   voucherType: 'discount_percent', voucherTerms: '', voucherQuota: '', voucherFormat: 'both',
 };
 
-const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-500 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-300';
-const tenantFieldClass = 'rounded-md border-slate-500 py-3 dark:border-slate-500 dark:bg-slate-800 dark:placeholder:text-slate-300';
-const labelClass = 'mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300';
+/**
+ * Kontrol form. `h-auto` menaklukkan tinggi bawaan `Input`/`Textarea` shadcn (`h-8`)
+ * sehingga padding asli (`py-3`) tetap yang menentukan tinggi. Sufiks `!` dipakai pada
+ * kelas yang kalah urutan dari token bawaan shadcn (`rounded-lg`, `ring-3`,
+ * `ring-ring/50`, `aria-invalid:*`) supaya tampilan kontrol tidak bergeser; `dark:bg-\[var\(--wf-board\)\]`
+ * mempertahankan latar kontrol yang memang putih di kedua tema seperti sebelumnya.
+ */
+const inputClass = 'h-auto w-full rounded-[var(--radius-control)]! border border-[var(--wf-rule-control)] bg-[var(--wf-board)] px-4 py-3 text-sm text-[var(--wf-ink)] outline-none transition! placeholder:text-[var(--wf-ink-muted)] focus-visible:border-[var(--wf-rule-control)]! focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! aria-invalid:border-[var(--wf-rule-control)]! aria-invalid:ring-0!';
+/**
+ * `className` pada `NativeSelect` mendarat di pembungkus, bukan di elemen pilihannya, jadi
+ * token kontrol lama dioper lewat varian anak (`[&>select]:*`). Padding kanan dibiarkan
+ * `pr-8` bawaan agar chevron yang digambar primitive tidak menimpa teks pilihan.
+ */
+const nativeSelectClass = 'w-full [&>select]:h-auto [&>select]:rounded-[var(--radius-control)] [&>select]:bg-[var(--wf-board)] [&>select]:pl-4 [&>select]:py-3 [&>select]:transition [&>select]:focus-visible:border-[var(--wf-rule-control)] [&>select]:focus-visible:ring-2 [&>select]:focus-visible:ring-[var(--brand-tosca)] [&>select]:aria-invalid:border-[var(--wf-rule-control)] [&>select]:aria-invalid:ring-0';
+const tenantFieldClass = 'rounded-md border-[var(--wf-rule-control)] py-3 bg-[var(--wf-board-2)] placeholder:text-[var(--wf-ink-muted)]';
+const labelClass = 'mb-1.5 block! select-text! text-xs font-semibold leading-normal text-[var(--wf-ink-muted)]';
 const focusRing = 'ui-focus-ring';
 
 /** Label tanggal dari date_str/date_end event — pakai util tanggal yang sudah ada. */
@@ -391,10 +409,10 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
   };
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -413,7 +431,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           </p>
         </RevealSection>
 
-        <RevealSection aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="alur-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
           <h2 id="alur-title" className="font-display text-lg font-bold">Alur pengajuan</h2>
           <ol className="mt-3 space-y-3 text-sm ui-text-secondary">
             <li className="flex gap-3">
@@ -431,7 +449,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           </ol>
         </RevealSection>
 
-        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="form-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
           <h2 id="form-title" className="font-display text-lg font-bold">Formulir pengajuan</h2>
 
           {submittedCode ? (
@@ -447,20 +465,22 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                 <span className="rounded-[var(--radius-control)] border border-emerald-300 bg-white px-4 py-2 font-mono text-base font-bold tracking-wider text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-100">
                   {submittedCode}
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={handleCopyCode}
-                  className={`${focusRing} inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-white px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-100 dark:hover:bg-emerald-900/60`}
+                  className={`${focusRing} inline-flex h-auto items-center gap-2 rounded-full! border border-emerald-300 bg-white px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100! hover:text-emerald-800! focus-visible:border-emerald-300! dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-100 dark:hover:bg-emerald-900/60! dark:hover:text-emerald-100! dark:focus-visible:border-emerald-700! active:translate-y-0!`}
                 >
-                  {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+                  {copied ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
                   {copied ? 'Kode tersalin' : 'Salin kode'}
-                </button>
+                </Button>
               </div>
               <p className="mt-3 text-xs text-emerald-800 dark:text-emerald-300">
                 Pantau statusnya di panel “Cek status pengajuan” di bawah, atau ajukan partisipasi lain untuk event berbeda.
               </p>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setSubmittedCode(null);
                   setForm({ ...EMPTY_FORM });
@@ -469,33 +489,33 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                   setAutoFilled({ unitNumber: false, tenantCategory: false, boothArea: false });
                   setCopied(false);
                 }}
-                className={`${focusRing} mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-emerald-800 underline-offset-2 hover:underline dark:text-emerald-200`}
+                className={`${focusRing} mt-3 inline-flex h-auto min-h-11 items-center whitespace-normal! text-xs font-semibold text-emerald-800 underline-offset-2 hover:bg-transparent hover:text-emerald-800! hover:underline dark:text-emerald-200 dark:hover:bg-transparent dark:hover:text-emerald-200! active:translate-y-0!`}
               >
                 Ajukan partisipasi lagi
-              </button>
+              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
               {/* ── Event tujuan ── */}
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Event tujuan</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">Event tujuan</legend>
                 {eventsFailed ? (
                   <p role="alert" className="rounded-[var(--radius-control)] border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
                     Gagal memuat daftar event. Muat ulang halaman ini untuk mencoba lagi.
                   </p>
                 ) : events.length === 0 ? (
-                  <p className="rounded-[var(--radius-control)] border border-slate-300 bg-slate-50 px-4 py-3 text-sm ui-text-secondary dark:border-slate-600 dark:bg-slate-800">
+                  <p className="rounded-[var(--radius-control)] border border-[var(--wf-rule-strong)] bg-[var(--wf-board-2)] px-4 py-3 text-sm ui-text-secondary">
                     Belum ada event yang bisa diajukan saat ini. Pengajuan dibuka untuk event yang belum berjalan
                     dan ditutup paling lambat sehari sebelum event mulai.
                   </p>
                 ) : (
                   <>
-                    <label className={labelClass} htmlFor="tp-event">
+                    <Label className={labelClass} htmlFor="tp-event">
                       Pilih event <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </label>
-                    <select
+                    </Label>
+                    <NativeSelect
                       id="tp-event"
-                      className={inputClass}
+                      className={nativeSelectClass}
                       value={form.eventId}
                       onChange={(e) => handleEventSelect(e.target.value)}
                       aria-invalid={Boolean(fieldErrors.eventId)}
@@ -507,13 +527,13 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                           {ev.acara} ({eventDateLabel(ev)})
                         </option>
                       ))}
-                    </select>
+                    </NativeSelect>
                     {fieldErrors.eventId
                       ? <p id="tp-event-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.eventId}</p>
-                      : <p id="tp-event-hint" className="mt-1 text-xs ui-text-muted">Hanya event yang belum mulai yang bisa dipilih (pengajuan ditutup H-1).</p>}
+                      : <p id="tp-event-hint" className="mt-1 text-xs text-[var(--wf-ink-muted)]">Hanya event yang belum mulai yang bisa dipilih (pengajuan ditutup H-1).</p>}
                     {selectedEvent && (
-                      <div className="mt-2 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
-                        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-700 dark:text-slate-200">
+                      <div className="mt-2 rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2">
+                        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                           <span className="inline-flex items-center gap-1">
                             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                             {eventDateLabel(selectedEvent)}
@@ -533,34 +553,34 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
 
               {/* ── Jenis partisipasi ── */}
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">
                   Jenis partisipasi <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                 </legend>
                 <div className="grid gap-2 sm:grid-cols-3">
                   {KIND_OPTIONS.map((option) => {
                     const selected = form.kind === option.value;
                     return (
-                      <label
+                      <Label
                         key={option.value}
-                        className={`flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border px-4 py-3 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-tosca)] ${
+                        className={`flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border px-4 py-3 leading-normal select-text! transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-tosca)] ${
                           selected
-                            ? 'border-brand-primary-400 bg-brand-primary-50 dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
-                            : 'border-slate-300 bg-white hover:border-slate-500 dark:border-slate-600 dark:bg-slate-800/60 dark:hover:border-slate-500'
+                            ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)]'
+                            : 'border-[var(--wf-rule-strong)] bg-[var(--wf-board)] hover:border-[var(--wf-rule-control)]'
                         }`}
                       >
-                        <input
+                        <Input
                           type="radio"
                           name="kind"
                           value={option.value}
                           checked={selected}
                           onChange={() => setField('kind', option.value)}
-                          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--brand-tosca-600)]"
+                          className="mt-0.5 h-4! w-4! shrink-0 border-0! p-0! accent-[var(--brand-tosca-600)] focus-visible:ring-0! dark:bg-transparent"
                         />
                         <span className="min-w-0">
-                          <span className="block text-sm font-semibold text-slate-800 dark:text-white">{option.label}</span>
-                          <span className="mt-0.5 block text-xs ui-text-muted">{option.hint}</span>
+                          <span className="block text-sm font-semibold text-[var(--wf-ink)]">{option.label}</span>
+                          <span className="mt-0.5 block text-xs text-[var(--wf-ink-muted)]">{option.hint}</span>
                         </span>
-                      </label>
+                      </Label>
                     );
                   })}
                 </div>
@@ -568,13 +588,13 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
 
               {/* ── Data tenant ── */}
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Data tenant</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">Data tenant</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {!manualEntry ? (
                     <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="tp-tenant">
+                      <Label className={labelClass} htmlFor="tp-tenant">
                         Nama tenant <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
+                      </Label>
                       <TenantSearchSelect
                         id="tp-tenant"
                         value={selectedTenant?.name || form.tenantName}
@@ -585,29 +605,30 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                         className={tenantFieldClass}
                       />
                       {selectedTenant && (
-                        <div className="mt-2 rounded-[var(--radius-control)] border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
-                          <p className="text-xs font-semibold text-slate-800 dark:text-white">{selectedTenant.name}</p>
-                          <p className="text-[11px] ui-text-muted">
+                        <div className="mt-2 rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2">
+                          <p className="text-xs font-semibold text-[var(--wf-ink)]">{selectedTenant.name}</p>
+                          <p className="text-[11px] text-[var(--wf-ink-muted)]">
                             {[selectedTenant.category, selectedTenant.floor, selectedTenant.lot && `Lot ${selectedTenant.lot}`]
                               .filter(Boolean)
                               .join(' · ')}
                           </p>
                         </div>
                       )}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => switchEntryMode(true)}
-                        className={`${focusRing} mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                        className={`${focusRing} mt-2 inline-flex h-auto min-h-11 items-center whitespace-normal! text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:bg-transparent hover:text-[var(--brand-tosca-600)]! hover:underline dark:text-[var(--brand-tosca-soft)] dark:hover:bg-transparent dark:hover:text-[var(--brand-tosca-soft)]! active:translate-y-0!`}
                       >
                         Tenant saya belum ada di daftar
-                      </button>
+                      </Button>
                     </div>
                   ) : (
                     <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="tp-tenant-manual">
+                      <Label className={labelClass} htmlFor="tp-tenant-manual">
                         Nama tenant <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         id="tp-tenant-manual"
                         className={inputClass}
                         value={form.tenantName}
@@ -617,35 +638,36 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                         aria-describedby={fieldErrors.tenantName ? 'tp-tenant-err' : undefined}
                       />
                       {fieldErrors.tenantName && <p id="tp-tenant-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.tenantName}</p>}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => switchEntryMode(false)}
-                        className={`${focusRing} mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:underline dark:text-[var(--brand-tosca-soft)]`}
+                        className={`${focusRing} mt-2 inline-flex h-auto min-h-11 items-center whitespace-normal! text-xs font-semibold text-[var(--brand-tosca-600)] underline-offset-2 hover:bg-transparent hover:text-[var(--brand-tosca-600)]! hover:underline dark:text-[var(--brand-tosca-soft)] dark:hover:bg-transparent dark:hover:text-[var(--brand-tosca-soft)]! active:translate-y-0!`}
                       >
                         Cari tenant di daftar
-                      </button>
+                      </Button>
                     </div>
                   )}
                   <div>
-                    <label className={labelClass} htmlFor="tp-unit">Nomor unit atau lot</label>
-                    <input id="tp-unit" className={inputClass} value={form.unitNumber} onChange={(e) => setField('unitNumber', e.target.value)} maxLength={50} placeholder="Contoh: GF-12" />
+                    <Label className={labelClass} htmlFor="tp-unit">Nomor unit atau lot</Label>
+                    <Input id="tp-unit" className={inputClass} value={form.unitNumber} onChange={(e) => setField('unitNumber', e.target.value)} maxLength={50} placeholder="Contoh: GF-12" />
                   </div>
                   <div>
-                    <label className={labelClass} htmlFor="tp-category">Kategori tenant</label>
-                    <input id="tp-category" className={inputClass} value={form.tenantCategory} onChange={(e) => setField('tenantCategory', e.target.value)} maxLength={100} placeholder="Contoh: F&amp;B, Fashion" />
+                    <Label className={labelClass} htmlFor="tp-category">Kategori tenant</Label>
+                    <Input id="tp-category" className={inputClass} value={form.tenantCategory} onChange={(e) => setField('tenantCategory', e.target.value)} maxLength={100} placeholder="Contoh: F&amp;B, Fashion" />
                   </div>
                 </div>
               </fieldset>
 
               {/* ── PIC ── */}
               <fieldset className="sm:col-span-2">
-                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">PIC yang bisa dihubungi</legend>
+                <legend className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">PIC yang bisa dihubungi</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className={labelClass} htmlFor="tp-contact">
+                    <Label className={labelClass} htmlFor="tp-contact">
                       Nama PIC <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="tp-contact"
                       className={inputClass}
                       value={form.contactName}
@@ -657,10 +679,10 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                     {fieldErrors.contactName && <p id="tp-contact-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.contactName}</p>}
                   </div>
                   <div>
-                    <label className={labelClass} htmlFor="tp-phone">
+                    <Label className={labelClass} htmlFor="tp-phone">
                       Nomor WhatsApp <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id="tp-phone"
                       className={inputClass}
                       value={form.phone}
@@ -671,11 +693,11 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                     />
                     {fieldErrors.phone
                       ? <p id="tp-phone-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.phone}</p>
-                      : <p id="tp-phone-hint" className="mt-1 text-xs ui-text-muted">Nomor ini juga dipakai untuk cek status pengajuan.</p>}
+                      : <p id="tp-phone-hint" className="mt-1 text-xs text-[var(--wf-ink-muted)]">Nomor ini juga dipakai untuk cek status pengajuan.</p>}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className={labelClass} htmlFor="tp-email">Email</label>
-                    <input
+                    <Label className={labelClass} htmlFor="tp-email">Email</Label>
+                    <Input
                       id="tp-email"
                       type="email"
                       className={inputClass}
@@ -693,18 +715,18 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               {/* ── Booth ── */}
               {includeBooth && (
                 <fieldset className="sm:col-span-2">
-                  <legend className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">
+                  <legend className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">
                     <Store className="h-3.5 w-3.5" aria-hidden="true" /> Data booth
                   </legend>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-area">
+                      <Label className={labelClass} htmlFor="tp-booth-area">
                         Area yang diminta <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
+                      </Label>
                       {areaOptions.length > 0 ? (
-                        <select
+                        <NativeSelect
                           id="tp-booth-area"
-                          className={inputClass}
+                          className={nativeSelectClass}
                           value={form.boothArea}
                           onChange={(e) => setField('boothArea', e.target.value)}
                           aria-invalid={Boolean(fieldErrors.boothArea)}
@@ -719,9 +741,9 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                           {form.boothArea && !areaOptions.includes(form.boothArea) && (
                             <option value={form.boothArea}>{form.boothArea} (tidak tersedia lagi)</option>
                           )}
-                        </select>
+                        </NativeSelect>
                       ) : (
-                        <input
+                        <Input
                           id="tp-booth-area"
                           className={inputClass}
                           value={form.boothArea}
@@ -734,14 +756,14 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       )}
                       {fieldErrors.boothArea
                         ? <p id="tp-booth-area-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothArea}</p>
-                        : (autoFilled.boothArea && <p id="tp-booth-area-hint" className="mt-1 text-xs ui-text-muted">Terisi otomatis dari lokasi event; sesuaikan bila perlu.</p>)}
+                        : (autoFilled.boothArea && <p id="tp-booth-area-hint" className="mt-1 text-xs text-[var(--wf-ink-muted)]">Terisi otomatis dari lokasi event; sesuaikan bila perlu.</p>)}
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-size">Ukuran booth yang dibutuhkan</label>
+                      <Label className={labelClass} htmlFor="tp-booth-size">Ukuran booth yang dibutuhkan</Label>
                       {optionsFor('booth_size').length > 0 ? (
-                        <select
+                        <NativeSelect
                           id="tp-booth-size"
-                          className={inputClass}
+                          className={nativeSelectClass}
                           value={form.boothSize}
                           onChange={(e) => setField('boothSize', e.target.value)}
                         >
@@ -749,9 +771,9 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                           {optionsFor('booth_size').map((option) => (
                             <option key={option.value} value={option.value}>{option.label}</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       ) : (
-                        <input
+                        <Input
                           id="tp-booth-size"
                           className={inputClass}
                           value={form.boothSize}
@@ -762,10 +784,10 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       )}
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-start">
+                      <Label className={labelClass} htmlFor="tp-booth-start">
                         Mulai booth <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         id="tp-booth-start"
                         type="date"
                         className={inputClass}
@@ -777,8 +799,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       {fieldErrors.boothStart && <p id="tp-booth-start-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothStart}</p>}
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-end">Selesai booth</label>
-                      <input
+                      <Label className={labelClass} htmlFor="tp-booth-end">Selesai booth</Label>
+                      <Input
                         id="tp-booth-end"
                         type="date"
                         className={inputClass}
@@ -790,16 +812,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       />
                       {fieldErrors.boothEnd
                         ? <p id="tp-booth-end-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothEnd}</p>
-                        : <p id="tp-booth-end-hint" className="mt-1 text-xs ui-text-muted">Terisi otomatis dari tanggal event; sesuaikan bila perlu.</p>}
+                        : <p id="tp-booth-end-hint" className="mt-1 text-xs text-[var(--wf-ink-muted)]">Terisi otomatis dari tanggal event; sesuaikan bila perlu.</p>}
                     </div>
                     <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="tp-booth-products">
+                      <Label className={labelClass} htmlFor="tp-booth-products">
                         Produk atau jasa yang dijual <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
-                      <textarea
+                      </Label>
+                      <Textarea
                         id="tp-booth-products"
                         rows={2}
-                        className={inputClass}
+                        className={`${inputClass} inline-block field-sizing-fixed`}
                         value={form.boothProducts}
                         onChange={(e) => setField('boothProducts', e.target.value)}
                         maxLength={1000}
@@ -810,16 +832,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       {fieldErrors.boothProducts && <p id="tp-booth-products-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.boothProducts}</p>}
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-scheme">Skema booth</label>
-                      <select id="tp-booth-scheme" className={inputClass} value={form.boothScheme} onChange={(e) => setField('boothScheme', e.target.value as TenantParticipationInput['boothScheme'])}>
+                      <Label className={labelClass} htmlFor="tp-booth-scheme">Skema booth</Label>
+                      <NativeSelect id="tp-booth-scheme" className={nativeSelectClass} value={form.boothScheme} onChange={(e) => setField('boothScheme', e.target.value as TenantParticipationInput['boothScheme'])}>
                         {optionsFor('booth_scheme').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
-                      </select>
+                      </NativeSelect>
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-booth-needs">Kebutuhan fasilitas</label>
-                      <input id="tp-booth-needs" className={inputClass} value={form.boothNeeds} onChange={(e) => setField('boothNeeds', e.target.value)} maxLength={2000} placeholder="Contoh: listrik 1 titik, 2 meja" />
+                      <Label className={labelClass} htmlFor="tp-booth-needs">Kebutuhan fasilitas</Label>
+                      <Input id="tp-booth-needs" className={inputClass} value={form.boothNeeds} onChange={(e) => setField('boothNeeds', e.target.value)} maxLength={2000} placeholder="Contoh: listrik 1 titik, 2 meja" />
                     </div>
                   </div>
                 </fieldset>
@@ -828,29 +850,29 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               {/* ── Voucher ── */}
               {includeVoucher && (
                 <fieldset className="sm:col-span-2">
-                  <legend className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">
+                  <legend className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">
                     <Tag className="h-3.5 w-3.5" aria-hidden="true" /> Data voucher
                   </legend>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className={labelClass} htmlFor="tp-voucher-type">Jenis voucher</label>
-                      <select id="tp-voucher-type" className={inputClass} value={form.voucherType} onChange={(e) => setField('voucherType', e.target.value as TenantParticipationInput['voucherType'])}>
+                      <Label className={labelClass} htmlFor="tp-voucher-type">Jenis voucher</Label>
+                      <NativeSelect id="tp-voucher-type" className={nativeSelectClass} value={form.voucherType} onChange={(e) => setField('voucherType', e.target.value as TenantParticipationInput['voucherType'])}>
                         {optionsFor('voucher_type').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
-                      </select>
+                      </NativeSelect>
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-voucher-format">Format voucher</label>
-                      <select id="tp-voucher-format" className={inputClass} value={form.voucherFormat} onChange={(e) => setField('voucherFormat', e.target.value as TenantParticipationInput['voucherFormat'])}>
+                      <Label className={labelClass} htmlFor="tp-voucher-format">Format voucher</Label>
+                      <NativeSelect id="tp-voucher-format" className={nativeSelectClass} value={form.voucherFormat} onChange={(e) => setField('voucherFormat', e.target.value as TenantParticipationInput['voucherFormat'])}>
                         {optionsFor('voucher_format').map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
-                      </select>
+                      </NativeSelect>
                     </div>
                     <div>
-                      <label className={labelClass} htmlFor="tp-voucher-quota">Kuota voucher (opsional)</label>
-                      <input
+                      <Label className={labelClass} htmlFor="tp-voucher-quota">Kuota voucher (opsional)</Label>
+                      <Input
                         id="tp-voucher-quota"
                         type="number"
                         min={0}
@@ -867,16 +889,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                       />
                       {fieldErrors.voucherQuota
                         ? <p id="tp-voucher-quota-err" className="mt-1 text-xs text-rose-700 dark:text-rose-400">{fieldErrors.voucherQuota}</p>
-                        : <p id="tp-voucher-quota-hint" className="mt-1 text-xs ui-text-muted">Kosongkan bila tanpa batas kuota.</p>}
+                        : <p id="tp-voucher-quota-hint" className="mt-1 text-xs text-[var(--wf-ink-muted)]">Kosongkan bila tanpa batas kuota.</p>}
                     </div>
                     <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="tp-voucher-terms">
+                      <Label className={labelClass} htmlFor="tp-voucher-terms">
                         Ketentuan voucher <span className="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-                      </label>
-                      <textarea
+                      </Label>
+                      <Textarea
                         id="tp-voucher-terms"
                         rows={3}
-                        className={inputClass}
+                        className={`${inputClass} inline-block field-sizing-fixed`}
                         value={form.voucherTerms}
                         onChange={(e) => setField('voucherTerms', e.target.value)}
                         maxLength={2000}
@@ -895,15 +917,16 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               )}
 
               <div className="sm:col-span-2">
-                <button
+                <Button
                   type="submit"
+                  variant="ghost"
                   disabled={submitting || events.length === 0}
-                  className={`${focusRing} inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60`}
+                  className={`${focusRing} inline-flex h-auto items-center gap-2 whitespace-normal! rounded-full! bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-page)]! dark:hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60`}
                 >
-                  <Send className="h-4 w-4" aria-hidden="true" />
+                  <Send className="size-4" aria-hidden="true" />
                   {submitting ? 'Mengirim…' : 'Kirim Pengajuan'}
-                </button>
-                <p className="mt-2 text-xs ui-text-muted">
+                </Button>
+                <p className="mt-2 text-xs text-[var(--wf-ink-muted)]">
                   Data kontak hanya dipakai tim Metropolitan Mall Bekasi untuk menindaklanjuti pengajuan ini.
                 </p>
               </div>
@@ -912,7 +935,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
         </RevealSection>
 
         {/* ── Cek status ── */}
-        <RevealSection aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+        <RevealSection aria-labelledby="status-title" className="mt-8 rounded-[var(--radius-card-lg)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-5 sm:p-6">
           <h2 id="status-title" className="flex items-center gap-2 font-display text-lg font-bold">
             <ClipboardCheck className="h-5 w-5" aria-hidden="true" /> Cek status pengajuan
           </h2>
@@ -921,8 +944,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
           </p>
           <form onSubmit={handleCheckStatus} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" noValidate>
             <div>
-              <label className={labelClass} htmlFor="tp-status-code">Kode pengajuan</label>
-              <input
+              <Label className={labelClass} htmlFor="tp-status-code">Kode pengajuan</Label>
+              <Input
                 id="tp-status-code"
                 className={`${inputClass} font-mono uppercase`}
                 value={statusCode}
@@ -935,8 +958,8 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
               />
             </div>
             <div>
-              <label className={labelClass} htmlFor="tp-status-phone">Nomor telepon</label>
-              <input
+              <Label className={labelClass} htmlFor="tp-status-phone">Nomor telepon</Label>
+              <Input
                 id="tp-status-phone"
                 className={inputClass}
                 value={statusPhone}
@@ -947,14 +970,15 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
                 aria-describedby={statusError ? 'tp-status-error' : undefined}
               />
             </div>
-            <button
+            <Button
               type="submit"
+              variant="ghost"
               disabled={statusChecking}
-              className={`${focusRing} inline-flex items-center justify-center gap-2 rounded-full border border-[var(--brand-tosca-600)] px-5 py-3 text-sm font-bold text-[var(--brand-tosca-600)] transition hover:bg-brand-primary-50 disabled:opacity-60 dark:border-[var(--brand-tosca-soft)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-brand-primary-950/40`}
+              className={`${focusRing} inline-flex h-auto items-center justify-center gap-2 whitespace-normal! rounded-full! border border-[var(--brand-tosca-600)] px-5 py-3 text-sm font-bold! text-[var(--brand-tosca-600)] transition hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--brand-tosca-600)]! focus-visible:border-[var(--brand-tosca-600)]! dark:hover:bg-[var(--wf-accent-soft)]! dark:hover:text-[var(--brand-tosca-600)]! active:translate-y-0! disabled:opacity-60`}
             >
-              <Search className="h-4 w-4" aria-hidden="true" />
+              <Search className="size-4" aria-hidden="true" />
               {statusChecking ? 'Memeriksa…' : 'Cek Status'}
-            </button>
+            </Button>
           </form>
 
           {statusError && (
@@ -1006,7 +1030,7 @@ export function TenantParticipationPage({ isDark, onToggleDark }: Props) {
         </RevealSection>
       </main>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-xs ui-text-muted dark:border-slate-800">
+      <footer className="border-t border-[var(--wf-rule)] py-8 text-center text-xs text-[var(--wf-ink-muted)]">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>

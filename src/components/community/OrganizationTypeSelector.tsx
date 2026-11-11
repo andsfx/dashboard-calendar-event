@@ -1,5 +1,6 @@
 import { type KeyboardEvent } from 'react';
 import { type OrganizationType } from '../../types';
+import { Button } from '../shadcn/button';
 import { Users, GraduationCap, Building2, PartyPopper, School, Landmark, Heart, MoreHorizontal, Check } from 'lucide-react';
 
 interface OrgTypeOption {
@@ -13,7 +14,7 @@ interface OrgTypeOption {
 const TONE_CLASS: Record<OrgTypeOption['tone'], string> = {
   tosca: 'bg-[color-mix(in_srgb,var(--brand-tosca)_14%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]',
   pink: 'bg-[color-mix(in_srgb,var(--brand-pink)_14%,white)] text-[var(--brand-pink-600)] dark:bg-[color-mix(in_srgb,var(--brand-pink)_25%,black)] dark:text-[var(--brand-pink-soft)]',
-  muted: 'bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-300',
+  muted: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]',
 };
 
 const ORG_TYPES: OrgTypeOption[] = [
@@ -59,7 +60,7 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
 
   return (
     <div className="space-y-3">
-      <p id="organization-type-label" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+      <p id="organization-type-label" className="text-xs font-semibold text-[var(--wf-ink-muted)]">
         Tipe Organisasi <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
       </p>
       <div
@@ -73,25 +74,26 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
           const Icon = opt.icon;
           const isSelected = value === opt.value;
           return (
-            <button
+            <Button
               id={`organization-type-${opt.value}`}
               key={opt.value}
               type="button"
+              variant="ghost"
               role="radio"
               aria-checked={isSelected}
               tabIndex={isSelected || (!value && index === Math.max(selectedIndex, 0)) ? 0 : -1}
               onClick={() => onChange(opt.value)}
               onKeyDown={event => handleKeyDown(event, index)}
-              className={`ui-focus-ring relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-colors duration-200 motion-reduce:transition-none ${
+              className={`ui-focus-ring relative flex h-auto flex-col items-center gap-2 whitespace-normal rounded-2xl border-2 p-4 text-center font-normal transition-colors duration-200 motion-reduce:transition-none focus-visible:ring-0 active:translate-y-0 ${
                 isSelected
-                  ? 'border-[var(--brand-tosca)] bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] shadow-md dark:border-[var(--brand-tosca-soft)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]'
+                  ? 'border-[var(--brand-tosca)] bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] shadow-md hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:border-[var(--brand-tosca-soft)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)] dark:hover:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]'
                   : error
-                    ? 'border-rose-300 bg-rose-50/60 hover:border-rose-400 dark:border-rose-800 dark:bg-rose-950/20'
-                    : 'border-slate-200/60 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
+                    ? 'border-rose-300 bg-rose-50/60 hover:border-rose-400 hover:bg-rose-50/60 dark:border-rose-800 dark:bg-rose-950/20 dark:hover:bg-rose-950/20'
+                    : 'border-[var(--wf-rule)] bg-[var(--wf-board)] hover:border-[var(--wf-rule-strong)] hover:bg-[var(--wf-board)] hover:shadow-sm'
               }`}
             >
               <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${TONE_CLASS[opt.tone]}`}>
-                <Icon className="h-5 w-5" aria-hidden="true" />
+                <Icon className="h-5 w-5 size-5" aria-hidden="true" />
               </div>
               <div>
                 <p className={`text-xs font-bold ${
@@ -99,20 +101,20 @@ export function OrganizationTypeSelector({ value, onChange, error }: Props) {
                     ? opt.tone === 'pink'
                       ? 'text-[var(--brand-pink-600)] dark:text-[var(--brand-pink-soft)]'
                       : 'text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]'
-                    : 'text-slate-700 dark:text-slate-200'
+                    : 'text-[var(--wf-ink-muted)]'
                 }`}>
                   {opt.label}
                 </p>
-                <p className="mt-1 text-xs leading-snug text-slate-600 dark:text-slate-300">
+                <p className="mt-1 text-xs leading-snug text-[var(--wf-ink-muted)]">
                   {opt.description}
                 </p>
               </div>
               {isSelected && (
-                <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--brand-tosca-600)] text-white">
-                  <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]">
+                  <Check className="h-3 w-3 size-3" strokeWidth={3} aria-hidden="true" />
                 </div>
               )}
-            </button>
+            </Button>
           );
         })}
       </div>

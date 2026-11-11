@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CalendarDays, MapPin, Radio } from 'lucide-react';
 import type { EventItem } from '../../types';
 import { formatDateRange } from '../../utils/eventUtils';
+import { Button } from '../shadcn/button';
+import { Badge } from '../shadcn/badge';
+
+/**
+ * shadcn Button base adds height/padding/radius/press-translate and a
+ * focus ring; `.wf-agenda-row` owns those same properties in the unlayered
+ * wayfinding sheet (which outranks utilities), so the utilities that would
+ * fight it are neutralised here. Original classes are carried unchanged.
+ */
+const AGENDA_ROW_RESET = 'h-auto rounded-none border-0 font-normal whitespace-normal focus-visible:ring-0 active:translate-y-0';
 
 interface CommandCenterAgendaProps {
   /** Event yang sedang berjalan sekarang (sudah disaring izin jadwal internal). */
@@ -39,10 +49,11 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
 
   const renderRow = (event: EventItem, marker: 'live' | 'idle') => (
     <li key={event.id}>
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => onDetail(event)}
-        className="wf-agenda-row w-full text-left"
+        className={`wf-agenda-row w-full text-left ${AGENDA_ROW_RESET}`}
       >
         <span className="wf-agenda-row__mark" aria-hidden>
           {marker === 'live' ? (
@@ -68,14 +79,17 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
             ) : null}
           </span>
         </span>
-        <span className={`wf-key ${marker === 'live' ? 'wf-key--live' : 'wf-key--idle'}`}>
+        <Badge
+          variant="outline"
+          className={`wf-key h-auto rounded-none border-0 bg-transparent px-0 py-0 font-normal ${marker === 'live' ? 'wf-key--live' : 'wf-key--idle'}`}
+        >
           <span
             className={marker === 'live' ? 'wf-dot' : 'h-2 w-2 shrink-0 rounded-full border border-current'}
             aria-hidden
           />
           {marker === 'live' ? 'Berlangsung' : 'Berikutnya'}
-        </span>
-      </button>
+        </Badge>
+      </Button>
     </li>
   );
 
@@ -92,10 +106,16 @@ export const CommandCenterAgenda = memo(function CommandCenterAgenda({
               : 'Tidak ada event yang sedang berlangsung sekarang. Buka Jadwal Event untuk melihat agenda berikutnya.'}
           </p>
         </div>
-        <Link to="/dashboard/events" className="wf-btn wf-btn--quiet shrink-0">
-          <span>Buka Jadwal Event</span>
-          <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-        </Link>
+        <Button
+          asChild
+          variant="ghost"
+          className="wf-btn wf-btn--quiet h-auto shrink-0 rounded-[var(--wf-radius-control)] px-3.5 py-2 font-semibold focus-visible:ring-0 active:translate-y-0"
+        >
+          <Link to="/dashboard/events">
+            <span>Buka Jadwal Event</span>
+            <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          </Link>
+        </Button>
       </div>
 
       {hasError ? (

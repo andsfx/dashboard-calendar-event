@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { Card } from '../shadcn/card';
 import { useGsapEntrance } from './useGsapEntrance';
 
 type StatCardVariant = 'primary' | 'slate' | 'emerald' | 'amber';
@@ -77,9 +78,9 @@ export const StatCard = memo(function StatCard({ icon, label, value, subtitle, v
   });
 
   return (
-    <div
+    <Card
       ref={cardRef}
-      className="fade-up rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3.5 transition duration-200 sm:p-5"
+      className="fade-up overflow-visible rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3.5 transition duration-200 sm:p-5 gap-0 py-0 ring-0 shadow-none"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -99,6 +100,6 @@ export const StatCard = memo(function StatCard({ icon, label, value, subtitle, v
           {icon}
         </div>
       </div>
-    </div>
+    </Card>
   );
 });

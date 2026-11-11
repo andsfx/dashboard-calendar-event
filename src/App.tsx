@@ -25,12 +25,12 @@ import mallLogo from './assets/brand/LOGOMETMAL2016-01.svg';
 const DashboardPage = lazy(() => import('./components/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 // `EventDetailModal` dipakai halaman PUBLIK (`/`, `/events`). Modulnya
-// mengimpor `MdButton`/`MdIconButton` dari `../md` + `ModalWrapper` secara
-// statis, jadi `lazy()` saja TIDAK cukup: elemen lazy yang tetap dirender saat
-// boot langsung memicu import()-nya dan menyeret Material Web + Lit ke initial
-// load halaman publik. Karena itu render-nya digerbangi `isOpen` — pola yang
-// sama dengan `DashboardModals` di dashboard — sehingga MD3 baru diunduh saat
-// pengguna benar-benar membuka detail event.
+// mengimpor `ModalWrapper` (shadcn `Dialog`) secara statis, jadi `lazy()` saja
+// TIDAK cukup: elemen lazy yang tetap dirender saat boot langsung memicu
+// import()-nya dan menyeret Dialog + Radix ke initial load halaman publik.
+// Karena itu render-nya digerbangi `isOpen` — pola yang sama dengan
+// `DashboardModals` di dashboard — sehingga dialog baru diunduh saat pengguna
+// benar-benar membuka detail event.
 const EventDetailModal = lazy(() => import('./components/modals/EventDetailModal').then(m => ({ default: m.EventDetailModal })));
 
 /**
@@ -179,7 +179,6 @@ export default function App() {
     editingEvent, setEditingEvent,
     editingDraft, setEditingDraft,
     editingTheme, setEditingTheme,
-    letterEvent, setLetterEvent,
     deletingEvent, setDeletingEvent,
     detailEvent, setDetailEvent,
     showInstagramSettings, setShowInstagramSettings,
@@ -207,7 +206,6 @@ export default function App() {
     handleEditTheme,
     handleSaveTheme,
     handleDeleteTheme,
-    handleSelectLetterEvent,
     handleDeleteClick,
     handleDetailClick,
     handleToggleVisibility,
@@ -336,9 +334,9 @@ export default function App() {
   };
   const dpFilters: DashboardPageFilters = { searchQuery, setSearchQuery, activeFilter, setActiveFilter, activeCategory, setActiveCategory, activePriority, setActivePriority, activeMonth, setActiveMonth, visibleCategories, visibleMonths };
   const dpView: DashboardPageView = { viewMode, setViewMode };
-  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleSelectLetterEvent, handleDeleteClick, handleDetailClick, handleToggleVisibility, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
+  const dpHandlers: DashboardPageHandlers = { handleLogout, handleAddNew, handleEdit, handleAddDraft, handleEditDraft, handleAddTheme, handleEditTheme, handleSaveTheme, handleDeleteTheme, handleDeleteClick, handleDetailClick, handleToggleVisibility, handleSave, handleSaveBatch, handleDeleteSeries, handleDeleteConfirm, handleSaveDraft, handleDeleteDraft, handlePublishDraft, handleDraftProgressChange, handleRestoreDraft, handleUpdateRegStatus, handleCreateEventFromRegistration, handleSaveInstagramPosts, handleSaveHeroImage, handleRegDetail };
   const dpModalState: DashboardPageModalState = { showLoginModal, setShowLoginModal, showCrudModal, setShowCrudModal, showDraftModal, setShowDraftModal, showDeleteModal, setShowDeleteModal, showDetailModal, setShowDetailModal, showDraftHistory, setShowDraftHistory, showThemeModal, setShowThemeModal, openConfirm: confirmDialog.confirm };
-  const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, letterEvent, setLetterEvent, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
+  const dpModalData: DashboardPageModalData = { editingEvent, setEditingEvent, editingDraft, setEditingDraft, editingTheme, setEditingTheme, deletingEvent, setDeletingEvent, detailEvent, setDetailEvent, initialEventData, setInitialEventData };
   const dpRegistrations: DashboardPageRegistrations = { communityRegistrations, isRegLoading, showRegDetail, setShowRegDetail, selectedRegistration, setSelectedRegistration };
   const dpSiteSettings: DashboardPageSiteSettings = { instagramPosts, heroImageUrl, landingAlbums, eventAreas, refreshEventAreas };
   return (
@@ -499,26 +497,26 @@ export default function App() {
       {/* Public Tenant Self-Assessment */}
       <Route path="/tenant-survey" element={
         <Suspense fallback={<DashboardSkeleton isAdmin={false} />}>
-          <div className="ui-dashboard-page min-h-screen dark:bg-slate-950">
+          <div className="ui-dashboard-page min-h-screen bg-[var(--wf-board)]">
             <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
-                  <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">Evaluasi Tenant</span>
+                  <div className="h-8 w-px bg-[var(--wf-rule)]" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--wf-ink-muted)]">Evaluasi Tenant</span>
                 </div>
-                <Link to="/" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-brand-primary-600 dark:text-slate-300 dark:hover:text-brand-primary-400">
+                <Link to="/" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-accent)]">
                   <ArrowLeft className="h-4 w-4" aria-hidden="true" />Kembali ke Beranda
                 </Link>
               </div>
               <div className="ui-dashboard-surface overflow-hidden">
-                <div className="border-b border-slate-100 bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:border-slate-700 dark:from-brand-primary-950/30">
-                  <h1 className="text-xl font-bold text-slate-900 dark:text-white">Evaluasi Dampak Event</h1>
-                  <p className="mt-1 text-sm ui-text-muted">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap tenant Anda.</p>
+                <div className="border-b border-[var(--wf-rule)] bg-gradient-to-r from-brand-primary-50/50 to-transparent px-6 py-5 dark:from-brand-primary-950/30">
+                  <h1 className="text-xl font-bold text-[var(--wf-ink)]">Evaluasi Dampak Event</h1>
+                  <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event di bawah untuk mengisi survei tenant dan bantu kami memahami dampak event terhadap tenant Anda.</p>
                 </div>
                 <div className="px-6 py-5"><TenantSurveyEventPicker /></div>
               </div>
-              <p className="mt-6 text-center text-[11px] text-slate-500 dark:text-slate-300">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
+              <p className="mt-6 text-center text-[11px] text-[var(--wf-ink-muted)]">&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
             </div>
           </div>
         </Suspense>

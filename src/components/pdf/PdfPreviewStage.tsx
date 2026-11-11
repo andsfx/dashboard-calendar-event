@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Download, X } from 'lucide-react';
 import { downloadBlob } from '../../lib/download';
-import { MdButton, MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
 import type { PdfExportResult } from './PdfExportOptionsModal';
 
 // ============================================================
@@ -32,43 +32,45 @@ export function PdfPreviewStage({ result, onBack, onClose, title = 'Pratinjau PD
   }, [result]);
 
   return (
-    <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+ <div className="flex max-h-[92vh] flex-col overflow-hidden rounded-3xl bg-[var(--wf-board)] text-[var(--wf-ink)] shadow-2xl ">
+      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--wf-rule)] px-6 py-5 ">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--wf-accent)] ">
             Laporan PDF
           </p>
           <h2 className="mt-1 text-xl font-bold tracking-tight">{title}</h2>
-          <p className="mt-1 truncate text-sm ui-text-muted">
+          <p className="mt-1 truncate text-sm text-[var(--wf-ink-muted)]">
             Cek dulu hasilnya sebelum diunduh — {result.fileName}
           </p>
         </div>
-        <MdIconButton
-          ariaLabel="Tutup"
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Tutup"
           onClick={onClose}
-          className="shrink-0 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+          className="shrink-0 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]"
         >
           <X className="h-5 w-5" />
-        </MdIconButton>
+        </Button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 p-3 dark:bg-slate-950">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--wf-board)] p-3">
         <iframe
           src={url ?? undefined}
           title="Pratinjau PDF"
-          className="h-[70vh] w-full rounded-2xl border border-slate-200 bg-white shadow-inner dark:border-slate-800"
+          className="h-[70vh] w-full rounded-2xl border border-[var(--wf-rule)] bg-white shadow-inner "
         />
       </div>
 
-      <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-        <MdButton variant="text" onClick={onBack}>
+      <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-[var(--wf-rule)] px-6 py-5 sm:flex-row sm:justify-end ">
+        <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
           Kembali
-        </MdButton>
-        <MdButton variant="filled" onClick={() => downloadBlob(result.blob, result.fileName)}>
+        </Button>
+        <Button onClick={() => downloadBlob(result.blob, result.fileName)}>
           <Download className="h-4 w-4" />
           Unduh PDF
-        </MdButton>
+        </Button>
       </div>
     </div>
   );

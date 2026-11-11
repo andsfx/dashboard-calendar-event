@@ -449,8 +449,8 @@ export function stripPii(row, fields = ['pic', 'phone', 'pic_name', 'pic_phone',
  * `penanggungJawab` → `penanggungjawab`.
  */
 const PII_NAME_KEY = /^(pic|contact|contact_name|pic_name|leasing_pic|marcomm_pic|respondent_name|nama|nama_.*|kontak|penanggungjawab|penanggung_jawab|nama_eo|namaeo)$/i;
-/** Kunci nomor telepon (disamarkan `maskPhone`). */
-const PII_PHONE_KEY = /^(phone|pic_phone|tenant_phone|respondent_phone|telepon|telp|hp|no_hp|nomortelepon|nomor_telepon|notelp)$/i;
+/** Kunci nomor telepon (disamarkan `maskPhone`). `nomorHp`/`nohp` = field SIK. */
+const PII_PHONE_KEY = /^(phone|pic_phone|tenant_phone|respondent_phone|telepon|telp|hp|no_hp|nohp|nomorhp|nomortelepon|nomor_telepon|notelp)$/i;
 /** Kunci email (disamarkan `maskEmail`). */
 const PII_EMAIL_KEY = /^(email|tenant_email|respondent_email)$/i;
 /**

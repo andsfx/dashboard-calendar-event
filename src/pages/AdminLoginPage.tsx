@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Lock, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
+import { Button } from '../components/shadcn/button';
+import { Input } from '../components/shadcn/input';
+import { Label } from '../components/shadcn/label';
 import type { LoginResult } from '../types/auth';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 
@@ -42,20 +45,20 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
   const canSubmit = email.trim() && pw.trim() && !loading;
 
   return (
-    <div className="ui-dashboard-page flex min-h-screen flex-col bg-[var(--brand-card)] dark:bg-slate-950">
+    <div className="ui-dashboard-page flex min-h-screen flex-col bg-[var(--wf-board)]">
       {/* Top bar */}
       <header className="ui-dashboard-chrome border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <img src={mallLogo} alt="Metropolitan Mall Bekasi" className="h-8 w-auto" />
             <div className="hidden sm:block">
-              <p className="text-xs font-semibold text-slate-900 dark:text-white">Event Ops Dashboard</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-300">Metropolitan Mall Bekasi</p>
+              <p className="text-xs font-semibold text-[var(--wf-ink)]">Event Ops Dashboard</p>
+              <p className="text-[10px] text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
             </div>
           </div>
           <Link
             to="/"
-            className="ui-focus-ring flex min-h-11 items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-[var(--brand-card)] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="ui-focus-ring flex min-h-11 items-center gap-1.5 rounded-full border border-[var(--wf-rule)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
             Kembali ke Beranda
@@ -66,19 +69,19 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
       {/* Center login card */}
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div
-          className={`w-full max-w-sm overflow-hidden rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800 transition-transform ${
+          className={`w-full max-w-sm overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-2xl  transition-transform ${
             shake ? 'animate-[shake_0.4s_ease]' : ''
           }`}
         >
           {/* Header gradient */}
-          <div className="bg-brand-primary-600 px-6 py-5">
+          <div className="bg-[var(--wf-accent)] px-6 py-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
                 <Lock className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p id="admin-login-title" className="font-bold text-white">Login Admin</p>
-                <p className="text-xs text-white/70">Masuk ke dashboard admin</p>
+                <h1 id="admin-login-title" className="font-bold text-[var(--wf-accent-ink)]">Login Admin</h1>
+                <p className="text-xs text-[var(--wf-accent-ink)]/90">Masuk ke dashboard admin</p>
               </div>
             </div>
           </div>
@@ -87,45 +90,47 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <Label htmlFor="admin-login-email" className="mb-1.5 block text-xs font-semibold text-[var(--wf-ink-muted)]">
                   Email
-                </label>
-                <input
+                </Label>
+                <Input
                   id="admin-login-email"
                   type="email"
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}
                   placeholder="admin@example.com"
                   autoFocus
-                  className="w-full rounded-xl border border-slate-200 bg-[var(--brand-card)] px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-primary-400 focus:ring-2 focus:ring-brand-primary-100 dark:border-slate-600 dark:bg-slate-700/60 dark:text-white dark:focus:ring-brand-primary-900/30"
+                  className="w-full rounded-xl border border-[var(--wf-rule)] h-auto bg-[var(--wf-board)] px-4 py-2.5 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent)]"
                 />
               </div>
               <div>
-                <label htmlFor="admin-login-pw" className="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <Label htmlFor="admin-login-pw" className="mb-1.5 block text-xs font-semibold text-[var(--wf-ink-muted)]">
                   Password
-                </label>
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     id="admin-login-pw"
                     type={showPw ? 'text' : 'password'}
                     value={pw}
                     onChange={e => { setPw(e.target.value); setError(''); }}
                     placeholder="Masukkan password…"
-                    className={`w-full rounded-xl border bg-[var(--brand-card)] px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition focus:ring-2 dark:bg-slate-700/60 dark:text-white ${
+                    className={`w-full rounded-xl border h-auto bg-[var(--wf-board)] px-4 py-2.5 pr-10 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2   ${
                       error
                         ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900/30'
-                        : 'border-slate-200 focus:border-brand-primary-400 focus:ring-brand-primary-100 dark:border-slate-600 dark:focus:ring-brand-primary-900/30'
+                        : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent)]'
                     }`}
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => setShowPw(v => !v)}
                     aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-600 dark:hover:text-slate-200"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)] hover:bg-transparent"
                     tabIndex={-1}
                   >
-                    {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                    {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </Button>
                 </div>
                 {error && (
                   <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
@@ -134,29 +139,26 @@ export function AdminLoginPage({ onEmailLogin }: Props) {
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={!canSubmit}
-                className="w-full rounded-xl bg-brand-primary-600 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-brand-primary-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-xl bg-[var(--wf-accent)] h-auto py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow transition hover:bg-[var(--wf-accent)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                     Memproses…
                   </span>
                 ) : (
                   'Masuk sebagai Admin'
                 )}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
       </main>
 
-      <footer className="pb-6 text-center text-[11px] text-slate-500 dark:text-slate-300">
+      <footer className="pb-6 text-center text-[11px] text-[var(--wf-ink-muted)]">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life
       </footer>
     </div>

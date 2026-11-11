@@ -123,6 +123,8 @@ Aturan public:
   - Progress tenant terisi hanya jika `selectedTenant` ada
   - Draft dashboard boleh tanpa select; submit ketat
 - Style: Metmal pastel, clean data-first (lihat root `AGENTS.md`).
+- **Primitif**: seluruh kontrol formulir survei memakai `src/components/shadcn/*` (`Input`, `Textarea`, `NativeSelect`, `Label`, `Button`, `RadioGroup`/`RadioGroupItem`, `Tabs`/`TabsContent`). Kelas asli dipertahankan dan ditaklukkan dengan `!` bila default primitive menang (lihat DESIGN.md §Pola komponen dashboard). Sisa native yang sah hanya `<input type="file">` tersembunyi dan `RatingSlider` (roving tabindex buatan).
+- `TenantSurveyPage` merender panel lewat `TabsContent` di dalam `Tabs`: Radix menulis `aria-controls` ke panel, dan tanpa panel axe melaporkan `aria-valid-attr-value`.
 - Public form: loading / empty / error / duplicate / success states wajib tetap ada.
 
 ## Security (non-negotiable)

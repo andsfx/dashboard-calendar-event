@@ -32,9 +32,6 @@ const EXISTING = [
   { id: 'o2', group: 'booth_size' as const, value: '2x2', label: '2 × 2 m', sortOrder: 10, isActive: true, createdAt: '', updatedAt: '' },
 ];
 
-/** Host `md-*` pembungkus kontrol (mock menaruh kontrol native di dalamnya). */
-const hostOf = (el: HTMLElement) => el.closest('md-outlined-select, md-outlined-text-field') ?? el;
-
 async function renderModal() {
   render(<TenantParticipationOptionsModal isOpen onClose={() => {}} onSaved={() => {}} />);
   await waitFor(() => expect(api.fetchAll).toHaveBeenCalled());
@@ -56,7 +53,7 @@ describe('TenantParticipationOptionsModal — form tambah', () => {
 
   it('grup terkunci jadi pilihan, bukan input bebas', async () => {
     const { value } = await renderModal();
-    expect(hostOf(value).tagName).toBe('MD-OUTLINED-SELECT');
+    expect(value.tagName).toBe('SELECT');
   });
 
   it('hanya menawarkan nilai enum yang belum terdaftar', async () => {
@@ -95,7 +92,7 @@ describe('TenantParticipationOptionsModal — form tambah', () => {
     await user.selectOptions(group, 'booth_size');
 
     await waitFor(() => {
-      expect(document.querySelector('#opt-new-value')?.tagName).toBe('MD-OUTLINED-TEXT-FIELD');
+      expect(document.querySelector('#opt-new-value')?.tagName).toBe('INPUT');
     });
     const input = [...document.querySelectorAll('#opt-new-value')].find((node) => node.tagName === 'INPUT');
     expect((input as HTMLInputElement).value).toBe('');

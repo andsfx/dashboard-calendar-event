@@ -4,6 +4,8 @@ import { Wrench } from 'lucide-react';
 import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { DASHBOARD_GROUP_ORDER, getCommandCenterCards } from './dashboardNavigation';
+import { Button } from '../shadcn/button';
+import { Badge } from '../shadcn/badge';
 
 interface CommandCenterDirectoryProps {
   activeDrafts: DraftEventItem[];
@@ -89,30 +91,41 @@ export const CommandCenterDirectory = memo(function CommandCenterDirectory({
             </h3>
             <div className="wf-register">
               {group.cards.map(card => (
-                <Link key={card.id} to={card.route} className="wf-row wf-row--directory">
-                  <span className="wf-row__icon" aria-hidden>
-                    {card.icon}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-[var(--wf-ink)]">
-                      {card.title}
+                <Button
+                  asChild
+                  key={card.id}
+                  variant="ghost"
+                  className="wf-row wf-row--directory h-auto rounded-none border-0 font-normal whitespace-normal focus-visible:ring-0 active:translate-y-0"
+                >
+                  <Link to={card.route}>
+                    <span className="wf-row__icon" aria-hidden>
+                      {card.icon}
                     </span>
-                    <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
-                      {card.state ?? card.subtitle}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-[var(--wf-ink)]">
+                        {card.title}
+                      </span>
+                      <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
+                        {card.state ?? card.subtitle}
+                      </span>
                     </span>
-                  </span>
-                  {card.queue && (
-                    <span className="wf-dot wf-dot--action" title="Menunggu keputusan manusia">
-                      <span className="sr-only">Menunggu keputusan manusia</span>
-                    </span>
-                  )}
-                  {card.maintenance && (
-                    <span className="wf-key wf-key--action" title="Sedang diperbaiki">
-                      <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
-                      Sedang diperbaiki
-                    </span>
-                  )}
-                </Link>
+                    {card.queue && (
+                      <span className="wf-dot wf-dot--action" title="Menunggu keputusan manusia">
+                        <span className="sr-only">Menunggu keputusan manusia</span>
+                      </span>
+                    )}
+                    {card.maintenance && (
+                      <Badge
+                        variant="outline"
+                        className="wf-key wf-key--action h-auto rounded-full border-0 bg-transparent px-0 py-0 font-normal"
+                        title="Sedang diperbaiki"
+                      >
+                        <Wrench className="h-3 w-3" strokeWidth={1.5} aria-hidden />
+                        Sedang diperbaiki
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
               ))}
             </div>
           </div>

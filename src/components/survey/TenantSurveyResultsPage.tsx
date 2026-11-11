@@ -20,6 +20,11 @@ import {
   CalendarDays,
   ChevronDown,
 } from 'lucide-react';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { NativeSelect } from '../shadcn/native-select';
+import { Label } from '../shadcn/label';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
 import type { EventItem, TenantEventSurvey } from '../../types';
 import { useTenantSurveys } from '../../hooks/useTenantSurveys';
 import TenantSurveyTrendChart from './TenantSurveyTrendChart';
@@ -57,6 +62,14 @@ import {
   EventShareRow,
   type EventFilterOption,
 } from './TenantSurveyResultsParts';
+
+/**
+ * Padanan `FIELD` untuk `NativeSelect`. `NativeSelect` membungkus `<select>`
+ * dengan `<div>`, jadi lebar dipasang pada wrapper dan token visual `FIELD`
+ * dipasang pada elemen `<select>` di dalamnya lewat `[&>select]:*`.
+ */
+const SELECT_FIELD =
+  'w-full [&>select]:h-auto [&>select]:rounded-lg [&>select]:border-[var(--wf-rule)] [&>select]:bg-[var(--wf-board)] [&>select]:px-2.5 [&>select]:py-2 [&>select]:pr-8 [&>select]:text-sm [&>select]:text-[var(--wf-ink)]';
 
 interface Props {
   events: EventItem[];
@@ -397,15 +410,15 @@ export default function TenantSurveyResultsPage({
           ) : null}
         </div>
         {canExport && (
-          <button
+          <Button
             type="button"
             onClick={() => setShowExportOptions(true)}
             disabled={agg.total === 0}
-            className="ui-btn-primary ui-focus-ring inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
+            className="ui-btn-primary ui-focus-ring inline-flex h-auto w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2"
           >
             <Download className="h-4 w-4" aria-hidden />
             Export PDF
-          </button>
+          </Button>
         )}
       </header>
 
@@ -445,19 +458,21 @@ export default function TenantSurveyResultsPage({
           </div>
           <div className="flex items-center gap-1.5">
             {filterDirty && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={resetFilter}
-                className="ui-focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
+                className="ui-focus-ring inline-flex h-auto items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
               >
                 <RotateCcw className="h-3 w-3" aria-hidden />
                 <span className="hidden sm:inline">Reset</span>
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setFiltersOpen((v) => !v)}
-              className="ui-focus-ring inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] sm:hidden"
+              className="ui-focus-ring h-auto inline-flex items-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] sm:hidden"
               aria-expanded={filtersOpen}
             >
               Lanjutan
@@ -467,7 +482,7 @@ export default function TenantSurveyResultsPage({
                 </span>
               )}
               <ChevronDown className={`h-3.5 w-3.5 transition-colors ${filtersOpen ? 'rotate-180' : ''}`} aria-hidden />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -490,36 +505,36 @@ export default function TenantSurveyResultsPage({
               filtersOpen ? 'grid' : 'hidden sm:grid'
             }`}
           >
-            <label className="block min-w-0">
+            <Label className="block min-w-0 font-normal leading-normal">
               <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Dari tanggal
               </span>
-              <input
+              <Input
                 type="date"
                 value={filter.dateFrom}
                 onChange={(e) => setField('dateFrom', e.target.value)}
-                className={FIELD}
+                className={`${FIELD} h-auto`}
               />
-            </label>
-            <label className="block min-w-0">
+            </Label>
+            <Label className="block min-w-0 font-normal leading-normal">
               <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Sampai tanggal
               </span>
-              <input
+              <Input
                 type="date"
                 value={filter.dateTo}
                 onChange={(e) => setField('dateTo', e.target.value)}
-                className={FIELD}
+                className={`${FIELD} h-auto`}
               />
-            </label>
-            <label className="block min-w-0">
+            </Label>
+            <Label className="block min-w-0 font-normal leading-normal">
               <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Zona
               </span>
-              <select
+              <NativeSelect
                 value={filter.zona}
                 onChange={(e) => setField('zona', e.target.value)}
-                className={FIELD}
+                className={SELECT_FIELD}
               >
                 <option value="all">Semua zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
@@ -527,16 +542,16 @@ export default function TenantSurveyResultsPage({
                     {z}
                   </option>
                 ))}
-              </select>
-            </label>
-            <label className="block min-w-0">
+              </NativeSelect>
+            </Label>
+            <Label className="block min-w-0 font-normal leading-normal">
               <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Kategori
               </span>
-              <select
+              <NativeSelect
                 value={filter.kategori}
                 onChange={(e) => setField('kategori', e.target.value)}
-                className={FIELD}
+                className={SELECT_FIELD}
               >
                 <option value="all">Semua kategori</option>
                 {SURVEY_OPTIONS.kategori.map((k) => (
@@ -544,13 +559,13 @@ export default function TenantSurveyResultsPage({
                     {k}
                   </option>
                 ))}
-              </select>
-            </label>
-            <label className="block min-w-0 sm:col-span-2 xl:col-span-1">
+              </NativeSelect>
+            </Label>
+            <Label className="block min-w-0 font-normal leading-normal sm:col-span-2 xl:col-span-1">
               <span className="mb-1 block text-[11px] font-medium text-[var(--wf-ink-muted)]">
                 Status
               </span>
-              <select
+              <NativeSelect
                 value={filter.status}
                 onChange={(e) => {
                   // Hanya nilai yang benar-benar ada di <option> dan di union
@@ -560,13 +575,13 @@ export default function TenantSurveyResultsPage({
                     setField('status', next);
                   }
                 }}
-                className={FIELD}
+                className={SELECT_FIELD}
               >
                 <option value="all">Semua (telah dikirim)</option>
                 <option value="submitted">Telah dikirim</option>
                 <option value="reviewed">Telah ditinjau</option>
-              </select>
-            </label>
+              </NativeSelect>
+            </Label>
           </div>
         </div>
 
@@ -576,16 +591,17 @@ export default function TenantSurveyResultsPage({
               Aktif
             </span>
             {activeChips.map((c) => (
-              <button
+              <Button
                 key={c.key}
                 type="button"
+                variant="ghost"
                 onClick={() => clearChip(c.key)}
-                className="ui-focus-ring inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--wf-accent)] ring-1 ring-inset ring-[var(--wf-accent)]/25 transition-colors hover:bg-[var(--wf-accent)]/15"
+                className="ui-focus-ring h-auto inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--wf-accent)] ring-1 ring-inset ring-[var(--wf-accent)]/25 transition-colors hover:bg-[var(--wf-accent)]/15"
                 title="Hapus filter ini"
               >
                 <span className="truncate">{c.label}</span>
                 <X className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -649,13 +665,14 @@ export default function TenantSurveyResultsPage({
         {mainTabs.map((t) => {
           const active = mainTab === t.id;
           return (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="ghost"
               role="tab"
               aria-selected={active}
               onClick={() => setMainTab(t.id)}
-              className={`ui-focus-ring flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
+              className={`ui-focus-ring h-auto flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-center transition-colors sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm ${
                 active
                   ? 'bg-[var(--wf-board)] text-[var(--wf-accent)]'
                   : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
@@ -676,7 +693,7 @@ export default function TenantSurveyResultsPage({
                   {t.count}
                 </span>
               )}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -712,12 +729,12 @@ export default function TenantSurveyResultsPage({
                 className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                 aria-hidden
               />
-              <input
+              <Input
                 type="search"
                 value={shareSearch}
                 onChange={(e) => setShareSearch(e.target.value)}
                 placeholder="Cari nama event…"
-                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
+                className="ui-focus-ring h-auto w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
                 aria-label="Cari event untuk dibagikan"
               />
             </div>
@@ -782,11 +799,12 @@ export default function TenantSurveyResultsPage({
                     : checklistStats.total;
               const active = rosterTab === tab;
               return (
-                <button
+                <Button
                   key={tab}
                   type="button"
+                  variant="ghost"
                   onClick={() => setRosterTab(tab)}
-                  className={`ui-focus-ring rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                  className={`ui-focus-ring h-auto rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                     active
                       ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
                       : 'border border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
@@ -796,17 +814,17 @@ export default function TenantSurveyResultsPage({
                   <span className={`ml-1 tabular-nums ${active ? 'text-[var(--wf-accent-ink)]/80' : 'text-[var(--wf-ink-muted)]'}`}>
                     {count}
                   </span>
-                </button>
+                </Button>
               );
             })}
             <div className="relative min-w-[140px] flex-1 sm:max-w-[200px]">
               <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" aria-hidden />
-              <input
+              <Input
                 type="search"
                 value={rosterQ}
                 onChange={(e) => setRosterQ(e.target.value)}
                 placeholder="Cari tenant…"
-                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
+                className="ui-focus-ring h-auto w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-1.5 pl-7 pr-2 text-xs text-[var(--wf-ink)]"
               />
             </div>
           </div>
@@ -899,14 +917,15 @@ export default function TenantSurveyResultsPage({
               formulir, atau Checklist untuk memeriksa partisipasi.
             </p>
             {filterDirty && (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={resetFilter}
-                className="ui-focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
+                className="ui-focus-ring mt-4 h-auto inline-flex items-center gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-1.5 text-xs font-semibold text-[var(--wf-ink)] transition-colors hover:bg-[var(--wf-board-2)]"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 Reset filter
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -1000,39 +1019,39 @@ export default function TenantSurveyResultsPage({
                   </p>
                 </div>
                 <div className="max-h-80 overflow-auto">
-                  <table className="w-full min-w-[320px] text-left text-xs">
-                    <thead className="sticky top-0 z-10">
-<tr className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)]">
-                        <th scope="col" className="px-4 py-2 font-semibold">
+                  <Table className="w-full min-w-[320px] text-left text-xs">
+                    <TableHeader className="sticky top-0 z-10">
+<TableRow className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
+                        <TableHead scope="col" className="h-auto px-4 py-2 font-semibold text-[var(--wf-ink-muted)]">
                           Kategori
-                        </th>
-                        <th scope="col" className="px-2 py-2 font-semibold">
+                        </TableHead>
+                        <TableHead scope="col" className="h-auto px-2 py-2 font-semibold text-[var(--wf-ink-muted)]">
                           Sales
-                        </th>
-                        <th scope="col" className="px-4 py-2 text-right font-semibold">
+                        </TableHead>
+                        <TableHead scope="col" className="h-auto px-4 py-2 text-right font-semibold text-[var(--wf-ink-muted)]">
                           N
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {agg.crossTab.slice(0, 15).map((c, idx) => (
-                        <tr
+                        <TableRow
                           key={`${c.kategori}-${c.sales}`}
                           className={`border-b border-[var(--wf-rule)] ${
                             idx % 2 === 1 ? 'bg-[var(--wf-board-2)]' : ''
                           } hover:bg-[var(--wf-accent-soft)]`}
                         >
-                          <td className="max-w-[140px] truncate px-4 py-2 text-[var(--wf-ink)]">
+                          <TableCell className="max-w-[140px] truncate px-4 py-2 text-[var(--wf-ink)]">
                             {c.kategori}
-                          </td>
-                          <td className="px-2 py-2 text-[var(--wf-ink-muted)]">{c.sales}</td>
-                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-[var(--wf-ink)]">
+                          </TableCell>
+                          <TableCell className="px-2 py-2 text-[var(--wf-ink-muted)]">{c.sales}</TableCell>
+                          <TableCell className="px-4 py-2 text-right font-semibold tabular-nums text-[var(--wf-ink)]">
                             {c.count}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </section>
@@ -1067,20 +1086,20 @@ export default function TenantSurveyResultsPage({
                 </div>
               </div>
               <div className="relative max-w-xs flex-1">
-                <label htmlFor="feedback-search" className="sr-only">
+                <Label htmlFor="feedback-search" className="sr-only">
                   Cari feedback atau tenant
-                </label>
+                </Label>
                 <Search
                   className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                   aria-hidden
                 />
-                <input
+                <Input
                   id="feedback-search"
                   type="search"
                   value={feedbackQ}
                   onChange={(e) => setFeedbackQ(e.target.value)}
                   placeholder="Cari feedback / tenant…"
-                  className={`${FIELD} py-1.5 pl-8 pr-3`}
+                  className={`${FIELD} h-auto py-1.5 pl-8 pr-3`}
                 />
               </div>
             </div>
@@ -1173,65 +1192,65 @@ export default function TenantSurveyResultsPage({
               )}
             </div>
             <div className="hidden max-h-[28rem] overflow-auto sm:block">
-              <table className="w-full min-w-[720px] text-left text-xs">
-                <thead className="sticky top-0 z-10">
-<tr className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)]">
-                    <th scope="col" className="px-4 py-2.5 font-semibold">
+              <Table className="w-full min-w-[720px] text-left text-xs">
+                <TableHeader className="sticky top-0 z-10">
+<TableRow className="bg-[var(--wf-board-2)] border-b border-[var(--wf-rule)] text-[10px] uppercase tracking-wide text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]">
+                    <TableHead scope="col" className="h-auto px-4 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Tenant
-                    </th>
-                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Event
-                    </th>
-                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Zona
-                    </th>
-                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Kategori
-                    </th>
-                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Traffic
-                    </th>
-                    <th scope="col" className="px-2 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-2 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Sales
-                    </th>
-                    <th scope="col" className="px-4 py-2.5 font-semibold">
+                    </TableHead>
+                    <TableHead scope="col" className="h-auto px-4 py-2.5 font-semibold text-[var(--wf-ink-muted)]">
                       Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {agg.rows.slice(0, 100).map((s: TenantEventSurvey, idx) => (
-                    <tr
+                    <TableRow
                       key={s.id}
                       className={`border-b border-[var(--wf-rule)] transition-colors ${
                         idx % 2 === 1 ? 'bg-[var(--wf-board-2)]' : ''
                       } hover:bg-[var(--wf-accent-soft)]`}
                     >
-                      <td className="max-w-[140px] truncate px-4 py-2 font-medium text-[var(--wf-ink)]">
+                      <TableCell className="max-w-[140px] truncate px-4 py-2 font-medium text-[var(--wf-ink)]">
                         {s.nama_gerai || s.tenant_name || '-'}
-                      </td>
-                      <td className="max-w-[140px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
+                      </TableCell>
+                      <TableCell className="max-w-[140px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
                         {eventMap.get(s.event_id) || s.event_id}
-                      </td>
-                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
+                      </TableCell>
+                      <TableCell className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.lokasi_zona || '-'}
-                      </td>
-                      <td className="max-w-[120px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
+                      </TableCell>
+                      <TableCell className="max-w-[120px] truncate px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kategori || '-'}
-                      </td>
-                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
+                      </TableCell>
+                      <TableCell className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kenaikan_traffic || '-'}
-                      </td>
-                      <td className="px-2 py-2 text-[var(--wf-ink-muted)]">
+                      </TableCell>
+                      <TableCell className="px-2 py-2 text-[var(--wf-ink-muted)]">
                         {s.kenaikan_sales || '-'}
-                      </td>
-                      <td className="px-4 py-2">
+                      </TableCell>
+                      <TableCell className="px-4 py-2">
                         <StatusBadge status={s.status} />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
             {agg.rows.length > 100 && (
               <p className="border-t border-[var(--wf-rule)] px-4 py-2 text-[11px] text-[var(--wf-ink-muted)]">

@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Button } from '../shadcn/button';
 import { useGsapEntrance } from '../ui/useGsapEntrance';
 
 const focusRing = 'ui-focus-ring';
@@ -261,17 +262,17 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
     onOpenChange(false);
   };
 
-  const itemBaseClass = `flex items-center rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] hover:text-[var(--brand-tosca-600)] focus-visible:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:hover:bg-slate-800 dark:hover:text-[var(--brand-tosca-soft)] ${focusRing}`;
-  const itemIdleClass = 'text-slate-700 dark:text-slate-200';
+  const itemBaseClass = `flex items-center rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] hover:text-[var(--brand-tosca-600)] focus-visible:bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)]   ${focusRing}`;
+  const itemIdleClass = 'text-[var(--wf-ink-muted)]';
   const itemActiveClass = 'text-[var(--brand-tosca-600)] dark:text-[var(--brand-tosca-soft)]';
   const itemClassFor = (isActive: boolean) =>
     `${itemBaseClass} ${isActive ? itemActiveClass : itemIdleClass}`;
   const triggerActive = active === true || open;
   const triggerClass = pinned
     ? triggerActive
-      ? 'text-[var(--brand-tosca-600)] dark:text-[var(--brand-tosca-soft)]'
-      : 'text-slate-700 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]'
-    : 'text-white/90 hover:text-white';
+      ? 'text-[var(--brand-tosca-600)]! dark:text-[var(--brand-tosca-soft)]!'
+      : 'text-[var(--wf-ink-muted)]! hover:text-[var(--brand-tosca)]!'
+    : 'text-white/90! hover:text-white!';
 
   return (
     <div
@@ -283,21 +284,22 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
       onPointerLeave={onContainerPointerLeave}
       onPointerDown={onContainerPointerDown}
     >
-      <button
+      <Button
         type="button"
         ref={triggerRef}
+        variant="ghost"
         onClick={() => onOpenChange(!open)}
         aria-expanded={open}
         aria-controls={panelId}
-        className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 transition-colors ${focusRing} ${triggerClass}`}
+        className={`h-auto! gap-1 whitespace-nowrap rounded-full border-0 px-2 py-2 text-[1rem] font-normal transition-colors hover:bg-transparent aria-expanded:bg-transparent dark:hover:bg-transparent active:translate-y-0! focus-visible:border-transparent ${focusRing} ${triggerClass}`}
       >
         {label}
         <ChevronDown
-          className={`h-4 w-4 shrink-0 transition-transform duration-150 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+          className={`size-4 shrink-0 transition-transform duration-150 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
           strokeWidth={1.5}
           aria-hidden="true"
         />
-      </button>
+      </Button>
 
       {open && (
         <div
@@ -305,7 +307,7 @@ export function NavDropdown({ label, items, pinned, active, open, onOpenChange }
           ref={panelRef}
           role="group"
           aria-label={label}
-          className="nav-dropdown-panel absolute left-1/2 top-full z-50 mt-2 w-60 -translate-x-1/2 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)] dark:border-slate-700 dark:bg-slate-900"
+          className="nav-dropdown-panel absolute left-1/2 top-full z-50 mt-2 w-60 -translate-x-1/2 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)]  "
         >
           {items.map((item, index) =>
             item.route ? (

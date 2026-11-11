@@ -11,7 +11,7 @@ import { EventPhotoGallery } from '../events/EventPhotoGallery';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { CATEGORY_COLORS, isMultiDayEvent, getEventDuration, isRecurringEvent } from '../../utils/eventUtils';
-import { MdButton, MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
 import { ModalWrapper } from './ModalWrapper';
 
 interface Props {
@@ -54,15 +54,18 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </div>
           )}
 
-          <MdIconButton
-            ariaLabel="Tutup"
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Tutup"
             onClick={onClose}
             className={`absolute right-4 top-4 ${event.posterUrl
               ? 'bg-black/45 text-white backdrop-blur-sm hover:bg-black/65'
               : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'}`}
           >
             <X className="h-4 w-4" />
-          </MdIconButton>
+          </Button>
 
           <div className="mb-3 flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <StatusBadge status={event.status} />
@@ -164,9 +167,9 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-          <MdButton variant="outlined" onClick={onClose} className="flex-1">
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             Tutup
-          </MdButton>
+          </Button>
           {!isAdmin && (
             <Link
               to={`/events/${event.id}`}
@@ -176,33 +179,34 @@ export function EventDetailModal({ isOpen, event, events = [], onClose, onEdit, 
             </Link>
           )}
           {onEdit && (
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => { onClose(); onEdit(event); }}
               className="flex-1"
             >
               <Edit2 className="h-3.5 w-3.5" /> Ubah
-            </MdButton>
+            </Button>
           )}
           {onDelete && (
-            <MdButton
-              variant="outlined"
-              danger
+            <Button
+              type="button"
+              variant="destructive"
               onClick={() => { onClose(); onDelete(event); }}
               className="flex-1"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus
-            </MdButton>
+            </Button>
           )}
           {isRecurring && onDeleteSeries && event.recurrenceGroupId && (
-            <MdButton
-              variant="outlined"
-              danger
+            <Button
+              type="button"
+              variant="destructive"
               onClick={() => { onClose(); onDeleteSeries(event.recurrenceGroupId!); }}
               className="flex-1"
             >
               <Trash2 className="h-3.5 w-3.5" /> Hapus seluruh rangkaian
-            </MdButton>
+            </Button>
           )}
         </div>
       </div>

@@ -473,6 +473,9 @@ export interface TenantParticipationOptionPublic {
   sortOrder: number;
 }
 
+/** Jenis dokumen surat. Disimpan di dalam `letter_data` (JSONB), bukan kolom baru. */
+export type LetterDocType = 'ske' | 'sik';
+
 export interface LetterRequestItem {
   tanggalSurat: string;
   nomorSurat: string;
@@ -484,15 +487,59 @@ export interface LetterRequestItem {
   hariTanggalPelaksanaan: string;
   waktuPelaksanaan: string;
   nomorTelepon: string;
+  /** Warisan pra-2026-11: dulu jadwal loading ditempel di SKE. Sekarang milik SIK;
+   *  tetap ada di tipe untuk hidrasi baris lama, tapi tidak lagi dirender SKE. */
   hariTanggalLoading: string;
   waktuLoading: string;
+  /** Kolom tanda tangan kanan "Menyetujui," — pihak EO. */
+  menyetujuiNama: string;
+  menyetujuiOrg: string;
+  /** Varian berbayar (contoh TK Al Jasmine). Kosong = baris tidak tercetak. */
+  biayaKebersihan?: string;
+  vaBank?: string;
+  tempatSurat: string;
+  penandatanganNama: string;
+  penandatanganJabatan: string;
 }
+
+/**
+ * SURAT IZIN KERJA (loading & unloading) — dokumen TERPISAH dari SKE.
+ * Nomor berakhiran `A`, tanggal terbit bisa beda, penanda tangan Marcomm Manager,
+ * dan 6 syarat keselamatan statis (SIK_SYARAT di letterDocuments.ts).
+ */
+export interface SikRequestItem {
+  tanggalSurat: string;
+  nomorSurat: string;
+  namaEO: string;
+  penanggungJawab: string;
+  nomorHp: string;
+  jenisKegiatan: string;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  waktu: string;
+  lokasi: string;
+  /** Nama event untuk judul/tampilan; tidak ikut tercetak di badan SIK resmi. */
+  namaEvent: string;
+  tempatSurat: string;
+  penandatanganNama: string;
+  penandatanganJabatan: string;
+  /** Catatan opsional: denda keterlambatan, ruang dikembalikan, dll. */
+  catatan: string;
+}
+
+/** Bentuk `letter_data` (JSONB). Baris lama tanpa `docType` dibaca sebagai 'ske'. */
+export type LetterDocument =
+  | ({ docType?: 'ske' } & LetterRequestItem)
+  | ({ docType: 'sik' } & SikRequestItem);
+
 
 export interface GeneratedLetter {
   id: string;
   eventId?: string;
   draftEventId?: string;
-  letterData: LetterRequestItem;
+  /** Turunan dari `letter_data.docType`; baris lama → 'ske'. */
+  docType: LetterDocType;
+  letterData: LetterDocument;
   pdfUrl?: string;
   pdfBase64?: string;
   createdAt: string;

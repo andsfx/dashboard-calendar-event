@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X, Trash2, Handshake } from 'lucide-react';
-import { MdButton, MdIconButton } from '../md';
-import { ModalWrapper } from './ModalWrapper';
+import { Button } from '../shadcn/button';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from '../shadcn/alert-dialog';
 
 export interface ConfirmOptions {
   /** Judul singkat, mis. "Hapus album?" */
@@ -16,9 +21,8 @@ export interface ConfirmOptions {
   cancelLabel?: string;
   /**
    * Nada dialog. 'danger' (default) memakai bahasa destruktif merah untuk
-   * aksi hapus; 'neutral' memakai tosca untuk keputusan konsekuensial yang
-   * bukan destruktif (mis. setujui/tolak pengajuan), sesuai kontrak modal
-   * DESIGN.md: konfirmasi = solid tosca, merah hanya untuk error/destruktif.
+   * aksi irreversibel; 'neutral' memakai tosca (konfirmasi solid sesuai
+   * DESIGN.md) untuk keputusan konsekuensial yang bukan destruktif.
    */
   tone?: 'danger' | 'neutral';
 }
@@ -55,50 +59,58 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, subj
   const SubmitIcon = isNeutral ? Handshake : Trash2;
 
   return (
-    <ModalWrapper isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm" ariaLabelledBy="confirm-dialog-title">
-      <div className="rounded-2xl bg-[var(--brand-card-light)] shadow-2xl overflow-hidden dark:bg-slate-800">
-        {/* Aksen bar atas: merah untuk destruktif, tosca untuk keputusan
-            netral. Flat fill, no gradient (board language bans multi-stop
-            gradients on admin chrome). */}
-        <div className={`h-1.5 w-full ${isNeutral ? 'bg-[var(--wf-accent)]' : 'bg-red-600'}`} />
+    <AlertDialog open={isOpen} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <AlertDialogContent
+        className="w-full max-w-sm bg-transparent p-0 ring-0 shadow-none outline-none"
+        style={{ width: 'min(24rem, calc(100vw - 2rem))', maxWidth: '100%' }}
+      >
+ <div className="rounded-2xl bg-[var(--wf-board)] shadow-2xl overflow-hidden">
+          {/* Aksen bar atas: merah untuk destruktif, tosca untuk keputusan
+              netral. Flat fill, no gradient (board language bans multi-stop
+              gradients on admin chrome). */}
+          <div className={`h-1.5 w-full ${isNeutral ? 'bg-[var(--wf-accent)]' : 'bg-red-600'}`} />
 
-        <div className="p-6">
-          <div className="mb-5 flex items-start justify-between">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isNeutral ? 'bg-[var(--wf-accent-soft)]' : 'bg-red-100 dark:bg-red-900/30'}`}>
-              {isNeutral
-                ? <Handshake className="h-6 w-6 text-[var(--wf-accent)]" />
-                : <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />}
+          <div className="p-6">
+            <div className="mb-5 flex items-start justify-between">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isNeutral ? 'bg-[var(--wf-accent-soft)]' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                {isNeutral
+                  ? <Handshake className="h-6 w-6 text-[var(--wf-accent)]" />
+                  : <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />}
+              </div>
+              <Button variant="ghost" size="icon-sm" aria-label="Tutup" onClick={onClose} disabled={isSubmitting}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <MdIconButton ariaLabel="Tutup" onClick={onClose} disabled={isSubmitting}>
-              <X className="h-4 w-4" />
-            </MdIconButton>
+
+            <AlertDialogTitle asChild>
+              <h3 className="mb-2 text-lg font-bold text-[var(--wf-ink)] ">{title}</h3>
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <p className="mb-1 text-sm text-[var(--wf-ink-muted)]">{message}</p>
+            </AlertDialogDescription>
+            {subject && (
+              <div className={`mt-3 rounded-xl border px-4 py-3 ${isNeutral ? 'border-[var(--wf-rule)] bg-[var(--wf-board-2)]' : 'border-red-100 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10'}`}>
+                <p className={`text-sm font-semibold line-clamp-2 ${isNeutral ? 'text-[var(--wf-ink)]' : 'text-red-800 dark:text-red-300'}`}>
+                  "{subject}"
+                </p>
+              </div>
+            )}
           </div>
 
-          <h3 id="confirm-dialog-title" className="mb-2 text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
-          <p className="mb-1 text-sm ui-text-muted">{message}</p>
-          {subject && (
-            <div className={`mt-3 rounded-xl border px-4 py-3 ${isNeutral ? 'border-[var(--wf-rule)] bg-[var(--wf-board-2)]' : 'border-red-100 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10'}`}>
-              <p className={`text-sm font-semibold line-clamp-2 ${isNeutral ? 'text-[var(--wf-ink)]' : 'text-red-800 dark:text-red-300'}`}>
-                "{subject}"
-              </p>
-            </div>
-          )}
+          <div className="flex gap-3 border-t border-[var(--wf-rule)] px-6 py-4 ">
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1">
+              {cancelLabel}
+            </Button>
+            <Button variant={isNeutral ? 'default' : 'destructive'} onClick={handleConfirm} disabled={isSubmitting} className="flex-1">
+              <SubmitIcon className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : confirmLabel}
+            </Button>
+          </div>
         </div>
-
-        <div className="flex gap-3 border-t border-slate-100 px-6 py-4 dark:border-slate-700">
-          <MdButton variant="outlined" onClick={onClose} disabled={isSubmitting} className="flex-1">
-            {cancelLabel}
-          </MdButton>
-          <MdButton variant="filled" danger={!isNeutral} onClick={handleConfirm} disabled={isSubmitting} className="flex-1">
-            <SubmitIcon className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : confirmLabel}
-          </MdButton>
-        </div>
-      </div>
-    </ModalWrapper>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 // Hook `useConfirmDialog` TIDAK di-ekspor ulang dari sini: modul ini merender
-// md-dialog (→ Material Web + Lit), sedangkan hook dipakai jalur boot dan
-// komponen lain yang tidak boleh menyeret MD3. Impor langsung dari
-// './useConfirmDialog'.
+// `AlertDialog` (Radix), yang ringan (tanpa Material Web + Lit); hook tetap
+// dipakai jalur boot dan komponen lain. Impor langsung dari './useConfirmDialog'.

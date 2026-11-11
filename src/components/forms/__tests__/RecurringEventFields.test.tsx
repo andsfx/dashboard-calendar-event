@@ -31,10 +31,11 @@ describe('RecurringEventFields', () => {
 
   it('highlights selected days', () => {
     render(<RecurringEventFields {...mockProps} />)
-    // Pil hari kini md-filter-chip: status selected direfleksikan ke attribute.
-    const senChip = screen.getByText('Sen')
-    expect(senChip).toHaveAttribute('selected')
-    expect(screen.getByText('Min')).not.toHaveAttribute('selected')
+    // Pil hari kini shadcn Toggle: status terpilih lewat aria-pressed/data-state.
+    const senChip = screen.getByRole('button', { name: 'Sen' })
+    expect(senChip).toHaveAttribute('aria-pressed', 'true')
+    expect(senChip).toHaveAttribute('data-state', 'on')
+    expect(screen.getByRole('button', { name: 'Min' })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('calls onToggleDayOfWeek when day clicked', () => {

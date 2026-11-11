@@ -4,10 +4,11 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw, FileDown } from 'lu
 import { PhotoAlbum, AnnualTheme } from '../types';
 import { fetchAlbums, fetchAnnualThemesPublic } from '../utils/domainApi';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
-// Modal ekspor dimuat malas: ia memakai ModalWrapper → md-dialog (Material Web
-// + Lit). Impor statis akan menarik MD3 ke halaman PUBLIK ini pada initial load,
-// padahal scope migrasi hanya dashboard admin. Dimuat hanya saat dibuka.
+// Modal ekspor dimuat malas: ia memakai ModalWrapper → shadcn Dialog (Radix).
+// Impor statis akan menarik Dialog + jsPDF ke halaman PUBLIK ini pada initial
+// load, padahal keduanya hanya dipakai saat tombol ekspor ditekan.
 const ExportPdfModal = lazy(() =>
   import('../components/modals/ExportPdfModal').then(m => ({ default: m.ExportPdfModal })),
 );
@@ -97,10 +98,10 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
   }, [albums, themes]);
 
   return (
-    <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -110,7 +111,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         {/* Back button */}
         <Link
           to="/"
-          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
+          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Kembali ke Beranda
@@ -123,19 +124,20 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Galeri Event
               </h1>
-              <p className="mt-2 text-base ui-text-muted">
+              <p className="mt-2 text-base text-[var(--wf-ink-muted)]">
                 Dokumentasi event di Metropolitan Mall Bekasi
               </p>
             </div>
             {albums.length > 0 && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setShowExportModal(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-primary-600/20 transition hover:bg-brand-primary-700"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-lg shadow-brand-primary-600/20 transition hover:bg-[var(--wf-accent)]! h-auto border-0 rounded-full! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
               >
-                <FileDown className="h-4 w-4" />
+                <FileDown className="size-4" />
                 Export PDF
-              </button>
+              </Button>
             )}
           </div>
         </RevealSection>
@@ -144,11 +146,11 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
         {isLoading && (
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl bg-white shadow-sm dark:bg-slate-800">
-                <div className="aspect-[16/9] rounded-t-2xl bg-slate-200 dark:bg-slate-700" />
+              <div key={i} className="animate-pulse rounded-2xl bg-[var(--wf-board)] shadow-sm ">
+                <div className="aspect-[16/9] rounded-t-2xl bg-[var(--wf-rule)]" />
                 <div className="p-4">
-                  <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-                  <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
+                  <div className="h-4 w-3/4 rounded bg-[var(--wf-rule)]" />
+                  <div className="mt-2 h-3 w-1/2 rounded bg-[var(--wf-board-2)]" />
                 </div>
               </div>
             ))}
@@ -161,32 +163,34 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">
               Gagal memuat data
             </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
               Terjadi kesalahan saat memuat album. Periksa koneksi internet Anda.
             </p>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => setRetryCount(c => c + 1)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]! h-auto border-0 rounded-full! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               Coba lagi
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Empty state */}
         {!isLoading && !fetchError && albums.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Camera className="h-7 w-7 text-slate-500 dark:text-slate-300" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
+              <Camera className="h-7 w-7 text-[var(--wf-ink-muted)]" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">
               Belum ada album foto
             </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
               Album foto event akan muncul di sini.
             </p>
           </div>
@@ -205,10 +209,10 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                     backgroundColor: `${theme?.color || '#64748b'}08`,
                   }}
                 >
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-[var(--wf-ink)]">
                     {theme?.name || 'Lainnya'}
                   </h2>
-                  <p className="mt-1 text-sm ui-text-muted">
+                  <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
                     {theme
                       ? `${formatThemeDate(theme.dateStart)} - ${formatThemeDate(theme.dateEnd)}`
                       : 'Album di luar tema tahunan'
@@ -224,10 +228,10 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                       key={album.id}
                       to={`/gallery/${album.slug}`}
                       data-reveal-item
-                      className="group cursor-pointer overflow-hidden rounded-2xl bg-white text-left shadow-sm transition hover:shadow-lg dark:bg-slate-800"
+                      className="group cursor-pointer overflow-hidden rounded-2xl bg-[var(--wf-board)] text-left shadow-sm transition hover:shadow-lg "
                     >
                       {/* Cover image */}
-                      <div className="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-slate-200 dark:bg-slate-700">
+                      <div className="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-[var(--wf-rule)]">
                         {album.coverPhotoUrl ? (
                           <img
                             src={thumbUrl(album.coverPhotoUrl)}
@@ -238,7 +242,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-primary-100 to-brand-primary-200 dark:from-brand-primary-900/40 dark:to-slate-700">
-                            <Camera className="h-10 w-10 text-brand-primary-300 dark:text-brand-primary-500" />
+                            <Camera className="h-10 w-10 text-[var(--wf-accent)]" />
                           </div>
                         )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
@@ -246,10 +250,10 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
 
                       {/* Card body */}
                       <div className="p-3 sm:p-4">
-                        <h3 className="text-sm font-semibold leading-snug text-slate-800 line-clamp-2 dark:text-white sm:text-base">
+                        <h3 className="text-sm font-semibold leading-snug text-[var(--wf-ink)] line-clamp-2 sm:text-base">
                           {album.name}
                         </h3>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-300">
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                           {album.eventDate && (
                             <span className="flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />
@@ -280,7 +284,7 @@ export function GalleryIndexPage({ isDark, onToggleDark }: Props) {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-<footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
+<footer className="border-t border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-8 text-sm text-[var(--wf-ink-muted)] sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
         </div>

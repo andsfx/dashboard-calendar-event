@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, Moon, SunMedium, X } from 'lucide-react';
 import mallLogo from '../../assets/brand/LOGOMETMAL2016-01.svg';
+import { Button } from '../shadcn/button';
 import { NavDropdown } from './NavDropdown';
 import {
   PUBLIC_CTA,
@@ -14,11 +15,11 @@ const focusRing = 'ui-focus-ring';
 
 const ACTIVE_LINK = 'text-[var(--brand-tosca-600)] dark:text-[var(--brand-tosca-soft)]';
 const IDLE_LINK =
-  'text-slate-600 hover:text-[var(--brand-tosca)] dark:text-slate-300 dark:hover:text-[var(--brand-tosca-soft)]';
+  'text-[var(--wf-ink-muted)] hover:text-[var(--brand-tosca)]';
 const IDLE_PANEL_LINK =
-  'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800';
+  'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]';
 const PANEL_HEADING =
-  'px-3.5 pt-3 pb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400';
+  'px-3.5 pt-3 pb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--wf-ink-muted)]';
 
 export interface PublicSectionLink {
   label: string;
@@ -149,18 +150,20 @@ export function PublicSiteHeader({
           {actions !== undefined && (
             <div className="flex min-w-0 items-center gap-2">{actions}</div>
           )}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-lg"
             onClick={onToggleDark}
             aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-            className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 ${focusRing}`}
+            className={`h-11! w-11! shrink-0 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] shadow-sm transition hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! dark:hover:bg-[var(--wf-board-2)]! active:translate-y-0! focus-visible:border-[var(--wf-rule-control)] ${focusRing}`}
           >
             {isDark ? (
-              <SunMedium className="h-4 w-4" aria-hidden="true" />
+              <SunMedium className="size-4" aria-hidden="true" />
             ) : (
-              <Moon className="h-4 w-4" aria-hidden="true" />
+              <Moon className="size-4" aria-hidden="true" />
             )}
-          </button>
+          </Button>
           {showCta && (
             <Link
               to={PUBLIC_CTA.to}
@@ -169,22 +172,23 @@ export function PublicSiteHeader({
               {PUBLIC_CTA.label}
             </Link>
           )}
-          <button
+          <Button
             type="button"
             ref={menuButtonRef}
+            variant="ghost"
             onClick={() => setMobileOpen((open) => !open)}
             aria-expanded={mobileOpen}
             aria-controls="public-site-nav"
             aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-black/8 px-3 py-2 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 lg:hidden ${focusRing}`}
+            className={`h-auto! min-h-11 shrink-0 gap-1.5 rounded-full border border-[var(--wf-rule)] px-3 py-2 text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! dark:hover:bg-[var(--wf-board-2)]! aria-expanded:bg-transparent aria-expanded:text-[var(--wf-ink-muted)]! active:translate-y-0! focus-visible:border-[var(--wf-rule-control)] lg:hidden ${focusRing}`}
           >
             {mobileOpen ? (
-              <X className="h-4 w-4" aria-hidden="true" />
+              <X className="size-4" aria-hidden="true" />
             ) : (
-              <Menu className="h-4 w-4" aria-hidden="true" />
+              <Menu className="size-4" aria-hidden="true" />
             )}
             <span>Menu</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -193,7 +197,7 @@ export function PublicSiteHeader({
           <nav
             id="public-site-nav"
             aria-label="Navigasi menu"
-            className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)] dark:border-slate-700 dark:bg-slate-900"
+            className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2 shadow-[0_18px_45px_rgba(22,33,27,0.14)]  "
           >
             <div className="flex flex-col">
               {PUBLIC_PRIMARY_LINKS.map((link, index) => {

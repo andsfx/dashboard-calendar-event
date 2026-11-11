@@ -1,5 +1,7 @@
+import { Skeleton } from '../shadcn/skeleton';
+
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-2xl bg-[var(--wf-board-2)] ${className}`} />;
+  return <Skeleton className={`rounded-2xl bg-[var(--wf-board-2)] ${className}`} />;
 }
 
 export function DashboardSkeleton({ isAdmin }: { isAdmin: boolean }) {

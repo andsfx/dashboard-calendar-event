@@ -1,4 +1,5 @@
 import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { Button } from '../shadcn/button';
 
 interface SurveySuccessProps {
   eventName: string;
@@ -6,6 +7,9 @@ interface SurveySuccessProps {
 }
 
 export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps) {
+  // Catatan konversi: sufiks `!` pada className menaklukkan default primitif
+  // (h-8/px-2.5/hover:bg-primary-opacity/focus-visible:ring-3) yang urutannya lebih
+  // akhir di CSS; warna --wf-* asli tetap dipakai apa adanya.
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       {/* Animated checkmark */}
@@ -13,27 +17,27 @@ export default function SurveySuccess({ eventName, onBack }: SurveySuccessProps)
         <CheckCircle className="h-10 w-10 text-emerald-500 animate-[scale-in_0.4s_ease-out]" />
       </div>
 
-      <h2 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
+      <h2 className="mb-2 text-xl font-bold text-[var(--wf-ink)] ">
         Terima Kasih!
       </h2>
-      <p className="mb-1 text-sm text-slate-600 dark:text-slate-300">
+      <p className="mb-1 text-sm text-[var(--wf-ink-muted)] ">
         Feedback Anda untuk event
       </p>
-      <p className="mb-6 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+      <p className="mb-6 text-sm font-semibold text-[var(--wf-accent)] ">
         "{eventName}"
       </p>
-      <p className="mb-8 max-w-xs text-sm ui-text-muted">
+      <p className="mb-8 max-w-xs text-sm text-[var(--wf-ink-muted)]">
         telah berhasil disimpan. Masukan Anda sangat berarti untuk meningkatkan kualitas layanan kami.
       </p>
 
-      <button
+      <Button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2"
+        className="h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]! focus:outline-none focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:ring-offset-2"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali ke Dashboard
-      </button>
+      </Button>
     </div>
   );
 }

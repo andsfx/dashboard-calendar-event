@@ -20,23 +20,23 @@ function SkeletonGalleryAlbums() {
   return (
     <div className="mx-auto max-w-7xl">
       <div className="text-center">
-        <div className="mx-auto h-3 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-4 h-9 w-72 rounded-lg bg-slate-200 dark:bg-slate-700" />
-        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-slate-100 dark:bg-slate-700/60" />
+        <div className="mx-auto h-3 w-16 rounded-full bg-[var(--wf-rule)]" />
+        <div className="mx-auto mt-4 h-9 w-72 rounded-lg bg-[var(--wf-rule)]" />
+        <div className="mx-auto mt-3 h-4 w-96 max-w-full rounded bg-[var(--wf-board-2)]" />
       </div>
       <div className="mt-10">
         <div className="mb-6 flex items-center gap-2">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-700" />
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          <div className="h-px flex-1 bg-[var(--wf-rule)]" />
+          <div className="h-3 w-32 rounded bg-[var(--wf-rule)]" />
+          <div className="h-px flex-1 bg-[var(--wf-rule)]" />
         </div>
         <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
-              <div className="aspect-[16/9] bg-slate-200 dark:bg-slate-700" />
+            <div key={i} className="overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-sm ">
+              <div className="aspect-[16/9] bg-[var(--wf-rule)]" />
               <div className="space-y-2 p-3 sm:p-4">
-                <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-                <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
+                <div className="h-4 w-3/4 rounded bg-[var(--wf-rule)]" />
+                <div className="h-3 w-1/2 rounded bg-[var(--wf-board-2)]" />
               </div>
             </div>
           ))}
@@ -89,17 +89,17 @@ function LazyInstagramEmbed({ url }: { url: string }) {
   }, [isVisible, hasError]);
 
   return (
-    <div ref={containerRef} className="min-h-[350px] overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-800">
+    <div ref={containerRef} className="min-h-[350px] overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-sm ">
       {!isVisible ? (
         <div className="flex h-[350px] items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-[var(--brand-tosca)]" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--wf-rule)] border-t-[var(--brand-tosca)]" />
         </div>
       ) : hasError || timedOut ? (
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-slate-600 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
+          className="flex h-[350px] flex-col items-center justify-center gap-3 text-sm text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
         >
           <Globe className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
           <span className="inline-flex items-center gap-1.5">Lihat di Instagram <ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
@@ -130,9 +130,9 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
       href={post.postUrl || 'https://instagram.com/metmalbekasi'}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
+      className={`group overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-sm transition hover:shadow-lg  ${focusRing}`}
     >
-      <div className="aspect-square overflow-hidden bg-slate-200 dark:bg-slate-700">
+      <div className="aspect-square overflow-hidden bg-[var(--wf-rule)]">
         {imgSrc && !imgFailed ? (
           <img
             src={imgSrc}
@@ -152,7 +152,7 @@ function InstagramCachedCard({ post }: { post: CachedInstagramPost }) {
       </div>
       {post.caption && (
         <div className="p-3 sm:p-4">
-          <p className="text-xs leading-relaxed text-slate-600 line-clamp-2 dark:text-slate-300">{post.caption}</p>
+          <p className="text-xs leading-relaxed text-[var(--wf-ink-muted)] line-clamp-2">{post.caption}</p>
         </div>
       )}
     </a>
@@ -166,13 +166,13 @@ function InstagramFallbackCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(22,33,27,0.06)] transition hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+      className="group flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-neutral-100 p-8 text-center shadow-[0_12px_32px_rgba(22,33,27,0.06)] transition hover:shadow-lg  "
     >
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
         <Globe className="h-10 w-10 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
-      <p className="mt-5 text-lg font-bold text-slate-900 dark:text-white">Lihat di Instagram</p>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">@metmalbekasi</p>
+      <p className="mt-5 text-lg font-bold text-[var(--wf-ink)]">Lihat di Instagram</p>
+      <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">@metmalbekasi</p>
     </a>
   );
 }
@@ -186,13 +186,13 @@ interface Props {
 
 export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], isLoading = false }: Props) {
   return (
-    <RevealSection id="gallery" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
+    <RevealSection id="gallery" className="scroll-mt-28 border-b border-black/5 bg-[var(--section-alt)] px-4 py-16  sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonGalleryAlbums />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Lihat sendiri keseruannya.
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
             Dokumentasi event dan update terbaru dari Metropolitan Mall Bekasi
           </p>
         </div>
@@ -201,8 +201,8 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
         {albums.length > 0 && (
           <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300">Dokumentasi Event</h3>
-              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+              <h3 className="text-xs font-bold tracking-wide text-[var(--wf-ink-muted)]">Dokumentasi Event</h3>
+              <div className="h-px flex-1 bg-[var(--wf-rule)]" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
@@ -210,9 +210,9 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                 <Link
                   key={album.id}
                   to={`/gallery/${album.slug}`}
-                  className={`group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg dark:bg-slate-800 ${focusRing}`}
+                  className={`group overflow-hidden rounded-2xl bg-[var(--wf-board)] shadow-sm transition hover:shadow-lg  ${focusRing}`}
                 >
-                  <div className="relative aspect-[16/9] overflow-hidden bg-slate-200 dark:bg-slate-700">
+                  <div className="relative aspect-[16/9] overflow-hidden bg-[var(--wf-rule)]">
                     {album.coverPhotoUrl ? (
                       <img src={thumbUrl(album.coverPhotoUrl)} alt={album.name} className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] motion-reduce:transform-none" loading="lazy" />
                     ) : (
@@ -222,8 +222,8 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
                     )}
                   </div>
                   <div className="p-3 sm:p-4">
-                    <p className="text-sm font-semibold text-slate-800 line-clamp-1 dark:text-white">{album.name}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-sm font-semibold text-[var(--wf-ink)] line-clamp-1">{album.name}</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--wf-ink-muted)]">
                       {album.eventDate && <span>{album.eventDate}</span>}
                       {typeof album.photoCount === 'number' && album.photoCount > 0 && (
                         <span>{album.eventDate ? '·' : ''}{album.photoCount} foto</span>
@@ -238,7 +238,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
             <div className="mt-6">
               <Link
                 to="/gallery"
-                className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
                 Lihat Semua Galeri
@@ -251,8 +251,8 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
         {/* ── Instagram ── */}
         <div className={albums.length > 0 ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-14 lg:mt-16'}>
           <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300">Instagram</h3>
-            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+              <h3 className="text-xs font-bold tracking-wide text-[var(--wf-ink-muted)]">Instagram</h3>
+            <div className="h-px flex-1 bg-[var(--wf-rule)]" />
           </div>
 
           {/* Use cached posts if available (fast, no external scripts) */}
@@ -284,7 +284,7 @@ export function CommunityGallery({ albums, instagramPosts, cachedIgPosts = [], i
               href="https://instagram.com/metmalbekasi"
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 ${focusRing}`}
+              className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ${focusRing}`}
             >
               <Globe className="h-4 w-4" aria-hidden="true" />
               Follow @metmalbekasi

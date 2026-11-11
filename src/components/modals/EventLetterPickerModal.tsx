@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { ArrowLeft, CalendarDays, MapPin, Search } from 'lucide-react';
 import { EventItem } from '../../types';
-import { MdButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
 
 interface Props {
   /** Warisan modal: kini opsional — komponen dirender sebagai isi halaman. */
@@ -31,28 +32,29 @@ export function EventLetterPickerModal({ events, onClose, onSelect }: Props) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Pilih event untuk membuat surat.</p>
 
-        <MdButton
-          variant="text"
+        <Button
+          type="button"
+          variant="ghost"
           onClick={onClose}
-          ariaLabel="Kembali ke Pusat Komando"
+          aria-label="Kembali ke Pusat Komando"
           className="shrink-0"
         >
           <ArrowLeft size={18} />
           Kembali
-        </MdButton>
+        </Button>
       </div>
 
       <div className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)]">
         <div className="space-y-3 px-4 py-4 sm:px-6">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-            <MdTextField
+            <Input
               type="search"
               value={query}
-              onChange={setQuery}
-              ariaLabel="Cari event"
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Cari event"
               placeholder="Cari event, lokasi, atau EO"
-              className="w-full"
+              className="w-full pl-9"
             />
           </div>
 
@@ -64,9 +66,10 @@ export function EventLetterPickerModal({ events, onClose, onSelect }: Props) {
             ) : (
               <div className="divide-y divide-[var(--wf-rule)]">
                 {filteredEvents.map(event => (
-                  <MdButton
+                  <Button
                     key={event.id}
-                    variant="text"
+                    type="button"
+                    variant="ghost"
                     onClick={() => onSelect(event)}
                     className="w-full justify-between px-4 py-4 text-left"
                   >
@@ -87,7 +90,7 @@ export function EventLetterPickerModal({ events, onClose, onSelect }: Props) {
                     <span className="shrink-0 rounded-lg border border-[var(--wf-accent)] px-3 py-1.5 text-xs font-medium text-[var(--wf-accent)]">
                       Pilih
                     </span>
-                  </MdButton>
+                  </Button>
                 ))}
               </div>
             )}

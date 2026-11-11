@@ -1,11 +1,11 @@
 .ui-focus-ring {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[var(--wf-page)];
   /* brand-tosca #00918e — kontras 3.86:1 vs putih (tosca-soft hanya 2.88:1, gagal non-teks 3:1) */
   --tw-ring-color: var(--brand-tosca);
 }
 
 .ui-focus-ring-panel {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[var(--wf-page)];
   --tw-ring-color: var(--brand-tosca);
 }
 
@@ -169,15 +169,15 @@
 }
 
 .ui-text-muted {
-  @apply text-slate-600 dark:text-slate-300;
+  @apply text-[var(--wf-ink-muted)];
 }
 
 .ui-text-secondary {
-  @apply text-slate-600 dark:text-slate-300;
+  @apply text-[var(--wf-ink-muted)];
 }
 
 .ui-text-strong {
-  @apply text-slate-800 dark:text-white;
+  @apply text-[var(--wf-ink)];
 }
 
 .ui-icon-tile {

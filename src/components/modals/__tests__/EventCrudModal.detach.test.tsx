@@ -19,6 +19,17 @@ import type { EventItem } from '../../../types';
 
 vi.mock('../../../utils/domainApi', () => ({ uploadToR2: vi.fn() }));
 
+// jsdom tidak mengimplementasikan `ResizeObserver`; shadcn `Checkbox`/`Switch`
+// (Radix) memakainya lewat @radix-ui/react-use-size. Stub no-op menjaga
+// component tetap ter-mount; ukuran (offsetWidth/Height 0) tidak memengaruhi
+// asersi payload form.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+
 function makeSeriesEvent(partial: Partial<EventItem> = {}): EventItem {
   return {
     id: 'evt_1',

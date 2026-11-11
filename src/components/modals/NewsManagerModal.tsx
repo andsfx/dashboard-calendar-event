@@ -4,7 +4,10 @@ import { NewsArticle } from '../../types';
 import { fetchAllNewsArticles, createNewsArticle, updateNewsArticle, deleteNewsArticle, uploadToR2 } from '../../utils/domainApi';
 import { adminThumbUrl } from '../../utils/imageOptim';
 import { useConfirmDialog } from './useConfirmDialog';
-import { MdButton, MdIconButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { Textarea } from '../shadcn/textarea';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -184,13 +187,15 @@ export function NewsManagerModal({ readOnly = false }: Props) {
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {view === 'edit' && (
-            <MdIconButton
-              ariaLabel="Kembali"
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Kembali"
               onClick={goBackToList}
               className="mt-1"
             >
               <ChevronLeft className="h-4 w-4" />
-            </MdIconButton>
+            </Button>
           )}
           <div className="min-w-0">
             {view === 'edit' && (
@@ -214,10 +219,10 @@ export function NewsManagerModal({ readOnly = false }: Props) {
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <p>{error}</p>
-                <MdButton variant="text" onClick={loadArticles} className="mt-2 underline underline-offset-2">
+                <Button variant="ghost" type="button" onClick={loadArticles} className="mt-2 underline underline-offset-2">
                   <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                   Coba lagi
-                </MdButton>
+                </Button>
               </div>
             </div>
           )}
@@ -234,14 +239,15 @@ export function NewsManagerModal({ readOnly = false }: Props) {
           {view === 'list' && !isLoading && (
             <>
               {!readOnly && (
-                <MdButton
-                  variant="outlined"
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={startCreate}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Artikel Baru
-                </MdButton>
+                </Button>
               )}
 
               {articles.length === 0 && (
@@ -298,25 +304,30 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                       {/* Actions */}
                       <div className="flex shrink-0 items-center gap-1">
                         {!readOnly && (<>
-                        <MdIconButton
-                          ariaLabel={`Edit ${article.title}`}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Edit ${article.title}`}
                           onClick={() => startEdit(article)}
                         >
                           <Pencil className="h-4 w-4" />
-                        </MdIconButton>
-                        <MdButton
-                          variant={article.status === 'published' ? 'text' : 'filled'}
+                        </Button>
+                        <Button
+                          variant={article.status === 'published' ? 'ghost' : 'default'}
+                          type="button"
                           onClick={() => handleTogglePublish(article)}
                           className="px-2 py-1.5 text-xs"
                         >
                           {article.status === 'published' ? 'Tarik Terbit' : 'Terbitkan'}
-                        </MdButton>
-                        <MdIconButton
-                          ariaLabel={`Hapus ${article.title}`}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Hapus ${article.title}`}
                           onClick={() => handleDelete(article)}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </MdIconButton>
+                        </Button>
                         </>)}
                       </div>
                     </div>
@@ -330,71 +341,71 @@ export function NewsManagerModal({ readOnly = false }: Props) {
           {view === 'edit' && !isLoading && (
             <div className="space-y-3">
               <div>
-                <label htmlFor="news-title" className={labelClass}>Judul *</label>
-                <MdTextField
+                <Label htmlFor="news-title" className={labelClass}>Judul *</Label>
+                <Input
                   id="news-title"
                   value={title}
-                  onChange={setTitle}
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="Judul artikel"
-                  ariaLabel="Judul"
+                  aria-label="Judul"
                   className="w-full"
                 />
               </div>
               <div>
-                <label htmlFor="news-excerpt" className={labelClass}>Ringkasan</label>
-                <MdTextField
+                <Label htmlFor="news-excerpt" className={labelClass}>Ringkasan</Label>
+                <Textarea
                   id="news-excerpt"
-                  type="textarea"
                   value={excerpt}
-                  onChange={setExcerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
                   placeholder="Ringkasan singkat artikel (opsional)"
                   rows={2}
-                  ariaLabel="Ringkasan"
+                  aria-label="Ringkasan"
                   className="w-full"
                 />
               </div>
               <div>
-                <label htmlFor="news-content" className={labelClass}>Isi Artikel</label>
-                <MdTextField
+                <Label htmlFor="news-content" className={labelClass}>Isi Artikel</Label>
+                <Textarea
                   id="news-content"
-                  type="textarea"
                   value={content}
-                  onChange={setContent}
+                  onChange={(e) => setContent(e.target.value)}
                   placeholder="Tulis isi artikel di sini…"
                   rows={8}
-                  ariaLabel="Isi Artikel"
+                  aria-label="Isi Artikel"
                   className="w-full"
                 />
               </div>
 
               <div>
-                <label htmlFor="news-author" className={labelClass}>Penulis</label>
-                <MdTextField
+                <Label htmlFor="news-author" className={labelClass}>Penulis</Label>
+                <Input
                   id="news-author"
                   value={author}
-                  onChange={setAuthor}
+                  onChange={(e) => setAuthor(e.target.value)}
                   placeholder="Marcomm Metropolitan Mall Bekasi"
-                  ariaLabel="Penulis"
+                  aria-label="Penulis"
                   className="w-full"
                 />
               </div>
 
               {/* Cover */}
               <div>
-                <label className={labelClass}>Cover</label>
+                <Label className={labelClass}>Cover</Label>
                 {coverImageUrl ? (
                   <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
                     <img src={coverImageUrl} alt="Cover artikel" className="aspect-[16/9] w-full object-cover" />
-                    <MdIconButton
-                      ariaLabel="Hapus cover"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Hapus cover"
                       onClick={() => { setCoverImageUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
                       className="absolute right-2 top-2"
                     >
                       <X className="h-4 w-4" />
-                    </MdIconButton>
+                    </Button>
                   </div>
                 ) : (
-                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]">
+                  <Label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-6 text-sm font-medium text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-accent)] hover:text-[var(--wf-accent)]">
                     <Upload className="h-5 w-5" />
                     {isUploading ? 'Mengunggah…' : 'Pilih gambar cover'}
                     <input
@@ -405,25 +416,27 @@ export function NewsManagerModal({ readOnly = false }: Props) {
                       onChange={(e) => handleCoverSelect(e.target.files?.[0])}
                       disabled={isUploading}
                     />
-                  </label>
+                  </Label>
                 )}
               </div>
 
               {/* Action buttons */}
               <div className="flex items-center justify-end gap-2 pt-1">
-                <MdButton
-                  variant="outlined"
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={goBackToList}
                 >
                   Batal
-                </MdButton>
-                <MdButton
+                </Button>
+                <Button
+                  type="button"
                   onClick={handleSave}
                   disabled={!title.trim() || isUploading}
                 >
                   <Save className="h-3.5 w-3.5" />
                   Simpan Artikel
-                </MdButton>
+                </Button>
               </div>
             </div>
           )}

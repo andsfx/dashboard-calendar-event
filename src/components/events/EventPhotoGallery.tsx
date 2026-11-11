@@ -10,6 +10,8 @@ import {
   fetchAlbums,
 } from '../../utils/domainApi';
 import type { PhotoAlbum } from '../../types';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
 import { useConfirmDialog } from '../modals/useConfirmDialog';
 import { useBackgroundInert } from '../media/overlayLayer';
 
@@ -57,16 +59,17 @@ function GalleryErrorState({ message, onRetry }: { message: string; onRetry: () 
   return (
     <div role="alert" className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 px-4 py-6 text-center dark:border-red-800 dark:bg-red-950/30">
       <Camera className="mx-auto h-6 w-6 text-red-700 dark:text-red-300" aria-hidden="true" />
-      <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Gagal memuat foto</p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{message}</p>
-      <button
+      <p className="mt-2 text-sm font-semibold text-[var(--wf-ink)]">Gagal memuat foto</p>
+      <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">{message}</p>
+      <Button
         type="button"
+        variant="default"
         onClick={onRetry}
-        className="ui-focus-ring mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+        className="mt-3 h-auto! min-h-11 gap-2 rounded-full border-0 bg-[var(--wf-accent)] px-5 py-2.5 text-xs font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! active:translate-y-0! focus-visible:ring-0 ui-focus-ring"
       >
-        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+        <RefreshCw className="size-4" aria-hidden="true" />
         Coba lagi
-      </button>
+      </Button>
     </div>
   );
 }
@@ -181,8 +184,8 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-2 py-6" role="status">
-        <Loader2 className="h-5 w-5 animate-spin text-brand-primary-500" aria-hidden="true" />
-        <p className="text-xs ui-text-muted">Memuat foto...</p>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--wf-accent)]" aria-hidden="true" />
+        <p className="text-xs text-[var(--wf-ink-muted)]">Memuat foto...</p>
       </div>
     );
   }
@@ -202,19 +205,19 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Camera className="h-4 w-4 text-brand-primary-500" />
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+          <Camera className="h-4 w-4 text-[var(--wf-accent)]" />
+          <h2 className="text-sm font-semibold text-[var(--wf-ink)]">
             Dokumentasi Foto
           </h2>
           {photos.length > 0 && (
-<span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium ui-text-muted dark:bg-slate-800">
+<span className="rounded-full bg-[var(--wf-board-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--wf-ink-muted)]">
               {photos.length}
             </span>
           )}
         </div>
         {!!canUpload && (
           <div className="flex gap-1.5">
-            <label className="flex cursor-pointer items-center gap-1 rounded-lg bg-brand-primary-600 px-2.5 py-1.5 text-[10px] font-semibold text-white hover:bg-brand-primary-700">
+            <Label className="flex cursor-pointer items-center gap-1 rounded-lg bg-[var(--wf-accent)] px-2.5 py-1.5 text-[10px] leading-normal font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]">
               <Upload className="h-3 w-3" />
               Upload
               <input
@@ -225,15 +228,16 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
                 onChange={(e) => handleUpload(e.target.files)}
                 disabled={uploading}
               />
-            </label>
+            </Label>
             {!linkedAlbum && (
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setShowLinkForm(!showLinkForm)}
-                className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-[10px] font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="h-auto! gap-1 rounded-lg border border-[var(--wf-rule)]! px-2.5 py-1.5 text-[10px] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! active:translate-y-0!"
               >
-                <Link2 className="h-3 w-3" />
+                <Link2 className="size-3" />
                 Link Album
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -241,7 +245,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
 
       {/* Upload progress */}
       {uploading && (
-        <div className="flex items-center gap-2 rounded-lg bg-brand-primary-50 px-3 py-2 text-xs text-brand-primary-700 dark:bg-brand-primary-900/20 dark:text-brand-primary-300">
+        <div className="flex items-center gap-2 rounded-lg bg-[var(--wf-accent-soft)] px-3 py-2 text-xs text-[var(--wf-accent)]">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           Mengupload foto…
         </div>
@@ -253,20 +257,21 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
 
       {/* Link album form */}
       {showLinkForm && (
-        <div className="rounded-xl border border-brand-primary-200 bg-brand-primary-50/50 p-3 dark:border-brand-primary-800 dark:bg-brand-primary-950/20">
-          <p className="mb-2 text-xs font-medium text-slate-700 dark:text-slate-300">Pilih album untuk di-link:</p>
+        <div className="rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3">
+          <p className="mb-2 text-xs font-medium text-[var(--wf-ink-muted)]">Pilih album untuk di-link:</p>
           <div className="max-h-40 space-y-1 overflow-y-auto">
             {albums.filter(a => !a.eventId || a.eventId === eventId).map(a => (
-              <button
+              <Button
                 key={a.id}
+                variant="ghost"
                 onClick={() => handleLinkAlbum(a.id)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-brand-primary-100 dark:text-slate-300 dark:hover:bg-brand-primary-900/30"
+                className="h-auto! w-full justify-start! gap-2 rounded-lg border-0 px-2 py-1.5 text-left text-xs font-normal text-[var(--wf-ink-muted)] hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--wf-ink-muted)]! active:translate-y-0!"
               >
                 {a.coverPhotoUrl && <img src={a.coverPhotoUrl} alt="" className="h-8 w-8 rounded object-cover" />}
                 <span className="truncate">{a.name}</span>
-              </button>
+              </Button>
             ))}
-            {albums.length === 0 && <p className="text-[10px] text-slate-500 dark:text-slate-300">Belum ada album</p>}
+            {albums.length === 0 && <p className="text-[10px] text-[var(--wf-ink-muted)]">Belum ada album</p>}
           </div>
         </div>
       )}
@@ -275,14 +280,14 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
       {linkedAlbum && (
         <a
           href={`/gallery/${linkedAlbum.slug}`}
-          className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition hover:border-brand-primary-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
+          className="flex items-center gap-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2.5 transition hover:border-[var(--wf-accent)]"
         >
           {linkedAlbum.coverPhotoUrl && (
             <img src={linkedAlbum.coverPhotoUrl} alt="" className="h-12 w-12 rounded-lg object-cover" />
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">{linkedAlbum.name}</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-300">{linkedAlbum.photoCount || 0} foto · Lihat album →</p>
+            <p className="truncate text-xs font-medium text-[var(--wf-ink-muted)]">{linkedAlbum.name}</p>
+            <p className="text-[10px] text-[var(--wf-ink-muted)]">{linkedAlbum.photoCount || 0} foto · Lihat album →</p>
           </div>
         </a>
       )}
@@ -292,11 +297,12 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
           {photos.map((photo, idx) => (
             <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-xl">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setLightboxIdx(idx)}
                 data-gallery-thumb={idx}
-                className="ui-focus-ring block h-full w-full cursor-pointer rounded-xl"
+                className="block! h-full w-full cursor-pointer rounded-xl border-0 p-0! hover:bg-transparent dark:hover:bg-transparent active:translate-y-0! focus-visible:ring-0 ui-focus-ring"
                 aria-label={`Buka foto ${idx + 1} dari ${photos.length}${photo.caption ? `: ${photo.caption}` : ''}`}
               >
                 <img
@@ -305,14 +311,15 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
                   className="h-full w-full object-cover transition group-hover:scale-105"
                   loading="lazy"
                 />
-              </button>
+              </Button>
               {!!canUpload && (
-                <button
+                <Button
+                  variant="ghost"
                   onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 md:right-1.5 md:top-1.5"
+                  className="absolute right-1 top-1 h-6 w-6 rounded-full border-0 bg-black/60 p-0! text-white opacity-0 transition group-hover:opacity-100 hover:bg-black/60! hover:text-white active:translate-y-0! md:right-1.5 md:top-1.5"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                  <Trash2 className="size-3.5" />
+                </Button>
               )}
             </div>
           ))}
@@ -321,10 +328,10 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
 
       {/* Empty state */}
       {!hasContent && !!canUpload && (
-        <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-8 transition hover:border-brand-primary-300 dark:border-slate-700 dark:hover:border-brand-primary-600">
-          <ImagePlus className="h-8 w-8 text-slate-300 dark:text-slate-600" />
-          <p className="text-xs ui-text-muted">Klik untuk upload foto dokumentasi</p>
-          <p className="text-[10px] text-slate-500 dark:text-slate-300">JPG, PNG, WebP · Maks 10 foto</p>
+        <Label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-[var(--wf-rule)] py-8 font-normal leading-normal transition hover:border-[var(--wf-accent)]">
+          <ImagePlus className="h-8 w-8 text-[var(--wf-rule-strong)]" />
+          <p className="text-xs text-[var(--wf-ink-muted)]">Klik untuk upload foto dokumentasi</p>
+          <p className="text-[10px] text-[var(--wf-ink-muted)]">JPG, PNG, WebP · Maks 10 foto</p>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
@@ -333,7 +340,7 @@ export function EventPhotoGallery({ eventId, eventName, canUpload = false }: Eve
             onChange={(e) => handleUpload(e.target.files)}
             disabled={uploading}
           />
-        </label>
+        </Label>
       )}
 
       {/* Lightbox */}
@@ -434,25 +441,27 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
       aria-modal="true"
       aria-label={photo.caption ? `Foto: ${photo.caption}` : `Foto ${currentIdx + 1} dari ${photos.length}`}
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
         data-lightbox-close
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="ui-focus-ring absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+        className="ui-focus-ring absolute right-4 top-4 h-11! w-11! rounded-full border-0 bg-white/10 p-0! text-white hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:translate-y-0! focus-visible:ring-0"
         aria-label="Tutup lightbox"
       >
-        <X className="h-5 w-5" aria-hidden="true" />
-      </button>
+        <X className="size-5" aria-hidden="true" />
+      </Button>
 
       {currentIdx > 0 && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="ui-focus-ring absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          className="ui-focus-ring absolute left-4 top-1/2 h-11! w-11! -translate-y-1/2 rounded-full border-0 bg-white/10 p-0! text-white hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:-translate-y-1/2! focus-visible:ring-0"
           aria-label="Foto sebelumnya"
         >
-          <ChevronLeft className="h-6 w-6" aria-hidden="true" />
-        </button>
+          <ChevronLeft className="size-6" aria-hidden="true" />
+        </Button>
       )}
 
       <img
@@ -463,14 +472,15 @@ function Lightbox({ photos, currentIdx, onClose, onPrev, onNext }: {
       />
 
       {currentIdx < photos.length - 1 && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="ui-focus-ring absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          className="ui-focus-ring absolute right-4 top-1/2 h-11! w-11! -translate-y-1/2 rounded-full border-0 bg-white/10 p-0! text-white hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:-translate-y-1/2! focus-visible:ring-0"
           aria-label="Foto berikutnya"
         >
-          <ChevronRight className="h-6 w-6" aria-hidden="true" />
-        </button>
+          <ChevronRight className="size-6" aria-hidden="true" />
+        </Button>
       )}
 
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs text-white">

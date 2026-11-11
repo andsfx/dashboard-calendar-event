@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { X, Users, Phone, Mail, Globe, Calendar, FileText, MessageCircle, CheckCircle2, XCircle, Eye, Send, CalendarPlus, ExternalLink } from 'lucide-react';
 import { CommunityRegistration, RegistrationStatus, OrganizationType } from '../../types';
 import { ModalWrapper } from './ModalWrapper';
-import { MdButton, MdIconButton, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { Textarea } from '../shadcn/textarea';
 
 interface Props {
   isOpen: boolean;
@@ -149,13 +152,15 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
       <div className="rounded-[var(--wf-radius-board)] bg-[var(--wf-board)] overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="relative shrink-0 border-b border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] px-4 py-4 sm:px-6">
-          <MdIconButton
-            ariaLabel="Tutup"
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Tutup"
             onClick={onClose}
             className="absolute right-4 top-3"
           >
             <X className="h-4 w-4" />
-          </MdIconButton>
+          </Button>
 
           <div className="flex items-center gap-3 pr-8 sm:pr-10">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]">
@@ -246,13 +251,12 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
 
           {/* Admin Notes */}
           <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
-            <MdTextField
+            <Label htmlFor="reg-admin-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Admin</Label>
+            <Textarea
               id="reg-admin-note"
-              type="textarea"
               value={adminNote}
-              onChange={setAdminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
               rows={3}
-              label="Catatan Admin"
               placeholder="Tambahkan catatan admin…"
               className="w-full"
             />
@@ -264,41 +268,41 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               <MessageCircle className="h-3 w-3" /> Template WhatsApp
             </p>
 
-            <MdSelect
+            <NativeSelect
               value={waTemplate}
-              onChange={setWaTemplate}
-              ariaLabel="Template WhatsApp"
+              onChange={(e) => setWaTemplate(e.target.value)}
+              aria-label="Template WhatsApp"
               className="mb-3 w-full"
-              options={[
-                { value: 'reviewed', label: 'Direview' },
-                { value: 'approved', label: 'Disetujui' },
-                { value: 'rejected', label: 'Ditolak' },
-                { value: 'custom', label: 'Kustom' },
-              ]}
-            />
+            >
+              <NativeSelectOption value="reviewed">Direview</NativeSelectOption>
+              <NativeSelectOption value="approved">Disetujui</NativeSelectOption>
+              <NativeSelectOption value="rejected">Ditolak</NativeSelectOption>
+              <NativeSelectOption value="custom">Kustom</NativeSelectOption>
+            </NativeSelect>
 
-            <MdTextField
-              type="textarea"
+            <Textarea
               value={waMessage}
-              onChange={value => { setWaMessage(value); if (waTemplate !== 'custom') setWaTemplate('custom'); }}
+              onChange={(e) => { setWaMessage(e.target.value); if (waTemplate !== 'custom') setWaTemplate('custom'); }}
               rows={5}
-              ariaLabel="Pesan WhatsApp"
+              aria-label="Pesan WhatsApp"
               className="mb-3 w-full"
             />
 
-            <MdButton
+            <Button
+              type="button"
               onClick={handleSendWhatsApp}
             >
               <Send className="h-4 w-4" /> Kirim via WhatsApp
-            </MdButton>
+            </Button>
           </div>}
         </div>
 
         {/* Footer actions */}
         <div className="flex flex-col gap-2 border-t border-[var(--wf-rule)] px-4 py-4 sm:flex-row sm:items-center sm:px-6 shrink-0">
           {!readOnly && onCreateEvent && registration?.status === 'approved' && (
-            <MdButton
-              variant="outlined"
+            <Button
+              variant="outline"
+              type="button"
               onClick={() => {
                 if (registration) {
                   onCreateEvent(registration);
@@ -309,45 +313,48 @@ export function CommunityRegistrationDetailModal({ isOpen, onClose, registration
               className="flex-1"
             >
               <CalendarPlus className="h-3.5 w-3.5" /> Buat Draft dari pendaftaran
-            </MdButton>
+            </Button>
           )}
           {!readOnly && canReview && (
-            <MdButton
-              variant="outlined"
+            <Button
+              variant="outline"
+              type="button"
               onClick={() => handleStatusChange('reviewed')}
               disabled={isSubmitting}
               className="flex-1"
             >
               <Eye className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tandai Direview'}
-            </MdButton>
+            </Button>
           )}
           {!readOnly && canApproveReject && (
-            <MdButton
+            <Button
+              type="button"
               onClick={() => handleStatusChange('approved')}
               disabled={isSubmitting}
               className="flex-1"
             >
               <CheckCircle2 className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Setujui'}
-            </MdButton>
+            </Button>
           )}
           {!readOnly && canApproveReject && (
-            <MdButton
-              variant="outlined"
-              danger
+            <Button
+              variant="destructive"
+              type="button"
               onClick={() => handleStatusChange('rejected')}
               disabled={isSubmitting}
               className="flex-1"
             >
               <XCircle className="h-3.5 w-3.5" /> {isSubmitting ? 'Memproses…' : 'Tolak'}
-            </MdButton>
+            </Button>
           )}
-          <MdButton
-            variant="text"
+          <Button
+            variant="ghost"
+            type="button"
             onClick={onClose}
             className="flex-1"
           >
             Tutup
-          </MdButton>
+          </Button>
         </div>
       </div>
     </ModalWrapper>

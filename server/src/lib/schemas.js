@@ -140,6 +140,8 @@ const ACTION_SCHEMAS = {
     action: z.literal('listLetters'),
     eventId: z.string().optional(),
     draftEventId: z.string().optional(),
+    includeArchived: z.boolean().optional(),
+    docType: z.enum(['ske', 'sik']).optional(),
   }),
   createLetter: z.object({
     action: z.literal('createLetter'),

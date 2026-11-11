@@ -6,10 +6,10 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { useConfirmDialog } from '../useConfirmDialog';
 
 /**
- * ModalWrapper kini adapter tipis di atas `md-dialog`. Perilaku yang dulu
- * diorkestrasi manual — Escape untuk dialog teratas, penutupan sekali per
- * dialog — sekarang berasal dari `<dialog>` bertumpuk (di jsdom: mock
- * md-dialog di `src/test/md-mocks.ts`). Tes ini menjaga kontraknya.
+ * ModalWrapper kini adapter tipis di atas shadcn `Dialog` (Radix). Perilaku
+ * yang dulu diorkestrasi manual — Escape untuk dialog teratas, penutupan sekali
+ * per dialog — kini berasal dari `DismissableLayer`/`FocusScope` Radix (bukan
+ * `<dialog>` native + `showModal()`). Tes ini menjaga kontrak publiknya.
  */
 function Harness({ onCloseOuter, onCloseConfirm }: { onCloseOuter: () => void; onCloseConfirm: () => void }) {
   return (
@@ -22,32 +22,30 @@ function Harness({ onCloseOuter, onCloseConfirm }: { onCloseOuter: () => void; o
   );
 }
 
-describe('ModalWrapper (adapter md-dialog)', () => {
+describe('ModalWrapper (adapter shadcn Dialog)', () => {
   it('merender children di dalam dialog dan meneruskan aria-labelledby', async () => {
     render(
       <ModalWrapper isOpen onClose={() => {}} ariaLabelledBy="judul-modal">
         <h2 id="judul-modal">Judul</h2>
       </ModalWrapper>,
     );
-    // ModalWrapper memuat md-dialog dengan React.lazy → render pertama async.
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveAttribute('aria-labelledby', 'judul-modal');
     expect(screen.getByText('Judul')).toBeInTheDocument();
   });
 
   it('memberi nama aksesibel dari judul yang terlihat, bukan "Dialog" generik', async () => {
-    // md-dialog merender <dialog> di shadow root dan hanya memakai
-    // aria-labelledby bila ada konten di slot `headline`; judul kita ada di
-    // slot `content`, jadi aria-labelledby saja diabaikan dan pembaca layar
-    // mengumumkan label generik. MdDialog menurunkan teks judul ke aria-label
-    // pada host (mixinDelegatesAria meneruskannya ke shadow).
+    // Radix menautkan `aria-labelledby` ke heading yang terlihat (md-dialog
+    // dulu menyalin teks heading ke `aria-label` host karena shadow DOM-nya
+    // mengabaikan ID-reference). Nama aksesibel harus tetap nama judul.
     render(
       <ModalWrapper isOpen onClose={() => {}} ariaLabelledBy="nama-modal">
         <h2 id="nama-modal">Kelola opsi form partisipasi</h2>
       </ModalWrapper>,
     );
     const dialog = await screen.findByRole('dialog');
-    expect(dialog).toHaveAttribute('aria-label', 'Kelola opsi form partisipasi');
+    expect(dialog).toHaveAccessibleName('Kelola opsi form partisipasi');
+    expect(dialog).not.toHaveAccessibleName('Dialog');
   });
 
   it('Escape hanya menutup dialog konfirmasi teratas, modal parent tetap terbuka', async () => {
@@ -84,21 +82,20 @@ describe('ModalWrapper (adapter md-dialog)', () => {
 
   it('menutup lewat prop isOpen tidak memanggil onClose (tanpa loop umpan balik)', async () => {
     const onClose = vi.fn();
-    const { container, rerender } = render(
+    const { rerender } = render(
       <ModalWrapper isOpen onClose={onClose} ariaLabelledBy="t">
         <h2 id="t">Judul</h2>
       </ModalWrapper>,
     );
-    const dialog = (): Element | null => container.querySelector('md-dialog');
-    expect(dialog()).not.toHaveAttribute('hidden');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     rerender(
       <ModalWrapper isOpen={false} onClose={onClose} ariaLabelledBy="t">
         <h2 id="t">Judul</h2>
       </ModalWrapper>,
     );
-    await waitFor(() => expect(dialog()).toHaveAttribute('hidden'));
     // Parent sudah tahu dialog ditutup; memanggil onClose di sini akan jadi loop.
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(onClose).not.toHaveBeenCalled();
   });
 

@@ -8,10 +8,11 @@
 @import "./styles/typography.css";
 @import "./styles/gradients.css";
 @import "./styles/utilities.css";
-@import "./styles/dashboard-wayfinding.css";
-@import "./styles/material-theme.css";
-@import "./styles/motion.css";
 @import "./styles/accessibility.css";
+@import "./styles/dashboard-wayfinding.css";
+@import "./styles/motion.css";
+@import "./styles/shadcn-theme.css";
+@import "./styles/letter-editable.css";
 @variant dark (&:where(.dark, .dark *));
 /* Report coverage HTML memuat kelas lama — jangan discan Tailwind (kelas mati di bundle) */
 @source not "../coverage";

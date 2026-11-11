@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, CalendarDays, MapPin, RefreshCw } from 'lucide-react
 import { PhotoAlbum, EventPhoto } from '../types';
 import { fetchAlbumBySlug } from '../utils/domainApi';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 import { usePageMeta } from '../utils/pageMeta';
 import { PhotoLightbox } from '../components/media/PhotoLightbox';
@@ -72,10 +73,10 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
   const notFound = !isLoading && !album && !fetchError;
 
   return (
-    <div className="min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -85,7 +86,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
         {/* Back button */}
         <Link
           to="/gallery"
-          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium ui-text-muted transition hover:text-slate-800 dark:hover:text-white"
+          className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Galeri
@@ -94,12 +95,12 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
         {/* Loading skeleton */}
         {isLoading && (
           <div className="animate-pulse">
-            <div className="mb-2 h-8 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="mb-1 h-4 w-1/3 rounded bg-slate-100 dark:bg-slate-700/60" />
-            <div className="mb-8 h-4 w-1/2 rounded bg-slate-100 dark:bg-slate-700/60" />
+            <div className="mb-2 h-8 w-2/3 rounded bg-[var(--wf-rule)]" />
+            <div className="mb-1 h-4 w-1/3 rounded bg-[var(--wf-board-2)]" />
+            <div className="mb-8 h-4 w-1/2 rounded bg-[var(--wf-board-2)]" />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] rounded-xl bg-slate-200 dark:bg-slate-700" />
+                <div key={i} className="aspect-[4/3] rounded-xl bg-[var(--wf-rule)]" />
               ))}
             </div>
           </div>
@@ -111,37 +112,39 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <RefreshCw className="h-7 w-7 text-red-500 dark:text-red-400" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">
               Gagal memuat album
             </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
               Terjadi kesalahan saat memuat data. Periksa koneksi internet Anda.
             </p>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => setRetryCount(c => c + 1)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]! h-auto border-0 rounded-full! active:translate-y-0! hover:text-[var(--wf-accent-ink)]!"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               Coba lagi
-            </button>
+            </Button>
           </div>
         )}
 
         {/* 404 state */}
         {notFound && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-              <Camera className="h-7 w-7 text-slate-500 dark:text-slate-300" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
+              <Camera className="h-7 w-7 text-[var(--wf-ink-muted)]" />
             </div>
-            <p className="mt-4 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-lg font-semibold text-[var(--wf-ink-muted)]">
               Album tidak ditemukan
             </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
               Album yang kamu cari tidak tersedia atau sudah dihapus.
             </p>
             <Link
               to="/gallery"
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-primary-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-primary-700"
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-medium text-[var(--wf-accent-ink)] shadow-sm transition hover:bg-[var(--wf-accent)]"
             >
               <ArrowLeft className="h-4 w-4" />
               Kembali ke Galeri
@@ -157,7 +160,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 {album.name}
               </h1>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ui-text-muted">
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--wf-ink-muted)]">
                 {album.eventDate && (
                   <span className="flex items-center gap-1.5">
                     <CalendarDays className="h-4 w-4" />
@@ -176,7 +179,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                 </span>
               </div>
               {album.description && (
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--wf-ink-muted)]">
                   {album.description}
                 </p>
               )}
@@ -185,22 +188,23 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
             {/* Photo grid */}
             {photos.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Camera className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-                <p className="mt-3 text-sm text-slate-500 dark:text-slate-300">
+                <Camera className="h-10 w-10 text-[var(--wf-rule-strong)]" />
+                <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">
                   Belum ada foto di album ini.
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                 {photos.map((photo, idx) => (
-                  <button
+                  <Button
                     key={photo.id}
                     type="button"
+                    variant="ghost"
                     onClick={() => setLightboxIndex(idx)}
                     data-reveal-item
-                    className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-slate-200 bg-white text-left dark:border-slate-700 dark:bg-slate-800"
+                    className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] text-left flex! h-auto gap-0! p-0! whitespace-normal! items-stretch hover:bg-[var(--wf-board)]! active:translate-y-0!"
                   >
-                    <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-slate-200 dark:bg-slate-700">
+                    <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-[var(--wf-rule)]">
                       <img
                         src={gridUrl(photo.url)}
                         alt={photo.caption}
@@ -212,10 +216,10 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
                       <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" aria-hidden="true" />
                     </div>
                     <div className="p-3 sm:p-4">
-                      <p className="text-sm font-semibold text-slate-800 line-clamp-2 dark:text-white">{photo.caption}</p>
-                      {photo.eventDate && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{photo.eventDate}</p>}
+                      <p className="text-sm font-semibold text-[var(--wf-ink)] line-clamp-2">{photo.caption}</p>
+                      {photo.eventDate && <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{photo.eventDate}</p>}
                     </div>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -224,7 +228,7 @@ export function GalleryAlbumPage({ isDark, onToggleDark }: Props) {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-<footer className="border-t border-slate-200 bg-[var(--brand-paper)] px-4 py-8 text-sm ui-text-muted dark:bg-slate-950 dark:border-slate-800 sm:px-6">
+<footer className="border-t border-[var(--wf-rule)] bg-[var(--wf-page)] px-4 py-8 text-sm text-[var(--wf-ink-muted)] sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
           <p>&copy; {new Date().getFullYear()} Metropolitan Mall Bekasi &middot; Metland Coloring Life</p>
         </div>

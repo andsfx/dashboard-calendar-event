@@ -3,8 +3,13 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Building2, Loader2, AlertTriangle, ClipboardCheck,
   Send, ArrowLeft, MapPin, Calendar, User,
-  ChevronLeft, ChevronDown, RefreshCw, CheckCircle2, Shield, Phone,
+  ChevronLeft, RefreshCw, CheckCircle2, Shield, Phone,
 } from 'lucide-react';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { NativeSelect } from '../shadcn/native-select';
+import { Textarea } from '../shadcn/textarea';
+import { Label } from '../shadcn/label';
 import {
   fetchPublicTenantSurveyEvent,
   checkPublicTenantSurveyDuplicate,
@@ -30,18 +35,18 @@ function PageShell({ children }: { children: ReactNode }) {
     <main
       id="konten-utama"
       tabIndex={-1}
-      className="min-h-dvh scroll-smooth bg-slate-50 outline-none dark:bg-slate-950"
+      className="min-h-dvh scroll-smooth bg-[var(--wf-board-2)] outline-none"
     >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <Link
             to="/tenant-survey"
-            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Kembali ke Pilih Event
           </Link>
-          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+          <span className="text-xs font-semibold text-[var(--wf-accent)]">
             Metropolitan Mall Bekasi
           </span>
         </div>
@@ -227,9 +232,9 @@ export default function TenantSurveyPublicPage() {
   if (loading) {
     return (
       <PageShell>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 dark:border-slate-700 dark:bg-slate-800">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-          <p className="mt-3 text-sm ui-text-muted">Memuat survey…</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-12">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survey…</p>
         </div>
       </PageShell>
     );
@@ -242,18 +247,18 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Event Tidak Ditemukan</h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Event Tidak Ditemukan</h2>
+          <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
             {error || 'Event yang Anda cari tidak tersedia.'}
           </p>
-          <button
+          <Button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+            className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
           >
             <ChevronLeft className="h-4 w-4" />
             Ke Beranda
-          </button>
+          </Button>
         </div>
       </PageShell>
     );
@@ -262,26 +267,26 @@ export default function TenantSurveyPublicPage() {
   if (surveyClosed) {
     return (
       <PageShell>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
-            <Shield className="h-8 w-8 text-slate-500" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-8 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wf-board-2)]">
+            <Shield className="h-8 w-8 text-[var(--wf-ink-muted)]" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Ditutup</h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Ditutup</h2>
+          <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
             Self-assessment tenant untuk event
-            <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+            <span className="mx-1 font-semibold text-[var(--wf-accent)]">
               &quot;{event.acara}&quot;
             </span>
             tidak aktif atau sudah ditutup.
           </p>
-          <button
+          <Button
             type="button"
             onClick={() => navigate('/tenant-survey')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+            className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
           >
             <ChevronLeft className="h-4 w-4" />
             Pilih Event Lain
-          </button>
+          </Button>
         </div>
       </PageShell>
     );
@@ -294,17 +299,17 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
             <CheckCircle2 className="h-8 w-8 text-amber-500" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">
             Anda Sudah Mengisi Survey
           </h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
             Anda sudah pernah mengirimkan self-assessment untuk event
-            <span className="mx-1 font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+            <span className="mx-1 font-semibold text-[var(--wf-accent)]">
               &quot;{event.acara}&quot;
             </span>
             dari perangkat ini. Setiap tenant hanya dapat mengirimkan satu survey per event.
           </p>
-          <p className="mt-3 text-xs ui-text-muted">
+          <p className="mt-3 text-xs text-[var(--wf-ink-muted)]">
             Jika ini adalah kesalahan, hubungi tim Metropolitan Mall Bekasi.
           </p>
         </div>
@@ -319,24 +324,24 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Survey Terkirim!</h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Survey Terkirim!</h2>
+          <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
             Terima kasih telah mengirimkan self-assessment untuk event
           </p>
-          <p className="mt-0.5 text-sm font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+          <p className="mt-0.5 text-sm font-semibold text-[var(--wf-accent)]">
             &quot;{event.acara}&quot;
           </p>
-          <p className="mt-4 max-w-md text-xs ui-text-muted">
+          <p className="mt-4 max-w-md text-xs text-[var(--wf-ink-muted)]">
             Masukan Anda sangat berharga untuk meningkatkan kerjasama dan pelayanan kami.
           </p>
-          <button
+          <Button
             type="button"
             onClick={() => navigate('/')}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+            className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
           >
             <ChevronLeft className="h-4 w-4" />
             Kembali ke Beranda
-          </button>
+          </Button>
         </div>
       </PageShell>
     );
@@ -349,27 +354,28 @@ export default function TenantSurveyPublicPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Terjadi Kesalahan</h2>
-          <p className="mt-2 max-w-md text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-bold text-[var(--wf-ink)]">Terjadi Kesalahan</h2>
+          <p className="mt-2 max-w-md text-sm text-[var(--wf-ink-muted)]">
             {submitError}
           </p>
           <div className="mt-6 flex gap-3">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={handleRetry}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="h-auto inline-flex items-center gap-2 rounded-xl border border-[var(--wf-rule-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
             >
               <RefreshCw className="h-4 w-4" />
               Coba Lagi
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-primary-700"
+              className="h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] shadow-sm transition-colors hover:bg-[var(--wf-accent)]"
             >
               <ChevronLeft className="h-4 w-4" />
               Ke Beranda
-            </button>
+            </Button>
           </div>
         </div>
       </PageShell>
@@ -404,36 +410,36 @@ export default function TenantSurveyPublicPage() {
     <main
       id="konten-utama"
       tabIndex={-1}
-      className="min-h-dvh scroll-smooth bg-slate-50 outline-none dark:bg-slate-950"
+      className="min-h-dvh scroll-smooth bg-[var(--wf-board-2)] outline-none"
     >
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
         <div className="mb-6 flex items-center justify-between">
           <Link
             to="/tenant-survey"
-            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-brand-primary-600 transition-colors hover:text-brand-primary-700 dark:text-brand-primary-400 dark:hover:text-brand-primary-300"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:text-[var(--wf-accent)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Kembali ke Pilih Event
           </Link>
-          <span className="text-xs font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+          <span className="text-xs font-semibold text-[var(--wf-accent)]">
             Metropolitan Mall Bekasi
           </span>
         </div>
 
       {/* Event banner */}
-      <div className="mb-6 rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/40">
+      <div className="mb-6 rounded-2xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
-            <ClipboardCheck className="h-6 w-6 text-brand-primary-600 dark:text-brand-primary-400" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)]">
+            <ClipboardCheck className="h-6 w-6 text-[var(--wf-accent)]" />
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
               Self-Assessment Tenant
             </span>
-            <h1 className="mt-0.5 break-words text-lg font-bold leading-snug text-brand-primary-900 dark:text-brand-primary-100">
+            <h1 className="mt-0.5 break-words text-lg font-bold leading-snug text-[var(--wf-accent)]">
               {event.acara}
             </h1>
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-brand-primary-700 dark:text-brand-primary-300">
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--wf-accent)]">
               {event.tanggal && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
@@ -449,13 +455,13 @@ export default function TenantSurveyPublicPage() {
             </div>
           </div>
         </div>
-        <p className="mt-3 text-xs text-brand-primary-700 dark:text-brand-primary-300">
+        <p className="mt-3 text-xs text-[var(--wf-accent)]">
           Bantu kami meningkatkan pelayanan dengan memberikan penilaian dan masukan untuk event ini.
         </p>
       </div>
 
       {/* Section stepper */}
-        <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+        <div className="grid grid-cols-3 gap-2 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3">
           {[
             { num: 1, label: 'Informasi Tenant', filled: !!(selectedTenant && formData.lokasi_zona && formData.kategori) },
             { num: 2, label: 'Evaluasi', filled: !!(formData.kenaikan_traffic && formData.kenaikan_sales) },
@@ -465,11 +471,11 @@ export default function TenantSurveyPublicPage() {
               <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${
                 step.filled
                   ? 'bg-emerald-700 text-white dark:bg-emerald-300 dark:text-emerald-950'
-                  : 'bg-slate-200 ui-text-muted dark:bg-slate-700 '
+                  : 'bg-[var(--wf-rule)] text-[var(--wf-ink-muted)]'
               }`}>
                 {step.filled ? '✓' : step.num}
               </div>
-              <span className="sr-only truncate text-[11px] font-medium text-slate-600 dark:text-slate-300 sm:not-sr-only">{step.label}</span>
+              <span className="sr-only truncate text-[11px] font-medium text-[var(--wf-ink-muted)] sm:not-sr-only">{step.label}</span>
             </div>
           ))}
         </div>
@@ -495,22 +501,22 @@ export default function TenantSurveyPublicPage() {
         )}
 
         {/* Section 1: Informasi Tenant */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+        <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+          <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
             Bagian 1: Informasi Tenant
           </h2>
-          <p className="mb-4 text-xs ui-text-muted">
+          <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
             Isi informasi dasar dan lokasi tenant Anda di Metropolitan Mall Bekasi.
           </p>
 
           <div className="space-y-4">
             {/* Tenant search + badge */}
             <div>
-              <label htmlFor="tenant-survey-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <Label htmlFor="tenant-survey-tenant" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                 <Building2 className="h-3.5 w-3.5" />
                 Nama Tenant
                 <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-              </label>
+              </Label>
               <TenantSearchSelect
                 id="tenant-survey-tenant"
                 value={selectedTenant?.name || formData.nama_gerai}
@@ -558,29 +564,28 @@ export default function TenantSurveyPublicPage() {
 
             {/* Lokasi with auto-filled indicator */}
             <div className="relative">
-              <label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <Label htmlFor="tenant-survey-lokasi" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                 <MapPin className="h-3.5 w-3.5" />
                 Lokasi / Zona
                 <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
                 {autoFilled.lokasi_zona && (
                     <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700">Auto</span>
                 )}
-              </label>
-              <select
+              </Label>
+              <NativeSelect
                 id="tenant-survey-lokasi"
                 value={formData.lokasi_zona}
                 onChange={(e) => updateField('lokasi_zona')(e.target.value)}
                 aria-required="true"
                 aria-invalid={!!fieldErrorMap.lokasi_zona || undefined}
                 aria-describedby={fieldErrorMap.lokasi_zona ? 'tenant-survey-lokasi-error' : undefined}
-                className="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2 pr-9 text-sm text-slate-800 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                className="w-full [&>select]:h-auto [&>select]:rounded-xl [&>select]:border-[var(--wf-rule-strong)] [&>select]:bg-[var(--wf-board)] [&>select]:px-3 [&>select]:py-2 [&>select]:pr-9 [&>select]:text-sm [&>select]:text-[var(--wf-ink)] [&>select:hover]:border-[var(--wf-rule-control)] [&>select:focus]:border-[var(--wf-accent)] [&>select:focus]:ring-1 [&>select:focus]:ring-[var(--wf-accent)]"
               >
                 <option value="">Pilih lokasi / zona</option>
                 {SURVEY_OPTIONS.lokasi_zona.map((z) => (
                   <option key={z} value={z}>{z}</option>
                 ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-[38px] h-4 w-4 text-slate-500" />
+              </NativeSelect>
               {fieldErrorMap.lokasi_zona && (
                 <p id="tenant-survey-lokasi-error" className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400" role="alert">
                   <AlertTriangle className="h-3 w-3" />
@@ -607,17 +612,17 @@ export default function TenantSurveyPublicPage() {
             </div>
 
             {/* PIC fields (optional) */}
-            <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
-              <p className="mb-3 text-xs font-medium ui-text-muted">
+            <div className="mt-4 border-t border-[var(--wf-rule)] pt-4">
+              <p className="mb-3 text-xs font-medium text-[var(--wf-ink-muted)]">
                 Informasi PIC (opsional)
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="tenant-survey-pic-name" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                     <User className="h-3.5 w-3.5" />
                     Nama PIC
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="tenant-survey-pic-name"
                     type="text"
                     value={formData.pic_name}
@@ -625,15 +630,15 @@ export default function TenantSurveyPublicPage() {
                     placeholder="Nama penanggung jawab"
                     maxLength={100}
                     autoComplete="name"
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                    className="h-auto w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
                   />
                 </div>
                 <div>
-                  <label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="tenant-survey-pic-phone" className="mb-1 flex items-center gap-1 text-xs font-medium text-[var(--wf-ink-muted)]">
                     <Phone className="h-3.5 w-3.5" />
                     No. Telepon PIC
-                  </label>
-                <input
+                  </Label>
+                <Input
                   id="tenant-survey-pic-phone"
                   type="tel"
                   inputMode="tel"
@@ -642,7 +647,7 @@ export default function TenantSurveyPublicPage() {
                   placeholder="08xxx"
                   maxLength={20}
                   autoComplete="tel"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                  className="h-auto w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
                 />
               </div>
             </div>
@@ -651,11 +656,11 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 2: Evaluasi Traffic & Sales */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+        <section className="rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+          <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
             Bagian 2: Evaluasi Traffic &amp; Sales
           </h2>
-          <p className="mb-4 text-xs ui-text-muted">
+          <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
             Bandingkan kondisi traffic pengunjung dan penjualan selama event berlangsung dibanding hari biasa.
           </p>
 
@@ -682,16 +687,16 @@ export default function TenantSurveyPublicPage() {
         </section>
 
         {/* Section 3: Umpan Balik */}
-        <section className="scroll-mb-28 rounded-2xl border border-slate-200 bg-white p-4 sm:scroll-mb-0 dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+        <section className="scroll-mb-28 rounded-2xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4 sm:scroll-mb-0">
+          <h2 className="mb-1 text-sm font-bold text-[var(--wf-ink)]">
             Bagian 3: Umpan Balik
           </h2>
-          <p className="mb-4 text-xs ui-text-muted">
+          <p className="mb-4 text-xs text-[var(--wf-ink-muted)]">
             Sampaikan masukan Anda tentang event ini secara bebas (opsional).
           </p>
 
           <div>
-            <textarea
+            <Textarea
               id="tenant-survey-feedback"
               aria-label="Masukan / Feedback"
               value={formData.feedback_teks}
@@ -699,9 +704,9 @@ export default function TenantSurveyPublicPage() {
               placeholder="Ceritakan kesan atau saran Anda tentang event ini (opsional)"
               rows={5}
               maxLength={2000}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+              className="w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)]"
             />
-            <p className="mt-1 text-right text-[10px] text-slate-500">
+            <p className="mt-1 text-right text-[10px] text-[var(--wf-ink-muted)]">
               {2000 - formData.feedback_teks.length} karakter tersisa
             </p>
           </div>
@@ -709,42 +714,43 @@ export default function TenantSurveyPublicPage() {
 
         {/* Progress indicator */}
         <div className="space-y-1.5">
-          <div className="overflow-hidden rounded-full bg-brand-primary-200 dark:bg-brand-primary-800">
+          <div className="overflow-hidden rounded-full bg-[var(--wf-accent-soft)]">
             <div
-              className="h-2 rounded-full bg-brand-primary-500 transition-[width] duration-500"
+              className="h-2 rounded-full bg-[var(--wf-accent)] transition-[width] duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] ui-text-muted">
+          <div className="flex items-center justify-between text-[10px] text-[var(--wf-ink-muted)]">
             <span role="status" aria-live="polite">{progress}% selesai</span>
             <span>{filledCount} dari {requiredCount} field wajib terisi</span>
           </div>
         </div>
 
         {/* Submit — sticky on mobile */}
-        <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-slate-200 bg-slate-50/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+        <div className="sticky bottom-0 z-10 -mx-4 space-y-3 border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:static sm:mx-0 sm:space-y-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
           {filledCount < requiredCount && (
-            <p className="text-center text-xs ui-text-muted sm:text-right">
+            <p className="text-center text-xs text-[var(--wf-ink-muted)] sm:text-right">
               Lengkapi {requiredCount - filledCount} field wajib lagi untuk mengirim
             </p>
           )}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => navigate('/tenant-survey')}
               disabled={formStatus === 'submitting'}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="inline-flex min-h-[44px] h-auto items-center justify-center gap-2 rounded-xl border border-[var(--wf-rule-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
               Batal
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={formStatus === 'submitting' || filledCount < requiredCount}
-              className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${
+              className={`inline-flex min-h-[44px] h-auto items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2  ${
                 filledCount >= requiredCount
-                  ? 'bg-brand-primary-600 hover:bg-brand-primary-700'
-                  : 'bg-slate-400 cursor-not-allowed'
+                  ? 'bg-[var(--wf-accent)] hover:bg-[var(--wf-accent)]'
+                  : 'bg-[var(--wf-rule-strong)] cursor-not-allowed'
               }`}
             >
               {formStatus === 'submitting' ? (
@@ -753,11 +759,11 @@ export default function TenantSurveyPublicPage() {
                 <Send className="h-4 w-4" />
               )}
               Kirim Survey
-            </button>
+            </Button>
           </div>
         </div>
 
-        <p className="text-center text-[11px] ui-text-muted">
+        <p className="text-center text-[11px] text-[var(--wf-ink-muted)]">
           <Shield className="mr-1 inline h-3 w-3" />
           Survey ini dapat diakses tanpa login. Nama tenant dan kontak PIC yang Anda isi tersimpan teridentifikasi untuk verifikasi.
         </p>

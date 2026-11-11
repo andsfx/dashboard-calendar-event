@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { useState } from 'react'
 import type { EventStatus } from '../../../types'
@@ -20,7 +21,7 @@ describe('FilterBar', () => {
   }
 
   it('renders the status filter as a labelled group of toggle chips', () => {
-    const { container } = render(<FilterBar {...mockProps} />)
+    render(<FilterBar {...mockProps} />)
     // Grup toggle, bukan tablist: tidak ada tabpanel di bawah baris ini.
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
     expect(screen.queryByRole('tab')).not.toBeInTheDocument()
@@ -31,12 +32,11 @@ describe('FilterBar', () => {
     expect(screen.getByText('Mendatang')).toBeInTheDocument()
     expect(screen.getByText('Selesai')).toBeInTheDocument()
 
-    // Titik status tiap chip berwarna ada di slot `icon`; `Semua` tanpa titik.
-    const chips = Array.from(container.querySelectorAll('md-filter-chip'))
-    const upcomingChip = chips.find(c => c.textContent === 'Mendatang')!
-    const allChip = chips.find(c => c.textContent === 'Semua')!
-    expect(upcomingChip.querySelector('span[slot="icon"]')).not.toBeNull()
-    expect(allChip.querySelector('span[slot="icon"]')).toBeNull()
+    // Titik status berwarna hadir di chip non-'Semua'; chip 'Semua' tanpa titik.
+    const mendatangChip = screen.getByRole('button', { name: 'Mendatang' })
+    const semuaChip = screen.getByRole('button', { name: 'Semua' })
+    expect(mendatangChip.querySelector('[aria-hidden="true"]')).not.toBeNull()
+    expect(semuaChip.querySelector('[aria-hidden="true"]')).toBeNull()
   })
 
   it('marks the active status chip as pressed', () => {
@@ -65,7 +65,7 @@ describe('FilterBar', () => {
     // Klik kedua: filter yang sama diterapkan ulang, state React tidak berubah.
     fireEvent.click(selesai)
     expect(selesai).toHaveAttribute('aria-pressed', 'true')
-    expect(selesai).toHaveAttribute('selected')
+    expect(selesai).toHaveAttribute('data-state', 'on')
     // Filternya memang masih berlaku — chip "Filter aktif" masih ada.
     expect(screen.getByRole('button', { name: 'Hapus filter Status: Selesai' })).toBeInTheDocument()
   })
@@ -78,8 +78,7 @@ describe('FilterBar', () => {
     fireEvent.click(chip)
 
     expect(onFilterChange).toHaveBeenCalledWith('Semua')
-    expect(chip).toHaveAttribute('aria-pressed', 'false')
-    expect(chip).not.toHaveAttribute('selected')
+    expect(chip).not.toHaveAttribute('aria-pressed')
   })
 
   it('hides internal draft chip when showDraft is false', () => {
@@ -107,13 +106,13 @@ describe('FilterBar', () => {
     expect(screen.queryByLabelText('Semua Prioritas')).not.toBeInTheDocument()
   })
 
-  it('dropdown bulan memuat semua opsi dan meneruskan perubahan', () => {
+  it('dropdown bulan memuat semua opsi dan meneruskan perubahan', async () => {
     render(<FilterBar {...mockProps} />)
-    const monthDropdown = screen.getByLabelText('Semua Bulan')
-    // md-select kini merender <select> native (mock jsdom), jadi opsinya ada di DOM.
-    expect(within(monthDropdown).getByRole('option', { name: 'Januari' })).toBeInTheDocument()
-    expect(within(monthDropdown).getByRole('option', { name: 'Februari' })).toBeInTheDocument()
-    fireEvent.change(monthDropdown, { target: { value: 'Januari' } })
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    // shadcn Select (Radix): trigger membuka portal daftar opsi.
+    await user.click(screen.getByLabelText('Semua Bulan'))
+    const option = await screen.findByRole('option', { name: 'Januari' })
+    await user.click(option)
     expect(mockProps.onMonthChange).toHaveBeenCalledWith('Januari')
   })
 })

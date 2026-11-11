@@ -1,7 +1,7 @@
 # DESIGN
 
-> **Source of truth:** `src/styles/tokens.css` + `src/styles/theme.css`  
-> **Last updated:** 2026-09-24
+> **Source of truth:** `src/styles/tokens.css` + `src/styles/theme.css` (palet) · `src/styles/dashboard-wayfinding.css` (token `--wf-*` yang dipakai komponen)  
+> **Last updated:** 2026-11-11 (migrasi penuh ke shadcn/ui: dashboard + seluruh halaman publik, sertakan permukaan netral — pengecualian native tinggal empat kategori teknis)
 
 ## Design Direction
 
@@ -74,8 +74,16 @@ Pink scale mirrors the same pattern under `brand-secondary-*` (`#e24378` = 500, 
 - Page neutral: `#f8f7f0` (`--color-neutral-page`)
 - White section: `#ffffff`
 - Ink: `#16211b` (`--brand-ink`)
-- Slate text: Tailwind `slate-950`, `slate-700`, `slate-600`, `slate-500`
-- Dark background: Tailwind `slate-950`, `slate-900`, `slate-800`
+- Text, latar, dan garis netral: token `--wf-ink`, `--wf-ink-muted`, `--wf-board`, `--wf-board-2`, `--wf-rule` (`dashboard-wayfinding.css`). Ramp `slate-*` **dilarang** untuk ketiga peran ini — dua palet gelap dalam satu aplikasi membelah dark mode jadi dua keluarga warna (olive `#16211b` vs blue-slate `#0f172a`).
+  Di light mode `--wf-board` = `--brand-card` `#fdfcf6`, jadi kartu yang dulu memakai `--brand-card` **tidak bergeser sama sekali**; yang bergeser hanya (a) tinta `slate-600` `#475569` (cool) → `--wf-ink-muted` `#58645a` (warm), 7.4:1 → 6.6:1 di atas board, keduanya lolos AA dan sejalan dengan aturan "jangan pakai slate dingin di permukaan brand" di §Shadow, dan (b) panel yang dulu putih murni `#ffffff` → warm board `#fdfcf6` (selisih 1–2% luminansi, sengaja: satu permukaan kartu untuk seluruh aplikasi). Pergeseran besar ada di dark.
+
+  **Lever terbesar pemusatan warna bukan di TSX, tapi di `src/styles/utilities.css`.** `.ui-text-muted` dan `.ui-text-secondary` dulu `@apply text-slate-600 dark:text-slate-300`, `.ui-text-strong` `@apply text-slate-800 dark:text-white`; ketiganya kini `text-[var(--wf-ink-muted)]` / `text-[var(--wf-ink)]`, sehingga setiap pemakaian kelas itu di seluruh aplikasi ikut berpindah tanpa menyentuh call site. `typography.css` (`.ui-eyebrow`, `.ui-caption`) diperlakukan sama. Saat mengubah token netral, cek `src/styles/*.css` lebih dulu: satu baris `@apply` mengalahkan ratusan edit komponen.
+
+  **Aturan satu token per peran.** Bila sebuah elemen punya pasangan `X-terang` + `dark:Y-*`, konversi kelas **terang**-nya dan buang `dark:`-nya. Dua utilitas berbeda pada peran yang sama (`bg-[var(--wf-board)] bg-[var(--wf-board-2)]`) tidak menulis "board-2 menang": keduanya spesifisitas sama, jadi pemenangnya ditentukan urutan aturan di stylesheet hasil build, bukan urutan kelas atau niat penulis. Scan duplikat per-kelas-literal (`q` grouping) dipakai untuk memastikan nol sisa.
+
+  **Latar halaman memakai `--wf-page`, bukan `--color-neutral-page`.** `--color-neutral-page`/`--brand-paper` tidak punya pasangan `.dark`, jadi halaman yang memakainya tetap terang di dark mode (dulu ditambal `dark:bg-slate-950`). Semua `bg-[var(--color-neutral-*)]` dan `bg-[var(--brand-*)]` yang menjadi latar halaman dipetakan ke `--wf-page`; latar kartu ke `--wf-board`.
+
+  **Pengecualian yang sah (bukan utang):** (1) panel brand-gelap permanen — `bg-brand-primary-950` / `text-brand-primary-100` pada Docs, survey, NotFound, TenantDirectory: permukaannya memang gelap di kedua mode, token tema tidak memodelkannya; (2) overlay translusen di atas hero gelap/foto — pasangan `bg-white/50` + `dark:bg-slate-800/50` dibiarkan apa adanya karena mengganti light-nya akan membuat kartu opak di atas foto; (3) scrim viewport `bg-black/…` dan `dark:bg-slate-900/95`; (4) warna status (`--wf-danger`, `--wf-live`) dan hue data-viz; (5) gradien hero `from-brand-primary-950` di `FeaturedEventCard`. Konversi 2026-11-10 menyentuh 45 file komponen bersama dashboard/publik; sisa `slate-*` di `src/**/*.tsx` hanya boleh berasal dari lima kategori di atas.
 
 ### Status / Semantic
 
@@ -310,8 +318,10 @@ Gallery/social proof images:
 
 Dark mode should preserve warmth but avoid low contrast.
 
-- Use `slate-950`, `slate-900`, `slate-800` backgrounds.
-- Keep **tosca / brand-primary** accents visible (`brand-primary-400` text on dark is preferred over full 500 wash).
+- Satu palet gelap untuk seluruh aplikasi, dari `dashboard-wayfinding.css`: `--wf-page` `#0e1612`, `--wf-board` `#16211b`, `--wf-board-2` `#121a15`, `--wf-rule` `rgba(255,255,255,.14)`, `--wf-ink` `#eef2ea`, `--wf-ink-muted` `#a9b4a5`.
+- Token itu **flip sendiri**. Jangan menulis `dark:bg-*` / `dark:text-*` / `dark:border-*` untuk permukaan, teks, atau garis netral — satu token mewakili kedua mode, dan memasang `dark:` di sebelahnya menandakan lapisan yang sama dikodekan dua kali.
+- `dark:` hanya untuk yang tidak dimodelkan token: scrim viewport (`bg-black/…`), warna semantik status (`--wf-danger` / `--wf-action` / `--wf-live` bila sudah ada padanannya), dan hue data-viz.
+- Keep **tosca** accents visible: `--wf-accent` (`#33bfbc`, tosca-400) di dark = 7.35:1; `--wf-accent-ink` `#06120f` untuk teks di atas fill aksen (7.88:1).
 - Pink secondary stays sparse — chips/badges only, not large fills.
 - Avoid low-opacity white text for critical content.
 - Borders should be subtle but perceptible.
@@ -380,3 +390,209 @@ Before shipping admin / product changes:
 - Forms: labels + errors readable in light and dark.
 - Primary actions use solid tosca — no residual violet/purple hardcodes.
 - Dense UI still hits ≥44px touch targets on mobile admin breakpoints where applicable.
+
+## shadcn/ui on the Dashboard
+
+Dashboard UI dibangun di atas primitif **shadcn/ui** dengan ikon **lucide-react**. Komponen hidup di `src/components/shadcn/` (alias `@/components/shadcn`), dan **FULL registry** sudah di-install via `npx shadcn@latest add --all` dengan `components.json` (style `radix-nova`, Tailwind v4 CSS vars, `iconLibrary: lucide`). **Jangan mencampur** dengan barrel primitif milik proyek `src/components/ui` (`StatCard`, `StatusBadge`, `FilterBar`, dll.) — itu aset domain lama, bukan primitif.
+
+### Skema warna asli tetap dipakai
+
+shadcn **tidak membawa palet baru**. Palet brand tidak berubah:
+
+- Tosca primary `#00918e` (CTA/AA `#007a78`)
+- Pink secondary `#e24378` / `#c2185b` (AA destructive)
+- Warm paper surfaces `#f8f7f0` / `#fdfcf6`
+- Olive-slate neutrals — ink `#16211b`, dll.
+
+Semantic token shadcn dipetakan ke palet asli di `src/styles/shadcn-theme.css` (**ADDITIVE ONLY** — tidak ada token existing yang didefinisi ulang), diimpor dari `src/index.css` sebelum baris `@variant dark`. Radius sengaja memakai skala `theme.css` yang sudah ada: `--radius` 0.5rem, sm 0.25rem / md 0.75rem / lg 1rem / xl 1.25rem — formula calc() shadcn tidak dideklarasikan ulang agar util `rounded-*` existing tidak tertimpa.
+
+Layer token shadcn juga membawa blok override `.dark` di `shadcn-theme.css` yang dipetakan ke palet gelap wf (board `#16211b` / tosca-400 `#33bfbc` / ink `#eef2ea`, bersumber dari `.dark` di `dashboard-wayfinding.css`) agar Card/Button/Tabs/Dialog tetap on-brand di dark mode; nilai light tidak berubah.
+
+| Token shadcn | Nilai | Sumber |
+|---|---|---|
+| `--background` | `#f8f7f0` | slate-50 warm paper (`theme.css`) |
+| `--foreground` | `#16211b` | slate-900 ink (`theme.css`) |
+| `--card` / `--popover` | `#fdfcf6` | slate-100 (`theme.css`) |
+| `--primary` | `#00918e` | tosca 500 (`theme.css`/`tokens.css`); foreground `#ffffff` |
+| `--secondary` / `--accent` | `#e6f7f6` | tosca 50; foreground `#007a78` (tosca 600, AA) |
+| `--muted` / `--border` | `#edeee2` | slate-200 (`theme.css`) |
+| `--input` | `#7d847e` / dark `#969b98` | `--wf-rule-control` (`dashboard-wayfinding.css`, 3.73:1 & 5.87:1 — batas kontrol, ambang 3:1) |
+| `--muted-foreground` | `#586056` | slate-500 (`theme.css`) |
+| `--destructive` | `#b91c1c` / dark `#fca5a5` | `--wf-danger` (`dashboard-wayfinding.css`, 6.29:1 & 8.73:1); md lama juga memakai token ini via `--md-sys-color-error`; foreground `#ffffff` (light) / `#06120f` (dark) |
+| `--ring` | `#00918e` | tosca 500 (`theme.css`) |
+
+### Pola komponen dashboard
+
+Impor selalu dari `@/components/shadcn` (bukan `@/components/ui`):
+
+```tsx
+// KPI — Card + CardHeader + CardTitle + CardDescription + CardContent
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
+
+<Card>
+  <CardHeader>
+    <CardTitle>Total Event</CardTitle>
+    <CardDescription>Seluruh periode</CardDescription>
+  </CardHeader>
+  <CardContent className="text-3xl font-bold text-[var(--wf-ink)]">128</CardContent>
+</Card>
+```
+
+```tsx
+// Navigasi tab — Tabs terkontrol; state tetap milik halaman
+import { Tabs, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
+
+<Tabs value={view} onValueChange={(next) => setView(next as ViewMode)}>
+  <TabsList>
+    <TabsTrigger value="calendar">Kalender</TabsTrigger>
+    <TabsTrigger value="list">Daftar</TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+
+```tsx
+// Daftar data — Table primitif + Badge untuk status
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import { Badge } from "@/components/shadcn/badge";
+
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Judul</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {events.map((event) => (
+      <TableRow key={event.id}>
+        <TableCell>{event.title}</TableCell>
+        <TableCell><Badge variant="secondary">{label}</Badge></TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+```
+
+```tsx
+// Modal — Dialog; DialogTitle wajib (boleh sr-only bila judul visual dirender sendiri)
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
+```
+
+```tsx
+// Form & filter — Input / Textarea / NativeSelect / Checkbox + Label
+import { Label } from "@/components/shadcn/label";
+import { NativeSelect } from "@/components/shadcn/native-select";
+
+<div>
+  <Label htmlFor="f-status" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Status</Label>
+  <NativeSelect id="f-status" value={status} onChange={(e) => setStatus(e.target.value)}>
+    <option value="">Semua</option>
+  </NativeSelect>
+</div>
+```
+
+```tsx
+// Loading — Skeleton, bukan div animate-pulse manual
+import { Skeleton } from "@/components/shadcn/skeleton";
+<Skeleton className="h-24 w-full" />
+```
+
+```tsx
+// Keadaan kosong — Empty; panel `ui-empty-panel` tetap pembungkus luar agar
+// garis/permukaan `--wf-*` tidak berubah. `Empty` sendiri tidak boleh
+// menggambar border/background baru: matikan dengan `border-0 bg-transparent`.
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/shadcn/empty";
+import { CalendarDays } from "lucide-react";
+
+<div className="ui-empty-panel" role="status" aria-live="polite">
+  <Empty className="border-0 bg-transparent py-16">
+    <EmptyMedia>
+      <CalendarDays className="h-10 w-10 opacity-60" aria-hidden="true" />
+    </EmptyMedia>
+    <EmptyHeader>
+      <EmptyTitle className="text-sm font-medium">Tidak ada acara ditemukan</EmptyTitle>
+      <EmptyDescription className="text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian.</EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+</div>
+```
+
+Aturan:
+
+- Kelas semantik shadcn (`bg-primary`, `text-muted-foreground`, dll.) otomatis resolve ke palet asli lewat `shadcn-theme.css`. Kelas utilitas existing `wf-*` tetap dipakai bila sudah menyatakan desain yang dimaksud.
+- Ikon selalu `lucide-react` dengan ukuran utility `size-*` (`size-4`, `size-3.5`), bukan `h-4 w-4`.
+- Tombol ikon: `Button variant="ghost" size="icon-sm"` + `aria-label` wajib.
+- `Select` Radix menolak `value=""`; bila opsi memuat nilai kosong (sentinel "Semua"), pakai `NativeSelect`.
+- Chip filter dengan keadaan terpilih memakai `Toggle` (`pressed` / `onPressedChange`), bukan `Button` + kelas manual.
+- **Tabel**: `<table>/<thead>/<tbody>/<tr>/<th>/<td>` di permukaan dashboard WAJIB primitif `Table`/`TableHeader`/`TableBody`/`TableRow`/`TableHead`/`TableCell`. `Table` sudah membawa `overflow-x-auto`, jadi jangan bungkus lagi dengan `<div className="overflow-x-auto">`. `TableHead`/`TableRow` membawa tinggi & hover default (`h-10`, `hover:bg-muted/50`); tulis `h-auto` / `hover:bg-transparent` saat `px-4 py-3` dan hover per-baris tetap diperlukan. `[&_tr]:border-b` dari `TableHeader` dimatikan dengan `[&_tr]:border-b-0` bila baris header sudah punya `border-b` sendiri. Status sel tetap `Badge` (`StatusBadge`, `DraftProgressBadge`, `PriorityBadge` sudah berbasis `Badge`).
+- **Keadaan kosong**: pakai `Empty` + `EmptyMedia`/`EmptyHeader`/`EmptyTitle`/`EmptyDescription`; panel `ui-empty-panel` tetap dipakai sebagai pembungkus bila elemen itu sudah memilikinya (jangan menambah lapisan border ganda). **`EmptyMedia` tanpa `variant="icon"`** — varian itu memasang `[&_svg:not([class*='size-'])]:size-4` yang mengalahkan `h-10 w-10` dan mengecilkan ikon 40px jadi 16px. Satu baris teks saja cukup `Empty` + `EmptyDescription` (`text-sm text-[var(--wf-ink-muted)]`); `EmptyHeader` hanya perlu bila ada judul + deskripsi.
+- **Kontrol form (seluruh app)**: `<input>` → `Input`, `<select>` → `NativeSelect` (atau `Select` bila tanpa opsi kosong), `<textarea>` → `Textarea`, `<button>` → `Button` dengan `variant`/`size`, `<label>` → `Label`. Cakupan penuh sejak **2026-11-11** (Andy: "intinya full migrasi, abaikan rules yang ada"): login dashboard, login modal, admin/`forms`/`modals`/`drafts`/`events`, survei tenant, survei event, formulir komunitas, formulir publik (`EventSubmissionPage`, `SponsorLandingPage`, `ExhibitionsLandingPage`, `TenantParticipationPage`, `TenantCollaborationPage`, `TenantDirectoryPage`), chrome publik (`nav/PublicSiteHeader`, `nav/NavDropdown`), galeri/lightbox (`media/PhotoLightbox`, `events/EventPhotoGallery`), `ui/Editable`, `ui/ErrorBoundary`, dan sepuluh halaman publik lain. Pembungkus kartu terpilih memakai `label` + `RadioGroupItem` shadcn (bukan radio mentah) agar cincin fokus dan keadaan terpilih berasal dari satu primitive.
+- **Override wajib saat mengonversi**: primitive membawa default yang menabrak layout asli (`Button` `h-8 px-2.5 rounded-lg active:translate-y-px focus-visible:ring-3`, `Input` `h-8 w-full px-2.5 md:text-sm dark:bg-input/30`, `Textarea` `field-sizing-content min-h-16`, `Label` `flex items-center text-sm font-medium leading-none`, `NativeSelect` menaruh `className` di pembungkus `w-fit`). Pertahankan kelas asli + tambahkan `h-auto`, `whitespace-normal`, `justify-start`, `active:translate-y-0`, `focus-visible:ring-0` (bila sudah ada `ui-focus-ring`), dan pasangan `hover:*`/`dark:hover:*` asli. Karena `cn` repo ini **tidak** mendedupe nilai arbitrary dan kelas token shadcn di-emit setelah kelas `--wf-*`, override yang kalah diberi sufiks `!` Tailwind v4 — preseden `dashboard/Card.tsx`, `AdminSidebar.tsx`, `TenantParticipationPage.tsx`.
+- **Teks di dalam `Button`**: guard `[&_svg:not([class*='size-'])]:size-4` memaksa ikon 16px, jadi setiap ikon di dalam tombol memakai kelas `size-*`. Kelas `h-N w-N` lama harus diganti, bukan ditambahkan.
+
+### Pengecualian native yang sah (setelah migrasi penuh 2026-11-11)
+
+Hanya empat kategori teknis ini yang tetap HTML native, masing-masing dengan alasan yang tidak bisa digantikan primitive:
+
+| Kategori | Contoh | Alasan |
+|---|---|---|
+| **`<input type="file">` tersembunyi** | `modals/*` (6 situs), `community/CommunityRegistrationForm:448`, `events/EventPhotoGallery:222/334`, `letters/LetterWorkspace:428`, `pages/TenantCollaborationPage:573` | Dipicu tombol lewat `ref`/`getElementById().click()` — bukan kontrol visual; `Input` membawa `w-full h-8` yang bertabrakan dengan `sr-only` di lapisan cascade |
+| **Anak elemen, bukan kontrol** | `<option>` di dalam `NativeSelect`, `<datalist>`/`<option>` pada saran input `forms/EventForm*` | Tidak ada primitive shadcn untuk datalist; `Combobox` menggantinya berarti mengubah perilaku |
+| **`survey/RatingSlider`** | 10 tombol `role="radio"` dengan roving tabindex + panah buatan (`handleKey`) | `RadioGroupItem` Radix menggantikan mesin keyboard itu dan menambah indikator titik — perubahan logika, bukan kosmetik |
+| **Permukaan dokumen** | iframe pratinjau PDF (`pdf/PdfPreviewStage`, `pdf/PdfExportOptionsModal`), kertas surat (`letters/LetterPaper`, `letters/SikPaper` — pasangan `dark:bg-[var(--wf-board)]`) | Isi pratinjau adalah halaman dokumen putih; kertas tidak punya kontrol sama sekali |
+
+**Utang struktur yang diketahui:** kartu Kanban (`views/KanbanView`) dan Timeline (`views/TimelineView`) kini `Button` yang membungkus tombol aksi di dalamnya. Bentuk sebelumnya (`<div role="button">` berisi tombol) juga melanggar aturan `nested-interactive`, jadi konversi ini netral untuk a11y dan tidak mengubah bubbling handler; perbaikan yang benar adalah pola *overlay* (kartu `relative` + `Button absolute inset-0` + tombol aksi di atasnya), yang mengubah struktur DOM dan harus dikerjakan bersama tes `views/__tests__`. Kasus serupa ada di `modals/EventAreaManagerModal` (Button memuat `<div>`/`<p>` — valid di React, bukan konten phrasing).
+
+### Migrasi penuh: permukaan netral tidak lagi putih mati (2026-11-11)
+
+Menutup migrasi, seluruh permukaan netral yang masih menulis `bg-white` / `bg-slate-*` secara literal diganti token yang flip sendiri — `bg-[var(--wf-board)]` (`/50`–`/95` untuk veil translusen). Konsekuensi disengaja dan terdokumentasi di aturan 6: di mode terang `#ffffff` menjadi warm board `#fdfcf6`; di mode gelap permukaan ikut gelap sehingga tinta `--wf-ink`/`--wf-ink-muted` tetap terbaca.
+
+| Bukti | Sebelum | Sesudah |
+|---|---|---|
+| Formulir survei tenant anonim `/tenant-survey/:id` (terukur dengan axe di Chromium, REST di-mock) | **39 node gagal kontras** di tema gelap (`#a9b4a5` di atas `#ffffff` = 2.15:1) | **0** di terang dan gelap |
+| `/` `·` `/daftar` `·` `/community` `·` `/docs` `·` `/events` `·` `/gallery` `·` `/partisipasi-tenant` (delapan rute gelap yang gagal di gate a11y repo) | 4–16 node gagal per rute | **0** per rute (terang & gelap) |
+| `/dashboard/events`, `/dashboard/drafts`, `/dashboard/calendar`, `/dashboard/content/surat` | — | axe seluruh aturan: **0 pelanggaran** di terang & gelap |
+| Input bertoken `dark:bg-white` di `TenantParticipationPage`/`TenantCollaborationPage`/`TenantDirectoryPage` | tinta `--wf-ink` (terang di tema gelap) di atas kotak putih = ~1.1:1 | `bg-[var(--wf-board)]`, tinta dan permukaan flip bersama |
+
+### Kontras & sticky: dua koreksi lapisan primitive (2026-11-11)
+
+Dua cacat yang hanya muncul di pengukuran browser nyata (bukan analisis statis), keduanya sudah diperbaiki di lapisan token/primitive:
+
+| Cacat | Bukti terukur | Perbaikan |
+|---|---|---|
+| Tombol `bg-primary` (varian default `Button`) gagal AA di tema terang | putih `#ffffff` di atas `#00918e` = **3.85:1** (butuh 4.5) di `/dashboard/events` & `/dashboard/drafts` | `shadcn-theme.css`: `--primary: var(--wf-accent)` + `--primary-foreground: var(--wf-accent-ink)` — pasangan accent dashboard (**5.85:1** terang, 7.88:1 gelap). Tema gelap memang sudah memakai pasangan itu |
+| Tab non-aktif gagal AA | `text-foreground/60` → `#6c736b` di atas `--muted #edeee2` = **4.16:1** | `tabs.tsx`: warna non-aktif → `text-muted-foreground` |
+| Kertas surat tak terbaca di tema gelap | permukaan flip ke `--wf-board` (`#16211b`) sementara tinta dipin `#0f172a` → **1.07:1** (19 node di `/dashboard/content/surat`) | `LetterPaper`/`SikPaper`: tambah `dark:text-[var(--wf-ink)]` — tinta dan permukaan kini flip bersama |
+| Header tabel tidak lagi menempel saat digulir | wrapper `Table` ber-`overflow-x-auto` memaksa `overflow-y: auto` → jadi scrollport terdekat; `sticky top-0` pada `<thead>` mati (offset header **−900px** setelah region digulir 900px) | `table.tsx`: wrapper `overflow-x-auto overflow-y-clip` — bukan scroll container di sumbu Y, sticky kembali merujuk scroller luar. Terukur: offset **0**, gulir horizontal & kolom Aksi sticky kanan tetap utuh |
+
+Hasil akhir: axe `color-contrast` di browser, 5 rute dashboard × terang/gelap = **0 pelanggaran**, dan `scrollWidth == innerWidth` pada 375 px untuk kelima rute.
+
+### Kolisi varian: `md:` dan `dark:` bawaan primitive
+
+`cn` yang dipakai primitive shadcn (`src/components/shadcn/*`) adalah paket **`cn`** (`"cn": "^0.5.2"` — compiler kelas ala tailwind-merge), sedangkan komponen aplikasi memakai `src/utils/cn.ts` (resolver prefix-based sendiri). Konsekuensinya: **kelas varian tidak saling menghapus**. Tiga pola yang sudah terbukti terukur:
+
+| Pola | Efek | Aturan |
+|---|---|---|
+| `text-[11px]` polos pada `Input` | `Input` membawa `md:text-sm` (varian berbeda) → di ≥768px ukuran melompat ke 14px | ukuran teks non-`sm` pada `Input` WAJIB dicerminkan: `text-[11px] md:text-[11px]` |
+| `bg-[var(--wf-board)]` polos pada `Input` | `dark:bg-input/30` bawaan bertahan → di tema gelap permukaannya tint input, bukan board. **Itu perilaku primitive dan sudah jadi mayoritas repo (19 situs), jadi jangan dicerminkan satu-off** | pakai permukaan gelap bawaan primitive; cermin `dark:` hanya bila satu permukaan memang harus beda, dan lakukan untuk seluruh kontrol di permukaan itu |
+| `data-active:` (varian salah) | inert — lihat koreksi `tabs.tsx` di atas | varian harus sama persis dengan atribut yang ditulis library |
+
+Selisih terukur pada baris filter Log Aktivitas (sebelum → sesudah patch): `font-size` 14px → **11px**, tinggi 30px → **26.5px**.
+
+### Status migrasi (2026-11-11)
+
+**Selesai.** Seluruh permukaan dashboard memakai primitive shadcn; yang tersisa hanyalah empat kategori pengecualian sah di atas.
+
+| Area | Status |
+|---|---|
+| Tabel | `events/EventTable`, `drafts/DraftQueueTable`, `drafts/DraftHistoryTable`, `survey/TenantSurveyList`, `community/CommunityRegistrationSection` → `Table` + primitive sel/baris. Sisa `<table>` mentah hanya di permukaan publik (`survey/TenantSurveyResultsPage`) dan sandbox (`pages/MotionLabPage`) |
+| Keadaan kosong | `Empty` + `EmptyMedia`/`EmptyHeader`/`EmptyTitle`/`EmptyDescription` di 8 komponen; panel `ui-empty-panel` dipertahankan sebagai pembungkus luar |
+| Kontrol form | `Input`/`Label`/`NativeSelect`/`Checkbox`/`Switch`/`Textarea` termasuk input **date** (dengan `dark:[color-scheme:dark]` dipertahankan) di `forms/*`, `modals/*`, `admin/*`, `pages/AdminLoginPage` |
+| Tab | `dashboard/ViewToggle`, `dashboard/DashboardCalendarView`, `survey/TenantSurveyPage`, `letters/LetterWorkspace` (pil SKE/SIK) → `Tabs`/`TabsList`/`TabsTrigger` |
+| Lapisan legacy Material Web | **Dihapus tuntas (2026-11-11)** — `src/components/md/**` (11 wrapper + `md-internals` + tes), `src/test/md-mocks.ts`, `src/test/md-setup.ts`, `src/styles/material-theme.css`, dan dependency `@material/web` sudah dibuang. Bukti sebelum penghapusan: nol impor `components/md` di luar folder itu, nol `<md-*>` di `src`, nol konsumen `var(--md-sys-color-*)`. Preload dialog `React.lazy` pindah ke `src/test/lazy-modal-setup.ts` (hanya `ConfirmDialog`) |
+
+**Koreksi primitive `tabs.tsx` (2026-11-11):** kelas state aktif semula memakai varian `data-active:` (11 tempat) — atribut itu **tidak pernah** ditulis Radix Tabs (yang menulis `data-state="active"`), sehingga seluruh gaya aktif inert dan tab aktif tampak identik dengan tab non-aktif (terukur: `bg` transparan + `color` sama 60% di `/dashboard/events`). Diganti ke `data-[state=active]:`. Konsekuensinya, konsumen yang punya kelas sendiri harus menang lewat varian yang setara — pil SKE/SIK memakai `data-[state=active]:` + `dark:data-[state=active]:` untuk `bg`/`text` agar pasangan token `--wf-accent` / `--wf-accent-ink` tetap utuh (terukur 5.85:1 terang, 7.88:1 gelap).
+
+### Riwayat (2026-11-10)
+
+Tabel dashboard sudah sepenuhnya memakai primitif `Table`: `events/EventTable`, `drafts/DraftQueueTable`, `drafts/DraftHistoryTable`, `survey/TenantSurveyList`, `survey/TenantSurveyResultsPage` (dua tabel), `community/CommunityRegistrationSection`. Keadaan kosong memakai `Empty` di `events/EventTable`, `views/KanbanView`, `views/TimelineView`, `views/DashboardViewsSection`, `views/CalendarView`, `dashboard/DashboardCalendarView`, `drafts/DraftQueueTable`, `drafts/DraftHistoryTable`. Kontrol login memakai `Button`/`Input`/`Label`. Sejak migrasi penuh 2026-11-11, satu-satunya `<table>` mentah yang tersisa berada di sandbox (`pages/MotionLabPage`).

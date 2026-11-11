@@ -20,6 +20,9 @@ import type { OrganizationType } from '../../types';
  */
 
 const THEME_CSS = readFileSync(resolve(__dirname, '../../styles/theme.css'), 'utf8');
+const WAYFINDING_CSS = readFileSync(resolve(__dirname, '../../styles/dashboard-wayfinding.css'), 'utf8');
+/** Blok terang = deklarasi sebelum `.dark {`; kontras badge dihitung di light mode. */
+const WAYFINDING_LIGHT = WAYFINDING_CSS.slice(0, WAYFINDING_CSS.indexOf('.dark'));
 const TOKENS_CSS = readFileSync(resolve(__dirname, '../../styles/tokens.css'), 'utf8');
 
 /** Ambil `--color-<name>: <hex>` dari theme.css (token brand & slate yang di-override). */
@@ -63,8 +66,23 @@ const TAILWIND_DEFAULTS: Record<string, string> = {
   'rose-700': '#c70036',
 };
 
+/** Token `--wf-*` (light) dari dashboard-wayfinding.css — hanya nilai hex yang bisa dihitung. */
+function wayfindingHex(name: string): string | undefined {
+  const m = WAYFINDING_LIGHT.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`));
+  return m?.[1]?.toLowerCase();
+}
+
 /** Resolve nama warna Tailwind (tanpa prefix) ke hex: token repo dulu, lalu default. */
 function colorHex(name: string): string {
+  const wf = name.match(/^\[var\(--([a-z0-9-]+)\)\]$/);
+  if (wf) {
+    const hex = wayfindingHex(wf[1]!);
+    if (hex) return hex;
+    throw new Error(
+      `Token "--${wf[1]}" tidak punya nilai hex di blok terang dashboard-wayfinding.css. ` +
+        'Kontras butuh nilai opak — jangan pakai token rgba untuk teks badge.',
+    );
+  }
   const fromTheme = tokenHex(name) ?? varRef(name);
   if (fromTheme) return fromTheme;
   const fromDefaults = TAILWIND_DEFAULTS[name];

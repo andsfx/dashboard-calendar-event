@@ -10,11 +10,11 @@ const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu
 
 export function InfoRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-[var(--brand-card)] p-3.5 transition hover:bg-slate-100 dark:bg-slate-700/40 dark:hover:bg-slate-700/60">
+    <div className="flex items-start gap-3 rounded-xl bg-[var(--wf-board)] p-3.5 transition hover:bg-[var(--wf-board-2)]">
       <div className="mt-0.5 shrink-0">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
-        <p className="mt-0.5 break-words text-sm font-medium leading-snug text-slate-800 dark:text-slate-100">{value}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">{label}</p>
+        <p className="mt-0.5 break-words text-sm font-medium leading-snug text-[var(--wf-ink)]">{value}</p>
       </div>
     </div>
   );
@@ -56,7 +56,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
     <div className="space-y-3">
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         <InfoRow
-          icon={<Calendar className="h-4 w-4 text-brand-primary-500" />}
+          icon={<Calendar className="h-4 w-4 text-[var(--wf-accent)]" />}
           label="Tanggal"
           value={isMultiDay ? formatDateRange(event.dateStr, event.dateEnd) : `${event.day}, ${event.tanggal}`}
         />
@@ -105,7 +105,7 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
         )}
         {!!isAdmin && event.eventModelNotes && (
           <InfoRow
-            icon={<Tag className="h-4 w-4 text-brand-primary-500" />}
+            icon={<Tag className="h-4 w-4 text-[var(--wf-accent)]" />}
             label="Keterangan Model Event"
             value={event.eventModelNotes}
           />
@@ -113,21 +113,21 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
       </div>
 
       {event.keterangan && (
-        <div className="rounded-xl border border-slate-100 bg-[var(--brand-card)] p-4 dark:border-slate-700 dark:bg-slate-700/40">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
+        <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
+          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-ink-muted)]">
             <Tag className="h-3 w-3" /> Keterangan
           </p>
-          <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{event.keterangan}</p>
+          <p className="text-sm text-[var(--wf-ink)] leading-relaxed">{event.keterangan}</p>
         </div>
       )}
 
       {/* Series info untuk recurring event */}
       {isRecurring && seriesEvents.length > 0 && (
-        <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
-          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
+        <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
+          <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
             <Repeat className="h-3 w-3" /> Series Reguler
           </p>
-          <p className="text-sm text-slate-700 dark:text-slate-200">
+          <p className="text-sm text-[var(--wf-ink)]">
             Bagian dari series reguler ({seriesEvents.length} event total)
           </p>
         </div>
@@ -135,8 +135,8 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
 
       {/* Jadwal per Hari untuk rangkaian acara */}
       {isMultiDay && event.dayTimeSlots && event.dayTimeSlots.length > 0 && (
-        <div className="rounded-xl border border-brand-primary-100 bg-brand-primary-50/40 p-4 dark:border-brand-primary-900/30 dark:bg-brand-primary-900/10">
-          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-brand-primary-600 dark:text-brand-primary-400">
+        <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-4">
+          <p className="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--wf-accent)]">
             <CalendarDays className="h-3 w-3" /> Jadwal per Hari
           </p>
           <div className="space-y-1.5">
@@ -148,16 +148,16 @@ export function EventDetailContent({ event, isAdmin = false, allEvents = [] }: E
               return (
                 <div
                   key={slot.date}
-                  className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm dark:bg-slate-800/60"
+                  className="flex items-center justify-between rounded-lg bg-[var(--wf-board-2)] px-3 py-2 text-sm"
                 >
-                  <span className="font-medium text-slate-700 dark:text-slate-200">
+                  <span className="font-medium text-[var(--wf-ink)]">
                     Hari {idx + 1}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">
+                    <span className="ml-1.5 text-xs font-normal text-[var(--wf-ink-muted)]">
                       {dayName}, {dayNum} {monthName}
                     </span>
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
-                    <Clock className="h-3 w-3 text-slate-500" />
+                  <span className="flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
+                    <Clock className="h-3 w-3 text-[var(--wf-ink-muted)]" />
                     {slot.jam || '-'}
                   </span>
                 </div>

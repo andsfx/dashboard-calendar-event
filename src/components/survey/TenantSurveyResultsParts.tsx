@@ -18,6 +18,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import type { EventItem } from '../../types';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
 import {
   EMPTY_FILTER,
   type ResultsFilter,
@@ -233,15 +235,16 @@ export function ResultsReadingGuide() {
       className="rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)]"
       aria-labelledby="results-guide-heading"
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={toggle}
-        className="ui-focus-ring flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left sm:px-4 sm:py-3"
+        className="ui-focus-ring flex! h-auto! w-full! items-center justify-start! gap-2.5 whitespace-normal! rounded-xl border-0! px-3 py-2.5 text-left! font-normal! hover:bg-transparent! dark:hover:bg-transparent! aria-expanded:bg-transparent! focus-visible:ring-0 active:translate-y-0! sm:px-4 sm:py-3"
         aria-expanded={open}
         aria-controls="results-guide-body"
       >
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-board)] text-[var(--wf-accent)]">
-          <BookOpen className="h-4 w-4" aria-hidden />
+          <BookOpen className="size-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
           <h2
@@ -255,10 +258,10 @@ export function ResultsReadingGuide() {
           </p>
         </div>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-[var(--wf-accent)] transition-colors ${open ? 'rotate-180' : ''}`}
+          className={`size-4 shrink-0 text-[var(--wf-accent)] transition-colors ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
-      </button>
+      </Button>
 
       {open ? (
         <div
@@ -456,10 +459,11 @@ export function EventFilterSearch({
 
   return (
     <div ref={containerRef} className="relative z-50 min-w-0">
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen((v) => !v)}
-        className={`${FIELD} flex items-center gap-2 text-left`}
+        className={`${FIELD} h-auto flex items-center gap-2 text-left`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Filter nama event"
@@ -482,7 +486,7 @@ export function EventFilterSearch({
           className={`h-4 w-4 shrink-0 text-[var(--wf-ink-muted)] transition-colors ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
-      </button>
+      </Button>
 
       {open && (
         <div
@@ -495,13 +499,13 @@ export function EventFilterSearch({
                 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]"
                 aria-hidden
               />
-              <input
+              <Input
                 ref={inputRef}
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama event…"
-                className="ui-focus-ring w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-2 pl-8 pr-2 text-xs text-[var(--wf-ink)]"
+                className="ui-focus-ring h-auto w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] py-2 pl-8 pr-2 text-xs text-[var(--wf-ink)]"
                 aria-label="Cari event"
               />
             </div>
@@ -510,12 +514,13 @@ export function EventFilterSearch({
             </p>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               role="option"
               aria-selected={value === 'all'}
               onClick={() => pick('all')}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors hover:bg-[var(--wf-board-2)] ${
+              className={`h-auto flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors hover:bg-[var(--wf-board-2)] ${
                 value === 'all'
                   ? 'bg-[var(--wf-accent-soft)] font-semibold text-[var(--wf-accent)]'
                   : 'text-[var(--wf-ink)]'
@@ -523,20 +528,21 @@ export function EventFilterSearch({
             >
               Semua event
               <span className="ml-auto text-[10px] font-normal text-[var(--wf-ink-muted)]">{options.length}</span>
-            </button>
+            </Button>
             {filtered.length === 0 ? (
               <p className="px-3 py-6 text-center text-[11px] text-[var(--wf-ink-muted)]">
                 Tidak ada event cocok “{query}”
               </p>
             ) : (
               filtered.map((o) => (
-                <button
+                <Button
                   key={o.id}
                   type="button"
+                  variant="ghost"
                   role="option"
                   aria-selected={value === o.id}
                   onClick={() => pick(o.id)}
-                  className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition-colors hover:bg-[var(--wf-board-2)] ${
+                  className={`h-auto flex w-full items-start gap-2 px-3 py-2.5 text-left transition-colors hover:bg-[var(--wf-board-2)] ${
                     value === o.id
                       ? 'bg-[var(--wf-accent-soft)]'
                       : ''
@@ -566,7 +572,7 @@ export function EventFilterSearch({
                   {value === o.id && (
                     <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--wf-accent)]" aria-hidden />
                   )}
-                </button>
+                </Button>
               ))
             )}
           </div>
@@ -623,10 +629,11 @@ export function EventShareRow({
           </div>
         </div>
         <div className="grid grid-cols-2 gap-1.5 sm:flex sm:shrink-0 sm:justify-end">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleCopy}
-            className="ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
+            className="ui-focus-ring h-auto inline-flex items-center justify-center gap-1 rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2.5 py-2 text-[11px] font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)]"
             title="Salin link form survey"
           >
             {copied ? (
@@ -635,11 +642,12 @@ export function EventShareRow({
               <Link2 className="h-3.5 w-3.5" aria-hidden />
             )}
             {copied ? 'Tersalin' : 'Salin link'}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => setShowQR((v) => !v)}
-            className={`ui-focus-ring inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition-colors ${
+            className={`ui-focus-ring h-auto inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition-colors ${
               showQR
                 ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                 : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
@@ -649,7 +657,7 @@ export function EventShareRow({
           >
             <QrCode className="h-3.5 w-3.5" aria-hidden />
             QR
-          </button>
+          </Button>
         </div>
       </div>
       {showQR && (

@@ -622,17 +622,18 @@ export const DOC_SECTIONS: DocSection[] = [
             name: 'Buat Surat',
             path: '/dashboard/content/surat',
             audience: 'Admin',
-            status: 'maintenance',
             summary:
-              'Sedang diperbaiki. Generator surat ditutup sementara karena dokumen yang dihasilkan belum konsisten untuk semua jenis event.',
+              'Workspace surat lokal-first: buka langsung siap isi, opsional isi dari event, terbitkan ke server, lalu bagikan tautan publik.',
             steps: [
-              'Buka Buat Surat dari grup Konten.',
-              'Halaman menampilkan status "Sedang Diperbaiki" beserta alasannya.',
-              'Untuk kebutuhan surat yang mendesak, hubungi tim administrasi mall secara langsung.',
+              'Buka Buat Surat dari grup Konten — workspace langsung terbuka pada pasangan SKE/SIK yang siap diisi.',
+              'Isi dari event (opsional): pilih event agar nomor, tanggal, dan data penerima terisi otomatis.',
+              'Klik "Terbitkan" untuk menulis surat ke server beserta snapshot PDF-nya.',
+              'Klik "Bagikan" untuk menyalin tautan publik surat yang sudah terbit.',
             ],
             notes: [
-              'Surat yang sudah pernah dibuat masih bisa dibuka lewat tautan publiknya.',
-              'Menu di rail menampilkan penanda agar tidak dikira rusak.',
+              'Riwayat surat tersimpan lokal di peramban; ada ekspor/impor backup JSON.',
+              'Nomor surat disarankan otomatis dan tetap bisa diubah manual.',
+              'Surat yang sudah terbit tetap bisa dibuka lewat tautan publiknya.',
             ],
           },
           {

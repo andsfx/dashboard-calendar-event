@@ -85,7 +85,7 @@ type CommunityEyebrowProps = {
 export function CommunityEyebrow({ children, className = 'text-[11px]', light = false }: CommunityEyebrowProps) {
   const tone = light
     ? 'text-white/80'
-    : 'text-brand-primary-700 dark:text-brand-primary-400';
+    : 'text-[var(--wf-accent)]';
   return (
     <p className={`${className} font-semibold uppercase tracking-[0.3em] ${tone}`}>
       {children}

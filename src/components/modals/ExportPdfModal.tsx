@@ -11,7 +11,9 @@ import { ExportScopePicker } from '../pdf/ExportScopePicker';
 import { useExportScope } from '../pdf/useExportScope';
 import { ALBUM_SECTION_OPTIONS } from '../pdf/pdfSectionOptions';
 import { ModalWrapper } from './ModalWrapper';
-import { MdButton, MdIconButton, MdSelect } from '../md';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
 
 interface Props {
   isOpen: boolean;
@@ -159,64 +161,70 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
       {preview ? (
         <PdfPreviewStage result={preview} onBack={handleBackToFilter} onClose={onClose} />
       ) : (
-      <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-[var(--radius-card-lg)] bg-[var(--brand-card-light)] text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white">
-        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+ <div className="flex max-h-[90vh] flex-col overflow-hidden rounded-[var(--radius-card-lg)] bg-[var(--wf-board)] text-[var(--wf-ink)] shadow-2xl">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--wf-rule)] px-6 py-5">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-primary-700 dark:text-brand-primary-300">Laporan PDF</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--wf-accent)]">Laporan PDF</p>
             <h2 id="export-pdf-title" className="mt-1 text-2xl font-bold tracking-tight">Export Album Foto</h2>
-            <p className="mt-1 text-sm ui-text-muted">Generate report landscape berdasarkan tanggal atau tema event.</p>
+            <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">Generate report landscape berdasarkan tanggal atau tema event.</p>
           </div>
-          <MdIconButton
-            ariaLabel="Tutup modal"
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Tutup modal"
             onClick={onClose}
             className="shrink-0"
           >
             <X className="h-5 w-5" />
-          </MdIconButton>
+          </Button>
         </div>
 
         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
           <div className="grid gap-3 sm:grid-cols-2">
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setMode('date')}
-              className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'date' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+ className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'date' ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] ' : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:border-[var(--wf-rule-strong)]'}`}
             >
               <CalendarDays className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tanggal</div>
               <div className="mt-1 text-xs opacity-75">Pilih range tanggal event.</div>
-            </MdButton>
-            <MdButton
-              variant="outlined"
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setMode('theme')}
-              className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'theme' ? 'border-brand-primary-500 bg-brand-primary-50 text-brand-primary-950 dark:bg-brand-primary-500/15 dark:text-brand-primary-100' : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300'}`}
+ className={`rounded-[var(--radius-card)] border p-4 text-left transition ${mode === 'theme' ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] ' : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:border-[var(--wf-rule-strong)]'}`}
             >
               <Palette className="h-5 w-5" />
               <div className="mt-3 font-semibold">Berdasarkan Tema</div>
               <div className="mt-1 text-xs opacity-75">Export satu tema event.</div>
-            </MdButton>
+            </Button>
           </div>
 
           {mode === 'theme' && (
-            <label className="block">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Tema event</span>
+            <Label className="block">
+              <span className="text-sm font-medium text-[var(--wf-ink-muted)]">Tema event</span>
               <div className="mt-2">
-                <MdSelect
+                <NativeSelect
                   value={themeId}
-                  onChange={setThemeId}
-                  ariaLabel="Tema event"
-                  options={[
-                    { value: '', label: 'Pilih tema' },
-                    ...themes.map(theme => ({ value: theme.id, label: theme.name })),
-                  ]}
+                  onChange={(e) => setThemeId(e.target.value)}
+                  aria-label="Tema event"
                   className="w-full"
-                />
+                >
+                  <NativeSelectOption value="">Pilih tema</NativeSelectOption>
+                  {themes.map(theme => (
+                    <NativeSelectOption key={theme.id} value={theme.id}>{theme.name}</NativeSelectOption>
+                  ))}
+                </NativeSelect>
               </div>
-            </label>
+            </Label>
           )}
 
           {mode === 'theme' && !themeId ? (
-            <p className="rounded-[var(--wf-radius-board)] border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
+            <p className="rounded-[var(--wf-radius-board)] border border-dashed border-[var(--wf-rule)] px-4 py-6 text-center text-sm text-[var(--wf-ink-muted)] ">
               Pilih tema dulu untuk melihat album yang tersedia.
             </p>
           ) : (
@@ -232,34 +240,36 @@ export function ExportPdfModal({ isOpen, onClose, albums, themes }: Props) {
             />
           )}
 
-          <div className="rounded-[var(--radius-card)] border border-slate-200 bg-[var(--brand-card)] p-4 dark:border-slate-800 dark:bg-slate-950">
+ <div className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] bg-[var(--wf-board)] p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-500/15 dark:text-brand-primary-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
                 <div className="font-semibold">{filteredAlbums.length} album siap diexport</div>
-                <div className="text-sm ui-text-muted">Format: Laporan PDF landscape A4.</div>
+                <div className="text-sm text-[var(--wf-ink-muted)]">Format: Laporan PDF landscape A4.</div>
               </div>
             </div>
             {errorMessage ? <p className="mt-3 text-sm text-red-600 dark:text-red-400">{errorMessage}</p> : null}
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800">
-          <MdButton
-            variant="text"
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-[var(--wf-rule)] px-6 py-5 sm:flex-row sm:justify-end ">
+          <Button
+            type="button"
+            variant="ghost"
             onClick={onClose}
           >
             Batal
-          </MdButton>
-          <MdButton
+          </Button>
+          <Button
+            type="button"
             onClick={() => setIsSectionPickerOpen(true)}
             disabled={!canGenerate}
           >
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
             {isGenerating ? (progressText || 'Membuat PDF…') : 'Preview PDF'}
-          </MdButton>
+          </Button>
         </div>
       </div>
       )}

@@ -1,17 +1,6 @@
 import * as React from 'react';
 
-/**
- * `md-dialog` dimuat malas dan baru dipasang setelah modal pertama kali dibuka.
- *
- * Alasan: `ModalWrapper` juga dipakai komponen yang tampil di halaman PUBLIK
- * (mis. `CalendarView` di `/events`). Impor statis `MdDialog` akan menyeret
- * Material Web + Lit ke initial load halaman publik, padahal scope migrasi
- * hanya dashboard admin. Dengan pemasangan malas, MD3 baru diunduh saat
- * pengguna benar-benar membuka sebuah modal.
- */
-const MdDialog = React.lazy(() =>
-  import('../md/MdDialog').then(m => ({ default: m.MdDialog })),
-);
+import { Dialog, DialogContent, DialogTitle } from '../shadcn/dialog';
 
 interface Props {
   isOpen: boolean;
@@ -27,9 +16,10 @@ interface Props {
 /**
  * Lebar eksplisit per kelas `max-w-*` yang dipakai pemanggil.
  *
- * md-dialog shrink-wrap (`width: fit-content`), jadi `w-full` + `max-w-*` saja
- * tidak menghasilkan lebar yang pasti — lebar harus diberikan eksplisit.
- * Nilai di bawah identik dengan skala `max-w-*` Tailwind.
+ * shadcn `DialogContent` sudah `w-full` + `max-w`, tapi tetap diberikan lebar
+ * eksplisit (sama seperti implementasi md-dialog sebelumnya) supaya perilaku
+ * antar pemanggil identik: nilai di bawah sama dengan skala `max-w-*` Tailwind.
+ * Ini juga menetralkan `sm:max-w-sm` bawaan DialogContent.
  */
 const WIDTHS: Record<string, string> = {
   'max-w-sm': '24rem',
@@ -46,11 +36,18 @@ const WIDTHS: Record<string, string> = {
 /**
  * Container modal admin.
  *
- * Sebelumnya file ini memegang orkestrasi manual (stack modal `openModalStack`,
- * focus trap, scroll lock, timer animasi keluar). Semuanya kini disediakan
- * native oleh `<dialog>` + `showModal()` lewat `md-dialog` — termasuk semantik
- * Escape untuk dialog bersarang (hanya dialog teratas yang menerima Escape).
- * Props publik dipertahankan agar 13 pemanggil tidak perlu diubah.
+ * Migrasi dari `md-dialog` (Material Web) ke shadcn `Dialog` (Radix). Semua
+ * perilaku berat — focus trap, scroll lock, Escape untuk dialog bersarang
+ * (hanya dialog teratas yang menerima Escape), penutupan sekali — disediakan
+ * Radix lewat `DismissableLayer`/`FocusScope`, menggantikan `<dialog>`
+ * native + `showModal()` yang dulu dipakai md-dialog.
+ *
+ * `hasOpened` tetap dipertahankan: sekali modal dibuka, `Dialog` tetap
+ * terpasang supaya animasi keluar Radix ({@link https://www.radix-ui.com
+ * data-closed:*}) berjalan penuh. Tanpa persisten, pemanggil yang me-unmount
+ * modal saat `isOpen=false` akan memotong animasi keluar. Props publik tidak
+ * berubah sehingga semua pemanggil (13 modals + TenantParticipationOptionsModal
+ * + UserEditModal) tidak perlu diubah.
  */
 export function ModalWrapper({
   isOpen,
@@ -62,9 +59,6 @@ export function ModalWrapper({
   ariaLabel = 'Dialog',
 }: Props) {
   const width = WIDTHS[maxWidth];
-  // Sekali modal pernah dibuka, `MdDialog` tetap terpasang supaya animasi
-  // keluar dan event `closed` milik md tetap berjalan (seperti modal persisten
-  // pada implementasi lama yang hanya menyembunyikan panel, bukan meng-unmount).
   const [hasOpened, setHasOpened] = React.useState(isOpen);
   React.useEffect(() => {
     if (isOpen) setHasOpened(true);
@@ -73,15 +67,16 @@ export function ModalWrapper({
   if (!hasOpened) return null;
 
   return (
-    <React.Suspense fallback={null}>
-      <MdDialog open={isOpen} onClose={onClose} labelledBy={ariaLabelledBy} ariaLabel={ariaLabel}>
-        <div
-          className={`md-dialog-content w-full ${maxWidth} ${className}`}
-          style={width ? { width: `min(${width}, calc(100vw - 2rem))`, maxWidth: '100%' } : undefined}
-        >
-          {children}
-        </div>
-      </MdDialog>
-    </React.Suspense>
+    <Dialog open={isOpen} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent
+        showCloseButton={false}
+        aria-labelledby={ariaLabelledBy}
+        className={`w-full bg-transparent p-0 ring-0 shadow-none outline-none ${maxWidth} sm:${maxWidth} ${className}`}
+        style={width ? { width: `min(${width}, calc(100vw - 2rem))`, maxWidth: '100%' } : undefined}
+      >
+        {!ariaLabelledBy && <DialogTitle className="sr-only">{ariaLabel}</DialogTitle>}
+        {children}
+      </DialogContent>
+    </Dialog>
   );
 }

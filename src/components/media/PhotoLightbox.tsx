@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { lightboxUrl } from '../../utils/imageOptim';
+import { Button } from '../shadcn/button';
 import { useBackgroundInert } from './overlayLayer';
 
 /** Shape minimal foto lightbox — struktural cocok untuk EventPhoto & AreaPhoto. */
@@ -96,32 +97,35 @@ export function PhotoLightbox({ photos, currentIndex, onClose, onPrev, onNext, h
       aria-label={hideCaption ? `Foto: ${title || photo.caption}` : `Foto: ${photo.caption}`}
     >
       {/* Close button */}
-      <button
+      <Button
+        variant="ghost"
         data-lightbox-close
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute right-4 top-4 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/20"
+        className="absolute right-4 top-4 h-auto! rounded-full border-0 bg-white/10 p-2.5 text-white transition hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:translate-y-0! focus-visible:border-transparent"
         aria-label="Tutup lightbox"
       >
-        <X className="h-6 w-6" />
-      </button>
+        <X className="size-6" />
+      </Button>
 
       {/* Prev / Next — min 44x44 touch target */}
       {photos.length > 1 && (
         <>
-          <button
+          <Button
+            variant="ghost"
             onClick={(e) => { e.stopPropagation(); onPrev(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white transition hover:bg-white/20"
+            className="absolute left-4 top-1/2 h-auto! -translate-y-1/2 rounded-full border-0 bg-white/10 p-4! text-white transition hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:-translate-y-1/2! focus-visible:border-transparent"
             aria-label="Foto sebelumnya"
           >
-            <ChevronDown className="h-6 w-6 rotate-90" />
-          </button>
-          <button
+            <ChevronDown className="size-6 rotate-90" />
+          </Button>
+          <Button
+            variant="ghost"
             onClick={(e) => { e.stopPropagation(); onNext(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white transition hover:bg-white/20"
+            className="absolute right-4 top-1/2 h-auto! -translate-y-1/2 rounded-full border-0 bg-white/10 p-4! text-white transition hover:bg-white/20 hover:text-white dark:hover:bg-white/20 active:-translate-y-1/2! focus-visible:border-transparent"
             aria-label="Foto berikutnya"
           >
-            <ChevronDown className="h-6 w-6 -rotate-90" />
-          </button>
+            <ChevronDown className="size-6 -rotate-90" />
+          </Button>
         </>
       )}
 

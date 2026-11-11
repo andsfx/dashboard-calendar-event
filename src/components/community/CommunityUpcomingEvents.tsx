@@ -6,19 +6,20 @@ import { CATEGORY_COLORS } from '../../utils/eventUtils';
 import { parseTimeRange } from '../../utils/eventDateTime';
 import { resolveEventPoster } from '../../utils/eventPoster';
 import { EventPosterBanner } from '../events/EventPosterBanner';
+import { Button } from '../shadcn/button';
 import { RevealSection } from './CommunityRevealPrimitives';
 
 function EmptyEvents() {
   return (
-    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 py-16 text-center dark:border-slate-700 dark:bg-slate-800/30">
+    <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--wf-rule)] bg-[var(--wf-board)]/60 py-16 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[color-mix(in_srgb,var(--brand-tosca)_10%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_20%,black)]">
         <CalendarDays className="h-8 w-8 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
       </div>
-      <p className="mt-4 text-base font-semibold text-slate-700 dark:text-slate-200">Belum ada event mendatang</p>
-      <p className="mt-2 max-w-xs text-sm text-slate-600 dark:text-slate-300">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
+      <p className="mt-4 text-base font-semibold text-[var(--wf-ink-muted)]">Belum ada event mendatang</p>
+      <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">Event baru akan segera hadir. Pantau terus halaman ini atau hubungi kami untuk info terkini.</p>
       <a
         href="#contact"
-        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-tosca-dark)]"
+        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] transition-colors hover:bg-[var(--wf-page)]"
       >
         Hubungi Kami <ArrowRight className="h-4 w-4" />
       </a>
@@ -73,23 +74,23 @@ interface Props {
 
 function UpcomingEventsSkeleton() {
   return (
-    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+        <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
           Agenda event
         </h2>
-        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100 dark:border-slate-700 dark:bg-slate-800" aria-hidden="true">
+        <div className="mt-8 overflow-hidden rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100  " aria-hidden="true">
           <div className="p-6 sm:p-10 lg:p-12">
-            <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
-            <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
-            <span className="mt-4 block h-10 w-1/2 animate-pulse rounded-lg bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
-            <span className="mt-8 block h-4 w-full animate-pulse rounded bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
-            <span className="mt-3 block h-4 w-5/6 animate-pulse rounded bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
+            <span className="inline-block h-6 w-36 animate-pulse rounded-full bg-[var(--wf-rule)] motion-reduce:animate-none" />
+            <span className="mt-6 block h-10 w-3/4 animate-pulse rounded-lg bg-[var(--wf-rule)] motion-reduce:animate-none" />
+            <span className="mt-4 block h-10 w-1/2 animate-pulse rounded-lg bg-[var(--wf-rule)] motion-reduce:animate-none" />
+            <span className="mt-8 block h-4 w-full animate-pulse rounded bg-[var(--wf-rule)] motion-reduce:animate-none" />
+            <span className="mt-3 block h-4 w-5/6 animate-pulse rounded bg-[var(--wf-rule)] motion-reduce:animate-none" />
           </div>
-          <div className="border-t border-black/5 bg-white/50 p-6 sm:p-10 dark:border-slate-700 dark:bg-slate-800/50">
+          <div className="border-t border-black/5 bg-[var(--wf-board)]/50 p-6 sm:p-10  ">
             <div className="grid max-w-md grid-cols-3 gap-3">
               {[0, 1, 2].map(i => (
-                <span key={i} className="h-20 animate-pulse rounded-2xl bg-slate-200 motion-reduce:animate-none dark:bg-slate-700" />
+                <span key={i} className="h-20 animate-pulse rounded-2xl bg-[var(--wf-rule)] motion-reduce:animate-none" />
               ))}
             </div>
           </div>
@@ -113,9 +114,9 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   }
   if (!mainEvent) {
     return (
-      <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+      <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Agenda event
           </h2>
           <EmptyEvents />
@@ -137,17 +138,18 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
   const promoImageUrl = resolveEventPoster(mainEvent, albums);
 
   return (
-    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="upcoming-events" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className={`grid gap-6 lg:items-stretch ${promoImageUrl ? 'lg:grid-cols-[1.15fr_0.85fr]' : 'lg:grid-cols-1'}`}>
           {/* ── Main event card ── */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => onDetail?.(mainEvent)}
-            className="group text-left rounded-[var(--radius-campaign-card)] border border-[var(--border-subtle)] bg-neutral-100 shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] dark:border-slate-700 dark:bg-slate-800 lg:flex lg:flex-col lg:justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+            className="group flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-[var(--radius-campaign-card)]! border border-[var(--border-subtle)]! bg-neutral-100 p-0! text-left! whitespace-normal! font-normal! shadow-[0_12px_32px_rgba(22,33,27,0.04)] transition-shadow! hover:bg-neutral-100! dark:hover:bg-neutral-100! hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] lg:justify-between focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
           >
             <div className="p-6 sm:p-10 lg:p-12">
-              <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
+              <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--wf-ink)]" style={{ borderColor: `${catColor}40`, backgroundColor: `${catColor}10` }}>
                 {showOngoing && (
                   <span className="relative flex h-2 w-2 items-center justify-center">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:hidden" style={{ backgroundColor: catColor }}></span>
@@ -156,32 +158,32 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                 )}
                 {showOngoing ? 'Sedang Berlangsung' : 'Event Berikutnya'}
               </span>
-              <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+              <h2 className="mt-6 text-4xl font-bold leading-[1.15] tracking-tight text-[var(--wf-ink)] sm:text-5xl">
                 {mainEvent.acara}
               </h2>
-              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                  <CalendarDays className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.tanggal}
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-[var(--wf-ink-muted)]">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)]/70 px-4 py-2">
+                  <CalendarDays className="size-4" style={{ color: catColor }} /> {mainEvent.tanggal}
                 </span>
                 {mainEvent.jam && (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                    <Clock className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.jam}
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)]/70 px-4 py-2">
+                    <Clock className="size-4" style={{ color: catColor }} /> {mainEvent.jam}
                   </span>
                 )}
                 {mainEvent.lokasi && (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 dark:border-slate-600 dark:bg-slate-700/50">
-                    <MapPin className="h-4 w-4" style={{ color: catColor }} /> {mainEvent.lokasi}
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board)]/70 px-4 py-2">
+                    <MapPin className="size-4" style={{ color: catColor }} /> {mainEvent.lokasi}
                   </span>
                 )}
               </div>
               {mainEvent.keterangan && (
-                <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 line-clamp-3">
+                <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--wf-ink-muted)] line-clamp-3">
                   {mainEvent.keterangan}
                 </p>
               )}
             </div>
 
-            <div className="border-t border-black/5 bg-white/50 p-6 sm:p-10 dark:border-slate-700 dark:bg-slate-800/50 lg:rounded-b-[var(--radius-campaign-card)]">
+            <div className="border-t border-black/5 bg-[var(--wf-board)]/50 p-6 sm:p-10   lg:rounded-b-[var(--radius-campaign-card)]">
               {showCountdown && countdown ? (
                 <>
                   <p className="mb-3 text-xs font-bold tracking-wide text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">Countdown menuju event</p>
@@ -198,16 +200,16 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
                   </p>
                 </div>
               )}
-              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition-colors group-hover:bg-[var(--brand-tosca-dark)]">
-                Lihat Detail Event <ArrowRight className="h-4 w-4" />
+              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold text-[var(--wf-accent-ink)] transition-colors group-hover:bg-[var(--wf-page)]">
+                Lihat Detail Event <ArrowRight className="size-4" />
               </span>
             </div>
-          </button>
+          </Button>
 
           {/* Right: promo poster — hidden when no poster/flyer */}
           {promoImageUrl && (
             <div className="flex items-end justify-center mt-4 lg:mt-0 lg:justify-end">
-              <div className="w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-slate-100 shadow-[0_12px_32px_rgba(22,33,27,0.08)] dark:border-slate-700 dark:bg-slate-800">
+              <div className="w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-[var(--wf-board-2)] shadow-[0_12px_32px_rgba(22,33,27,0.08)]">
                 <img
                   src={promoImageUrl}
                   alt={`Promo ${mainEvent.acara}`}
@@ -226,34 +228,35 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
             const color = CATEGORY_COLORS[evCat] ?? CATEGORY_COLORS.Umum;
             const evPoster = resolveEventPoster(ev, albums);
             return (
-              <button
+              <Button
                 key={ev.id}
                 type="button"
+                variant="ghost"
                 onClick={() => onDetail?.(ev)}
-                className="group flex flex-col items-start overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--border-subtle)] bg-white text-left shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] dark:border-slate-700 dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+                className="group flex! flex-col! items-start! justify-start! h-auto! w-full! gap-0! overflow-hidden rounded-[var(--radius-card-lg)]! border border-[var(--border-subtle)]! bg-[var(--wf-board)] p-0! text-left! whitespace-normal! font-normal! shadow-[0_4px_12px_rgba(22,33,27,0.02)] transition-shadow! hover:bg-[var(--wf-board)]! dark:hover:bg-[var(--wf-board)]! hover:shadow-[0_8px_24px_rgba(22,33,27,0.06)] focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 focus-visible:border-[var(--border-subtle)]! active:translate-y-0!"
               >
                 {evPoster && <EventPosterBanner src={evPoster} alt={ev.acara} />}
                 <div className="flex flex-col items-start gap-4 p-5">
                 <div className="flex w-full items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200" style={{ backgroundColor: `${color}15` }}>
-                    <CalendarDays className="h-3 w-3" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--wf-ink)]" style={{ backgroundColor: `${color}15` }}>
+                    <CalendarDays className="size-3" />
                     {ev.tanggal}
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300" />
+                  <ArrowRight className="size-4 text-[var(--wf-ink-muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--wf-ink-muted)]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white line-clamp-2">
+                  <h3 className="text-lg font-bold leading-tight text-[var(--wf-ink)] line-clamp-2">
                     {ev.acara}
                   </h3>
                   {(ev.jam || ev.lokasi) && (
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-600 dark:text-slate-300">
-                      {ev.jam && <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {ev.jam}</span>}
-                      {ev.lokasi && <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> <span className="line-clamp-1">{ev.lokasi}</span></span>}
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-[var(--wf-ink-muted)]">
+                      {ev.jam && <span className="flex items-center gap-1.5"><Clock className="size-3" /> {ev.jam}</span>}
+                      {ev.lokasi && <span className="flex items-center gap-1.5"><MapPin className="size-3" /> <span className="line-clamp-1">{ev.lokasi}</span></span>}
                     </div>
                   )}
                 </div>
                 </div>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -262,7 +265,7 @@ export function CommunityUpcomingEvents({ events, albums, onDetail, isLoading = 
         <div className="mt-8 flex justify-center">
           <Link
             to="/events"
-            className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950`}
+            className={`inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] px-6 py-3 text-sm font-semibold text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2`}
           >
             Lihat Semua Event
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

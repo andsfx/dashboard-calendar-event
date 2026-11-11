@@ -2,11 +2,12 @@ import { apiGet, apiPost, ApiError, rewrapApiError } from '../../lib/rest';
 import { adminAction } from './_shared';
 import type {
   CommunityRegistration, TenantEventSurvey, TenantSurveyFormData,
-  LetterRequestItem, GeneratedLetter,
+  LetterDocument, GeneratedLetter, LetterDocType,
   TenantSurveyAnalytics, TenantSurveyEventAnalytics,
   TenantSurveyMonthlyTrend, TenantSurveyEventSummary,
   CommunityDirectoryOrganization, OrganizationType,
 } from '../../types';
+import { normalizeLetterData, readDocType } from '../../lib/letterDocType';
 
 // ─── Community Registrations ────────────────────────────────────
 
@@ -150,36 +151,47 @@ export async function submitCommunityRegistration(data: {
   }
 }
 
-// ─── Generated Letters ──────────────────────────────────────────
 // REST: adminAction 'listLetters' | 'createLetter' | 'updateLetter' | 'deleteLetter'
-// (di server: admin.js switch + ACTION_SCHEMAS). Mapper dbGeneratedLetterToGeneratedLetter
-// tetap dipakai.
+// (server: admin.js switch + ACTION_SCHEMAS). Satu event = dua baris (SKE/SIK),
+// dibedakan oleh `letter_data.docType` — tanpa kolom/DDL baru.
 
 interface DbGeneratedLetter {
-  id: string; event_id?: string; draft_event_id?: string; letter_data: LetterRequestItem;
+  id: string; event_id?: string; draft_event_id?: string; letter_data: LetterDocument;
   pdf_url?: string; pdf_base64?: string; created_at: string; created_by?: string;
   status: 'active' | 'archived' | 'deleted';
 }
 
 function dbGeneratedLetterToGeneratedLetter(row: DbGeneratedLetter): GeneratedLetter {
+  const letterData = normalizeLetterData(row.letter_data);
   return {
     id: row.id, eventId: row.event_id || undefined, draftEventId: row.draft_event_id || undefined,
-    letterData: row.letter_data, pdfUrl: row.pdf_url || undefined, pdfBase64: row.pdf_base64 || undefined,
+    docType: readDocType(letterData),
+    letterData,
+    pdfUrl: row.pdf_url || undefined, pdfBase64: row.pdf_base64 || undefined,
     createdAt: row.created_at, createdBy: row.created_by || undefined, status: row.status,
   };
 }
 
-export async function fetchGeneratedLetters(eventId?: string, draftEventId?: string): Promise<GeneratedLetter[]> {
+export async function fetchGeneratedLetters(
+  eventId?: string,
+  draftEventId?: string,
+  options?: { includeArchived?: boolean; docType?: LetterDocType },
+): Promise<GeneratedLetter[]> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown[] }>(
     'listLetters',
-    { eventId, draftEventId },
+    {
+      eventId,
+      draftEventId,
+      includeArchived: options?.includeArchived,
+      docType: options?.docType,
+    },
   );
   if (!result.success) throw new ApiError(result.error || 'Gagal memuat surat');
   return (result.data || []).map(row => dbGeneratedLetterToGeneratedLetter(row as DbGeneratedLetter));
 }
 
 export async function createGeneratedLetter(params: {
-  eventId?: string; draftEventId?: string; letterData: LetterRequestItem;
+  eventId?: string; draftEventId?: string; letterData: LetterDocument;
   pdfBase64?: string; pdfUrl?: string; createdBy?: string;
 }): Promise<GeneratedLetter> {
   const result = await adminAction<{ success: boolean; error?: string; data?: unknown }>('createLetter', {

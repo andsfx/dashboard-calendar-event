@@ -14,7 +14,8 @@ import type {
 } from '../../types';
 import { Card } from './Card';
 import { InsightAiSummary } from './InsightAiSummary';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Badge } from '../shadcn/badge';
 import { buildEventInsights } from '../../utils/eventInsights';
 
 /** Kunci localStorage untuk insight yang disembunyikan pengguna. */
@@ -161,10 +162,10 @@ export function EventInsightsPanel({
       subtitle={`Analisis otomatis dari data event${crossModuleCount > 0 ? ' & modul lain' : ''} · diperbarui ${generatedLabel}`}
       actions={
         visible.length > 0 ? (
-          <MdButton variant="text" onClick={copySummary}>
+          <Button type="button" variant="ghost" size="sm" onClick={copySummary}>
             <Copy className="h-3.5 w-3.5" aria-hidden />
             Salin ringkasan
-          </MdButton>
+          </Button>
         ) : null
       }
     >
@@ -176,10 +177,10 @@ export function EventInsightsPanel({
               : 'Belum ada insight — data event belum cukup untuk menarik kesimpulan.'}
           </p>
           {dismissed.length > 0 ? (
-            <MdButton variant="text" onClick={restoreAll}>
+            <Button type="button" variant="ghost" size="sm" onClick={restoreAll}>
               <RotateCcw className="h-3.5 w-3.5" aria-hidden />
               Tampilkan {dismissed.length} yang disembunyikan
-            </MdButton>
+            </Button>
           ) : null}
         </div>
       ) : (
@@ -191,22 +192,24 @@ export function EventInsightsPanel({
                 const active = severityFilter === option.value;
                 const total = option.value === 'Semua' ? visible.length : counts[option.value];
                 return (
-                  <MdButton
+                  <Button
                     key={option.value}
-                    variant={active ? 'filled' : 'outlined'}
-                    ariaPressed={active}
+                    type="button"
+                    variant={active ? 'default' : 'outline'}
+                    size="sm"
+                    aria-pressed={active}
                     onClick={() => setSeverityFilter(option.value)}
                   >
                     {option.label} ({total})
-                  </MdButton>
+                  </Button>
                 );
               })}
             </div>
             {dismissed.length > 0 ? (
-              <MdButton variant="text" className="ml-auto" onClick={restoreAll}>
+              <Button type="button" variant="ghost" size="sm" className="ml-auto" onClick={restoreAll}>
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 Tampilkan {dismissed.length} yang disembunyikan
-              </MdButton>
+              </Button>
             ) : null}
           </div>
 
@@ -228,11 +231,9 @@ export function EventInsightsPanel({
                     <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${meta.tone}`} aria-hidden />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${meta.chip}`}
-                        >
+                        <Badge variant="outline" className={`rounded-full font-semibold uppercase tracking-wide ${meta.chip}`}>
                           {meta.label}
-                        </span>
+                        </Badge>
                         <h3 className="text-sm font-semibold text-[var(--wf-ink)]">{insight.title}</h3>
                         {insight.metric ? (
                           <span className="ml-auto font-display text-sm font-semibold tabular-nums text-[var(--wf-ink)]">
@@ -247,18 +248,20 @@ export function EventInsightsPanel({
                       {actions.length > 0 || onAction ? (
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           {actions.map((action) => (
-                            <MdButton
+                            <Button
                               key={`${insight.id}-${action.path}-${action.label}`}
-                              variant="outlined"
+                              type="button"
+                              variant="outline"
+                              size="sm"
                               onClick={() => onAction?.(action)}
                             >
                               {action.label}
-                            </MdButton>
+                            </Button>
                           ))}
-                          <MdButton variant="text" className="ml-auto" onClick={() => dismiss(insight.id)}>
+                          <Button type="button" variant="ghost" size="sm" className="ml-auto" onClick={() => dismiss(insight.id)}>
                             <EyeOff className="h-3.5 w-3.5" aria-hidden />
                             Sembunyikan
-                          </MdButton>
+                          </Button>
                         </div>
                       ) : null}
                     </div>

@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { AnnualTheme, CommunityRegistration, DraftEventItem, ExhibitionLead, TenantEventProposal, TenantParticipation } from '../../types';
 import type { Permissions } from '../../hooks/usePermission';
 import { getCommandCenterCards } from './dashboardNavigation';
+import { Button } from '../shadcn/button';
 
 interface CommandCenterSummaryProps {
   activeDrafts: DraftEventItem[];
@@ -69,24 +70,31 @@ export const CommandCenterSummary = memo(function CommandCenterSummary({
       {queues.length > 0 ? (
         <div className="wf-register">
           {queues.map(card => (
-            <Link key={card.id} to={card.route} className="wf-row wf-row--queue">
-              <span className="wf-row__icon" aria-hidden>
-                {card.icon}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-[var(--wf-ink)]">{card.title}</span>
-                <span className="block text-xs text-[var(--wf-ink-muted)]">
-                  {card.queue!.error
-                    ? `Antrian gagal dimuat: ${card.queue!.error}`
-                    : card.queue!.state}
+            <Button
+              asChild
+              key={card.id}
+              variant="ghost"
+              className="wf-row wf-row--queue h-auto rounded-none border-0 font-normal whitespace-normal focus-visible:ring-0 active:translate-y-0"
+            >
+              <Link to={card.route}>
+                <span className="wf-row__icon" aria-hidden>
+                  {card.icon}
                 </span>
-              </span>
-              <span className="wf-code wf-row__count">{card.queue!.error ? '—' : card.queue!.count}</span>
-              <span className="wf-row__action">
-                <span className="wf-row__action-label">{card.queue!.action}</span>
-                <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
-              </span>
-            </Link>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-[var(--wf-ink)]">{card.title}</span>
+                  <span className="block text-xs text-[var(--wf-ink-muted)]">
+                    {card.queue!.error
+                      ? `Antrian gagal dimuat: ${card.queue!.error}`
+                      : card.queue!.state}
+                  </span>
+                </span>
+                <span className="wf-code wf-row__count">{card.queue!.error ? '—' : card.queue!.count}</span>
+                <span className="wf-row__action">
+                  <span className="wf-row__action-label">{card.queue!.action}</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+                </span>
+              </Link>
+            </Button>
           ))}
         </div>
       ) : (

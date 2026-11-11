@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Save, Globe, Image as ImageIcon, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { uploadToR2 } from '../../utils/api/albumsApi';
 import { apiPost, ApiError } from '../../lib/rest';
-import { MdButton, MdIconButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
 
 interface Props {
   posts: string[];
@@ -98,19 +100,23 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
           {heroUrl ? (
             <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)]">
               <img src={heroUrl} alt="Hero background" className="h-32 w-full object-cover" />
-              {!readOnly && <MdIconButton
-                ariaLabel="Hapus foto hero"
+              {!readOnly && <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Hapus foto hero"
                 title="Hapus foto hero"
                 onClick={handleRemoveHero}
                 className="absolute right-2 top-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </MdIconButton>}
+              </Button>}
               <p className="absolute bottom-2 left-3 rounded-md bg-black/50 px-1.5 py-0.5 text-xs font-medium text-white/90">Hero background aktif</p>
             </div>
           ) : readOnly ? null : (
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => heroFileRef.current?.click()}
               disabled={heroUploading}
               className="w-full"
@@ -123,7 +129,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
                   <span>Upload foto hero background</span>
                 </>
               )}
-            </MdButton>
+            </Button>
           )}
           {!readOnly && <input
             ref={heroFileRef}
@@ -133,13 +139,14 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
             onChange={e => { const f = e.target.files?.[0]; if (f) handleHeroUpload(f); e.target.value = ''; }}
           />}
           {heroUrl && !readOnly && (
-            <MdButton
-              variant="text"
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => heroFileRef.current?.click()}
               disabled={heroUploading}
             >
               {heroUploading ? 'Mengupload…' : 'Ganti foto'}
-            </MdButton>
+            </Button>
           )}
         </div>
 
@@ -149,17 +156,17 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
         <p className="text-xs font-bold uppercase tracking-wide text-[var(--wf-ink-muted)]">Instagram Gallery</p>
         {[0, 1, 2].map(i => (
           <div key={i}>
-            <label htmlFor={`ig-post-${i}`} className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+            <Label htmlFor={`ig-post-${i}`} className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
               <Globe className="h-3.5 w-3.5" />
               Post {i + 1}:
-            </label>
-            <MdTextField
+            </Label>
+            <Input
               id={`ig-post-${i}`}
               value={postUrls[i] ?? ''}
-              onChange={value => setUrl(i, value)}
+              onChange={(e) => setUrl(i, e.target.value)}
               readOnly={readOnly}
               placeholder="https://www.instagram.com/p/..."
-              ariaLabel={`Post ${i + 1}`}
+              aria-label={`Post ${i + 1}`}
               className="w-full"
             />
           </div>
@@ -170,8 +177,9 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
         </p>
 
         {/* Sync Instagram Button */}
-        {!readOnly && <MdButton
-          variant="outlined"
+        {!readOnly && <Button
+          type="button"
+          variant="outline"
           disabled={isSyncing || postUrls.every(u => !u.trim())}
           onClick={async () => {
             const validUrls = postUrls.filter(u => u.trim() && u.includes('instagram.com'));
@@ -204,7 +212,7 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
         >
           <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
           {isSyncing ? 'Syncing via Apify…' : 'Sync & Cache Instagram Posts'}
-        </MdButton>}
+        </Button>}
         {syncResult && (
           <p role={syncResult.includes('Berhasil') ? 'status' : 'alert'} className={`rounded-lg px-3 py-2 text-xs ${syncResult.includes('Berhasil') ? 'bg-[var(--wf-live)]/10 text-[var(--wf-live)]' : 'bg-[var(--wf-action)]/10 text-[var(--wf-action)]'}`}>
             {syncResult}
@@ -220,14 +228,14 @@ export function InstagramSettingsModal({ posts, onSave, heroImageUrl = '', onSav
 
         {/* Actions */}
         {!readOnly && <div className="pt-2">
-          <MdButton
+          <Button
             type="submit"
             disabled={isSubmitting}
             className="w-full"
           >
             <Save className="h-4 w-4" />
             {isSubmitting ? 'Menyimpan…' : 'Simpan'}
-          </MdButton>
+          </Button>
         </div>}
       </form>
     </div>

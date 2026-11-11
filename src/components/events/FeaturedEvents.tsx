@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Zap, Timer } from 'lucide-react';
 import { EventItem } from '../../types';
 import { CategoryBadges } from '../ui/CategoryBadges';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
 
 /* Keyed by MEANING, not by colour name: "live" for what is running now,
  * "action" for what is coming up. The callers previously passed
@@ -142,13 +142,13 @@ export function FeaturedEvents({ events, title, accent, icon, onDetail }: Props)
         })}
       </div>
       {events.length > 3 && (
-        <MdButton
-          variant="text"
+        <Button
+          variant="ghost"
           onClick={() => navigate('/dashboard/events')}
-          className="mt-3"
+          className="mt-3 justify-start px-0 text-[var(--wf-accent)] hover:bg-transparent hover:text-[var(--wf-accent-hover)]"
         >
           +{events.length - 3} acara lainnya. Lihat di daftar acara
-        </MdButton>
+        </Button>
       )}
     </div>
   );

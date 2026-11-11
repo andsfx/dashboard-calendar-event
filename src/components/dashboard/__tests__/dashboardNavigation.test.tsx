@@ -299,12 +299,12 @@ describe('getCommandCenterCards: register Pusat Komando (ADR-009)', () => {
     );
   });
 
-  it('menandai Buat Surat sebagai maintenance', () => {
+  it('menampilkan Buat Surat tanpa penanda maintenance', () => {
     const cards = getCommandCenterCards({ ...baseParams });
     const surat = cards.find(card => card.id === 'content-surat');
 
     expect(surat).toBeDefined();
-    expect(surat!.maintenance).toBe(true);
+    expect(surat!.maintenance).toBeFalsy();
   });
 
   it('menyembunyikan seluruh grup Konten untuk role tanpa izin settings/sponsorship', () => {

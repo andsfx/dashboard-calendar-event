@@ -15,6 +15,8 @@ import {
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { ModalWrapper } from '../modals/ModalWrapper';
+import { Button } from '../shadcn/button';
+import { Empty, EmptyHeader, EmptyTitle, EmptyMedia, EmptyDescription } from '../shadcn/empty';
 
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -23,7 +25,7 @@ const STATUS_ORDER: Record<string, number> = { ongoing: 0, upcoming: 1, past: 2,
 const STATUS_GROUPS = [
   { key: 'ongoing' as const, label: 'Berlangsung', dot: 'bg-emerald-500' },
   { key: 'upcoming' as const, label: 'Mendatang', dot: 'bg-amber-400' },
-  { key: 'past' as const, label: 'Selesai', dot: 'bg-slate-400' },
+  { key: 'past' as const, label: 'Selesai', dot: 'bg-[var(--wf-rule-strong)]' },
 ];
 
 function getTimeSortValue(jam: string) {
@@ -61,11 +63,11 @@ interface Props {
 }
 
 export function CalendarView({ events, holidays, onDetail }: Props) {
-  const surfaceClass = 'overflow-hidden rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--brand-card-light)] shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900';
-  const headerClass = 'flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--brand-card)] px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80';
-  const headerBtnClass = 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] dark:hover:bg-slate-700';
-  const headerTitleClass = 'text-lg font-bold text-slate-900 dark:text-white';
-  const headerSubClass = 'text-xs ui-text-muted';
+ const surfaceClass = 'overflow-hidden rounded-[1.5rem] border bg-[var(--wf-board)] shadow-[var(--shadow-card-soft)] border-[var(--wf-rule)]';
+ const headerClass = 'flex items-center justify-between border-b bg-[var(--wf-board)] px-5 py-4 border-[var(--wf-rule)]';
+  const headerBtnClass = 'rounded-lg p-1.5 text-[var(--brand-tosca)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand-tosca)_12%,transparent)] dark:text-[var(--brand-tosca-soft)] hover:bg-[var(--wf-board-2)]';
+  const headerTitleClass = 'text-lg font-bold text-[var(--wf-ink)] ';
+  const headerSubClass = 'text-xs text-[var(--wf-ink-muted)]';
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -160,22 +162,22 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         <div className={`${surfaceClass} lg:w-96 lg:shrink-0`}>
         {/* Header */}
         <div className={headerClass}>
-          <button type="button" onClick={prevMonth} aria-label="Bulan sebelumnya" className={headerBtnClass}>
+          <Button type="button" variant="ghost" size="icon-sm" onClick={prevMonth} aria-label="Bulan sebelumnya" className={headerBtnClass}>
             <ChevronLeft className="h-5 w-5" />
-          </button>
+          </Button>
           <div className="text-center">
             <p className={headerTitleClass}>{MONTH_ID[month]}</p>
             <p className={headerSubClass}>{year} · {monthEvents.length} acara</p>
           </div>
-          <button type="button" onClick={nextMonth} aria-label="Bulan berikutnya" className={headerBtnClass}>
+          <Button type="button" variant="ghost" size="icon-sm" onClick={nextMonth} aria-label="Bulan berikutnya" className={headerBtnClass}>
             <ChevronRight className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Day headers */}
-        <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-700">
+        <div className="grid grid-cols-7 border-b border-[var(--wf-rule)] ">
           {DAY_SHORT.map(d => (
-            <div key={d} className="py-2 text-center text-xs font-semibold text-slate-500 dark:text-slate-300">{d}</div>
+            <div key={d} className="py-2 text-center text-xs font-semibold text-[var(--wf-ink-muted)] ">{d}</div>
           ))}
         </div>
 
@@ -199,7 +201,9 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
             const dayLabel = `${d.day} ${MONTH_ID[month]} ${year}${totalDayEvents > 0 ? `, ${totalDayEvents} acara` : ''}${dayHolidays.length > 0 ? `, ${dayHolidays.length} hari libur` : ''}`;
 
             return (
-              <button
+              <Button
+                type="button"
+                variant="ghost"
                 key={d.dateStr}
                 onClick={() => {
                   if (isSelected) {
@@ -209,12 +213,12 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   setSelectedDate(d.dateStr);
                 }}
                 aria-label={dayLabel}
-                className={`relative flex h-9 w-full flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all sm:h-10 sm:rounded-xl sm:text-xs ${
+                className={`relative flex! h-9 w-full! flex-col items-center justify-center rounded-lg border-0! p-0! text-[11px] font-medium transition-all active:translate-y-0! sm:h-10 sm:rounded-xl sm:text-xs ${
                   isSelected
-                    ? 'bg-brand-primary-600 text-white shadow-md'
+                    ? 'bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] shadow-md hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]! dark:hover:bg-[var(--wf-accent)]!'
                     : isToday
-                    ? 'bg-brand-primary-100 text-brand-primary-700 font-bold ring-2 ring-brand-primary-300 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 dark:ring-brand-primary-700'
-                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
+                    ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] font-bold! ring-2 ring-[var(--wf-accent)] hover:bg-[var(--wf-accent-soft)]! hover:text-[var(--wf-accent)]! dark:hover:bg-[var(--wf-accent-soft)]!'
+                    : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]!'
                 }`}
               >
                 {hasHolidays && (
@@ -231,7 +235,7 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                         ? 'bg-emerald-400' 
                         : bar.event.status === 'upcoming' 
                         ? 'bg-amber-400' 
-                        : 'bg-slate-400';
+                        : 'bg-[var(--wf-rule-strong)]';
                       return (
                         <div
                           key={`${bar.event.id}-${idx}`}
@@ -247,19 +251,19 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   <div className="absolute bottom-1 flex gap-0.5">
                     {hasOngoing && <span className="h-1 w-1 rounded-full bg-emerald-400" />}
                     {hasUpcoming && <span className="h-1 w-1 rounded-full bg-amber-400" />}
-                    {!hasOngoing && !hasUpcoming && <span className="h-1 w-1 rounded-full bg-slate-400" />}
+                    {!hasOngoing && !hasUpcoming && <span className="h-1 w-1 rounded-full bg-[var(--wf-rule-strong)]" />}
                   </div>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
 
         {/* Legend */}
-<div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-100 px-3 py-3 text-[11px] ui-text-muted dark:border-slate-700 sm:text-xs">
+<div className="flex flex-wrap items-center justify-center gap-3 border-t border-[var(--wf-rule)] px-3 py-3 text-[11px] text-[var(--wf-ink-muted)]  sm:text-xs">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" />Berlangsung</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />Mendatang</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-400" />Selesai</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--wf-rule-strong)]" />Selesai</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-500" />Libur Nasional</span>
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-500" />Cuti Bersama</span>
         </div>
@@ -269,11 +273,11 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
         <div className="flex-1">
         {monthEvents.length > 0 || monthHolidays.length > 0 ? (
           <div className={surfaceClass}>
-            <div className="border-b border-black/[0.04] px-4 py-4 sm:px-5 dark:border-slate-700">
-              <p className="font-semibold text-slate-800 dark:text-white">
-                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-brand-primary-500" /> Agenda {MONTH_ID[month]} {year}</span>
+            <div className="border-b border-black/[0.04] px-4 py-4 sm:px-5 border-[var(--wf-rule)]">
+              <p className="font-semibold text-[var(--wf-ink)] ">
+                <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-[var(--wf-accent)]" /> Agenda {MONTH_ID[month]} {year}</span>
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-300">
+              <p className="text-xs text-[var(--wf-ink-muted)] ">
                 {monthEvents.length} acara dan {monthHolidays.length} hari libur di bulan ini
               </p>
             </div>
@@ -281,8 +285,8 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
               <section className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">
+                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Event</h3>
+                    <p className="text-xs text-[var(--wf-ink-muted)] ">
                       {monthEvents.length} event di bulan ini
                       {monthEvents.length > 0 && (
                         <span>
@@ -305,10 +309,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       if (multiDayEvents.length === 0) return null;
                       
                       return (
-                        <div className="mb-5 space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/40 p-4 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10">
+                        <div className="mb-5 space-y-3 rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-4  ">
                           <div className="flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-brand-primary-500" />
-                            <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                            <span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" />
+                            <p className="text-xs font-semibold text-[var(--wf-accent)] ">
                             Rangkaian acara ({multiDayEvents.length})
                           </p>
                         </div>
@@ -316,44 +320,46 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           {multiDayEvents.map(ev => {
                               const duration = getEventDuration(ev.dateStr, ev.dateEnd);
                               return (
-                                <button
+                                <Button
+                                  type="button"
+                                  variant="ghost"
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className="w-full rounded-xl border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                  className="flex! flex-col! items-stretch! justify-start! h-auto! w-full! gap-0! rounded-xl border border-[var(--wf-accent)]/40! bg-[var(--wf-board)] p-3! text-left! whitespace-normal! font-normal! shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform]! hover:-translate-y-0.5 hover:bg-[var(--wf-accent-soft)]! hover:shadow-md active:translate-y-0!"
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                                    <p className="text-xs font-semibold text-[var(--wf-accent)] ">
                                       {formatDateRange(ev.dateStr, ev.dateEnd)}
                                     </p>
                                     <div className="flex items-center gap-2">
-                                      <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-xs font-medium text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
+                                      <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-xs font-medium text-[var(--wf-accent)]  ">
                                         {duration} hari
                                       </span>
                                       <StatusBadge status={ev.status} size="sm" />
-                                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                                      {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]  ">Reguler</span>}
                                     </div>
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
                                   </div>
-                                  <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                  <div className="mt-2 space-y-1 text-xs ui-text-muted">
+                                  <p className="font-semibold text-[var(--wf-ink)] ">{ev.acara}</p>
+                                  <div className="mt-2 space-y-1 text-xs text-[var(--wf-ink-muted)]">
                                     {getMultiDayJamDisplay(ev) && (
                                       <div className="flex items-center gap-1.5">
-                                        <Clock className="h-3 w-3 shrink-0" />
+                                        <Clock className="size-3 shrink-0" />
                                         <span>{getMultiDayJamDisplay(ev)}</span>
                                       </div>
                                     )}
                                     {ev.lokasi && (
                                       <div className="flex items-center gap-1.5">
-                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        <MapPin className="size-3 shrink-0" />
                                         <span className="line-clamp-2">{ev.lokasi}</span>
                                       </div>
                                     )}
                                     {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                                    {ev.keterangan && <p className="line-clamp-2 text-slate-500 dark:text-slate-300">{ev.keterangan}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-[var(--wf-ink-muted)] ">{ev.keterangan}</p>}
                                   </div>
-                                </button>
+                                </Button>
                               );
                             })}
                           </div>
@@ -366,10 +372,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       const groupEvents = monthEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                       if (groupEvents.length === 0) return null;
                       return (
-                        <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-slate-100 pt-5 dark:border-slate-700' : ''}>
+                        <div key={group.key} className={groupIdx > 0 && monthEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-5 border-t border-[var(--wf-rule)] pt-5 ' : ''}>
                           <div className="mb-3 flex items-center gap-2">
                             <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                            <p className="text-xs font-semibold ui-text-muted">
+                            <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">
                               {group.label} ({groupEvents.length})
                             </p>
                           </div>
@@ -377,43 +383,45 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                             {groupEvents.map(ev => {
                               const isSelectedCard = selectedDate === ev.dateStr;
                               return (
-                                <button
+                                <Button
+                                  type="button"
+                                  variant="ghost"
                                   key={ev.id}
                                   onClick={() => onDetail(ev)}
-                                  className={`cursor-pointer rounded-2xl border p-4 text-left shadow-sm transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:hover:bg-slate-700/30 ${
+                                  className={`flex! flex-col! items-stretch! justify-start! h-auto! w-full! gap-0! cursor-pointer rounded-2xl border p-4! text-left! whitespace-normal! font-normal! shadow-sm transition-[background-color,box-shadow,transform]! hover:-translate-y-0.5 hover:bg-[var(--wf-board-2)]! hover:shadow-md active:translate-y-0! ${
                                     isSelectedCard
-                                      ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                                      : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
+                                      ? 'border-[var(--wf-accent)]/40! bg-[var(--wf-accent-soft)] ring-1 ring-[var(--wf-accent)]'
+                                      : 'bg-[var(--wf-board)] border-[var(--wf-rule)]!'
                                   }`}
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'ui-text-muted'}`}>
+                                    <p className={`text-xs font-semibold ${isSelectedCard ? 'text-[var(--wf-accent)] ' : 'text-[var(--wf-ink-muted)]'}`}>
                                       {ev.day}, {ev.tanggal}
                                     </p>
                                     <StatusBadge status={ev.status} size="sm" />
-                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]  ">Reguler</span>}
                                   </div>
                                   <div className="mb-2 flex flex-wrap items-center gap-2">
                                     <CategoryBadges categories={ev.categories} maxVisible={2} />
                                   </div>
-                                  <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                  <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
+                                  <p className="font-semibold text-[var(--wf-ink)] ">{ev.acara}</p>
+                                  <div className="mt-3 space-y-1.5 text-xs text-[var(--wf-ink-muted)]">
                                     {ev.jam && (
                                       <div className="flex items-center gap-1.5">
-                                        <Clock className="h-3 w-3 shrink-0" />
+                                        <Clock className="size-3 shrink-0" />
                                         <span>{ev.jam}</span>
                                       </div>
                                     )}
                                     {ev.lokasi && (
                                       <div className="flex items-center gap-1.5">
-                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        <MapPin className="size-3 shrink-0" />
                                         <span className="line-clamp-2">{ev.lokasi}</span>
                                       </div>
                                     )}
                                     {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
-                                    {ev.keterangan && <p className="line-clamp-2 text-slate-500 dark:text-slate-300">{ev.keterangan}</p>}
+                                    {ev.keterangan && <p className="line-clamp-2 text-[var(--wf-ink-muted)] ">{ev.keterangan}</p>}
                                   </div>
-                                </button>
+                                </Button>
                               );
                             })}
                           </div>
@@ -422,17 +430,21 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     })}
                   </div>
                 ) : (
-                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500 dark:text-slate-300">
-                    Tidak ada event di bulan ini.
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
+                    <Empty className="border-0 bg-transparent p-0">
+                      <EmptyHeader>
+                        <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event di bulan ini.</EmptyTitle>
+                      </EmptyHeader>
+                    </Empty>
                   </div>
                 )}
               </section>
 
-              <section className="space-y-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+              <section className="space-y-3 border-t border-[var(--wf-rule)] pt-5 ">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-300">{monthHolidays.length} hari libur di bulan ini</p>
+                    <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari Libur</h3>
+                    <p className="text-xs text-[var(--wf-ink-muted)] ">{monthHolidays.length} hari libur di bulan ini</p>
                   </div>
                 </div>
 
@@ -449,57 +461,67 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           key={`holiday-${holiday.id}`}
                           className={`rounded-2xl border p-4 text-left shadow-sm ${
                             isSelectedCard
-                              ? 'border-brand-primary-200 bg-brand-primary-50/40 ring-1 ring-brand-primary-200 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10 dark:ring-brand-primary-800/40'
-                              : 'border-[var(--border-subtle)] bg-[var(--brand-card-light)] dark:border-slate-700 dark:bg-slate-800/50'
+                              ? 'border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] ring-1 ring-[var(--wf-accent)]   '
+ : ' bg-[var(--wf-board)] border-[var(--wf-rule)]'
                           }`}
                         >
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-brand-primary-700 dark:text-brand-primary-300' : 'ui-text-muted'}`}>
+                            <p className={`text-xs font-semibold ${isSelectedCard ? 'text-[var(--wf-accent)] ' : 'text-[var(--wf-ink-muted)]'}`}>
                               {holiday.day}, {holiday.tanggal}
                             </p>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
                               {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
                             </span>
                           </div>
-                          <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
+                          <p className="font-semibold text-[var(--wf-ink)] ">{holiday.name}</p>
                           {holiday.description && (
-                            <p className="mt-3 line-clamp-3 text-xs ui-text-muted">{holiday.description}</p>
+                            <p className="mt-3 line-clamp-3 text-xs text-[var(--wf-ink-muted)]">{holiday.description}</p>
                           )}
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500 dark:text-slate-300">
-                    Tidak ada hari libur di bulan ini.
+                  <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
+                    <Empty className="border-0 bg-transparent p-0">
+                      <EmptyHeader>
+                        <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada hari libur di bulan ini.</EmptyTitle>
+                      </EmptyHeader>
+                    </Empty>
                   </div>
                 )}
               </section>
             </div>
           </div>
         ) : (
-          <div className="ui-empty-panel flex h-full min-h-[260px] flex-col items-center justify-center px-4 text-slate-500 dark:text-slate-300 sm:min-h-[300px]">
-            <CalendarDays className="mb-3 h-10 w-10 opacity-50" />
-            <p className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</p>
-            <p className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</p>
+          <div className="ui-empty-panel flex h-full min-h-[260px] flex-col items-center justify-center px-4 text-[var(--wf-ink-muted)]  sm:min-h-[300px]">
+            <Empty className="border-0 bg-transparent p-0">
+              <EmptyMedia className="mb-3">
+                <CalendarDays className="h-10 w-10 opacity-50" />
+              </EmptyMedia>
+              <EmptyHeader>
+                <EmptyTitle className="text-sm font-medium">Belum ada agenda atau hari libur di {MONTH_ID[month]} {year}</EmptyTitle>
+                <EmptyDescription className="mt-1 text-xs">Coba pindah bulan untuk melihat informasi lainnya</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           </div>
         )}
 
         {/* Monthly summary */}
         {monthEvents.length > 0 && (
           <div className={`${surfaceClass} mt-4 p-4`}>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide ui-text-muted">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
               Ringkasan {MONTH_ID[month]} {year}
             </p>
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {(['ongoing', 'upcoming', 'past'] as const).map(s => {
                 const count = monthEvents.filter(e => e.status === s).length;
                 const label = s === 'ongoing' ? 'Berlangsung' : s === 'upcoming' ? 'Mendatang' : 'Selesai';
-                const color = s === 'ongoing' ? 'text-emerald-600 dark:text-emerald-400' : s === 'upcoming' ? 'text-amber-600 dark:text-amber-400' : 'ui-text-muted';
+                const color = s === 'ongoing' ? 'text-emerald-600 dark:text-emerald-400' : s === 'upcoming' ? 'text-amber-600 dark:text-amber-400' : 'text-[var(--wf-ink-muted)]';
                 return (
                   <div key={s} className="text-center">
                     <p className={`text-2xl font-bold ${color}`}>{count}</p>
-                    <p className="text-xs ui-text-muted">{label}</p>
+                    <p className="text-xs text-[var(--wf-ink-muted)]">{label}</p>
                   </div>
                 );
               })}
@@ -510,22 +532,22 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
       </div>
 
       <ModalWrapper isOpen={isDayPopupOpen} onClose={() => setSelectedDate(null)} maxWidth="max-w-2xl" ariaLabelledBy="calendar-day-title">
-        <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--brand-card-light)] shadow-2xl dark:bg-slate-800">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 dark:border-slate-700">
+ <div className="max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--wf-board)] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-[var(--wf-rule)] px-4 py-4 sm:px-6 ">
             <div>
-              <p id="calendar-day-title" className="font-bold text-slate-800 dark:text-white">Agenda {selectedDayTitle}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayEvents.length} event pada tanggal ini</p>
+              <p id="calendar-day-title" className="font-bold text-[var(--wf-ink)] ">Agenda {selectedDayTitle}</p>
+              <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} event pada tanggal ini</p>
             </div>
-            <button onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-slate-500 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup">
+            <Button variant="ghost" size="icon-sm" onClick={() => setSelectedDate(null)} className="rounded-xl p-2 text-[var(--wf-ink-muted)]  transition-colors hover:bg-[var(--wf-board-2)] " aria-label="Tutup">
               <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-5 px-4 py-5 sm:px-6">
             <section className="space-y-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Event</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayEvents.length} event pada tanggal ini</p>
+                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Event</h3>
+                <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayEvents.length} event pada tanggal ini</p>
               </div>
 
               {selectedDayEvents.length > 0 ? (
@@ -536,10 +558,10 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     if (multiDayEvents.length === 0) return null;
                     
                     return (
-                      <div className="mb-4 space-y-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50/40 p-3 dark:border-brand-primary-800/50 dark:bg-brand-primary-900/10">
+                      <div className="mb-4 space-y-3 rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3  ">
                         <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-brand-primary-500" />
-                          <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                          <span className="h-2 w-2 rounded-full bg-[var(--wf-accent)]" />
+                          <p className="text-xs font-semibold text-[var(--wf-accent)] ">
                             Rangkaian acara ({multiDayEvents.length})
                           </p>
                         </div>
@@ -547,46 +569,48 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                           {multiDayEvents.map(ev => {
                             const duration = getEventDuration(ev.dateStr, ev.dateEnd);
                             return (
-                              <button
+                              <Button
+                                type="button"
+                                variant="ghost"
                                 key={`day-popup-multiday-${ev.id}`}
                                 onClick={() => {
                                   setSelectedDate(null);
                                   onDetail(ev);
                                 }}
-                                className="w-full rounded-lg border border-brand-primary-200 bg-[var(--brand-card-light)] p-3 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-brand-primary-50/50 hover:shadow-md dark:border-brand-primary-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                                className="flex! flex-col! items-stretch! justify-start! h-auto! w-full! gap-0! rounded-lg border border-[var(--wf-accent)]/40! bg-[var(--wf-board)] p-3! text-left! whitespace-normal! font-normal! shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform]! hover:-translate-y-0.5 hover:bg-[var(--wf-accent-soft)]! hover:shadow-md active:translate-y-0!"
                               >
                                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                  <p className="text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                                  <p className="text-xs font-semibold text-[var(--wf-accent)] ">
                                     {formatDateRange(ev.dateStr, ev.dateEnd)}
                                   </p>
                                   <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-xs font-medium text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">
+                                    <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-xs font-medium text-[var(--wf-accent)]  ">
                                       {duration} hari
                                     </span>
                                     <StatusBadge status={ev.status} size="sm" />
-                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                                    {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]  ">Reguler</span>}
                                   </div>
                                 </div>
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
                                   <CategoryBadges categories={ev.categories} maxVisible={2} />
                                 </div>
-                                <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                                <div className="mt-2 space-y-1 text-xs ui-text-muted">
+                                <p className="font-semibold text-[var(--wf-ink)] ">{ev.acara}</p>
+                                <div className="mt-2 space-y-1 text-xs text-[var(--wf-ink-muted)]">
                                   {getMultiDayJamDisplay(ev) && (
                                     <div className="flex items-center gap-1.5">
-                                      <Clock className="h-3 w-3 shrink-0" />
+                                      <Clock className="size-3 shrink-0" />
                                       <span>{getMultiDayJamDisplay(ev)}</span>
                                     </div>
                                   )}
                                   {ev.lokasi && (
                                     <div className="flex items-center gap-1.5">
-                                      <MapPin className="h-3 w-3 shrink-0" />
+                                      <MapPin className="size-3 shrink-0" />
                                       <span className="line-clamp-2">{ev.lokasi}</span>
                                     </div>
                                   )}
                                   {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
                                 </div>
-                              </button>
+                              </Button>
                             );
                           })}
                         </div>
@@ -599,48 +623,50 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                     const groupEvents = selectedDayEvents.filter(ev => ev.status === group.key && !isMultiDayEvent(ev));
                     if (groupEvents.length === 0) return null;
                     return (
-                      <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-slate-100 pt-4 dark:border-slate-700' : ''}>
+                      <div key={group.key} className={groupIdx > 0 && selectedDayEvents.some(ev => ev.status !== group.key && (STATUS_ORDER[ev.status] ?? 3) < (STATUS_ORDER[group.key] ?? 3)) ? 'mt-4 border-t border-[var(--wf-rule)] pt-4 ' : ''}>
                         <div className="mb-3 flex items-center gap-2">
                           <span className={`h-2 w-2 rounded-full ${group.dot}`} />
-                          <p className="text-xs font-semibold ui-text-muted">
+                          <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">
                             {group.label} ({groupEvents.length})
                           </p>
                         </div>
                         <div className="space-y-3">
                           {groupEvents.map(ev => (
-                            <button
+                            <Button
+                              type="button"
+                              variant="ghost"
                               key={`day-popup-${ev.id}`}
                               onClick={() => {
                                 setSelectedDate(null);
                                 onDetail(ev);
                               }}
-                              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-700/30"
+                              className="flex! flex-col! items-stretch! justify-start! h-auto! w-full! gap-0! rounded-2xl border bg-[var(--wf-board)] p-4! text-left! whitespace-normal! font-normal! shadow-[var(--shadow-card-soft)] transition-[background-color,box-shadow,transform]! hover:-translate-y-0.5 hover:bg-[var(--wf-board-2)]! hover:shadow-md active:translate-y-0! border-[var(--wf-rule)]!"
                             >
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-xs font-semibold ui-text-muted">{ev.day}, {ev.tanggal}</p>
+                                <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">{ev.day}, {ev.tanggal}</p>
                                 <StatusBadge status={ev.status} size="sm" />
-                                {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-brand-primary-100 px-2 py-0.5 text-[10px] font-semibold text-brand-primary-700 dark:bg-brand-primary-900/30 dark:text-brand-primary-300">Reguler</span>}
+                                {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]  ">Reguler</span>}
                               </div>
                               <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <CategoryBadges categories={ev.categories} maxVisible={2} />
                               </div>
-                              <p className="font-semibold text-slate-800 dark:text-white">{ev.acara}</p>
-                              <div className="mt-3 space-y-1.5 text-xs ui-text-muted">
+                              <p className="font-semibold text-[var(--wf-ink)] ">{ev.acara}</p>
+                              <div className="mt-3 space-y-1.5 text-xs text-[var(--wf-ink-muted)]">
                                 {ev.jam && (
                                   <div className="flex items-center gap-1.5">
-                                    <Clock className="h-3 w-3 shrink-0" />
+                                    <Clock className="size-3 shrink-0" />
                                     <span>{ev.jam}</span>
                                   </div>
                                 )}
                                 {ev.lokasi && (
                                   <div className="flex items-center gap-1.5">
-                                    <MapPin className="h-3 w-3 shrink-0" />
+                                    <MapPin className="size-3 shrink-0" />
                                     <span className="line-clamp-2">{ev.lokasi}</span>
                                   </div>
                                 )}
                                 {ev.eo && <p>Penyelenggara: {ev.eo}</p>}
                               </div>
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
@@ -648,16 +674,20 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                   })}
                 </div>
               ) : (
-                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500 dark:text-slate-300">
-                  Tidak ada event pada tanggal ini.
+                <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
+                  <Empty className="border-0 bg-transparent p-0">
+                    <EmptyHeader>
+                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada tanggal ini.</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 </div>
               )}
             </section>
 
-            <section className="space-y-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+            <section className="space-y-3 border-t border-[var(--wf-rule)] pt-5 ">
               <div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Hari Libur</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-300">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
+                <h3 className="text-sm font-bold text-[var(--wf-ink)] ">Hari Libur</h3>
+                <p className="text-xs text-[var(--wf-ink-muted)] ">{selectedDayHolidays.length} hari libur pada tanggal ini</p>
               </div>
 
               {selectedDayHolidays.length > 0 ? (
@@ -668,22 +698,26 @@ export function CalendarView({ events, holidays, onDetail }: Props) {
                       : 'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800/50';
 
                     return (
-                      <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 text-left shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800/50">
+ <div key={`day-popup-holiday-${holiday.id}`} className="rounded-2xl border bg-[var(--wf-board)] p-4 text-left shadow-[var(--shadow-card-soft)] border-[var(--wf-rule)]">
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                          <p className="text-xs font-semibold ui-text-muted">{holiday.day}, {holiday.tanggal}</p>
+                          <p className="text-xs font-semibold text-[var(--wf-ink-muted)]">{holiday.day}, {holiday.tanggal}</p>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${badgeClass}`}>
                             {holiday.type === 'libur_nasional' ? 'Libur Nasional' : 'Cuti Bersama'}
                           </span>
                         </div>
-                        <p className="font-semibold text-slate-800 dark:text-white">{holiday.name}</p>
-                        {holiday.description && <p className="mt-3 text-xs ui-text-muted">{holiday.description}</p>}
+                        <p className="font-semibold text-[var(--wf-ink)] ">{holiday.name}</p>
+                        {holiday.description && <p className="mt-3 text-xs text-[var(--wf-ink-muted)]">{holiday.description}</p>}
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="ui-empty-panel px-4 py-6 text-sm text-slate-500 dark:text-slate-300">
-                  Tidak ada hari libur pada tanggal ini.
+                <div className="ui-empty-panel px-4 py-6 text-sm text-[var(--wf-ink-muted)]">
+                  <Empty className="border-0 bg-transparent p-0">
+                    <EmptyHeader>
+                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada hari libur pada tanggal ini.</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 </div>
               )}
             </section>

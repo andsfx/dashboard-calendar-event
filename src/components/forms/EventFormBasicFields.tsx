@@ -1,7 +1,10 @@
 import { memo } from 'react';
 import type { EventArea, EventItem } from '../../types';
 import { AlertTriangle } from 'lucide-react';
-import { MdCheckbox, MdSelect, MdTextField } from '../md';
+import { Checkbox } from '../shadcn/checkbox';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
 
 interface EventFormBasicFieldsProps {
   dateStr: string;
@@ -55,17 +58,17 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
       {/* Date + Time */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label htmlFor={`${datalistId}-date`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+          <Label htmlFor={`${datalistId}-date`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
             Tanggal <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-          </label>
-          <input
+          </Label>
+          <Input
             id={`${datalistId}-date`}
             type="date"
             value={dateStr}
             onChange={e => onFieldChange('dateStr', e.target.value)}
             aria-invalid={!!errors.dateStr}
             aria-describedby={errors.dateStr ? dateErrorId : undefined}
-            className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 dark:[color-scheme:dark] ${
+            className={`w-full rounded-xl border bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 dark:[color-scheme:dark] ${
               errors.dateStr
                 ? 'border-red-400 focus:ring-red-100'
                 : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'
@@ -74,14 +77,14 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           {errors.dateStr && <p id={dateErrorId} className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.dateStr}</p>}
         </div>
         <div>
-          <label htmlFor={`${datalistId}-time`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jam</label>
-          <input
+          <Label htmlFor={`${datalistId}-time`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jam</Label>
+          <Input
             id={`${datalistId}-time`}
             value={jam}
             onChange={e => onFieldChange('jam', e.target.value)}
             placeholder={jamPlaceholder}
             list={`${datalistId}-jam-suggestions`}
-            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
+            className="w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
           />
           <datalist id={`${datalistId}-jam-suggestions`}>
             {jamSuggestions.map(item => <option key={item} value={item} />)}
@@ -91,32 +94,34 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
 
       {/* Event Name */}
       <div>
-        <MdTextField
+        <Label htmlFor={`${datalistId}-name`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+          {isDraft ? 'Nama Event' : 'Nama Acara'} <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
+        </Label>
+        <Input
           id={`${datalistId}-name`}
-          value={acara}
-          onChange={v => onFieldChange('acara', v)}
-          label={isDraft ? 'Nama Event' : 'Nama Acara'}
           required
-          error={!!errors.acara}
-          errorText={errors.acara}
+          value={acara}
+          onChange={e => onFieldChange('acara', e.target.value)}
+          aria-invalid={!!errors.acara}
+          aria-describedby={errors.acara ? `${datalistId}-name-error` : undefined}
           placeholder={isDraft ? 'Masukkan nama event yang akan diproses' : 'Masukkan nama acara'}
-          className="w-full"
+          className="w-full rounded-xl border bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2"
         />
+        {errors.acara && <p id={`${datalistId}-name-error`} className="mt-1 text-xs text-red-700 dark:text-red-300" role="alert">{errors.acara}</p>}
       </div>
 
       {/* Area (opsional) — FK ke event_areas untuk deteksi double-booking */}
       <div>
-        <MdSelect
+        <Label htmlFor={`${datalistId}-area`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Area (opsional)</Label>
+        <NativeSelect
           id={`${datalistId}-area`}
           value={areaId}
-          onChange={v => onAreaChange(v, areaOptions.find(o => o.id === v)?.name || null)}
-          label="Area (opsional)"
-          options={[
-            { value: '', label: '- Pilih area -' },
-            ...areaOptions.map(area => ({ value: area.id, label: area.name })),
-          ]}
+          onChange={e => onAreaChange(e.target.value, areaOptions.find(o => o.id === e.target.value)?.name || null)}
           className="w-full"
-        />
+        >
+          <option value="">- Pilih area -</option>
+          {areaOptions.map(area => <option key={area.id} value={area.id}>{area.name}</option>)}
+        </NativeSelect>
         {areaId && conflictEvents.length > 0 && (
           <div className="mt-2 rounded-xl border border-[var(--wf-action)]/40 bg-[var(--wf-action)]/10 px-3 py-2 text-xs text-[var(--wf-action)]" role="alert">
             <p className="flex items-center gap-1.5 font-bold">
@@ -128,23 +133,24 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
                 <li key={ev.id}>{ev.acara} - {ev.dateStr}{ev.dateEnd ? ` s/d ${ev.dateEnd}` : ''}</li>
               ))}
             </ul>
-            <label className="mt-2 flex cursor-pointer items-center gap-1.5 font-semibold">
-              <MdCheckbox
+            <Label className="mt-2 flex cursor-pointer items-center gap-1.5 text-xs font-semibold">
+              <Checkbox
                 checked={overrideAck}
-                onChange={onOverrideAck}
+                onCheckedChange={v => onOverrideAck(v === true)}
+                aria-label="Tetap simpan meski ada konflik"
               />
               Tetap simpan meski ada konflik
-            </label>
+            </Label>
           </div>
         )}
       </div>
 
       {/* Location */}
       <div>
-        <label htmlFor={`${datalistId}-location`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+        <Label htmlFor={`${datalistId}-location`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
           Lokasi <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-        </label>
-        <input
+        </Label>
+        <Input
           id={`${datalistId}-location`}
           value={lokasi}
           onChange={e => onFieldChange('lokasi', e.target.value)}
@@ -152,7 +158,7 @@ export const EventFormBasicFields = memo(function EventFormBasicFields({
           aria-describedby={errors.lokasi ? locationErrorId : undefined}
           placeholder={lokasiPlaceholder}
           list={`${datalistId}-lokasi-suggestions`}
-          className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 ${
+          className={`w-full rounded-xl border bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 ${
             errors.lokasi
               ? 'border-red-400 focus:ring-red-100'
               : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'

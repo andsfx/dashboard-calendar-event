@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Camera, Loader2, MapPin } from 'lucide-react';
+import { Skeleton } from '../shadcn/skeleton';
+import { Button } from '../shadcn/button';
 import type { AreaPhoto, EventArea } from '../../types';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { PhotoLightbox } from '../media/PhotoLightbox';
@@ -16,15 +18,16 @@ function SkeletonAreas() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
       {[0, 1, 2].map(i => (
-        <div key={i} className="h-56 animate-pulse rounded-[var(--radius-campaign-card)] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+        <Skeleton key={i} className="h-56 rounded-[var(--radius-campaign-card)] border border-[var(--wf-rule)] bg-[var(--wf-rule)]" />
       ))}
     </div>
   );
 }
 
 /**
- * Media kartu area. Saat area punya foto, media dibungkus `<button>` asli;
- * kalau tidak ada aksi, media dirender polos tanpa kontrol.
+ * Media kartu area. Saat area punya foto, media dibungkus kontrol nyata
+ * (shadcn `Button` ghost yang merender `<button>` asli) dengan chrome primitif
+ * dinetralkan; kalau tidak ada aksi, media dirender polos tanpa kontrol.
  *
  * Sebelumnya seluruh `<figure>` diberi `role="button"` + onClick + onKeyDown —
  * ARIA melarang `role="button"` di atas `<figure>` (axe: `aria-allowed-role`).
@@ -37,7 +40,7 @@ function AreaMedia({ area, photoCount, clickable, onOpen }: {
   onOpen: () => void;
 }) {
   const media = (
-    <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-700">
+    <div className="relative aspect-[16/10] overflow-hidden bg-[var(--wf-rule)]">
       {area.coverPhotoUrl ? (
         <img
           src={thumbUrl(area.coverPhotoUrl)}
@@ -48,12 +51,12 @@ function AreaMedia({ area, photoCount, clickable, onOpen }: {
         />
       ) : (
         <div className="flex h-full items-center justify-center bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_30%,black)]">
-          <Camera className="h-9 w-9 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
+          <Camera className="size-9 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
         </div>
       )}
       {photoCount > 0 && (
         <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-          <Camera className="h-3 w-3" aria-hidden="true" />
+          <Camera className="size-3" aria-hidden="true" />
           {photoCount} foto
         </span>
       )}
@@ -63,14 +66,15 @@ function AreaMedia({ area, photoCount, clickable, onOpen }: {
   if (!clickable) return media;
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onOpen}
       aria-label={`Lihat ${photoCount} foto ${area.name}`}
-      className="block w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] focus-visible:ring-offset-2"
+      className="flex! flex-col! items-stretch! h-auto! w-full! gap-0! rounded-none border-0! p-0! cursor-pointer text-left! whitespace-normal! font-normal! hover:bg-transparent! dark:hover:bg-transparent! focus-visible:outline-none focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]! focus-visible:ring-offset-2 active:translate-y-0!"
     >
       {media}
-    </button>
+    </Button>
   );
 }
 
@@ -118,13 +122,13 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
   if (!isLoading && empty) return null;
 
   return (
-    <RevealSection className="border-b border-black/5 bg-white/60 px-4 py-16 dark:border-slate-800 dark:bg-slate-900/20 sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
+    <RevealSection className="border-b border-black/5 bg-[var(--wf-board)]/60 px-4 py-16   sm:px-6 sm:py-24 lg:py-32" skeleton={<SkeletonAreas />} isLoading={isLoading}>
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-tight text-[var(--wf-ink)] sm:text-5xl">
             Area di Metropolitan Mall Bekasi
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--wf-ink-muted)]">
             Masih bingung milih spot buat acaramu? Lihat area lebih detail.
           </p>
         </div>
@@ -137,7 +141,7 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
               return (
               <figure
                 key={area.id}
-                className="ui-campaign-card group overflow-hidden rounded-[var(--radius-campaign-card)] bg-white shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] dark:bg-slate-900"
+                className="ui-campaign-card group overflow-hidden rounded-[var(--radius-campaign-card)] bg-[var(--wf-board)] shadow-[var(--shadow-card-soft)] transition-shadow hover:shadow-[0_16px_36px_rgba(22,33,27,0.08)] "
               >
                 {/* Interaksi ada di elemen nyata (<button> di dalam AreaMedia),
                     bukan role="button" di atas <figure> — ARIA melarang role itu
@@ -152,10 +156,10 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
                 <figcaption className="p-5 sm:p-6">
                   <div className="flex items-start gap-2">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]" aria-hidden="true" />
-                    <h3 className="text-lg font-bold leading-snug text-slate-900 dark:text-white">{area.name}</h3>
+                    <h3 className="text-lg font-bold leading-snug text-[var(--wf-ink)]">{area.name}</h3>
                   </div>
                   {area.description && (
-                    <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{area.description}</p>
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-[var(--wf-ink-muted)]">{area.description}</p>
                   )}
                 </figcaption>
               </figure>
@@ -163,10 +167,10 @@ export function CommunityEventAreas({ areas, isLoading = false }: Props) {
             })}
           </div>
         ) : (
-          <div className="mt-10 flex flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border-2 border-dashed border-slate-200 py-14 text-center dark:border-slate-700">
-            <MapPin className="mb-3 h-10 w-10 text-slate-300 dark:text-slate-500" aria-hidden="true" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Belum ada foto area</p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Foto area akan tampil di sini saat admin menambahkannya.</p>
+          <div className="mt-10 flex flex-col items-center justify-center rounded-[var(--radius-campaign-card)] border-2 border-dashed border-[var(--wf-rule)] py-14 text-center">
+            <MapPin className="mb-3 h-10 w-10 text-[var(--wf-rule-strong)]" aria-hidden="true" />
+            <p className="text-sm font-medium text-[var(--wf-ink-muted)]">Belum ada foto area</p>
+            <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">Foto area akan tampil di sini saat admin menambahkannya.</p>
           </div>
         )}
 

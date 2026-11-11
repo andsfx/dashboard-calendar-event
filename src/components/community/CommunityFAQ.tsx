@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Button } from '../shadcn/button';
 import { RevealSection } from './CommunityRevealPrimitives';
 import { isGsapMotionLoaded, loadGsapMotion } from '../../lib/gsapMotion';
 
@@ -116,20 +117,21 @@ function FaqItem({
 
   return (
     <div className="ui-campaign-card overflow-hidden">
-      <button
+      <Button
         type="button"
+        variant="ghost"
         id={`community-faq-trigger-${index}`}
         onClick={onToggle}
-        className={`flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6 ${focusRing}`}
+        className={`flex h-auto w-full items-center justify-between gap-4 whitespace-normal rounded-none border-0 px-5 py-5 text-left font-normal hover:bg-transparent aria-expanded:bg-transparent dark:hover:bg-transparent active:translate-y-0 sm:px-6 ${focusRing} focus-visible:ring-0`}
         aria-expanded={isOpen}
         aria-controls={isOpen ? `community-faq-${index}` : undefined}
       >
-        <span className="text-lg font-semibold text-slate-900 dark:text-white">{question}</span>
+        <span className="text-lg font-semibold text-[var(--wf-ink)]">{question}</span>
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-[var(--brand-tosca)] transition motion-reduce:transition-none dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-5 w-5 size-5 shrink-0 text-[var(--brand-tosca)] transition motion-reduce:transition-none dark:text-[var(--brand-tosca-soft)] ${isOpen ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
-      </button>
+      </Button>
       <div
         id={`community-faq-${index}`}
         ref={panelRef}
@@ -137,7 +139,7 @@ function FaqItem({
         aria-labelledby={`community-faq-trigger-${index}`}
         className={`faq-panel ${isOpen ? 'faq-panel-open' : ''}`}
       >
-        <div className="border-t border-slate-200/50 px-5 py-5 text-sm leading-7 text-slate-600 dark:border-slate-700 dark:text-slate-300 sm:px-6">
+        <div className="border-t border-[var(--wf-rule)] px-5 py-5 text-sm leading-7 text-[var(--wf-ink-muted)] sm:px-6">
           {answer}
         </div>
       </div>
@@ -149,10 +151,10 @@ export function CommunityFAQ() {
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
-    <RevealSection id="faq" className="scroll-mt-28 border-t border-black/5 px-4 py-16 dark:border-slate-800 sm:px-6 sm:py-24 lg:py-32">
+    <RevealSection id="faq" className="scroll-mt-28 border-t border-black/5 px-4 py-16  sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Masih ragu? Ini jawabannya.
           </h2>
         </div>

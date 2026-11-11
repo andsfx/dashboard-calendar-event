@@ -24,17 +24,17 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
   return (
     <div className="animate-fade-in-up" style={{ animationDelay: '250ms' }}>
       <div className="flex items-center gap-2 mb-4">
-        <CalendarDays className="w-5 h-5 text-brand-primary-500" />
-        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
+        <CalendarDays className="w-5 h-5 text-[var(--wf-accent)]" />
+        <h3 className="text-sm font-semibold text-[var(--wf-ink-muted)] uppercase tracking-wider">
           Tema Tahunan 2026
         </h3>
       </div>
 
       {/* Desktop horizontal timeline */}
-      <div className="hidden lg:block bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <div className="hidden lg:block bg-[var(--wf-board)] rounded-2xl border border-[var(--wf-rule)] p-6 shadow-sm">
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute top-5 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-700" />
+          <div className="absolute top-5 left-0 right-0 h-0.5 bg-[var(--wf-rule)]" />
 
           <div className="grid grid-cols-8 gap-2 relative">
             {themes.map((theme, index) => {
@@ -44,10 +44,10 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                   {/* Dot */}
                   <div className={`relative w-10 h-10 rounded-full flex items-center justify-center z-10 border-2 transition-all ${
                     status === 'active'
-                      ? 'border-white dark:border-slate-800 shadow-lg scale-110'
+                      ? 'border-[var(--wf-board)] shadow-lg scale-110'
                       : status === 'past'
-                      ? 'border-slate-200 dark:border-slate-700 opacity-40'
-                      : 'border-slate-200 dark:border-slate-700'
+                      ? 'border-[var(--wf-rule)] opacity-40'
+                      : 'border-[var(--wf-rule)]'
                   }`} style={{
                     backgroundColor: status === 'past' ? '#94a3b8' : theme.color,
                   }}>
@@ -61,18 +61,18 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                   <div className="mt-3 space-y-1">
                     <p className={`text-xs font-bold leading-tight ${
                       status === 'active'
-                        ? 'text-slate-800 dark:text-white'
+                        ? 'text-[var(--wf-ink)]'
                         : status === 'past'
-                        ? 'text-slate-500 dark:text-slate-300'
-                        : 'text-slate-600 dark:text-slate-300'
+                        ? 'text-[var(--wf-ink-muted)]'
+                        : 'text-[var(--wf-ink-muted)]'
                     }`}>
                       {theme.name}
                     </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-300">
+                    <p className="text-[10px] text-[var(--wf-ink-muted)]">
                       {formatDateShort(theme.dateStart)}
                     </p>
-                    <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 mx-auto rotate-90" />
-                    <p className="text-[10px] text-slate-500 dark:text-slate-300">
+                    <ChevronRight className="w-3 h-3 text-[var(--wf-ink-muted)] mx-auto rotate-90" />
+                    <p className="text-[10px] text-[var(--wf-ink-muted)]">
                       {formatDateShort(theme.dateEnd)}
                     </p>
                     {status === 'active' && (
@@ -96,12 +96,12 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
           return (
             <div
               key={theme.id}
-              className={`flex-shrink-0 w-48 snap-start rounded-xl p-4 transition-all bg-white dark:bg-slate-800/80 ${
+              className={`flex-shrink-0 w-48 snap-start rounded-xl p-4 transition-all bg-[var(--wf-board)] ${
                 status === 'active'
                   ? 'border-2 shadow-lg'
                   : status === 'past'
-                  ? 'border border-slate-200 dark:border-slate-700 opacity-40'
-                  : 'border border-slate-200 dark:border-slate-700'
+                  ? 'border border-[var(--wf-rule)] opacity-40'
+                  : 'border border-[var(--wf-rule)]'
               }`}
               style={{
                 borderColor: status === 'active' ? theme.color : undefined,
@@ -116,11 +116,11 @@ export default function AnnualTimeline({ themes }: AnnualTimelineProps) {
                 )}
               </div>
               <p className={`text-sm font-bold ${
-                status === 'past' ? 'text-slate-500' : 'text-slate-800 dark:text-white'
+                status === 'past' ? 'text-[var(--wf-ink-muted)]' : 'text-[var(--wf-ink)]'
               }`}>
                 {theme.name}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
+              <p className="text-xs text-[var(--wf-ink-muted)] mt-1">
                 {formatDateShort(theme.dateStart)} — {formatDateShort(theme.dateEnd)}
               </p>
             </div>

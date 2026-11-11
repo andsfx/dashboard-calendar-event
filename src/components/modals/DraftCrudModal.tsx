@@ -6,7 +6,11 @@ import { findAreaConflicts } from '../../utils/areaConflict';
 import { getDraftDateMeta, getDraftSuggestions, getSuggestionPlaceholder } from '../../utils/draftUtils';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from '../ui/ModalHeader';
-import { MdButton, MdRadio, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Textarea } from '../shadcn/textarea';
+import { Label } from '../shadcn/label';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { RadioGroup as RadioGroupPrimitive, RadioGroupItem } from '../shadcn/radio-group';
 import { EventFormBasicFields } from '../forms/EventFormBasicFields';
 import { EventFormDetailsFields } from '../forms/EventFormDetailsFields';
 import { EventFormModelFields } from '../forms/EventFormModelFields';
@@ -392,29 +396,27 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
 
           {/* Tipe acara */}
           <div className="space-y-2">
-            <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</label>
-            <div className="flex flex-wrap gap-2" role="radiogroup">
+            <Label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</Label>
+            <RadioGroupPrimitive className="flex flex-wrap gap-2" aria-label="Tipe Acara" value={form.eventType} onValueChange={(next) => set('eventType', next as EventType)}>
               {([
                 { value: 'single', label: 'Acara biasa' },
                 { value: 'multi_day', label: 'Rangkaian acara' },
                 { value: 'recurring', label: 'Event reguler' },
               ] as const).map(opt => (
-                <div key={opt.value} onClick={() => set('eventType', opt.value)} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                <Label key={opt.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm leading-normal font-medium transition-colors ${
                   form.eventType === opt.value
                     ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                     : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'
                 }`}>
-                  <MdRadio
-                    name="draftEventType"
+                  <RadioGroupItem
                     value={opt.value}
-                    checked={form.eventType === opt.value}
-                    onChange={() => set('eventType', opt.value)}
-                    ariaLabel={opt.label}
+                    id={`draft-event-type-${opt.value}`}
+                    aria-label={opt.label}
                   />
                   <span>{opt.label}</span>
-                </div>
+                </Label>
               ))}
-            </div>
+            </RadioGroupPrimitive>
           </div>
 
           {/* Multi-day fields */}
@@ -467,61 +469,59 @@ export function DraftCrudModal({ isOpen, onClose, onSave, editingDraft, events, 
           />
 
           <div>
-            <MdSelect
+            <Label htmlFor="draft-progress" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Progress</Label>
+            <NativeSelect
               id="draft-progress"
               value={form.progress}
-              onChange={value => set('progress', value)}
-              label="Progress"
+              onChange={(e) => set('progress', e.target.value)}
               className="w-full"
-              options={[
-                { value: 'draft', label: 'Draft' },
-                { value: 'confirm', label: 'Konfirmasi' },
-                { value: 'cancel', label: 'Batal' },
-              ]}
-            />
+            >
+              <NativeSelectOption value="draft">Draft</NativeSelectOption>
+              <NativeSelectOption value="confirm">Konfirmasi</NativeSelectOption>
+              <NativeSelectOption value="cancel">Batal</NativeSelectOption>
+            </NativeSelect>
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="draft-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</Label>
+            <Textarea
               id="draft-keterangan"
-              type="textarea"
               value={form.keterangan}
-              onChange={value => set('keterangan', value)}
+              onChange={(e) => set('keterangan', e.target.value)}
               rows={2}
-              label="Keterangan"
               placeholder="Tulis status progres atau catatan follow-up event"
               className="w-full"
             />
           </div>
           <div>
-            <MdTextField
+            <Label htmlFor="draft-internal-note" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan Internal</Label>
+            <Textarea
               id="draft-internal-note"
-              type="textarea"
               value={form.internalNote}
-              onChange={value => set('internalNote', value)}
+              onChange={(e) => set('internalNote', e.target.value)}
               rows={2}
-              label="Catatan Internal"
               placeholder="Catatan admin internal, tidak ikut diterbitkan ke event utama"
               className="w-full"
             />
           </div>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
               className="flex-1"
             >
               Batal
-            </MdButton>
-            <MdButton
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting}
               className="flex-1"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Draft Event' : 'Tambah Draft Event'}
-            </MdButton>
+            </Button>
           </div>
         </form>
       </div>

@@ -7,7 +7,9 @@ import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
 import { sortTableEvents, formatDateRange, getMultiDayJamDisplay, isMultiDayEvent, isRecurringEvent } from '../../utils/eventUtils';
 import { resolveAreaDisplay } from '../../utils/areaGrouping';
-import { MdButton, MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 
 interface Props {
   events: EventItem[];
@@ -149,9 +151,15 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
         aria-live="polite"
         role="status"
       >
-        <CalendarDays className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
-        <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
-        <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
+        <Empty className="border-0 bg-transparent p-0">
+          <EmptyMedia className="mb-3">
+            <CalendarDays className="h-10 w-10 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle className="text-sm font-medium">Tidak ada acara ditemukan</EmptyTitle>
+            <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
     );
   }
@@ -177,16 +185,19 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
             {group.events.map(ev => (
               <div key={ev.id} className={`space-y-3 p-4 ${ev.status === 'past' ? 'opacity-80' : ''}`}>
                 {/* Kartu mobile full-width: target klik yang membungkus konten
-                    (judul, badge, meta) — ini layout, bukan kontrol, jadi tetap
-                    native. `role="button"` pada <div> dipakai alih-alih <button>
-                    bersarang agar kontrol aksi di bawahnya tetap valid. */}
-                <div
+                    (judul, badge, meta) — shadcn `Button` ghost dengan chrome
+                    primitif dinetralkan supaya lebar/tinggi/padding/radius asli
+                    tidak berubah. `role`/`tabIndex`/`aria-label` dipertahankan;
+                    `onKeyDown` dihapus karena `<button>` asli sudah menangani
+                    Enter/Space (menyimpannya = `onDetail` terpanggil dua kali). */}
+                <Button
+                  type="button"
+                  variant="ghost"
                   role="button"
                   tabIndex={0}
                   onClick={() => onDetail(ev)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
                   aria-label={`Lihat detail ${ev.acara}`}
-                  className="ui-focus-ring w-full cursor-pointer rounded-lg text-left"
+                  className="flex! flex-col! items-stretch! justify-start! h-auto! w-full! gap-0! rounded-lg border-0! p-0! cursor-pointer text-left! whitespace-normal! font-normal! hover:bg-transparent! dark:hover:bg-transparent! ui-focus-ring focus-visible:ring-0 active:translate-y-0!"
                 >
                   <div className="mb-2 flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -216,17 +227,17 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
 
                    <div className="mt-3 space-y-1.5 text-xs text-[var(--wf-ink-muted)]">
                      <div className="flex items-center gap-1.5">
-                       <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
+                       <Clock className="size-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
                        <span>{isMultiDayEvent(ev) ? formatDateRange(ev.dateStr, ev.dateEnd) : `${ev.day}, ${ev.tanggal}`}</span>
                        {(isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam) && <span className="text-[var(--wf-ink-muted)]">· {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : ev.jam}</span>}
                      </div>
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
+                      <MapPin className="size-3.5 shrink-0 text-[var(--wf-ink-muted)]" />
                       <span className="line-clamp-2">{ev.lokasi || '-'}</span>
                     </div>
                     {ev.eo && <p className="text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}: {ev.eo}</p>}
                   </div>
-                   </div>
+                   </Button>
 
                 {/* `grid-cols-2`: empat tombol (Detail/Sembunyikan/Ubah/Hapus)
                     tidak muat satu baris di layar sempit — tanpa wrap tombol
@@ -235,29 +246,30 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                     menjaga lebar tombol setara alih-alih menyisakan satu tombol
                     selebar penuh. */}
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <MdButton variant="outlined" onClick={() => onDetail(ev)}>
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Detail
-                  </MdButton>
+                  <Button variant="outline" size="sm" onClick={() => onDetail(ev)}>
+                    <ExternalLink className="size-3.5" aria-hidden /> Detail
+                  </Button>
                   {onToggleVisibility && (
-                      <MdButton
-                        variant="outlined"
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => onToggleVisibility(ev)}
-                        ariaLabel={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                        aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
                       >
                         {ev.status === 'draft'
-                          ? <><Eye className="h-3.5 w-3.5" aria-hidden /> Tampilkan</>
-                          : <><EyeOff className="h-3.5 w-3.5" aria-hidden /> Sembunyikan</>}
-                      </MdButton>
+                          ? <><Eye className="size-3.5" aria-hidden /> Tampilkan</>
+                          : <><EyeOff className="size-3.5" aria-hidden /> Sembunyikan</>}
+                      </Button>
                   )}
                   {onEdit && (
-                      <MdButton variant="outlined" onClick={() => onEdit(ev)}>
-                        <Edit2 className="h-3.5 w-3.5" aria-hidden /> Ubah
-                      </MdButton>
+                      <Button variant="outline" size="sm" onClick={() => onEdit(ev)}>
+                        <Edit2 className="size-3.5" aria-hidden /> Ubah
+                      </Button>
                   )}
                   {onDelete && (
-                      <MdButton variant="outlined" danger onClick={() => onDelete(ev)}>
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden /> Hapus
-                      </MdButton>
+                      <Button variant="outline" size="sm" onClick={() => onDelete(ev)} className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]">
+                        <Trash2 className="size-3.5" aria-hidden /> Hapus
+                      </Button>
                   )}
                 </div>
               </div>
@@ -282,54 +294,54 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
         aria-label="Daftar jadwal event"
         tabIndex={0}
       >
-        <table className="w-full min-w-[60rem] text-sm">
+        <Table className="min-w-[60rem]">
           <caption className="sr-only">Tabel jadwal event</caption>
-          <thead className="sticky top-0 z-10 bg-[var(--wf-board-2)]">
-            <tr className="ui-dashboard-muted border-b border-[var(--wf-rule)]">
-              <th scope="col" className="px-4 py-3 text-left">
+          <TableHeader className="sticky top-0 z-10 bg-[var(--wf-board-2)] [&_tr]:border-b-0">
+            <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)] hover:bg-transparent">
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
-                  <ArrowUpDown className="h-3 w-3" aria-hidden="true" /> Tanggal
+                  <ArrowUpDown className="size-3.5" aria-hidden="true" /> Tanggal
                 </span>
-              </th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</th>
-              {isAdmin && <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</th>}
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</th>
+              </TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Waktu</TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Acara</TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Lokasi</TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Status</TableHead>
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Kategori</TableHead>
+              {isAdmin && <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Model</TableHead>}
+              <TableHead scope="col" className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">{isAdmin ? 'EO' : 'Penyelenggara'}</TableHead>
               {/* `sticky right-0`: kolom Aksi dipin di kanan supaya tombol
                   Sembunyikan/Ubah/Hapus SELALU terlihat tanpa perlu menggeser
                   tabel ke kanan. `z-20` agar berada di atas sel-sel lain. */}
-              <th scope="col" className="sticky right-0 z-20 border-l border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--wf-rule)]">
+              <TableHead scope="col" className="sticky right-0 z-20 h-auto border-l border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-[var(--wf-rule)] [&_tr:last-child]:border-0">
             {groupedEvents.map((group, i) => {
               const prevGrp: TableGroup | null = i > 0 ? (groupedEvents[i - 1] as TableGroup | undefined) ?? null : null;
               const showAreaHeader = group.areaKey && group.areaKey !== prevGrp?.areaKey;
               return (
               <Fragment key={`${group.areaKey || 'm'}-${group.monthKey}`}>
                 {showAreaHeader && (
-                  <tr className="bg-[var(--wf-accent-soft)]">
-                    <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-[var(--wf-accent)]">
+                  <TableRow className="bg-[var(--wf-accent-soft)] hover:bg-[var(--wf-accent-soft)]">
+                    <TableCell colSpan={isAdmin ? 9 : 8} className="px-4 py-2 text-xs font-bold text-[var(--wf-accent)]">
                       <Layers className="inline h-3.5 w-3.5 -mt-0.5 mr-1.5" aria-hidden="true" />
                       {group.areaName}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-                <tr key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-[var(--wf-rule)]">
-                  <td colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
+                <TableRow key={`${group.monthKey}-header`} className="ui-dashboard-muted border-y border-[var(--wf-rule)] hover:bg-transparent">
+                  <TableCell colSpan={isAdmin ? 9 : 8} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)]">
                     {group.monthLabel}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
                 {group.events.map(ev => (
-                  <tr
+                  <TableRow
                     key={ev.id}
                     className={`group transition-colors hover:bg-[var(--wf-board-2)] ${ev.status === 'past' ? '[&>td:not(:last-child)]:opacity-80' : ''}`}
                   >
                     {/* Date */}
-                    <td className="whitespace-nowrap px-4 py-3">
+                    <TableCell className="whitespace-nowrap px-4 py-3">
                       {isMultiDayEvent(ev) ? (
                         <div className="text-xs font-semibold text-[var(--wf-ink)]">{formatDateRange(ev.dateStr, ev.dateEnd)}</div>
                       ) : (
@@ -338,16 +350,16 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                           <div className="text-xs text-[var(--wf-ink-muted)]">{ev.tanggal}</div>
                         </>
                       )}
-                    </td>
+                    </TableCell>
                     {/* Time */}
-                    <td className="whitespace-nowrap px-4 py-3">
+                    <TableCell className="whitespace-nowrap px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
                         <Clock className="h-3 w-3 text-[var(--wf-ink-muted)]" />
                         {isMultiDayEvent(ev) ? getMultiDayJamDisplay(ev) : (ev.jam || '-')}
                       </span>
-                    </td>
+                    </TableCell>
                     {/* Event name */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <p className="font-semibold ui-text-strong">{ev.acara}</p>
                       {ev.keterangan && (
                         <p className="mt-0.5 line-clamp-1 text-xs text-[var(--wf-ink-muted)]">{ev.keterangan}</p>
@@ -357,29 +369,29 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                           <PriorityBadge priority={ev.priority} />
                         </div>
                       )}
-                    </td>
+                    </TableCell>
                     {/* Location */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs text-[var(--wf-ink-muted)]">
                         <MapPin className="h-3 w-3 flex-shrink-0 text-[var(--wf-ink-muted)]" />
                         <span className="line-clamp-2">{resolveAreaDisplay(ev.areaId, ev.lokasi, areas ?? []) || '-'}</span>
                       </span>
-                    </td>
+                    </TableCell>
                     {/* Status */}
-                    <td className="whitespace-nowrap px-4 py-3">
+                    <TableCell className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={ev.status} />
                         {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full bg-[var(--wf-accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">Reguler</span>}
                       </div>
-                    </td>
+                    </TableCell>
                     {/* Category */}
-                    <td className="whitespace-nowrap px-4 py-3">
+                    <TableCell className="whitespace-nowrap px-4 py-3">
                       <div className="flex flex-wrap gap-1.5">
                         <CategoryBadges categories={ev.categories} maxVisible={2} />
                       </div>
-                    </td>
+                    </TableCell>
                     {isAdmin && (
-                      <td className="whitespace-nowrap px-4 py-3">
+                      <TableCell className="whitespace-nowrap px-4 py-3">
                         {(() => {
                           const modelBadge = getEventModelBadge(ev.eventModel);
                           return modelBadge ? (
@@ -388,68 +400,69 @@ export function EventTable({ events, isAdmin, areas, onEdit, onDelete, onToggleV
                             </span>
                           ) : <span className="text-xs text-[var(--wf-ink-muted)]">-</span>;
                         })()}
-                      </td>
+                      </TableCell>
                     )}
                     {/* EO — nama penyelenggara bisa sangat panjang. Dulu
                         `whitespace-nowrap` membuat kolom ini ~254px dan ikut
                         mendikte lebar tabel. Biarkan terpotong dengan tooltip. */}
-                    <td className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
+                    <TableCell className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
                       <span className="block max-w-[12rem] truncate" title={ev.eo || undefined}>
                         {ev.eo || '-'}
                       </span>
-                    </td>
+                    </TableCell>
                     {/* Actions — dipin di kanan (`sticky right-0`), jadi selalu
                         terlihat walau tabel lebih lebar dari panel. Latar harus
                         opaque (bukan transparan) supaya kolom di bawahnya tidak
                         tembus saat tergeser; `group-hover` menyamai hover baris. */}
-                    <td className="sticky right-0 z-10 border-l border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-right transition-colors group-hover:bg-[var(--wf-board-2)]" onClick={e => e.stopPropagation()}>
+                    <TableCell className="sticky right-0 z-10 border-l border-[var(--wf-rule)] bg-[var(--wf-board)] px-4 py-3 text-right transition-colors group-hover:bg-[var(--wf-board-2)]" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
-                        <MdIconButton ariaLabel="Lihat detail" onClick={() => onDetail(ev)}>
-                          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                        </MdIconButton>
+                        <Button variant="ghost" size="icon-sm" aria-label="Lihat detail" onClick={() => onDetail(ev)} className="active:translate-y-0">
+                          <ExternalLink className="size-3.5" aria-hidden="true" />
+                        </Button>
                         {onToggleVisibility && (
-                          <MdButton
-                            variant="text"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => onToggleVisibility(ev)}
-                            ariaLabel={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
+                            aria-label={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
                             title={ev.status === 'draft' ? 'Tampilkan di halaman publik' : 'Sembunyikan dari halaman publik'}
                           >
                             {ev.status === 'draft'
-                              ? <><Eye className="h-3.5 w-3.5" aria-hidden="true" /> Tampilkan</>
-                              : <><EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> Sembunyikan</>}
-                          </MdButton>
+                              ? <><Eye className="size-3.5" aria-hidden="true" /> Tampilkan</>
+                              : <><EyeOff className="size-3.5" aria-hidden="true" /> Sembunyikan</>}
+                          </Button>
                         )}
                         {(onEdit || onDelete) && (
                           <>
                             {onEdit && (
-                            <MdIconButton ariaLabel='Ubah acara' onClick={() => onEdit(ev)}>
-                              <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </MdIconButton>
+                            <Button variant="ghost" size="icon-sm" aria-label="Ubah acara" onClick={() => onEdit(ev)} className="active:translate-y-0">
+                              <Edit2 className="size-3.5" aria-hidden="true" />
+                            </Button>
                             )}
                             {onDelete && (
-                            <MdIconButton ariaLabel="Hapus acara" onClick={() => onDelete(ev)}>
-                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                            </MdIconButton>
+                            <Button variant="ghost" size="icon-sm" aria-label="Hapus acara" onClick={() => onDelete(ev)} className="active:translate-y-0">
+                              <Trash2 className="size-3.5" aria-hidden="true" />
+                            </Button>
                             )}
                           </>
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
               </Fragment>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       {/* Footer */}
       <div className="ui-dashboard-muted flex items-center justify-between border-t border-[var(--wf-rule)] px-4 py-2.5">
         <p className="text-xs text-[var(--wf-ink-muted)]">Menampilkan {events.length} acara</p>
         {isAdmin && (
-          <MdButton variant="text" onClick={() => exportCSV(events)}>
-            <Download className="h-3 w-3" aria-hidden /> Ekspor CSV
-          </MdButton>
+          <Button variant="ghost" size="sm" onClick={() => exportCSV(events)}>
+            <Download className="size-3.5" aria-hidden /> Ekspor CSV
+          </Button>
         )}
       </div>
     </div>

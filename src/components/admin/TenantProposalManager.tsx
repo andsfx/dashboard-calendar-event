@@ -2,7 +2,10 @@ import { useMemo, useState } from 'react';
 import {
   Building2, CalendarDays, ChevronDown, ChevronUp, FileText, Mail, MapPin, Phone, Users,
 } from 'lucide-react';
-import { MdButton, MdChip, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
+import { Textarea } from '../shadcn/textarea';
+import { Toggle } from '../shadcn/toggle';
 import type { TenantEventProposal, TenantEventProposalStatus, TenantEventProposalType } from '../../types';
 import { formatDateRange } from '../../utils/eventUtils';
 
@@ -205,13 +208,17 @@ export function TenantProposalManager({
       {/* Saringan status. Klik chip yang sedang aktif mengembalikan ke Semua. */}
       <div className="flex flex-wrap gap-2">
         {STATUS_FILTERS.map((tab) => (
-          <MdChip
+          <Toggle
             key={tab.key}
-            label={tab.label}
-            selected={filter === tab.key}
-            onClick={() => setFilter((current) => (current === tab.key ? 'all' : tab.key))}
-            leadingIcon={tab.dot ? <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
-          />
+            variant="outline"
+            size="sm"
+            pressed={filter === tab.key}
+            onPressedChange={() => setFilter((current) => (current === tab.key ? 'all' : tab.key))}
+            className="rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)]"
+          >
+            {tab.dot && <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" />}
+            {tab.label}
+          </Toggle>
         ))}
       </div>
 
@@ -221,7 +228,7 @@ export function TenantProposalManager({
           className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-control)] border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
         >
           <span>{error}</span>
-          <MdButton variant="outlined" onClick={() => onRetry()}>Coba lagi</MdButton>
+          <Button variant="outline" size="sm" onClick={() => onRetry()}>Coba lagi</Button>
         </div>
       )}
 
@@ -337,14 +344,15 @@ export function TenantProposalManager({
               )}
 
               <div className="mt-2">
-                <MdButton
-                  variant="text"
-                  ariaLabel={`${isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'} - ${item.tenantName}`}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'} - ${item.tenantName}`}
                   onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))}
                 >
-                  {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                  {isOpen ? <ChevronUp className="size-4" aria-hidden="true" /> : <ChevronDown className="size-4" aria-hidden="true" />}
                   {isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'}
-                </MdButton>
+                </Button>
               </div>
 
               {/* Zona detail: deskripsi, kebutuhan fasilitas, dan ruang review. */}
@@ -369,45 +377,49 @@ export function TenantProposalManager({
                         {STATUSES
                           .filter((status) => status !== item.status)
                           .map((status) => (
-                            <MdButton
+                            <Button
                               key={status}
-                              variant="outlined"
+                              variant="outline"
+                              size="sm"
                               disabled={busy}
-                              ariaLabel={`${STATUS_LABELS[status]} - ${item.tenantName}`}
+                              aria-label={`${STATUS_LABELS[status]} - ${item.tenantName}`}
                               onClick={() => void handleReview(item.id, status, item)}
                             >
                               {STATUS_LABELS[status]}
-                            </MdButton>
+                            </Button>
                           ))}
                       </div>
 
                       <div className="flex flex-wrap items-end gap-2">
-                        <MdTextField
-                          className="min-w-[260px] flex-1"
-                          type="textarea"
-                          rows={2}
-                          label="Catatan internal"
-                          maxLength={2000}
-                          value={notes}
-                          onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value, base: item.internalNotes } }))}
-                        />
-                        <MdButton
-                          variant="text"
+                        <div className="min-w-[260px] flex-1">
+                          <Label htmlFor={`tp-notes-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan internal</Label>
+                          <Textarea
+                            id={`tp-notes-${item.id}`}
+                            rows={2}
+                            maxLength={2000}
+                            value={notes}
+                            onChange={(e) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value: e.target.value, base: item.internalNotes } }))}
+                          />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={busy || !notesDirty}
-                          ariaLabel={`Simpan catatan - ${item.tenantName}`}
+                          aria-label={`Simpan catatan - ${item.tenantName}`}
                           onClick={() => void handleSaveNotes(item)}
                         >
                           Simpan catatan
-                        </MdButton>
-                        <MdButton
-                          variant="text"
-                          danger
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={busy}
-                          ariaLabel={`Hapus - ${item.tenantName}`}
+                          aria-label={`Hapus - ${item.tenantName}`}
                           onClick={() => void handleDelete(item)}
+                          className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]"
                         >
                           Hapus
-                        </MdButton>
+                        </Button>
                       </div>
 
                       <p className="text-[11px] text-[var(--wf-ink-muted)]">

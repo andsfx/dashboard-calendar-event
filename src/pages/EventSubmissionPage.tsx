@@ -12,6 +12,11 @@ import { CATEGORY_COLORS } from '../utils/eventUtils';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
+import { Button } from '../components/shadcn/button';
+import { Input } from '../components/shadcn/input';
+import { Label } from '../components/shadcn/label';
+import { NativeSelect } from '../components/shadcn/native-select';
+import { Textarea } from '../components/shadcn/textarea';
 import mallLogo from '../assets/brand/LOGOMETMAL2016-01.svg';
 
 interface Props {
@@ -47,9 +52,10 @@ const EMPTY_FORM: FormState = {
   honeypot: '',
 };
 
-const inputClass = 'w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm outline-none transition ui-focus-ring dark:bg-slate-700 dark:text-white';
-const okInput = 'border-slate-200 focus-visible:border-brand-primary-600 dark:border-slate-600 dark:focus-visible:border-brand-primary-300';
-const errInput = 'border-red-500 focus-visible:border-red-600 dark:focus-visible:border-red-300';
+const inputClass = 'w-full rounded-xl border bg-[var(--wf-board-2)]! px-3 py-2 text-sm outline-none transition ui-focus-ring h-auto field-sizing-fixed! focus-visible:ring-2! focus-visible:ring-[var(--brand-tosca)]!';
+const okInput = 'border-[var(--wf-rule)]! focus-visible:border-[var(--wf-accent)]!';
+const errInput = 'border-red-500! focus-visible:border-red-600! dark:focus-visible:border-red-300!';
+const labelClass = 'mb-1 block! text-xs font-semibold leading-normal text-[var(--wf-ink-muted)]';
 
 export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
   usePageMeta({
@@ -148,10 +154,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
   };
 
   return (
-    <div className="events-landing min-h-screen overflow-x-clip bg-[var(--color-neutral-page)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="events-landing min-h-screen overflow-x-clip bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -161,33 +167,34 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 outline-none">
         {submitted ? (
           <RevealSection as="div" refreshKey={submittedName}>
-          <div className="rounded-[2rem] border border-[var(--border-subtle)] bg-white px-6 py-10 text-center shadow-[var(--shadow-card-soft)] sm:px-10 dark:border-slate-700 dark:bg-slate-900">
+          <div className="rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--wf-board)] px-6 py-10 text-center shadow-[var(--shadow-card-soft)] sm:px-10  ">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
               <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="mt-5 font-display text-2xl font-bold text-[var(--wf-ink)]">
               Pengajuan Terkirim!
             </h1>
             {submittedName && (
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-2 text-sm text-[var(--wf-ink-muted)]">
                 Event <span className="font-semibold">"{submittedName}"</span> sudah masuk antrian review.
               </p>
             )}
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-300">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--wf-ink-muted)]">
               Tim Marcomm Metropolitan Mall Bekasi akan meninjau pengajuanmu dan menghubungi PIC melalui nomor HP yang terdaftar untuk langkah berikutnya.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] ui-focus-ring"
+                className="h-auto items-center gap-2 rounded-full bg-[var(--wf-accent)]! px-5 py-2.5 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! ui-focus-ring"
               >
                 <CalendarPlus className="h-4 w-4" aria-hidden="true" />
                 Ajukan event lain
-              </button>
+              </Button>
               <Link
                 to="/events"
-                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 ui-focus-ring"
+                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-[var(--wf-board)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] ui-focus-ring"
               >
                 Jadwal Event
               </Link>
@@ -198,10 +205,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
           <>
             <RevealSection as="div" className="mb-7">
               <img src={mallLogo} alt="Logo Metropolitan Mall Bekasi" className="mb-4 h-10 w-auto" />
-              <h1 className="font-display text-2xl font-bold leading-tight text-slate-900 sm:text-3xl dark:text-white">
+              <h1 className="font-display text-2xl font-bold leading-tight text-[var(--wf-ink)] sm:text-3xl">
                 Ajukan Event di Metmal Bekasi
               </h1>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-300">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--wf-ink-muted)]">
                 Punya acara bazar, workshop, pameran, atau kegiatan komunitas? Kirim pengajuanmu. Tim Marcomm kami akan mereview dan menghubungimu.
               </p>
             </RevealSection>
@@ -209,12 +216,12 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="rounded-[2rem] border border-[var(--border-subtle)] bg-white p-5 shadow-[var(--shadow-card-soft)] sm:p-7 dark:border-slate-700 dark:bg-slate-900"
+              className="rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5 shadow-[var(--shadow-card-soft)] sm:p-7  "
             >
               {/* Honeypot — tersembunyi dari manusia, isian bot drop diam-diam */}
               <div className="sr-only" aria-hidden="true">
-                <label htmlFor="sub-website">Website</label>
-                <input
+                <Label htmlFor="sub-website">Website</Label>
+                <Input
                   id="sub-website"
                   type="text"
                   tabIndex={-1}
@@ -226,10 +233,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label htmlFor="sub-acara" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-acara" className={labelClass}>
                     Nama Acara <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-acara"
                     type="text"
                     value={form.acara}
@@ -243,10 +250,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-date" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-date" className={labelClass}>
                     Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-date"
                     type="date"
                     value={form.dateStr}
@@ -258,10 +265,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-date-end" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-date-end" className={labelClass}>
                     Tanggal Selesai (opsional)
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-date-end"
                     type="date"
                     value={form.dateEnd}
@@ -274,10 +281,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-jam" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-jam" className={labelClass}>
                     Jam (opsional)
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-jam"
                     type="text"
                     value={form.jam}
@@ -288,10 +295,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-lokasi" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-lokasi" className={labelClass}>
                     Lokasi (opsional)
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-lokasi"
                     type="text"
                     value={form.lokasi}
@@ -302,10 +309,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-eo" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-eo" className={labelClass}>
                     Nama Organisasi / EO <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-eo"
                     type="text"
                     value={form.eo}
@@ -318,10 +325,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-pic" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-pic" className={labelClass}>
                     Nama PIC <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-pic"
                     type="text"
                     value={form.pic}
@@ -334,10 +341,10 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-phone" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-phone" className={labelClass}>
                     No. HP (WhatsApp) <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="sub-phone"
                     type="tel"
                     value={form.phone}
@@ -350,27 +357,27 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </div>
 
                 <div>
-                  <label htmlFor="sub-category" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-category" className={labelClass}>
                     Kategori (opsional)
-                  </label>
-                  <select
+                  </Label>
+                  <NativeSelect
                     id="sub-category"
                     value={form.category}
                     onChange={e => setField('category', e.target.value)}
-                    className={`${inputClass} ${okInput}`}
+                    className="w-full [&>select]:h-auto [&>select]:rounded-xl [&>select]:border-[var(--wf-rule)]! [&>select]:bg-[var(--wf-board-2)]! [&>select]:py-2 [&>select]:pl-3 [&>select]:focus-visible:border-[var(--wf-accent)]!"
                   >
                     <option value="">Pilih kategori</option>
                     {Object.keys(CATEGORY_COLORS).map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="sub-keterangan" className="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <Label htmlFor="sub-keterangan" className={labelClass}>
                     Keterangan (opsional)
-                  </label>
-                  <textarea
+                  </Label>
+                  <Textarea
                     id="sub-keterangan"
                     value={form.keterangan}
                     onChange={e => setField('keterangan', e.target.value)}
@@ -390,10 +397,11 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                 </p>
               )}
 
-              <button
+              <Button
                 type="submit"
+                variant="ghost"
                 disabled={isSubmitting}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 ui-focus-ring"
+                className="mt-6 h-auto w-full items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)]! px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] transition hover:bg-[var(--wf-page)]! hover:text-[var(--wf-accent-ink)]! active:translate-y-0! disabled:opacity-60 ui-focus-ring"
               >
                 {isSubmitting ? (
                   <>
@@ -406,8 +414,8 @@ export function EventSubmissionPage({ isDark, onToggleDark }: Props) {
                     Kirim Pengajuan
                   </>
                 )}
-              </button>
-              <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-300">
+              </Button>
+              <p className="mt-3 text-center text-xs text-[var(--wf-ink-muted)]">
                 Data PIC dan nomor HP hanya digunakan untuk proses review oleh tim Marcomm.
               </p>
             </form>

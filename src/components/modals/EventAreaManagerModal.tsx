@@ -35,7 +35,12 @@ import {
 import { suggestAreaId } from '../../utils/areaGrouping';
 import { adminThumbUrl } from '../../utils/imageOptim';
 import { useConfirmDialog } from './useConfirmDialog';
-import { MdButton, MdCheckbox, MdIconButton, MdLinearProgress, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
+import { Input } from '../shadcn/input';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { Checkbox } from '../shadcn/checkbox';
+import { Progress } from '../shadcn/progress';
 
 interface Props {
   /** Akun demo: hanya melihat. Tombol mutasi disembunyikan (backend juga menolak). */
@@ -434,13 +439,15 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {view !== 'list' && (
-            <MdIconButton
-              ariaLabel="Kembali"
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Kembali"
               onClick={goBackToList}
               className="mt-1"
             >
               <ChevronLeft className="h-4 w-4" />
-            </MdIconButton>
+            </Button>
           )}
           <div className="min-w-0">
             {view !== 'list' && (
@@ -462,10 +469,10 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <p>{error}</p>
-                <MdButton variant="text" onClick={loadAreas} className="mt-2 underline underline-offset-2">
+                <Button variant="ghost" type="button" onClick={loadAreas} className="mt-2 underline underline-offset-2">
                   <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                   Coba lagi
-                </MdButton>
+                </Button>
               </div>
             </div>
           )}
@@ -481,25 +488,27 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
           {view === 'list' && !isLoading && (
             <>
               {!readOnly && !editing && !isCreating && areas.length > 0 && (
-                <MdButton
-                  variant="outlined"
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={startCreate}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
                   Tambah Area Baru
-                </MdButton>
+                </Button>
               )}
 
               {!editing && !isCreating && areas.length > 0 && (
-                <MdButton
-                  variant="outlined"
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={() => { setView('mapping'); loadMapping(); }}
                   className="w-full"
                 >
                   <Layers className="h-4 w-4" />
                   Pemetaan Lokasi
-                </MdButton>
+                </Button>
               )}
 
               {/* Create/Edit form */}
@@ -509,43 +518,45 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                     {editing ? 'Ubah Area' : 'Area Baru'}
                   </p>
                   <div>
-                    <label htmlFor="area-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</label>
-                    <MdTextField
+                    <Label htmlFor="area-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</Label>
+                    <Input
                       id="area-name"
                       value={formName}
-                      onChange={setFormName}
+                      onChange={(e) => setFormName(e.target.value)}
                       placeholder="Atrium, Main Lobby, dsb."
-                      ariaLabel="Nama Area"
+                      aria-label="Nama Area"
                       className="w-full"
                     />
                   </div>
                   <div>
-                    <label htmlFor="area-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
-                    <MdTextField
+                    <Label htmlFor="area-desc" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</Label>
+                    <Input
                       id="area-desc"
                       value={formDesc}
-                      onChange={setFormDesc}
+                      onChange={(e) => setFormDesc(e.target.value)}
                       placeholder="Deskripsi singkat area (opsional)"
-                      ariaLabel="Deskripsi"
+                      aria-label="Deskripsi"
                       className="w-full"
                     />
                   </div>
                   <div className="flex items-center gap-2">
                     {(editing || isCreating) && (
-                      <MdButton
-                        variant="outlined"
+                      <Button
+                        variant="outline"
+                        type="button"
                         onClick={cancelForm}
                       >
                         Batal
-                      </MdButton>
+                      </Button>
                     )}
-                    <MdButton
+                    <Button
+                      type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       {editing ? 'Simpan' : 'Buat Area'}
-                    </MdButton>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -584,7 +595,15 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                         )}
                       </div>
 
-                      <div className="min-w-0 flex-1 cursor-pointer" onClick={() => openAreaDetail(area)}>
+                      {/* Blok nama area: dulu `div` ber-onClick (tidak bisa dijangkau
+                          keyboard). `Button` memberi tab stop + Enter/Space gratis;
+                          kelas asli dipertahankan dan chrome primitive dinetralkan. */}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="min-w-0 flex-1 shrink! cursor-pointer ui-focus-ring h-auto! flex! flex-col! items-stretch! justify-start! gap-0! p-0! rounded-none! border-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0!"
+                        onClick={() => openAreaDetail(area)}
+                      >
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-semibold text-[var(--wf-ink)]">
                             {area.name}
@@ -600,57 +619,67 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                           <span>{area.photoCount ?? 0} foto</span>
                           {editing?.id === area.id && <span>• sedang diubah</span>}
                         </div>
-                      </div>
+                      </Button>
 
                       {/* Reorder */}
                       {!readOnly && <div className="flex flex-col opacity-0 transition-[opacity] group-hover:opacity-100">
-                        <MdIconButton
-                          ariaLabel="Naik"
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Naik"
                           title="Naik"
                           onClick={() => handleMoveArea(area, -1)}
                           disabled={idx === 0}
                           className="-m-1"
                         >
                           <ChevronLeft className="h-4 w-4 rotate-90" />
-                        </MdIconButton>
-                        <MdIconButton
-                          ariaLabel="Turun"
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Turun"
                           title="Turun"
                           onClick={() => handleMoveArea(area, 1)}
                           disabled={idx === areas.length - 1}
                           className="-m-1"
                         >
                           <ChevronLeft className="h-4 w-4 -rotate-90" />
-                        </MdIconButton>
+                        </Button>
                       </div>}
 
                       {/* Toggle active */}
-                      {!readOnly && <MdIconButton
-                        ariaLabel={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
+                      {!readOnly && <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
                         title={area.isActive ? 'Sembunyikan dari landing' : 'Tampilkan di landing'}
                         onClick={() => handleToggleActive(area)}
                         className="opacity-0 transition-[opacity] group-hover:opacity-100"
                       >
                         {area.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                      </MdIconButton>}
+                      </Button>}
 
                       {/* Edit */}
-                      {!readOnly && <MdIconButton
-                        ariaLabel="Ubah area"
+                      {!readOnly && <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Ubah area"
                         onClick={() => startEdit(area)}
                         className="opacity-0 transition-[opacity] group-hover:opacity-100"
                       >
                         <Pencil className="h-4 w-4" />
-                      </MdIconButton>}
+                      </Button>}
 
                       {/* Delete */}
-                      {!readOnly && <MdIconButton
-                        ariaLabel="Hapus area"
+                      {!readOnly && <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Hapus area"
                         onClick={(e) => { e.stopPropagation(); handleDeleteArea(area); }}
                         className="opacity-0 transition-[opacity] group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </MdIconButton>}
+                      </Button>}
                     </div>
                   ))}
                 </div>
@@ -706,53 +735,58 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                                 : ''}
                             </p>
                           </div>
-                          <MdSelect
+                          <NativeSelect
                             value={chosen}
-                            onChange={next => {
+                            onChange={e => {
+                              const next = e.target.value;
                               setMappingChoice(prev => ({ ...prev, [row.lokasi]: next }));
                               // Ikutkan target teks ke nama area baru (bila belum diubah manual)
                               const areaName = areas.find(a => a.id === next)?.name ?? '';
                               setMappingTarget(prev => ({ ...prev, [row.lokasi]: areaName }));
                             }}
-                            ariaLabel={`Area untuk ${row.lokasi}`}
-                            options={[
-                              { value: '', label: '- Abaikan -' },
-                              ...areas.map(a => ({ value: a.id, label: `${a.name}${a.id === suggested ? ' (saran)' : ''}` })),
-                            ]}
+                            aria-label={`Area untuk ${row.lokasi}`}
                             className="w-full sm:w-52"
-                          />
+                          >
+                            <NativeSelectOption value="">- Abaikan -</NativeSelectOption>
+                            {areas.map(a => (
+                              <NativeSelectOption key={a.id} value={a.id}>
+                                {`${a.name}${a.id === suggested ? ' (saran)' : ''}`}
+                              </NativeSelectOption>
+                            ))}
+                          </NativeSelect>
 
                           {chosen && (
-                            <label className="flex w-full cursor-pointer flex-col gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 sm:w-64">
+                            <Label className="flex w-full cursor-pointer flex-col gap-1.5 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-3 py-2 sm:w-64">
                               <span className="flex items-center gap-2 text-[11px] font-semibold text-[var(--wf-ink-muted)]">
-                                <MdCheckbox
+                                <Checkbox
                                   checked={Boolean(mappingRename[row.lokasi])}
-                                  onChange={checked =>
-                                    setMappingRename(prev => ({ ...prev, [row.lokasi]: checked }))
+                                  onCheckedChange={checked =>
+                                    setMappingRename(prev => ({ ...prev, [row.lokasi]: checked === true }))
                                   }
-                                  ariaLabel="Seragamkan teks lokasi"
+                                  aria-label="Seragamkan teks lokasi"
                                   className="shrink-0"
                                 />
                                 Seragamkan teks lokasi
                               </span>
-                              <MdTextField
+                              <Input
                                 value={mappingTarget[row.lokasi] || ''}
-                                onChange={value =>
-                                  setMappingTarget(prev => ({ ...prev, [row.lokasi]: value }))
+                                onChange={e =>
+                                  setMappingTarget(prev => ({ ...prev, [row.lokasi]: e.target.value }))
                                 }
                                 disabled={!mappingRename[row.lokasi]}
                                 placeholder="Nama lokasi baru"
-                                ariaLabel={`Teks lokasi baru untuk ${row.lokasi}`}
+                                aria-label={`Teks lokasi baru untuk ${row.lokasi}`}
                                 className="w-full"
                               />
-                            </label>
+                            </Label>
                           )}
                         </div>
                       );
                     })}
                   </div>
 
-                  {!readOnly && <MdButton
+                  {!readOnly && <Button
+                    type="button"
                     onClick={handleApplyMapping}
                     disabled={isApplying}
                     className="w-full"
@@ -763,7 +797,7 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                       <Save className="h-4 w-4" />
                     )}
                     {isApplying ? 'Menerapkan…' : 'Terapkan Pemetaan'}
-                  </MdButton>}
+                  </Button>}
                 </>
               )}
             </>
@@ -773,13 +807,14 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
           {view === 'detail' && !isLoading && selectedArea && (
             <>
               {/* Active toggle */}
-              <MdButton
-                variant="outlined"
+              <Button
+                variant="outline"
+                type="button"
                 onClick={() => handleToggleActive(selectedArea)}
               >
                 {selectedArea.isActive ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                 {selectedArea.isActive ? 'Tampil di landing' : 'Disembunyikan dari landing'}
-              </MdButton>
+              </Button>
 
               {areaPhotos.length > 0 && (
                 <div>
@@ -800,22 +835,26 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                             </div>
                           )}
                           {!readOnly && !isCover && (
-                            <MdIconButton
-                              ariaLabel="Jadikan Cover"
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Jadikan Cover"
                               title="Jadikan Cover"
                               onClick={() => handleSetCover(photo.url)}
                               className="absolute left-1.5 top-1.5 z-10"
                             >
                               <Star className="h-3.5 w-3.5" />
-                            </MdIconButton>
+                            </Button>
                           )}
-                          {!readOnly && <MdIconButton
-                            ariaLabel="Hapus foto"
+                          {!readOnly && <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Hapus foto"
                             onClick={() => handleDeletePhoto(photo)}
                             className="absolute right-1.5 top-1.5 z-10"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </MdIconButton>}
+                          </Button>}
 
                           <div className="aspect-[4/3] w-full">
                             <img
@@ -838,24 +877,28 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                               </p>
                             </div>
                             <div className="flex shrink-0 flex-col">
-                              <MdIconButton
-                                ariaLabel="Naik"
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Naik"
                                 title="Naik"
                                 onClick={() => handleMovePhoto(photo, -1)}
                                 disabled={idx === 0}
                                 className="-m-1"
                               >
                                 <ChevronLeft className="h-4 w-4 rotate-90" />
-                              </MdIconButton>
-                              <MdIconButton
-                                ariaLabel="Turun"
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Turun"
                                 title="Turun"
                                 onClick={() => handleMovePhoto(photo, 1)}
                                 disabled={idx === areaPhotos.length - 1}
                                 className="-m-1"
                               >
                                 <ChevronLeft className="h-4 w-4 -rotate-90" />
-                              </MdIconButton>
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -922,13 +965,15 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                             className="h-full w-full object-cover"
                           />
                           {!uploading && (
-                            <MdIconButton
-                              ariaLabel="Hapus berkas"
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Hapus berkas"
                               onClick={(e) => { e.stopPropagation(); setUploadFiles(prev => prev.filter((_, i) => i !== idx)); }}
                               className="absolute right-1 top-1"
                             >
                               <X className="h-3.5 w-3.5" />
-                            </MdIconButton>
+                            </Button>
                           )}
                         </div>
                       ))}
@@ -936,22 +981,23 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                     <p className="text-xs text-[var(--wf-ink-muted)]">{uploadFiles.length} foto dipilih</p>
                     {uploading && uploadProgress.total > 0 && (
                       <div className="space-y-1">
-                        <MdLinearProgress
-                          value={uploadProgress.current / uploadProgress.total}
-                          ariaLabel="Progres unggah"
+                        <Progress
+                          value={Math.min(100, Math.max(0, Math.round((uploadProgress.current / uploadProgress.total) * 100)))}
+                          aria-label="Progres unggah"
                         />
                         <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
                     )}
                     {!uploading && (
-                      <MdButton
+                      <Button
+                        type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
                         className="w-full"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
-                      </MdButton>
+                      </Button>
                     )}
                   </div>
                 )}
@@ -962,39 +1008,41 @@ export function EventAreaManagerModal({ readOnly = false, onAreasChanged }: Prop
                 <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4">
                   <p className="text-xs font-semibold text-[var(--wf-accent)]">Ubah Area</p>
                   <div>
-                    <label htmlFor="area-name-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</label>
-                    <MdTextField
+                    <Label htmlFor="area-name-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Area *</Label>
+                    <Input
                       id="area-name-edit"
                       value={formName}
-                      onChange={setFormName}
-                      ariaLabel="Nama Area"
+                      onChange={(e) => setFormName(e.target.value)}
+                      aria-label="Nama Area"
                       className="w-full"
                     />
                   </div>
                   <div>
-                    <label htmlFor="area-desc-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</label>
-                    <MdTextField
+                    <Label htmlFor="area-desc-edit" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Deskripsi</Label>
+                    <Input
                       id="area-desc-edit"
                       value={formDesc}
-                      onChange={setFormDesc}
-                      ariaLabel="Deskripsi"
+                      onChange={(e) => setFormDesc(e.target.value)}
+                      aria-label="Deskripsi"
                       className="w-full"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <MdButton
-                      variant="outlined"
+                    <Button
+                      variant="outline"
+                      type="button"
                       onClick={() => { setEditing(null); resetForm(); }}
                     >
                       Batal
-                    </MdButton>
-                    <MdButton
+                    </Button>
+                    <Button
+                      type="button"
                       onClick={handleSaveArea}
                       disabled={!formName.trim() || isSaving}
                     >
                       {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" /> : <Save className="h-3.5 w-3.5" />}
                       Simpan
-                    </MdButton>
+                    </Button>
                   </div>
                 </div>
               )}

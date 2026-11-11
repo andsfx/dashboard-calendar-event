@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, AlertCircle, FileText } from 'lucide-react';
-import { GeneratedLetter, LetterRequestItem } from '../types';
+import { GeneratedLetter, LetterDocument } from '../types';
 import { apiGet } from '../lib/rest';
+import { downloadBlob, safeFileName } from '../lib/download';
 import { downloadLetterPdf } from '../utils/letterPdfExport';
+import { downloadSikPdf } from '../utils/sikPdfExport';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
 
 interface Props {
   isDark: boolean;
@@ -34,11 +37,17 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
       try {
         // GET /api/v1/letters/:id — publik, status='active' saja (server 404 lainnya).
         const data = await apiGet<Record<string, unknown>>(`/letters/${encodeURIComponent(id)}`);
+        // `doc_type` di kolom adalah turunan `letter_data.docType`; baris lama → 'ske'.
+        const letterData = data.letter_data as LetterDocument | undefined;
+        const docType: GeneratedLetter['docType'] =
+          (data.doc_type as GeneratedLetter['docType']) ||
+          (letterData?.docType === 'sik' ? 'sik' : 'ske');
         setLetter({
           id: String(data.id ?? ''),
           eventId: (data.event_id as string) || undefined,
           draftEventId: (data.draft_event_id as string) || undefined,
-          letterData: data.letter_data as LetterRequestItem,
+          docType,
+          letterData: letterData as LetterDocument,
           pdfUrl: (data.pdf_url as string) || undefined,
           pdfBase64: (data.pdf_base64 as string) || undefined,
           createdAt: String(data.created_at ?? new Date().toISOString()),
@@ -59,7 +68,20 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
   const handleDownload = async () => {
     if (!letter) return;
     try {
-      await downloadLetterPdf(letter.letterData);
+      // Snapshot server (sudah ter-render) menang: tidak perlu render ulang di browser.
+      if (letter.pdfBase64) {
+        const binary = atob(letter.pdfBase64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+        const nomor = safeFileName(letter.letterData.nomorSurat, 'surat');
+        downloadBlob(new Blob([bytes], { type: 'application/pdf' }), `${nomor}.pdf`);
+        return;
+      }
+      if (letter.letterData.docType === 'sik') {
+        await downloadSikPdf(letter.letterData);
+      } else {
+        await downloadLetterPdf(letter.letterData);
+      }
     } catch (err) {
       console.error('Download failed:', err);
       setError('Gagal mengunduh PDF');
@@ -68,10 +90,10 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--brand-paper)] dark:bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--wf-page)]">
         <div className="text-center">
           <FileText size={48} className="mx-auto mb-4 animate-pulse text-[var(--brand-tosca-soft)] motion-reduce:animate-none" />
-          <p className="text-slate-600 dark:text-slate-300">Memuat surat…</p>
+          <p className="text-[var(--wf-ink-muted)]">Memuat surat…</p>
         </div>
       </div>
     );
@@ -79,25 +101,26 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
 
   if (error || !letter) {
     return (
-      <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+      <div className="min-h-screen bg-[var(--wf-page)]">
         <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
         <main id="konten-utama" tabIndex={-1} className="flex justify-center p-4 outline-none">
-          <div className="mt-12 max-w-md rounded-2xl border border-red-200 bg-[var(--brand-card-light)] p-6 text-center shadow-[var(--shadow-card-soft)] dark:border-red-800 dark:bg-slate-800">
+          <div className="mt-12 max-w-md rounded-2xl border border-red-200 bg-[var(--wf-board)] p-6 text-center shadow-[var(--shadow-card-soft)]">
             <AlertCircle size={48} className="mx-auto mb-4 text-red-500" aria-hidden />
-            <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
+            <h1 className="mb-2 text-xl font-bold text-[var(--wf-ink)]">
               Surat Tidak Ditemukan
             </h1>
-            <p className="mb-4 text-slate-600 dark:text-slate-300">
+            <p className="mb-4 text-[var(--wf-ink-muted)]">
               {error || 'Surat yang Anda cari tidak tersedia.'}
             </p>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => navigate('/')}
-              className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+              className="ui-btn-primary ui-focus-ring mx-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--wf-page)] flex! h-auto border-0 rounded-full! active:translate-y-0!"
             >
               <ArrowLeft size={16} aria-hidden />
               Kembali ke Beranda
-            </button>
+            </Button>
           </div>
         </main>
       </div>
@@ -109,28 +132,29 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
     : letter.pdfUrl;
 
   return (
-    <div className="min-h-screen bg-[var(--brand-paper)] dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--wf-page)]">
       <PublicSiteHeader
         isDark={isDark}
         onToggleDark={onToggleDark}
         actions={
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handleDownload}
-            className="ui-focus-ring inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-black/8 px-3 py-2 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="ui-focus-ring inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-black/8! px-3 py-2 text-[13px] md:text-[13px] font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]! h-auto rounded-full! leading-normal active:translate-y-0! hover:text-[var(--wf-ink-muted)]!"
           >
             <Download size={16} aria-hidden />
             Unduh PDF
-          </button>
+          </Button>
         }
       />
 
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 pt-6 pb-4 outline-none sm:px-6">
         <div className="mb-4">
-          <h1 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
-            Surat Konfirmasi Event
+          <h1 className="text-lg font-bold text-[var(--wf-ink)] sm:text-xl">
+            {letter.docType === 'sik' ? 'Surat Izin Kerja' : 'Surat Konfirmasi Event'}
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-300">
+          <p className="text-xs text-[var(--wf-ink-muted)]">
             {letter.letterData.namaEvent || 'Tanpa Judul'} &middot;
             Dibuat {new Date(letter.createdAt).toLocaleDateString('id-ID', {
               day: 'numeric',
@@ -141,7 +165,7 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
         </div>
 
         {pdfSrc ? (
-          <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-white shadow-[var(--shadow-card-soft)] dark:border-slate-700">
+          <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] shadow-[var(--shadow-card-soft)] ">
             {/* Ruang non-PDF: header 64 px + pt-6 24 px + pb-4 16 px + judul dan
                 subjudul 44 px + mb-4 16 px = 164 px, dibulatkan ke 168 px
                 (`10.5rem`) supaya tidak ada scroll halaman. */}
@@ -152,19 +176,20 @@ export function PublicLetterViewer({ isDark, onToggleDark }: Props) {
             />
           </div>
         ) : (
-          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-8 text-center shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-800">
-            <FileText size={48} className="mx-auto mb-4 text-slate-500" aria-hidden />
-            <p className="text-slate-600 dark:text-slate-300">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] p-8 text-center shadow-[var(--shadow-card-soft)]">
+            <FileText size={48} className="mx-auto mb-4 text-[var(--wf-ink-muted)]" aria-hidden />
+            <p className="text-[var(--wf-ink-muted)]">
               PDF tidak tersedia untuk surat ini.
             </p>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={handleDownload}
-              className="ui-btn-primary ui-focus-ring mx-auto mt-4 flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-tosca-dark)]"
+              className="ui-btn-primary ui-focus-ring mx-auto mt-4 flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--wf-page)] flex! h-auto border-0 rounded-full! active:translate-y-0!"
             >
               <Download size={16} aria-hidden />
               Buat & Unduh PDF
-            </button>
+            </Button>
           </div>
         )}
       </main>

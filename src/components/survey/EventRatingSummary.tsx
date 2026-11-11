@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, ChevronDown, ChevronUp } from 'lucide-react';
 import type { SurveySummary } from '../../types';
 import { apiGet } from '../../lib/rest';
+import { Button } from '../shadcn/button';
 
 interface EventRatingSummaryProps {
   eventId: string;
@@ -9,10 +10,10 @@ interface EventRatingSummaryProps {
 }
 
 const ratingColor = (n: number | null | undefined): string => {
-  if (n == null) return 'text-slate-500 dark:text-slate-300';
-  if (n >= 8) return 'text-emerald-700 dark:text-emerald-300';
-  if (n >= 5) return 'text-yellow-700 dark:text-yellow-300';
-  return 'text-red-600 dark:text-red-300';
+  if (n == null) return 'text-[var(--wf-ink-muted)]';
+  if (n >= 8) return 'text-[var(--wf-live)]';
+  if (n >= 5) return 'text-[var(--wf-action)]';
+  return 'text-[var(--wf-danger)]';
 };
 
 export default function EventRatingSummary({ eventId, compact = false }: EventRatingSummaryProps) {
@@ -51,31 +52,36 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+    <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] p-3">
       {/* Header */}
-      <button
+      {/* Baris disclosure penuh yang membungkus konten blok (ikon + judul +
+          meta + chevron): shadcn `Button` ghost dengan chrome primitif
+          dinetralkan (h-auto/p-0/border-0/rounded-none) supaya tinggi baris
+          tidak membengkak 32px dan latar tetap transparan. */}
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between"
+        className="flex! h-auto! w-full! items-center justify-between! gap-0! whitespace-normal! rounded-none border-0! p-0! text-left! font-normal! hover:bg-transparent! dark:hover:bg-transparent! active:translate-y-0!"
       >
         <div className="flex items-center gap-2">
-          <Star className={`h-4 w-4 fill-current ${ratingColor(mallOverall)}`} />
-          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+          <Star className={`size-4 fill-current ${ratingColor(mallOverall)}`} />
+          <span className="text-sm font-semibold text-[var(--wf-ink)]">
             Rating: <span className={ratingColor(mallOverall)}>{mallOverall?.toFixed(1) || '-'}</span>/10
           </span>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-[var(--wf-ink-muted)]">
             ({summary.total_responses} responden)
           </span>
         </div>
         {expanded
-          ? <ChevronUp className="h-4 w-4 text-slate-500" />
-          : <ChevronDown className="h-4 w-4 text-slate-500" />
+          ? <ChevronUp className="size-4 text-[var(--wf-ink-muted)]" />
+          : <ChevronDown className="size-4 text-[var(--wf-ink-muted)]" />
         }
-      </button>
+      </Button>
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="mt-3 space-y-3 border-t border-slate-100 pt-3 dark:border-slate-700">
+        <div className="mt-3 space-y-3 border-t border-[var(--wf-rule)] pt-3">
           {/* Mall ratings */}
           <div>
             <p className="mb-2 text-xs font-semibold ui-text-muted">Pengelola Tempat</p>
@@ -101,7 +107,7 @@ export default function EventRatingSummary({ eventId, compact = false }: EventRa
             </div>
           )}
 
-          <p className="text-[10px] text-slate-500">
+          <p className="text-[10px] text-[var(--wf-ink-muted)]">
             {summary.organizer_responses} penyelenggara · {summary.public_responses} peserta
           </p>
         </div>
@@ -116,12 +122,12 @@ function RatingRow({ label, value }: { label: string; value: number | null | und
   return (
     <div className="space-y-0.5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-slate-600 dark:text-slate-300">{label}</span>
+        <span className="text-[11px] text-[var(--wf-ink-muted)]">{label}</span>
         <span className={`text-[11px] font-semibold ${ratingColor(v)}`}>{v > 0 ? v.toFixed(1) : '-'}</span>
       </div>
-      <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+      <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--wf-rule)]">
         <div
-          className={`h-full rounded-full transition-[width] duration-500 ${v >= 8 ? 'bg-emerald-600 dark:bg-emerald-400' : v >= 5 ? 'bg-yellow-700 dark:bg-yellow-300' : 'bg-red-600 dark:bg-red-300'}`}
+          className={`h-full rounded-full transition-[width] duration-500 ${v >= 8 ? 'bg-[var(--wf-live)]' : v >= 5 ? 'bg-[var(--wf-action)]' : 'bg-[var(--wf-danger)]'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

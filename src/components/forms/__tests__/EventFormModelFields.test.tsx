@@ -18,9 +18,9 @@ describe('EventFormModelFields', () => {
   })
 
   it('shows all model options', () => {
-    const { container } = render(<EventFormModelFields {...mockProps} />)
-    // md-select kini merender <select> native (mock jsdom), jadi opsinya ada di DOM.
-    const select = container.querySelector('md-outlined-select') as HTMLElement
+    render(<EventFormModelFields {...mockProps} />)
+    // NativeSelect merender <select> native; opsinya ada di DOM.
+    const select = screen.getByLabelText('Model Event')
     expect(within(select).getByRole('option', { name: 'Pilih model' })).toBeInTheDocument()
     expect(within(select).getByRole('option', { name: 'Free' })).toBeInTheDocument()
     expect(within(select).getByRole('option', { name: 'Bayar' })).toBeInTheDocument()
@@ -46,12 +46,10 @@ describe('EventFormModelFields', () => {
   })
 
   it('calls onFieldChange when model changes', () => {
-    const { container } = render(<EventFormModelFields {...mockProps} />)
-    const select = container.querySelector('md-outlined-select')
-    if (select) {
-      fireEvent.change(select, { target: { value: 'bayar' } })
-      expect(mockProps.onFieldChange).toHaveBeenCalledWith('eventModel', 'bayar')
-    }
+    render(<EventFormModelFields {...mockProps} />)
+    const select = screen.getByLabelText('Model Event')
+    fireEvent.change(select, { target: { value: 'bayar' } })
+    expect(mockProps.onFieldChange).toHaveBeenCalledWith('eventModel', 'bayar')
   })
 
   it('shows error messages', () => {

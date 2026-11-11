@@ -6,7 +6,10 @@ import {
 } from 'lucide-react';
 import type { TenantEventSurvey, EventItem, TenantSurveyStatus } from '../../types';
 import { isV3Survey } from '../../utils/surveyUtils';
-import { MdButton, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { NativeSelect } from '../shadcn/native-select';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../shadcn/table';
 
 interface TenantSurveyListProps {
   surveys: TenantEventSurvey[];
@@ -260,9 +263,9 @@ export default function TenantSurveyList({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p>{error}</p>
-            <MdButton variant="text" onClick={onRefresh} className="mt-1">
+            <Button variant="ghost" onClick={onRefresh} className="mt-1">
               Coba lagi
-            </MdButton>
+            </Button>
           </div>
         </div>
       </div>
@@ -284,16 +287,16 @@ export default function TenantSurveyList({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative min-w-0 flex-1 group">
             <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-            <MdTextField
+            <Input
               type="search"
               value={search}
-              onChange={setSearch}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari tenant, event, PIC, kategori…"
               // Placeholder hilang saat diketik dan bukan nama aksesibel
               // (axe: label-title-only). Label visual tidak ditambahkan karena
               // ikon kaca pembesar + placeholder sudah menandai fungsinya.
-              ariaLabel="Cari tenant, event, PIC, kategori"
-              className="w-full"
+              aria-label="Cari tenant, event, PIC, kategori"
+              className="w-full pl-9"
             />
           </div>
 
@@ -301,18 +304,18 @@ export default function TenantSurveyList({
               tampil juga untuk role read-only (mis. demo) dan selalu gagal 403
               setelah form diisi — lebih baik disembunyikan sejak awal. */}
           {isAdmin && <div className="relative shrink-0">
-            <MdButton variant="filled" className="w-full sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
-              <ClipboardCheck className="h-4 w-4" />
+            <Button className="w-full sm:w-auto" onClick={() => setShowEventPicker(!showEventPicker)}>
+              <ClipboardCheck className="size-4" />
               Buat Self-Assessment
-            </MdButton>
+            </Button>
 
             {showEventPicker && (
               <div className="ui-dashboard-surface absolute right-0 z-20 mt-2 w-[min(calc(100%-2rem),20rem)] p-2 sm:w-80">
-                <MdTextField
+                <Input
                   type="search"
                   value={eventQuery}
-                  onChange={setEventQuery}
-                  ariaLabel="Cari event…"
+                  onChange={(e) => setEventQuery(e.target.value)}
+                  aria-label="Cari event…"
                   placeholder="Cari event…"
                   className="mb-2 w-full"
                 />
@@ -325,23 +328,26 @@ export default function TenantSurveyList({
                 ) : (
                   <div className="max-h-64 overflow-y-auto">
                     {availableEvents.map((ev) => (
-                      /* Sengaja tetap <button> native: baris daftar penuh yang
-                         membungkus dua blok teks (layout), bukan kontrol. */
-                      <button
+                      /* Baris daftar penuh (dua blok teks) — shadcn `Button` ghost
+                         dengan chrome primitif dinetralkan. `[text-align:left]`
+                         dipakai (bukan `text-left`) karena `cn` mendedupe kelas
+                         ber-key `text`, jadi `text-sm` asli akan ikut terbuang. */
+                      <Button
                         key={ev.id}
                         type="button"
+                        variant="ghost"
                         onClick={() => {
                           onNewSurvey(ev.id);
                           setShowEventPicker(false);
                           setEventQuery('');
                         }}
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--wf-board-2)]"
+                        className="flex! h-auto! w-full! cursor-pointer items-center justify-start! gap-2 whitespace-normal! rounded-xl border-0! px-3 py-2 text-sm transition-colors hover:bg-[var(--wf-board-2)]! [text-align:left] active:translate-y-0! font-normal!"
                       >
                         <span className="flex-1 truncate text-[var(--wf-ink)]">{ev.acara}</span>
                         <span className="shrink-0 text-[10px] text-[var(--wf-ink-muted)]">
                           {ev.status === 'past' ? 'past' : ev.status === 'ongoing' ? 'live' : ev.status}
                         </span>
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -362,10 +368,10 @@ export default function TenantSurveyList({
                     ? counts.submitted
                     : counts.reviewed;
             return (
-              <MdButton
+              <Button
                 key={tab.key}
-                variant={statusFilter === tab.key ? 'filled' : 'outlined'}
-                ariaPressed={statusFilter === tab.key}
+                variant={statusFilter === tab.key ? 'default' : 'outline'}
+                aria-pressed={statusFilter === tab.key}
                 onClick={() => setStatusFilter(tab.key)}
               >
                 {tab.dot && (
@@ -383,7 +389,7 @@ export default function TenantSurveyList({
                 >
                   {count}
                 </span>
-              </MdButton>
+              </Button>
             );
           })}
         </div>
@@ -391,33 +397,35 @@ export default function TenantSurveyList({
         {/* Secondary filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-          <MdSelect
+          <NativeSelect
             value={eventFilter}
-            onChange={setEventFilter}
-            ariaLabel="Filter event"
-            options={[
-              { value: 'all', label: 'Semua event' },
-              ...eventsInData.map((ev) => ({ value: ev.id, label: ev.acara })),
-            ]}
-          />
+            onChange={(e) => setEventFilter(e.target.value)}
+            aria-label="Filter event"
+          >
+            <option value="all">Semua event</option>
+            {eventsInData.map((ev) => (
+              <option key={ev.id} value={ev.id}>{ev.acara}</option>
+            ))}
+          </NativeSelect>
 
           {kategoriInData.length > 0 && (
-            <MdSelect
+            <NativeSelect
               value={kategoriFilter}
-              onChange={setKategoriFilter}
-              ariaLabel="Filter kategori"
-              options={[
-                { value: 'all', label: 'Semua kategori' },
-                ...kategoriInData.map((k) => ({ value: k, label: k })),
-              ]}
-            />
+              onChange={(e) => setKategoriFilter(e.target.value)}
+              aria-label="Filter kategori"
+            >
+              <option value="all">Semua kategori</option>
+              {kategoriInData.map((k) => (
+                <option key={k} value={k}>{k}</option>
+              ))}
+            </NativeSelect>
           )}
 
           {hasActiveFilters && (
-            <MdButton variant="text" onClick={clearFilters}>
-              <X className="h-3 w-3" />
+            <Button variant="ghost" onClick={clearFilters}>
+              <X className="size-3" />
               Reset filter
-            </MdButton>
+            </Button>
           )}
 
           <span className="ml-auto text-[11px] tabular-nums text-[var(--wf-ink-muted)]">
@@ -449,9 +457,9 @@ export default function TenantSurveyList({
           <p className="mt-2 text-sm font-medium text-[var(--wf-ink-muted)]">
             Tidak ada hasil filter
           </p>
-          <MdButton variant="text" className="mt-2" onClick={clearFilters}>
+          <Button variant="ghost" className="mt-2" onClick={clearFilters}>
             Reset filter
-          </MdButton>
+          </Button>
         </div>
       ) : (
         <>
@@ -539,132 +547,130 @@ export default function TenantSurveyList({
 
           {/* Desktop table */}
           <div className="ui-dashboard-surface hidden overflow-hidden md:block">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
-                <thead>
-<tr className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
-                    <th scope="col" className="px-4 py-3">Tenant</th>
-                    <th scope="col" className="px-4 py-3">Event</th>
-                    <th scope="col" className="px-4 py-3">Dampak</th>
-                    <th scope="col" className="px-4 py-3">Status</th>
-                    <th scope="col" className="px-4 py-3">Tanggal</th>
-                    <th scope="col" className="px-4 py-3 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--wf-rule)]">
-                  {pageItems.map((survey) => {
-                    const ev = eventMap.get(survey.event_id);
-                    const v3 = isV3Survey(survey);
-                    return (
-                      <tr
-                        key={survey.id}
-                        className="group transition-colors hover:bg-[var(--wf-board-2)]"
-                      >
-                        <td className="px-4 py-3">
-                          <div className="min-w-0">
-                            <p className="truncate font-semibold text-[var(--wf-ink)]">
-                              {tenantLabel(survey)}
-                            </p>
-                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[var(--wf-ink-muted)]">
-                              {v3 ? (
-                                <>
-                                  {survey.lokasi_zona && (
-                                    <span className="inline-flex items-center gap-0.5">
-                                      <MapPin className="h-3 w-3" />
-                                      {survey.lokasi_zona}
-                                    </span>
-                                  )}
-                                  {survey.kategori && (
-                                    <span className="inline-flex items-center gap-0.5">
-                                      <Tag className="h-3 w-3" />
-                                      {survey.kategori}
-                                    </span>
-                                  )}
-                                  {survey.pic_name && (
-                                    <span className="inline-flex items-center gap-0.5">
-                                      <User className="h-3 w-3" />
-                                      {survey.pic_name}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {survey.tenant_organization && (
-                                    <span>{survey.tenant_organization}</span>
-                                  )}
-                                  {survey.pic_phone && (
-                                    <span className="inline-flex items-center gap-0.5">
-                                      <Phone className="h-3 w-3" />
-                                      {survey.pic_phone}
-                                    </span>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="max-w-[14rem] truncate text-[var(--wf-ink)]">
-                            {ev?.acara || survey.event_id}
+            <Table className="min-w-[720px] text-left">
+              <TableHeader>
+                <TableRow className="ui-dashboard-muted border-b border-[var(--wf-rule)] text-[11px] font-semibold uppercase tracking-wide text-[var(--wf-ink-muted)] ">
+                  <TableHead scope="col" className="px-4 py-3">Tenant</TableHead>
+                  <TableHead scope="col" className="px-4 py-3">Event</TableHead>
+                  <TableHead scope="col" className="px-4 py-3">Dampak</TableHead>
+                  <TableHead scope="col" className="px-4 py-3">Status</TableHead>
+                  <TableHead scope="col" className="px-4 py-3">Tanggal</TableHead>
+                  <TableHead scope="col" className="px-4 py-3 text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+            <TableBody className="divide-y divide-[var(--wf-rule)]">
+              {pageItems.map((survey) => {
+                  const ev = eventMap.get(survey.event_id);
+                  const v3 = isV3Survey(survey);
+                  return (
+                    <TableRow
+                      key={survey.id}
+                      className="group transition-colors hover:bg-[var(--wf-board-2)]"
+                    >
+                      <TableCell className="px-4 py-3">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-[var(--wf-ink)]">
+                            {tenantLabel(survey)}
                           </p>
-                          <p className="text-[11px] text-[var(--wf-ink-muted)]">{ev?.dateStr || '-'}</p>
-                        </td>
-                        <td className="px-4 py-3">
-                          {v3 ? (
-                            <div className="space-y-0.5 text-[11px]">
-                              <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
-                                <TrendingUp className="h-3 w-3 text-[var(--wf-ink-muted)]" />
-                                {survey.kenaikan_traffic || '-'}
-                              </p>
-                              <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
-                                <DollarSign className="h-3 w-3 text-[var(--wf-ink-muted)]" />
-                                {survey.kenaikan_sales || '-'}
-                              </p>
-                            </div>
-                          ) : (
-                            <span className={`inline-flex items-center gap-1 text-sm font-bold tabular-nums ${ratingColor(survey.overall_rating)}`}>
-                              <Star className="h-3.5 w-3.5 fill-current" />
-                              {survey.overall_rating != null ? `${survey.overall_rating}/5` : '-'}
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[var(--wf-ink-muted)]">
+                            {v3 ? (
+                              <>
+                                {survey.lokasi_zona && (
+                                  <span className="inline-flex items-center gap-0.5">
+                                    <MapPin className="h-3 w-3" />
+                                    {survey.lokasi_zona}
+                                  </span>
+                                )}
+                                {survey.kategori && (
+                                  <span className="inline-flex items-center gap-0.5">
+                                    <Tag className="h-3 w-3" />
+                                    {survey.kategori}
+                                  </span>
+                                )}
+                                {survey.pic_name && (
+                                  <span className="inline-flex items-center gap-0.5">
+                                    <User className="h-3 w-3" />
+                                    {survey.pic_name}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                {survey.tenant_organization && (
+                                  <span>{survey.tenant_organization}</span>
+                                )}
+                                {survey.pic_phone && (
+                                  <span className="inline-flex items-center gap-0.5">
+                                    <Phone className="h-3 w-3" />
+                                    {survey.pic_phone}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        <p className="max-w-[14rem] truncate text-[var(--wf-ink)]">
+                          {ev?.acara || survey.event_id}
+                        </p>
+                        <p className="text-[11px] text-[var(--wf-ink-muted)]">{ev?.dateStr || '-'}</p>
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        {v3 ? (
+                          <div className="space-y-0.5 text-[11px]">
+                            <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
+                              <TrendingUp className="h-3 w-3 text-[var(--wf-ink-muted)]" />
+                              {survey.kenaikan_traffic || '-'}
+                            </p>
+                            <p className="inline-flex items-center gap-1 text-[var(--wf-ink-muted)]">
+                              <DollarSign className="h-3 w-3 text-[var(--wf-ink-muted)]" />
+                              {survey.kenaikan_sales || '-'}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className={`inline-flex items-center gap-1 text-sm font-bold tabular-nums ${ratingColor(survey.overall_rating)}`}>
+                            <Star className="h-3.5 w-3.5 fill-current" />
+                            {survey.overall_rating != null ? `${survey.overall_rating}/5` : '-'}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        <div className="flex flex-col items-start gap-1">
+                          <StatusBadge status={survey.status} />
+                          {v3 && (
+                            <span className="rounded-full bg-[var(--wf-accent-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">
+                              Publik
                             </span>
                           )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-col items-start gap-1">
-                            <StatusBadge status={survey.status} />
-                            {v3 && (
-                              <span className="rounded-full bg-[var(--wf-accent-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--wf-accent)]">
-                                Publik
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-xs tabular-nums text-[var(--wf-ink-muted)]">
-                          {formatShortDate(survey.submitted_at || survey.created_at)}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" compact />
-                            {(survey.status === 'draft' || isAdmin) && (
-                              <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Ubah" compact />
-                            )}
-                            {survey.status === 'draft' && (
-                              <ActionBtn
-                                onClick={() => handleSubmitDraft(survey.id)}
-                                icon={Send}
-                                label={submittingId === survey.id ? '…' : 'Kirim'}
-                                primary
-                                compact
-                                disabled={submittingId === survey.id}
-                              />
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-xs tabular-nums text-[var(--wf-ink-muted)]">
+                        {formatShortDate(survey.submitted_at || survey.created_at)}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <ActionBtn onClick={() => onViewDetail(survey)} icon={Eye} label="Detail" compact />
+                          {(survey.status === 'draft' || isAdmin) && (
+                            <ActionBtn onClick={() => openEdit(survey)} icon={Edit} label="Ubah" compact />
+                          )}
+                          {survey.status === 'draft' && (
+                            <ActionBtn
+                              onClick={() => handleSubmitDraft(survey.id)}
+                              icon={Send}
+                              label={submittingId === survey.id ? '…' : 'Kirim'}
+                              primary
+                              compact
+                              disabled={submittingId === survey.id}
+                            />
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
 
             {/* Pagination */}
             {totalPages > 1 && (
@@ -677,22 +683,22 @@ export default function TenantSurveyList({
                   </span>
                 </p>
                 <div className="flex items-center gap-1">
-                  <MdButton
-                    variant="outlined"
+                  <Button
+                    variant="outline"
                     disabled={safePage <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    <ChevronLeft className="h-3.5 w-3.5" />
+                    <ChevronLeft className="size-3.5" />
                     Sebelum
-                  </MdButton>
-                  <MdButton
-                    variant="outlined"
+                  </Button>
+                  <Button
+                    variant="outline"
                     disabled={safePage >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   >
                     Berikut
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </MdButton>
+                    <ChevronRight className="size-3.5" />
+                  </Button>
                 </div>
               </div>
             )}
@@ -701,25 +707,25 @@ export default function TenantSurveyList({
           {/* Mobile pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between md:hidden">
-              <MdButton
-                variant="outlined"
+              <Button
+                variant="outline"
                 disabled={safePage <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <ChevronLeft className="size-3.5" />
                 Sebelum
-              </MdButton>
+              </Button>
               <span className="text-xs tabular-nums text-[var(--wf-ink-muted)]">
                 {safePage} / {totalPages}
               </span>
-              <MdButton
-                variant="outlined"
+              <Button
+                variant="outline"
                 disabled={safePage >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
                 Berikut
-                <ChevronRight className="h-3.5 w-3.5" />
-              </MdButton>
+                <ChevronRight className="size-3.5" />
+              </Button>
             </div>
           )}
         </>
@@ -773,14 +779,14 @@ function ActionBtn({
   disabled?: boolean;
 }) {
   return (
-    <MdButton
-      variant={primary ? 'filled' : 'outlined'}
+    <Button
+      variant={primary ? 'default' : 'outline'}
       className={compact ? 'text-[11px]' : undefined}
       onClick={onClick}
       disabled={disabled}
     >
-      <Icon className="h-3 w-3" />
+      <Icon className="size-3" />
       {label}
-    </MdButton>
+    </Button>
   );
 }

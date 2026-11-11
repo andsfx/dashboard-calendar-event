@@ -52,9 +52,9 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
   // Tetap tampilkan ajakan ikut serta untuk event yang belum lewat.
   if (isLoading) {
     return (
-      <div className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-4 dark:border-slate-700 dark:bg-slate-900" aria-hidden="true">
-        <div className="h-5 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="mt-3 h-16 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
+ <div className="rounded-[1.5rem] border p-4 border-[var(--wf-rule)] bg-[var(--wf-board)]" aria-hidden="true">
+        <div className="h-5 w-40 animate-pulse rounded bg-[var(--wf-rule)] " />
+        <div className="mt-3 h-16 animate-pulse rounded-xl bg-[var(--wf-rule)] " />
       </div>
     );
   }
@@ -64,10 +64,10 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
   return (
     <section
       aria-labelledby="tenant-partisipasi-title"
-      className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-white p-5 dark:border-slate-700 dark:bg-slate-900"
+ className="rounded-[1.5rem] border p-5 border-[var(--wf-rule)] bg-[var(--wf-board)]"
     >
       <h2 id="tenant-partisipasi-title" className="flex items-center gap-2 font-display text-lg font-bold">
-        <Store className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
+        <Store className="h-5 w-5 text-[var(--wf-accent)] " aria-hidden="true" />
         Tenant di event ini
       </h2>
 
@@ -83,7 +83,7 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
               return (
                 <li
                   key={`${item.tenantName}-${index}`}
-                  className="rounded-[var(--radius-card)] border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700 dark:bg-slate-800/40"
+                  className="rounded-[var(--radius-card)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-4  "
                 >
                   <div className="flex items-start gap-3">
                     {item.tenantLogo ? (
@@ -91,70 +91,70 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
                         src={item.tenantLogo}
                         alt=""
                         loading="lazy"
-                        className="h-11 w-11 shrink-0 rounded-lg border border-slate-200 bg-white object-contain p-1 dark:border-slate-600"
+                        className="h-11 w-11 shrink-0 rounded-lg border border-[var(--wf-rule-strong)] bg-white object-contain p-1"
                       />
                     ) : (
                       <span
                         aria-hidden="true"
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-500"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--wf-rule-strong)] text-[var(--wf-ink-muted)] bg-[var(--wf-board)] "
                       >
                         <Store className="h-5 w-5" />
                       </span>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      <p className="text-sm font-bold text-[var(--wf-ink)] ">
                         {item.tenantName}
                         {item.unitNumber && (
-                          <span className="ml-2 text-xs font-normal text-slate-500 dark:text-slate-300">Unit {item.unitNumber}</span>
+                          <span className="ml-2 text-xs font-normal text-[var(--wf-ink-muted)] ">Unit {item.unitNumber}</span>
                         )}
                       </p>
                       {item.tenantCategory && (
-                        <p className="mt-0.5 text-xs ui-text-muted">{item.tenantCategory}</p>
+                        <p className="mt-0.5 text-xs text-[var(--wf-ink-muted)]">{item.tenantCategory}</p>
                       )}
                     </div>
                   </div>
 
                   {showBooth && (
-                    <div className="mt-3 space-y-1.5 border-t border-slate-200 pt-3 dark:border-slate-700">
-                      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-brand-primary-700 dark:text-brand-primary-300">
+                    <div className="mt-3 space-y-1.5 border-t border-[var(--wf-rule)] pt-3 ">
+                      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-[var(--wf-accent)] ">
                         <span className="inline-flex items-center gap-1">
                           <Store className="h-3.5 w-3.5" aria-hidden="true" /> Open booth
                         </span>
                         {item.boothArea && (
-                          <span className="inline-flex items-center gap-1 font-normal text-slate-600 dark:text-slate-300">
+                          <span className="inline-flex items-center gap-1 font-normal text-[var(--wf-ink-muted)] ">
                             <MapPin className="h-3.5 w-3.5" aria-hidden="true" /> {item.boothArea}
                           </span>
                         )}
                         {item.boothStart && (
-                          <span className="inline-flex items-center gap-1 font-normal text-slate-600 dark:text-slate-300">
+                          <span className="inline-flex items-center gap-1 font-normal text-[var(--wf-ink-muted)] ">
                             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                             {formatDateRange(item.boothStart, item.boothEnd || item.boothStart)}
                           </span>
                         )}
                       </p>
                       {item.boothProducts && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300 [overflow-wrap:anywhere]">
+                        <p className="text-xs text-[var(--wf-ink-muted)]  [overflow-wrap:anywhere]">
                           {item.boothProducts}
-                          {item.boothSize && <span className="ml-2 ui-text-muted">· {item.boothSize}</span>}
+                          {item.boothSize && <span className="ml-2 text-[var(--wf-ink-muted)]">· {item.boothSize}</span>}
                         </p>
                       )}
                     </div>
                   )}
 
                   {showVoucher && item.voucherTerms && (
-                    <div className="mt-3 space-y-1.5 border-t border-slate-200 pt-3 dark:border-slate-700">
+                    <div className="mt-3 space-y-1.5 border-t border-[var(--wf-rule)] pt-3 ">
                       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-brand-secondary-700 dark:text-brand-secondary-300">
                         <span className="inline-flex items-center gap-1">
                           <Tag className="h-3.5 w-3.5" aria-hidden="true" /> Voucher
                         </span>
-                        <span className="font-normal text-slate-600 dark:text-slate-300">{tenantParticipationOptionLabel('voucher_type', item.voucherType, options)}</span>
-                        <span className="font-normal ui-text-muted">
+                        <span className="font-normal text-[var(--wf-ink-muted)] ">{tenantParticipationOptionLabel('voucher_type', item.voucherType, options)}</span>
+                        <span className="font-normal text-[var(--wf-ink-muted)]">
                           {tenantParticipationOptionLabel('voucher_format', item.voucherFormat, options)}
                           {item.voucherQuota !== null && ` · ${item.voucherQuota} voucher`}
                         </span>
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 [overflow-wrap:anywhere]">{item.voucherTerms}</p>
-                      <p className="text-[11px] ui-text-muted">
+                      <p className="text-xs text-[var(--wf-ink-muted)]  [overflow-wrap:anywhere]">{item.voucherTerms}</p>
+                      <p className="text-[11px] text-[var(--wf-ink-muted)]">
                         Penukaran langsung di tenant penerbit selama event berlangsung.
                       </p>
                     </div>
@@ -174,16 +174,16 @@ export function EventTenantParticipationSection({ eventId, isPast }: Props) {
       {!isPast && (
         <Link
           to={`/partisipasi-tenant?event=${encodeURIComponent(eventId)}`}
-          className="mt-4 flex items-center gap-3 rounded-xl border border-brand-primary-200 bg-brand-primary-50 p-3.5 transition hover:bg-brand-primary-100 dark:border-brand-primary-800 dark:bg-brand-primary-900/20 dark:hover:bg-brand-primary-900/40 ui-focus-ring"
+          className="mt-4 flex items-center gap-3 rounded-xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-3.5 transition hover:bg-[var(--wf-accent-soft)]    ui-focus-ring"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary-100 dark:bg-brand-primary-900/50">
-            <Store className="h-4 w-4 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-accent-soft)] ">
+            <Store className="h-4 w-4 text-[var(--wf-accent)] " aria-hidden="true" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold text-brand-primary-700 dark:text-brand-primary-300">Punya tenant di Metropolitan Mall?</span>
-            <span className="block text-[11px] text-brand-primary-700 dark:text-brand-primary-400">Ajukan open booth atau voucher untuk event ini</span>
+            <span className="block text-sm font-semibold text-[var(--wf-accent)] ">Punya tenant di Metropolitan Mall?</span>
+            <span className="block text-[11px] text-[var(--wf-accent)] ">Ajukan open booth atau voucher untuk event ini</span>
           </span>
-          <ArrowRight className="h-4 w-4 shrink-0 text-brand-primary-600 dark:text-brand-primary-400" aria-hidden="true" />
+          <ArrowRight className="h-4 w-4 shrink-0 text-[var(--wf-accent)] " aria-hidden="true" />
         </Link>
       )}
     </section>

@@ -58,12 +58,12 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
   useMotionLabDemos({ parallaxRef, staggerRef, railRef });
 
   return (
-    <div className="min-h-screen bg-white text-slate-950 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-white text-[var(--wf-ink)]">
       <PublicSiteHeader isDark={isDark} onToggleDark={onToggleDark} />
 
       <main id="konten-utama" tabIndex={-1} className="outline-none">
         {/* ── Pengantar ─────────────────────────────────────────────── */}
-        <section className="border-b border-black/5 px-4 py-14 sm:px-6 dark:border-slate-800">
+        <section className="border-b border-black/5 px-4 py-14 sm:px-6 ">
           <div className="mx-auto max-w-7xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
               Prototipe, bukan permukaan produksi
@@ -81,7 +81,7 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
             <div className="mt-8 overflow-x-auto">
               <table className="w-full min-w-[44rem] border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b border-black/10 dark:border-slate-800">
+                  <tr className="border-b border-black/10 ">
                     <th scope="col" className="py-3 pr-4 font-semibold">Demo</th>
                     <th scope="col" className="py-3 pr-4 font-semibold">Plugin</th>
                     <th scope="col" className="py-3 pr-4 font-semibold">Tujuan gerak</th>
@@ -90,11 +90,11 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
                 </thead>
                 <tbody>
                   {BENCH.map((row) => (
-                    <tr key={row.id} className="border-b border-black/5 align-top dark:border-slate-800">
+                    <tr key={row.id} className="border-b border-black/5 align-top ">
                       <th scope="row" className="py-3 pr-4 font-semibold whitespace-nowrap">
                         {row.id}. {row.title}
                       </th>
-                      <td className="py-3 pr-4 font-mono text-xs ui-text-muted">{row.plugin}</td>
+                      <td className="py-3 pr-4 font-mono text-xs text-[var(--wf-ink-muted)]">{row.plugin}</td>
                       <td className="py-3 pr-4">{row.purpose}</td>
                       <td className="py-3">{row.risk}</td>
                     </tr>
@@ -121,7 +121,7 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/30 to-slate-950/80" />
 
           <div data-parallax-copy className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--wf-accent)]">
               Demo A
             </p>
             <h2 className="mt-4 max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">
@@ -140,10 +140,10 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
         {/* ── B. Stagger ────────────────────────────────────────────── */}
         <section
           ref={staggerRef}
-          className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-20 sm:px-6 dark:border-slate-800"
+          className="border-b border-black/5 bg-[var(--section-alt)] px-4 py-20 sm:px-6 "
         >
           <div className="mx-auto max-w-7xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary-700 dark:text-brand-primary-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--wf-accent)]">
               Demo B
             </p>
             <h2 className="mt-3 text-4xl font-bold leading-tight">Stagger per blok</h2>
@@ -157,9 +157,9 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
                 <li
                   key={id}
                   data-stagger-item
-                  className="rounded-[var(--radius-card)] border border-black/5 bg-white p-6 shadow-[var(--shadow-card-soft)] dark:border-slate-800 dark:bg-slate-900"
+                  className="rounded-[var(--radius-card)] border border-black/5 bg-white p-6 shadow-[var(--shadow-card-soft)]  "
                 >
-                  <span className="font-mono text-xs ui-text-muted">Blok {id}</span>
+                  <span className="font-mono text-xs text-[var(--wf-ink-muted)]">Blok {id}</span>
                   <h3 className="mt-2 text-lg font-semibold">Kartu contoh {id}</h3>
                   <p className="mt-2 text-sm leading-6 ui-text-secondary">
                     Urutan masuk mengikuti urutan baca, jadi mata tidak perlu mencari dari mana mulai.
@@ -177,7 +177,7 @@ export function MotionLabPage({ isDark, onToggleDark }: MotionLabPageProps) {
         >
           <div className="flex min-h-[70vh] flex-col justify-center py-16 lg:h-screen lg:py-0">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-primary-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--wf-accent)]">
                 Demo C
               </p>
               <h2 className="mt-3 text-4xl font-bold leading-tight">Rail pinned</h2>

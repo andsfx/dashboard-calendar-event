@@ -1,4 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, type CSSProperties } from 'react';
+import { Input } from '../shadcn/input';
+import { Textarea } from '../shadcn/textarea';
 
 interface EditableTextProps {
   value: string;
@@ -13,8 +15,8 @@ interface EditableTextProps {
 }
 
 /**
- * A single-line input styled to read as plain text in the letter.
- * Appears as regular text when not focused, becomes editable on click/focus.
+ * A single-line input styled to read as plain document text.
+ * Always rendered as an <input> (WYSIWYG) unless disabled.
  */
 export function EditableText({
   value,
@@ -27,84 +29,50 @@ export function EditableText({
   id,
   disabled = false,
 }: EditableTextProps) {
-  const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when editing starts
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
-  const handleClick = () => {
-    if (!disabled) {
-      setIsEditing(true);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
-      e.preventDefault();
-      setIsEditing(true);
-    }
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    onCommit?.(value);
-  };
+  const blur = () => inputRef.current?.blur();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
 
-  const baseClasses = 'transition-colors duration-200';
-  const displayClasses = `${baseClasses} ${
-    disabled 
-      ? 'text-[var(--wf-ink-muted)] cursor-not-allowed' 
-      : 'cursor-text hover:bg-[var(--wf-board-2)]'
-  }`;
-  const editClasses = `${baseClasses} w-full border-b border-[var(--wf-rule)] bg-transparent py-0.5 outline-none focus:border-[var(--wf-accent)]`;
+  const handleBlur = () => {
+    onCommit?.(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      blur();
+    }
+  };
+
+  if (disabled) {
+    return (
+      <span className={className} style={style}>
+        {value ? (
+          value
+        ) : (
+          <span className="italic text-[var(--wf-ink-muted)]">{placeholder}</span>
+        )}
+      </span>
+    );
+  }
 
   return (
-    <span
-      className={className}
-      style={style}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      role={disabled ? undefined : 'button'}
-      tabIndex={disabled ? undefined : 0}
-      aria-label={ariaLabel || placeholder}
-    >
-      {isEditing ? (
-        <input
-          ref={inputRef}
-          id={id}
-          type="text"
-          value={value}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setIsEditing(false);
-              inputRef.current?.blur();
-            }
-          }}
-          className={editClasses}
-          placeholder={placeholder}
-          disabled={disabled}
-        />
-      ) : (
-        <span className={displayClasses}>
-          {value || (
-            <span className="text-[var(--wf-ink-muted)] italic">
-              {placeholder}
-            </span>
-          )}
-        </span>
-      )}
+    <span className={className} style={style}>
+      <Input
+        ref={inputRef}
+        id={id}
+        type="text"
+        className="editable h-auto! rounded-none focus-visible:ring-0!"
+        aria-label={ariaLabel || placeholder}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+      />
     </span>
   );
 }
@@ -123,8 +91,8 @@ interface EditableAreaProps {
 }
 
 /**
- * A multi-line auto-growing textarea styled to read as plain text in the letter.
- * Appears as regular paragraph when not focused, becomes editable on click/focus.
+ * A multi-line auto-growing textarea styled to read as plain document text.
+ * Always rendered as a <textarea> (WYSIWYG) unless disabled.
  */
 export function EditableArea({
   value,
@@ -138,97 +106,59 @@ export function EditableArea({
   disabled = false,
   rows = 3,
 }: EditableAreaProps) {
-  const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea and focus when editing
+  const resize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.max(el.scrollHeight, rows * 20)}px`;
+  };
+
   useLayoutEffect(() => {
-    if (isEditing && textareaRef.current) {
-      const el = textareaRef.current;
-      el.style.height = 'auto';
-      el.style.height = `${Math.max(el.scrollHeight, rows * 20)}px`;
-      el.focus();
-    }
-  }, [isEditing, rows]);
-
-  const handleClick = () => {
-    if (!disabled) {
-      setIsEditing(true);
-    }
-  };
-  const handleKeyDownArea = (e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
-      e.preventDefault();
-      setIsEditing(true);
-    }
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    onCommit?.(value);
-  };
+    resize();
+  }, [value, rows]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
-    // Auto-resize during typing
-    if (textareaRef.current) {
-      const el = textareaRef.current;
-      el.style.height = 'auto';
-      el.style.height = `${Math.max(el.scrollHeight, rows * 20)}px`;
+  };
+
+  const handleBlur = () => {
+    onCommit?.(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Escape') {
+      textareaRef.current?.blur();
     }
   };
 
-  const baseClasses = 'transition-colors duration-200 leading-relaxed';
-  const displayClasses = `${baseClasses} ${
-    disabled 
-      ? 'text-[var(--wf-ink-muted)] cursor-not-allowed' 
-      : 'cursor-text hover:bg-[var(--wf-board-2)] p-1 -m-1 rounded'
-  }`;
-  const editClasses = `${baseClasses} w-full resize-none border border-[var(--wf-rule)] bg-transparent p-2 outline-none focus:border-[var(--wf-accent)] min-h-[60px]`;
+  if (disabled) {
+    return (
+      <span className={className} style={style}>
+        {value ? (
+          <span className="whitespace-pre-wrap">{value}</span>
+        ) : (
+          <span className="italic text-[var(--wf-ink-muted)]">{placeholder}</span>
+        )}
+      </span>
+    );
+  }
 
   return (
-    <div
-      className={className}
-      style={style}
-      onClick={handleClick}
-      onKeyDown={handleKeyDownArea}
-      role={disabled ? undefined : 'button'}
-      tabIndex={disabled ? undefined : 0}
-      aria-label={ariaLabel || placeholder}
-    >
-      {isEditing ? (
-        <textarea
-          ref={textareaRef}
-          id={id}
-          value={value}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setIsEditing(false);
-              textareaRef.current?.blur();
-            }
-          }}
-          className={editClasses}
-          placeholder={placeholder}
-          disabled={disabled}
-          rows={rows}
-        />
-      ) : (
-        <div className={displayClasses}>
-          {value ? (
-            value.split('\n').map((line, i) => (
-              <p key={i} className="mb-2 last:mb-0">
-                {line}
-              </p>
-            ))
-          ) : (
-            <span className="text-[var(--wf-ink-muted)] italic">
-              {placeholder}
-            </span>
-          )}
-        </div>
-      )}
+    <div className={className} style={style}>
+      <Textarea
+        ref={textareaRef}
+        id={id}
+        className="editable editable--area field-sizing-fixed! min-h-0! rounded-none focus-visible:ring-0!"
+        aria-label={ariaLabel || placeholder}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        rows={rows}
+      />
     </div>
   );
 }

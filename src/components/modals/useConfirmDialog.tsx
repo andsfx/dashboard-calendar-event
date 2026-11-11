@@ -9,14 +9,10 @@ interface ConfirmRequest extends ConfirmOptions {
 }
 
 /**
- * `ConfirmDialog` dimuat malas.
- *
- * Hook ini dipakai `App.tsx` (jalur boot). `ConfirmDialog` merender
- * `ModalWrapper` → `md-dialog` → Material Web + Lit, dan rantai impor statis
- * itu akan menyeret seluruh MD3 ke chunk entry — yang justru dilarang oleh
- * penjaga `assert-lazy-entry-chunks` (satu aset besar di jalur boot = satu titik
- * gagal tunggal). Dengan `lazy()`, MD3 hanya ikut chunk dashboard yang memang
- * membutuhkannya.
+ * `ConfirmDialog` dimuat malas untuk menjaga pemisahan chunk jalur boot
+ * (`App.tsx`) dari chunk dashboard — pola yang sama dipakai komponen modal
+ * lain. `ConfirmDialog` kini merender shadcn `AlertDialog` (Radix) yang ringan,
+ * tanpa Material Web + Lit.
  */
 const LazyConfirmDialog = lazy(() =>
   import('./ConfirmDialog').then(m => ({ default: m.ConfirmDialog })),

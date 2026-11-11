@@ -2,7 +2,7 @@ import { Archive, ChevronDown, ChevronUp, ClipboardList, Plus } from 'lucide-rea
 import { DraftEventItem, EventItem } from '../../types';
 import { DraftHistoryTable } from './DraftHistoryTable';
 import { DraftQueueTable } from './DraftQueueTable';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
 
 interface Props {
   activeDrafts: DraftEventItem[];
@@ -47,9 +47,9 @@ export function AdminDraftSection({
           </div>
         </div>
         {onAddDraft && (
-          <MdButton variant="filled" onClick={onAddDraft} className="shrink-0">
-            <Plus className="h-4 w-4" /> Tambah Draft Event
-          </MdButton>
+          <Button onClick={onAddDraft} className="shrink-0">
+            <Plus className="size-4" /> Tambah Draft Event
+          </Button>
         )}
       </div>
 
@@ -76,19 +76,23 @@ export function AdminDraftSection({
       )}
 
       <div className="ui-dashboard-card-padded">
-        {/* Baris disclosure full-width yang membungkus konten (ikon + dua blok
-            teks + jumlah item + chevron) dengan `justify-between` — ini layout,
-            bukan kontrol: `MdButton` selalu memusatkan labelnya sehingga tidak
-            bisa merepresentasikan baris ini. Karena itu tetap native. */}
-        <button
+        {/* Baris disclosure full-width (ikon + dua blok teks + jumlah item +
+            chevron) dengan `justify-between`: shadcn `Button` ghost + chrome
+            primitif dinetralkan (`p-0!`/`border-0!`/`h-auto!` mematikan
+            px-2.5/h-8/border-transparent), sementara `justify-between` dan
+            kelas asli dipertahankan. `hover:*`/`aria-expanded:*` shadcn
+            dibatalkan karena baris ini tidak punya latar sendiri. */}
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setShowDraftHistory(v => !v)}
-          className="flex w-full items-center justify-between gap-3 text-left ui-focus-ring rounded-xl"
+          className="flex! h-auto! w-full! items-center justify-between! gap-3 whitespace-normal! rounded-xl border-0! p-0! text-left! font-normal! hover:bg-transparent! dark:hover:bg-transparent! aria-expanded:bg-transparent! ui-focus-ring focus-visible:ring-0 active:translate-y-0!"
           aria-expanded={showDraftHistory}
           aria-controls="draft-history-content"
         >
           <div className="flex items-start gap-3">
             <div className="ui-icon-tile bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]">
-              <Archive className="h-5 w-5" />
+              <Archive className="size-5" />
             </div>
             <div>
               <p className="text-sm font-bold text-[var(--wf-ink)]">Riwayat Draft Event</p>
@@ -97,9 +101,9 @@ export function AdminDraftSection({
           </div>
           <div className="flex items-center gap-2 text-xs font-semibold text-[var(--wf-ink-muted)]">
             <span>{draftHistory.length} item</span>
-            {showDraftHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {showDraftHistory ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
           </div>
-        </button>
+        </Button>
 
         {showDraftHistory && (
           <div id="draft-history-content" className="mt-4">

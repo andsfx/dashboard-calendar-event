@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Badge } from '../shadcn/badge';
 import { CATEGORY_COLORS } from '../../utils/eventUtils';
 
 /** Luminance relatif WCAG untuk satu kanal 0–255. */
@@ -41,11 +42,12 @@ export const CategoryBadge = memo(function CategoryBadge({ category }: { categor
   const onDark = contrastRatio(color, INK_DARK);
   const useDarkText = onDark > onLight;
   return (
-    <span
-      className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium"
+    <Badge
+      variant="outline"
+      className="inline-flex items-center h-auto w-auto rounded-md border-transparent px-2 py-0.5 text-xs font-medium"
       style={{ backgroundColor: color, color: useDarkText ? INK_DARK : INK_LIGHT }}
     >
       {category}
-    </span>
+    </Badge>
   );
 });

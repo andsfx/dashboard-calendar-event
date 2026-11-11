@@ -2,7 +2,8 @@ import { Clock, MapPin, Edit2, Trash2, ExternalLink, FileText, Radio, Clock3, Ch
 import { EventItem, EventStatus } from '../../types';
 import { CategoryBadges } from '../ui/CategoryBadges';
 import { PriorityBadge } from '../ui/PriorityBadge';
-import { MdIconButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Empty, EmptyMedia, EmptyHeader, EmptyTitle, EmptyDescription } from '../shadcn/empty';
 import { CATEGORY_COLORS, isRecurringEvent } from '../../utils/eventUtils';
 
 const COLUMNS: Array<{
@@ -16,31 +17,43 @@ const COLUMNS: Array<{
     status: 'ongoing',
     label: 'Berlangsung',
     icon: <Radio className="h-4 w-4" />,
-    cardBorder: 'hover:border-[var(--wf-live)]/50',
+    cardBorder: 'hover:border-[var(--wf-live)]/50!',
     emptyMsg: 'Tidak ada acara yang sedang berlangsung',
   },
   {
     status: 'upcoming',
     label: 'Mendatang',
     icon: <Clock3 className="h-4 w-4" />,
-    cardBorder: 'hover:border-[var(--wf-action)]/50',
+    cardBorder: 'hover:border-[var(--wf-action)]/50!',
     emptyMsg: 'Tidak ada acara mendatang',
   },
   {
     status: 'past',
     label: 'Selesai',
     icon: <CheckCircle2 className="h-4 w-4" />,
-    cardBorder: 'hover:border-[var(--wf-rule-strong)]',
+    cardBorder: 'hover:border-[var(--wf-rule-strong)]!',
     emptyMsg: 'Belum ada acara yang selesai',
   },
 ];
+
+/**
+ * Kartu kanban adalah kontrol penuh (dulu `div` dengan peran button + tabIndex), sekarang
+ * `Button` shadcn. Primitive membawa tinggi/padding/radius/translate-press/
+ * ukuran teks sendiri; kelas di bawah menetralkannya supaya geometri kartu
+ * asli bertahan. Nilai asli yang berebut properti sama (radius, warna garis,
+ * ring fokus) diberi sufiks `!` di kelasnya sendiri — termasuk `cardBorder`
+ * kolom, karena warna garis dasar kini `!` dan deklarasi `!` mengalahkan
+ * varian `hover:` yang tidak `!`.
+ */
+const CARD_BUTTON_RESET =
+  'h-auto! w-full! flex! flex-col! items-stretch! justify-start! gap-0! p-0! font-normal! whitespace-normal! text-left! text-[1em]! active:translate-y-0! hover:bg-[var(--wf-board)]!';
 
 /** Optional internal column — Event status draft (legacy), not Draft antrian */
 const INTERNAL_DRAFT_COLUMN = {
   status: 'draft' as EventStatus,
   label: 'Internal',
   icon: <PenSquare className="h-4 w-4" />,
-  cardBorder: 'hover:border-[var(--wf-accent)]/50',
+  cardBorder: 'hover:border-[var(--wf-accent)]/50!',
   emptyMsg: 'Tidak ada event internal draft',
 };
 
@@ -67,11 +80,11 @@ function EventCard({
   const color = CATEGORY_COLORS[ev.category] ?? '#00918e';
 
   return (
-    <div
-            className={`group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)] bg-[var(--wf-board)] transition-all duration-150 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-offset-[var(--wf-board)] ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder}`}
+    <Button
+      type="button"
+      variant="ghost"
+      className={`group relative cursor-pointer overflow-hidden rounded-[var(--wf-radius-board)]! border border-[var(--wf-rule)]! bg-[var(--wf-board)] transition-all duration-150 hover:-translate-y-0.5 focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:border-[var(--wf-rule)]! focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-offset-[var(--wf-board)] ${ev.status === 'past' ? 'opacity-80' : ''} ${cardBorder} ${CARD_BUTTON_RESET}`}
       onClick={() => onDetail(ev)}
-      role="button"
-      tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDetail(ev); } }}
       aria-label={`${ev.acara} - ${ev.tanggal}`}
     >
@@ -86,35 +99,41 @@ function EventCard({
             className="flex shrink-0 gap-0.5 opacity-100 md:opacity-0 md:transition-opacity md:duration-150 md:group-hover:opacity-100 focus-within:opacity-100"
             onClick={e => e.stopPropagation()}
           >
-            <MdIconButton
+            <Button
+              variant="ghost"
+              size="icon-sm"
               onClick={() => onDetail(ev)}
               title="Lihat detail"
-              ariaLabel="Lihat detail"
-              className="min-h-[36px] min-w-[36px]"
+              aria-label="Lihat detail"
+              className="min-h-[36px] min-w-[36px] active:translate-y-0"
             >
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-            </MdIconButton>
+              <ExternalLink className="size-3" aria-hidden="true" />
+            </Button>
             {(onEdit || onDelete) && (
               <>
                 {onEdit && (
-                <MdIconButton
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => onEdit(ev)}
                   title="Ubah"
-                  ariaLabel="Ubah acara"
-                  className="min-h-[36px] min-w-[36px]"
+                  aria-label="Ubah acara"
+                  className="min-h-[36px] min-w-[36px] active:translate-y-0"
                 >
-                  <Edit2 className="h-3 w-3" aria-hidden="true" />
-                </MdIconButton>
+                  <Edit2 className="size-3" aria-hidden="true" />
+                </Button>
                 )}
                 {onDelete && (
-                <MdIconButton
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => onDelete(ev)}
                   title="Hapus"
-                  ariaLabel="Hapus acara"
-                  className="min-h-[36px] min-w-[36px]"
+                  aria-label="Hapus acara"
+                  className="min-h-[36px] min-w-[36px] active:translate-y-0"
                 >
-                  <Trash2 className="h-3 w-3" aria-hidden="true" />
-                </MdIconButton>
+                  <Trash2 className="size-3" aria-hidden="true" />
+                </Button>
                 )}
               </>
             )}
@@ -147,7 +166,7 @@ function EventCard({
           {isRecurringEvent(ev) && <span className="inline-flex items-center rounded-full border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-2 py-0.5 text-[10px] font-semibold text-[var(--wf-ink-muted)]">Reguler</span>}
         </div>
       </div>
-    </div>
+    </Button>
   );
 }
 
@@ -163,9 +182,15 @@ export function KanbanView({ events, isAdmin, showInternalDraftColumn = false, o
         aria-live="polite"
         role="status"
       >
-        <FileText className="mb-3 h-10 w-10 opacity-60" aria-hidden="true" />
-        <p className="text-sm font-medium">Tidak ada acara ditemukan</p>
-        <p className="mt-1 text-xs">Coba ubah filter atau kata kunci pencarian</p>
+        <Empty className="border-0 bg-transparent p-0">
+          <EmptyMedia className="mb-3">
+            <FileText className="h-10 w-10 opacity-60" aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle className="text-sm font-medium">Tidak ada acara ditemukan</EmptyTitle>
+            <EmptyDescription className="mt-1 text-xs text-[var(--wf-ink-muted)]">Coba ubah filter atau kata kunci pencarian</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
     );
   }

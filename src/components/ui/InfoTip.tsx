@@ -1,10 +1,10 @@
 import {
   useCallback, useEffect, useId, useLayoutEffect, useRef, useState,
-  type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent, type ReactNode,
+  type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Info } from 'lucide-react';
+import { Button } from '../shadcn/button';
 import { cn } from '../../utils/cn';
 
 /** Jarak pemicu ↔ gelembung. */
@@ -300,13 +300,15 @@ export function InfoTip({ label, content, children, className }: InfoTipProps): 
 
   return (
     <>
-      <button
+      <Button
         ref={triggerRef}
         type="button"
+        variant="ghost"
+        size="icon-xs"
         aria-label={label}
         aria-describedby={open ? tipId : undefined}
         className={cn(
-          'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full align-middle text-[var(--wf-ink-muted)] transition-colors hover:text-[var(--wf-ink)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] focus-visible:outline-none',
+          'size-6 shrink-0 rounded-full align-middle transition-colors hover:bg-transparent dark:hover:bg-transparent text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)] focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] focus-visible:outline-none',
           className,
         )}
         onPointerDown={() => { pointerActive.current = true; }}
@@ -318,8 +320,8 @@ export function InfoTip({ label, content, children, className }: InfoTipProps): 
         onClick={handleClick}
         onKeyDown={handleKeyDown}
       >
-        <Info className="h-3.5 w-3.5" aria-hidden="true" />
-      </button>
+        <Info className="size-3.5" aria-hidden="true" />
+      </Button>
       {open && createPortal(
         <div
           ref={bubbleRef}

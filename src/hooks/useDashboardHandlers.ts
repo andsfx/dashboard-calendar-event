@@ -3,7 +3,7 @@ import type { ToastMessage, EventItem, DraftEventItem, AnnualTheme } from '../ty
 import { useEventHandlers, type EventHandlersResult } from './useEventHandlers';
 import { useDraftHandlers, type DraftHandlersResult } from './useDraftHandlers';
 import { useThemeHandlers, type ThemeHandlersResult } from './useThemeHandlers';
-import { useLetterHandlers } from './useLetterHandlers';
+
 import { useRegistrationHandlers, type RegistrationHandlersResult } from './useRegistrationHandlers';
 import { useSiteSettingsHandlers, type SiteSettingsHandlersResult } from './useSiteSettingsHandlers';
 
@@ -75,7 +75,6 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     confirm,
   });
 
-  const letter = useLetterHandlers();
 
   const reg: RegistrationHandlersResult = useRegistrationHandlers({
     showToast,
@@ -142,13 +141,6 @@ export function useDashboardHandlers(deps: DashboardHandlersDeps) {
     editingTheme: theme.editingTheme, setEditingTheme: theme.setEditingTheme,
     handleAddTheme: theme.handleAddTheme, handleEditTheme: theme.handleEditTheme,
     handleSaveTheme: theme.handleSaveTheme, handleDeleteTheme: theme.handleDeleteTheme,
-
-    showLetterPickerModal: letter.showLetterPickerModal, setShowLetterPickerModal: letter.setShowLetterPickerModal,
-    showLetterModal: letter.showLetterModal, setShowLetterModal: letter.setShowLetterModal,
-    letterEvent: letter.letterEvent, setLetterEvent: letter.setLetterEvent,
-    handleOpenLetterPicker: letter.handleOpenLetterPicker,
-    handleOpenLetter: letter.handleOpenLetter,
-    handleSelectLetterEvent: letter.handleSelectLetterEvent,
 
     communityRegistrations: reg.communityRegistrations, isRegLoading: reg.isRegLoading,
     showRegDetail: reg.showRegDetail, setShowRegDetail: reg.setShowRegDetail,

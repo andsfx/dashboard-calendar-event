@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-import { MdIconButton, MdTextField } from '../md';
+import { Input } from '../shadcn/input';
+import { Button } from '../shadcn/button';
 
 interface Props {
   value: string;
@@ -10,20 +11,19 @@ interface Props {
 
 /**
  * Pencarian acara dengan pintasan papan tuntas `Ctrl/Cmd+K` dan `/`.
- * Input memakai `md-outlined-text-field`; tombol bersihkan memakai
- * `md-icon-button`.
+ * Input memakai Input shadcn; tombol bersihkan memakai Button shadcn
+ * (pola yang sama dengan plate search di `DashboardHeader`).
  */
 export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, EO…' }: Props) {
-  const inputRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const focusInput = () => {
     inputRef.current?.focus();
   };
 
   const selectInput = () => {
-    const el = inputRef.current as (HTMLElement & { select?: () => void }) | null;
-    el?.focus();
-    el?.select?.();
+    inputRef.current?.focus();
+    inputRef.current?.select();
   };
 
   // Keyboard shortcut: Ctrl+K or "/" to focus — tetap global (bukan hanya saat
@@ -45,32 +45,34 @@ export function SearchBar({ value, onChange, placeholder = 'Cari acara, lokasi, 
 
   return (
     <div className="relative group">
-      <MdTextField
-        value={value}
-        onChange={onChange}
+      <Search
+        className={`pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${value ? 'text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)] group-focus-within:text-[var(--wf-accent)]'}`}
+        aria-hidden="true"
+      />
+      <Input
+        ref={inputRef}
         type="search"
+        value={value}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={100}
-        ariaLabel="Cari acara"
-        className="w-full"
-        inputRef={inputRef}
-      >
-        <Search
-          slot="leading-icon"
-          className={`h-4 w-4 transition-colors ${value ? 'text-[var(--wf-accent)]' : 'text-[var(--wf-ink-muted)] group-focus-within:text-[var(--wf-accent)]'}`}
-          aria-hidden="true"
-        />
-      </MdTextField>
+        aria-label="Cari acara"
+        className="w-full pl-8 pr-8"
+      />
 
       {/* Right side: clear button OR keyboard shortcut hint */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {value ? (
-          <MdIconButton
-            ariaLabel="Hapus pencarian"
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Hapus pencarian"
             onClick={() => { onChange(''); focusInput(); }}
+            className="text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]"
           >
-            <X className="h-4 w-4" />
-          </MdIconButton>
+            <X aria-hidden />
+          </Button>
         ) : (
           <kbd className="hidden select-none rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--wf-ink-muted)] sm:inline-flex">
             /

@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { ModalWrapper } from '../modals/ModalWrapper';
-import { MdButton, MdIconButton, MdSelect, MdSwitch, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
+import { Switch } from '../shadcn/switch';
 import { InfoTip } from '../ui/InfoTip';
 import type { TenantParticipationOption, TenantParticipationOptionGroup } from '../../types';
 import { ApiError } from '../../lib/rest';
@@ -53,11 +57,11 @@ const SORT_MAX = 9999;
  *
  * Baris opsi adalah editor inline: dua kontrol per baris plus saklar dan aksi.
  * `md-outlined-text-field` tingginya 56px (top/bottom space 16px) sehingga satu
- * baris opsi langsung ~120px dan daftar 10 opsi jadi tak terbaca. `MdSelect`
+ * baris opsi langsung ~120px dan daftar 10 opsi jadi tak terbaca. `md-select`
  * juga mengunci `:host { min-width: 210px }` yang tidak muat di kolom grid.
  * Karena itu baris memakai input native dengan token board (`--wf-*`), pola
- * yang sama dengan `ExhibitionManager`. Saklar, tombol, dan ikon tetap
- * komponen `md` (lihat `MdSwitch`/`MdButton`/`MdIconButton`).
+ * yang sama dengan `ExhibitionManager`. Saklar, tombol, dan ikon memakai
+ * komponen shadcn (`Switch`/`Button`).
  *
  * Lebar sengaja TIDAK ada di sini: `w-full` dan `w-20` sama-sama utility
  * `width`, jadi yang menang adalah urutan di CSS hasil build, bukan urutan di
@@ -319,7 +323,7 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
             className="mx-4 mt-3 flex shrink-0 items-center justify-between gap-3 rounded-[var(--wf-radius-control)] border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300 sm:mx-6"
           >
             <span className="min-w-0">{loadError}</span>
-            <MdButton variant="outlined" onClick={() => void load()}>Coba lagi</MdButton>
+            <Button variant="outline" size="sm" onClick={() => void load()}>Coba lagi</Button>
           </div>
         )}
 
@@ -359,12 +363,12 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                             {/* Baris 1 — label + keadaan + saklar + hapus */}
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                               <div className="min-w-0 sm:flex-1">
-                                <label className="sr-only" htmlFor={`opt-label-${option.id}`}>
+                                <Label className="sr-only" htmlFor={`opt-label-${option.id}`}>
                                   Label {option.label}
-                                </label>
-                                <input
+                                </Label>
+                                <Input
                                   id={`opt-label-${option.id}`}
-                                  className={`${rowInputClass} w-full`}
+                                  className={`${rowInputClass} w-full h-auto`}
                                   value={currentLabel}
                                   maxLength={100}
                                   disabled={busy}
@@ -374,21 +378,23 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                               </div>
                               <div className="flex items-center justify-between gap-2 sm:justify-end">
                                 <ActiveBadge isActive={option.isActive} />
-                                <MdSwitch
-                                  selected={option.isActive}
-                                  ariaLabel={`${option.isActive ? 'Matikan' : 'Nyalakan'} opsi ${currentLabel}`}
+                                <Switch
+                                  checked={option.isActive}
+                                  aria-label={`${option.isActive ? 'Matikan' : 'Nyalakan'} opsi ${currentLabel}`}
                                   disabled={busy}
-                                  onChange={(selected) => void handleToggle(option, selected)}
+                                  onCheckedChange={(selected) => void handleToggle(option, selected === true)}
                                 />
-                                <MdIconButton
-                                  ariaLabel={`Hapus opsi ${currentLabel}`}
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label={`Hapus opsi ${currentLabel}`}
                                   title="Hapus opsi"
                                   disabled={busy}
                                   onClick={() => void handleDelete(option)}
-                                  className="shrink-0 [--md-icon-button-icon-color:#9f1239] dark:[--md-icon-button-icon-color:#fda4af]"
+                                  className="shrink-0 text-rose-800 hover:bg-rose-800/10 hover:text-rose-800 active:translate-y-0 dark:text-rose-300 dark:hover:text-rose-300"
                                 >
-                                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                </MdIconButton>
+                                  <Trash2 className="size-4" aria-hidden="true" />
+                                </Button>
                               </div>
                             </div>
 
@@ -400,33 +406,34 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                               <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--wf-ink-muted)]">
                                 Urutan
                               </span>
-                              <label className="sr-only" htmlFor={`opt-sort-${option.id}`}>Urutan {option.label}</label>
-                              <input
+                              <Label className="sr-only" htmlFor={`opt-sort-${option.id}`}>Urutan {option.label}</Label>
+                              <Input
                                 id={`opt-sort-${option.id}`}
                                 type="number"
                                 inputMode="numeric"
                                 min={SORT_MIN}
                                 max={SORT_MAX}
                                 step={1}
-                                className={`${rowInputClass} w-20 shrink-0 text-center`}
+                                className={`${rowInputClass} w-20 shrink-0 text-center h-auto`}
                                 value={sortDrafts[option.id] ?? String(option.sortOrder)}
                                 disabled={busy}
                                 onChange={(e) => setSortDrafts((prev) => ({ ...prev, [option.id]: e.target.value }))}
                                 onKeyDown={(e) => { if (e.key === 'Enter') void handleSaveRow(option); }}
                               />
                               {dirty && (
-                                <MdButton
-                                  variant="outlined"
+                                <Button
+                                  variant="outline"
+                                  size="sm"
                                   className="shrink-0"
                                   disabled={busy}
-                                  ariaLabel={`Simpan perubahan ${currentLabel}`}
+                                  aria-label={`Simpan perubahan ${currentLabel}`}
                                   onClick={() => void handleSaveRow(option)}
                                 >
                                   {busy
-                                    ? <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                                    : <Save className="h-4 w-4" aria-hidden="true" />}
+                                    ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                    : <Save className="size-4" aria-hidden="true" />}
                                   Simpan
-                                </MdButton>
+                                </Button>
                               )}
                             </div>
                           </li>
@@ -451,45 +458,50 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
             <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Tambah opsi
           </h3>
           <div className="mt-2 grid gap-3 sm:grid-cols-3">
-            <MdSelect
-              id="opt-new-group"
-              label="Grup"
-              value={newGroup}
-              disabled={isSubmitting}
-              // `min-w-0` menang atas `:host { min-width: 210px }` md-select
-              // (aturan outer tree mengalahkan shadow tree) supaya kolom grid
-              // tidak meluber di lebar sempit.
-              className="min-w-0 w-full"
-              onChange={(next) => setNewGroup(next as TenantParticipationOptionGroup)}
-              options={GROUP_ORDER.map((group) => ({ value: group, label: GROUP_LABELS[group] }))}
-            />
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                {FIXED_GROUP_VALUES[newGroup] ? (
-                  // Grup terkunci: pilih dari sisa nilai yang dikenal sistem.
-                  // Input bebas di sini hanya akan berakhir 400 di server, jadi
-                  // kontrolnya tidak boleh menawarkan yang mustahil.
-                  <MdSelect
-                    id="opt-new-value"
-                    label="Value (slug)"
-                    value={newValue}
-                    disabled={isSubmitting}
-                    className="min-w-0 flex-1"
-                    onChange={setNewValue}
-                    options={lockedValueChoices.map((value) => ({ value, label: value }))}
-                  />
-                ) : (
-                  <MdTextField
-                    id="opt-new-value"
-                    label="Value (slug)"
-                    value={newValue}
-                    maxLength={50}
-                    disabled={isSubmitting}
-                    placeholder="mis. 5x5"
-                    className="min-w-0 flex-1"
-                    onChange={setNewValue}
-                  />
-                )}
+              <Label htmlFor="opt-new-group" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Grup</Label>
+              <NativeSelect
+                id="opt-new-group"
+                value={newGroup}
+                disabled={isSubmitting}
+                className="w-full"
+                onChange={(e) => setNewGroup(e.target.value as TenantParticipationOptionGroup)}
+              >
+                {GROUP_ORDER.map((group) => (
+                  <option key={group} value={group}>{GROUP_LABELS[group]}</option>
+                ))}
+              </NativeSelect>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-end gap-1.5">
+                <div className="min-w-0 flex-1">
+                  <Label htmlFor="opt-new-value" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Value (slug)</Label>
+                  {FIXED_GROUP_VALUES[newGroup] ? (
+                    // Grup terkunci: pilih dari sisa nilai yang dikenal sistem.
+                    // Input bebas di sini hanya akan berakhir 400 di server, jadi
+                    // kontrolnya tidak boleh menawarkan yang mustahil.
+                    <NativeSelect
+                      id="opt-new-value"
+                      value={newValue}
+                      disabled={isSubmitting}
+                      className="w-full"
+                      onChange={(e) => setNewValue(e.target.value)}
+                    >
+                      {lockedValueChoices.map((value) => (
+                        <option key={value} value={value}>{value}</option>
+                      ))}
+                    </NativeSelect>
+                  ) : (
+                    <Input
+                      id="opt-new-value"
+                      value={newValue}
+                      maxLength={50}
+                      disabled={isSubmitting}
+                      placeholder="mis. 5x5"
+                      onChange={(e) => setNewValue(e.target.value)}
+                    />
+                  )}
+                </div>
                 <InfoTip
                   label="Penjelasan value"
                   content="Kode internal yang disimpan di data pengajuan. Tidak tampil ke tenant. Untuk skema booth, jenis voucher, dan format voucher nilainya sudah ditentukan sistem sehingga tinggal dipilih; hanya ukuran booth yang bebas diisi."
@@ -501,17 +513,18 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-1.5">
-              <MdTextField
-                id="opt-new-label"
-                label="Label tampil"
-                value={newLabel}
-                maxLength={100}
-                disabled={isSubmitting}
-                placeholder="mis. Outdoor / halaman"
-                className="min-w-0 flex-1"
-                onChange={setNewLabel}
-              />
+            <div className="flex items-end gap-1.5">
+              <div className="min-w-0 flex-1">
+                <Label htmlFor="opt-new-label" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Label tampil</Label>
+                <Input
+                  id="opt-new-label"
+                  value={newLabel}
+                  maxLength={100}
+                  disabled={isSubmitting}
+                  placeholder="mis. Outdoor / halaman"
+                  onChange={(e) => setNewLabel(e.target.value)}
+                />
+              </div>
               <InfoTip
                 label="Penjelasan label"
                 content="Teks yang dilihat tenant di dropdown form publik."
@@ -546,18 +559,18 @@ export function TenantParticipationOptionsModal({ isOpen, onClose, onSaved }: Pr
             ) : (
               <span className="flex-1" />
             )}
-            <MdButton variant="outlined" disabled={isSubmitting} onClick={() => void handleCreate()}>
+            <Button variant="outline" disabled={isSubmitting} onClick={() => void handleCreate()}>
               {isSubmitting
-                ? <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                : <Plus className="h-4 w-4" aria-hidden="true" />}
+                ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                : <Plus className="size-4" aria-hidden="true" />}
               Tambah
-            </MdButton>
+            </Button>
           </div>
         </section>
 
         {/* ── Footer (tidak menggulung) ───────────────────────────── */}
         <div className="flex shrink-0 justify-end border-t border-[var(--wf-rule)] px-4 py-3 sm:px-6">
-          <MdButton variant="text" onClick={onClose}>Tutup</MdButton>
+          <Button variant="ghost" onClick={onClose}>Tutup</Button>
         </div>
       </div>
 

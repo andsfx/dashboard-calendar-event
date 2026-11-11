@@ -8,6 +8,10 @@ import {
 } from '../../utils/domainApi';
 import { SURVEY_OPTIONS } from '../../constants/survey-options';
 import { cn } from '../../utils/cn';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { RadioGroup as RadioGroupPrimitive, RadioGroupItem } from '../shadcn/radio-group';
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -56,43 +60,45 @@ export function RadioGroup({ label, options, value, onChange, disabled, labels, 
 }) {
   const errorId = error ? `${label.replace(/\s+/g, '-').toLowerCase()}-error` : undefined;
   return (
-    <fieldset className="space-y-2" disabled={disabled} aria-required={required || undefined} aria-invalid={!!error || undefined} aria-describedby={errorId}>
-      <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+    <fieldset className="space-y-2" disabled={disabled} aria-invalid={!!error || undefined} aria-describedby={errorId}>
+      <legend className="text-sm font-semibold text-[var(--wf-ink)]">
         {label}
         {required && <><span className="ml-1 text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></>}
       </legend>
-      <div className="space-y-2" role="radiogroup" aria-label={label}>
+      <RadioGroupPrimitive
+        className="space-y-2"
+        aria-label={label}
+        aria-required={required || undefined}
+        disabled={disabled}
+        value={value}
+        onValueChange={(next) => onChange(next)}
+      >
         {options.map((opt) => {
           const selected = value === opt;
           return (
-            <label
+            <Label
               key={opt}
               className={`
-                flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3
-                transition-colors focus-within:ring-2 focus-within:ring-brand-primary-500
+                flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 font-normal
+                transition-colors focus-within:ring-2 focus-within:ring-[var(--wf-accent)]
                 ${selected
-                  ? 'border-brand-primary-400 bg-brand-primary-50 shadow-sm dark:border-brand-primary-500 dark:bg-brand-primary-950/40'
-                  : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
+                  ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] shadow-sm'
+                  : 'border-[var(--wf-rule)] bg-[var(--wf-board)] hover:border-[var(--wf-rule-strong)] hover:shadow-sm'
                 }
               `}
             >
-              <input
-                type="radio"
-                name={label}
+              <RadioGroupItem
                 value={opt}
-                checked={selected}
-                onChange={() => onChange(opt)}
-                disabled={disabled}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-primary-600"
+                className="mt-0.5 shrink-0"
                 aria-label={labels?.[opt] || opt}
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
+              <span className="text-sm text-[var(--wf-ink-muted)]">
                 {labels?.[opt] || opt}
               </span>
-            </label>
+            </Label>
           );
         })}
-      </div>
+      </RadioGroupPrimitive>
       {error && (
         <p id={errorId} role="alert" className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
           <AlertTriangle className="h-3 w-3" />
@@ -239,8 +245,8 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-        <input
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+        <Input
           ref={inputRef}
           id={id}
           type="text"
@@ -259,24 +265,26 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
           aria-required={required || undefined}
           aria-invalid={!!error || undefined}
           aria-describedby={describedBy}
-          className={cn('w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-500 transition-colors hover:border-slate-400 focus:border-brand-primary-400 focus:outline-none focus:ring-1 focus:ring-brand-primary-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500', className)}
+          className={cn('h-auto w-full rounded-xl border border-[var(--wf-rule-strong)] bg-[var(--wf-board)] py-2 pl-9 pr-9 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)] transition-colors hover:border-[var(--wf-rule-control)] focus:border-[var(--wf-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--wf-accent)] disabled:opacity-60', className)}
         />
         {query && !disabled && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             onClick={handleClear}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)]"
             aria-label="Hapus"
           >
             <X className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         )}
       </div>
 
       {open && !disabled && (
-        <div id={listboxId} role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-900">
+        <div id={listboxId} role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] shadow-lg">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-xs ui-text-muted">
+            <div className="flex items-center justify-center px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
               Memuat tenant…
             </div>
@@ -284,60 +292,63 @@ export function TenantSearchSelect({ value, onChange, onTenantSelect, disabled, 
             <div className="flex items-start gap-2 px-4 py-3 text-xs text-red-600 dark:text-red-400" role="alert">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span className="flex-1">{searchError}</span>
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="xs"
                 onClick={() => setRetryTick((n) => n + 1)}
-                className="font-medium underline underline-offset-2 hover:no-underline"
+                className="h-auto p-0 font-medium text-red-600 underline underline-offset-2 hover:text-red-700 hover:no-underline dark:text-red-400 dark:hover:text-red-300"
               >
                 Coba lagi
-              </button>
+              </Button>
             </div>
           ) : tenants.length === 0 ? (
-            <div className="px-4 py-3 text-xs ui-text-muted">
+            <div className="px-4 py-3 text-xs text-[var(--wf-ink-muted)]">
               {query.trim().length < 2
                 ? 'Ketik minimal 2 huruf, lalu pilih dari daftar'
                 : `Tidak ada tenant cocok "${query}"`}
             </div>
           ) : (
             tenants.map((t, i) => (
-              <button
+              <Button
                 key={t.id}
+                variant="ghost"
                 id={`tenant-opt-${i}`}
                 type="button"
                 role="option"
                 aria-selected={i === highlighted}
                 onClick={() => selectTenant(t)}
                 onMouseEnter={() => setHighlighted(i)}
-                className={`flex w-full items-start gap-3 border-b border-slate-100 px-3 py-2 text-left transition-colors last:border-b-0 dark:border-slate-700 ${
+                className={`h-auto flex w-full items-start justify-start gap-3 rounded-none border-b border-[var(--wf-rule)] px-3 py-2 text-left font-normal whitespace-normal transition-colors last:border-b-0 ${
                   i === highlighted
-                    ? 'bg-brand-primary-50 dark:bg-brand-primary-950/30'
-                    : 'hover:bg-brand-primary-50 dark:hover:bg-brand-primary-950/30'
+                    ? 'bg-[var(--wf-accent-soft)]'
+                    : 'hover:bg-[var(--wf-accent-soft)]'
                 }`}
               >
                 {t.logo ? (
-                  <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 object-cover dark:border-slate-600" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
+                  <img src={t.logo} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-[var(--wf-rule)] object-cover" onError={(e) => { (e.currentTarget.style.display = 'none'); }} />
                 ) : (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500 dark:bg-slate-700">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--wf-board-2)] text-[10px] font-bold text-[var(--wf-ink-muted)]">
                     {t.name.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                  <p className="truncate text-sm font-medium text-[var(--wf-ink)]">
                     {t.name}
                   </p>
-                  <p className="truncate text-[11px] ui-text-muted">
+                  <p className="truncate text-[11px] text-[var(--wf-ink-muted)]">
                     {t.category || '-'}
                     {t.floor ? ` • ${t.floor}` : ''}
                     {t.lot ? ` • Lot ${t.lot}` : ''}
                   </p>
                 </div>
-              </button>
+              </Button>
             ))
           )}
         </div>
       )}
       {!value && !error && (
-        <p id={hintId} className="mt-1 text-[11px] ui-text-muted">
+        <p id={hintId} className="mt-1 text-[11px] text-[var(--wf-ink-muted)]">
           Pilih tenant dari daftar, bukan ketik bebas.
         </p>
       )}

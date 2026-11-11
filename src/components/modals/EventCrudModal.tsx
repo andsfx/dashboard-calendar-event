@@ -11,7 +11,12 @@ import { EventFormDetailsFields } from '../forms/EventFormDetailsFields';
 import { EventFormModelFields } from '../forms/EventFormModelFields';
 import { MultiDayEventFields } from '../forms/MultiDayEventFields';
 import { RecurringEventFields } from '../forms/RecurringEventFields';
-import { MdButton, MdCheckbox, MdRadio, MdSwitch, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Label } from '../shadcn/label';
+import { Textarea } from '../shadcn/textarea';
+import { Checkbox } from '../shadcn/checkbox';
+import { Switch } from '../shadcn/switch';
+import { RadioGroup as RadioGroupPrimitive, RadioGroupItem } from '../shadcn/radio-group';
 
 interface Props {
   isOpen: boolean;
@@ -570,33 +575,30 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Tipe acara */}
           <div className="space-y-2">
-            <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</label>
-            <div className="flex flex-wrap gap-2">
+            <Label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tipe Acara</Label>
+            <RadioGroupPrimitive className="flex flex-wrap gap-2" aria-label="Tipe Acara" value={form.eventType} onValueChange={(next) => set('eventType', next as EventType)}>
               {([
                 { value: 'single', label: 'Acara biasa', disabled: false },
                 { value: 'multi_day', label: 'Rangkaian acara', disabled: false },
                 { value: 'recurring', label: 'Event reguler', disabled: isEdit },
               ] as const).map(opt => (
-                <label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                <Label key={opt.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm leading-normal font-medium transition-colors ${
                   opt.disabled
                     ? 'cursor-not-allowed border-[var(--wf-rule)] text-[var(--wf-ink-muted)]'
                     : `cursor-pointer ${form.eventType === opt.value
                       ? 'border-[var(--wf-accent)] bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                       : 'border-[var(--wf-rule)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)]'}`
                 }`}>
-                  <MdRadio
-                    name="eventType"
+                  <RadioGroupItem
                     value={opt.value}
-                    checked={form.eventType === opt.value}
-                    onChange={() => set('eventType', opt.value)}
+                    id={`event-type-${opt.value}`}
                     disabled={opt.disabled}
-                    ariaLabel={opt.label}
-                    className="sr-only"
+                    aria-label={opt.label}
                   />
                   {opt.label}
-                </label>
+                </Label>
               ))}
-            </div>
+            </RadioGroupPrimitive>
             {isEdit && (
               <p className="text-xs text-[var(--wf-ink-muted)]">
                 Event reguler hanya bisa dibuat saat menambah acara baru; untuk mengubah seluruh series, hapus series lalu buat ulang.
@@ -614,14 +616,14 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                   mengubah keanggotaan series.
                 </span>
               </div>
-              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink)]">
-                <MdCheckbox
+              <Label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--wf-ink)]">
+                <Checkbox
                   checked={detachSeries}
-                  onChange={setDetachSeries}
-                  ariaLabel='Lepas dari series saat disimpan (badge "Reguler" hilang dari acara ini)'
+                  onCheckedChange={(v) => setDetachSeries(v === true)}
+                  aria-label='Lepas dari series saat disimpan (badge "Reguler" hilang dari acara ini)'
                 />
                 Lepas dari series saat disimpan (badge &quot;Reguler&quot; hilang dari acara ini)
-              </label>
+              </Label>
             </div>
           )}
 
@@ -687,11 +689,11 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
               live; hide setelah dibuat). Dikirim sebagai lifecycle eksplisit. */}
           {isEdit && (
             <div className="rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-3">
-              <label className="flex cursor-pointer items-start gap-2">
-                <MdSwitch
-                  selected={visible}
-                  onChange={setVisible}
-                  ariaLabel="Tampilkan di halaman publik"
+              <Label className="flex cursor-pointer items-start gap-2">
+                <Switch
+                  checked={visible}
+                  onCheckedChange={setVisible}
+                  aria-label="Tampilkan di halaman publik"
                   className="mt-0.5"
                 />
                 <span className="text-xs">
@@ -702,31 +704,30 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                       : 'Acara ini disembunyikan dari jadwal publik (tetap terlihat di dashboard, filter "Internal").'}
                   </span>
                 </span>
-              </label>
+              </Label>
             </div>
           )}
 
           {/* Keterangan */}
           <div>
-            <label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</label>
-            <MdTextField
+            <Label htmlFor="event-keterangan" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Keterangan</Label>
+            <Textarea
               id="event-keterangan"
-              type="textarea"
               value={form.keterangan}
-              onChange={value => set('keterangan', value)}
+              onChange={(e) => set('keterangan', e.target.value)}
               rows={2}
               placeholder="Deskripsi singkat tentang acara…"
-              ariaLabel="Keterangan"
+              aria-label="Keterangan"
               className="w-full"
             />
           </div>
 
           {/* Poster / Flyer */}
           <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
+            <Label className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-[var(--wf-ink-muted)]">
               <Image className="h-3.5 w-3.5 text-[var(--wf-live)]" />
               Poster / Flyer Event
-            </label>
+            </Label>
             {form.posterUrl ? (
               <div className="relative overflow-hidden rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)]">
                 <img
@@ -736,28 +737,30 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <div className="flex gap-2 border-t border-[var(--wf-rule)] bg-[var(--wf-board-2)] p-2 backdrop-blur-sm">
-                  <MdButton
-                    variant="outlined"
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => posterInputRef.current?.click()}
                     disabled={posterUploading}
                   >
                     <Upload className="h-3.5 w-3.5" />
                     Ganti
-                  </MdButton>
-                  <MdButton
-                    variant="outlined"
-                    danger
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
                     onClick={handleRemovePoster}
                     disabled={posterUploading}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     Hapus
-                  </MdButton>
+                  </Button>
                 </div>
               </div>
             ) : (
-              <MdButton
-                variant="outlined"
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => posterInputRef.current?.click()}
                 disabled={posterUploading}
                 className="w-full"
@@ -774,7 +777,7 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
                     <span className="text-[10px]">JPG, PNG, WebP · maks. 10 MB</span>
                   </>
                 )}
-              </MdButton>
+              </Button>
             )}
             <input
               ref={posterInputRef}
@@ -788,22 +791,23 @@ export function EventCrudModal({ isOpen, onClose, onSave, onSaveBatch, editingEv
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
               className="flex-1"
             >
               Batal
-            </MdButton>
-            <MdButton
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting}
               className="flex-1"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Tambahkan Acara'}
-            </MdButton>
+            </Button>
           </div>
         </form>
       </div>

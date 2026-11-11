@@ -1,6 +1,7 @@
 import { Suspense, lazy, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Radio, Clock3 } from 'lucide-react';
+import { Skeleton } from '../shadcn/skeleton';
 import type { AuthUser, LoginResult } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import type { EventItem, DraftEventItem, AnnualTheme, HolidayItem, ViewMode, CommunityRegistration, PhotoAlbum, EventStatus, RegistrationStatus, EventArea, ExhibitionActivation, ExhibitionInput, ExhibitionLead, TenantEventProposal, TenantEventProposalStatus, TenantParticipation, TenantParticipationStatus, InsightAction } from '../../types';
@@ -20,7 +21,6 @@ import { ViewToggle } from './ViewToggle';
 import { CONTENT_ROUTES, getAllowedDashboardPaths } from './dashboardNavigation';
 import { getAvailableViewTabs } from './viewTabs';
 import { sortEvents } from '../../utils/eventUtils';
-import { UnderMaintenance } from '../ui/UnderMaintenance';
 
 const FeaturedEvents = lazy(() => import('../events/FeaturedEvents').then(m => ({ default: m.FeaturedEvents })));
 const QuarterTimeline = lazy(() => import('../views/QuarterTimeline').then(m => ({ default: m.QuarterTimeline })));
@@ -41,13 +41,11 @@ const InstagramSettingsModal = lazy(() => import('../modals/InstagramSettingsMod
 const AlbumManagerModal = lazy(() => import('../modals/AlbumManagerModal').then(m => ({ default: m.AlbumManagerModal })));
 const EventAreaManagerModal = lazy(() => import('../modals/EventAreaManagerModal').then(m => ({ default: m.EventAreaManagerModal })));
 const NewsManagerModal = lazy(() => import('../modals/NewsManagerModal').then(m => ({ default: m.NewsManagerModal })));
+const LetterWorkspace = lazy(() => import('../letters/LetterWorkspace').then(m => ({ default: m.LetterWorkspace })));
 const SponsorManagerModal = lazy(() => import('../modals/SponsorManagerModal').then(m => ({ default: m.SponsorManagerModal })));
-/* LetterGenerator + EventLetterPickerModal sengaja tidak diimpor: fitur "Buat
-   Surat" ditutup sementara (under maintenance) sehingga rutenya menampilkan
-   penanda, bukan generator. Komponennya tetap ada untuk diaktifkan kembali. */
 
 function SectionFallback({ height = 'h-32' }: { height?: string }) {
-  return <div className={`animate-pulse rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] ${height}`} />;
+  return <Skeleton className={`rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board-2)] ${height}`} />;
 }
 
 // ─── Props ───────────────────────────────────────────────────────
@@ -142,7 +140,6 @@ export interface DashboardPageHandlers {
   handleSaveTheme: (theme: AnnualTheme) => Promise<boolean>;
   handleDeleteTheme: (theme: AnnualTheme) => void;
   handleUpdateRegStatus: (id: string, status: RegistrationStatus, adminNote: string) => Promise<boolean>;
-  handleSelectLetterEvent: (event: EventItem) => void;
   handleDeleteClick: (ev: EventItem) => void;
   handleDetailClick: (ev: EventItem) => void;
   /** Sembunyikan/tampilkan event di halaman publik (flag lifecycle `draft`). */
@@ -177,7 +174,6 @@ export interface DashboardPageModalData {
   editingEvent: EventItem | null;           setEditingEvent: (v: EventItem | null) => void;
   editingDraft: DraftEventItem | null;       setEditingDraft: (v: DraftEventItem | null) => void;
   editingTheme: AnnualTheme | null;          setEditingTheme: (v: AnnualTheme | null) => void;
-  letterEvent: EventItem | null;             setLetterEvent: (v: EventItem | null) => void;
   deletingEvent: EventItem | null;           setDeletingEvent: (v: EventItem | null) => void;
   detailEvent: EventItem | null;             setDetailEvent: (v: EventItem | null) => void;
   initialEventData: Partial<EventItem> | null; setInitialEventData: (v: Partial<EventItem> | null) => void;
@@ -783,11 +779,9 @@ export function DashboardPage({
 
       {permissions.canViewSettings && dashboardPath === '/content/surat' && (
         <section id="content-surat" className="scroll-mt-20">
-          <UnderMaintenance
-            title="Buat Surat"
-            reason="Generator surat belum menghasilkan dokumen yang konsisten untuk semua jenis event, jadi kami tutup sementara agar tidak ada surat keluar yang cacat."
-            next="Untuk kebutuhan surat yang mendesak, hubungi tim administrasi mall secara langsung."
-          />
+          <Suspense fallback={<SectionFallback height="h-48" />}>
+            <LetterWorkspace events={events.events} readOnly={readOnly} />
+          </Suspense>
         </section>
       )}
 

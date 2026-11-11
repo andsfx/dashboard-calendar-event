@@ -12,7 +12,9 @@ import {
 } from '../../utils/eventUtils';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CategoryBadges } from '../ui/CategoryBadges';
-import { MdButton, MdIconButton, MdTabs } from '../md';
+import { Button } from '../shadcn/button';
+import { Tabs, TabsList, TabsTrigger } from '../shadcn/tabs';
+import { Empty, EmptyHeader, EmptyTitle } from '../shadcn/empty';
 
 /** Lima tampilan, senada dengan kalender internal tim (Bulan/Minggu/Hari/Agenda/Linimasa). */
 type CalendarMode = 'month' | 'week' | 'day' | 'agenda' | 'timeline';
@@ -224,16 +226,17 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
 
   function renderChip(event: EventItem) {
     return (
-      <button
+      <Button
         key={event.id}
         type="button"
+        variant="ghost"
         onClick={() => onDetail(event)}
         title={`${event.acara} (${event.jam || 'jam belum ditentukan'})`}
-        className={`flex w-full items-center gap-1.5 truncate rounded-[var(--wf-radius-control)] border px-2 py-1 text-left text-xs font-medium transition hover:brightness-[0.97] ui-focus-ring ${STATUS_CHIP[event.status]}`}
+        className={`flex h-auto w-full items-center justify-start gap-1.5 truncate rounded-[var(--wf-radius-control)] border px-2 py-1 text-left text-xs font-medium transition hover:brightness-[0.97] ui-focus-ring focus-visible:ring-0 active:translate-y-0 ${STATUS_CHIP[event.status]}`}
       >
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[event.status]}`} aria-hidden="true" />
         <span className="truncate">{event.acara}</span>
-      </button>
+      </Button>
     );
   }
 
@@ -246,17 +249,18 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
         <span className="wf-code w-28 shrink-0 text-xs font-semibold text-[var(--wf-ink-muted)]">
           {event.jam || '—'}
         </span>
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => onDetail(event)}
-          className="min-w-0 flex-1 text-left ui-focus-ring rounded-sm"
+          className="min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
         >
           <span className="block truncate font-medium text-[var(--wf-ink)]">{event.acara}</span>
           <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
             {event.lokasi || 'Lokasi belum ditentukan'}
             {event.eo ? ` · ${event.eo}` : ''}
           </span>
-        </button>
+        </Button>
         <StatusBadge status={event.status} size="sm" />
       </li>
     );
@@ -266,13 +270,19 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
     <div className="space-y-4">
       {/* Toolbar: pilih tampilan + navigasi periode */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <MdTabs
-          items={VIEW_TABS.map(tab => ({ key: tab.key, label: tab.label }))}
+        <Tabs
           value={mode}
-          onChange={key => { setMode(key as CalendarMode); setSelectedDate(null); }}
-          ariaLabel="Pilih tampilan kalender"
+          onValueChange={key => { setMode(key as CalendarMode); setSelectedDate(null); }}
           className="max-w-full"
-        />
+        >
+          <TabsList aria-label="Pilih tampilan kalender" className="max-w-full">
+            {VIEW_TABS.map(tab => (
+              <TabsTrigger key={tab.key} value={tab.key} aria-controls={undefined}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         <div className="flex flex-wrap items-center gap-2">
           <p className="flex items-center gap-2 text-sm font-semibold text-[var(--wf-ink)]">
@@ -280,18 +290,19 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
             {periodLabel}
           </p>
           <div className="flex items-center gap-1">
-            <MdIconButton ariaLabel="Periode sebelumnya" variant="outlined" onClick={() => shift(-1)}>
+            <Button type="button" variant="outline" size="icon" aria-label="Periode sebelumnya" onClick={() => shift(-1)}>
               <ChevronLeft className="h-4 w-4" />
-            </MdIconButton>
-            <MdButton
-              variant="outlined"
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => { setReference(new Date()); setSelectedDate(null); }}
             >
               Hari Ini
-            </MdButton>
-            <MdIconButton ariaLabel="Periode berikutnya" variant="outlined" onClick={() => shift(1)}>
+            </Button>
+            <Button type="button" variant="outline" size="icon" aria-label="Periode berikutnya" onClick={() => shift(1)}>
               <ChevronRight className="h-4 w-4" />
-            </MdIconButton>
+            </Button>
           </div>
         </div>
       </div>
@@ -351,13 +362,14 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                     <div className="space-y-1">
                       {dayEvents.slice(0, 3).map(renderChip)}
                       {dayEvents.length > 3 && (
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
                           onClick={() => setSelectedDate(dayKey)}
-                          className="ui-focus-ring px-1 text-[11px] text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)]"
+                          className="ui-focus-ring h-auto px-1 text-[11px] text-[var(--wf-ink-muted)] hover:text-[var(--wf-accent)] focus-visible:ring-0 active:translate-y-0"
                         >
                           +{dayEvents.length - 3} event lain
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -407,7 +419,11 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
             if (dayEvents.length === 0) {
               return (
                 <div className="ui-empty-panel px-4 py-10 text-center text-sm text-[var(--wf-ink-muted)]">
-                  Tidak ada event pada hari ini.
+                  <Empty className="border-0 bg-transparent p-0">
+                    <EmptyHeader>
+                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada hari ini.</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 </div>
               );
             }
@@ -450,7 +466,11 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
         <div className="space-y-0">
           {periodDays.length === 0 ? (
             <div className="ui-empty-panel px-4 py-10 text-center text-sm text-[var(--wf-ink-muted)]">
-              Tidak ada event pada rentang ini.
+              <Empty className="border-0 bg-transparent p-0">
+                <EmptyHeader>
+                  <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada rentang ini.</EmptyTitle>
+                </EmptyHeader>
+              </Empty>
             </div>
           ) : (
             periodDays.map(day => (
@@ -472,7 +492,11 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
         <div className="space-y-4">
           {periodDays.length === 0 ? (
             <div className="ui-empty-panel px-4 py-10 text-center text-sm text-[var(--wf-ink-muted)]">
-              Tidak ada event pada rentang agenda ini.
+              <Empty className="border-0 bg-transparent p-0">
+                <EmptyHeader>
+                  <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada rentang agenda ini.</EmptyTitle>
+                </EmptyHeader>
+              </Empty>
             </div>
           ) : (
             periodDays.map(day => (
@@ -481,10 +505,11 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                 <ul className="mt-2 divide-y divide-[var(--wf-rule)] rounded-[var(--wf-radius-board)] border border-[var(--wf-rule)]">
                   {day.events.map(event => (
                     <li key={event.id} className="flex flex-wrap items-center gap-3 px-3 py-2.5">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => onDetail(event)}
-                        className="min-w-0 flex-1 text-left ui-focus-ring rounded-sm"
+                        className="min-w-0 flex-1 rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
                       >
                         <span className="block truncate font-medium text-[var(--wf-ink)]">{event.acara}</span>
                         <span className="block truncate text-xs text-[var(--wf-ink-muted)]">
@@ -494,7 +519,7 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                             ? `${getEventDuration(event.dateStr, event.dateEnd)} hari`
                             : event.jam || 'jam belum ditentukan'}
                         </span>
-                      </button>
+                      </Button>
                       <StatusBadge status={event.status} size="sm" />
                     </li>
                   ))}
@@ -528,15 +553,19 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                   {selectedDayHolidays.length > 0 ? ` · ${selectedDayHolidays.length} hari libur` : ''}
                 </p>
               </div>
-              <MdIconButton ariaLabel="Tutup" onClick={() => setSelectedDate(null)}>
+              <Button type="button" variant="ghost" size="icon" aria-label="Tutup" onClick={() => setSelectedDate(null)}>
                 <X className="h-4 w-4" aria-hidden="true" />
-              </MdIconButton>
+              </Button>
             </div>
 
             <div className="space-y-4 px-4 py-5 sm:px-6">
               {selectedDayEvents.length === 0 ? (
                 <div className="ui-empty-panel px-4 py-6 text-center text-sm text-[var(--wf-ink-muted)]">
-                  Tidak ada event pada tanggal ini.
+                  <Empty className="border-0 bg-transparent p-0">
+                    <EmptyHeader>
+                      <EmptyTitle className="text-sm text-[var(--wf-ink-muted)]">Tidak ada event pada tanggal ini.</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 </div>
               ) : (
                 <ul className="space-y-3">
@@ -558,13 +587,14 @@ export function DashboardCalendarView({ events, holidays, onDetail }: Props) {
                           <CategoryBadges categories={event.categories} maxVisible={2} />
                         </div>
                       )}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => { setSelectedDate(null); onDetail(event); }}
-                        className="w-full text-left ui-focus-ring rounded-sm"
+                        className="w-full rounded-sm text-left ui-focus-ring h-auto px-0 py-0 font-normal focus-visible:ring-0 active:translate-y-0"
                       >
                         <span className="block font-semibold text-[var(--wf-ink)]">{event.acara}</span>
-                      </button>
+                      </Button>
                       <div className="mt-2 space-y-1 text-xs text-[var(--wf-ink-muted)]">
                         {isMultiDayEvent(event) && getMultiDayJamDisplay(event) && (
                           <p className="flex items-center gap-1.5">

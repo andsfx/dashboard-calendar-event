@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import QrCreator from 'qr-creator';
 import { Download, QrCode, Copy, Check } from 'lucide-react';
+import { Button } from '../shadcn/button';
 
 interface SurveyQRCodeProps {
   eventId: string;
@@ -142,40 +143,45 @@ export default function SurveyQRCode({
         <div className="flex w-full items-center gap-2 rounded-lg bg-[var(--wf-board-2)] px-3 py-2">
           <QrCode className="h-4 w-4 shrink-0 text-[var(--wf-ink-muted)]" />
           <span className="flex-1 truncate text-xs text-[var(--wf-ink-muted)]">{surveyUrl}</span>
-          <button
+          <Button
+            variant="ghost"
             onClick={handleCopy}
-            className="shrink-0 rounded-md p-1 text-[var(--wf-ink-muted)] hover:bg-[var(--wf-rule-strong)] hover:text-[var(--wf-ink)]"
+            className="h-auto shrink-0 rounded-md p-1! text-[var(--wf-ink-muted)] hover:bg-[var(--wf-rule-strong)]! hover:text-[var(--wf-ink)]! dark:hover:bg-[var(--wf-rule-strong)]!"
             title="Copy link"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-[var(--wf-live)]" /> : <Copy className="h-3.5 w-3.5" />}
-          </button>
+            {copied ? <Check className="h-3.5 w-3.5 size-3.5 text-[var(--wf-live)]" /> : <Copy className="h-3.5 w-3.5 size-3.5" />}
+          </Button>
         </div>
 
         {/* Download button */}
-        <button
+        <Button
           onClick={handleDownload}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--wf-accent)] px-4 py-2 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]"
+          className="flex! h-auto w-full items-center justify-center gap-2 rounded-xl border! border-[var(--wf-accent)]! bg-transparent px-4 py-2 text-sm font-medium text-[var(--wf-accent)] transition-colors hover:bg-[var(--wf-accent-soft)]! dark:bg-transparent"
         >
           <Download className="h-4 w-4" />
           Download QR Code (PNG)
-        </button>
+        </Button>
       </div>
     </div>
   );
 }
 
 function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  // Catatan konversi: sufiks `!` menaklukkan default primitif (h-8/px-2.5 dan
+  // hover:bg-muted/hover:text-foreground dari varian ghost) yang urutannya
+  // lebih akhir di CSS; warna --wf-* asli tetap dipakai apa adanya.
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
-      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+      className={`h-auto flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? 'bg-[var(--wf-board)] text-[var(--wf-accent)]'
-          : 'text-[var(--wf-ink-muted)] hover:text-[var(--wf-ink)]'
+          ? 'bg-[var(--wf-board)]! text-[var(--wf-accent)] hover:bg-[var(--wf-board)]! hover:text-[var(--wf-accent)]!'
+          : 'text-[var(--wf-ink-muted)] hover:bg-transparent! hover:text-[var(--wf-ink)]!'
       }`}
     >
       {children}
-    </button>
+    </Button>
   );
 }

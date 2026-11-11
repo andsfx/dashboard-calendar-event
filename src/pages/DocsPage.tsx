@@ -10,6 +10,9 @@ import {
 import { DOC_SECTIONS, type DocFeature } from '../data/featureDocs';
 import { usePageMeta } from '../utils/pageMeta';
 import { PublicSiteHeader } from '../components/nav/PublicSiteHeader';
+import { Button } from '../components/shadcn/button';
+import { Input } from '../components/shadcn/input';
+import { Label } from '../components/shadcn/label';
 import { RevealSection } from '../components/community/CommunityRevealPrimitives';
 
 interface Props {
@@ -18,11 +21,11 @@ interface Props {
 }
 
 const AUDIENCE_STYLE: Record<DocFeature['audience'], string> = {
-  'Publik': 'border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200',
-  'Semua pengguna': 'border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200',
-  'Tenant': 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-300',
+  'Publik': 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]',
+  'Semua pengguna': 'border-[var(--wf-rule)] bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)]',
+  'Tenant': 'border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
   'Viewer': 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-300',
-  'Admin': 'border-brand-primary-200 bg-brand-primary-50 text-brand-primary-700 dark:border-brand-primary-800 dark:bg-brand-primary-950/40 dark:text-brand-primary-300',
+  'Admin': 'border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]',
   'Superadmin': 'border-brand-secondary-200 bg-brand-secondary-50 text-brand-secondary-700 dark:border-brand-secondary-800 dark:bg-brand-secondary-950/40 dark:text-brand-secondary-300',
   'Demo': 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
 };
@@ -117,10 +120,10 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
   const isFiltering = Boolean(query) || audience !== 'semua';
 
   return (
-    <div className="ui-dashboard-page min-h-screen bg-[var(--brand-paper)] text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="ui-dashboard-page min-h-screen bg-[var(--wf-page)] text-[var(--wf-ink)] transition-colors duration-300">
       <a
         href="#konten-utama"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--brand-tosca-600)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--wf-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--wf-accent-ink)]"
       >
         Langsung ke konten
       </a>
@@ -130,7 +133,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
       <main id="konten-utama" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 outline-none sm:px-6 sm:py-12">
         <RevealSection as="div" className="mb-8 max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Panduan Fitur</h1>
-          <p className="mt-3 text-base leading-7 ui-text-muted">
+          <p className="mt-3 text-base leading-7 text-[var(--wf-ink-muted)]">
             Penjelasan dan tutorial singkat untuk setiap fitur Metropolitan Mall Bekasi: dari mencari jadwal event
             dan mendaftar sebagai komunitas, sampai mengelola dashboard sebagai admin. Pilih "Saya melihat sebagai"
             untuk menyaring sesuai peran Anda, atau cari langsung nama fiturnya.
@@ -140,8 +143,8 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
         <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
           {/* Daftar isi */}
           <RevealSection as="aside" className="lg:sticky lg:top-20 lg:self-start">
-            <nav aria-label="Daftar isi dokumentasi" className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-4 dark:border-slate-700 dark:bg-slate-900">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider ui-text-muted">
+            <nav aria-label="Daftar isi dokumentasi" className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] p-4">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">
                 <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
                 Daftar Isi
               </p>
@@ -150,9 +153,9 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                   <li key={section.id}>
                     <a
                       href={`#${section.id}`}
-                      className="flex items-center gap-1 text-sm font-semibold text-slate-800 transition hover:text-brand-primary-700 dark:text-slate-100 dark:hover:text-brand-primary-300"
+                      className="flex items-center gap-1 text-sm font-semibold text-[var(--wf-ink)] transition hover:text-[var(--wf-accent)]"
                     >
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-brand-primary-500" aria-hidden="true" />
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--wf-accent)]" aria-hidden="true" />
                       {section.label}
                     </a>
                     <ul className="mt-1 space-y-0.5 pl-5">
@@ -160,7 +163,7 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                         <li key={group.id}>
                           <a
                             href={`#${group.id}`}
-                            className="block rounded-sm py-0.5 text-[13px] ui-text-muted transition hover:text-brand-primary-700 dark:hover:text-brand-primary-300"
+                            className="block rounded-sm py-0.5 text-[13px] text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-accent)]"
                           >
                             {group.label}
                           </a>
@@ -176,25 +179,26 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
           <div className="min-w-0">
             {/* Saringan audiens */}
             <div className="mb-5">
-              <p className="text-xs font-bold uppercase tracking-wider ui-text-muted">Saya melihat sebagai</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">Saya melihat sebagai</p>
               <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Saring dokumentasi menurut pengguna">
                 {AUDIENCE_FILTERS.map(item => {
                   const active = item.id === audience;
                   return (
-                    <button
+                    <Button
                       key={item.id}
                       type="button"
+                      variant="ghost"
                       onClick={() => setAudience(item.id)}
                       aria-pressed={active}
                       title={item.hint}
-                      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-xs font-semibold transition h-auto rounded-full! active:translate-y-0! ${
                         active
-                          ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-brand-primary-300 hover:text-brand-primary-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-brand-primary-700 dark:hover:text-brand-primary-300'
+                          ? 'border-[var(--wf-accent)]! bg-[var(--wf-accent)] text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]! hover:text-[var(--wf-accent-ink)]!'
+                          : 'border-[var(--wf-rule)]! bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:border-[var(--wf-accent)]! hover:text-[var(--wf-accent)]! hover:bg-[var(--wf-board)]!'
                       }`}
                     >
                       {item.label}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -202,21 +206,21 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
 
             {/* Pencarian */}
             <div className="mb-6">
-              <label htmlFor="docs-search" className="sr-only">
+              <Label htmlFor="docs-search" className="sr-only">
                 Cari fitur
-              </label>
+              </Label>
               <div className="relative max-w-md">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-                <input
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+                <Input
                   id="docs-search"
                   type="search"
                   value={query}
                   onChange={event => setQuery(event.target.value)}
                   placeholder="Cari fitur, mis. kalender, sponsor, survey…"
-                  className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-primary-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
+                  className="w-full rounded-full border border-[var(--wf-rule)]! bg-[var(--wf-board)]! py-2.5 pl-10 pr-4 text-sm text-[var(--wf-ink)] outline-none transition focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! dark:placeholder-slate-400 h-auto rounded-full! dark:bg-[var(--wf-board)]!"
                 />
               </div>
-              <p className="mt-2 text-xs ui-text-muted" role="status" aria-live="polite">
+              <p className="mt-2 text-xs text-[var(--wf-ink-muted)]" role="status" aria-live="polite">
                 {resultCount} fitur {isFiltering ? 'cocok dengan saringan' : 'terdokumentasi'}
                 {query ? ` untuk "${query}"` : ''}
                 {audience !== 'semua' ? ` · ${activeAudience.hint}` : ''}.
@@ -224,9 +228,9 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
             </div>
 
             {resultCount === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-300 px-6 py-16 text-center dark:border-slate-700">
-                <p className="font-semibold text-slate-700 dark:text-slate-200">Tidak ada fitur yang cocok</p>
-                <p className="mt-1 text-sm ui-text-muted">
+              <div className="rounded-2xl border border-dashed border-[var(--wf-rule-strong)] px-6 py-16 text-center">
+                <p className="font-semibold text-[var(--wf-ink-muted)]">Tidak ada fitur yang cocok</p>
+                <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">
                   Coba kata kunci lain, ganti saringan pengguna, atau pilih bagian dari daftar isi.
                 </p>
               </div>
@@ -241,13 +245,13 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                   refreshKey={`${filtered.length}:${filtered[0]?.id ?? ''}`}
                 >
                   <h2 data-reveal-item className="text-2xl font-bold tracking-tight">{section.label}</h2>
-                  <p data-reveal-item className="mt-2 max-w-3xl text-sm leading-6 ui-text-muted">{section.intro}</p>
+                  <p data-reveal-item className="mt-2 max-w-3xl text-sm leading-6 text-[var(--wf-ink-muted)]">{section.intro}</p>
 
                   <div className="mt-6 space-y-10">
                     {section.groups.map(group => (
                       <div key={group.id} id={group.id} className="scroll-mt-24">
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{group.label}</h3>
-                        <p className="mt-1 text-sm ui-text-muted">{group.description}</p>
+                        <h3 className="text-lg font-bold text-[var(--wf-ink)]">{group.label}</h3>
+                        <p className="mt-1 text-sm text-[var(--wf-ink-muted)]">{group.description}</p>
 
                         <div className="mt-4 space-y-4">
                           {group.features.map(feature => (
@@ -255,10 +259,10 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                               key={feature.id}
                               id={feature.id}
                               data-reveal-item
-                              className="scroll-mt-24 rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-card-light)] p-5 shadow-[var(--shadow-card-soft)] dark:border-slate-700 dark:bg-slate-900 sm:p-6"
+                              className="scroll-mt-24 rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5 shadow-[var(--shadow-card-soft)] sm:p-6"
                             >
                               <div className="flex flex-wrap items-center gap-2">
-                                <h4 className="text-base font-bold text-slate-900 dark:text-white">{feature.name}</h4>
+                                <h4 className="text-base font-bold text-[var(--wf-ink)]">{feature.name}</h4>
                                 <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${AUDIENCE_STYLE[feature.audience]}`}>
                                   {feature.audience}
                                 </span>
@@ -272,13 +276,13 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
 
                               {feature.path && (
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                                  <code className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                  <code className="rounded-md bg-[var(--wf-board-2)] px-2 py-0.5 text-xs font-medium text-[var(--wf-ink-muted)]">
                                     {feature.path}
                                   </code>
                                   {!feature.path.includes(':') && (
                                     <Link
                                       to={feature.path}
-                                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand-primary-700 transition hover:underline dark:text-brand-primary-300"
+                                      className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--wf-accent)] transition hover:underline"
                                     >
                                       Buka halaman
                                       <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
@@ -287,14 +291,14 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                                 </div>
                               )}
 
-                              <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">{feature.summary}</p>
+                              <p className="mt-3 text-sm leading-6 text-[var(--wf-ink-muted)]">{feature.summary}</p>
 
                               <div className="mt-4">
-                                <p className="text-xs font-bold uppercase tracking-wider ui-text-muted">Cara Pakai</p>
+                                <p className="text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">Cara Pakai</p>
                                 <ol className="mt-2 space-y-1.5">
                                   {feature.steps.map((step, index) => (
-                                    <li key={index} className="flex gap-2.5 text-sm leading-6 text-slate-700 dark:text-slate-200">
-                                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-primary-50 text-[11px] font-bold text-brand-primary-700 dark:bg-brand-primary-950/50 dark:text-brand-primary-300">
+                                    <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--wf-ink-muted)]">
+                                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--wf-accent-soft)] text-[11px] font-bold text-[var(--wf-accent)]">
                                         {index + 1}
                                       </span>
                                       <span>{step}</span>
@@ -304,11 +308,11 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
                               </div>
 
                               {feature.notes && feature.notes.length > 0 && (
-                                <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--brand-paper)] px-4 py-3 dark:border-slate-700 dark:bg-slate-950/50">
-                                  <p className="text-xs font-bold uppercase tracking-wider ui-text-muted">Catatan</p>
+                                <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--wf-page)] px-4 py-3">
+                                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--wf-ink-muted)]">Catatan</p>
                                   <ul className="mt-1.5 space-y-1">
                                     {feature.notes.map((note, index) => (
-                                      <li key={index} className="flex gap-2 text-xs leading-5 ui-text-muted">
+                                      <li key={index} className="flex gap-2 text-xs leading-5 text-[var(--wf-ink-muted)]">
                                         <span aria-hidden="true">•</span>
                                         <span>{note}</span>
                                       </li>
@@ -329,20 +333,20 @@ export function DocsPage({ isDark, onToggleDark }: Props) {
         </div>
       </main>
 
-      <footer className="border-t border-[var(--border-subtle)] px-4 py-10 sm:px-6 dark:border-slate-800">
+      <footer className="border-t border-[var(--border-subtle)] px-4 py-10 sm:px-6 ">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Metropolitan Mall Bekasi</p>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium ui-text-muted">
-            <Link to="/" className="transition hover:text-brand-primary-700 dark:hover:text-brand-primary-300">
+          <p className="text-sm font-semibold text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--wf-ink-muted)]">
+            <Link to="/" className="transition hover:text-[var(--wf-accent)]">
               Beranda
             </Link>
-            <Link to="/events" className="transition hover:text-brand-primary-700 dark:hover:text-brand-primary-300">
+            <Link to="/events" className="transition hover:text-[var(--wf-accent)]">
               Jadwal Event
             </Link>
-            <Link to="/sponsor" className="transition hover:text-brand-primary-700 dark:hover:text-brand-primary-300">
+            <Link to="/sponsor" className="transition hover:text-[var(--wf-accent)]">
               Sponsor
             </Link>
-            <Link to="/tenant-survey" className="transition hover:text-brand-primary-700 dark:hover:text-brand-primary-300">
+            <Link to="/tenant-survey" className="transition hover:text-[var(--wf-accent)]">
               Evaluasi Tenant
             </Link>
           </div>

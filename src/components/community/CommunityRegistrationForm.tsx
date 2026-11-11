@@ -3,6 +3,10 @@ import { CheckCircle2, Send, ArrowLeft, Paperclip, FileText, X } from 'lucide-re
 import { submitCommunityRegistration, uploadRegistrationAttachment, type RegistrationProposalUpload } from '../../utils/domainApi';
 import { ApiError } from '../../lib/rest';
 import { RevealSection } from './CommunityRevealPrimitives';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { Textarea } from '../shadcn/textarea';
 import { OrganizationTypeSelector } from './OrganizationTypeSelector';
 import { TypeSpecificFields, TYPE_SPECIFIC_REQUIRED } from './TypeSpecificFields';
 import { type OrganizationType } from '../../types';
@@ -269,24 +273,27 @@ export function RegistrationForm() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)]">
           <CheckCircle2 className="h-8 w-8 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
         </div>
-        <h3 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">Pendaftaran Terkirim!</h3>
+        <h3 className="mt-5 text-2xl font-bold text-[var(--wf-ink)]">Pendaftaran Terkirim!</h3>
         <p className="mt-3 text-sm leading-7 ui-text-secondary">
           Terima kasih sudah mendaftar! Tim kami akan mereview dan menghubungi kamu segera.
           <br />Sambil menunggu, ikuti <a href="https://instagram.com/metmalbekasi" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-tosca-dark)] hover:underline dark:text-[var(--brand-tosca-soft)]">@metmalbekasi</a> untuk update terbaru!
         </p>
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => { setSubmitted(false); setForm({ ...INITIAL_FORM }); }}
-          className={`mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700 ${focusRing}`}
+          className={`mt-6 inline-flex h-auto items-center gap-2 whitespace-normal rounded-full border border-[var(--border-subtle)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)] dark:hover:bg-[var(--wf-board-2)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
           Daftar {typeLabel} Lain
-        </button>
+        </Button>
       </div>
     );
   }
 
-  const inputClass = 'w-full rounded-[var(--radius-control)] border border-slate-200/80 bg-slate-100 px-4 py-3 text-sm text-slate-800 outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-slate-500';
-  const labelClass = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
+  // `Input`/`Textarea` shadcn membawa tinggi bawaan (h-8); `h-auto` + padding asli
+  // mempertahankan tinggi field lama.
+  const inputClass = 'h-auto w-full rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3 text-sm text-[var(--wf-ink)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--brand-tosca)] dark:placeholder-slate-500';
+  const labelClass = 'block text-xs font-semibold text-[var(--wf-ink-muted)] mb-1.5';
 
   const showForm = !!form.organizationType;
 
@@ -308,14 +315,15 @@ export function RegistrationForm() {
         <div className="mt-6 animate-[fade-in_0.3s_ease] space-y-4">
           {/* Divider with selected type */}
           <div className="flex items-center gap-3">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setField('organizationType', '' as OrganizationType)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-slate-300 hover:text-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--wf-rule)] text-[var(--wf-ink-muted)] transition hover:border-[var(--wf-rule-strong)] hover:bg-transparent hover:text-[var(--wf-ink)] dark:hover:bg-transparent active:translate-y-0"
               title="Ganti tipe"
             >
               <ArrowLeft className="h-4 w-4" />
-            </button>
+            </Button>
             <p className="text-xs font-semibold text-[var(--brand-tosca-dark)] dark:text-[var(--brand-tosca-soft)]">
               Pendaftaran {form.organizationType ? ORG_TYPE_LABELS[form.organizationType as OrganizationType] : ''}
             </p>
@@ -324,10 +332,10 @@ export function RegistrationForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Organization Name */}
             <div className="sm:col-span-2">
-              <label htmlFor="reg-org-name" className={labelClass}>
+              <Label htmlFor="reg-org-name" className={labelClass}>
                 {form.organizationType === 'community' ? 'Nama Komunitas' : 'Nama Organisasi'} <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-              </label>
-              <input
+              </Label>
+              <Input
                 id="reg-org-name"
                 value={form.organizationName}
                 onChange={e => setField('organizationName', e.target.value)}
@@ -360,8 +368,8 @@ export function RegistrationForm() {
 
             {/* Common Fields */}
             <div>
-              <label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
-              <input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
+              <Label htmlFor="reg-pic" className={labelClass}>Nama PIC <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></Label>
+              <Input id="reg-pic" value={form.pic} onChange={e => setField('pic', e.target.value)} placeholder="Nama penanggung jawab" required className={inputClass} aria-invalid={!!fieldErrors.pic} aria-describedby={fieldErrors.pic ? 'pic-error' : undefined} />
               {fieldErrors.pic && (
                 <p id="pic-error" className="mt-1 text-sm text-rose-700 dark:text-rose-400" role="alert">
                   {fieldErrors.pic}
@@ -369,8 +377,8 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></label>
-              <input 
+              <Label htmlFor="reg-phone" className={labelClass}>Nomor WhatsApp <span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></Label>
+              <Input 
                 id="reg-phone" 
                 value={form.phone} 
                 onChange={e => setField('phone', e.target.value)} 
@@ -389,8 +397,8 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-email" className={labelClass}>Email</label>
-              <input 
+              <Label htmlFor="reg-email" className={labelClass}>Email</Label>
+              <Input 
                 id="reg-email" 
                 value={form.email} 
                 onChange={e => setField('email', e.target.value)} 
@@ -408,8 +416,8 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-instagram" className={labelClass}>Instagram / Media Sosial</label>
-              <input 
+              <Label htmlFor="reg-instagram" className={labelClass}>Instagram / Media Sosial</Label>
+              <Input 
                 id="reg-instagram" 
                 value={form.instagram} 
                 onChange={e => setField('instagram', e.target.value)} 
@@ -425,16 +433,18 @@ export function RegistrationForm() {
               )}
             </div>
             <div>
-              <label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</label>
-              <input id="reg-date" type="date" min={todayIso()} value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
+              <Label htmlFor="reg-date" className={labelClass}>Preferensi Tanggal Event</Label>
+              <Input id="reg-date" type="date" min={todayIso()} value={form.preferredDate} onChange={e => setField('preferredDate', e.target.value)} className={inputClass} />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</label>
-              <textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi…" className={`${inputClass} resize-none`} />
+              <Label htmlFor="reg-desc" className={labelClass}>Deskripsi / Proposal Event</Label>
+              <Textarea id="reg-desc" value={form.description} onChange={e => setField('description', e.target.value)} rows={4} placeholder="Ceritain tentang rencana event yang mau diadain di Metropolitan Mall Bekasi…" className={`${inputClass} resize-none`} />
             </div>
             {/* Proposal / Company Profile Upload (optional) */}
             <div className="sm:col-span-2">
-              <label className={labelClass}>Lampiran Proposal / Company Profile (opsional)</label>
+              <Label className={labelClass}>Lampiran Proposal / Company Profile (opsional)</Label>
+              {/* Pengecualian kategori (b): input berkas tersembunyi — tetap native,
+                  `Input` akan menggambar kotak yang tidak diinginkan. */}
               <input
                 id="reg-proposal"
                 type="file"
@@ -443,32 +453,34 @@ export function RegistrationForm() {
                 onChange={handleProposalChange}
               />
               {proposalFile ? (
-                <div className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-slate-200/80 bg-slate-100 px-4 py-3 dark:border-slate-600 dark:bg-slate-700">
+                <div className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-[var(--wf-rule)] bg-[var(--wf-board-2)] px-4 py-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <FileText className="h-4 w-4 shrink-0 text-[var(--brand-tosca)] dark:text-[var(--brand-tosca-soft)]" />
-                    <span className="truncate text-sm text-slate-800 dark:text-white">{proposalFile.name}</span>
-                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-300">{(proposalFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                    <span className="truncate text-sm text-[var(--wf-ink)]">{proposalFile.name}</span>
+                    <span className="shrink-0 text-xs text-[var(--wf-ink-muted)]">{(proposalFile.size / (1024 * 1024)).toFixed(1)} MB</span>
                   </div>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={removeProposalFile}
-                    className="shrink-0 rounded-full p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-white"
+                    className="shrink-0 rounded-full p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-rule)] hover:text-[var(--wf-ink-muted)] active:translate-y-0"
                     aria-label="Hapus file"
                   >
                     <X className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               ) : (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => document.getElementById('reg-proposal')?.click()}
-                  className={`flex w-full items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-slate-300 bg-slate-100/60 px-4 py-3 text-sm text-slate-600 transition hover:border-[var(--brand-tosca)] hover:text-slate-800 dark:border-slate-500 dark:bg-slate-700/60 dark:text-slate-300 dark:hover:border-[var(--brand-tosca-soft)] dark:hover:text-white ${focusRing}`}
+                  className={`flex h-auto w-full items-center justify-start gap-2 whitespace-normal rounded-[var(--radius-control)] border border-dashed border-[var(--wf-rule-strong)] bg-[var(--wf-board-2)] px-4 py-3 text-sm text-[var(--wf-ink-muted)] transition hover:border-[var(--brand-tosca)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)] dark:hover:bg-[var(--wf-board-2)] active:translate-y-0 ${focusRing} focus-visible:ring-0`}
                 >
                   <Paperclip className="h-4 w-4" />
                   Pilih file
-                </button>
+                </Button>
               )}
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">PDF atau Word (doc/docx), maksimal 20MB</p>
+              <p className="mt-1 text-xs text-[var(--wf-ink-muted)]">PDF atau Word (doc/docx), maksimal 20MB</p>
             </div>
           </div>
         </div>
@@ -476,16 +488,16 @@ export function RegistrationForm() {
 
       {error && <p className="mt-4 text-sm text-rose-700 dark:text-rose-400" role="alert">{error}</p>}
 
-      <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)] dark:border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-6 text-slate-600 dark:text-slate-300">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
-        <button
+      <div className="mt-6 flex flex-col gap-4 border-t border-[var(--border-subtle)]  pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-md text-xs leading-6 text-[var(--wf-ink-muted)]">* Wajib diisi. Data kamu aman dan hanya digunakan untuk proses pendaftaran.</p>
+        <Button
           type="submit"
           disabled={submitting}
-          className={`inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-7 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] disabled:opacity-60 motion-reduce:transition-none ${focusRing}`}
+          className={`inline-flex h-auto items-center justify-center gap-2 whitespace-normal rounded-full bg-[var(--wf-accent)] px-7 py-3.5 text-sm font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] disabled:opacity-60 motion-reduce:transition-none active:translate-y-0 ${focusRing} focus-visible:ring-0`}
         >
           <Send className="h-4 w-4" />
           {submitting ? 'Mengirim…' : 'Kirim Pendaftaran'}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -496,20 +508,20 @@ export function CommunityRegistrationForm() {
     <RevealSection id="register" tabIndex={-1} className="scroll-mt-28 px-4 py-16 outline-none sm:px-6 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
         <div className="max-w-md">
-          <h2 className="text-4xl font-bold leading-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h2 className="text-4xl font-bold leading-tight text-[var(--wf-ink)] sm:text-5xl">
             Daftarkan Komunitas Kamu
           </h2>
           <p className="mt-5 text-sm leading-7 ui-text-secondary">
             Isi form di bawah buat daftarin komunitas kamu. Tim kami bakal review dan hubungi kamu secepatnya.
           </p>
-          <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">
             Mau bertanya dulu?{' '}
             <a href="https://wa.me/6281318534823" target="_blank" rel="noopener noreferrer" className="-my-1 inline-block py-1 font-semibold text-emerald-700 hover:underline dark:text-emerald-400">
               Chat via WhatsApp
             </a>
           </p>
           <div className="mt-8">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Cara mengisi form pendaftaran event</h3>
+            <h3 className="text-sm font-bold text-[var(--wf-ink)]">Cara mengisi form pendaftaran event</h3>
             <ol className="mt-3 space-y-2.5 text-sm leading-6 ui-text-secondary">
               <li className="flex gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-xs font-bold text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">1</span>

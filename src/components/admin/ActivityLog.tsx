@@ -4,7 +4,9 @@ import {
   Plus, Pencil, Trash2, LogIn, LogOut, Mail, Settings, AlertCircle,
 } from 'lucide-react';
 import { apiGet } from '../../lib/rest';
-import { MdButton, MdSelect } from '../md';
+import { Button } from '../shadcn/button';
+import { NativeSelect } from '../shadcn/native-select';
+import { Input } from '../shadcn/input';
 
 interface LogEntry {
   id: number;
@@ -109,40 +111,34 @@ export function ActivityLog() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-        <MdSelect ariaLabel="Filter aksi" value={filterAction} onChange={v => { setFilterAction(v); setPage(1); }}
-          options={[
-            { value: '', label: 'Semua Aksi' },
-            { value: 'create', label: 'Buat' },
-            { value: 'update', label: 'Perbarui' },
-            { value: 'delete', label: 'Hapus' },
-            { value: 'login', label: 'Login' },
-            { value: 'logout', label: 'Logout' },
-            { value: 'invite', label: 'Undang' },
-          ]}
-        />
-        <MdSelect ariaLabel="Filter tipe resource" value={filterResource} onChange={v => { setFilterResource(v); setPage(1); }}
-          options={[
-            { value: '', label: 'Semua Tipe' },
-            { value: 'event', label: 'Event' },
-            { value: 'draft', label: 'Draft' },
-            { value: 'user', label: 'Pengguna' },
-            { value: 'theme', label: 'Tema' },
-            { value: 'survey_config', label: 'Konfigurasi Survey' },
-          ]}
-        />
-        {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
-        <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+        <NativeSelect aria-label="Filter aksi" value={filterAction} onChange={e => { setFilterAction(e.target.value); setPage(1); }} size="sm">
+          <option value="">Semua Aksi</option>
+          <option value="create">Buat</option>
+          <option value="update">Perbarui</option>
+          <option value="delete">Hapus</option>
+          <option value="login">Login</option>
+          <option value="logout">Logout</option>
+          <option value="invite">Undang</option>
+        </NativeSelect>
+        <NativeSelect aria-label="Filter tipe resource" value={filterResource} onChange={e => { setFilterResource(e.target.value); setPage(1); }} size="sm">
+          <option value="">Semua Tipe</option>
+          <option value="event">Event</option>
+          <option value="draft">Draft</option>
+          <option value="user">Pengguna</option>
+          <option value="theme">Tema</option>
+          <option value="survey_config">Konfigurasi Survey</option>
+        </NativeSelect>
+        <Input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
           aria-label="Dari tanggal"
-          className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
+          className="h-auto w-auto rounded-lg bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)] md:text-[11px]" />
         <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
-        {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
-        <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
+        <Input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
           aria-label="Sampai tanggal"
-          className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]" />
+          className="h-auto w-auto rounded-lg bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)] md:text-[11px]" />
         {(filterAction || filterResource || dateFrom || dateTo) && (
-          <MdButton variant="text" onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}>
+          <Button variant="ghost" size="sm" onClick={() => { setFilterAction(''); setFilterResource(''); setDateFrom(''); setDateTo(''); setPage(1); }}>
             Atur Ulang
-          </MdButton>
+          </Button>
         )}
       </div>
 
@@ -155,9 +151,9 @@ export function ActivityLog() {
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <p>{error}</p>
-              <MdButton variant="text" onClick={fetchLogs}>
+              <Button variant="ghost" size="sm" onClick={fetchLogs}>
                 Coba lagi
-              </MdButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -225,13 +221,13 @@ export function ActivityLog() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <MdButton variant="outlined" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+          <Button variant="outline" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
             Sebelumnya
-          </MdButton>
+          </Button>
           <span className="text-xs text-[var(--wf-ink-muted)]">{page} / {totalPages}</span>
-          <MdButton variant="outlined" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+          <Button variant="outline" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
             Berikutnya
-          </MdButton>
+          </Button>
         </div>
       )}
     </div>

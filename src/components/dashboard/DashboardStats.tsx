@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { CalendarDays, Radio, Clock3, CheckCircle2, ArrowUp } from 'lucide-react';
 import { StatCard } from '../ui/StatCard';
+import { Card, CardTitle, CardDescription } from '../shadcn/card';
 
 interface DashboardStatsProps {
   stats: {
@@ -86,31 +87,38 @@ export const DashboardStats = memo(function DashboardStats({ stats, compact, att
     <div className="wf-status-key">
       {/* The queue leads: it is the one number that needs a decision today. */}
       {attention && (pendingTotal > 0 || attention.draftsError) && (
-        <div className="wf-metric wf-metric--lead">
+        <Card
+          className="wf-metric wf-metric--lead rounded-[var(--wf-radius-board)] border-[var(--wf-action)] bg-[var(--wf-board)] p-3.5 sm:p-5 ring-0 shadow-none gap-0"
+        >
           <div className="wf-metric__top">
-            <span className="wf-metric__label">Menunggu keputusan</span>
+            <CardTitle className="wf-metric__label">
+              Menunggu keputusan
+            </CardTitle>
             <span className="wf-metric__icon">
               <ArrowUp className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             </span>
           </div>
           <p className="wf-metric__value">{attention.draftsError ? '—' : pendingTotal}</p>
-          <p className="wf-metric__hint">
+          <CardDescription className="wf-metric__hint">
             {attention.draftsError
               ? `Sebagian antrian gagal dimuat: ${attention.draftsError}`
               : 'Antrian yang menunggu keputusan manusia hari ini.'}
-          </p>
-        </div>
+          </CardDescription>
+        </Card>
       )}
 
       <div className="wf-metrics">
         {today.map(entry => (
-          <div key={entry.label} className="wf-metric wf-metric--secondary">
+          <Card
+            key={entry.label}
+            className="wf-metric wf-metric--secondary rounded-[var(--wf-radius-board)] border-[var(--wf-rule)] border-dashed bg-transparent p-3.5 sm:p-5 ring-0 shadow-none gap-0"
+          >
             <div className="wf-metric__top">
-              <span className="wf-metric__label">{entry.label}</span>
+              <CardTitle className="wf-metric__label">{entry.label}</CardTitle>
               <span className={`wf-metric__icon wf-key--${entry.tone}`}>{entry.icon}</span>
             </div>
             <p className="wf-metric__value">{entry.value}</p>
-          </div>
+          </Card>
         ))}
       </div>
 

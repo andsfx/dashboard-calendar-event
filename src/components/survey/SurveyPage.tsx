@@ -12,6 +12,10 @@ import { validateEmail } from '../../utils/validation';
 import type { SurveyType } from '../../types';
 import RatingSlider from './RatingSlider';
 import SurveySuccess from './SurveySuccess';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { Textarea } from '../shadcn/textarea';
 
 /* ─── Mall rating aspects ──────────────────────────────────────── */
 const MALL_ASPECTS = [
@@ -162,11 +166,14 @@ export default function SurveyPage() {
 
   // Loading
   if (loading) {
+    // Catatan konversi: sufiks `!` pada className menaklukkan default primitif
+    // (h-8/px-2.5/border-input/bg-primary/…) yang urutannya lebih akhir di CSS;
+    // warna & ukuran asli --wf-* tetap dipakai apa adanya.
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-primary-500" />
-          <p className="mt-3 text-sm ui-text-muted">Memuat survey…</p>
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--wf-accent)]" />
+          <p className="mt-3 text-sm text-[var(--wf-ink-muted)]">Memuat survey…</p>
         </div>
       </PageShell>
     );
@@ -178,10 +185,10 @@ export default function SurveyPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <AlertTriangle className="h-10 w-10 text-rose-500" />
-          <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">{error}</p>
-          <button onClick={() => navigate('/dashboard')} className="mt-4 text-sm text-brand-primary-600 hover:underline">
+          <p className="mt-3 text-sm font-medium text-[var(--wf-ink-muted)]">{error}</p>
+          <Button variant="link" onClick={() => navigate('/dashboard')} className="mt-4 h-auto px-0! text-sm font-normal text-[var(--wf-accent)]">
             Kembali ke Dashboard
-          </button>
+          </Button>
         </div>
       </PageShell>
     );
@@ -193,13 +200,13 @@ export default function SurveyPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ClipboardCheck className="h-12 w-12 text-emerald-500" />
-          <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">Anda Sudah Mengisi Survey</h2>
-          <p className="mt-2 max-w-xs text-sm ui-text-muted">
+          <h2 className="mt-4 text-lg font-bold text-[var(--wf-ink)]">Anda Sudah Mengisi Survey</h2>
+          <p className="mt-2 max-w-xs text-sm text-[var(--wf-ink-muted)]">
             Terima kasih! Anda sudah pernah mengisi survey untuk event "{event?.acara}".
           </p>
-          <button onClick={() => navigate('/dashboard')} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-primary-700">
+          <Button onClick={() => navigate('/dashboard')} className="mt-6 h-auto inline-flex items-center gap-2 rounded-xl bg-[var(--wf-accent)] px-5 py-2.5 text-sm font-semibold text-[var(--wf-accent-ink)] hover:bg-[var(--wf-accent)]!">
             Kembali ke Dashboard
-          </button>
+          </Button>
         </div>
       </PageShell>
     );
@@ -218,18 +225,18 @@ export default function SurveyPage() {
   return (
     <PageShell>
       {/* Event info header */}
-      <div className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-800 dark:bg-brand-primary-950/40">
+      <div className="rounded-2xl border border-[var(--wf-accent)]/40 bg-[var(--wf-accent-soft)] p-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 dark:bg-brand-primary-900/50">
-            <Building2 className="h-5 w-5 text-brand-primary-600 dark:text-brand-primary-400" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)]">
+            <Building2 className="h-5 w-5 text-[var(--wf-accent)]" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">{event?.acara}</h2>
-            <p className="text-xs ui-text-muted">
+            <h2 className="text-base font-bold text-[var(--wf-ink)]">{event?.acara}</h2>
+            <p className="text-xs text-[var(--wf-ink-muted)]">
               {event?.tanggal} · {event?.lokasi}
             </p>
             {event?.eo && (
-              <p className="text-xs ui-text-muted">Penyelenggara: {event.eo}</p>
+              <p className="text-xs text-[var(--wf-ink-muted)]">Penyelenggara: {event.eo}</p>
             )}
           </div>
         </div>
@@ -238,18 +245,18 @@ export default function SurveyPage() {
       {/* Survey type selector */}
       {!surveyType && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Anda mengisi sebagai:</h3>
+          <h3 className="text-sm font-semibold text-[var(--wf-ink)]">Anda mengisi sebagai:</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <TypeCard
               title="Penyelenggara Event"
               desc="Saya EO / panitia event ini"
-              icon={<Briefcase className="h-5 w-5" />}
+              icon={<Briefcase className="size-5" />}
               onClick={() => setSurveyType('organizer')}
             />
             <TypeCard
               title="Peserta / Pengunjung"
               desc="Saya hadir sebagai peserta"
-              icon={<Users className="h-5 w-5" />}
+              icon={<Users className="size-5" />}
               onClick={() => setSurveyType('public')}
             />
           </div>
@@ -261,29 +268,30 @@ export default function SurveyPage() {
         <div className="space-y-6">
           {/* Type indicator */}
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium ui-text-muted">
-              Mengisi sebagai: <span className="font-semibold text-brand-primary-600 dark:text-brand-primary-400">
+            <p className="text-xs font-medium text-[var(--wf-ink-muted)]">
+              Mengisi sebagai: <span className="font-semibold text-[var(--wf-accent)]">
                 {surveyType === 'organizer' ? 'Penyelenggara' : 'Peserta / Pengunjung'}
               </span>
             </p>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={() => setSurveyType(null)}
-              className="text-xs text-brand-primary-600 hover:underline dark:text-brand-primary-400"
+              className="h-auto px-0! text-xs font-normal text-[var(--wf-accent)]"
             >
               Ubah
-            </button>
+            </Button>
           </div>
 
           {/* Mall ratings */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-brand-primary-500" />
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+              <div className="h-1 w-1 rounded-full bg-[var(--wf-accent)]" />
+              <h3 className="text-sm font-bold text-[var(--wf-ink)]">
                 Penilaian Pengelola Tempat
               </h3>
             </div>
-            <p className="text-xs ui-text-muted">
+            <p className="text-xs text-[var(--wf-ink-muted)]">
               Berikan penilaian Anda terhadap Metropolitan Mall Bekasi
             </p>
             <div className="space-y-5">
@@ -299,15 +307,15 @@ export default function SurveyPage() {
               ))}
             </div>
             {/* Mall comment */}
-            <label htmlFor="survey-mall-comment" className="sr-only">Komentar untuk pengelola tempat</label>
-            <textarea
+            <Label htmlFor="survey-mall-comment" className="sr-only">Komentar untuk pengelola tempat</Label>
+            <Textarea
               id="survey-mall-comment"
               placeholder="Komentar untuk pengelola tempat (opsional)"
               value={comments.mall}
               onChange={(e) => setComments(prev => ({ ...prev, mall: e.target.value }))}
               maxLength={1000}
               rows={2}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
+              className="min-h-0! field-sizing-fixed w-full rounded-xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)]! ui-focus-ring focus-visible:border-[var(--wf-accent)]!"
             />
           </section>
 
@@ -315,12 +323,12 @@ export default function SurveyPage() {
           {surveyType === 'public' && (
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-brand-primary-500" />
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                <div className="h-1 w-1 rounded-full bg-[var(--wf-accent)]" />
+                <h3 className="text-sm font-bold text-[var(--wf-ink)]">
                   Penilaian Penyelenggara Event
                 </h3>
               </div>
-              <p className="text-xs ui-text-muted">
+              <p className="text-xs text-[var(--wf-ink-muted)]">
                 Berikan penilaian Anda terhadap penyelenggara event: {event?.eo || '-'}
               </p>
               <div className="space-y-5">
@@ -336,42 +344,42 @@ export default function SurveyPage() {
                 ))}
               </div>
               {/* EO comment */}
-              <label htmlFor="survey-eo-comment" className="sr-only">Komentar untuk penyelenggara event</label>
-              <textarea
+              <Label htmlFor="survey-eo-comment" className="sr-only">Komentar untuk penyelenggara event</Label>
+              <Textarea
                 id="survey-eo-comment"
                 placeholder="Komentar untuk penyelenggara event (opsional)"
                 value={comments.eo}
                 onChange={(e) => setComments(prev => ({ ...prev, eo: e.target.value }))}
                 maxLength={1000}
                 rows={2}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
+                className="min-h-0! field-sizing-fixed w-full rounded-xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)]! ui-focus-ring focus-visible:border-[var(--wf-accent)]!"
               />
             </section>
           )}
 
           {/* General comment */}
           <section className="space-y-2">
-            <label htmlFor="survey-general-comment" className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              Komentar Umum <span className="font-normal text-slate-500">(opsional)</span>
-            </label>
-            <textarea
+            <Label htmlFor="survey-general-comment" className="block text-sm font-semibold leading-normal text-[var(--wf-ink)]">
+              Komentar Umum <span className="font-normal text-[var(--wf-ink-muted)]">(opsional)</span>
+            </Label>
+            <Textarea
               id="survey-general-comment"
               placeholder="Saran, kritik, atau masukan lainnya…"
               value={comments.general}
               onChange={(e) => setComments(prev => ({ ...prev, general: e.target.value }))}
               maxLength={1000}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 ui-focus-ring focus-visible:border-brand-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus-visible:border-brand-primary-300"
+              className="min-h-0! field-sizing-fixed w-full rounded-xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)]! ui-focus-ring focus-visible:border-[var(--wf-accent)]!"
             />
           </section>
 
           {/* Identity (optional) */}
           <section className="space-y-3">
             <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                Data Diri <span className="font-normal text-slate-500">(opsional)</span>
+              <h3 className="text-sm font-bold text-[var(--wf-ink)]">
+                Data Diri <span className="font-normal text-[var(--wf-ink-muted)]">(opsional)</span>
               </h3>
-              <p className="text-xs ui-text-muted">
+              <p className="text-xs text-[var(--wf-ink-muted)]">
                 Tidak wajib diisi. Data hanya digunakan untuk keperluan internal.
               </p>
             </div>
@@ -397,11 +405,11 @@ export default function SurveyPage() {
           )}
 
           {/* Submit button */}
-          <button
+          <Button
             type="button"
             disabled={!isValid() || submitting}
             onClick={handleSubmit}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary-200 transition-colors hover:bg-brand-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
+            className="flex! h-auto w-full items-center justify-center gap-2 rounded-xl bg-[var(--wf-accent)] px-6 py-3 text-sm font-bold! text-[var(--wf-accent-ink)] shadow-lg shadow-brand-primary-200 transition-colors hover:bg-[var(--wf-accent)]! focus:outline-none focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! focus-visible:ring-offset-2 disabled:pointer-events-auto! disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -409,7 +417,7 @@ export default function SurveyPage() {
               <Send className="h-4 w-4" />
             )}
             {submitting ? 'Mengirim…' : 'Kirim Survey'}
-          </button>
+          </Button>
         </div>
       )}
     </PageShell>
@@ -421,21 +429,21 @@ export default function SurveyPage() {
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-dvh bg-[var(--wf-board-2)]">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
+      <header className="sticky top-0 z-30 border-b border-[var(--wf-rule)] bg-[var(--wf-board)]/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-xl items-center gap-2 px-4 py-3">
           <Link
             to="/events"
-className="touch-target relative flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-medium ui-text-muted transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+className="touch-target relative flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-medium text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink-muted)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Kembali ke Jadwal Event
           </Link>
-          <ClipboardCheck className="h-5 w-5 shrink-0 text-brand-primary-600 dark:text-brand-primary-400" />
+          <ClipboardCheck className="h-5 w-5 shrink-0 text-[var(--wf-accent)]" />
           <div>
-            <h1 className="text-sm font-bold text-slate-900 dark:text-white">Survey Kepuasan</h1>
-            <p className="text-[11px] ui-text-muted">Metropolitan Mall Bekasi</p>
+            <h1 className="text-sm font-bold text-[var(--wf-ink)]">Survey Kepuasan</h1>
+            <p className="text-[11px] text-[var(--wf-ink-muted)]">Metropolitan Mall Bekasi</p>
           </div>
         </div>
       </header>
@@ -446,7 +454,7 @@ className="touch-target relative flex min-h-11 shrink-0 items-center justify-cen
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
+      <footer className="border-t border-[var(--wf-rule)] py-4 text-center text-xs text-[var(--wf-ink-muted)]">
         &copy; {new Date().getFullYear()} Metropolitan Mall Bekasi
       </footer>
     </div>
@@ -458,19 +466,27 @@ className="touch-target relative flex min-h-11 shrink-0 items-center justify-cen
 
 function TypeCard({ title, desc, icon, onClick }: { title: string; desc: string; icon: React.ReactNode; onClick: () => void }) {
   return (
-    <button
+    /* Container-as-button — seluruh permukaan kartu adalah target klik dan
+       membungkus ikon + judul + deskripsi. shadcn `Button` ghost dengan chrome
+       primitif dinetralkan: `h-auto!`/`p-4!`/`justify-start!`/`items-start!`
+       mematikan h-8/px-2.5/py-1/justify-center/items-center, `font-normal!` &
+       `whitespace-normal!` mengembalikan inherit, dan border asli tetap
+       (warna `!` agar mengalahkan `border-transparent` primitif, hover-border
+       ikut `!` supaya tidak kalah dari border-color istirahat yang `!`). */
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
-      className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-brand-primary-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-primary-600"
+      className="flex! h-auto! items-start! justify-start! gap-3 whitespace-normal! rounded-2xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] p-4! text-left! font-normal! transition-colors hover:border-[var(--wf-accent)]! hover:bg-[var(--wf-board)]! hover:shadow-md! focus:outline-none focus-visible:ring-2! focus-visible:ring-[var(--wf-accent)]! active:translate-y-0!"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-100 text-brand-primary-600 dark:bg-brand-primary-900/50 dark:text-brand-primary-400">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]">
         {icon}
       </div>
       <div>
-        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{title}</p>
-        <p className="text-xs ui-text-muted">{desc}</p>
+        <p className="text-sm font-semibold text-[var(--wf-ink)]">{title}</p>
+        <p className="text-xs text-[var(--wf-ink-muted)]">{desc}</p>
       </div>
-    </button>
+    </Button>
   );
 }
 
@@ -485,16 +501,16 @@ function InputField({ id, label, icon, placeholder, value, onChange, type = 'tex
   return (
     <div className="relative">
       {/* Placeholder bukan label: pembaca layar butuh nama field yang stabil. */}
-      <label htmlFor={id} className="sr-only">{label}</label>
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">{icon}</span>
-      <input
+      <Label htmlFor={id} className="sr-only">{label}</Label>
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)]">{icon}</span>
+      <Input
         id={id}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={maxLength}
-        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 placeholder:text-slate-500 focus:border-brand-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:ring-brand-primary-800"
+        className="h-auto w-full rounded-xl border border-[var(--wf-rule)]! bg-[var(--wf-board)] py-2.5 pl-10 pr-3 text-sm text-[var(--wf-ink)] placeholder:text-[var(--wf-ink-muted)]! focus:border-[var(--wf-accent)]! focus:outline-none focus:ring-2! focus:ring-[var(--wf-accent)]!"
       />
     </div>
   );

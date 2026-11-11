@@ -10,6 +10,8 @@ import {
   Wrench,
   X,
 } from 'lucide-react';
+import { Sheet, SheetTrigger, SheetContent } from '../shadcn/sheet';
+import { Button } from '../shadcn/button';
 import type { AuthUser } from '../../types/auth';
 import type { Permissions } from '../../hooks/usePermission';
 import { ROLE_DISPLAY_NAMES } from '../../utils/roleDisplay';
@@ -33,10 +35,19 @@ interface AdminSidebarProps {
 
 /**
  * The rail: the admin navigation panel. A board surface like every other panel,
- * separated from the page by a hairline — the active row is an accent FILL, not
- * a coloured side-stripe. Group labels come from getDashboardNavGroups, so the
- * rail never invents a destination. All focus management below is load-bearing
- * — keep it.
+ * separated from the page by a hairline.
+ *
+ * Mobile drawer: a shadcn Sheet (Radix Dialog). Radix natively handles Escape,
+ * the Tab focus trap, scroll lock and aria-modal, so the manual keydown trap
+ * and the manual backdrop button were removed — behavioural outcome is
+ * identical. Focus restore to the hamburger is kept explicitly: Radix returns
+ * focus to the trigger on Escape, but closing via the drawer's own "Tutup"
+ * button or a nav row unmounts the sheet instead, so the effect below is the
+ * guaranteed restore path for every close route.
+ *
+ * The sheet is portaled to document.body, so the wf-rail surface classes ride
+ * on SheetContent's className (unlayered .wf-rail/.wf-rail--side still win over
+ * Sheet's layered bg-popover / border-r utilities — no colour change).
  */
 export const AdminSidebar = memo(function AdminSidebar({
   isDark,
@@ -55,7 +66,6 @@ export const AdminSidebar = memo(function AdminSidebar({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
-  const asideRef = useRef<HTMLElement>(null);
   const wasOpenRef = useRef(false);
 
   // Track lg breakpoint so `inert` only applies to the closed mobile drawer
@@ -96,7 +106,9 @@ export const AdminSidebar = memo(function AdminSidebar({
     return false;
   };
 
-  // Escape + basic focus trap when mobile drawer open
+  // Focus restore to the hamburger on drawer close (was part of the manual
+  // Escape/Tab trap effect; Radix Sheet covers Escape + Tab trap + scroll lock
+  // itself, only this close-focus guarantee is kept).
   useEffect(() => {
     if (!isMobileOpen) {
       if (wasOpenRef.current) {
@@ -106,44 +118,10 @@ export const AdminSidebar = memo(function AdminSidebar({
       return;
     }
     wasOpenRef.current = true;
+  }, [isMobileOpen]);
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeMobile();
-        return;
-      }
-      if (e.key !== 'Tab' || !asideRef.current) return;
-
-      const focusable = asideRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    // Focus first focusable in drawer
-    requestAnimationFrame(() => {
-      const first = asideRef.current?.querySelector<HTMLElement>(
-        'a[href], button:not([disabled])',
-      );
-      first?.focus();
-    });
-
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isMobileOpen, closeMobile]);
-
+  // Shared rail body: rendered inside the desktop <aside> AND the mobile Sheet.
+  // Pure markup — no state lives here, so the two surfaces can never diverge.
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Identity: the mall wordmark, then where you are right now. The current
@@ -162,14 +140,15 @@ export const AdminSidebar = memo(function AdminSidebar({
             {currentLocation.label}
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={closeMobile}
-          className="wf-focus-rail relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] lg:hidden"
+          className="wf-focus-rail relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg px-0 text-[var(--wf-rail-ink-muted)] transition-colors hover:bg-[var(--wf-rail-2)] hover:text-[var(--wf-rail-ink)] focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0 lg:hidden"
           aria-label="Tutup menu"
         >
           <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-        </button>
+        </Button>
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Navigasi admin">
@@ -197,11 +176,12 @@ export const AdminSidebar = memo(function AdminSidebar({
                     ) : null}
                   </Link>
                 ) : (
-                  <button
+                  <Button
                     key={item.id}
                     type="button"
+                    variant="ghost"
                     onClick={() => handleNavClick(item)}
-                    className="wf-rail-row wf-focus-rail w-full"
+                    className="wf-rail-row wf-focus-rail h-auto w-full focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0"
                   >
                     {item.icon}
                     <span className="truncate">{item.label}</span>
@@ -211,7 +191,7 @@ export const AdminSidebar = memo(function AdminSidebar({
                         <span className="sr-only">Sedang diperbaiki</span>
                       </span>
                     ) : null}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -220,11 +200,12 @@ export const AdminSidebar = memo(function AdminSidebar({
       </nav>
 
       <div className="space-y-1.5 border-t border-[var(--wf-rail-rule)] px-3 py-3">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onToggleDark}
           aria-pressed={isDark}
-          className="wf-rail-row wf-focus-rail w-full"
+          className="wf-rail-row wf-focus-rail h-auto w-full focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0"
         >
           {isDark ? (
             <>
@@ -237,7 +218,7 @@ export const AdminSidebar = memo(function AdminSidebar({
               <span>Mode Gelap</span>
             </>
           )}
-        </button>
+        </Button>
 
         {/* Role plate. Role identity is not a status, so it takes no colour from
             the legend — the label carries it and the icon stays rail ink.
@@ -265,44 +246,60 @@ export const AdminSidebar = memo(function AdminSidebar({
           </div>
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onLogout}
-          className="wf-rail-row wf-rail-row--danger wf-focus-rail w-full"
+          className="wf-rail-row wf-rail-row--danger wf-focus-rail h-auto w-full focus-visible:ring-0 focus-visible:border-transparent active:translate-y-0"
         >
           <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
           <span>Keluar</span>
-        </button>
+        </Button>
       </div>
     </div>
   );
 
   return (
     <>
-      <button
-        ref={hamburgerRef}
-        type="button"
-        onClick={() => setIsMobileOpen(true)}
-        className="ui-focus-ring fixed left-3 top-2.5 z-50 flex h-9 w-9 items-center justify-center rounded-lg text-[var(--wf-ink-muted)] transition-colors hover:bg-[var(--wf-board-2)] lg:hidden"
-        aria-label="Buka menu"
-        aria-expanded={isMobileOpen}
-        aria-controls="admin-sidebar"
-      >
-        <Menu className="h-5 w-5 text-[var(--wf-ink-muted)]" strokeWidth={1.5} aria-hidden />
-      </button>
+      {/* Mobile drawer: shadcn Sheet. The hamburger is now a shadcn Button
+          (ghost/icon) with the primitive chrome neutralized (h-9!/w-9!/p-0!/
+          border-0! + hover/aria-expanded counters) so the fixed 36px square,
+          its classes, ref, aria-label 'Buka menu' and aria-controls target
+          (the desktop aside) are unchanged; Radix's trigger click replaces the
+          manual onClick={open}. The drawer header keeps its own Tutup button,
+          so the Sheet's built-in close is disabled (showCloseButton={false})
+          and the [&>button]:hidden guard is belt-and-braces. w-64!/max-w-none!
+          override the Sheet's responsive data-[side=left] width utilities while
+          keeping the rail width. */}
+      <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+        <SheetTrigger asChild>
+          <Button
+            ref={hamburgerRef}
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="ui-focus-ring flex! fixed left-3 top-2.5 z-50 h-9! w-9! items-center justify-center rounded-lg border-0! p-0! text-[var(--wf-ink-muted)] transition-colors! hover:bg-[var(--wf-board-2)]! hover:text-[var(--wf-ink-muted)]! aria-expanded:bg-transparent! aria-expanded:text-[var(--wf-ink-muted)]! focus-visible:ring-0 active:translate-y-0! lg:hidden"
+            aria-label="Buka menu"
+            aria-expanded={isMobileOpen}
+            aria-controls="admin-sidebar"
+          >
+            <Menu className="size-5 text-[var(--wf-ink-muted)]" strokeWidth={1.5} aria-hidden />
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          aria-label="Menu admin"
+          className="wf-rail wf-rail--side w-64! max-w-none! p-0 shadow-none [&>button]:hidden"
+        >
+          {sidebarContent}
+        </SheetContent>
+      </Sheet>
 
-      {isMobileOpen && (
-        <button
-          type="button"
-          onClick={closeMobile}
-          className="fixed inset-0 z-40 h-full w-full cursor-default bg-black/50 backdrop-blur-sm lg:hidden"
-          aria-label="Tutup menu"
-          tabIndex={-1}
-        />
-      )}
-
+      {/* Desktop rail: unchanged static aside (lg:translate-x-0). `inert` keeps
+          the closed drawer's content unreachable; the Sheet content is only
+          mounted while open, so Radix covers the <lg path. */}
       <aside
-        ref={asideRef}
         id="admin-sidebar"
         className={`wf-rail wf-rail--side fixed left-0 top-0 z-50 h-dvh w-64 transition-transform duration-300 lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'

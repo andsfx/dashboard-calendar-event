@@ -4,7 +4,11 @@ import { PhotoAlbum, EventPhoto, EventItem, AnnualTheme } from '../../types';
 import { fetchAlbums, createAlbum, deleteAlbum, setAlbumCover, uploadAlbumPhoto, deleteAlbumPhoto, fetchAlbumBySlug } from '../../utils/domainApi';
 import { useConfirmDialog } from './useConfirmDialog';
 import { adminThumbUrl } from '../../utils/imageOptim';
-import { MdButton, MdIconButton, MdLinearProgress, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
+import { Progress } from '../shadcn/progress';
 
 interface Props {
   pastEvents?: EventItem[];
@@ -329,13 +333,15 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2">
           {view === 'detail' && (
-            <MdIconButton
-              ariaLabel="Kembali"
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Kembali"
               onClick={goBackToList}
               className="mt-1"
             >
               <ChevronLeft className="h-4 w-4" />
-            </MdIconButton>
+            </Button>
           )}
           <div className="min-w-0">
             {view === 'detail' && (
@@ -358,10 +364,10 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <p>{error}</p>
-                <MdButton variant="text" onClick={loadAlbums} className="mt-2 underline underline-offset-2">
+                <Button variant="ghost" type="button" onClick={loadAlbums} className="mt-2 underline underline-offset-2">
                   <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                   Coba lagi
-                </MdButton>
+                </Button>
               </div>
             </div>
           )}
@@ -379,14 +385,15 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
             <>
               {/* Create Album Button */}
               {!readOnly && !showCreateForm && (
-                <MdButton
-                  variant="outlined"
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={() => { setShowCreateForm(true); setError(''); }}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4" />
                   Buat Album Baru
-                </MdButton>
+                </Button>
               )}
 
               {/* Create Album Form */}
@@ -396,37 +403,52 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                   <div className="space-y-3">
                     {/* Event dropdown */}
                     <div>
-                      <MdSelect
+                      <Label
+                        htmlFor="album-manager-event"
+                        className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]"
+                      >
+                        Pilih Event
+                      </Label>
+                      <NativeSelect
                         id="album-manager-event"
                         value={isCustomEvent ? '__custom__' : selectedEventId}
-                        onChange={handleEventSelect}
-                        label="Pilih Event"
-                        options={[
-                          { value: '', label: 'Pilih event yang sudah berlangsung…' },
-                          ...(pastEvents || [])
-                            .filter(e => !albums.some(a => a.eventId === e.id))
-                            .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
-                            .map(e => ({ value: e.id, label: `${e.acara} - ${e.tanggal}` })),
-                          { value: '__custom__', label: '✏ Custom (ketik manual)' },
-                        ]}
-                      />
+                        onChange={(e) => handleEventSelect(e.target.value)}
+                        className="w-full"
+                      >
+                        <NativeSelectOption value="">Pilih event yang sudah berlangsung…</NativeSelectOption>
+                        {(pastEvents || [])
+                          .filter(e => !albums.some(a => a.eventId === e.id))
+                          .sort((a, b) => b.dateStr.localeCompare(a.dateStr))
+                          .map(e => (
+                            <NativeSelectOption key={e.id} value={e.id}>
+                              {`${e.acara} - ${e.tanggal}`}
+                            </NativeSelectOption>
+                          ))}
+                        <NativeSelectOption value="__custom__">✏ Custom (ketik manual)</NativeSelectOption>
+                      </NativeSelect>
                     </div>
 
                     {/* Theme dropdown */}
                     <div>
-                      <MdSelect
+                      <Label
+                        htmlFor="album-manager-theme"
+                        className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]"
+                      >
+                        Tema Tahunan
+                      </Label>
+                      <NativeSelect
                         id="album-manager-theme"
                         value={selectedThemeId}
-                        onChange={setSelectedThemeId}
-                        label="Tema Tahunan"
-                        options={[
-                          { value: '', label: 'Pilih tema (opsional)…' },
-                          ...(annualThemes || []).map(t => ({
-                            value: t.id,
-                            label: `${t.name} (${t.dateStart} - ${t.dateEnd})`,
-                          })),
-                        ]}
-                      />
+                        onChange={(e) => setSelectedThemeId(e.target.value)}
+                        className="w-full"
+                      >
+                        <NativeSelectOption value="">Pilih tema (opsional)…</NativeSelectOption>
+                        {(annualThemes || []).map(t => (
+                          <NativeSelectOption key={t.id} value={t.id}>
+                            {`${t.name} (${t.dateStart} - ${t.dateEnd})`}
+                          </NativeSelectOption>
+                        ))}
+                      </NativeSelect>
                       {selectedThemeId && !isCustomEvent && (
                         <p className="mt-1 text-xs text-[var(--wf-accent)]">Auto-matched berdasarkan tanggal event</p>
                       )}
@@ -434,11 +456,16 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
                     {/* Name */}
                     <div>
-                      <MdTextField
+                      <Label
+                        htmlFor="album-manager-name"
+                        className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]"
+                      >
+                        Nama Event *
+                      </Label>
+                      <Input
                         id="album-manager-name"
                         value={newName}
-                        onChange={setNewName}
-                        label="Nama Event *"
+                        onChange={(e) => setNewName(e.target.value)}
                         placeholder="Nama event"
                         className="w-full"
                       />
@@ -446,11 +473,16 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
                     <div>
                       {/* Description */}
-                      <MdTextField
+                      <Label
+                        htmlFor="album-manager-desc"
+                        className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]"
+                      >
+                        Deskripsi
+                      </Label>
+                      <Input
                         id="album-manager-desc"
                         value={newDesc}
-                        onChange={setNewDesc}
-                        label="Deskripsi"
+                        onChange={(e) => setNewDesc(e.target.value)}
                         placeholder="Deskripsi event"
                         className="w-full"
                       />
@@ -459,8 +491,8 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                     {/* Date + Location row */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal</label>
-                        <input
+                        <Label htmlFor="album-manager-date" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal</Label>
+                        <Input
                           id="album-manager-date"
                           type="date"
                           value={newDate}
@@ -472,11 +504,16 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                         />
                       </div>
                       <div>
-                        <MdTextField
+                        <Label
+                          htmlFor="album-manager-lokasi"
+                          className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]"
+                        >
+                          Lokasi
+                        </Label>
+                        <Input
                           id="album-manager-lokasi"
                           value={newLokasi}
-                          onChange={setNewLokasi}
-                          label="Lokasi"
+                          onChange={(e) => setNewLokasi(e.target.value)}
                           placeholder="Lokasi event"
                           className="w-full"
                         />
@@ -486,19 +523,21 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-2">
-                    <MdButton
-                      variant="outlined"
+                    <Button
+                      variant="outline"
+                      type="button"
                       onClick={() => { setShowCreateForm(false); clearCreateForm(); setError(''); }}
                     >
                       Batal
-                    </MdButton>
-                    <MdButton
+                    </Button>
+                    <Button
+                      type="button"
                       onClick={handleCreateAlbum}
                       disabled={!newName.trim() || isLoading}
                     >
                       <Save className="h-3.5 w-3.5" />
                       Buat Album
-                    </MdButton>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -554,12 +593,14 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                       </div>
 
                       {/* Delete */}
-                      {!readOnly && <MdIconButton
-                        ariaLabel={`Hapus album ${album.name}`}
+                      {!readOnly && <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Hapus album ${album.name}`}
                         onClick={() => handleDeleteAlbum(album)}
                       >
                         <Trash2 className="h-4 w-4" aria-hidden />
-                      </MdIconButton>}
+                      </Button>}
                     </div>
                   ))}
                 </div>
@@ -593,24 +634,28 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
                           {/* Set cover button */}
                           {!readOnly && !isCover && (
-                            <MdIconButton
-                              ariaLabel="Jadikan Cover"
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Jadikan Cover"
                               title="Jadikan Cover"
                               onClick={() => handleSetCover(photo.url)}
                               className="absolute left-1.5 top-1.5 z-10"
                             >
                               <Star className="h-3.5 w-3.5" />
-                            </MdIconButton>
+                            </Button>
                           )}
 
                           {/* Delete button */}
-                          {!readOnly && <MdIconButton
-                            ariaLabel="Hapus foto"
+                          {!readOnly && <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Hapus foto"
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
                             className="absolute right-1.5 top-1.5 z-10"
                           >
                             <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                          </MdIconButton>}
+                          </Button>}
 
                           {/* Thumbnail */}
                           <div className="aspect-[4/3] w-full">
@@ -700,13 +745,15 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                             className="h-full w-full object-cover"
                           />
                           {!uploading && (
-                            <MdIconButton
-                              ariaLabel="Hapus berkas"
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Hapus berkas"
                               onClick={() => removeUploadFile(idx)}
                               className="absolute right-1 top-1"
                             >
                               <X className="h-3.5 w-3.5" aria-hidden />
-                            </MdIconButton>
+                            </Button>
                           )}
                         </div>
                       ))}
@@ -717,9 +764,9 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
                     {/* Progress bar */}
                     {uploading && uploadProgress.total > 0 && (
                       <div className="space-y-1">
-                        <MdLinearProgress
-                          value={uploadProgress.current / uploadProgress.total}
-                          ariaLabel="Progres unggah"
+                        <Progress
+                          value={Math.min(100, Math.max(0, Math.round((uploadProgress.current / uploadProgress.total) * 100)))}
+                          aria-label="Progres unggah"
                         />
                         <p className="text-xs text-[var(--wf-ink-muted)]">{uploadProgress.current}/{uploadProgress.total} foto terupload</p>
                       </div>
@@ -727,14 +774,15 @@ export function AlbumManagerModal({ pastEvents, annualThemes, readOnly = false }
 
                     {/* Upload button */}
                     {!uploading && (
-                      <MdButton
+                      <Button
+                        type="button"
                         onClick={handleBatchUpload}
                         disabled={uploadFiles.length === 0}
                         className="w-full"
                       >
                         <Upload className="h-4 w-4" />
                         Upload {uploadFiles.length} Foto
-                      </MdButton>
+                      </Button>
                     )}
                   </div>
                 )}

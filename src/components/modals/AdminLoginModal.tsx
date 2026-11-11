@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Lock, X, Eye, EyeOff } from 'lucide-react';
 import { ModalWrapper } from './ModalWrapper';
-import { MdButton, MdIconButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
 import type { LoginResult } from '../../types/auth';
 
 interface Props {
@@ -72,13 +74,16 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
                 <p className="text-xs text-[var(--wf-accent-ink)]/70">Masuk ke mode admin</p>
               </div>
             </div>
-            <MdIconButton
-              ariaLabel="Tutup"
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Tutup"
               onClick={onClose}
               className="text-[var(--wf-accent-ink)]/70 transition hover:text-[var(--wf-accent-ink)]"
             >
               <X className="h-4 w-4" />
-            </MdIconButton>
+            </Button>
           </div>
         </div>
 
@@ -86,12 +91,12 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <MdTextField
+              <Label htmlFor="admin-login-email" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Email</Label>
+              <Input
                 id="admin-login-email"
                 type="email"
-                label="Email"
                 value={email}
-                onChange={value => { setEmail(value); setError(''); }}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 placeholder="admin@example.com"
                 autoFocus
                 className="w-full"
@@ -99,36 +104,30 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
             </div>
 
             <div>
+              <Label htmlFor="admin-login-password" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Password</Label>
               <div className="relative">
-                <MdTextField
+                <Input
                   id="admin-login-password"
                   type={showPw ? 'text' : 'password'}
-                  label="Password"
                   value={pw}
-                  onChange={value => { setPw(value); setError(''); }}
+                  onChange={(e) => { setPw(e.target.value); setError(''); }}
                   placeholder="Masukkan password…"
-                  error={!!error}
-                  /* Ruang trailing md diperlebar agar teks password tidak
-                     berjalan di bawah tombol mata. Token md yang dipakai:
-                     `--md-outlined-text-field-trailing-space` (default 16px,
-                     node_modules/@material/web/textfield/internal/outlined-styles.css
-                     → `--_trailing-space: var(--md-outlined-text-field-trailing-space, 16px)`,
-                     dipakai sebagai `padding-inline-end` konten field).
-                     Nilai = inset tombol (right-3 = 12px) + lebar tombol md
-                     (40px) + jarak aman 8px. */
-                  className="w-full [--md-outlined-text-field-trailing-space:calc(12px_+_40px_+_8px)]"
+                  aria-invalid={error ? true : undefined}
+                  className="w-full pr-12"
                 />
-                <MdIconButton
-                  ariaLabel={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
                   title={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
                   onClick={() => setShowPw(v => !v)}
-                  toggle
-                  selected={showPw}
+                  aria-pressed={showPw}
                   tabIndex={-1}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--wf-ink-muted)] transition hover:text-[var(--wf-ink)]"
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </MdIconButton>
+                </Button>
               </div>
               {error && (
                 <p id="admin-login-error" role="alert" className="mt-1.5 flex items-center gap-1 text-xs text-red-700 dark:text-red-300">
@@ -137,7 +136,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
               )}
             </div>
 
-            <MdButton
+            <Button
               type="submit"
               disabled={!canSubmit}
               className="w-full"
@@ -153,7 +152,7 @@ export function AdminLoginModal({ isOpen, onClose, onEmailLogin }: Props) {
               ) : (
                 'Masuk sebagai Admin'
               )}
-            </MdButton>
+            </Button>
           </form>
         </div>
       </div>

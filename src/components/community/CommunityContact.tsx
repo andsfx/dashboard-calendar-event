@@ -49,14 +49,14 @@ export function CommunityContact() {
                 key={c.href}
                 href={c.href}
                 {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={`group flex min-w-0 items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-white p-5 shadow-[0_8px_20px_rgba(22,33,27,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(22,33,27,0.06)] dark:border-slate-700 dark:bg-slate-800 ${focusRing}`}
+                className={`group flex min-w-0 items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--wf-board)] p-5 shadow-[0_8px_20px_rgba(22,33,27,0.03)] transition hover:border-[color-mix(in_srgb,var(--brand-tosca)_35%,transparent)] hover:shadow-[0_12px_28px_rgba(22,33,27,0.06)]   ${focusRing}`}
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--brand-tosca)_12%,white)] text-[var(--brand-tosca-dark)] dark:bg-[color-mix(in_srgb,var(--brand-tosca)_25%,black)] dark:text-[var(--brand-tosca-soft)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 text-left">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">{c.title}</h3>
-                  <p className="mt-0.5 break-words text-sm text-slate-600 dark:text-slate-300">{c.detail}</p>
+                  <h3 className="text-sm font-bold text-[var(--wf-ink)]">{c.title}</h3>
+                  <p className="mt-0.5 break-words text-sm text-[var(--wf-ink-muted)]">{c.detail}</p>
                 </div>
               </a>
             );

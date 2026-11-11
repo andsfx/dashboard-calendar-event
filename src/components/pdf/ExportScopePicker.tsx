@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { CalendarRange, Search } from 'lucide-react';
 import { EXPORT_PERIODS, describeRange } from '../../utils/exportDateRange';
-import { MdButton, MdCheckbox, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Checkbox } from '../shadcn/checkbox';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect, NativeSelectOption } from '../shadcn/native-select';
 import type { ExportScope } from './useExportScope';
 
 // ============================================================
@@ -67,100 +71,115 @@ export function ExportScopePicker<T>({
           {periods.map((option) => {
             const isActive = scope.period === option.id;
             return (
-              <MdButton
+              <Button
                 key={option.id}
-                variant="text"
-                ariaPressed={isActive}
+                variant="ghost"
+                aria-pressed={isActive}
                 onClick={() => scope.setPeriod(option.id)}
                 className={`!min-w-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                   isActive
-                    ? 'border-brand-primary-600 bg-brand-primary-600 text-white'
-                    : 'border-slate-200 bg-[var(--brand-card)] text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300'
+                    ? 'border-[var(--wf-accent)] bg-[var(--wf-accent)] text-[var(--wf-accent-ink)]'
+                    : 'border-[var(--wf-rule)] bg-[var(--wf-board)] text-[var(--wf-ink-muted)] hover:border-[var(--wf-rule-strong)]'
                 }`}
               >
                 {option.label}
-              </MdButton>
+              </Button>
             );
           })}
         </div>
 
         {scope.period === 'month' && (
-          <label className="block pt-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Bulan</span>
+          <Label className="block pt-1">
+            <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Bulan</span>
             <div className="mt-1">
-              <MdSelect
+              <NativeSelect
                 value={scope.monthKey}
-                onChange={scope.setMonthKey}
-                ariaLabel="Bulan"
-                options={[
-                  ...(scope.months.length === 0 ? [{ value: '', label: 'Tidak ada data' }] : []),
-                  ...scope.months.map((month) => ({ value: month.value, label: month.label })),
-                ]}
+                onChange={(event) => scope.setMonthKey(event.target.value)}
+                aria-label="Bulan"
                 className="w-full"
-              />
+              >
+                {scope.months.length === 0 && (
+                  <NativeSelectOption value="">Tidak ada data</NativeSelectOption>
+                )}
+                {scope.months.map((month) => (
+                  <NativeSelectOption key={month.value} value={month.value}>
+                    {month.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
             </div>
-          </label>
+          </Label>
         )}
 
         {scope.period === 'year' && (
-          <label className="block pt-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Tahun</span>
+          <Label className="block pt-1">
+            <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Tahun</span>
             <div className="mt-1">
-              <MdSelect
+              <NativeSelect
                 value={scope.year}
-                onChange={scope.setYear}
-                ariaLabel="Tahun"
-                options={[
-                  ...(scope.years.length === 0 ? [{ value: '', label: 'Tidak ada data' }] : []),
-                  ...scope.years.map((year) => ({ value: year.value, label: year.label })),
-                ]}
+                onChange={(event) => scope.setYear(event.target.value)}
+                aria-label="Tahun"
                 className="w-full"
-              />
+              >
+                {scope.years.length === 0 && (
+                  <NativeSelectOption value="">Tidak ada data</NativeSelectOption>
+                )}
+                {scope.years.map((year) => (
+                  <NativeSelectOption key={year.value} value={year.value}>
+                    {year.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
             </div>
-          </label>
+          </Label>
         )}
 
         {scope.period === 'theme' && (
-          <label className="block pt-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Tema</span>
+          <Label className="block pt-1">
+            <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Tema</span>
             <div className="mt-1">
-              <MdSelect
+              <NativeSelect
                 value={scope.themeId}
-                onChange={scope.setThemeId}
-                ariaLabel="Tema"
-                options={scope.themes.map((theme) => ({ value: theme.id, label: theme.name }))}
+                onChange={(event) => scope.setThemeId(event.target.value)}
+                aria-label="Tema"
                 className="w-full"
-              />
+              >
+                {scope.themes.map((theme) => (
+                  <NativeSelectOption key={theme.id} value={theme.id}>
+                    {theme.name}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
             </div>
-          </label>
+          </Label>
         )}
 
         {scope.period === 'custom' && (
           <div className="grid gap-3 pt-1 sm:grid-cols-2">
-            <label className="block">
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Dari tanggal</span>
-              <input
+            <Label className="block">
+              <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Dari tanggal</span>
+              <Input
                 type="date"
                 name="export-scope-start"
                 value={scope.customStart}
                 onChange={(event) => scope.setCustomStart(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+                className="mt-1 h-auto w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm outline-none ring-[var(--wf-accent)] transition focus:ring-2"
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Sampai tanggal</span>
-              <input
+            </Label>
+            <Label className="block">
+              <span className="text-xs font-medium text-[var(--wf-ink-muted)]">Sampai tanggal</span>
+              <Input
                 type="date"
                 name="export-scope-end"
                 value={scope.customEnd}
                 onChange={(event) => scope.setCustomEnd(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand-primary-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+                className="mt-1 h-auto w-full rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm outline-none ring-[var(--wf-accent)] transition focus:ring-2"
               />
-            </label>
+            </Label>
           </div>
         )}
 
-        <p className="flex items-center gap-1.5 pt-1 text-xs ui-text-muted">
+        <p className="flex items-center gap-1.5 pt-1 text-xs text-[var(--wf-ink-muted)]">
           <CalendarRange className="h-3.5 w-3.5" aria-hidden="true" />
           {scope.period === 'theme' ? 'Rentang tema' : 'Periode'}:
           <span className="font-semibold">{describeRange(scope.range)}</span>
@@ -172,22 +191,22 @@ export function ExportScopePicker<T>({
             irisan, sehingga rekap satu tema penuh mustahil dibuat saat
             halaman sedang difilter. */}
         {scope.canIgnorePageFilter && (
-          <label className="mt-2 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 px-3 py-2 dark:border-slate-700">
-            <MdCheckbox
+          <Label className="mt-2 flex cursor-pointer items-start gap-2 rounded-xl border border-[var(--wf-rule)] px-3 py-2">
+            <Checkbox
               checked={scope.ignorePageFilter}
-              onChange={scope.setIgnorePageFilter}
-              ariaLabel="Abaikan filter halaman"
+              onCheckedChange={(value) => scope.setIgnorePageFilter(value === true)}
+              aria-label="Abaikan filter halaman"
               className="mt-0.5 shrink-0"
             />
-            <span className="text-xs leading-snug text-slate-600 dark:text-slate-300">
+            <span className="text-xs leading-snug text-[var(--wf-ink-muted)]">
               Abaikan filter halaman
-              <span className="block ui-text-muted">
+              <span className="block text-[var(--wf-ink-muted)]">
                 {scope.ignorePageFilter
                   ? 'Seluruh acara ditawarkan, bukan hanya yang lolos filter di halaman ini.'
                   : 'Hanya acara yang lolos filter halaman yang ditawarkan.'}
               </span>
             </span>
-          </label>
+          </Label>
         )}
       </fieldset>
 
@@ -196,63 +215,63 @@ export function ExportScopePicker<T>({
         {/* flex-wrap: label tombol memuat kata benda ("Kosongkan pilihan event"),
             yang pada panel sempit lebih dulu menembus batas daripada turun baris. */}
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+          <span className="text-sm font-medium text-[var(--wf-ink-muted)]">
             {scope.inRange.length} {itemNoun} pada periode ini
           </span>
-          <MdButton
-            variant="text"
+          <Button
+            variant="ghost"
             onClick={() => (scope.allSelected ? scope.clearSelection() : scope.selectAll())}
-            className="!min-w-0 text-xs font-semibold text-brand-primary-700 transition hover:text-brand-primary-800 disabled:opacity-50 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
+            className="!min-w-0 text-xs font-semibold text-[var(--wf-accent)] transition hover:text-[var(--wf-accent)] disabled:opacity-50"
           >
             {scope.allSelected ? `Kosongkan pilihan ${itemNoun}` : `Pilih semua ${itemNoun}`}
-          </MdButton>
+          </Button>
         </div>
 
         <div className="relative block">
           <span className="sr-only">{searchPlaceholder}</span>
-          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-          <MdTextField
+          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[var(--wf-ink-muted)]" aria-hidden="true" />
+          <Input
             type="search"
             value={query}
-            onChange={setQuery}
-            ariaLabel={searchPlaceholder}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label={searchPlaceholder}
             placeholder={searchPlaceholder}
             className="w-full"
           />
         </div>
 
         {visibleItems.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm ui-text-muted dark:border-slate-700">
+          <p className="rounded-2xl border border-dashed border-[var(--wf-rule)] px-4 py-6 text-center text-sm text-[var(--wf-ink-muted)]">
             {scope.inRange.length === 0 ? emptyLabel : 'Tidak ada yang cocok dengan pencarian.'}
           </p>
         ) : (
-          <div className="max-h-64 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800">
-            <ul className="divide-y divide-slate-200 dark:divide-slate-800">
+          <div className="max-h-64 overflow-y-auto rounded-2xl border border-[var(--wf-rule)]">
+            <ul className="divide-y divide-[var(--wf-rule)]">
               {rendered.map((item) => {
                 const id = getId(item);
                 const isChecked = scope.isSelected(id);
                 const meta = secondary?.(item);
                 return (
                   <li key={id}>
-                    <label className="flex cursor-pointer items-start gap-3 px-3 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
-                      <MdCheckbox
+                    <Label className="flex cursor-pointer items-start gap-3 px-3 py-2.5 transition hover:bg-[var(--wf-board-2)]">
+                      <Checkbox
                         checked={isChecked}
-                        onChange={() => scope.toggleId(id)}
+                        onCheckedChange={() => scope.toggleId(id)}
                         className="mt-0.5 shrink-0"
                       />
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium text-slate-900 dark:text-white">
+                        <span className="block truncate text-sm font-medium text-[var(--wf-ink)]">
                           {primary(item)}
                         </span>
-                        {meta && <span className="mt-0.5 block truncate text-xs ui-text-muted">{meta}</span>}
+                        {meta && <span className="mt-0.5 block truncate text-xs text-[var(--wf-ink-muted)]">{meta}</span>}
                       </span>
-                    </label>
+                    </Label>
                   </li>
                 );
               })}
             </ul>
             {hiddenCount > 0 && (
-              <p className="border-t border-slate-200 px-3 py-2 text-[11px] ui-text-muted dark:border-slate-800">
+              <p className="border-t border-[var(--wf-rule)] px-3 py-2 text-[11px] text-[var(--wf-ink-muted)]">
                 +{hiddenCount} {itemNoun} lain ikut terpilih. Persempit periode atau pakai pencarian untuk melihatnya.
               </p>
             )}
@@ -264,7 +283,7 @@ export function ExportScopePicker<T>({
         aria-live="polite"
         className={`rounded-xl px-3 py-2 text-sm ${
           selectedCount > 0
-            ? 'bg-brand-primary-50 text-brand-primary-900 dark:bg-brand-primary-500/15 dark:text-brand-primary-100'
+            ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
             : 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
         }`}
       >

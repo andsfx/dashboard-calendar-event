@@ -1,4 +1,7 @@
 import { type OrganizationType } from '../../types';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
 
 interface Props {
   orgType: OrganizationType;
@@ -49,9 +52,9 @@ function FieldLabel({ id, label, required, labelClass }: {
   id: string; label: string; required?: boolean; labelClass: string;
 }) {
   return (
-    <label htmlFor={id} className={labelClass}>
+    <Label htmlFor={id} className={labelClass}>
       {label} {required && <><span className="text-rose-700" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span></>}
-    </label>
+    </Label>
   );
 }
 
@@ -62,25 +65,27 @@ function FieldError({ id, error }: { id: string; error?: string }) {
   );
 }
 
-function SelectField({ id, label, value, options, onChange, inputClass, labelClass, required, error }: {
+function SelectField({ id, label, value, options, onChange, labelClass, required, error }: {
   id: string; label: string; value: string; options: string[];
   onChange: (v: string) => void; inputClass: string; labelClass: string; required?: boolean; error?: string;
 }) {
   return (
     <div>
       <FieldLabel id={id} label={label} required={required} labelClass={labelClass} />
-      <select
+      {/* `NativeSelect` menerapkan `className` ke wrapper dan membawa tampilan
+          kontrolnya sendiri (seperti seluruh select lain di repo ini). */}
+      <NativeSelect
         id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         required={required}
-        className={inputClass}
+        className="w-full"
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
       >
         <option value="">Pilih…</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
+      </NativeSelect>
       <FieldError id={id} error={error} />
     </div>
   );
@@ -93,7 +98,7 @@ function TextField({ id, label, value, onChange, inputClass, labelClass, placeho
   return (
     <div>
       <FieldLabel id={id} label={label} required={required} labelClass={labelClass} />
-      <input
+      <Input
         id={id}
         type={type}
         value={value}
@@ -115,8 +120,8 @@ function NumberField({ id, label, value, onChange, inputClass, labelClass, place
 }) {
   return (
     <div>
-      <label htmlFor={id} className={labelClass}>{label}</label>
-      <input id={id} type="number" min={0} value={value} onChange={e => onChange(Number(e.target.value) || 0)} placeholder={placeholder} className={inputClass} />
+      <Label htmlFor={id} className={labelClass}>{label}</Label>
+      <Input id={id} type="number" min={0} value={value} onChange={e => onChange(Number(e.target.value) || 0)} placeholder={placeholder} className={inputClass} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Badge } from '../shadcn/badge';
 import { CategoryBadge } from './CategoryBadge';
 
 export const CategoryBadges = memo(function CategoryBadges({ categories, maxVisible }: { categories: string[]; maxVisible?: number }) {
@@ -14,12 +15,13 @@ export const CategoryBadges = memo(function CategoryBadges({ categories, maxVisi
     <>
       {visible.map(category => <CategoryBadge key={category} category={category} />)}
       {remaining > 0 && (
-        <span
-          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+        <Badge
+          variant="outline"
           aria-label={`${remaining} kategori lainnya`}
+          className="inline-flex h-auto w-auto items-center rounded-md border-transparent bg-[var(--wf-board-2)] px-2 py-0.5 text-xs font-medium text-[var(--wf-ink-muted)]"
         >
           +{remaining}
-        </span>
+        </Badge>
       )}
     </>
   );

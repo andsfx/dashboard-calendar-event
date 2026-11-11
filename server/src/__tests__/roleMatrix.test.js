@@ -189,6 +189,22 @@ describe('maskPiiDeep', () => {
     expect(out.alamatEO).toBe('***');
   });
 
+  it('menyamarkan nomorHp SIK (kunci camelCase baru)', () => {
+    const out = maskPiiDeep({
+      docType: 'sik',
+      nomorHp: '081234567890',
+      nohp: '081298765432',
+      penanggungJawab: 'Daniel Tito',
+      nomorSurat: '097A/MMB/MKT.SIKI/2026',
+    });
+
+    expect(out.nomorHp).toBe('********7890');
+    expect(out.nohp).toBe('********5432');
+    expect(out.penanggungJawab).toBe('D***l T***o');
+    expect(out.nomorSurat).toBe('097A/MMB/MKT.SIKI/2026');
+    expect(out.docType).toBe('sik');
+  });
+
   it('menangani varian snake_case & singkatan', () => {
     const out = maskPiiDeep({
       nama_eo: 'PT Kreatif',

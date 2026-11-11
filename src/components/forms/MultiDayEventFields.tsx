@@ -1,7 +1,9 @@
 import { Copy } from 'lucide-react';
 import { DayTimeSlot } from '../../types';
 import { parseDateStrLocal } from '../../utils/eventUtils';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
 
 const DAY_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTH_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -34,17 +36,17 @@ export function MultiDayEventFields({
   return (
     <div className="space-y-3 rounded-xl border border-[var(--wf-rule)] bg-[var(--wf-accent-soft)] p-3">
       <div>
-        <label htmlFor={`${datalistId}-date-end`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
+        <Label htmlFor={`${datalistId}-date-end`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">
           Tanggal Selesai <span className="text-red-500" aria-hidden="true">*</span><span className="sr-only">(wajib diisi)</span>
-        </label>
-        <input
+        </Label>
+        <Input
           id={`${datalistId}-date-end`}
           type="date"
           value={dateEnd}
           onChange={e => onDateEndChange(e.target.value)}
           aria-invalid={!!errors.dateEnd || undefined}
           aria-describedby={errors.dateEnd ? `${datalistId}-date-end-error` : undefined}
-          className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 dark:[color-scheme:dark] ${
+          className={`w-full rounded-xl border bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:ring-2 dark:[color-scheme:dark] ${
             errors.dateEnd
               ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
               : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'
@@ -64,29 +66,30 @@ export function MultiDayEventFields({
             return (
               <div key={slot.date} className="flex items-end gap-2">
                 <div className="flex-1">
-                  <label htmlFor={`day-slot-jam-${idx}`} className="mb-1 block text-xs font-medium text-[var(--wf-ink-muted)]">
+                  <Label htmlFor={`day-slot-jam-${idx}`} className="mb-1 block text-xs font-medium text-[var(--wf-ink-muted)]">
                     Hari {idx + 1}: {dayLabel}
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id={`day-slot-jam-${idx}`}
                     type="text"
                     value={slot.jam}
                     onChange={e => onDayTimeSlotChange(idx, e.target.value)}
                     placeholder={jamPlaceholder}
                     list={`${datalistId}-jam-suggestions`}
-                    className="w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
+                    className="w-full rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] h-auto px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition focus:border-[var(--wf-accent)] focus:ring-2 focus:ring-[var(--wf-accent-soft)]"
                   />
                 </div>
                 {idx > 0 && (
-                  <MdButton
-                    variant="text"
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => onCopyFromPreviousDay(idx)}
-                    className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)]"
+                    className="rounded-lg border border-[var(--wf-rule)] bg-[var(--wf-board)] p-2 text-[var(--wf-ink-muted)] transition hover:bg-[var(--wf-board-2)] active:translate-y-0"
                     title="Salin dari hari sebelumnya"
-                    ariaLabel="Salin jam dari hari sebelumnya"
+                    aria-label="Salin jam dari hari sebelumnya"
                   >
-                    <Copy className="h-4 w-4" />
-                  </MdButton>
+                    <Copy className="size-4" />
+                  </Button>
                 )}
               </div>
             );

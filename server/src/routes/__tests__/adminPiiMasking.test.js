@@ -197,6 +197,28 @@ describe('demo PII masking pada aksi baca admin', () => {
     expect(row.letter_data.nomor_telepon).toBe('********5432');
     expect(row.letter_data.alamat).toBe('***');
   });
+  it('listLetters demo menyamarkan nomorHp pada baris SIK', async () => {
+    ROLE.current = 'demo';
+    dbState.rows = [{
+      id: 'ltr_sik_1',
+      pdf_base64: 'JVBERi0xLjQK',
+      letter_data: {
+        docType: 'sik',
+        nomorSurat: '097A/MMB/MKT.SIKI/2026',
+        namaEO: 'PT. Kasih Karunia Film',
+        penanggungJawab: 'Daniel Tito',
+        nomorHp: '08118421227',
+      },
+    }];
+    const { body } = await callAction('listLetters');
+
+    const row = body.data[0];
+    expect(row.letter_data.docType).toBe('sik');
+    expect(row.letter_data.nomorHp).toBe('*******1227');
+    expect(row.letter_data.penanggungJawab).toBe('D***l T***o');
+    expect(row.letter_data.nomorSurat).toBe('097A/MMB/MKT.SIKI/2026');
+    expect(row.pdf_base64).toBeNull();
+  });
 
   it('listLetters admin tetap menerima letter_data dan pdf UTUH', async () => {
     ROLE.current = 'admin';

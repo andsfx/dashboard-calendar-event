@@ -5,8 +5,7 @@ import { buildLetterPdf } from '../../components/pdf/buildLetterPdf';
 import { extractPdfStrings, extractPdfText } from '../../test/pdfText';
 
 const LETTER: LetterRequestItem = {
-  tanggalSurat: '2026-09-03',
-  nomorSurat: '001/MMB/IX/2026',
+  nomorSurat: '001/MMB/MKT.MC/IX/2026',
   namaEO: 'Komunitas Fotografi Bekasi',
   penanggungJawab: 'Budi Santoso',
   alamatEO: 'Jl. Test No. 1, Bekasi',
@@ -17,6 +16,13 @@ const LETTER: LetterRequestItem = {
   nomorTelepon: '081234567890',
   hariTanggalLoading: 'Jumat, 4 September 2026',
   waktuLoading: '22.00 - 23.00 WIB',
+  menyetujuiNama: 'Siti Rahma',
+  menyetujuiOrg: 'Komunitas Fotografi Bekasi',
+  biayaKebersihan: '',
+  vaBank: '',
+  tempatSurat: 'Bekasi',
+  penandatanganNama: 'Andi Gunawan',
+  penandatanganJabatan: 'Pimpinan Unit',
 };
 
 /** Rentang vertikal teks yang tercetak, dari matriks posisi operator Td/Tm. */
@@ -30,30 +36,33 @@ function textBaselines(doc: jsPDF): number[] {
 }
 
 describe('buildLetterPdf', () => {
-  it('memuat data event, tujuan surat, dan jadwal loading', () => {
-    const text = extractPdfStrings(buildLetterPdf(LETTER));
+  it('memuat data event + tujuan surat dalam struktur resmi (tanpa Perihal/loading)', () => {
+    // Kalimat pembuka digambar per kata (segmen tebal inline) → normalisasi spasi.
+    const text = extractPdfStrings(buildLetterPdf(LETTER)).replace(/\s+/g, ' ');
     expect(text).toContain(LETTER.namaEvent);
     expect(text).toContain(LETTER.namaEO);
-    expect(text).toContain('Konfirmasi Pelaksanaan Event');
-    expect(text).toContain('JADWAL LOADING');
-    expect(text).toContain('Marketing Manager');
+    expect(text).toContain('No. 001/MMB/MKT.MC/IX/2026');
+    expect(text).not.toContain('Perihal');
+    expect(text).not.toContain('JADWAL LOADING');
+    expect(text).toContain('Pimpinan Unit');
   });
 
-  it('tanpa logo, kop tetap menuliskan nama mall', () => {
+  it('tanpa logo, kop tetap menuliskan wordmark Metland', () => {
     const text = extractPdfStrings(buildLetterPdf(LETTER, ''));
-    expect(text).toContain('METROPOLITAN MALL BEKASI');
+    expect(text).toContain('Metland');
   });
 
   it('dengan logo, gambar tertanam dan bukan wordmark teks', () => {
     const doc = buildLetterPdf(LETTER);
     const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
     expect(raw).toContain('/XObject');
-    expect(extractPdfStrings(doc)).not.toContain('METROPOLITAN MALL BEKASI');
+    expect(extractPdfStrings(doc)).not.toContain('Metland');
   });
 
-  it('tanpa jadwal loading → blok loading tidak digambar', () => {
-    const text = extractPdfStrings(buildLetterPdf({ ...LETTER, hariTanggalLoading: '', waktuLoading: '' }));
-    expect(text).not.toContain('JADWAL LOADING');
+  it('varian berbayar: baris Biaya Kebersihan + VA/Bank muncul bila diisi', () => {
+    const text = extractPdfStrings(buildLetterPdf({ ...LETTER, biayaKebersihan: '500.000', vaBank: '8808 1234 5678' }));
+    expect(text).toContain('Biaya Kebersihan');
+    expect(text).toContain('No. VA / Bank');
   });
 
   it('PDF valid dan stream-nya berkompresi', () => {

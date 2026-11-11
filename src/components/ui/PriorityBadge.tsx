@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Badge } from '../shadcn/badge';
 
 const CONFIG = {
   high:   { label: 'Prioritas Tinggi', className: 'bg-[var(--wf-danger)]/10 text-[var(--wf-danger)]' },
@@ -9,11 +10,12 @@ const CONFIG = {
 export const PriorityBadge = memo(function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low' }) {
   const cfg = CONFIG[priority];
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${cfg.className}`}
+    <Badge
+      variant="outline"
+      className={`inline-flex items-center h-auto w-auto rounded-md border-transparent px-2 py-0.5 text-xs font-medium ${cfg.className}`}
       aria-label={cfg.label}
     >
       {cfg.label}
-    </span>
+    </Badge>
   );
 });

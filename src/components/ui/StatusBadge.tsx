@@ -1,12 +1,13 @@
 import { memo } from 'react';
 import { EventStatus } from '../../types';
+import { Badge } from '../shadcn/badge';
 
 const CONFIG: Record<EventStatus, { label: string; className: string; dotClass: string }> = {
   draft: {
     // Internal Event flag — not Draft antrian (CONTEXT.md)
     label: 'Internal',
-    className: 'bg-brand-primary-100 text-brand-primary-700 dark:bg-brand-primary-900/40 dark:text-brand-primary-300 ring-1 ring-brand-primary-300 dark:ring-brand-primary-700',
-    dotClass: 'bg-brand-primary-400',
+    className: 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)] ring-1 ring-[var(--wf-accent)]',
+    dotClass: 'bg-[var(--wf-accent)]',
   },
   ongoing: {
     label: 'Berlangsung',
@@ -20,8 +21,8 @@ const CONFIG: Record<EventStatus, { label: string; className: string; dotClass: 
   },
   past: {
     label: 'Selesai',
-className: 'bg-slate-100 ui-text-muted dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700',
-    dotClass: 'bg-slate-400',
+    className: 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] ring-1 ring-[var(--wf-rule)]',
+    dotClass: 'bg-[var(--wf-rule-strong)]',
   },
 };
 
@@ -33,12 +34,13 @@ interface Props {
 export const StatusBadge = memo(function StatusBadge({ status, size = 'md' }: Props) {
   const cfg = CONFIG[status];
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-medium ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'} ${cfg.className}`}
+    <Badge
+      variant="outline"
       aria-label={cfg.label}
+      className={`inline-flex w-auto items-center gap-1.5 rounded-full border-transparent text-xs font-medium ${size === 'sm' ? 'h-auto px-2 py-0.5' : 'h-auto px-2.5 py-1'} ${cfg.className}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${cfg.dotClass}`} aria-hidden="true" />
       {cfg.label}
-    </span>
+    </Badge>
   );
 });

@@ -3,7 +3,9 @@ import { CalendarDays, Save } from 'lucide-react';
 import { AnnualTheme } from '../../types';
 import { ModalWrapper } from './ModalWrapper';
 import { ModalHeader } from '../ui/ModalHeader';
-import { MdButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
 
 const COLOR_OPTIONS = [
   { value: '#00918e', label: 'Tosca' },
@@ -103,45 +105,46 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
 
         <form onSubmit={handleSubmit} className="space-y-3 px-4 py-4 sm:px-6">
           <div>
-            <MdTextField
+            <Label htmlFor="annual-theme-name" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Nama Tema *</Label>
+            <Input
               id="annual-theme-name"
               value={form.name}
-              onChange={value => { setForm(prev => ({ ...prev, name: value })); setErrors(prev => ({ ...prev, name: '' })); }}
-              label="Nama Tema *"
-              error={!!errors.name}
-              errorText={errors.name}
+              onChange={(e) => { setForm(prev => ({ ...prev, name: e.target.value })); setErrors(prev => ({ ...prev, name: '' })); }}
+              aria-invalid={errors.name ? true : undefined}
               className="w-full"
             />
+            {errors.name && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
-              <label htmlFor="annual-theme-date-start" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-              <input id="annual-theme-date-start" type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'}`} />
+              <Label htmlFor="annual-theme-date-start" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal Mulai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
+              <Input id="annual-theme-date-start" type="date" value={form.dateStart} onChange={e => { setForm(prev => ({ ...prev, dateStart: e.target.value })); setErrors(prev => ({ ...prev, dateStart: '' })); }} className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 dark:[color-scheme:dark] ${errors.dateStart ? 'border-red-400 focus:ring-red-100' : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'}`} />
               {errors.dateStart && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{errors.dateStart}</p>}
             </div>
             <div>
-              <label htmlFor="annual-theme-date-end" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal Selesai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
-              <input id="annual-theme-date-end" type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'}`} />
+              <Label htmlFor="annual-theme-date-end" className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Tanggal Selesai <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
+              <Input id="annual-theme-date-end" type="date" value={form.dateEnd} onChange={e => { setForm(prev => ({ ...prev, dateEnd: e.target.value })); setErrors(prev => ({ ...prev, dateEnd: '' })); }} className={`w-full rounded-xl border bg-[var(--wf-board)] px-3 py-2 text-sm text-[var(--wf-ink)] outline-none transition-colors focus:ring-2 dark:[color-scheme:dark] ${errors.dateEnd ? 'border-red-400 focus:ring-red-100' : 'border-[var(--wf-rule)] focus:border-[var(--wf-accent)] focus:ring-[var(--wf-accent-soft)]'}`} />
               {errors.dateEnd && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{errors.dateEnd}</p>}
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Warna Tema <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></label>
+            <Label className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Warna Tema <span className="text-red-500" aria-hidden="true">* <span className="sr-only">(wajib diisi)</span></span></Label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {COLOR_OPTIONS.map(option => {
                 const isSelected = form.color === option.value;
                 return (
-                  <MdButton
+                  <Button
                     key={option.value}
-                    variant="outlined"
+                    type="button"
+                    variant="outline"
                     onClick={() => { setForm(prev => ({ ...prev, color: option.value })); setErrors(prev => ({ ...prev, color: '' })); }}
                     className={`justify-start ${isSelected ? 'ring-2 ring-[var(--wf-ink)]' : ''}`}
                   >
                     <span className="h-3 w-3 rounded-full" style={{ backgroundColor: option.value }} />
                     <span>{option.label}</span>
-                  </MdButton>
+                  </Button>
                 );
               })}
             </div>
@@ -149,22 +152,23 @@ export function AnnualThemeCrudModal({ isOpen, onClose, onSave, editingTheme }: 
           </div>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-            <MdButton
-              variant="outlined"
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
               className="flex-1"
             >
               Batal
-            </MdButton>
-            <MdButton
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting}
               className="flex-1"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Menyimpan…' : editingTheme ? 'Simpan Tema' : 'Tambah Tema'}
-            </MdButton>
+            </Button>
           </div>
         </form>
       </div>

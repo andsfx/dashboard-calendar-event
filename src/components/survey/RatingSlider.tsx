@@ -38,11 +38,11 @@ export default function RatingSlider({ label, description, value, onChange, icon
     <div className="space-y-2">
       {/* Label */}
       <div className="flex items-center gap-2">
-        {icon && <span className="text-brand-primary-500 dark:text-brand-primary-400">{icon}</span>}
+        {icon && <span className="text-[var(--wf-accent)]">{icon}</span>}
         <div>
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{label}</p>
+          <p className="text-sm font-semibold text-[var(--wf-ink)]">{label}</p>
           {description && (
-            <p className="text-xs ui-text-muted">{description}</p>
+            <p className="text-xs text-[var(--wf-ink-muted)]">{description}</p>
           )}
         </div>
       </div>
@@ -57,6 +57,11 @@ export default function RatingSlider({ label, description, value, onChange, icon
         {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
           const selected = n === value;
           return (
+            /* Sengaja tetap <button> native: skala rating 1-10 dengan roving
+               tabindex + panah keyboard buatan sendiri dan pil berwarna dinamis
+               yang isinya angka. RadioGroupItem Radix menambah indikator titik,
+               mengubah layout grid, dan mengambil alih fokus panah sehingga
+               menabrak handleKey/aria-checked yang sudah ada. */
             <button
               key={n}
               type="button"
@@ -71,7 +76,7 @@ export default function RatingSlider({ label, description, value, onChange, icon
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
                 ${selected
                   ? `${ratingColor(n)} scale-110 ring-2 shadow-md`
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+                  : 'bg-[var(--wf-board-2)] text-[var(--wf-ink-muted)] hover:bg-[var(--wf-rule)]'
                 }
               `}
             >
@@ -83,7 +88,7 @@ export default function RatingSlider({ label, description, value, onChange, icon
 
       {/* Value label */}
       {value > 0 && (
-        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+        <p className="text-xs font-medium text-[var(--wf-ink-muted)]">
           {value}/10 - {ratingLabel(value)}
         </p>
       )}

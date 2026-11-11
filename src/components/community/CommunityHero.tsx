@@ -152,7 +152,7 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
             <div className="community-hero-in mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-center">
               <Link
                 to="/daftar"
-                className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-tosca-600)] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[var(--brand-tosca-dark)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
+                className={`group inline-flex items-center justify-center gap-2 rounded-full bg-[var(--wf-accent)] px-8 py-4 text-base font-bold text-[var(--wf-accent-ink)] shadow-lg transition hover:bg-[var(--wf-page)] active:scale-[0.98] motion-reduce:active:scale-100 ${focusRing}`}
               >
                 Daftar Event
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
@@ -251,9 +251,9 @@ export function CommunityHero({ heroImageUrl, stats, events = [], isLoading = fa
           band directly below the hero instead of being deleted. */}
       <section
         aria-label="Keunggulan program komunitas"
-        className="border-b border-black/5 bg-[var(--brand-card)] px-4 py-6 dark:border-slate-800 dark:bg-slate-900 sm:px-6"
+        className="border-b border-black/5 bg-[var(--wf-board)] px-4 py-6 sm:px-6"
       >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 text-sm font-medium text-[var(--wf-ink-muted)]">
           {HIGHLIGHTS.map(({ icon: Icon, label, emerald }) => (
             <div key={label} className="flex items-center gap-2.5">
               <span

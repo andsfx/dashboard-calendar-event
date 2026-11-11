@@ -7,7 +7,8 @@ import {
   MessageSquare, Calendar, AlertCircle, Search,
 } from 'lucide-react';
 import { apiGet, apiPost } from '../../lib/rest';
-import { MdButton, MdIconButton, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
 
 // Base REST untuk download blob CSV (fetch native — apiGet meng-unwrap JSON).
 const API_V1 = ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/+$/, '') + '/api/v1';
@@ -192,7 +193,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
     return (
       <div className="rounded-2xl border border-red-200 bg-red-600/10 p-4 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
         {error}
-        <MdButton variant="text" className="ml-2" onClick={fetchStats}>Coba lagi</MdButton>
+        <Button variant="ghost" className="ml-2" onClick={fetchStats}>Coba lagi</Button>
       </div>
     );
   }
@@ -210,7 +211,7 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
           <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span className="flex-1">{actionError}</span>
-            <MdButton variant="text" onClick={() => setActionError('')}>Tutup</MdButton>
+            <Button variant="ghost" onClick={() => setActionError('')}>Tutup</Button>
           </div>
         )}
         {/* Still show event management even with no responses */}
@@ -237,20 +238,24 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
           <h2 className="text-base font-bold text-[var(--wf-ink)]">Survey Kepuasan</h2>
           <p className="text-xs text-[var(--wf-ink-muted)]">Feedback dari penyelenggara & peserta event</p>
         </div>
-        <MdIconButton
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={fetchStats}
           title="Refresh"
-          ariaLabel="Refresh"
+          aria-label="Refresh"
+          className="active:translate-y-0"
         >
-          <RefreshCw className="h-4 w-4" />
-        </MdIconButton>
+          <RefreshCw className="size-4" />
+        </Button>
       </div>
 
       {actionError && (
         <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-600/10 p-3 text-xs text-red-700 dark:border-red-800 dark:text-red-300">
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">{actionError}</span>
-          <MdButton variant="text" onClick={() => setActionError('')}>Tutup</MdButton>
+          <Button variant="ghost" onClick={() => setActionError('')}>Tutup</Button>
         </div>
       )}
 
@@ -321,29 +326,33 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
             {/* Date filter */}
             <div className="flex items-center gap-2">
               <Calendar className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />
-              {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
-              <input
+              {/* Input tanggal: shadcn Input; sufiks `!` menaklukkan default
+                  primitif (w-full/h-8/px-2.5/border-input/bg-transparent/
+                  md:text-sm) sementara border, bg, dan ukuran asli dipertahankan. */}
+              <Input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
                 aria-label="Dari tanggal"
-                className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
+                className="h-auto w-auto! rounded-md border border-[var(--wf-rule)]! bg-[var(--wf-board)]! px-2! py-1 text-[11px]! text-[var(--wf-ink)] dark:bg-[var(--wf-board)]!"
                 placeholder="Dari"
               />
               <span className="text-[10px] text-[var(--wf-ink-muted)]">-</span>
-              {/* Input tanggal tetap native: md-text-field tidak mendukung type="date". */}
-              <input
+              {/* Input tanggal: shadcn Input; sufiks `!` menaklukkan default
+                  primitif (w-full/h-8/px-2.5/border-input/bg-transparent/
+                  md:text-sm) sementara border, bg, dan ukuran asli dipertahankan. */}
+              <Input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
                 aria-label="Sampai tanggal"
-                className="rounded-md border border-[var(--wf-rule)] bg-[var(--wf-board)] px-2 py-1 text-[11px] text-[var(--wf-ink)]"
+                className="h-auto w-auto! rounded-md border border-[var(--wf-rule)]! bg-[var(--wf-board)]! px-2! py-1 text-[11px]! text-[var(--wf-ink)] dark:bg-[var(--wf-board)]!"
                 placeholder="Sampai"
               />
               {(dateFrom || dateTo) && (
-                <MdButton variant="text" onClick={() => { setDateFrom(''); setDateTo(''); }}>
+                <Button variant="ghost" onClick={() => { setDateFrom(''); setDateTo(''); }}>
                   Reset
-                </MdButton>
+                </Button>
               )}
             </div>
           </div>
@@ -358,12 +367,15 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
               const hasComments = r.mall_comment || r.eo_comment || r.general_comment;
               return (
                 <div key={r.id}>
-                  {/* Sengaja tetap <button> native: baris disclosure penuh yang
-                      membungkus konten blok (layout), bukan kontrol. */}
-                  <button
+                  {/* Baris disclosure penuh yang membungkus konten blok (skor +
+                      nama event + meta + chevron): shadcn `Button` ghost dengan
+                      chrome primitif dinetralkan (h-auto/border-0/rounded-none
+                      + padding & gap asli) supaya tinggi baris tidak menyusut. */}
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setExpandedId(isExpanded ? null : r.id)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-[var(--wf-board-2)]"
+                    className="flex! h-auto! w-full! items-center justify-start! gap-3 whitespace-normal! rounded-none border-0! px-4! py-2.5! text-left! font-normal! transition-colors! hover:bg-[var(--wf-board-2)]! active:translate-y-0!"
                   >
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-[var(--wf-accent-ink)] ${mallAvg >= 8 ? 'bg-[var(--wf-live)]' : mallAvg >= 5 ? 'bg-[var(--wf-action)]' : 'bg-red-600'}`}>
                       {mallAvg.toFixed(0)}
@@ -375,10 +387,10 @@ export function SurveyDashboard({ events, readOnly = false, canExport = false }:
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      {hasComments && <MessageSquare className="h-3 w-3 text-[var(--wf-ink-muted)]" />}
-                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" /> : <ChevronDown className="h-3.5 w-3.5 text-[var(--wf-ink-muted)]" />}
+                      {hasComments && <MessageSquare className="size-3 text-[var(--wf-ink-muted)]" />}
+                      {isExpanded ? <ChevronUp className="size-3.5 text-[var(--wf-ink-muted)]" /> : <ChevronDown className="size-3.5 text-[var(--wf-ink-muted)]" />}
                     </div>
-                  </button>
+                  </Button>
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div className="ui-dashboard-muted border-t border-[var(--wf-rule)] px-4 py-3">
@@ -477,13 +489,13 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
         <p className="text-[10px] text-[var(--wf-ink-muted)]">Copy link, aktifkan/nonaktifkan{canExport ? ', atau export data' : ''}</p>
         <div className="relative mt-2">
           <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-[var(--wf-ink-muted)]" />
-          <MdTextField
+          <Input
             type="search"
             value={query}
-            onChange={setQuery}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari nama event…"
-            ariaLabel="Cari event"
-            className="w-full"
+            aria-label="Cari event"
+            className="w-full pl-9"
           />
         </div>
       </div>
@@ -505,44 +517,49 @@ function EventManagementSection({ events, copiedId, onCopyLink, onExport, onTogg
               <p className="min-w-0 flex-1 truncate text-xs text-[var(--wf-ink)]">{ev.acara}</p>
 
               {/* Toggle active */}
-              {!readOnly && <MdIconButton
+              {!readOnly && <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => onToggleConfig(ev.id, isActive)}
                 disabled={isToggling}
-                toggle
-                selected={isActive}
-                ariaLabel={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
+                aria-pressed={isActive}
+                aria-label={`${isActive ? 'Nonaktifkan' : 'Aktifkan'} survey ${ev.acara}`}
                 title={isActive ? 'Survey aktif - klik untuk nonaktifkan' : 'Survey nonaktif - klik untuk aktifkan'}
+                className="active:translate-y-0"
               >
                 {isToggling ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="size-5 animate-spin" />
                 ) : isActive ? (
-                  <ToggleRight className="h-5 w-5" />
+                  <ToggleRight className="size-5" />
                 ) : (
-                  <ToggleLeft className="h-5 w-5" />
+                  <ToggleLeft className="size-5" />
                 )}
-              </MdIconButton>}
+              </Button>}
 
               {/* Copy link */}
-              <MdButton
-                variant="text"
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => onCopyLink(ev.id)}
                 title="Salin tautan survey"
-                ariaLabel={`Salin tautan survey ${ev.acara}`}
+                aria-label={`Salin tautan survey ${ev.acara}`}
               >
-                {isCopied ? <Check className="h-3 w-3 text-[var(--wf-live)]" /> : <Link2 className="h-3 w-3" />}
+                {isCopied ? <Check className="size-3 text-[var(--wf-live)]" /> : <Link2 className="size-3" />}
                 {isCopied ? 'Tersalin!' : 'Link'}
-              </MdButton>
+              </Button>
 
               {/* Export — backend menolak demo; tombol disembunyikan agar tak 403 */}
               {canExport && (
-                <MdButton
-                  variant="text"
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => onExport(ev.id)}
-                  ariaLabel={`Unduh CSV survey ${ev.acara}`}
+                  aria-label={`Unduh CSV survey ${ev.acara}`}
                 >
-                  <Download className="h-3 w-3" />
+                  <Download className="size-3" />
                   CSV
-                </MdButton>
+                </Button>
               )}
             </div>
           );

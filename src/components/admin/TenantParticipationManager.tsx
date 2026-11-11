@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Building2, CalendarDays, ChevronDown, ChevronUp, Mail, MapPin, Phone, Settings2, Store, Tag, Users,
 } from 'lucide-react';
-import { MdButton, MdChip, MdSelect, MdTextField } from '../md';
+import { Button } from '../shadcn/button';
+import { Input } from '../shadcn/input';
+import { Label } from '../shadcn/label';
+import { NativeSelect } from '../shadcn/native-select';
+import { Textarea } from '../shadcn/textarea';
+import { Toggle } from '../shadcn/toggle';
 import { InfoTip } from '../ui/InfoTip';
 import type {
   TenantParticipation, TenantParticipationKind, TenantParticipationStatus,
@@ -295,10 +300,10 @@ export function TenantParticipationManager({
               : `${participations.length} pengajuan, tidak ada yang menunggu tinjauan.`}
           </p>
           {!readOnly && (
-            <MdButton variant="outlined" onClick={handleOptionsOpen}>
-              <Settings2 className="h-4 w-4" aria-hidden="true" />
+            <Button variant="outline" onClick={handleOptionsOpen}>
+              <Settings2 className="size-4" aria-hidden="true" />
               Kelola opsi
-            </MdButton>
+            </Button>
           )}
           {/* Panduan daftar opsi tetap tampil untuk akun baca-saja: isinya
               menjelaskan apa yang diatur, bukan mengubah apa pun. */}
@@ -311,13 +316,17 @@ export function TenantParticipationManager({
 
       <div className="flex flex-wrap items-center gap-2">
         {STATUS_FILTERS.map((tab) => (
-          <MdChip
+          <Toggle
             key={tab.key}
-            label={tab.label}
-            selected={filter === tab.key}
-            onClick={() => setFilter((current) => (current === tab.key ? 'all' : tab.key))}
-            leadingIcon={tab.dot ? <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" /> : undefined}
-          />
+            variant="outline"
+            size="sm"
+            pressed={filter === tab.key}
+            onPressedChange={() => setFilter((current) => (current === tab.key ? 'all' : tab.key))}
+            className="rounded-full px-3 text-[var(--wf-ink-muted)] data-[state=on]:border-[var(--wf-accent)] data-[state=on]:bg-[var(--wf-accent-soft)] data-[state=on]:text-[var(--wf-accent)] aria-pressed:border-[var(--wf-accent)] aria-pressed:bg-[var(--wf-accent-soft)] aria-pressed:text-[var(--wf-accent)]"
+          >
+            {tab.dot && <span className={`h-2 w-2 rounded-full ${tab.dot}`} aria-hidden="true" />}
+            {tab.label}
+          </Toggle>
         ))}
         <InfoTip
           label="Penjelasan status pengajuan"
@@ -339,7 +348,7 @@ export function TenantParticipationManager({
           className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[var(--radius-control)] border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
         >
           <span>{error}</span>
-          <MdButton variant="outlined" onClick={() => onRetry()}>Coba lagi</MdButton>
+          <Button variant="outline" size="sm" onClick={() => onRetry()}>Coba lagi</Button>
         </div>
       )}
 
@@ -461,14 +470,15 @@ export function TenantParticipationManager({
               </p>
 
               <div className="mt-2">
-                <MdButton
-                  variant="text"
-                  ariaLabel={`${isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'} - ${item.tenantName}`}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'} - ${item.tenantName}`}
                   onClick={() => setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))}
                 >
-                  {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                  {isOpen ? <ChevronUp className="size-4" aria-hidden="true" /> : <ChevronDown className="size-4" aria-hidden="true" />}
                   {isOpen ? 'Sembunyikan detail' : 'Lihat detail lengkap'}
-                </MdButton>
+                </Button>
               </div>
 
               {/* Zona detail: isian lengkap, koreksi, catatan, dan aksi review. */}
@@ -523,15 +533,16 @@ export function TenantParticipationManager({
                         {STATUSES
                           .filter((status) => status !== item.status)
                           .map((status) => (
-                            <MdButton
+                            <Button
                               key={status}
-                              variant="outlined"
+                              variant="outline"
+                              size="sm"
                               disabled={busy}
-                              ariaLabel={`${STATUS_LABELS[status]} - ${item.tenantName}`}
+                              aria-label={`${STATUS_LABELS[status]} - ${item.tenantName}`}
                               onClick={() => void handleReview(item.id, status, item)}
                             >
                               {STATUS_LABELS[status]}
-                            </MdButton>
+                            </Button>
                           ))}
                       </div>
 
@@ -550,123 +561,119 @@ export function TenantParticipationManager({
                             <div className="mt-3 grid gap-3 sm:grid-cols-2">
                               {showBooth && (
                                 <>
-                                  <MdTextField
-                                    label="Area booth"
-                                    value={c.boothArea}
-                                    maxLength={200}
-                                    onChange={(value) => setCorrection(item, { boothArea: value })}
-                                  />
-                                  <MdSelect
-                                    label="Ukuran booth"
-                                    value={c.boothSize}
-                                    options={optionChoices('booth_size', c.boothSize).map((option) => ({ value: option.value, label: option.label }))}
-                                    onChange={(value) => setCorrection(item, { boothSize: value })}
-                                  />
-                                  <MdTextField
-                                    label="Mulai booth (YYYY-MM-DD)"
-                                    value={c.boothStart}
-                                    onChange={(value) => setCorrection(item, { boothStart: value })}
-                                  />
-                                  <MdTextField
-                                    label="Selesai booth (YYYY-MM-DD)"
-                                    value={c.boothEnd}
-                                    onChange={(value) => setCorrection(item, { boothEnd: value })}
-                                  />
-                                  <MdTextField
-                                    className="sm:col-span-2"
-                                    type="textarea"
-                                    rows={2}
-                                    label="Produk atau jasa"
-                                    value={c.boothProducts}
-                                    maxLength={1000}
-                                    onChange={(value) => setCorrection(item, { boothProducts: value })}
-                                  />
-                                  <MdSelect
-                                    label="Skema booth"
-                                    value={c.boothScheme}
-                                    options={optionChoices('booth_scheme', c.boothScheme).map((option) => ({ value: option.value, label: option.label }))}
-                                    onChange={(value) => setCorrection(item, { boothScheme: value as TenantParticipation['boothScheme'] })}
-                                  />
-                                  <MdTextField
-                                    label="Kebutuhan fasilitas"
-                                    value={c.boothNeeds}
-                                    maxLength={2000}
-                                    onChange={(value) => setCorrection(item, { boothNeeds: value })}
-                                  />
+                                  <div>
+                                    <Label htmlFor={`tp-boothArea-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Area booth</Label>
+                                    <Input id={`tp-boothArea-${item.id}`} value={c.boothArea} maxLength={200} onChange={(e) => setCorrection(item, { boothArea: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-boothSize-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Ukuran booth</Label>
+                                    <NativeSelect id={`tp-boothSize-${item.id}`} value={c.boothSize} className="w-full" onChange={(e) => setCorrection(item, { boothSize: e.target.value })}>
+                                      {c.boothSize === '' && <option value="" disabled>— Belum diisi —</option>}
+                                      {optionChoices('booth_size', c.boothSize).map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                      ))}
+                                    </NativeSelect>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-boothStart-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Mulai booth (YYYY-MM-DD)</Label>
+                                    <Input id={`tp-boothStart-${item.id}`} value={c.boothStart} onChange={(e) => setCorrection(item, { boothStart: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-boothEnd-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Selesai booth (YYYY-MM-DD)</Label>
+                                    <Input id={`tp-boothEnd-${item.id}`} value={c.boothEnd} onChange={(e) => setCorrection(item, { boothEnd: e.target.value })} />
+                                  </div>
+                                  <div className="sm:col-span-2">
+                                    <Label htmlFor={`tp-boothProducts-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Produk atau jasa</Label>
+                                    <Textarea id={`tp-boothProducts-${item.id}`} rows={2} value={c.boothProducts} maxLength={1000} onChange={(e) => setCorrection(item, { boothProducts: e.target.value })} />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-boothScheme-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Skema booth</Label>
+                                    <NativeSelect id={`tp-boothScheme-${item.id}`} value={c.boothScheme} className="w-full" onChange={(e) => setCorrection(item, { boothScheme: e.target.value as TenantParticipation['boothScheme'] })}>
+                                      {optionChoices('booth_scheme', c.boothScheme).map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                      ))}
+                                    </NativeSelect>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-boothNeeds-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Kebutuhan fasilitas</Label>
+                                    <Input id={`tp-boothNeeds-${item.id}`} value={c.boothNeeds} maxLength={2000} onChange={(e) => setCorrection(item, { boothNeeds: e.target.value })} />
+                                  </div>
                                 </>
                               )}
                               {showVoucher && (
                                 <>
-                                  <MdSelect
-                                    label="Jenis voucher"
-                                    value={c.voucherType}
-                                    options={optionChoices('voucher_type', c.voucherType).map((option) => ({ value: option.value, label: option.label }))}
-                                    onChange={(value) => setCorrection(item, { voucherType: value as TenantParticipation['voucherType'] })}
-                                  />
-                                  <MdSelect
-                                    label="Format voucher"
-                                    value={c.voucherFormat}
-                                    options={optionChoices('voucher_format', c.voucherFormat).map((option) => ({ value: option.value, label: option.label }))}
-                                    onChange={(value) => setCorrection(item, { voucherFormat: value as TenantParticipation['voucherFormat'] })}
-                                  />
-                                  <MdTextField
-                                    label="Kuota voucher (kosongkan bila tanpa kuota)"
-                                    value={c.voucherQuota}
-                                    onChange={(value) => setCorrection(item, { voucherQuota: value.replace(/[^\d]/g, '') })}
-                                  />
-                                  <MdTextField
-                                    className="sm:col-span-2"
-                                    type="textarea"
-                                    rows={3}
-                                    label="Ketentuan voucher"
-                                    value={c.voucherTerms}
-                                    maxLength={2000}
-                                    onChange={(value) => setCorrection(item, { voucherTerms: value })}
-                                  />
+                                  <div>
+                                    <Label htmlFor={`tp-voucherType-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Jenis voucher</Label>
+                                    <NativeSelect id={`tp-voucherType-${item.id}`} value={c.voucherType} className="w-full" onChange={(e) => setCorrection(item, { voucherType: e.target.value as TenantParticipation['voucherType'] })}>
+                                      {optionChoices('voucher_type', c.voucherType).map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                      ))}
+                                    </NativeSelect>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-voucherFormat-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Format voucher</Label>
+                                    <NativeSelect id={`tp-voucherFormat-${item.id}`} value={c.voucherFormat} className="w-full" onChange={(e) => setCorrection(item, { voucherFormat: e.target.value as TenantParticipation['voucherFormat'] })}>
+                                      {optionChoices('voucher_format', c.voucherFormat).map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                      ))}
+                                    </NativeSelect>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`tp-voucherQuota-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Kuota voucher (kosongkan bila tanpa kuota)</Label>
+                                    <Input id={`tp-voucherQuota-${item.id}`} value={c.voucherQuota} onChange={(e) => setCorrection(item, { voucherQuota: e.target.value.replace(/[^\d]/g, '') })} />
+                                  </div>
+                                  <div className="sm:col-span-2">
+                                    <Label htmlFor={`tp-voucherTerms-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Ketentuan voucher</Label>
+                                    <Textarea id={`tp-voucherTerms-${item.id}`} rows={3} value={c.voucherTerms} maxLength={2000} onChange={(e) => setCorrection(item, { voucherTerms: e.target.value })} />
+                                  </div>
                                 </>
                               )}
                             </div>
                             <div className="mt-3">
-                              <MdButton
-                                variant="outlined"
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 disabled={busy || !correctionDirty}
-                                ariaLabel={`Simpan koreksi - ${item.tenantName}`}
+                                aria-label={`Simpan koreksi - ${item.tenantName}`}
                                 onClick={() => void handleSaveCorrection(item)}
                               >
                                 Simpan koreksi
-                              </MdButton>
+                              </Button>
                             </div>
                           </details>
                         );
                       })()}
 
                       <div className="flex flex-wrap items-end gap-2">
-                        <MdTextField
-                          className="min-w-[260px] flex-1"
-                          type="textarea"
-                          rows={2}
-                          label="Catatan internal"
-                          maxLength={2000}
-                          value={notes}
-                          onChange={(value) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value, base: item.internalNotes } }))}
-                        />
-                        <MdButton
-                          variant="text"
+                        <div className="min-w-[260px] flex-1">
+                          <Label htmlFor={`tp-notes-${item.id}`} className="mb-1 block text-xs font-semibold text-[var(--wf-ink-muted)]">Catatan internal</Label>
+                          <Textarea
+                            id={`tp-notes-${item.id}`}
+                            rows={2}
+                            maxLength={2000}
+                            value={notes}
+                            onChange={(e) => setNotesDraft((prev) => ({ ...prev, [item.id]: { value: e.target.value, base: item.internalNotes } }))}
+                          />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={busy || !notesDirty}
-                          ariaLabel={`Simpan catatan - ${item.tenantName}`}
+                          aria-label={`Simpan catatan - ${item.tenantName}`}
                           onClick={() => void handleSaveNotes(item)}
                         >
                           Simpan catatan
-                        </MdButton>
-                        <MdButton
-                          variant="text"
-                          danger
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={busy}
-                          ariaLabel={`Hapus - ${item.tenantName}`}
+                          aria-label={`Hapus - ${item.tenantName}`}
                           onClick={() => void handleDelete(item)}
+                          className="text-[var(--wf-danger)] hover:bg-[var(--wf-danger)]/10 hover:text-[var(--wf-danger)]"
                         >
                           Hapus
-                        </MdButton>
+                        </Button>
                       </div>
 
                       <p className="text-[11px] text-[var(--wf-ink-muted)]">

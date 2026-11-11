@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createIntersectionObserver } from '../../utils/intersectionObserver';
+import { Button } from '../shadcn/button';
 
 export interface SectionNavItem {
   id: string;
@@ -58,23 +59,25 @@ export function SectionNav({ items }: Props) {
       <div className="mx-auto max-w-7xl overflow-x-auto px-3 py-2 sm:px-4">
         <div className="flex min-w-max items-center gap-2">
           {items.map(item => (
-            <button
+            <Button
               key={item.id}
-      onClick={() => {
+              type="button"
+              variant="ghost"
+              onClick={() => {
                 const el = document.getElementById(item.id);
                 if (!el) return;
                 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
               }}
               aria-current={activeId === item.id ? 'true' : undefined}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] ${
+              className={`h-auto rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wf-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--wf-board)] active:translate-y-0 ${
                 activeId === item.id
                   ? 'bg-[var(--wf-accent-soft)] text-[var(--wf-accent)]'
                   : 'text-[var(--wf-ink-muted)] hover:bg-[var(--wf-board-2)] hover:text-[var(--wf-ink)]'
               }`}
             >
               {item.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

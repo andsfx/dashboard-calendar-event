@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { MdButton } from '../md';
+import { Button } from '../shadcn/button';
 import { SearchBar } from '../ui/SearchBar';
 import { getWayfindingMap } from './dashboardNavigation';
 
@@ -77,13 +77,17 @@ export function DashboardHeader({
           <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
             {searchable && (
               <div className="w-full sm:w-[260px]">
-                <SearchBar value={searchQuery} onChange={onSearchChange} placeholder="Cari acara…" />
+                <SearchBar
+                  value={searchQuery}
+                  onChange={onSearchChange}
+                  placeholder="Cari acara…"
+                />
               </div>
             )}
             {primaryAction && (
-              <MdButton variant="filled" onClick={primaryAction.onClick} className="shrink-0">
+              <Button variant="default" onClick={primaryAction.onClick} className="shrink-0">
                 <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden /> <span>{primaryAction.label}</span>
-              </MdButton>
+              </Button>
             )}
           </div>
         )}
